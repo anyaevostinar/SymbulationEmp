@@ -4,14 +4,15 @@
 
 
 class Symbiont {
-private:
+private:  
   double interaction_val;
   double points;
   std::set<int> res_types;
 
 
 public:
-  Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
+  // interaction value 0.5 default to start
+  Symbiont(double _intval=0.5, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) { ; }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
@@ -32,7 +33,7 @@ public:
 
 std::string PrintSym(Symbiont  org){
   if (org.GetPoints() < 0) return "-";
-  int out_val = org.GetIntVal();
+  double out_val = org.GetIntVal();   // fixed the printing 0 for 0.5 issue by declaring it a double rather than int
   return emp::to_string(out_val);
 
 }
@@ -62,6 +63,31 @@ public:
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) {points += _in;}
+  
+  void GiveSymPoints(double _in) {
+  	double distrib = _in;
+  	sym.AddPoints(distrib);
+  	
+  	}
+  	
+  void GetBackPoints(double _in)  {
+  	double sym_portion = _in;  // current amount we are redistributing 
+  	
+  	// what the host will get back 
+//  	std::cout << "Symbiont's interaction value is: " << sym.GetIntVal() << " "; 	
+  	double sym_returns = sym_portion * sym.GetIntVal();
+  	double host_gets = sym_returns + (0.5 * sym_returns);  // BUMP THIS BONUS WAY UP FOR REALZ
+  	
+  	// symbiont loses what it gives back
+  	sym.AddPoints(-1 * sym_returns);
+  	points += host_gets;
+  
+  }
+  
+  void SetSymIntVal (double _in) {
+  	sym.SetIntVal(_in);
+  
+  }
 
 };
 
