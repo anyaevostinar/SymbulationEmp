@@ -10,8 +10,8 @@ class SymWorld {
 
  public:
   SymWorld() {
-  	const int dimX = 6;
-  	const int dimY = 6;
+  	const int dimX = 4;
+  	const int dimY = 4;
   	const int popSize = dimX * dimY;  // full world
     world.ConfigPop(dimX,dimY);
     world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);

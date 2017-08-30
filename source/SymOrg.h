@@ -1,6 +1,8 @@
 #include "tools/Random.h"
 #include "tools/string_utils.h"
 #include <set>
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
 
 
 class Symbiont {
@@ -34,7 +36,14 @@ public:
 std::string PrintSym(Symbiont  org){
   if (org.GetPoints() < 0) return "-";
   double out_val = org.GetIntVal();   // fixed the printing 0 for 0.5 issue by declaring it a double rather than int
-  return emp::to_string(out_val);
+  
+  // this prints the symbiont with two decimal places for ease in reading
+  std::stringstream temp;
+  temp << std::fixed << std::setprecision(2) << out_val;
+  std::string formattedstring = temp.str();
+  return formattedstring;
+  
+  // return emp::to_string(out_val);  // creates a string without specifying format
 
 }
 
@@ -93,7 +102,15 @@ public:
 
 std::string PrintHost(Host * org) {
   if (!org) return "-/-";
-  std::string out_val = emp::to_string(org->GetIntVal(),"/", PrintSym(org->GetSymbiont()));
+  
+  std::stringstream temp;
+  temp << std::fixed << std::setprecision(2) << org->GetIntVal();
+  std::string formattedstring = temp.str();
+  
+  std::string out_val = formattedstring + "/" + PrintSym(org->GetSymbiont());
+  
+  
+ // std::string out_val = emp::to_string(org->GetIntVal(),"/", PrintSym(org->GetSymbiont()));  // not completely formatted
   return out_val;
 }
 
