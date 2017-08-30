@@ -10,8 +10,8 @@ class SymWorld {
 
  public:
   SymWorld() {
-  	const int dimX = 3;
-  	const int dimY = 3;
+  	const int dimX = 6;
+  	const int dimY = 6;
   	const int popSize = dimX * dimY;  // full world
     world.ConfigPop(dimX,dimY);
     world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);
@@ -103,7 +103,6 @@ class SymWorld {
   	 	   }
   	 	   
   	 	   world[i] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0);
-  	 	   
   	 	   world[i].SetSymIntVal(newSymIntVal);  
   	 	
   	 	// pick a new world[i] to get a new Host & symbiont with 
@@ -114,14 +113,17 @@ class SymWorld {
  		 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
  		 if (newLoc > world.GetSize() - 1) {
  		 	newLoc = world.GetSize() - 1;
- 		 	}
-  	 	   std::cout << "New Location: " << newLoc << std::endl;
+ 		 	std::cout << "Tried to go out of bounds." << std::endl;
+ 		 }
+ 		 	
+ 		 	// REPLACE INTERACTION VALUES WHEN NEW METHOD READY
+ 		   std::cout << "New Location: " << newLoc << std::endl;
   	 	   world[newLoc] = Host(1.0, Symbiont(), std::set<int>(), 0.0);
   	 	   world[newLoc].SetSymIntVal(1.0);
   	 	   
   	 	}
   	 	
-  	 	 // symbiont reproduces independently if it has >= max resources
+  	 	 // symbiont reproduces independently if it has >= 100 resources
   	 	
   	 }
   	 
