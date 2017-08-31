@@ -79,6 +79,10 @@ public:
   	
   	}
   	
+  	void ResetSymPoints() {
+  	   sym.SetPoints(0.0);
+  	}
+  	
   void GetBackPoints(double _in)  {
   	double sym_portion = _in;  // current amount we are redistributing 
   	
@@ -115,3 +119,5 @@ std::string PrintHost(Host * org) {
 }
 
 std::string PrintOrg(Host * org) {return PrintHost(org);}
+
+

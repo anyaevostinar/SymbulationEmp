@@ -3,6 +3,7 @@
 #include <set>
 #include "SymOrg.h"
 
+
 class SymWorld {
  private:
   emp::Random random;
@@ -10,8 +11,8 @@ class SymWorld {
 
  public:
   SymWorld() {
-  	const int dimX = 4;
-  	const int dimY = 4;
+  	const int dimX = 10;
+  	const int dimY = 10;
   	const int popSize = dimX * dimY;  // full world
     world.ConfigPop(dimX,dimY);
     world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);
@@ -21,6 +22,23 @@ class SymWorld {
   void PrintIt() {
      world.Print(PrintOrg);
   }
+  
+  double newIntVal(double _in = 0.5) {
+        // get random deviation from original interaction values of host and symbiont
+        // not sure how large the standard deviation value should be  
+  	 	double offset = random.GetRandNormal(0.0, 0.5);  // using sd = 0.5 to start
+  	 	
+  	 	double newVal = _in + offset;  
+  	 	
+  	 	 if (newVal > 1 ) {
+  	 	      newVal = 1.0;
+  	 	   } else if (newVal < 0) {
+  	 	      newVal = 0.0;
+  	 	   }
+  	 	   
+  	 	 return newVal;
+
+}
   
   void Update(size_t new_resources=10) {
   	 // divvy up and distribute resources to host and symbiont in each cell
@@ -78,30 +96,15 @@ class SymWorld {
   	 for (size_t i = 0; i < world.GetSize(); i++) {
   	 	if (world.IsOccupied(i) == false) continue;  // nothing to replicate!
   	 	
-  	 	if (world[i].GetPoints() >= 100 ) {
+  	 	if (world[i].GetPoints() >= 100 ) {  // host replication
   	 	   // will replicate & mutate a random offset from parent values
   	 	   // while resetting resource points for host and symbiont to zero
-  	 	
-           // get random deviation from original interaction values of host and symbiont
-           // not sure how large the standard deviation value should be
-  	 	   double host_offset = random.GetRandNormal(0.0, 0.5);
-  	 	   double sym_offset = random.GetRandNormal(0.0, 0.5);
+ 
   	 	//   std::cout << "Testing host offset of: " << host_offset << std::endl;
   	 	//   std::cout << "Testing sym offset of: " << sym_offset << std::endl;
-  	 	   double newHostIntVal = world[i].GetIntVal() + host_offset;
-  	 	   double newSymIntVal = world[i].GetSymbiont().GetIntVal() + sym_offset;
-  	 	   if (newHostIntVal > 1 ) {
-  	 	      newHostIntVal = 1.0;
-  	 	   } else if (newHostIntVal < 0) {
-  	 	      newHostIntVal = 0.0;
-  	 	   }
-  	 	   
-  	 	    if (newSymIntVal > 1 ) {
-  	 	      newSymIntVal = 1.0;
-  	 	   } else if (newSymIntVal < 0) {
-  	 	      newSymIntVal = 0.0;
-  	 	   }
-  	 	   
+  	 	   double newHostIntVal = newIntVal(world[i].GetIntVal());
+  	 	   double newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
+
   	 	   world[i] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0);
   	 	   world[i].SetSymIntVal(newSymIntVal);  
   	 	
@@ -116,20 +119,44 @@ class SymWorld {
  		 	std::cout << "Tried to go out of bounds." << std::endl;
  		 }
  		 	
- 		 	// REPLACE INTERACTION VALUES WHEN NEW METHOD READY
  		   std::cout << "New Location: " << newLoc << std::endl;
-  	 	   world[newLoc] = Host(1.0, Symbiont(), std::set<int>(), 0.0);
-  	 	   world[newLoc].SetSymIntVal(1.0);
+ 		   newHostIntVal = newIntVal(world[i].GetIntVal());
+  	 	   newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
+  	 	   world[newLoc] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0);
+  	 	   world[newLoc].SetSymIntVal(newSymIntVal);
   	 	   
   	 	}
-  	 	
+  	 	else if (world[i].GetSymbiont().GetPoints() >= 100) {
   	 	 // symbiont reproduces independently if it has >= 100 resources
+  	 	 // new symbiont in this host with mutated value
+  	 	 double newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
+  	 	 world[i].SetSymIntVal(newSymIntVal);
+  	 	 world[i].ResetSymPoints();
+  	 	 
+  	 	 // pick new host to infect, if one exists at the new location
+  	 	 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
+ 		 if (newLoc > world.GetSize() - 1) {
+ 		 	newLoc = world.GetSize() - 1;
+ 		 	std::cout << "Tried to go out of bounds." << std::endl;
+ 		 }
+ 		 
+ 		 if (world.IsOccupied(newLoc) == true) {
+ 		   newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
+ 		   world[newLoc].SetSymIntVal(newSymIntVal);
+ 		   world[newLoc].ResetSymPoints();
+ 		   std::cout << "Symbiont replicated on its own from " << i << " to " << newLoc << std::endl;
+  	 	 
+  	 	 }
+  	 	 
+ }
+  	 	
   	 	
   	 }
   	 
-  	
-  	 
   	 
   }
+  
 
 };
+
+

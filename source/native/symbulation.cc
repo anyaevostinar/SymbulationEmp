@@ -34,7 +34,7 @@ int main()
   cout << "1 - Create a world." << endl;
   cout << "3 - Print the world." << endl;
   cout << "5 - Ok, fine, I'll update the world." << endl;
-  cout << "6 - Go for a run?!!" << endl;
+  cout << "6 - Record the snack I just had." << endl;
   cout << "9 - End simulation" << endl;
   cin >> ControlOption;
   
