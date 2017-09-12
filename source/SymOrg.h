@@ -79,7 +79,7 @@ public:
   	
   	}
   	
-  	void ResetSymPoints() {
+  void ResetSymPoints() {
   	   sym.SetPoints(0.0);
   	}
   	
@@ -89,7 +89,7 @@ public:
   	// what the host will get back 
 //  	std::cout << "Symbiont's interaction value is: " << sym.GetIntVal() << " "; 	
   	double sym_returns = sym_portion * sym.GetIntVal();
-  	double host_gets = sym_returns + (0.5 * sym_returns);  // BUMP THIS BONUS WAY UP FOR REALZ
+  	double host_gets = sym_returns + (5 * sym_returns);  // BUMP THIS BONUS WAY UP FOR REALZ
   	
   	// symbiont loses what it gives back
   	sym.AddPoints(-1 * sym_returns);
@@ -100,6 +100,15 @@ public:
   void SetSymIntVal (double _in) {
   	sym.SetIntVal(_in);
   
+  }
+  
+  bool HasSym() {
+  	if (sym.GetPoints() < 0) { 
+  		return false;
+  	} else {
+  	    return true;
+  	}
+  	
   }
 
 };
@@ -112,7 +121,6 @@ std::string PrintHost(Host * org) {
   std::string formattedstring = temp.str();
   
   std::string out_val = formattedstring + "/" + PrintSym(org->GetSymbiont());
-  
   
  // std::string out_val = emp::to_string(org->GetIntVal(),"/", PrintSym(org->GetSymbiont()));  // not completely formatted
   return out_val;

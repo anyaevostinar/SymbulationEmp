@@ -13,9 +13,9 @@ class SymWorld {
   SymWorld() {
   	const int dimX = 10;
   	const int dimY = 10;
-  	const int popSize = dimX * dimY;  // full world
+  	const int popSize = (dimX * dimY) / 2;  // number of organisms - anything less than full population results in segmentation fault at replication
     world.ConfigPop(dimX,dimY);
-    world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);
+    world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);  
     world.Print(PrintOrg);
   }
   
@@ -26,7 +26,7 @@ class SymWorld {
   double newIntVal(double _in = 0.5) {
         // get random deviation from original interaction values of host and symbiont
         // not sure how large the standard deviation value should be  
-  	 	double offset = random.GetRandNormal(0.0, 0.5);  // using sd = 0.5 to start
+  	 	double offset = random.GetRandNormal(0.0, 0.002);  // using sd from dissertation
   	 	
   	 	double newVal = _in + offset;  
   	 	
@@ -59,37 +59,37 @@ class SymWorld {
   	   
   	   }
 
-  	 // test print of resource values
+  	 /* test print of resource values
   	 std::cout << std::endl;
-  	 std::cout << "Resource values of hosts" << std::endl;
+ 	 std::cout << "Resource values of hosts" << std::endl;
   	 for (size_t i = 0; i < world.GetSize(); i++) {
   	 	if (world.IsOccupied(i) == false) {
-  	 	    std::cout << " - "; // no resources to print
+ 	 	    std::cout << " - "; // no resources to print
   	 	}
   	 	else {
   	 	   double checkPoints;
   	 	   checkPoints = world[i].GetPoints();
-  	 		std::cout << " " << checkPoints << " ";
+  	 //		std::cout << " " << checkPoints << " ";
   	    }
   	   
-	}  	
+	}  
+	*/	
 	
-	// test print of sym resource values
+	/*test print of sym resource values
 	std::cout << std::endl;
-	std::cout << "Resource values of symbionts" << std::endl;
+    std::cout << "Resource values of symbionts" << std::endl;
   	 for (size_t i = 0; i < world.GetSize(); i++) {
   	 	if (world.IsOccupied(i) == false) {
-  	 	    std::cout << " - "; // no resources to print
+  	 	   std::cout << " - "; // no resources to print
   	 	}
   	 	else {
   	 	   double checkPoints;
   	 	   checkPoints = world[i].GetSymbiont().GetPoints();
-  	 		std::cout << " " << checkPoints << " ";
+        	std::cout << " " << checkPoints << " ";
   	    }
   	   
 	} 
-
-      std::cout << std::endl;
+      std::cout << std::endl;  */
   	 
   	 // host reproduces if it can
   	 // assuming 100% vertical transmission rate right now
@@ -97,6 +97,7 @@ class SymWorld {
   	 	if (world.IsOccupied(i) == false) continue;  // nothing to replicate!
   	 	
   	 	if (world[i].GetPoints() >= 100 ) {  // host replication
+  	// 	   std::cout << "Testing replication at: " << i << std::endl;
   	 	   // will replicate & mutate a random offset from parent values
   	 	   // while resetting resource points for host and symbiont to zero
  
@@ -114,15 +115,16 @@ class SymWorld {
   	 	// this should work, but it doesn't seem to ever include the end index for the world  
  // 	 int newLoc = random.GetInt(0, world.GetSize() - 1);
  		 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
- 		 if (newLoc > world.GetSize() - 1) {
+ 		// std::cout << "New location: " << newLoc << std::endl;
+ 		 if (newLoc == world.GetSize()) {
  		 	newLoc = world.GetSize() - 1;
  		 	std::cout << "Tried to go out of bounds." << std::endl;
  		 }
  		 	
- 		   std::cout << "New Location: " << newLoc << std::endl;
+ 		  // std::cout << "New Location: " << newLoc << std::endl;
  		   newHostIntVal = newIntVal(world[i].GetIntVal());
   	 	   newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
-  	 	   world[newLoc] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0);
+  	 	   world.InsertAt(Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0), newLoc);
   	 	   world[newLoc].SetSymIntVal(newSymIntVal);
   	 	   
   	 	}
@@ -133,19 +135,24 @@ class SymWorld {
   	 	 world[i].SetSymIntVal(newSymIntVal);
   	 	 world[i].ResetSymPoints();
   	 	 
-  	 	 // pick new host to infect, if one exists at the new location
+  	 	 // pick new host to infect, if one exists at the new location and does NOT already have a symbiont
   	 	 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
- 		 if (newLoc > world.GetSize() - 1) {
+ 		 if (newLoc == world.GetSize()) {
  		 	newLoc = world.GetSize() - 1;
  		 	std::cout << "Tried to go out of bounds." << std::endl;
  		 }
  		 
  		 if (world.IsOccupied(newLoc) == true) {
- 		   newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
- 		   world[newLoc].SetSymIntVal(newSymIntVal);
- 		   world[newLoc].ResetSymPoints();
- 		   std::cout << "Symbiont replicated on its own from " << i << " to " << newLoc << std::endl;
-  	 	 
+ 		   std::cout << "Symbiont tried to replicate on its own from " << i << " to " << newLoc;
+ 		   if (world[newLoc].HasSym()) {
+ 		   	  std::cout << " and failed because host already has a symbiont." << std::endl;
+ 		   } else {
+ 		     newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
+ 		     world[newLoc].SetSymIntVal(newSymIntVal);
+ 		     world[newLoc].ResetSymPoints();
+ 		   }
+  	 	 } else {
+  	 	 	std::cout << "Symbiont tried to replicate on its own but failed to find a host at " << newLoc << std::endl;
   	 	 }
   	 	 
  }

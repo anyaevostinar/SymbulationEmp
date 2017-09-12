@@ -10,33 +10,36 @@ int main()
   SymWorld world; 
 
   int ControlOption = 0;
-  cout << "What do you want to do?" << endl;
-  cout << "1 - Create a world" << endl;
-  cout << "3 - Print the world" << endl;
-  cout << "9 - End simulation" << endl;
-  cin >> ControlOption;
+  int updateRounds = 1;
   
-  while (ControlOption != 9) {
+  do {
+  cout << endl;
+  cout << "Options: " << endl;
+  cout << "1 - Set configurations." << endl;
+  cout << "2 - Run updates for one (or more) generations." << endl;
+  cout << "3 - Print the world." << endl;
+  cout << "4 - Print reports." << endl;
+  cout << "9 - Quit." << endl;
+  cin >> ControlOption;
   
   if (ControlOption == 1) {
-     cout << "The world exists already." << endl;
+  	cout << "Not ready for user configuration yet!" << endl;
+  } else if (ControlOption == 2) {
+  	 cout << "How many generations? " << endl;
+  	 cin >> updateRounds;
+  	 for (int i = 0; i < updateRounds; i++) {
+       world.Update(10);
+       }
+  } else if (ControlOption == 3) {
+     world.PrintIt();
+  } else if (ControlOption == 4) {
+  	 cout << "Reports not ready yet. I'm had to fix a seg fault!" << endl;
   }
-  else if (ControlOption == 3) {
-  world.PrintIt();
-  }
-  else if (ControlOption == 5) {
-//  	cout << "Trying to update resources for each host" << endl;
-  	world.Update(10);
+  else if (ControlOption == 9) {
+     continue;
+  } else {
+    cout << "Invalid choice!!" << endl;
   }
   
-  cout << endl;
-  cout << "What do you want to do?" << endl;
-  cout << "1 - Create a world." << endl;
-  cout << "3 - Print the world." << endl;
-  cout << "5 - Ok, fine, I'll update the world." << endl;
-  cout << "6 - Record the snack I just had." << endl;
-  cout << "9 - End simulation" << endl;
-  cin >> ControlOption;
-  
-  }
+   } while (ControlOption != 9) ;
 }
