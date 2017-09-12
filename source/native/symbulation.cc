@@ -18,7 +18,8 @@ int main()
   cout << "1 - Set configurations." << endl;
   cout << "2 - Run updates for one (or more) generations." << endl;
   cout << "3 - Print the world." << endl;
-  cout << "4 - Print reports." << endl;
+  cout << "4 - Test resource behavior cases. " << endl;
+  cout << "5 - Print reports." << endl;
   cout << "9 - Quit." << endl;
   cin >> ControlOption;
   
@@ -33,7 +34,9 @@ int main()
   } else if (ControlOption == 3) {
      world.PrintIt();
   } else if (ControlOption == 4) {
-  	 cout << "Reports not ready yet. I'm had to fix a seg fault!" << endl;
+     cout << "Next version." << endl;
+  } else if (ControlOption == 5) {
+  	 cout << "Reports not ready yet." << endl;
   }
   else if (ControlOption == 9) {
      continue;
