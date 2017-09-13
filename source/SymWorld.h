@@ -41,7 +41,7 @@ class SymWorld {
 }
   
   void Update(size_t new_resources=10) {
-  	 // divvy up and distribute resources to host and symbiont in each cell
+  	 // divvy up and distribute resources to host and symbiont in each cell --- NEW FUNCTION!!
   	 for (size_t i = 0; i < world.GetSize(); i++) {
   	   if (world.IsOccupied(i) == false) continue;  // no organism at that cell
   	   
@@ -54,7 +54,7 @@ class SymWorld {
   	   world[i].AddPoints(host_portion);
 	   world[i].GiveSymPoints(sym_portion);
   	   
-  	   // symbiont trades value back based on its interaction value
+  	   // symbiont trades value back to host based on its interaction value
   	   world[i].GetBackPoints(sym_portion);
   	   
   	   }
@@ -106,7 +106,7 @@ class SymWorld {
   	 	   double newHostIntVal = newIntVal(world[i].GetIntVal());
   	 	   double newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
 
-  	 	   world[i] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0);
+  	 	   world[i] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0); // Possibly safer to use InsertAt()???
   	 	   world[i].SetSymIntVal(newSymIntVal);  
   	 	
   	 	// pick a new world[i] to get a new Host & symbiont with 
