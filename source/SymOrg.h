@@ -110,6 +110,85 @@ public:
   	}
   	
   }
+  
+  void DistribResources(int resources, double hostIntVal, double symIntVal) { // might want to declare a remainingResources variable just to make this easier to maintain
+	
+	double hostPortion = 0.0;
+	double hostDonation = 0.0;
+	double symPortion = 0.0;
+	double symReturn = 0.0;
+
+	
+	std::cout << "Dividing resources: " << resources << std::endl;
+	if (hostIntVal >= 0 && symIntVal >= 0)  {  
+	    hostDonation = resources * hostIntVal;
+	    hostPortion = resources - hostDonation;  
+	    
+	    std::cout << "Host keeps " << hostPortion << " and gives " << hostDonation << " to symbiont." << std::endl;
+	    
+	    symReturn = (hostDonation * symIntVal) * 5;
+	    symPortion = hostDonation - (hostDonation * symIntVal);
+	    
+	    std::cout << "Symbiont keeps " << symPortion << " and returns " << symReturn << " to host (with bonus)" << std::endl;
+
+	    hostPortion += symReturn;
+	    
+	    std::cout << "In the end, host gets " << hostPortion << std::endl;
+	    
+	    this->GiveSymPoints(symPortion);
+	    this->AddPoints(hostPortion);
+	    
+	} else if (hostIntVal <= 0 && symIntVal < 0) {
+	     double hostDefense = -1.0 * (hostIntVal * resources);
+	     std::cout << "Host invests " << hostDefense << " in defense (which is lost), ";
+	     resources = resources - hostDefense;
+	     std::cout << "leaving " << resources << " available for reproduction. " << std::endl;
+	     
+	     double symSteals = (hostIntVal - symIntVal) * resources;
+	     std::cout << "Symbiont steals " << symSteals << " resources." << std::endl;
+	     symPortion = symSteals;
+	     
+	     hostPortion = resources - symSteals;
+	     std::cout << "Leaving host receiving " << hostPortion << " resources." << std::endl;
+	     
+	    this->GiveSymPoints(symPortion);
+	    this->AddPoints(hostPortion);
+	     
+	
+	} else if (hostIntVal > 0 && symIntVal < 0) {
+		hostDonation = hostIntVal * resources;
+		hostPortion = resources - hostDonation;
+		std::cout << "Host donates " << hostDonation << " to symbiont." << std::endl;
+		resources = resources - hostDonation;
+		
+		double symSteals = -1.0 * (resources * symIntVal);
+		hostPortion = hostPortion - symSteals;
+		symPortion = hostDonation + symSteals;
+		std::cout << "Symbiont steals an additional " << symSteals << " resources, ";
+		std::cout << "leaving host with " << hostPortion << " resources.  ";
+		std::cout << "Symbiont has " << symPortion << " at end." << std::endl;
+		
+		this->GiveSymPoints(symPortion);
+	    this->AddPoints(hostPortion);
+		
+		
+	} else if (hostIntVal < 0 && symIntVal >= 0) {
+		double hostDefense = -1.0 * (hostIntVal * resources);
+		hostPortion = resources - hostDefense;
+		
+		std::cout << "Host invests " << hostDefense << " in defense against a friendly symbiont." << std::endl;
+		std::cout << "Host keeps " << hostPortion << " and symbiont gets nothing." << std::endl;
+		// symbiont gets nothing from antagonistic host
+		symPortion = 0.0;
+		
+		this->GiveSymPoints(symPortion);
+	    this->AddPoints(hostPortion);
+	} else {
+		std::cout << "Missed a logical case in distributing resources." << std::endl;
+	}
+
+}
+  
 
 };
 
