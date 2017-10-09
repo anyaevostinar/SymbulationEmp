@@ -13,8 +13,8 @@ private:
 
 
 public:
-  // interaction value 0.5 default to start
-  Symbiont(double _intval=0.5, double _points = 0.0, std::set<int> _set = std::set<int>())
+  // neutral interaction value 0.0 default to start
+  Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) { ; }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;

@@ -28,7 +28,7 @@ int main()
   if (ControlOption == 1) {
   	cout << "Not ready for user configuration yet!" << endl;
   } else if (ControlOption == 2) {
-  	 cout << "How many generations? " << endl;
+  	 cout << "How many generations?? " << endl;
   	 cin >> updateRounds;
   	 for (int i = 0; i < updateRounds; i++) {
        world.Update(10);

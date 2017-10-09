@@ -15,7 +15,7 @@ class SymWorld {
   	const int dimY = 10;
   	const int popSize = (dimX * dimY) / 2;  // number of organisms within the world
     world.ConfigPop(dimX,dimY);
-    world.Insert( Host(0.5, Symbiont(), std::set<int>(), 0.0), popSize);  
+    world.Insert( Host(0.0, Symbiont(), std::set<int>(), 0.0), popSize);  
     world.Print(PrintOrg);
   }
   
@@ -23,7 +23,7 @@ class SymWorld {
      world.Print(PrintOrg);
   }
   
-  double newIntVal(double _in = 0.5) {
+  double newIntVal(double _in = 0.0) {
         // get random deviation from original interaction values of host and symbiont
         // not sure how large the standard deviation value should be  
   	 	double offset = random.GetRandNormal(0.0, 0.002);  // using sd (0.002) from dissertation
