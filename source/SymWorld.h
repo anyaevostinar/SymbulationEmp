@@ -26,7 +26,7 @@ class SymWorld {
   double newIntVal(double _in = 0.5) {
         // get random deviation from original interaction values of host and symbiont
         // not sure how large the standard deviation value should be  
-  	 	double offset = random.GetRandNormal(0.0, 0.5);  // using sd (0.002) from dissertation
+  	 	double offset = random.GetRandNormal(0.0, 0.002);  // using sd (0.002) from dissertation
   	 	
   	 	double newVal = _in + offset;  
   	 	
@@ -46,7 +46,7 @@ class SymWorld {
   	   if (world.IsOccupied(i) == false) continue;  // no organism at that cell
   	   
   	  	double hostIntVal = world[i].GetIntVal();
-  	  	std::cout << std::endl << "Host interaction: " << hostIntVal << std::endl;
+ // 	  	std::cout << std::endl << "Host interaction: " << hostIntVal << std::endl;
   	  	double symIntVal = 0.0;
   	  	
   	  	if (world[i].HasSym()) {
@@ -55,11 +55,11 @@ class SymWorld {
   	    	symIntVal = 0.0;
   	    }
   	  	
-  	  	std::cout << "Symbiont interaction: " << symIntVal << std::endl;
+//  	  	std::cout << "Symbiont interaction: " << symIntVal << std::endl;
 		world[i].DistribResources(new_resources, hostIntVal, symIntVal); // --- NEW FUNCTION!!
 		
-		std::cout << "Host has: " << world[i].GetPoints() << " resources." << std::endl;
-		std::cout << "Symbiont has: " << world[i].GetSymbiont().GetPoints() << " resources." << std::endl;
+//		std::cout << "Host has: " << world[i].GetPoints() << " resources." << std::endl;
+//		std::cout << "Symbiont has: " << world[i].GetSymbiont().GetPoints() << " resources." << std::endl;
   	   
   	   }
 
