@@ -8,14 +8,32 @@ class SymWorld {
  private:
   emp::Random random;
   emp::evo::GridWorld<Host> world;
+  
+  // declaring world configuration variables that will be initialized with the constructor
+  const int dimX;
+  const int dimY;
+  const int seedf;
+  const double muteRate; 
+  const double synergy;
+  const double vertTrans; 
+  
 
  public:
-  SymWorld() {
-  	const int dimX = 10;
-  	const int dimY = 10;
+  SymWorld(int gridx, int gridy, int randomSeed, double mutationProb, double bonus, double transProb)
+  :dimX(gridx), dimY(gridy), seedf(randomSeed), muteRate(mutationProb), synergy(bonus), vertTrans(transProb) {
+	// variables used only in the constructor
   	const int popSize = (dimX * dimY) / 2;  // number of organisms within the world
+
+  	random.ResetSeed(seedf);
     world.ConfigPop(dimX,dimY);
-    world.Insert( Host(0.0, Symbiont(), std::set<int>(), 0.0), popSize);  
+    world.Insert( Host(0.0, Symbiont(), std::set<int>(), 0.0), popSize);
+    // verify configuration
+    std::cout << "Checking configuration from within world constructor: " << std::endl;
+    std::cout << "X: " << dimX << " Y: " << dimY << std::endl;
+    std::cout << "Randomizer seed: " << seedf << std::endl;
+    std::cout << "Mutation rate: " << muteRate << std::endl;
+    std::cout << "Return bonus from symbionts: " << synergy << std::endl;
+    std::cout << "Vertical transmission rate: " << vertTrans << std::endl;  
     world.Print(PrintOrg);
   }
   
@@ -26,7 +44,7 @@ class SymWorld {
   double newIntVal(double _in = 0.0) {
         // get random deviation from original interaction values of host and symbiont
         // not sure how large the standard deviation value should be  
-  	 	double offset = random.GetRandNormal(0.0, 0.002);  // using sd (0.002) from dissertation
+  	 	double offset = random.GetRandNormal(0.0, muteRate); 
   	 	
   	 	double newVal = _in + offset;  
   	 	
