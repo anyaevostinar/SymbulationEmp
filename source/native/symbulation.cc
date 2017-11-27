@@ -12,7 +12,9 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
                  VALUE(GRID_X, int, 100, "Width of the world"),
                  VALUE(GRID_Y, int, 100, "Height of world"),
-                 VALUE(UPDATES, int, 1000, "Number of updates to run before quitting")
+                 VALUE(UPDATES, int, 1000, "Number of updates to run before quitting"),
+                 VALUE(UPDATE_RESOURCES, int, 10, "Number of resources to distribute between host and symbiont at each update"),
+                 VALUE(MODE, char, 'r', "Simulation mode. To read from config file, use -MODE r")
                  )
 
 
