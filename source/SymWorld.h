@@ -74,7 +74,7 @@ class SymWorld {
   	    }
   	  	
 //  	  	std::cout << "Symbiont interaction: " << symIntVal << std::endl;
-		world[i].DistribResources(new_resources, hostIntVal, symIntVal); // --- NEW FUNCTION!!
+		world[i].DistribResources(new_resources, hostIntVal, symIntVal, synergy); // --- USING EW FUNCTION!!
 		
 //		std::cout << "Host has: " << world[i].GetPoints() << " resources." << std::endl;
 //		std::cout << "Symbiont has: " << world[i].GetSymbiont().GetPoints() << " resources." << std::endl;

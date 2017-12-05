@@ -13,7 +13,7 @@ private:
 
 
 public:
-  // neutral interaction value 0.0 default to start
+  // neutral interaction value 0.0 default to start - should this be configurable from file/UI?
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) { ; }
   Symbiont(const Symbiont &) = default;
@@ -37,7 +37,7 @@ std::string PrintSym(Symbiont  org){
   if (org.GetPoints() < 0) return "-";
   double out_val = org.GetIntVal();   // fixed the printing 0 for 0.5 issue by declaring it a double rather than int
   
-  // this prints the symbiont with two decimal places for ease in reading
+  // this prints the symbiont with two decimal places for easier reading
   std::stringstream temp;
   temp << std::fixed << std::setprecision(2) << out_val;
   std::string formattedstring = temp.str();
@@ -55,6 +55,7 @@ private:
   double points;
 
 public:
+// neutral interaction value 0.0 default to start - should this be configurable from file/UI?
  Host(double _intval =0.0, Symbiont _sym = Symbiont(), std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), sym(_sym), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
@@ -83,19 +84,22 @@ public:
   	   sym.SetPoints(0.0);
   	}
   	
-  void GetBackPoints(double _in)  {
+  /*
+  void GetBackPoints(double _in, double synergy)  {   // Obsolete testing function
   	double sym_portion = _in;  // current amount we are redistributing 
+  	double bonus = synergy; // the multiplier when resources are returned to host
   	
   	// what the host will get back 
 //  	std::cout << "Symbiont's interaction value is: " << sym.GetIntVal() << " "; 	
   	double sym_returns = sym_portion * sym.GetIntVal();
-  	double host_gets = sym_returns + (5 * sym_returns);  // BUMP THIS BONUS WAY UP FOR REALZ
+  	double host_gets = sym_returns + (bonus * sym_returns);  
   	
   	// symbiont loses what it gives back
   	sym.AddPoints(-1 * sym_returns);
   	points += host_gets;
   
   }
+  */
   
   void SetSymIntVal (double _in) {
   	sym.SetIntVal(_in);
@@ -111,12 +115,14 @@ public:
   	
   }
   
-  void DistribResources(int resources, double hostIntVal, double symIntVal) { // might want to declare a remainingResources variable just to make this easier to maintain
+  void DistribResources(int resources, double hostIntVal, double symIntVal, double synergy) { 
+  // might want to declare a remainingResources variable just to make this easier to maintain
 	
 	double hostPortion = 0.0;
 	double hostDonation = 0.0;
 	double symPortion = 0.0;
 	double symReturn = 0.0;
+	double bonus = synergy; 
 
 	
 //	std::cout << "Dividing resources: " << resources << std::endl;
@@ -126,10 +132,10 @@ public:
 	    
 //	    std::cout << "Host keeps " << hostPortion << " and gives " << hostDonation << " to symbiont." << std::endl;
 	    
-	    symReturn = (hostDonation * symIntVal) * 5;
+	    symReturn = (hostDonation * symIntVal) * bonus;  
 	    symPortion = hostDonation - (hostDonation * symIntVal);
 	    
-//	    std::cout << "Symbiont keeps " << symPortion << " and returns " << symReturn << " to host (with bonus)" << std::endl;
+//	    std::cout << "Symbiont keeps " << symPortion << " and returns " << symReturn << " to host (multiplied by) " << bonus << std::endl;
 
 	    hostPortion += symReturn;
 	    
@@ -138,7 +144,7 @@ public:
 	    this->GiveSymPoints(symPortion);
 	    this->AddPoints(hostPortion);
 	    
-	} else if (hostIntVal <= 0 && symIntVal < 0) {
+	} else if (hostIntVal <= 0 && symIntVal < 0) {  // NEED TO CHECK THAT THIS IS CORRECT - see dissertation
 	     double hostDefense = -1.0 * (hostIntVal * resources);
 //	     std::cout << "Host invests " << hostDefense << " in defense (which is lost), ";
 	     resources = resources - hostDefense;
