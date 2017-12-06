@@ -62,7 +62,7 @@ int main(int argc, char * argv[])
             
             if (ChangeSetting == 'y' || ChangeSetting == 'Y') {
   	         	 do {
-  	         	 	cout << "Which option do you want to change?" << endl;
+  	         	 	cout << "Which option do you want to change??" << endl;
   	         	 	cout << "1 - Seed for randomizer (" << seedf << ")"<< endl;
           			cout << "2 - Mutation rate (" << mutrate << ")" << endl;
            			cout << "3 - The MULTIPLIER for resource amount symbiont returns to host: " << symsyn << endl;

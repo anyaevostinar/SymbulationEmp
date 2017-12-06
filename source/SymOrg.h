@@ -146,16 +146,28 @@ public:
 	    
 	} else if (hostIntVal <= 0 && symIntVal < 0) {  // NEED TO CHECK THAT THIS IS CORRECT - see dissertation
 	     double hostDefense = -1.0 * (hostIntVal * resources);
-//	     std::cout << "Host invests " << hostDefense << " in defense (which is lost), ";
-	     resources = resources - hostDefense;
-//	     std::cout << "leaving " << resources << " available for reproduction. " << std::endl;
+	     double remainingResources = 0.0;
+//	     std::cout << "Host: " << hostIntVal << " symbiont: " << symIntVal;
+//	     std::cout << " fight over " << resources << std::endl;
+// 	     std::cout << "Host invests " << hostDefense << " in defense (which is lost), ";
+	     remainingResources = resources - hostDefense;
+// 	     std::cout << "leaving " << remainingResources << " available for reproduction. " << std::endl;
 	     
-	     double symSteals = (hostIntVal - symIntVal) * resources;
-//	     std::cout << "Symbiont steals " << symSteals << " resources." << std::endl;
-	     symPortion = symSteals;
-	     
-	     hostPortion = resources - symSteals;
-//	     std::cout << "Leaving host receiving " << hostPortion << " resources." << std::endl;
+	     // if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
+	     if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
+	     	double symSteals = (hostIntVal - symIntVal) * remainingResources;
+//	     	std::cout << "Symbiont steals " << symSteals << " resources." << std::endl;
+	     	symPortion = symSteals;
+	     	hostPortion = remainingResources - symSteals;
+//	     	std::cout << "Leaving host receiving " << hostPortion << " resources." << std::endl;
+	     } else { // symbiont cannot overcome host's defenses
+//	     	std::cout << "Symbiont cannot overcome host's defenses, and host keeps " << remainingResources << std::endl;
+	     	
+	     	symPortion = 0.0;
+	     	hostPortion = remainingResources;
+	     	
+	     }
+
 	     
 	    this->GiveSymPoints(symPortion);
 	    this->AddPoints(hostPortion);
