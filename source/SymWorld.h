@@ -42,8 +42,7 @@ class SymWorld {
   }
   
   double newIntVal(double _in = 0.0) {
-        // get random deviation from original interaction values of host and symbiont
-        // not sure how large the standard deviation value should be  
+        // get random deviation from original interaction values of host and symbiont 
   	 	double offset = random.GetRandNormal(0.0, muteRate); 
   	 	
   	 	double newVal = _in + offset;  
@@ -74,7 +73,7 @@ class SymWorld {
   	    }
   	  	
 //  	  	std::cout << "Symbiont interaction: " << symIntVal << std::endl;
-		world[i].DistribResources(new_resources, hostIntVal, symIntVal, synergy); // --- USING EW FUNCTION!!
+		world[i].DistribResources(new_resources, hostIntVal, symIntVal, synergy); // --- USING NEW FUNCTION!!
 		
 //		std::cout << "Host has: " << world[i].GetPoints() << " resources." << std::endl;
 //		std::cout << "Symbiont has: " << world[i].GetSymbiont().GetPoints() << " resources." << std::endl;
