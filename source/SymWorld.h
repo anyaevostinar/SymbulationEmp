@@ -121,7 +121,7 @@ class SymWorld {
   	 	   
   	 	}
   	 	else if (world[i].GetSymbiont().GetPoints() >= 100) {
-  	 	 // symbiont reproduces independently if it has >= 100 resources
+  	 	 // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
   	 	 // new symbiont in this host with mutated value
   	 	 double newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
   	 	 world[i].SetSymIntVal(newSymIntVal);
