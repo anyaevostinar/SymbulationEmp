@@ -84,6 +84,8 @@ public:
   	   sym.SetPoints(0.0);
   	}
   	
+
+  	
   /*
   void GetBackPoints(double _in, double synergy)  {   // Obsolete testing function
   	double sym_portion = _in;  // current amount we are redistributing 
@@ -104,6 +106,10 @@ public:
   void SetSymIntVal (double _in) {
   	sym.SetIntVal(_in);
   
+  }
+  
+    void DeleteSym() {
+  		sym.SetPoints(-1.0);
   }
   
   bool HasSym() {
@@ -202,7 +208,7 @@ public:
 		this->GiveSymPoints(symPortion);
 	    this->AddPoints(hostPortion);
 	} else {
-		std::cout << "Missed a logical case in distributing resources." << std::endl;
+//		std::cout << "Missed a logical case in distributing resources." << std::endl;
 	}
 
 }

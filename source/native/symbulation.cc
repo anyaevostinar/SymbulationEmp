@@ -7,12 +7,12 @@ using namespace std;
 
 EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(SEED, double, 10, "What value should the random seed be?"),
-                 VALUE(MUTATION_RATE, double, 0.001, "Standard deviation of the distribution to mutate by"),
+                 VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
                  VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
                  VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
-                 VALUE(GRID_X, int, 100, "Width of the world"),
-                 VALUE(GRID_Y, int, 100, "Height of world"),
-                 VALUE(UPDATES, int, 1000, "Number of updates to run before quitting"),
+                 VALUE(GRID_X, int, 5, "Width of the world"),
+                 VALUE(GRID_Y, int, 5, "Height of world"),
+                 VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
                  VALUE(UPDATE_RESOURCES, int, 10, "Number of resources to distribute between host and symbiont at each update"),
                  VALUE(MODE, char, 'r', "Simulation mode. To read from config file, use -MODE r")
                  )
@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     
     if (argc < 2) { // interactive mode
             cout << endl << endl;
-            cout << "Initializing Symbulation (Testing)!" << endl << endl;
+            cout << "Initializing Symbulation (Testing Mode)!" << endl << endl;
             cout << "Current settings are: " << endl;
             cout << "Seed for randomizer: " << seedf << endl;
             cout << "Mutation rate: " << mutrate << endl;
