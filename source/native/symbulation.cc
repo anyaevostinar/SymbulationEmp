@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
   
   
     auto args = emp::cl::ArgManager(argc, argv);
-    if (argv[1] == '-r'){
+    if (string(argv[1]) == "-r"){
       //Non-interactive old school mode
       config.Read("SymSettings.cfg");
       if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
