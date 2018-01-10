@@ -17,7 +17,7 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(MODE, char, 'r', "Simulation mode. To read from config file, use -MODE r")
                  )
 
-}
+
 	
 int main(int argc, char * argv[])
 {
@@ -45,8 +45,34 @@ int main(int argc, char * argv[])
   
   
     auto args = emp::cl::ArgManager(argc, argv);
-    
-    if (argc < 2) { // interactive mode
+    if (argv[1] == '-r'){
+      //Non-interactive old school mode
+      config.Read("SymSettings.cfg");
+      if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
+	cout << "There was a problem in processing the options file." << endl;
+	exit(1);
+      }
+
+      // get updated settings from the file 
+      seedf = config.SEED();
+      mutrate = config.MUTATION_RATE();
+      symsyn = config.SYNERGY();
+      vertrans = config.VERTICAL_TRANSMISSION();
+      gridx = config.GRID_X();
+      gridy = config.GRID_Y();
+      numupdates = config.UPDATES();
+      updateresources = config.UPDATE_RESOURCES();
+      simmode = config.MODE();
+        
+      SymWorld world(gridx, gridy, seedf, mutrate, symsyn, vertrans); 
+      
+      for (int i = 0; i < numupdates; i++) {
+	world.Update(updateresources);
+      }
+      cout << endl << "World after " << numupdates << " generations." << endl << endl;
+      world.PrintIt();
+
+    }else if (argc < 2) { // interactive mode
             cout << endl << endl;
             cout << "Initializing Symbulation (Testing Mode)!" << endl << endl;
             cout << "Current settings are: " << endl;
@@ -157,6 +183,7 @@ int main(int argc, char * argv[])
         // good to go
         
         // get updated settings from the file 
+	//TODO: refactor this as a helper function since A uses it above too
 		seedf = config.SEED();
  		mutrate = config.MUTATION_RATE();
 		symsyn = config.SYNERGY();
@@ -189,5 +216,4 @@ int main(int argc, char * argv[])
     } else {
 		cout << "Unexpected command line argument.  Exiting now."  << endl;
     }
-    
-    }
+}    
