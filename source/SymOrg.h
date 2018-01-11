@@ -1,5 +1,5 @@
-#include "tools/Random.h"
-#include "tools/string_utils.h"
+#include "source/tools/Random.h"
+#include "source/tools/string_utils.h"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
@@ -18,6 +18,7 @@ public:
     : interaction_val(_intval), points(_points), res_types(_set) { ; }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
+  
 
   Symbiont & operator=(const Symbiont &) = default;
   Symbiont & operator=(Symbiont &&) = default;
@@ -31,11 +32,18 @@ public:
   void AddPoints(double _in) { points += _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
 
+  //CAMEL CASE TODO
+  void mutate(emp::Random &random, double mut_rate){
+    interaction_val += random.GetRandNormal(0.0, mut_rate);
+    if(interaction_val < -1) interaction_val = -1;
+    else if (interaction_val > 1) interaction_val = 1;
+  }
+
 };
 
 std::string PrintSym(Symbiont  org){
   if (org.GetPoints() < 0) return "-";
-  double out_val = org.GetIntVal();   // fixed the printing 0 for 0.5 issue by declaring it a double rather than int
+  double out_val = org.GetIntVal();  
   
   // this prints the symbiont with two decimal places for easier reading
   std::stringstream temp;
@@ -56,9 +64,11 @@ private:
 
 public:
 // neutral interaction value 0.0 default to start - should this be configurable from file/UI?
- Host(double _intval =0.0, Symbiont _sym = Symbiont(), std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), sym(_sym), res_types(_set), points(_points) { ; }
+ Host(double _intval =0.0, Symbiont _sym = *(new Symbiont(0, -1)), std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), sym(_sym), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
+  // Host() : interaction_val(0), sym(*(new Symbiont(0, -1))), res_types(std::set<int>()), points(0) { ; }
+
 
   Host & operator=(const Host &) = default;
   Host & operator=(Host &&) = default;
@@ -104,31 +114,39 @@ public:
   */
   
   void SetSymIntVal (double _in) {
-  	sym.SetIntVal(_in);
+    sym.SetIntVal(_in);
   
   }
   
-    void DeleteSym() {
-  		sym.SetPoints(-1.0);
+  void DeleteSym() {
+    sym.SetPoints(-1.0);
   }
   
   bool HasSym() {
-  	if (sym.GetPoints() < 0) { 
-  		return false;
-  	} else {
-  	    return true;
-  	}
+    if (sym.GetPoints() < 0) { 
+      return false;
+    } else {
+      return true;
+    }
   	
   }
+
+  void mutate(emp::Random &random, double mut_rate){
+    interaction_val += random.GetRandNormal(0.0, mut_rate);
+    if(interaction_val < -1) interaction_val = -1;
+    else if (interaction_val > 1) interaction_val = 1;
+  }
   
-  void DistribResources(int resources, double hostIntVal, double symIntVal, double synergy) { 
+  void DistribResources(int resources, double synergy) { 
   // might want to declare a remainingResources variable just to make this easier to maintain
-	
-	double hostPortion = 0.0;
-	double hostDonation = 0.0;
-	double symPortion = 0.0;
-	double symReturn = 0.0;
-	double bonus = synergy; 
+    double hostIntVal = interaction_val; //using private variable because we can
+    double symIntVal = sym.GetIntVal();
+    
+    double hostPortion = 0.0;
+    double hostDonation = 0.0;
+    double symPortion = 0.0;
+    double symReturn = 0.0;
+    double bonus = synergy; 
 
 	
 //	std::cout << "Dividing resources: " << resources << std::endl;
@@ -211,7 +229,7 @@ public:
 //		std::cout << "Missed a logical case in distributing resources." << std::endl;
 	}
 
-}
+  }
   
 
 };

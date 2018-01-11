@@ -1,199 +1,172 @@
-#include "evo/World.h"
-#include "tools/Random.h"
+#include "source/Evo/World.h"
+#include "source/tools/Random.h"
 #include <set>
 #include "SymOrg.h"
+#include "source/tools/random_utils.h"
+#include "source/Evo/World_file.h"
 
-
-class SymWorld {
+class SymWorld : public emp::World<Host>{
  private:
+  const double synergy = 5;
+  double vertTrans = 0; 
+  double mut_rate = 0;
   emp::Random random;
-  emp::evo::GridWorld<Host> world;
   
-  // declaring world configuration variables that will be initialized with the constructor
-  const int dimX;
-  const int dimY;
-  const int seedf;
-  const double muteRate; 
-  const double synergy;
-  const double vertTrans; 
-  
+  Ptr<DataMonitor<double, emp::data::Histogram>> data_node_vt;
 
  public:
-  SymWorld(int gridx, int gridy, int randomSeed, double mutationProb, double bonus, double transProb)
-  :dimX(gridx), dimY(gridy), seedf(randomSeed), muteRate(mutationProb), synergy(bonus), vertTrans(transProb) {
-	// variables used only in the constructor
-  	const int popSize = (dimX * dimY) / 2;  // number of organisms within the world
-
-  	random.ResetSeed(seedf);
-    world.ConfigPop(dimX,dimY);
-    world.Insert( Host(0.0, Symbiont(), std::set<int>(), 0.0), popSize);
-    // verify configuration
-    std::cout << "Current configuration: " << std::endl;
-    std::cout << "X: " << dimX << " Y: " << dimY << std::endl;
-    std::cout << "Randomizer seed: " << seedf << std::endl;
-    std::cout << "Mutation rate: " << muteRate << std::endl;
-    std::cout << "Return bonus from symbionts: " << synergy << std::endl;
-    std::cout << "Vertical transmission rate: " << vertTrans << std::endl;  
-    world.Print(PrintOrg);
+  //set fun_print_org to equal function that prints hosts/syms correctly
+ SymWorld(emp::Random &random) : emp::World<Host>(random) {
+    fun_print_org = [](Host & org, std::ostream & os) {
+      os << PrintHost(&org);
+    };
   }
   
-  void PrintIt() {
-     world.Print(PrintOrg);
+  void SetVertTrans(double vt) {
+    vertTrans = vt;
   }
-  
-  double newIntVal(double _in = 0.0) {
-        // get random deviation from original interaction values of host and symbiont 
-  	 	double offset = random.GetRandNormal(0.0, muteRate); 
-  	 	
-  	 	double newVal = _in + offset;  
-  	 	
-  	 	 if (newVal > 1.0 ) {
-  	 	      newVal = 1.0;
-  	 	   } else if (newVal < -1.0) {
-  	 	      newVal = -1.0;
-  	 	   }
-  	 	   
-  	 	 return newVal;
+  void SetMutRate(double mut) {
+    mut_rate = mut;
+  }
 
-}	
 
-bool WillTransmit() {
-	if (random.GetRandNormal(0.0, 1.0) <= vertTrans) {
-		return true;
-	}  else {
-		return false;
-	}
-	
+  bool WillTransmit() {
+    if (random.GetDouble(0.0, 1.0) <= vertTrans) {
+      return true;
+    }  else {
+      return false;
+    }
+    
 
-}
+  }
+
+  World_file & SetupVTFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetVTDataNode(); 
+    node.SetupBins(-1.0, 1.0, 20);
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_vt", "Average organism vertical transmission");
+    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node, 0, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node, 0, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node, 0, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node, 0, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node, 0, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node, 0, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node, 0, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node, 0, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node, 0, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 0, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 0, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 0, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 0, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+   
+    //TODO:Add the rest of the bins
+    //TODO: histogram for hosts and symbionts both, more data in data node?
+
+    file.PrintHeaderKeys();
+  }
+
+  double CalcVT(size_t i) {
+    return pop[i]->GetVertTrans(); //TODO: write GetVertTrans
+  }
+
+  DataMonitor<double> GetVTDataNode() {
+    if (!data_node_vt) {
+      data_node_vt.New();
+      OnUpdate(
+	       [this](size_t){
+		 data_node_vt->Reset();
+		 for (size_t i = 0; i< pop.size(); i++) {
+		   if (IsOccupied(i)) data_node_vt->AddDatum(CalcVT(i));
+		 }
+	       }
+	       );
+    }
+    return *data_node_vt;
+  }
   
   void Update(size_t new_resources=10) {
-  	 // divvy up and distribute resources to host and symbiont in each cell 
-  	 for (size_t i = 0; i < world.GetSize(); i++) {
-  	   if (world.IsOccupied(i) == false) continue;  // no organism at that cell
-  	   
-  	  	double hostIntVal = world[i].GetIntVal();
- // 	  	std::cout << std::endl << "Host interaction: " << hostIntVal << std::endl;
-  	  	double symIntVal = 0.0;
-  	  	
-  	  	if (world[i].HasSym()) {
-  	    	symIntVal = world[i].GetSymbiont().GetIntVal();
-  	    } else {
-  	    	symIntVal = 0.0;
-  	    }
-  	  	
-//  	  	std::cout << "Symbiont interaction: " << symIntVal << std::endl;
-		world[i].DistribResources(new_resources, hostIntVal, symIntVal, synergy); // --- USING NEW FUNCTION!!
-		
-//		std::cout << "Host has: " << world[i].GetPoints() << " resources." << std::endl;
-//		std::cout << "Symbiont has: " << world[i].GetSymbiont().GetPoints() << " resources." << std::endl;
-  	   
-  	   }
+    emp::World<Host>::Update();
+    double symIntVal;
 
+    //TODO: put in fancy scheduler at some point
+    
+    vector<size_t> schedule = emp::GetPermutation(random, GetSize());
+    
+    // divvy up and distribute resources to host and symbiont in each cell 
+    for (size_t i : schedule) {
+      if (IsOccupied(i) == false) continue;  // no organism at that cell
+  	   
+
+      //combine for loops and put everyhting into Host.Process
+      ProcessID(i, random); //whatever it passes to process
+      //TODO: feature request process shuffle
+      //TODO: write process
+      //TODO: async repro and mutation feature request
+      //TODO: write host equality override using this to access pointer value
+      
+
+      
+      if (pop[i]->HasSym()) {
+	symIntVal = pop[i]->GetSymbiont().GetIntVal();
+      } else {
+	symIntVal = 0.0;
+      }
+  	  	
+      pop[i]->DistribResources(new_resources, synergy); // --- USING NEW FUNCTION!!
+    }
  
-  	 
-  	 // host reproduces if it can
-  	 for (size_t i = 0; i < world.GetSize(); i++) {
-  	 	if (world.IsOccupied(i) == false) continue;  // nothing to replicate!
-  	 	
-  	 	if (world[i].GetPoints() >= 100 ) {  // host replication
-  	// 	   std::cout << "Testing replication at: " << i << std::endl;
-  	 	   // will replicate & mutate a random offset from parent values
-  	 	   // while resetting resource points for host and symbiont to zero
- 		   double curHostIntVal = world[i].GetIntVal();  // save current host interaction value as basis for 2 new organisms
- 		   double curSymIntVal = 0.0;  
- 		   bool doVertTrans = false;
- 		   bool hadSym = false;   // did the original host have a symbiont?
+    // host reproduces if it can
+    for (size_t i = 0; i < GetSize(); i++) {
+      if (IsOccupied(i) == false) continue;  // nothing to replicate!
+      
+      if (pop[i]->GetPoints() >= 100 ) {  // host replication
+	// will replicate & mutate a random offset from parent values
+	// while resetting resource points for host and symbiont to zero
+	Symbiont *sym_baby;
+	if (pop[i]->HasSym() && WillTransmit()) { //Vertican transmission!
+	  sym_baby = new Symbiont(pop[i]->GetSymbiont().GetIntVal(), 0.0); //constructor that takes parent values
+	  sym_baby->mutate(random, mut_rate);
+	  pop[i]->GetSymbiont().mutate(random, mut_rate); //mutate parent symbiont
+	}else{
+	  sym_baby = new Symbiont(0.0, -1.0); 
+	}
 
-  	 	   double newHostIntVal = newIntVal(curHostIntVal);
-  	 	   double newSymIntVal = 0.0;
-  	 	   
-  	 	   if (world[i].HasSym()) {
-  	 	   		hadSym = true;
-  	 	   		curSymIntVal = world[i].GetSymbiont().GetIntVal();
-  	 	   		newSymIntVal = newIntVal(curSymIntVal);
-  	 	   		doVertTrans = WillTransmit();
-  	 	   	}
-
-  	 	   world[i] = Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0); // Possibly safer to use InsertAt()???
-  	 	   
-  	 	   if (doVertTrans) {
-  		 	   world[i].SetSymIntVal(newSymIntVal);  // vertical transmission with possible mutation
-  	 	   } else {
-  	 	   		world[i].DeleteSym();  // vertical transmission failed
-  	 	   }
-  	 	
-  	 	// pick a new world[i] to get a new Host & symbiont with 
-  	 	// random deviation from original interaction values of host and symbiont 
-  	 	
-  	 	// this should work, but it doesn't seem to ever include the end index for the last possible cell 
- // 	 int newLoc = random.GetInt(0, world.GetSize() - 1);
- 		 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
- 		// std::cout << "New location: " << newLoc << std::endl;
- 		 if (newLoc == world.GetSize()) {
- 		 	newLoc = world.GetSize() - 1;
-// 		 	std::cout << "Tried to go out of bounds." << std::endl;
- 		 }
- 		 	
- 		  // std::cout << "New Location: " << newLoc << std::endl;
- 		   newHostIntVal = newIntVal(curHostIntVal);
-  	 	   world.InsertAt(Host(newHostIntVal, Symbiont(), std::set<int>(), 0.0), newLoc);
-  	 	    		   
- 		   if (hadSym) {
- 		   		doVertTrans = WillTransmit();  // test vertical transmission of symbiont
- 		   		if (doVertTrans) {
-  	 	   			newSymIntVal = newIntVal(curSymIntVal);
-  	  	 		    world[newLoc].SetSymIntVal(newSymIntVal); 	
-  	  	 		    }
-  	  	 		else {
-  	  	 			world[newLoc].DeleteSym();  // transmission failed
-  	  	 		}   		
-  	 	   	}
-  	 	   	else {
-  	 	   		world[newLoc].DeleteSym();   // there was nothing to transmit
-  	 	   	}	
+	//move mutations to within host and symbiont	
+	Host *host_baby = new Host(pop[i]->GetIntVal(),*sym_baby,std::set<int>(), 0.0);
+	host_baby->mutate(random, mut_rate);
+	pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont
+	pop[i]->SetPoints(0);
+	//TODO: is this how I did it for the dissertation? reset parent completely?
+	InjectAt(*host_baby, GetRandomCellID());
 
 
-  	 	   
-  	 	}
-  	 	else if (world[i].HasSym() && world[i].GetSymbiont().GetPoints() >= 100) {  
-  	 	 // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
-  	 	 // new symbiont in this host with mutated value
-  	 	 double newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
-  	 	 world[i].SetSymIntVal(newSymIntVal);
-  	 	 world[i].ResetSymPoints();
+      }
+      if (pop[i]->HasSym() && pop[i]->GetSymbiont().GetPoints() >= 100) {  
+	//TODO: check symbiont reproduction value
+	// symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
+	// new symbiont in this host with mutated value
+	pop[i]->ResetSymPoints();
+	Symbiont *sym_baby = new Symbiont(pop[i]->GetSymbiont());
+	sym_baby->mutate(random, mut_rate);
+	pop[i]->GetSymbiont().mutate(random, mut_rate);
+
   	 	 
-  	 	 // pick new host to infect, if one exists at the new location and does NOT already have a symbiont
-  	 	 int newLoc = random.GetInt(0, world.GetSize());  // try this but guard against going past end
- 		 if (newLoc == world.GetSize()) {
- 		 	newLoc = world.GetSize() - 1;
-// 		 	std::cout << "Tried to go out of bounds." << std::endl;
- 		 }
- 		 
-// 		 std::cout << "Symbiont tried to replicate on its own from " << i << " to " << newLoc;
- 		 if (world.IsOccupied(newLoc) == true) {
+	// pick new host to infect, if one exists at the new location and does NOT already have a symbiont
+	int newLoc = GetRandomCellID();
+	if (IsOccupied(newLoc) == true) {
  		   
- 		   if (world[newLoc].HasSym()) {
-// 		   	  std::cout << " and failed because host already has a symbiont." << std::endl;
- 		   } else {
- 		     newSymIntVal = newIntVal(world[i].GetSymbiont().GetIntVal());
- 		     world[newLoc].SetSymIntVal(newSymIntVal);
- 		     world[newLoc].ResetSymPoints();
-// 		     std::cout << " and succeeded." << std::endl;
- 		   }
-  	 	 } else {
-//  	 	 	std::cout << "Symbiont tried to replicate on its own but failed to find a host at " << newLoc << std::endl;
-  	 	 }
-  	 	 
- }
-  	 	
-  	 	
-  	 }
-  	 
-  	 
-  }
-  
+	  if (!pop[newLoc]->HasSym()) {
+	    pop[newLoc]->SetSymbiont(*sym_baby);
 
+	  }
+	}
+      }	 
+    }
+  	 	
+  }
 };
 
 
