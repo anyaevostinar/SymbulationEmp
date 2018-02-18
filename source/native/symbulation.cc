@@ -11,12 +11,14 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
                  VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
                  VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
+		  VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially"),
+		  VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially"),
                  VALUE(GRID_X, int, 5, "Width of the world"),
                  VALUE(GRID_Y, int, 5, "Height of world"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
-                 VALUE(UPDATE_RESOURCES, int, 10, "Number of resources to distribute between host and symbiont at each update"),
-                 VALUE(MODE, char, 'r', "Simulation mode. To read from config file, use -MODE r")
+
                  )
+//TODO: add option for random host and sym int values
 
 
 	
@@ -50,8 +52,8 @@ int main(int argc, char * argv[])
 
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){
-      Host *new_org = new Host(0.5); //fix probably needed
-      cout << new_org->GetIntVal();
+      Host *new_org = new Host(config.HOST_INT(), *(new Symbiont(config.SYM_INT())));
+      cout << new_org->GetIntVal() << endl;
       world.Inject(*new_org);
     }
 

@@ -13,7 +13,7 @@ private:
 
 
 public:
-  // neutral interaction value 0.0 default to start - should this be configurable from file/UI?
+
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) { ; }
   Symbiont(const Symbiont &) = default;
@@ -32,7 +32,7 @@ public:
   void AddPoints(double _in) { points += _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
 
-  //CAMEL CASE TODO
+  //TODO: change everything to camel case
   void mutate(emp::Random &random, double mut_rate){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
@@ -63,7 +63,6 @@ private:
   double points;
 
 public:
-// neutral interaction value 0.0 default to start - should this be configurable from file/UI?
  Host(double _intval =0.0, Symbiont _sym = *(new Symbiont(0, -1)), std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), sym(_sym), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
@@ -89,33 +88,16 @@ public:
   void AddPoints(double _in) {points += _in;}
   
   void GiveSymPoints(double _in) {
-  	double distrib = _in;
-  	sym.AddPoints(distrib);
-  	
-  	}
-  	
+    double distrib = _in;
+    sym.AddPoints(distrib);
+    
+  }
+  
   void ResetSymPoints() {
-  	   sym.SetPoints(0.0);
-  	}
+    sym.SetPoints(0.0);
+  }
   	
 
-  	
-  /*
-  void GetBackPoints(double _in, double synergy)  {   // Obsolete testing function
-  	double sym_portion = _in;  // current amount we are redistributing 
-  	double bonus = synergy; // the multiplier when resources are returned to host
-  	
-  	// what the host will get back 
-//  	std::cout << "Symbiont's interaction value is: " << sym.GetIntVal() << " "; 	
-  	double sym_returns = sym_portion * sym.GetIntVal();
-  	double host_gets = sym_returns + (bonus * sym_returns);  
-  	
-  	// symbiont loses what it gives back
-  	sym.AddPoints(-1 * sym_returns);
-  	points += host_gets;
-  
-  }
-  */
   
   void SetSymIntVal (double _in) {
     sym.SetIntVal(_in);
@@ -238,7 +220,7 @@ public:
   void Process(emp::Random &random) {
     //Currently just wrapping to use the existing function
     //TODO: make the below config options
-    DistribResources(100, 5); // --- USING NEW FUNCTION!!                          
+    DistribResources(100, 5); 
 
   }
   

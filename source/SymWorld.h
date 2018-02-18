@@ -68,12 +68,15 @@ class SymWorld : public emp::World<Host>{
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
 
+    file.PrintHeaderKeys();
+
     return file;
   }
     emp::World_file & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     node.SetupBins(-1.0, 1.0, 20);
+
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
@@ -158,9 +161,6 @@ class SymWorld : public emp::World<Host>{
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       pop[i]->Process(random);
-      //TODO: feature request process shuffle
-      //TODO: async repro and mutation feature request
-      //TODO: write host equality override using this to access pointer value
   
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= 100 ) {  // host replication                                                                                                   
