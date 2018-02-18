@@ -45,19 +45,21 @@ int main(int argc, char * argv[])
     world.SetMutRate(config.MUTATION_RATE());
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
-    world.SetupIntValFile().SetTimingRepeat(10);
+    world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
 
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){
-      Host *new_org = new Host(); //fix probably needed
+      Host *new_org = new Host(0.5); //fix probably needed
+      cout << new_org->GetIntVal();
       world.Inject(*new_org);
     }
 
     //Loop through updates
       
     for (int i = 0; i < numupdates; i++) {
-	world.Update();
+      cout << i << endl;
+      world.Update();
     }
-    cout << endl << "World after " << numupdates << " generations." << endl << endl;
-    world.PrintGrid();     
+
 }

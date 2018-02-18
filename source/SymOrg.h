@@ -72,6 +72,9 @@ public:
 
   Host & operator=(const Host &) = default;
   Host & operator=(Host &&) = default;
+  bool operator==(const Host &other) const { return (this == &other);}
+  bool operator!=(const Host &other) const {return !(*this == other);}
+
 
   double GetIntVal() const { return interaction_val;}
   Symbiont GetSymbiont() { return sym;}

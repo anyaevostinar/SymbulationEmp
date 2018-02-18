@@ -7,7 +7,6 @@
 
 class SymWorld : public emp::World<Host>{
  private:
-  const double synergy = 5;
   double vertTrans = 0; 
   double mut_rate = 0;
   emp::Random random;
@@ -48,21 +47,28 @@ class SymWorld : public emp::World<Host>{
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 0, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 0, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 0, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 0, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 0, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 0, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 0, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 0, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 0, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 0, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 0, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 0, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 0, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
+
+    return file;
   }
     emp::World_file & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -71,25 +77,30 @@ class SymWorld : public emp::World<Host>{
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 0, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 0, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 0, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 0, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 0, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 0, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 0, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 0, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 0, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 0, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 0, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 0, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 0, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-   
-    //TODO:Add the rest of the bins
-    //TODO: histogram for hosts and symbionts both, more data in data node?
+    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
 
     file.PrintHeaderKeys();
+
+    return file;
   }
 
   double CalcIntVal(size_t i) {
@@ -97,10 +108,11 @@ class SymWorld : public emp::World<Host>{
   }
 
   double CalcSymIntVal(size_t i) {
-    return pop[i]->GetSym()->GetIntVal();
+    //TODO: this should probably be a reference to Symbiont
+    return pop[i]->GetSymbiont().GetIntVal();
   }
 
-  emp::DataMonitor<double>& GetHostIntValDataNode() {
+  emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
       data_node_hostintval.New();
       OnUpdate(
@@ -117,7 +129,7 @@ class SymWorld : public emp::World<Host>{
 
 
 
-  emp::DataMonitor<double>& GetSymIntValDataNode() {
+  emp::DataMonitor<double, emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
       OnUpdate(
@@ -134,11 +146,10 @@ class SymWorld : public emp::World<Host>{
   
   void Update(size_t new_resources=10) {
     emp::World<Host>::Update();
-    double symIntVal;
 
     //TODO: put in fancy scheduler at some point
     
-    vector<size_t> schedule = emp::GetPermutation(random, GetSize());
+    emp::vector<size_t> schedule = emp::GetPermutation(random, GetSize());
     
     // divvy up and distribute resources to host and symbiont in each cell 
     for (size_t i : schedule) {
