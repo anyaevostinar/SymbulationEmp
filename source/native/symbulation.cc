@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
     world.SetMutRate(config.MUTATION_RATE());
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
-    //    world.SetupFitnessFile().SetTimingRepeat(10);
+    world.SetupIntValFile().SetTimingRepeat(10);
 
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){

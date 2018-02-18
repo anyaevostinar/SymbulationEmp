@@ -1,9 +1,9 @@
-#include "source/Evo/World.h"
+#include "source/Evolve/World.h"
 #include "source/tools/Random.h"
 #include <set>
 #include "SymOrg.h"
 #include "source/tools/random_utils.h"
-#include "source/Evo/World_file.h"
+#include "source/Evolve/World_file.h"
 
 class SymWorld : public emp::World<Host>{
  private:
@@ -12,7 +12,8 @@ class SymWorld : public emp::World<Host>{
   double mut_rate = 0;
   emp::Random random;
   
-  Ptr<DataMonitor<double, emp::data::Histogram>> data_node_vt;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
 
  public:
   //set fun_print_org to equal function that prints hosts/syms correctly
@@ -40,12 +41,35 @@ class SymWorld : public emp::World<Host>{
 
   }
 
-  World_file & SetupVTFile(const std::string & filename) {
+  emp::World_file & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetVTDataNode(); 
+    auto & node = GetSymIntValDataNode();
     node.SetupBins(-1.0, 1.0, 20);
     file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_vt", "Average organism vertical transmission");
+    file.AddMean(node, "mean_intval", "Average symbiont interaction value");
+    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node, 0, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node, 0, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node, 0, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node, 0, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node, 0, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node, 0, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node, 0, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node, 0, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node, 0, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 0, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 0, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 0, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 0, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+
+  }
+    emp::World_file & SetupHostIntValFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetHostIntValDataNode(); 
+    node.SetupBins(-1.0, 1.0, 20);
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_intval", "Average host interaction value");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 0, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 0, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -68,23 +92,44 @@ class SymWorld : public emp::World<Host>{
     file.PrintHeaderKeys();
   }
 
-  double CalcVT(size_t i) {
-    return pop[i]->GetVertTrans(); //TODO: write GetVertTrans
+  double CalcIntVal(size_t i) {
+    return pop[i]->GetIntVal(); 
   }
 
-  DataMonitor<double> GetVTDataNode() {
-    if (!data_node_vt) {
-      data_node_vt.New();
+  double CalcSymIntVal(size_t i) {
+    return pop[i]->GetSym()->GetIntVal();
+  }
+
+  emp::DataMonitor<double>& GetHostIntValDataNode() {
+    if (!data_node_hostintval) {
+      data_node_hostintval.New();
       OnUpdate(
 	       [this](size_t){
-		 data_node_vt->Reset();
+		 data_node_hostintval->Reset();
 		 for (size_t i = 0; i< pop.size(); i++) {
-		   if (IsOccupied(i)) data_node_vt->AddDatum(CalcVT(i));
+		   if (IsOccupied(i)) data_node_hostintval->AddDatum(CalcIntVal(i));
 		 }
 	       }
 	       );
     }
-    return *data_node_vt;
+    return *data_node_hostintval;
+  }
+
+
+
+  emp::DataMonitor<double>& GetSymIntValDataNode() {
+    if (!data_node_symintval) {
+      data_node_symintval.New();
+      OnUpdate(
+	       [this](size_t){
+		 data_node_symintval->Reset();
+		 for (size_t i = 0; i< pop.size(); i++) {
+		   if (IsOccupied(i)) data_node_symintval->AddDatum(CalcSymIntVal(i));
+		 }
+	       }
+	       );
+    }
+    return *data_node_symintval;
   }
   
   void Update(size_t new_resources=10) {
@@ -99,55 +144,39 @@ class SymWorld : public emp::World<Host>{
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
   	   
-
-      //combine for loops and put everyhting into Host.Process
-      ProcessID(i, random); //whatever it passes to process
+      //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
+      //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
+      pop[i]->Process(random);
       //TODO: feature request process shuffle
-      //TODO: write process
       //TODO: async repro and mutation feature request
       //TODO: write host equality override using this to access pointer value
-      
-
-      
-      if (pop[i]->HasSym()) {
-	symIntVal = pop[i]->GetSymbiont().GetIntVal();
-      } else {
-	symIntVal = 0.0;
-      }
-  	  	
-      pop[i]->DistribResources(new_resources, synergy); // --- USING NEW FUNCTION!!
-    }
- 
-    // host reproduces if it can
-    for (size_t i = 0; i < GetSize(); i++) {
-      if (IsOccupied(i) == false) continue;  // nothing to replicate!
-      
-      if (pop[i]->GetPoints() >= 100 ) {  // host replication
+  
+      //Check reproduction                                                                                                                              
+      if (pop[i]->GetPoints() >= 100 ) {  // host replication                                                                                                   
 	// will replicate & mutate a random offset from parent values
-	// while resetting resource points for host and symbiont to zero
+	// while resetting resource points for host and symbiont to zero                                                                                
 	Symbiont *sym_baby;
-	if (pop[i]->HasSym() && WillTransmit()) { //Vertican transmission!
-	  sym_baby = new Symbiont(pop[i]->GetSymbiont().GetIntVal(), 0.0); //constructor that takes parent values
+	if (pop[i]->HasSym() && WillTransmit()) { //Vertican transmission!  
+	  sym_baby = new Symbiont(pop[i]->GetSymbiont().GetIntVal(), 0.0); //constructor that takes parent values                                             
 	  sym_baby->mutate(random, mut_rate);
-	  pop[i]->GetSymbiont().mutate(random, mut_rate); //mutate parent symbiont
+	  pop[i]->GetSymbiont().mutate(random, mut_rate); //mutate parent symbiont                                                                            
+ 
 	}else{
-	  sym_baby = new Symbiont(0.0, -1.0); 
+	  sym_baby = new Symbiont(0.0, -1.0);
 	}
 
-	//move mutations to within host and symbiont	
 	Host *host_baby = new Host(pop[i]->GetIntVal(),*sym_baby,std::set<int>(), 0.0);
 	host_baby->mutate(random, mut_rate);
-	pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont
+	pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
 	pop[i]->SetPoints(0);
 	//TODO: is this how I did it for the dissertation? reset parent completely?
-	InjectAt(*host_baby, GetRandomCellID());
-
-
+	DoBirth(*host_baby, i); //Automatically deals with grid
       }
       if (pop[i]->HasSym() && pop[i]->GetSymbiont().GetPoints() >= 100) {  
 	//TODO: check symbiont reproduction value
 	// symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
 	// new symbiont in this host with mutated value
+	// TODO: Make SymDoBirth instead of injecting
 	pop[i]->ResetSymPoints();
 	Symbiont *sym_baby = new Symbiont(pop[i]->GetSymbiont());
 	sym_baby->mutate(random, mut_rate);
@@ -163,10 +192,10 @@ class SymWorld : public emp::World<Host>{
 
 	  }
 	}
-      }	 
+      }
     }
-  	 	
   }
+
 };
 
 

@@ -78,6 +78,7 @@ public:
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
 
+
   void SetIntVal(double _in) {interaction_val = _in;}
   void SetSymbiont(Symbiont _in) {sym = _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
@@ -228,6 +229,13 @@ public:
 	} else {
 //		std::cout << "Missed a logical case in distributing resources." << std::endl;
 	}
+
+  }
+
+  void Process(emp::Random &random) {
+    //Currently just wrapping to use the existing function
+    //TODO: make the below config options
+    DistribResources(100, 5); // --- USING NEW FUNCTION!!                          
 
   }
   
