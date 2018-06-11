@@ -3,7 +3,7 @@
 #include <set>
 #include "SymOrg.h"
 #include "source/tools/random_utils.h"
-#include "source/Evolve/World_file.h"
+#include "source/data/DataFile.h"
 
 class SymWorld : public emp::World<Host>{
  private:
@@ -40,7 +40,7 @@ class SymWorld : public emp::World<Host>{
 
   }
 
-  emp::World_file & SetupSymIntValFile(const std::string & filename) {
+  emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetSymIntValDataNode();
     node.SetupBins(-1.0, 1.0, 20);
@@ -72,7 +72,7 @@ class SymWorld : public emp::World<Host>{
 
     return file;
   }
-    emp::World_file & SetupHostIntValFile(const std::string & filename) {
+    emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     node.SetupBins(-1.0, 1.0, 20);

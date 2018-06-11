@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
     emp::Random random(config.SEED());
         
     SymWorld world(random);
-    world.SetGrid(config.GRID_X(), config.GRID_Y());
+    world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
     //Set up files
