@@ -1,0 +1,14 @@
+This folder contains the python and R scripts used in my dissertation.
+
+munge_data.py is a general script for taking data files, extracting the desired data points, and combining them into a single file with proper labels for my R scripts.
+
+InitialStats is the R script for the first subsection, Figure 4.2 and Figure 4.3
+
+GeneratingGraphs is the R script for the stacked area plots in Figure 4.4 and 4.5, 4.6 and 4.7
+
+StartingConditionInitialStats is the R script for the line plots in section 4.3.4. Figure 4.8
+
+TasksInitialGraphs and TasksBucketGraphs generate the graphs in section 4.4
+
+SpatialBucketGraphs and SpatialInitialStats generate the graphs in section 4.5
+
