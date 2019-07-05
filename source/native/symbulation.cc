@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "../SymWorld.h"
-#include "source/config/ArgManager.h"
+#include "../../Empirical/source/config/ArgManager.h"
 
 using namespace std;
 
@@ -13,12 +13,13 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
 		  VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
 		  VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-                 VALUE(GRID_X, int, 5, "Width of the world"),
-                 VALUE(GRID_Y, int, 5, "Height of world"),
+                 VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
+                 VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
 
                  )
 //TODO: add option for random host and sym int values
+//TODO: add option for world structure, currently mixed only
 
 
 	
@@ -45,7 +46,7 @@ int main(int argc, char * argv[])
     emp::Random random(config.SEED());
         
     SymWorld world(random);
-    world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
+    world.SetPopStruct_Mixed();
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
     //Set up files
@@ -62,7 +63,6 @@ int main(int argc, char * argv[])
       if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1), new_sym);
       else new_org = new Host(config.HOST_INT(), new_sym);
 
-      // Host *new_org = new Host(config.HOST_INT(), *(new Symbiont(config.SYM_INT())));
       world.Inject(*new_org);
     }
 

@@ -1,0 +1,1 @@
+This is a software model of mutualism. To build, run make. The current settings can be configured in SymSettings.cfg. 

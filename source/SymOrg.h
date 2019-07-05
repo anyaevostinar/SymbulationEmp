@@ -1,5 +1,5 @@
-#include "source/tools/Random.h"
-#include "source/tools/string_utils.h"
+#include "../../Empirical/source/tools/Random.h"
+#include "../../Empirical/source/tools/string_utils.h"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream

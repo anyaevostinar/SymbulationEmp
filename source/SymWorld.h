@@ -1,9 +1,9 @@
-#include "source/Evolve/World.h"
-#include "source/tools/Random.h"
+#include "../../Empirical/source/Evolve/World.h"
+#include "../../Empirical/source/tools/Random.h"
 #include <set>
 #include "SymOrg.h"
-#include "source/tools/random_utils.h"
-#include "source/data/DataFile.h"
+#include "../../Empirical/source/tools/random_utils.h"
+#include "../../Empirical/source/data/DataFile.h"
 
 class SymWorld : public emp::World<Host>{
  private:
@@ -15,6 +15,8 @@ class SymWorld : public emp::World<Host>{
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
 
  public:
+  
+
   //set fun_print_org to equal function that prints hosts/syms correctly
  SymWorld(emp::Random &random) : emp::World<Host>(random) {
     fun_print_org = [](Host & org, std::ostream & os) {
@@ -195,6 +197,8 @@ class SymWorld : public emp::World<Host>{
 
   	 	 
 	// pick new host to infect, if one exists at the new location and does NOT already have a symbiont
+	//TODO: Make this work based on neighbors so that it changes correctly in the future
+
 	int newLoc = GetRandomCellID();
 	if (IsOccupied(newLoc) == true) {
  		   
