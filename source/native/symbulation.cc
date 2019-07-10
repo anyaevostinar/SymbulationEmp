@@ -16,6 +16,8 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
                  VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
+		  VALUE(MOI_MULT, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what a is, default 0"),
+		  VALUE(MOI_ADD, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what b is, default 0")
 
                  )
 //TODO: add option for random host and sym int values
@@ -56,15 +58,17 @@ int main(int argc, char * argv[])
 
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){
-      Symbiont new_sym; 
       Host *new_org;
+      if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
+      else new_org = new Host(config.HOST_INT());
+      world.Inject(*new_org);
+
+      Symbiont new_sym; 
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
-      if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1), new_sym);
-      else new_org = new Host(config.HOST_INT(), new_sym);
-
-      world.Inject(*new_org);
+      world.InjectSymbiont(new_sym);
     }
+
 
     //Loop through updates
       

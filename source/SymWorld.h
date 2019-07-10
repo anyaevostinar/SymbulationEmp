@@ -17,12 +17,13 @@ class SymWorld : public emp::World<Host>{
  public:
   
 
-  //set fun_print_org to equal function that prints hosts/syms correctly
+    //set fun_print_org to equal function that prints hosts/syms correctly
  SymWorld(emp::Random &random) : emp::World<Host>(random) {
     fun_print_org = [](Host & org, std::ostream & os) {
-      os << PrintHost(&org);
+      //os << PrintHost(&org);
+      os << "This doesn't work currently";
     };
-  }
+    }
   
   void SetVertTrans(double vt) {
     vertTrans = vt;
@@ -41,6 +42,14 @@ class SymWorld : public emp::World<Host>{
     
 
   }
+
+  void InjectSymbiont(Symbiont newSym){
+    int newLoc = GetRandomCellID();
+    if(IsOccupied(newLoc) == true){
+      pop[newLoc]->AddSymbionts(newSym);
+    }
+  }
+
 
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -113,8 +122,13 @@ class SymWorld : public emp::World<Host>{
   }
 
   double CalcSymIntVal(size_t i) {
-    //TODO: this should probably be a reference to Symbiont
-    return pop[i]->GetSymbiont().GetIntVal();
+    emp::vector<Symbiont> syms = *(pop[i]->GetSymbionts());
+    int sym_size = syms.size();
+    double intValSum = 0.0;
+    for (i =0; i < sym_size; i++){
+      intValSum += syms[i].GetIntVal();
+    }
+    return intValSum/sym_size;
   }
 
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
@@ -167,49 +181,55 @@ class SymWorld : public emp::World<Host>{
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= 100 ) {  // host replication                                                                                                   
 	// will replicate & mutate a random offset from parent values
-	// while resetting resource points for host and symbiont to zero                                                                                
-	Symbiont *sym_baby;
-	if (pop[i]->HasSym() && WillTransmit()) { //Vertican transmission!  
-	  sym_baby = new Symbiont(pop[i]->GetSymbiont().GetIntVal(), 0.0); //constructor that takes parent values                                             
-	  sym_baby->mutate(random, mut_rate);
-	  pop[i]->GetSymbiont().mutate(random, mut_rate); //mutate parent symbiont                                                                            
- 
-	}else{
-	  sym_baby = new Symbiont(0.0, -1.0);
-	}
+	// while resetting resource points for host and symbiont to zero                                              
 
-	Host *host_baby = new Host(pop[i]->GetIntVal(),*sym_baby,std::set<int>(), 0.0);
+	Host *host_baby = new Host(pop[i]->GetIntVal());
 	host_baby->mutate(random, mut_rate);
 	pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
 	pop[i]->SetPoints(0);
 	//TODO: is this how I did it for the dissertation? reset parent completely?
+
+	//Now check if symbionts get to vertically transmit
+	for(size_t j = 0; j< (pop[i]->GetSymbionts())->size(); j++){
+	  Symbiont parent = (*(pop[i]->GetSymbionts()))[j];
+	  
+	  if (WillTransmit()) { //Vertical transmission!  
+	    
+	    Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
+	    sym_baby->mutate(random, mut_rate);
+	    parent.mutate(random, mut_rate); //mutate parent symbiont                                   
+	    host_baby->AddSymbionts(*sym_baby);
+	  } //end will transmit
+	} //end for loop for each symbiont
 	DoBirth(*host_baby, i); //Automatically deals with grid
       }
-      if (pop[i]->HasSym() && pop[i]->GetSymbiont().GetPoints() >= 100) {  
-	//TODO: check symbiont reproduction value
-	// symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
-	// new symbiont in this host with mutated value
-	// TODO: Make SymDoBirth instead of injecting
-	pop[i]->ResetSymPoints();
-	Symbiont *sym_baby = new Symbiont(pop[i]->GetSymbiont());
-	sym_baby->mutate(random, mut_rate);
-	pop[i]->GetSymbiont().mutate(random, mut_rate);
+      if (pop[i]->HasSym()) { //check each sym for horizontal transmission
+	emp::vector<Symbiont> syms = *(pop[i]->GetSymbionts());
+	for(size_t j = 0; j < syms.size(); j++){
+	  if (syms[j].GetPoints() >= 100) {
+	    //TODO: check symbiont reproduction value
+	    // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
+	    // new symbiont in this host with mutated value
+	    // TODO: Make SymDoBirth instead of injecting
+	    syms[j].SetPoints(0);
+	    Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
+	    sym_baby->mutate(random, mut_rate);
+	    syms[j].mutate(random, mut_rate);
 
   	 	 
-	// pick new host to infect, if one exists at the new location and does NOT already have a symbiont
-	//TODO: Make this work based on neighbors so that it changes correctly in the future
+	    // pick new host to infect, if one exists at the new location and does NOT already have a symbiont
+	    //TODO: Make this work based on neighbors so that it changes correctly in the future
 
-	int newLoc = GetRandomCellID();
-	if (IsOccupied(newLoc) == true) {
- 		   
-	  if (!pop[newLoc]->HasSym()) {
-	    pop[newLoc]->SetSymbiont(*sym_baby);
+	    int newLoc = GetRandomCellID();
+	    if (IsOccupied(newLoc) == true) {
+	      pop[newLoc]->AddSymbionts(*sym_baby);
 
-	  }
-	}
-      }
-    }
-  }
+	    }
+	  } // if syms[j]
+	} // for each sym in syms
+      } //if org has syms
+    } // for each in schedule
+  } // Update()
 
 };
 
