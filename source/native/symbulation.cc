@@ -7,7 +7,7 @@
 using namespace std;
 
 EMP_BUILD_CONFIG( SymConfigBase,
-                 VALUE(SEED, double, 10, "What value should the random seed be?"),
+                 VALUE(SEED, int, 10, "What value should the random seed be?"),
                  VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
                  VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
                  VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
@@ -17,7 +17,8 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
 		  VALUE(MOI_MULT, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what a is, default 0"),
-		  VALUE(MOI_ADD, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what b is, default 0")
+		  VALUE(MOI_ADD, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what b is, default 0"), 
+		  VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host")
 
                  )
 //TODO: add option for random host and sym int values
@@ -51,6 +52,7 @@ int main(int argc, char * argv[])
     world.SetPopStruct_Mixed();
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
+    world.SetSymLimit(config.SYM_LIMIT());
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
     world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);

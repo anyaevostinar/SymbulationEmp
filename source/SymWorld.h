@@ -9,6 +9,7 @@ class SymWorld : public emp::World<Host>{
  private:
   double vertTrans = 0; 
   double mut_rate = 0;
+  int sym_limit = -1;
   emp::Random random;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
@@ -32,6 +33,10 @@ class SymWorld : public emp::World<Host>{
     mut_rate = mut;
   }
 
+  void SetSymLimit(int num) {
+    sym_limit = num;
+  }
+
 
   bool WillTransmit() {
     if (random.GetDouble(0.0, 1.0) <= vertTrans) {
@@ -46,7 +51,7 @@ class SymWorld : public emp::World<Host>{
   void InjectSymbiont(Symbiont newSym){
     int newLoc = GetRandomCellID();
     if(IsOccupied(newLoc) == true){
-      pop[newLoc]->AddSymbionts(newSym);
+      pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
 
@@ -198,7 +203,7 @@ class SymWorld : public emp::World<Host>{
 	    Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
 	    sym_baby->mutate(random, mut_rate);
 	    parent.mutate(random, mut_rate); //mutate parent symbiont                                   
-	    host_baby->AddSymbionts(*sym_baby);
+	    host_baby->AddSymbionts(*sym_baby, sym_limit);
 	  } //end will transmit
 	} //end for loop for each symbiont
 	DoBirth(*host_baby, i); //Automatically deals with grid
@@ -222,7 +227,7 @@ class SymWorld : public emp::World<Host>{
 
 	    int newLoc = GetRandomCellID();
 	    if (IsOccupied(newLoc) == true) {
-	      pop[newLoc]->AddSymbionts(*sym_baby);
+	      pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
 
 	    }
 	  } // if syms[j]

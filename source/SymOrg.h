@@ -86,9 +86,15 @@ public:
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
 
-  void AddSymbionts(Symbiont _in) {syms.push_back(_in);}
+
   void AddPoints(double _in) {points += _in;}
-  
+
+
+  void AddSymbionts(Symbiont _in, int sym_limit) {
+    if(syms.size() < sym_limit){
+      syms.push_back(_in);
+    }
+  }  
   
   bool HasSym() {
     if (syms.size() <= 0) { 
@@ -109,7 +115,6 @@ public:
     //split resources into equal chunks for each symbiont
     int num_sym = syms.size();
     double sym_piece = (double) resources / num_sym;
-
     double hostIntVal = interaction_val; //using private variable because we can
 
     for(size_t i=0; i < syms.size(); i++){
@@ -123,66 +128,47 @@ public:
       double bonus = synergy; 
 
 	
-//	std::cout << "Dividing resources: " << resources << std::endl;
+
       if (hostIntVal >= 0 && symIntVal >= 0)  {  
 	hostDonation = sym_piece * hostIntVal;
 	hostPortion = sym_piece - hostDonation;  
 	    
-//	    std::cout << "Host keeps " << hostPortion << " and gives " << hostDonation << " to symbiont." << std::endl;
-	    
 	symReturn = (hostDonation * symIntVal) * bonus;  
 	symPortion = hostDonation - (hostDonation * symIntVal);
-	    
-//	    std::cout << "Symbiont keeps " << symPortion << " and returns " << symReturn << " to host (multiplied by) " << bonus << std::endl;
 
 	hostPortion += symReturn;
 	    
-//	    std::cout << "In the end, host gets " << hostPortion << std::endl;
-	    
 	syms[i].AddPoints(symPortion);
 	this->AddPoints(hostPortion);
 	    
-      } else if (hostIntVal <= 0 && symIntVal < 0) {  // NEED TO CHECK THAT THIS IS CORRECT - see dissertation
+      } else if (hostIntVal <= 0 && symIntVal < 0) {
 	double hostDefense = -1.0 * (hostIntVal * sym_piece);
 	double remainingResources = 0.0;
-//	     std::cout << "Host: " << hostIntVal << " symbiont: " << symIntVal;
-//	     std::cout << " fight over " << resources << std::endl;
-// 	     std::cout << "Host invests " << hostDefense << " in defense (which is lost), ";
 	remainingResources = sym_piece - hostDefense;
-// 	     std::cout << "leaving " << remainingResources << " available for reproduction. " << std::endl;
 	     
-	     // if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
+	// if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
 	if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
 	  double symSteals = (hostIntVal - symIntVal) * remainingResources;
-//	     	std::cout << "Symbiont steals " << symSteals << " resources." << std::endl;
+
 	  symPortion = symSteals;
 	  hostPortion = remainingResources - symSteals;
-//	     	std::cout << "Leaving host receiving " << hostPortion << " resources." << std::endl;
-	} else { // symbiont cannot overcome host's defenses
-//	     	std::cout << "Symbiont cannot overcome host's defenses, and host keeps " << remainingResources << std::endl;
-	     	
+
+	} else { // symbiont cannot overcome host's defenses	     	
 	  symPortion = 0.0;
 	  hostPortion = remainingResources;
-	     	
 	}
 
-	
 	syms[i].AddPoints(symPortion);
 	this->AddPoints(hostPortion);
-	     
-	
+       	
       } else if (hostIntVal > 0 && symIntVal < 0) {
 	hostDonation = hostIntVal * sym_piece;
 	hostPortion = sym_piece - hostDonation;
-//		std::cout << "Host donates " << hostDonation << " to symbiont." << std::endl;
 	sym_piece = sym_piece - hostDonation;
 		
 	double symSteals = -1.0 * (sym_piece * symIntVal);
 	hostPortion = hostPortion - symSteals;
 	symPortion = hostDonation + symSteals;
-//		std::cout << "Symbiont steals an additional " << symSteals << " resources, ";
-//		std::cout << "leaving host with " << hostPortion << " resources.  ";
-//		std::cout << "Symbiont has " << symPortion << " at end." << std::endl;
 		
 	syms[i].AddPoints(symPortion);
 	this->AddPoints(hostPortion);
@@ -192,15 +178,13 @@ public:
 	double hostDefense = -1.0 * (hostIntVal * sym_piece);
 	hostPortion = sym_piece - hostDefense;
 		
-//		std::cout << "Host invests " << hostDefense << " in defense against a friendly symbiont." << std::endl;
-//		std::cout << "Host keeps " << hostPortion << " and symbiont gets nothing." << std::endl;
-		// symbiont gets nothing from antagonistic host
+	// symbiont gets nothing from antagonistic host
 	symPortion = 0.0;
 		
 	syms[i].AddPoints(symPortion);
 	this->AddPoints(hostPortion);
       } else {
-//		std::cout << "Missed a logical case in distributing resources." << std::endl;
+
 	//TODO: add error here
       }
     } //end syms[i] for loop
