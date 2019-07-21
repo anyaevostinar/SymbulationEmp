@@ -11,6 +11,9 @@ class SymWorld : public emp::World<Host>{
   double mut_rate = 0;
   int sym_limit = -1;
   emp::Random random;
+  double moi_mult = 0;
+  double moi_add = 0; //TODO make this a tuple maybe?
+  bool use_moi = 0;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -37,6 +40,7 @@ class SymWorld : public emp::World<Host>{
     sym_limit = num;
   }
 
+  //  void SetMOI(
 
   bool WillTransmit() {
     if (random.GetDouble(0.0, 1.0) <= vertTrans) {
@@ -133,7 +137,8 @@ class SymWorld : public emp::World<Host>{
     for (i =0; i < sym_size; i++){
       intValSum += syms[i].GetIntVal();
     }
-    return intValSum/sym_size;
+    if (sym_size) return (intValSum/sym_size);
+    else return 0;
   }
 
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {

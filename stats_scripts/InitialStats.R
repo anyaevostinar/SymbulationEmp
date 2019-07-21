@@ -4,32 +4,25 @@ fullcubeHelix <- c("#673F03", "#7D3002", "#891901", "#A7000F", "#B50142", "#CD07
 shorthelix <- c("#A7000F", "#E401E7","#5E8EFF","#86E9FE","#B2FCE3")
 elevenhelix <- c("#673F03", "#891901", "#B50142", "#D506AD", "#AB08FF", "#5731FD", "#4755FF", "#86E9FE", "#B2FCE3", "#D4FFDD", "#EFFDF0")
 
-setwd("~/Desktop")
+setwd("~/Desktop/SymbulationEmp/stats_scripts")
 
-initial_data <- read.table("munged_ten.dat", h=T)
-mut_start <- read.table("munged_start_mut.dat", h=T)
-para_start <- read.table("munged_start_para.dat", h=T)
+initial_data <- read.table("munged_basic.dat", h=T)
 
-initial_data <- read.table("munged_alltogether.dat", h=T)
+vert0 <- cbind(subset(initial_data, treatment== "0.0"), Treatment= "0%")
+vert01 <- cbind(subset(initial_data, treatment== "0.1"), Treatment= "10%")
+vert02 <- cbind(subset(initial_data, treatment== "0.2"), Treatment= "20%")
+vert03 <- cbind(subset(initial_data, treatment== "0.3"), Treatment= "30%")
+vert04 <- cbind(subset(initial_data, treatment== "0.4"), Treatment= "40%")
+vert05 <- cbind(subset(initial_data, treatment== "0.5"), Treatment= "50%")
+vert06 <- cbind(subset(initial_data, treatment== "0.6"), Treatment= "60%")
+vert07 <- cbind(subset(initial_data, treatment== "0.7"), Treatment= "70%")
+vert08 <- cbind(subset(initial_data, treatment== "0.8"), Treatment= "80%")
+vert09 <- cbind(subset(initial_data, treatment== "0.9"), Treatment= "90%")
+vert1 <- cbind(subset(initial_data, treatment== "1.0"), Treatment= "100%")
 
-initial_data <- subset(initial_data, update=="99900")
-initial_data <- mut_start
-initial_data <- para_start
-mut01_mult5_vert0_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0._start0."), Treatment= "0%")
-mut01_mult5_vert10_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.1_start0."), Treatment= "10%")
-mut01_mult5_vert20_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.2_start0."), Treatment= "20%")
-mut01_mult5_vert03_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.3_start0."), Treatment= "30%")
-mut01_mult5_vert04_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.4_start0."), Treatment= "40%")
-mut01_mult5_vert05_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.5_start0."), Treatment= "50%")
-mut01_mult5_vert06_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.6_start0."), Treatment= "60%")
-mut01_mult5_vert07_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.7_start0."), Treatment= "70%")
-mut01_mult5_vert08_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.8_start0."), Treatment= "80%")
-mut01_mult5_vert09_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert0.9_start0."), Treatment= "90%")
-mut01_mult5_vert1_start05 <- cbind(subset(initial_data, treatment== "mut0.001_mult5_vert1._start0."), Treatment= "100%")
+vert_sweep <- rbind(vert0, vert01, vert02, vert03, vert04, vert05, vert06, vert07, vert08, vert09, vert1)
 
-vert_sweep <- rbind(mut01_mult5_vert0_start05, mut01_mult5_vert10_start05, mut01_mult5_vert20_start05, mut01_mult5_vert03_start05, mut01_mult5_vert04_start05, mut01_mult5_vert05_start05, mut01_mult5_vert06_start05, mut01_mult5_vert07_start05, mut01_mult5_vert08_start05, mut01_mult5_vert09_start05, mut01_mult5_vert1_start05)
-
-ggplot(data=vert_sweep, aes(x=Treatment, y=donate, colour=Partner)) + ylab("Final Mean Interaction Value") + xlab("Vertical Transmission Rate") +theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ geom_boxplot() + ylim(c(-1.0,1.0)) +scale_colour_manual(values=shorthelix)
+ggplot(data=vert_sweep, aes(x=Treatment, y=donate, colour=partner)) + ylab("Final Mean Interaction Value") + xlab("Vertical Transmission Rate") +theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())+ geom_boxplot() + ylim(c(-1.0,1.0)) +scale_colour_manual(values=shorthelix)
 
 vert_sweep <- subset(vert_sweep, update < 10000)
 
