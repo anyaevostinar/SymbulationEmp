@@ -1,3 +1,4 @@
+
 // This is the main function for the NATIVE version of this project.
 
 #include <iostream>
@@ -54,10 +55,14 @@ int main(int argc, char * argv[])
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
     world.SetSymLimit(config.SYM_LIMIT());
+    world.SetMOI(config.MOI_MULT(), config.MOI_ADD());
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
     world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
     world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    world.SetupSymCountFile("SymCounts"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    world.SetupHostCountFile("HostCounts"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    
 
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){
