@@ -82,11 +82,12 @@ class SymWorld : public emp::World<Host>{
 
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
+    auto & node1 = GetSymCountDataNode();
     auto & node = GetSymIntValDataNode();
     node.SetupBins(-1.0, 1.0, 20);
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
-    file.AddTotal(node, "count", "Total number of symbionts");
+    file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -116,11 +117,12 @@ class SymWorld : public emp::World<Host>{
     emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
+    auto & node1 = GetHostCountDataNode();
     node.SetupBins(-1.0, 1.0, 20);
 
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
-    file.AddTotal(node, "count", "Total number of hosts");
+    file.AddTotal(node1, "count", "Total number of hosts");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
