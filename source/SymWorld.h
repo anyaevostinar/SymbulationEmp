@@ -12,9 +12,6 @@ class SymWorld : public emp::World<Host>{
   double mut_rate = 0;
   int sym_limit = -1;
   emp::Random random;
-  double moi_mult = 0;
-  double moi_add = 0; //TODO make this a tuple maybe?
-  bool use_moi = 0;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -43,12 +40,6 @@ class SymWorld : public emp::World<Host>{
   void SetSymLimit(int num) {
     sym_limit = num;
   }
-
-  void SetMOI(double a, double b) {
-    moi_add = b;
-    moi_mult = a;
-
-  }    
 
   bool WillTransmit() {
     if (random.GetDouble(0.0, 1.0) <= vertTrans) {
@@ -235,15 +226,6 @@ class SymWorld : public emp::World<Host>{
     return *data_node_symintval;
   }
   
-  bool CheckForLysis(int num_sym) {
-    double percent_survival = moi_mult * log(num_sym) + moi_add;
-    int random_num = rand() % 100;
-    std::cout <<"Number of sym: " <<num_sym << " Survival percentage: " << percent_survival << " number: " << random_num << std::endl;
-    if (percent_survival >= random_num) return false;
-    else return true;
-  }
-
-
 
   void Update(size_t new_resources=10) {
     emp::World<Host>::Update();
@@ -286,16 +268,7 @@ class SymWorld : public emp::World<Host>{
 	DoBirth(*host_baby, i); //Automatically deals with grid
       }
       if (pop[i]->HasSym()) { //check each sym for horizontal transmission
-	if (use_moi) {
-	  //test for lysis
-	  if (CheckForLysis((pop[i]->GetSymbionts())->size())) {
-	    // kill org and create the burst viral offspring
-	    // check for the viral offspring from other symbionts?
-	  }else {
-	    //Host survives a little longer
-	  }
-
-	} else{
+	if(true){
 	  //Original evolution method
 	  emp::vector<Symbiont> syms = *(pop[i]->GetSymbionts());
 	  for(size_t j = 0; j < syms.size(); j++){

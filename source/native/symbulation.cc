@@ -17,9 +17,6 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
                  VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
-		  VALUE(MOI_BOOL, bool, 0, "Whether to use the MOI equation or not, if 0, MOI_MULT and MOI_ADD will be ignored"),
-		  VALUE(MOI_MULT, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what a is, default 0"),
-		  VALUE(MOI_ADD, double, 0, "MOI assumed to be of the form a * ln(x) + b, this is for what b is, default 0"), 
 		  VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host")
 
                  )
@@ -55,7 +52,6 @@ int main(int argc, char * argv[])
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
     world.SetSymLimit(config.SYM_LIMIT());
-    world.SetMOI(config.MOI_MULT(), config.MOI_ADD());
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
     world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
