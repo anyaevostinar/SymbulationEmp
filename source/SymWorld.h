@@ -11,6 +11,13 @@ class SymWorld : public emp::World<Host>{
   double vertTrans = 0; 
   double mut_rate = 0;
   int sym_limit = -1;
+  bool lysis = 0;
+  bool h_trans = 0;
+  int burst_size = 0;
+  int burst_time = 0;
+  double host_repro = 0;
+  double sym_h_res = 0;
+  double sym_lysis_res = 0;
   emp::Random random;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
@@ -30,16 +37,17 @@ class SymWorld : public emp::World<Host>{
     };
     }
   
-  void SetVertTrans(double vt) {
-    vertTrans = vt;
-  }
-  void SetMutRate(double mut) {
-    mut_rate = mut;
-  }
+  void SetVertTrans(double vt) {vertTrans = vt;}
+  void SetMutRate(double mut) {mut_rate = mut;}
+  void SetSymLimit(int num) {sym_limit = num;}
+  void SetLysisBool(bool val) {lysis = val;}
+  void SetHTransBool(bool val) {h_trans = val;}
+  void SetBurstSize(int val) {burst_size = val;}
+  void SetBurstTime(int val) {burst_time = val;}
+  void SetHostRepro(double val) {host_repro = val;}
+  void SetSymHRes(double val) {sym_h_res = val;}
+  void SetSymLysisRes(double val) {sym_lysis_res = val;}
 
-  void SetSymLimit(int num) {
-    sym_limit = num;
-  }
 
   bool WillTransmit() {
     if (random.GetDouble(0.0, 1.0) <= vertTrans) {
@@ -49,6 +57,14 @@ class SymWorld : public emp::World<Host>{
     }
     
 
+  }
+
+  size_t GetNeighborHost (size_t i) {
+    size_t newLoc = GetRandomNeighborPos(i).GetIndex();
+    while (newLoc == i) {
+	newLoc = GetRandomNeighborPos(i).GetIndex();
+    }
+    return newLoc;
   }
 
   void InjectSymbiont(Symbiont newSym){
@@ -155,7 +171,7 @@ class SymWorld : public emp::World<Host>{
   }
 
   double CalcSymIntVal(size_t i) {
-    emp::vector<Symbiont> syms = *(pop[i]->GetSymbionts());
+    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
     int sym_size = syms.size();
     double intValSum = 0.0;
     for (i =0; i < sym_size; i++){
@@ -188,7 +204,7 @@ class SymWorld : public emp::World<Host>{
 	       [this](size_t){
 		 data_node_symcount -> Reset();
 		 for (size_t i = 0; i < pop.size(); i++){
-		   if(IsOccupied(i)) data_node_symcount->AddDatum((pop[i]->GetSymbionts())->size());
+		   if(IsOccupied(i)) data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
 		 }
 	       }
 	       );
@@ -246,7 +262,7 @@ class SymWorld : public emp::World<Host>{
       pop[i]->Process(random);
   
       //Check reproduction                                                                                                                              
-      if (pop[i]->GetPoints() >= 1000 ) {  // host replication                                                                                                   
+      if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
 	// will replicate & mutate a random offset from parent values
 	// while resetting resource points for host and symbiont to zero                                              
 
@@ -256,8 +272,8 @@ class SymWorld : public emp::World<Host>{
 	pop[i]->SetPoints(0);
 
 	//Now check if symbionts get to vertically transmit
-	for(size_t j = 0; j< (pop[i]->GetSymbionts())->size(); j++){
-	  Symbiont parent = (*(pop[i]->GetSymbionts()))[j];
+	for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
+	  Symbiont parent = ((pop[i]->GetSymbionts()))[j];
 	  
 	  if (WillTransmit()) { //Vertical transmission!  
 	    
@@ -269,13 +285,44 @@ class SymWorld : public emp::World<Host>{
 	} //end for loop for each symbiont
 	DoBirth(*host_baby, i); //Automatically deals with grid
       }
-      if (pop[i]->HasSym()) { //check each sym for horizontal transmission
-	if(true){
-	  //Original evolution method
-	  emp::vector<Symbiont> syms = *(pop[i]->GetSymbionts());
-	  for(size_t j = 0; j < syms.size(); j++){
-	    if (syms[j].GetPoints() >= 100) {
-	      // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources
+      if (pop[i]->HasSym()) { //check each sym for horizontal transmission and lysis
+	emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	for(size_t j = 0; j < syms.size(); j++){
+	  
+	  if(lysis) { //lysis enabled, checking for lysis
+	    if (syms[j].GetBurstTimer() >= burst_time) { //time to lyse!
+	      //	      std::cout << "Lysis time!" << std::endl;
+	      //distribute all the offspring in the repro offspring list 
+	      //TODO: SymDoBirth should replace the below
+	      emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
+	      for(size_t r = 0; r < repro_syms.size(); r++){
+		size_t newLoc = GetNeighborHost(i);
+		if (IsOccupied(newLoc) == true) {
+		  pop[newLoc]->AddSymbionts(repro_syms[r], sym_limit);
+		}
+	      }
+	      DoDeath(i); //kill organism
+	      break;	//continue to next organism
+
+	    }else{
+	      syms[j].IncBurstTimer();
+	      //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
+	      int offspring_per_tick = burst_size/burst_time;
+	      for(size_t o=0; o<= offspring_per_tick; o++) {
+		if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
+		  //if so, make a new symbiont and add it to Repro sym list
+		  Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
+		  sym_baby->mutate(random, mut_rate);
+		  syms[j].mutate(random, mut_rate);
+		  pop[i]->AddReproSym(*sym_baby);
+		}
+	      }
+	    }
+	    
+	  }if(h_trans){
+	  //non-lytic horizontal transmission enabled
+	    if (syms[j].GetPoints() >= sym_h_res) {
+	      // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
 	      // new symbiont in this host with mutated value
 	      // TODO: Make SymDoBirth instead of injecting
 	      syms[j].SetPoints(0);
@@ -284,10 +331,9 @@ class SymWorld : public emp::World<Host>{
 	      syms[j].mutate(random, mut_rate);
 
   	 	 
-	      // pick new host to infect, if one exists at the new location and does NOT already have a symbiont
-	      //TODO: Make this work based on neighbors so that it changes correctly in the future
+	      // pick new host to infect, if one exists at the new location and isn't at the limit
 
-	      int newLoc = GetRandomCellID();
+	      int newLoc = GetNeighborHost(i);
 	      if (IsOccupied(newLoc) == true) {
 		pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
 

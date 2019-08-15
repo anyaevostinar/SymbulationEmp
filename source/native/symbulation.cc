@@ -17,8 +17,15 @@ EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
                  VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
                  VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
-		  VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host")
-
+		  VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
+		  VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
+		  VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
+		  VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
+		  VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
+		  VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
+		  VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
+		  VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
+		  VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading")
                  )
 //TODO: add option for random host and sym int values
 //TODO: add option for world structure, currently mixed only
@@ -48,10 +55,20 @@ int main(int argc, char * argv[])
     emp::Random random(config.SEED());
         
     SymWorld world(random);
-    world.SetPopStruct_Mixed();
+    if (config.GRID() == 0) world.SetPopStruct_Mixed();
+    else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
+
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
     world.SetSymLimit(config.SYM_LIMIT());
+    world.SetLysisBool(config.LYSIS());
+    world.SetHTransBool(config.HORIZ_TRANS());
+    world.SetBurstSize(config.BURST_SIZE());
+    world.SetBurstTime(config.BURST_TIME());
+    world.SetHostRepro(config.HOST_REPRO_RES());
+    world.SetSymHRes(config.SYM_HORIZ_TRANS_RES());
+    world.SetSymLysisRes(config.SYM_LYSIS_RES());
+
     //Set up files
     world.SetupPopulationFile().SetTimingRepeat(10);
     world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);

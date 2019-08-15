@@ -3,9 +3,9 @@ import gzip
 
 folder = '../'
 
-treatment_postfixes = ['0.700000']
+treatment_postfixes = ['000000_0.000000', '000000_0.100000', '000000_0.300000', '000000_0.400000', '000000_0.500000']
 partners = ["Host", "Sym"]
-reps = [10,11, 12, 13]
+reps = range(43, 54)
 #reps = range(1001, 1021)
 final_update = 100
 header = "uid treatment rep update donate partner\n"

@@ -10,6 +10,7 @@ private:
   double interaction_val;
   double points;
   std::set<int> res_types;
+  int burst_timer = 0;
 
 
 public:
@@ -26,11 +27,13 @@ public:
   double GetIntVal() const {return interaction_val;}
   double GetPoints() {return points;}
   //  std::set<int> GetResTypes() const {return res_types;}
+  int GetBurstTimer() {return burst_timer;}
 
   void SetIntVal(double _in) { interaction_val = _in;}
   void SetPoints(double _in) { points = _in;}
   void AddPoints(double _in) { points += _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
+  void IncBurstTimer() {burst_timer++;}
 
   //TODO: change everything to camel case
   void mutate(emp::Random &random, double mut_rate){
@@ -59,11 +62,12 @@ class Host {
 private:
   double interaction_val;
   emp::vector<Symbiont> syms;
+  emp::vector<Symbiont> repro_syms;
   std::set<int> res_types;
   double points;
 
 public:
- Host(double _intval =0.0, emp::vector<Symbiont> _syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
+ Host(double _intval =0.0, emp::vector<Symbiont> _syms = {},emp::vector<Symbiont> _repro_syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
   // Host() : interaction_val(0), sym(*(new Symbiont(0, -1))), res_types(std::set<int>()), points(0) { ; }
@@ -76,7 +80,8 @@ public:
 
 
   double GetIntVal() const { return interaction_val;}
-  emp::vector<Symbiont>* GetSymbionts() { return &syms;}
+  emp::vector<Symbiont>& GetSymbionts() { return syms;}
+  emp::vector<Symbiont>& GetReproSymbionts() {return repro_syms;}
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
 
@@ -95,6 +100,7 @@ public:
       syms.push_back(_in);
     }
   }  
+  void AddReproSym(Symbiont _in) {repro_syms.push_back(_in);}
   
   bool HasSym() {
     if (syms.size() <= 0) { 
