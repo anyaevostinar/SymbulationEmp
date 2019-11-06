@@ -315,6 +315,7 @@ class SymWorld : public emp::World<Host>{
 		  sym_baby->mutate(random, mut_rate);
 		  syms[j].mutate(random, mut_rate);
 		  pop[i]->AddReproSym(*sym_baby);
+		  syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
 		}
 	      }
 	    }
@@ -326,6 +327,7 @@ class SymWorld : public emp::World<Host>{
 	      // new symbiont in this host with mutated value
 	      // TODO: Make SymDoBirth instead of injecting
 	      syms[j].SetPoints(0);
+	      //TODO: test just subtracting points instead of setting to 0
 	      Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
 	      sym_baby->mutate(random, mut_rate);
 	      syms[j].mutate(random, mut_rate);
