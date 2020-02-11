@@ -118,7 +118,13 @@ public:
   }
   
   void DistribResources(int resources, double synergy) { 
-    //split resources into equal chunks for each symbiont
+    //In the event that the host has no symbionts, the host gets all resources.
+    if(syms.empty()) {
+      this->AddPoints(resources);
+      return; //This concludes resource distribution.
+    }
+
+    //Otherwise, split resources into equal chunks for each symbiont
     int num_sym = syms.size();
     double sym_piece = (double) resources / num_sym;
     double hostIntVal = interaction_val; //using private variable because we can
