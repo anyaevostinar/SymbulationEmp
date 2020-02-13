@@ -25,7 +25,10 @@ EMP_BUILD_CONFIG( SymConfigBase,
 		  VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
 		  VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
 		  VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
-		  VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading")
+		  VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
+      VALUE(TRIALS, int, 1, "How many independent trials to repeat"),
+      VALUE(FILE_PATH, string, "", "Output file path"),
+      VALUE(FILE_NAME, string, "_data_", "Root output file name")
                  )
 //TODO: add option for random host and sym int values
 //TODO: add option for world structure, currently mixed only
@@ -34,24 +37,25 @@ EMP_BUILD_CONFIG( SymConfigBase,
 	
 int main(int argc, char * argv[])
 {    
-    SymConfigBase config;
+  SymConfigBase config;
     
-    config.Read("SymSettings.cfg");
+  config.Read("SymSettings.cfg");
 
-    auto args = emp::cl::ArgManager(argc, argv);
-    if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
-	cout << "There was a problem in processing the options file." << endl;
-	exit(0);
-      }
-    if (args.TestUnknown() == false) exit(0); //Leftover args no good
+  auto args = emp::cl::ArgManager(argc, argv);
+  if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
+    cout << "There was a problem in processing the options file." << endl;
+    exit(0);
+  }
+  if (args.TestUnknown() == false) exit(0); //Leftover args no good
 
-    double numupdates = config.UPDATES();
-    double POP_SIZE = config.GRID_X() * config.GRID_Y();
-    bool random_phen_host = false;
-    bool random_phen_sym = false;
-    if(config.HOST_INT() == -2) random_phen_host = true;
-    if(config.SYM_INT() == -2) random_phen_sym = true;
+  double numupdates = config.UPDATES();
+  double POP_SIZE = config.GRID_X() * config.GRID_Y();
+  bool random_phen_host = false;
+  bool random_phen_sym = false;
+  if(config.HOST_INT() == -2) random_phen_host = true;
+  if(config.SYM_INT() == -2) random_phen_sym = true;
 
+  for(int trial = 0; trial < config.TRIALS(); trial++) {
     emp::Random random(config.SEED());
         
     SymWorld world(random);
@@ -70,10 +74,11 @@ int main(int argc, char * argv[])
     world.SetSymLysisRes(config.SYM_LYSIS_RES());
 
     //Set up files
-    world.SetupPopulationFile().SetTimingRepeat(10);
-    world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
-    world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
-
+    world.SetupPopulationFile().SetTimingRepeat(100);
+    //world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    //world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
+    world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+to_string(trial)+".data").SetTimingRepeat(100);
+    world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+to_string(trial)+".data").SetTimingRepeat(100);
     
 
     //inject organisms
@@ -96,5 +101,5 @@ int main(int argc, char * argv[])
       cout << i << endl;
       world.Update();
     }
-
+  }
 }
