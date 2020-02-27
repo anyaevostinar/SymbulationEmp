@@ -1,11 +1,29 @@
+#include <stdlib.h>
+#include <iostream>
+
+using namespace std;
+
+void* my_malloc(size_t size, const char *file, int line, const char *func)
+{
+
+    void *p = malloc(size);
+    printf ("Allocated = %s, %i, %s, %p[%li]\n", file, line, func, p, size);
+
+    /*Link List functionality goes in here*/
+
+    return p;
+}
+
+
+#define malloc(X) my_malloc( X, __FILE__, __LINE__, __FUNCTION__)
+
+
 
 // This is the main function for the NATIVE version of this project.
 
-#include <iostream>
 #include "../SymWorld.h"
 #include "../../Empirical/source/config/ArgManager.h"
 
-using namespace std;
 
 EMP_BUILD_CONFIG( SymConfigBase,
                  VALUE(SEED, int, 10, "What value should the random seed be?"),
@@ -48,15 +66,16 @@ int main(int argc, char * argv[])
   }
   if (args.TestUnknown() == false) exit(0); //Leftover args no good
 
-  double numupdates = config.UPDATES();
+  int numupdates = config.UPDATES();
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
   bool random_phen_host = false;
   bool random_phen_sym = false;
   if(config.HOST_INT() == -2) random_phen_host = true;
   if(config.SYM_INT() == -2) random_phen_sym = true;
 
+  cout << "Running Simbulation Trials [";
   for(int trial = 0; trial < config.TRIALS(); trial++) {
-    emp::Random random(config.SEED());
+    emp::Random random(config.SEED()+trial);
         
     SymWorld world(random);
     if (config.GRID() == 0) world.SetPopStruct_Mixed();
@@ -97,9 +116,17 @@ int main(int argc, char * argv[])
 
     //Loop through updates
       
+    if(trial != 0)
+      cout << ", ";
+    cout << "T-" << trial << ": ";
+    cout.flush();
     for (int i = 0; i < numupdates; i++) {
-      cout << i << endl;
+      if(i%(numupdates/10)==0 && i/(numupdates/9) != 0 && i/(numupdates/9) != 10) {
+        cout << i/(numupdates/9);
+        cout.flush();
+      }
       world.Update();
     }
   }
+  cout << "]." << endl;
 }
