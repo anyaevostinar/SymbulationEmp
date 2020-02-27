@@ -317,6 +317,8 @@ class SymWorld : public emp::World<Host>{
 		  pop[i]->AddReproSym(*sym_baby);
 		  syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
 		}
+    else
+      break;
 	      }
 	    }
 	    
