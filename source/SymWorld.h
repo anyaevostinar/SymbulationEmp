@@ -1,13 +1,13 @@
 #include "../../Empirical/source/Evolve/World.h"
-#include "../../Empirical/source/tools/Random.h"
-#include <set>
-#include "SymOrg.h"
-#include "../../Empirical/source/tools/random_utils.h"
 #include "../../Empirical/source/data/DataFile.h"
+#include "../../Empirical/source/tools/random_utils.h"
+#include "../../Empirical/source/tools/Random.h"
+#include "SymOrg.h"
+#include <set>
 #include <math.h>
 
 class SymWorld : public emp::World<Host>{
- private:
+private:
   double vertTrans = 0; 
   double mut_rate = 0;
   int sym_limit = -1;
@@ -26,16 +26,14 @@ class SymWorld : public emp::World<Host>{
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
 
 
- public:
-  
-
-    //set fun_print_org to equal function that prints hosts/syms correctly
- SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
+public:
+  //set fun_print_org to equal function that prints hosts/syms correctly
+  SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
     fun_print_org = [](Host & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
-    }
+  }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetMutRate(double mut) {mut_rate = mut;}
@@ -50,26 +48,20 @@ class SymWorld : public emp::World<Host>{
 
 
   bool WillTransmit() {
-    if (random.GetDouble(0.0, 1.0) <= vertTrans) {
-      return true;
-    }  else {
-      return false;
-    }
-    
-
+    return random.GetDouble(0.0, 1.0) <= vertTrans;
   }
 
   size_t GetNeighborHost (size_t i) {
     size_t newLoc = GetRandomNeighborPos(i).GetIndex();
     while (newLoc == i) {
-	newLoc = GetRandomNeighborPos(i).GetIndex();
+      newLoc = GetRandomNeighborPos(i).GetIndex();
     }
     return newLoc;
   }
 
   void InjectSymbiont(Symbiont newSym){
     int newLoc = GetRandomCellID();
-    if(IsOccupied(newLoc) == true){
+    if(IsOccupied(newLoc) == true) {
       pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
@@ -130,7 +122,8 @@ class SymWorld : public emp::World<Host>{
 
     return file;
   }
-    emp::DataFile & SetupHostIntValFile(const std::string & filename) {
+  
+  emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     auto & node1 = GetHostCountDataNode();
@@ -177,21 +170,21 @@ class SymWorld : public emp::World<Host>{
     for (i =0; i < sym_size; i++){
       intValSum += syms[i].GetIntVal();
     }
-    if (sym_size) return (intValSum/sym_size);
-    else return 0;
+    if (sym_size)
+      return (intValSum/sym_size);
+    else
+      return 0;
   }
 
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
-      OnUpdate(
-	       [this](size_t){
-		 data_node_hostcount -> Reset();
-		 for (size_t i = 0; i< pop.size(); i++){
-		   if(IsOccupied(i)) data_node_hostcount->AddDatum(1);
-		 }
-	       }
-	       );
+      OnUpdate([this](size_t){
+        data_node_hostcount -> Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if(IsOccupied(i))
+            data_node_hostcount->AddDatum(1);
+      });
     }
     return *data_node_hostcount;
 
@@ -200,14 +193,12 @@ class SymWorld : public emp::World<Host>{
   emp::DataMonitor<int>& GetSymCountDataNode() {
     if(!data_node_symcount) {
       data_node_symcount.New();
-      OnUpdate(
-	       [this](size_t){
-		 data_node_symcount -> Reset();
-		 for (size_t i = 0; i < pop.size(); i++){
-		   if(IsOccupied(i)) data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
-		 }
-	       }
-	       );
+      OnUpdate([this](size_t){
+        data_node_symcount -> Reset();
+        for (size_t i = 0; i < pop.size(); i++)
+          if(IsOccupied(i))
+            data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
+      });
     }
     return *data_node_symcount;
   }
@@ -215,14 +206,12 @@ class SymWorld : public emp::World<Host>{
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
       data_node_hostintval.New();
-      OnUpdate(
-	       [this](size_t){
-		 data_node_hostintval->Reset();
-		 for (size_t i = 0; i< pop.size(); i++) {
-		   if (IsOccupied(i)) data_node_hostintval->AddDatum(CalcIntVal(i));
-		 }
-	       }
-	       );
+      OnUpdate([this](size_t){
+        data_node_hostintval->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (IsOccupied(i))
+            data_node_hostintval->AddDatum(CalcIntVal(i));
+      });
     }
     return *data_node_hostintval;
   }
@@ -232,14 +221,12 @@ class SymWorld : public emp::World<Host>{
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
-      OnUpdate(
-	       [this](size_t){
-		 data_node_symintval->Reset();
-		 for (size_t i = 0; i< pop.size(); i++) {
-		   if (IsOccupied(i)) data_node_symintval->AddDatum(CalcSymIntVal(i));
-		 }
-	       }
-	       );
+      OnUpdate([this](size_t){
+        data_node_symintval->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (IsOccupied(i))
+            data_node_symintval->AddDatum(CalcSymIntVal(i));
+      });
     }
     return *data_node_symintval;
   }
@@ -256,99 +243,95 @@ class SymWorld : public emp::World<Host>{
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
 
-  	   
+       
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       pop[i]->Process(random);
   
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
-	// will replicate & mutate a random offset from parent values
-	// while resetting resource points for host and symbiont to zero                                              
+        // will replicate & mutate a random offset from parent values
+        // while resetting resource points for host and symbiont to zero                                              
 
-	Host *host_baby = new Host(pop[i]->GetIntVal());
-	host_baby->mutate(random, mut_rate);
-	pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
-	pop[i]->SetPoints(0);
+        Host *host_baby = new Host(pop[i]->GetIntVal());
+        host_baby->mutate(random, mut_rate);
+        pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
+        pop[i]->SetPoints(0);
 
-	//Now check if symbionts get to vertically transmit
-	for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
-	  Symbiont parent = ((pop[i]->GetSymbionts()))[j];
-	  
-	  if (WillTransmit()) { //Vertical transmission!  
-	    
-	    Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
-	    sym_baby->mutate(random, mut_rate);
-	    parent.mutate(random, mut_rate); //mutate parent symbiont                                   
-	    host_baby->AddSymbionts(*sym_baby, sym_limit);
-	  } //end will transmit
-	} //end for loop for each symbiont
-	DoBirth(*host_baby, i); //Automatically deals with grid
+        //Now check if symbionts get to vertically transmit
+        for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
+          Symbiont parent = ((pop[i]->GetSymbionts()))[j];
+          
+          if (WillTransmit()) { //Vertical transmission!  
+            
+            Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
+            sym_baby->mutate(random, mut_rate);
+            parent.mutate(random, mut_rate); //mutate parent symbiont                                   
+            host_baby->AddSymbionts(*sym_baby, sym_limit);
+          } //end will transmit
+        } //end for loop for each symbiont
+        DoBirth(*host_baby, i); //Automatically deals with grid
       }
+
       if (pop[i]->HasSym()) { //check each sym for horizontal transmission and lysis
-	emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
-	for(size_t j = 0; j < syms.size(); j++){
-	  
-	  if(lysis) { //lysis enabled, checking for lysis
-	    if (syms[j].GetBurstTimer() >= burst_time) { //time to lyse!
-	      //	      std::cout << "Lysis time!" << std::endl;
-	      //distribute all the offspring in the repro offspring list 
-	      //TODO: SymDoBirth should replace the below
-	      emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
-	      for(size_t r = 0; r < repro_syms.size(); r++){
-		size_t newLoc = GetNeighborHost(i);
-		if (IsOccupied(newLoc) == true) {
-		  pop[newLoc]->AddSymbionts(repro_syms[r], sym_limit);
-		}
-	      }
-	      DoDeath(i); //kill organism
-	      break;	//continue to next organism
+        emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+        for(size_t j = 0; j < syms.size(); j++){
+          
+          if(lysis) { //lysis enabled, checking for lysis
+            if (syms[j].GetBurstTimer() >= burst_time) { //time to lyse!
+              //        std::cout << "Lysis time!" << std::endl;
+              //distribute all the offspring in the repro offspring list 
+              //TODO: SymDoBirth should replace the below
+              emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
+              for(size_t r = 0; r < repro_syms.size(); r++){
+                size_t newLoc = GetNeighborHost(i);
+                if (IsOccupied(newLoc) == true)
+                  pop[newLoc]->AddSymbionts(repro_syms[r], sym_limit);
+              }
+              DoDeath(i); //kill organism
+              break;  //continue to next organism
 
-	    }else{
-	      syms[j].IncBurstTimer();
-	      //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
-	      int offspring_per_tick = burst_size/burst_time;
-	      for(size_t o=0; o<= offspring_per_tick; o++) {
-		if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
-		  //if so, make a new symbiont and add it to Repro sym list
-		  Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
-		  sym_baby->mutate(random, mut_rate);
-		  syms[j].mutate(random, mut_rate);
-		  pop[i]->AddReproSym(*sym_baby);
-		  syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
-		}
-    else
-      break;
-	      }
-	    }
-	    
-	  }if(h_trans){
-	  //non-lytic horizontal transmission enabled
-	    if (syms[j].GetPoints() >= sym_h_res) {
-	      // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
-	      // new symbiont in this host with mutated value
-	      // TODO: Make SymDoBirth instead of injecting
-	      syms[j].SetPoints(0);
-	      //TODO: test just subtracting points instead of setting to 0
-	      Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
-	      sym_baby->mutate(random, mut_rate);
-	      syms[j].mutate(random, mut_rate);
+            } else {
+              syms[j].IncBurstTimer();
+              //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
+              int offspring_per_tick = burst_size/burst_time;
+              for(size_t o=0; o<= offspring_per_tick; o++) {
+                if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
+                  //if so, make a new symbiont and add it to Repro sym list
+                  Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
+                  sym_baby->mutate(random, mut_rate);
+                  syms[j].mutate(random, mut_rate);
+                  pop[i]->AddReproSym(*sym_baby);
+                  syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
+                }
+                else
+                  break;
+              }
+            } 
+          }
 
-  	 	 
-	      // pick new host to infect, if one exists at the new location and isn't at the limit
+          if(h_trans) { //non-lytic horizontal transmission enabled
+            if (syms[j].GetPoints() >= sym_h_res) {
+              // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
+              // new symbiont in this host with mutated value
+              // TODO: Make SymDoBirth instead of injecting
+              syms[j].SetPoints(0);
+              //TODO: test just subtracting points instead of setting to 0
+              Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
+              sym_baby->mutate(random, mut_rate);
+              syms[j].mutate(random, mut_rate);
 
-	      int newLoc = GetNeighborHost(i);
-	      if (IsOccupied(newLoc) == true) {
-		pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
+              
+              // pick new host to infect, if one exists at the new location and isn't at the limit
 
-	      }
-	    } // if syms[j]
-	  } // for each sym in syms
-	} //else (ie not using moi)
+              int newLoc = GetNeighborHost(i);
+              if (IsOccupied(newLoc) == true)
+                pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
+
+            } // if syms[j]
+          } // non-lytic horizontal transmission enabled
+        } //for each sym in syms
       } //if org has syms
-    } // for each in schedule
+    } // for each cell in schedule
   } // Update()
-
-};
-
-
+};// SymWorld class

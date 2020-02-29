@@ -16,7 +16,7 @@ private:
 public:
 
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
-    : interaction_val(_intval), points(_points), res_types(_set) { ; }
+    : interaction_val(_intval), points(_points), res_types(_set) {}
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
   
@@ -55,8 +55,7 @@ std::string PrintSym(Symbiont  org){
   return formattedstring;
   
   // return emp::to_string(out_val);  // creates a string without specifying format
-
-}
+}//Symbiont
 
 class Host {
 private:
@@ -67,11 +66,9 @@ private:
   double points;
 
 public:
- Host(double _intval =0.0, emp::vector<Symbiont> _syms = {},emp::vector<Symbiont> _repro_syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
+  Host(double _intval =0.0, emp::vector<Symbiont> _syms = {},emp::vector<Symbiont> _repro_syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
-  // Host() : interaction_val(0), sym(*(new Symbiont(0, -1))), res_types(std::set<int>()), points(0) { ; }
-
 
   Host & operator=(const Host &) = default;
   Host & operator=(Host &&) = default;
@@ -103,12 +100,7 @@ public:
   void AddReproSym(Symbiont _in) {repro_syms.push_back(_in);}
   
   bool HasSym() {
-    if (syms.size() <= 0) { 
-      return false;
-    } else {
-      return true;
-    }
-  	
+    return syms.size() != 0;
   }
 
   void mutate(emp::Random &random, double mut_rate){
@@ -139,93 +131,75 @@ public:
       double symReturn = 0.0;
       double bonus = synergy; 
 
-	
+  
 
       if (hostIntVal >= 0 && symIntVal >= 0)  {  
-	hostDonation = sym_piece * hostIntVal;
-	hostPortion = sym_piece - hostDonation;  
-	    
-	symReturn = (hostDonation * symIntVal) * bonus;  
-	symPortion = hostDonation - (hostDonation * symIntVal);
+        hostDonation = sym_piece * hostIntVal;
+        hostPortion = sym_piece - hostDonation;  
+            
+        symReturn = (hostDonation * symIntVal) * bonus;  
+        symPortion = hostDonation - (hostDonation * symIntVal);
 
-	hostPortion += symReturn;
-	    
-	syms[i].AddPoints(symPortion);
-	this->AddPoints(hostPortion);
-	    
+        hostPortion += symReturn;
+            
+        syms[i].AddPoints(symPortion);
+        this->AddPoints(hostPortion);
+      
       } else if (hostIntVal <= 0 && symIntVal < 0) {
-	double hostDefense = -1.0 * (hostIntVal * sym_piece);
-	double remainingResources = 0.0;
-	remainingResources = sym_piece - hostDefense;
-	     
-	// if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
-	if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
-	  double symSteals = (hostIntVal - symIntVal) * remainingResources;
+        double hostDefense = -1.0 * (hostIntVal * sym_piece);
+        double remainingResources = 0.0;
+        remainingResources = sym_piece - hostDefense;
+             
+        // if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
+        if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
+          double symSteals = (hostIntVal - symIntVal) * remainingResources;
 
-	  symPortion = symSteals;
-	  hostPortion = remainingResources - symSteals;
+          symPortion = symSteals;
+          hostPortion = remainingResources - symSteals;
 
-	} else { // symbiont cannot overcome host's defenses	     	
-	  symPortion = 0.0;
-	  hostPortion = remainingResources;
-	}
+        } else { // symbiont cannot overcome host's defenses         
+          symPortion = 0.0;
+          hostPortion = remainingResources;
+        }
 
-	syms[i].AddPoints(symPortion);
-	this->AddPoints(hostPortion);
-       	
+        syms[i].AddPoints(symPortion);
+        this->AddPoints(hostPortion);
+         
       } else if (hostIntVal > 0 && symIntVal < 0) {
-	hostDonation = hostIntVal * sym_piece;
-	hostPortion = sym_piece - hostDonation;
-	sym_piece = sym_piece - hostDonation;
-		
-	double symSteals = -1.0 * (sym_piece * symIntVal);
-	hostPortion = hostPortion - symSteals;
-	symPortion = hostDonation + symSteals;
-		
-	syms[i].AddPoints(symPortion);
-	this->AddPoints(hostPortion);
-		
-		
+        hostDonation = hostIntVal * sym_piece;
+        hostPortion = sym_piece - hostDonation;
+        sym_piece = sym_piece - hostDonation;
+          
+        double symSteals = -1.0 * (sym_piece * symIntVal);
+        hostPortion = hostPortion - symSteals;
+        symPortion = hostDonation + symSteals;
+          
+        syms[i].AddPoints(symPortion);
+        this->AddPoints(hostPortion);
+    
+    
       } else if (hostIntVal < 0 && symIntVal >= 0) {
-	double hostDefense = -1.0 * (hostIntVal * sym_piece);
-	hostPortion = sym_piece - hostDefense;
-		
-	// symbiont gets nothing from antagonistic host
-	symPortion = 0.0;
-		
-	syms[i].AddPoints(symPortion);
-	this->AddPoints(hostPortion);
+        double hostDefense = -1.0 * (hostIntVal * sym_piece);
+        hostPortion = sym_piece - hostDefense;
+          
+        // symbiont gets nothing from antagonistic host
+        symPortion = 0.0;
+          
+        syms[i].AddPoints(symPortion);
+        this->AddPoints(hostPortion);
       } else {
 
-	//TODO: add error here
+        //TODO: add error here
+        std::cout << "This should never happen." << std::endl;
+
       }
     } //end syms[i] for loop
-
   } //end DistribResources
 
   void Process(emp::Random &random) {
     //Currently just wrapping to use the existing function
     //TODO: make the below config options
     DistribResources(100, 5); 
-
   }
   
-
-};
-
-/*std::string PrintHost(Host * org) {
-  if (!org) return "-/-";
-  
-  std::stringstream temp;
-  temp << std::fixed << std::setprecision(2) << org->GetIntVal();
-  std::string formattedstring = temp.str();
-  
-  std::string out_val = formattedstring + "/" + PrintSym(org->GetSymbiont());
-  
- // std::string out_val = emp::to_string(org->GetIntVal(),"/", PrintSym(org->GetSymbiont()));  // not completely formatted
-  return out_val;
-}
-
-std::string PrintOrg(Host * org) {return PrintHost(org);}
-*/
-
+};//Host
