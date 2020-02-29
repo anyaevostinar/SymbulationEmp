@@ -30,7 +30,7 @@ class SymWorld : public emp::World<Host>{
   
 
     //set fun_print_org to equal function that prints hosts/syms correctly
- SymWorld(emp::Random &random) : emp::World<Host>(random) {
+ SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
     fun_print_org = [](Host & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
