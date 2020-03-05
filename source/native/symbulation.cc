@@ -96,8 +96,8 @@ int main(int argc, char * argv[])
   //Loop through updates
     
   for (int i = 0; i < numupdates; i++) {
-    if(i%(numupdates/10)==0 && i/(numupdates/9) != 0 && i/(numupdates/9) != 10) {
-      cout << i/(numupdates/9);
+    if((i%100)==0) {
+      cout <<"Update: "<< i << endl;
       cout.flush();
     }
     world.Update();
