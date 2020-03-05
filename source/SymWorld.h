@@ -34,6 +34,13 @@ public:
       os << "This doesn't work currently";
     };
   }
+
+  ~SymWorld() {
+    if (data_node_hostintval) data_node_hostintval.Delete();
+    if (data_node_symintval) data_node_symintval.Delete();
+    if (data_node_hostcount) data_node_hostcount.Delete();
+    if (data_node_symcount) data_node_symcount.Delete();
+  }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetMutRate(double mut) {mut_rate = mut;}
@@ -127,7 +134,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     auto & node1 = GetHostCountDataNode();
-    node.SetupBins(-1.0, 1.0, 20);
+    node.SetupBins(-1.0, 1.1, 21);
 
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
