@@ -99,7 +99,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetSymIntValDataNode();
-    node.SetupBins(-1.0, 1.0, 20);
+    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
