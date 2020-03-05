@@ -28,7 +28,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_PATH, string, "", "Output file path"),
     VALUE(FILE_NAME, string, "_data_", "Root output file name")
 )
-//TODO: add option for world structure, currently mixed only
+
 
 
 int main(int argc, char * argv[])
