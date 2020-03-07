@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     exit(0);
   }
 
-  int numupdates = config.UPDATES();
+  int numupdates = config.UPDATES()+1;
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
   bool random_phen_host = false;
   bool random_phen_sym = false;
@@ -82,7 +82,7 @@ int main(int argc, char * argv[])
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     Host *new_org;
-    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
+    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 0));
     else new_org = new Host(config.HOST_INT());
     world.Inject(*new_org);
 
@@ -94,12 +94,8 @@ int main(int argc, char * argv[])
 
 
   //Loop through updates
-    
   for (int i = 0; i < numupdates; i++) {
-    if(i%(numupdates/10)==0 && i/(numupdates/9) != 0 && i/(numupdates/9) != 10) {
-      cout << i/(numupdates/9);
-      cout.flush();
-    }
+    cout << i << endl;
     world.Update();
   }
 }
