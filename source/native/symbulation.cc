@@ -51,7 +51,7 @@ int main(int argc, char * argv[])
   	exit(1);
   }
 
-  int numupdates = config.UPDATES()+1;
+  int numupdates = config.UPDATES();
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
   bool random_phen_host = false;
   bool random_phen_sym = false;
@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     Host *new_org;
-    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 0));
+    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
     world.Inject(*new_org);
 
