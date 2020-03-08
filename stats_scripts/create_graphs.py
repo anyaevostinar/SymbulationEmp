@@ -76,43 +76,9 @@ popsq = int(sqrt(population))**2
 #Abbreviations are for: HOST_REPRO_RES, SYM_LYSIS_RES, BURST_SIZE, BURST_TIME, SYM_LIMIT, POPULATION
 parameter_names = 'GROUP_NAME, HRR, SLR, BS, BT, SL, POP'.split(', ')
 treatments = [
-
-    ['Base', [100,400], 1, 999999999, 3, 999999999, popsq] #odd
-    #['Base', 400, 1, 999999999, 3, 999999999, popsq] #odd
-    #['Base', 200, 1, 999999999, 3, 999999999, popsq] #odd
-        #3: up and a bit left, 10: hosts win.
-    #['Base', 100, [1,3,10], 999999999, 3, 999999999, popsq], #2 Trials removed sym limit (slightly right)
-    #['Base', 100, 1, 999999999, 3, 999999999, popsq], #removed sym limit (slightly right)
-    # ['Base', 100, 1, 999999999, 3, 10, popsq], #removed burst size (eversoslightly downright)
-    # ['Base', 1000, 10, 179, 30, 10, popsq],#Tried with fewer generations (broke)
-    # ['Base', 100, 1, 15, 3, 10, popsq], #Made slr more realistic (slightly more upleft)
-    # ['Base', 100, 0, 15, 3, 10, popsq], #Tight bunch from Maya
-    # /\:at trials = 4. These are taking 1–2 minutes each
-
-    # ['Base', 1000, 100, 3, 10, 3, popsq],
-    # ['HOST_REPRO_RES', [100,300,1000,3000,10000], 100, 3, 10, 3, popsq],
-    # ['SYM_LYSIS_RES', 1000, [10,30,100,300,1000], 3, 10, 3, popsq],
-    # ['BURST_SIZE', 1000, 100, [0,999999999], 10, 3, popsq],
-    # ['BURST_SIZE', 1000, 100, [0,1,3,5,10,15,30,100], 10, 3, popsq],
-    # ['BURST_TIME', 1000, 100, 3, [1,3,10,30,100,300], 3, popsq],
-    # ['SYM_LIMIT', 1000, 100, 3, 10, [1,3,10,30,100,1000,999999999], popsq],
-
-     # ['BURST_SIZE', 1000, 100, [9,19,29,59,999999999], 10, 3, popsq],
     
-    #['SYM_LYSIS_RES', 1000, [10,20,30,40,50,60,80,100,130,150,200,400,1000][::3], 999999999, 1, 999999999, popsq],
-    # ['SYM_LYSIS_RES', 1000, [10,20,30,40,50,60,80,100,130,150,200,400,1000][::3], 999999999, 3, 999999999, popsq],
-    #['SYM_LYSIS_RES', 1000, [10,20,30,40,50,60,80,100,130,150,200,400,1000][::3], 999999999, 10, 999999999, popsq],
-    # ['SYM_LYSIS_RES', 1000, [10,20,30,40,50,60,80,100,130,150,200,400,1000][::3], 999999999, 30, 999999999, popsq],
-    #['SYM_LYSIS_RES', 1000, [10,20,30,40,50,60,80,100,130,150,200,400,1000][::3], 999999999, 100, 999999999, popsq],
-    
-     # ['SYM_LYSIS_RES', 1000, [1,5,10,50,100,300], 3, 10, 3, popsq],
-     # ['Base', 1000, 1, 5, 8, 5, popsq],
-     # ['Base', 1000, 1, 10, 3, 20, popsq],
-     # ['HOST_REPRO_RES', [100,1000,10000], 1, 3, 10, 3, popsq],
-     # ['SYM_LYSIS_RES', 1000, [0,1,10,100,1000], 3, 10, 3, popsq],
-     # ['BURST_SIZE', 1000, 1, [0,1,3,10,100,1000], 10, 3, popsq],
-     # ['BURST_TIME', 1000, 1, 3, [0,1,3,10,100,1000], 3, popsq],
-     # ['SYM_LIMIT', 1000, 1, 3, 10, [0,1,3,10,100,1000], popsq],
+    ['SYM_LYSIS_RES', 40, [.04*(5.6/.04)**(i/4) for i in range(5)], 999999999, 1, 999999999, popsq],
+
 ]
 
 #############################
@@ -155,7 +121,7 @@ for treatment_set in treatments:
     treatments_names = None #Validate treatement set and determine number of treatments in it
     for parameter in treatment_set[1:]:
         if isinstance(parameter, list):
-            if treatments_names is None or len(parameter) == len(treatment_names):
+            if treatments_names is None or len(parameter) == len(treatments_names):
                 treatments_names = list(parameter)
             else:
                 print('I had to skip treatment set '+str(treatments)+' because multiple variable parameters were set, but they didn\'t all have the same number of values')
