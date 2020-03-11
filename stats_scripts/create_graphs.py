@@ -76,24 +76,9 @@ popsq = int(sqrt(population))**2
 #Abbreviations are for: HOST_REPRO_RES, SYM_LYSIS_RES, BURST_SIZE, BURST_TIME, SYM_LIMIT, POPULATION
 parameter_names = 'GROUP_NAME, HRR, SLR, BS, BT, SL, POP'.split(', ')
 treatments = [
-
-     
-    ['Base', 1000, 100, 3, 10, 3, popsq],
-    ['HOST_REPRO_RES', [100,300,1000,3000,10000], 100, 3, 10, 3, popsq],
-    ['SYM_LYSIS_RES', 1000, [10,30,100,300,1000], 3, 10, 3, popsq],
-    ['BURST_SIZE', 1000, 100, [0,999999999], 10, 3, popsq],
-    ['BURST_SIZE', 1000, 100, [0,1,3,5,10,15,30,100], 10, 3, popsq],
-    ['BURST_TIME', 1000, 100, 3, [1,3,10,30,100,300], 3, popsq],
-    ['SYM_LIMIT', 1000, 100, 3, 10, [1,3,10,30,100,1000,999999999], popsq],
     
-     # ['SYM_LYSIS_RES', 1000, [1,5,10,50,100,300], 3, 10, 3, popsq],
-     # ['Base', 1000, 1, 5, 8, 5, popsq],
-     # ['Base', 1000, 1, 10, 3, 20, popsq],
-     # ['HOST_REPRO_RES', [100,1000,10000], 1, 3, 10, 3, popsq],
-     # ['SYM_LYSIS_RES', 1000, [0,1,10,100,1000], 3, 10, 3, popsq],
-     # ['BURST_SIZE', 1000, 1, [0,1,3,10,100,1000], 10, 3, popsq],
-     # ['BURST_TIME', 1000, 1, 3, [0,1,3,10,100,1000], 3, popsq],
-     # ['SYM_LIMIT', 1000, 1, 3, 10, [0,1,3,10,100,1000], popsq],
+    ['SYM_LYSIS_RES', 40, [.04*(5.6/.04)**(i/4) for i in range(5)], 999999999, 1, 999999999, popsq],
+
 ]
 
 #############################
@@ -104,11 +89,17 @@ treatments = [
 #Command line interface
 import subprocess
 
-def cmd(*command):
+def cmd(command):
     '''This wait causes all executions to run in sieries.
     For parralelization, remove .wait() and instead delay the
     R script calls unitl all neccesary data is created.'''
     return subprocess.Popen(command, shell=True).wait()
+
+def silent_cmd(command):
+    '''This wait causes all executions to run in sieries.
+    For parralelization, remove .wait() and instead delay the
+    R script calls unitl all neccesary data is created.'''
+    return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).wait()
 
 
 #Work folders
@@ -130,7 +121,7 @@ for treatment_set in treatments:
     treatments_names = None #Validate treatement set and determine number of treatments in it
     for parameter in treatment_set[1:]:
         if isinstance(parameter, list):
-            if treatments_names is None or len(parameter) == len(treatment_names):
+            if treatments_names is None or len(parameter) == len(treatments_names):
                 treatments_names = list(parameter)
             else:
                 print('I had to skip treatment set '+str(treatments)+' because multiple variable parameters were set, but they didn\'t all have the same number of values')
@@ -156,12 +147,12 @@ for treatment_set in treatments:
         for index, name in enumerate(parameter_names): #Set config
             locals()[name] = treatment[index]
         SIDE = int(sqrt(POP))
-        SEED = (HRR,SLR,BS,BT,SL,SIDE).__hash__()
+        SEED = 0#(HRR,SLR,BS,BT,SL,SIDE).__hash__()
         
         data_file_root_name = '_HRR{}_SLR{}_BS{}_BT{}_SL{}_POP{}_T{}'.format(HRR, SLR, BS, BT, SL, POP, trials)
-        print('Simbulating: {}'.format(data_file_root_name[1:]), end='', flush=True)
+        print('Simbulating: {}. Trial:'.format(data_file_root_name[1:]), end='', flush=True)
 
-        for trial in range(trials):
+        for trial in range(trials):#IDENTICAL TREATMENTS
             FILE_NAME = data_file_root_name+'_R{}'.format(trial)
             with open('../SymSettings.cfg', 'r') as SymSettings:
                 data = SymSettings.readlines()
@@ -178,9 +169,10 @@ for treatment_set in treatments:
             
             with open('../SymSettings.cfg', 'w') as SymSettings:
                 SymSettings.writelines(data)
+                SymSettings.flush()
 
-            print(', T{}: '.format(trial),end='',flush=True);
-            cmd('cd ..; ./symbulation') #Run Symbulation
+            print(' {}'.format(trial),end='',flush=True);
+            silent_cmd('cd ..; ./symbulation') #Run Symbulation
 
             r_args.append(str(treatment_name))
             r_args.append(data_folder+'/'+group_name+'/'+'HostVals'+data_file_root_name+'_R')#This is everything up to the trial number

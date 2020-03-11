@@ -39,12 +39,16 @@ int main(int argc, char * argv[])
 
   auto args = emp::cl::ArgManager(argc, argv);
   if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
-    cout << "There was a problem in processing the options file." << endl;
-    exit(0);
+    cerr << "There was a problem in processing the options file." << endl;
+    exit(1);
   }
   if (args.TestUnknown() == false) {
-    cout << "Leftover args no good." << endl;
-    exit(0);
+    cerr << "Leftover args no good." << endl;
+    exit(1);
+  }
+  if (config.BURST_SIZE()%config.BURST_TIME() != 0) {
+  	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
+  	exit(1);
   }
 
   int numupdates = config.UPDATES();
@@ -94,12 +98,8 @@ int main(int argc, char * argv[])
 
 
   //Loop through updates
-    
   for (int i = 0; i < numupdates; i++) {
-    if(i%(numupdates/10)==0 && i/(numupdates/9) != 0 && i/(numupdates/9) != 10) {
-      cout << i/(numupdates/9);
-      cout.flush();
-    }
+    cout << i << endl;
     world.Update();
   }
 }

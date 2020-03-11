@@ -302,7 +302,7 @@ public:
               syms[j].IncBurstTimer();
               //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
               int offspring_per_tick = burst_size/burst_time;
-              for(size_t o=0; o<= offspring_per_tick; o++) {
+              for(size_t o=0; o< offspring_per_tick; o++) {
                 if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
                   //if so, make a new symbiont and add it to Repro sym list
                   Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
