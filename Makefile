@@ -1,5 +1,6 @@
 # Project-specific settings
 PROJECT := symbulation
+TEST_MAIN := source/catch/main
 EMP_DIR := ../Empirical/source
 
 # Flags to use regardless of compiler
@@ -42,6 +43,10 @@ $(PROJECT).js: source/web/$(PROJECT)-web.cc
 
 clean:
 	rm -f $(PROJECT) web/$(PROJECT).js web/*.js.map web/*.js.map *~ source/*.o
+
+test: clean
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o $(PROJECT).test
+	./$(PROJECT).test
 
 # Debugging information
 print-%: ; @echo '$(subst ','\'',$*=$($*))'

@@ -110,16 +110,23 @@ public:
   }
   
   void DistribResources(int resources, double synergy) { 
-    //In the event that the host has no symbionts, the host gets all resources.
+    double hostIntVal = interaction_val; //using private variable because we can
+    
+    //In the event that the host has no symbionts, the host gets all resources not allocated to defense.
     if(syms.empty()) {
-      this->AddPoints(resources);
+
+      if(hostIntVal >= 0)
+        this->AddPoints(resources);
+      else {
+        double hostDefense = -1.0 * hostIntVal * resources;
+        this->AddPoints(resources - hostDefense);
+      }
       return; //This concludes resource distribution.
     }
 
     //Otherwise, split resources into equal chunks for each symbiont
     int num_sym = syms.size();
     double sym_piece = (double) resources / num_sym;
-    double hostIntVal = interaction_val; //using private variable because we can
 
     for(size_t i=0; i < syms.size(); i++){
       
