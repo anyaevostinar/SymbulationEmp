@@ -183,7 +183,7 @@ for treatment_set in treatments:
     #cmd = '/Library/Frameworks/R.framework/Versions/3.6/Resources/Rscript --vanilla ./'+work_folder+'/cmd_munge_graph_save_hostsurvival_MOI.R ' + ' '.join(r_args)
     #out = os.system(cmd)
     #print('Error code: {}'.format(out))
-    command = '/Library/Frameworks/R.framework/Versions/3.6/Resources/Rscript --vanilla ./' \
+    command = 'Rscript --vanilla ./' \
         + 'cmd_munge_graph_save_hostsurvival_MOI.R ' + ' '.join(r_args)
     out = cmd(command)
     if out:
