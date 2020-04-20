@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
     cerr << "Leftover args no good." << endl;
     exit(1);
   }
-  if (config.BURST_SIZE()%config.BURST_TIME() != 0) {
+  if (config.BURST_SIZE()%config.BURST_TIME() != 0 && config.BURST_SIZE() < 999999999) {
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
