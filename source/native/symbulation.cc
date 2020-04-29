@@ -7,7 +7,7 @@ using namespace std;
 // This is the main function for the NATIVE version of this project.
 
 EMP_BUILD_CONFIG(SymConfigBase,
-    VALUE(SEED, int, 10, "What value should the random seed be?"),
+    VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
     VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),

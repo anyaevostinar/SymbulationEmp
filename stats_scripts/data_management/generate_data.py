@@ -12,8 +12,8 @@ HOW TO USE
 This is a tool for automatically running symbulation on multiple
 treatments and/or trials and storing and collating their results.
 
-To use this file, specify treatments in the treatments section of this
-file and then from the command line, run
+To use this file, specify treatments in the treatments.py file
+and then, from the command line, run
     "python3.6 generate_data.py"
 while in the folder containing this file (data_management) 
 
@@ -74,6 +74,8 @@ data_management folder:
 
  generate_data.py   this file
 
+    treatments.py   specifies the treatments to run
+
    collate_data.R   gathers data from a single treatment from raw_data
                     and appends it to collated_data.data
 
@@ -100,64 +102,9 @@ reprocess_data.py   for reconstruction collated_data.data using
 ###   Instructions  End   ###
 #############################
 
-
-#############################
-###   Treatments   Begin  ###
-#############################
-
-#Abbreviations are for: HOST_REPRO_RES, SYM_LYSIS_RES, BURST_SIZE, BURST_TIME, SYM_LIMIT, POPULATION, TRIAL
-#The last value in a treatment set is the number of trials to perform
-parameter_names = 'HRR, SLR, BS, BT, SL, POP, T'.split(', ')
-slrs = [round(.04*(5.6/.04)**(i/4), 14) for i in range(5)]
-slrs = slrs
-bts = [1, 2, 3, 5, 10, 30, 100]
-trials = list(range(10))
-treatments = [
-    [27, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [26, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [10, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [20, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [25, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [30, slr, 999999999, bt, 999999999, 10000, trial] \
-        for slr in slrs for bt in bts for trial in trials
-]+[
-    [35, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [40, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [50, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [70, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [100, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [150, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [300, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]+[
-    [1000, slr, 999999999, 1, 999999999, 10000, trial] \
-        for slr in slrs for trial in trials
-]
-#############################
-###   Treatments   End    ###
-#############################
+#Load treatments
+parameter_names = 'HRR, SLR, BS, BT, SL, POP, UPS, T'.split(', ')
+from treatments import treatments
 
 #Treatment validation
 warned_randomized_seed = False
@@ -214,6 +161,8 @@ else:
     with open(collated_data) as f:
         computed = {tuple(s[:15] for s in line.split()[:len(parameter_names)+1]) for line in f.readlines()}
 
+
+
 #Loading bar
 print('_'*len(treatments))
 
@@ -256,7 +205,7 @@ try:
         # ### DEFAULT ###
         # # Default settings group
 
-        data[3] = 'set SEED '+str(SEED)+'                  # What value should the random seed be? If seed <= 0, this it randomly re-chosen.\n'
+        data[3] = 'set SEED '+str(SEED)+'                  # What value should the random seed be? If seed <= 0, then it is randomly re-chosen.\n'
         # set MUTATION_RATE 0.002      # Standard deviation of the distribution to mutate by
         # set SYNERGY 5                # Amount symbiont's returned resources should be multiplied by
         # set VERTICAL_TRANSMISSION 0  # Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces
@@ -264,7 +213,7 @@ try:
         # set SYM_INT -1                # Interaction value from -1 to 1 that symbionts should have initially, -2 for random
         data[9] = 'set GRID_X '+str(SIDE)+'                 # Width of the world, just multiplied by the height to get total size\n'
         data[10] = 'set GRID_Y '+str(SIDE)+'                 # Height of world, just multiplied by width to get total size\n'
-        # set UPDATES 1001                # Number of updates to run before quitting
+        data[11] = 'set UPDATES '+str(UPS)+'                # Number of updates to run before quitting\n'
         data[12] = 'set SYM_LIMIT '+str(SL)+'              # Number of symbionts allowed to infect a single host\n'
         # set LYSIS 1                  # Should lysis occur? 0 for no, 1 for yes
         # set HORIZ_TRANS 0            # Should non-lytic horizontal transmission occur? 0 for no, 1 for yes
