@@ -103,7 +103,8 @@ reprocess_data.py   for reconstruction collated_data.data using
 #############################
 
 #Load treatments
-parameter_names = 'HRR, SLR, BS, BT, SL, POP, UPS, T'.split(', ')
+parameter_names = 'HRR, SLR, BS, BT, SL, SYN, POP, UPS, T'.split(', ')
+#Abbreviations for HOST_REPRO_RES, SYM_LYSIS_RES, BURST_SIZE, BURST_TIME, SYM_LIMIT, SYNERGY, POPULATION, UPDATES, and TRIALS
 from treatments import treatments
 
 #Treatment validation
@@ -207,7 +208,7 @@ try:
 
         data[3] = 'set SEED '+str(SEED)+'                  # What value should the random seed be? If seed <= 0, then it is randomly re-chosen.\n'
         # set MUTATION_RATE 0.002      # Standard deviation of the distribution to mutate by
-        # set SYNERGY 5                # Amount symbiont's returned resources should be multiplied by
+        data[5] = 'set SYNERGY '+str(SYNERGY)+'                # Amount symbiont\'s returned resources should be multiplied by\n'
         # set VERTICAL_TRANSMISSION 0  # Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces
         # set HOST_INT -2               # Interaction value from -1 to 1 that hosts should have initially, -2 for random
         # set SYM_INT -1                # Interaction value from -1 to 1 that symbionts should have initially, -2 for random

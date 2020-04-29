@@ -109,7 +109,7 @@ public:
     else if (interaction_val > 1) interaction_val = 1;
   }
   
-  void DistribResources(int resources, double synergy) { 
+  void DistribResources(double resources, double synergy) { 
     double hostIntVal = interaction_val; //using private variable because we can
     
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense.
@@ -203,10 +203,10 @@ public:
     } //end syms[i] for loop
   } //end DistribResources
 
-  void Process(emp::Random &random) {
+  void Process(emp::Random &random, double resources_per_host_per_update, double synergy) {
     //Currently just wrapping to use the existing function
     //TODO: make the below config options
-    DistribResources(100, 5); 
+    DistribResources(resources_per_host_per_update, synergy); 
   }
   
 };//Host

@@ -2,7 +2,7 @@ lines = open('collated_data.data').readlines()
 
 header = [x.strip('"') for x in lines[0].split()]
 
-independent_variables = 'HRR', 'HRR', 'SLR', 'BS', 'BT', 'SL', 'POP', 'T'
+independent_variables = 'HRR', 'HRR', 'SLR', 'BS', 'BT', 'SL', 'SYN', 'POP', 'UPS', 'T'
 dependant_variables = 'host_count', 'sym_count', 'survival', 'moi'
 omit = ('file_name',)
 versions = '"Standard-1.1"', '"Duplicate-1.1"'

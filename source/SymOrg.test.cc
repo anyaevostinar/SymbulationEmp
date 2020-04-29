@@ -1,4 +1,3 @@
-#include "SymOrg.h"
 #include <set>
 
 TEST_CASE( "Host-Symbiont interactions") {

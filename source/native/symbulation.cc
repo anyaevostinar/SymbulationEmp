@@ -74,6 +74,11 @@ int main(int argc, char * argv[])
   world.SetHostRepro(config.HOST_REPRO_RES());
   world.SetSymHRes(config.SYM_HORIZ_TRANS_RES());
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
+  world.SetSynergy(config.SYNERGY());
+
+  //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
+  //Configuring it adds another variable, but not another degree of freedom.
+  world.SetResPerUpdate(100);
 
   //Set up files
   world.SetupPopulationFile().SetTimingRepeat(100);
