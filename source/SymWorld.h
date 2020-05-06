@@ -1,3 +1,6 @@
+#ifndef SYM_WORLD_H
+#define SYM_WORLD_H
+
 #include "../../Empirical/source/Evolve/World.h"
 #include "../../Empirical/source/data/DataFile.h"
 #include "../../Empirical/source/tools/random_utils.h"
@@ -347,3 +350,5 @@ public:
     } // for each cell in schedule
   } // Update()
 };// SymWorld class
+
+#endif

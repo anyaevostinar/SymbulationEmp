@@ -1,3 +1,6 @@
+#ifndef SYM_ORG_H
+#define SYM_ORG_H
+
 #include "../../Empirical/source/tools/Random.h"
 #include "../../Empirical/source/tools/string_utils.h"
 #include <set>
@@ -210,3 +213,5 @@ public:
   }
   
 };//Host
+
+#endif

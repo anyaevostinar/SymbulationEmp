@@ -30,8 +30,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 )
 //TODO: add option for world structure, currently mixed only
 
-
-int main(int argc, char * argv[])
+int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;
     
@@ -101,10 +100,22 @@ int main(int argc, char * argv[])
     world.InjectSymbiont(new_sym);
   }
 
-
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
     cout << i << endl;
     world.Update();
   }
+
+  return 0;
 }
+
+/*
+This defenition gaurd prevents main from being defined twice during testing.
+In testing, Catch will define a main function which will initiate tests
+(including testing the symbulation_main function above).
+*/
+#ifndef CATCH_CONFIG_MAIN
+int main(int argc, char * argv[]) {
+  return symbulation_main(argc, argv);
+}
+#endif

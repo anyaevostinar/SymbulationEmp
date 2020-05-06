@@ -1,3 +1,5 @@
+#include "SymWorld.h"
+
 TEST_CASE( "Vertical Transmission" ) {
 
   GIVEN( "a world" ) {
@@ -83,7 +85,7 @@ TEST_CASE( "Interaction Patterns" ) {
     w.SetLysisBool(true);
     w.SetHTransBool(true);
     w.SetBurstSize(500);
-    w.SetBurstTime(50);
+    w.SetBurstTime(20);
     w.SetHostRepro(400);
     w.SetSymHRes(.1);
     w.SetSymLysisRes(.001);
@@ -104,12 +106,12 @@ TEST_CASE( "Interaction Patterns" ) {
       }
       
       //Simmulate
-      for(int i = 0; i < 51; i++)
+      for(int i = 0; i < 21; i++)//Burst time + 1
         w.Update();
 
       THEN( "the symbionts all die" ) {
         for(size_t i = 0; i < w.getPop().size(); i++)
-          REQUIRE( w.getPop()[i]->HasSym() == false );
+          REQUIRE( !(w.getPop()[i] && w.getPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
   }
