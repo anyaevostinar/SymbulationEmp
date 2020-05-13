@@ -24,6 +24,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
     VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
+    VALUE(START_MOI, int, 1, "Ratio of symbionts to hosts that experiment should start with"),
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
     VALUE(FILE_PATH, string, "", "Output file path"),
     VALUE(FILE_NAME, string, "_data_", "Root output file name")
@@ -51,6 +52,7 @@ int symbulation_main(int argc, char * argv[])
   }
 
   int numupdates = config.UPDATES();
+  int start_moi = config.START_MOI();
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
   bool random_phen_host = false;
   bool random_phen_sym = false;
@@ -94,10 +96,12 @@ int symbulation_main(int argc, char * argv[])
     else new_org = new Host(config.HOST_INT());
     world.Inject(*new_org);
 
-    Symbiont new_sym; 
-    if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
-    else new_sym = *(new Symbiont(config.SYM_INT()));
-    world.InjectSymbiont(new_sym);
+    for (int j = 0; j < start_moi; j++){ 
+      Symbiont new_sym; 
+      if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
+      else new_sym = *(new Symbiont(config.SYM_INT()));
+      world.InjectSymbiont(new_sym);
+    }
   }
 
   //Loop through updates
