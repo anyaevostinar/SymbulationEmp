@@ -103,7 +103,7 @@ reprocess_data.py   for reconstruction collated_data.data using
 #############################
 
 #Load treatments
-parameter_names = 'HRR, SLR, BS, BT, SL, SYN, POP, UPS, T'.split(', ')
+parameter_names = 'HRR, SLR, BS, BT, SL, SYN, POP, UPS, SMOI, T'.split(', ')
 #Abbreviations for HOST_REPRO_RES, SYM_LYSIS_RES, BURST_SIZE, BURST_TIME, SYM_LIMIT, SYNERGY, POPULATION, UPDATES, and TRIALS
 from treatments import treatments
 
@@ -223,9 +223,10 @@ try:
         data[17] = 'set HOST_REPRO_RES '+str(HRR)+'      # How many resources required for host reproduction\n'
         data[18] = 'set SYM_LYSIS_RES '+str(SLR)+'         # How many resources required for symbiont to create offspring for lysis each update\n'
         # set SYM_HORIZ_TRANS_RES 100  # How many resources required for symbiont non-lytic horizontal transmission
+        data[20] = 'set START_MOI '+str(SMOI)+'              # Ratio of symbionts to hosts that experiment should start with\n'
         # set GRID 0                   # Do offspring get placed immediately next to parents on grid, same for symbiont spreading
-        data[21] = 'set FILE_PATH '+str(symbulation_to_parent+raw_data)+'      # Output file location, leave blank for current folder\n'
-        data[22] = 'set FILE_NAME _'+str(file_name)+'      # Root output file name\n'
+        data[22] = 'set FILE_PATH '+str(symbulation_to_parent+raw_data)+'      # Output file location, leave blank for current folder\n'
+        data[23] = 'set FILE_NAME _'+str(file_name)+'      # Root output file name\n'
 
         with open(sym_settings, 'w') as f:
             f.writelines(data)
