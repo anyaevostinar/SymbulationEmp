@@ -208,7 +208,7 @@ try:
 
         data[3] = 'set SEED '+str(SEED)+'                  # What value should the random seed be? If seed <= 0, then it is randomly re-chosen.\n'
         # set MUTATION_RATE 0.002      # Standard deviation of the distribution to mutate by
-        data[5] = 'set SYNERGY '+str(SYNERGY)+'                # Amount symbiont\'s returned resources should be multiplied by\n'
+        data[5] = 'set SYNERGY '+str(SYN)+'                # Amount symbiont\'s returned resources should be multiplied by\n'
         # set VERTICAL_TRANSMISSION 0  # Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces
         # set HOST_INT -2               # Interaction value from -1 to 1 that hosts should have initially, -2 for random
         # set SYM_INT -1                # Interaction value from -1 to 1 that symbionts should have initially, -2 for random
