@@ -7,7 +7,7 @@ using namespace std;
 // This is the main function for the NATIVE version of this project.
 
 EMP_BUILD_CONFIG(SymConfigBase,
-    VALUE(SEED, int, 10, "What value should the random seed be?"),
+    VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
     VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
@@ -31,8 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 )
 //TODO: add option for world structure, currently mixed only
 
-
-int main(int argc, char * argv[])
+int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;
     
@@ -47,7 +46,7 @@ int main(int argc, char * argv[])
     cerr << "Leftover args no good." << endl;
     exit(1);
   }
-  if (config.BURST_SIZE()%config.BURST_TIME() != 0) {
+  if (config.BURST_SIZE()%config.BURST_TIME() != 0 && config.BURST_SIZE() < 999999999) {
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
@@ -76,13 +75,21 @@ int main(int argc, char * argv[])
   world.SetHostRepro(config.HOST_REPRO_RES());
   world.SetSymHRes(config.SYM_HORIZ_TRANS_RES());
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
+  world.SetSynergy(config.SYNERGY());
+
+  //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
+  //Configuring it adds another variable, but not another degree of freedom.
+  world.SetResPerUpdate(100);
+
+  const int TIMING_REPEAT = 100;
+  const bool STAGGER_STARTING_BURST_TIMERS = false;
 
   //Set up files
-  world.SetupPopulationFile().SetTimingRepeat(100);
+  world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
   //world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
   //world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(100);
-  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(100);
+  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   
 
   //inject organisms
@@ -96,14 +103,28 @@ int main(int argc, char * argv[])
       Symbiont new_sym; 
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
+      if(STAGGER_STARTING_BURST_TIMERS)
+        new_sym.burst_timer = random.GetInt(0,config.BURST_TIME());//Up through BT-1.
       world.InjectSymbiont(new_sym);
     }
   }
-
 
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
     cout << i << endl;
     world.Update();
   }
+
+  return 0;
 }
+
+/*
+This defenition gaurd prevents main from being defined twice during testing.
+In testing, Catch will define a main function which will initiate tests
+(including testing the symbulation_main function above).
+*/
+#ifndef CATCH_CONFIG_MAIN
+int main(int argc, char * argv[]) {
+  return symbulation_main(argc, argv);
+}
+#endif

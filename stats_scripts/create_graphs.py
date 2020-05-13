@@ -147,7 +147,7 @@ for treatment_set in treatments:
         for index, name in enumerate(parameter_names): #Set config
             locals()[name] = treatment[index]
         SIDE = int(sqrt(POP))
-        SEED = 0#(HRR,SLR,BS,BT,SL,SIDE).__hash__()
+        SEED = 1#(HRR,SLR,BS,BT,SL,SIDE).__hash__()
         
         data_file_root_name = '_HRR{}_SLR{}_BS{}_BT{}_SL{}_POP{}_T{}'.format(HRR, SLR, BS, BT, SL, POP, trials)
         print('Simbulating: {}. Trial:'.format(data_file_root_name[1:]), end='', flush=True)
@@ -183,7 +183,7 @@ for treatment_set in treatments:
     #cmd = '/Library/Frameworks/R.framework/Versions/3.6/Resources/Rscript --vanilla ./'+work_folder+'/cmd_munge_graph_save_hostsurvival_MOI.R ' + ' '.join(r_args)
     #out = os.system(cmd)
     #print('Error code: {}'.format(out))
-    command = '/Library/Frameworks/R.framework/Versions/3.6/Resources/Rscript --vanilla ./' \
+    command = 'Rscript --vanilla ./' \
         + 'cmd_munge_graph_save_hostsurvival_MOI.R ' + ' '.join(r_args)
     out = cmd(command)
     if out:
