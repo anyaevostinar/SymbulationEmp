@@ -81,12 +81,15 @@ int symbulation_main(int argc, char * argv[])
   //Configuring it adds another variable, but not another degree of freedom.
   world.SetResPerUpdate(100);
 
+  const int TIMING_REPEAT = 100;
+  const bool STAGGER_STARTING_BURST_TIMERS = false;
+
   //Set up files
-  world.SetupPopulationFile().SetTimingRepeat(100);
+  world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
   //world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
   //world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(100);
-  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(100);
+  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   
 
   //inject organisms
@@ -100,6 +103,8 @@ int symbulation_main(int argc, char * argv[])
       Symbiont new_sym; 
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
+      if(STAGGER_STARTING_BURST_TIMERS)
+        new_sym.burst_timer = random.GetInt(0,config.BURST_TIME());//Up through BT-1.
       world.InjectSymbiont(new_sym);
     }
   }
