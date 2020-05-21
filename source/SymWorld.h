@@ -258,8 +258,7 @@ public:
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero                                              
-
+        // while resetting resource points for host and symbiont to zero                                             
         Host *host_baby = new Host(pop[i]->GetIntVal());
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  

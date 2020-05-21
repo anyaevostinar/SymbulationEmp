@@ -4,23 +4,24 @@ from itertools import izip
 
 folder = '../'
 
-treatment_postfixes = ['0.700000']
+slr = "2.7"
+treatment_postfixes = [1, 5, 10, 15]
 partners = ["Host", "Sym"]
-reps = range(10,19)
+reps = range(10,16)
 #reps = range(1001, 1021)
-final_update = 100
+final_update = 3
 header = "uid treatment rep update host_count sym_count\n"
 
-outputFileName = "munged_moi.dat"
+outputFileName = "munged_moi_"+slr+".dat"
 
 outFile = open(outputFileName, 'w')
 outFile.write(header)
 
 for t in treatment_postfixes:
     for r in reps:
-        host_fname = folder +"HostVals" + str(r) + "_" + t + ".data"
-        sym_fname = folder +"SymVals" + str(r) + "_" + t + ".data"
-        uid = t + "_" + str(r)
+        host_fname = folder +"HostValsSLR"+slr+"_SM" + str(t) + "_Seed" + str(r) + ".data"
+        sym_fname = folder +"SymValsSLR"+slr+"_SM" + str(t) + "_Seed" + str(r) + ".data"
+        uid = str(t) + "_" + str(r)
         host_file = open(host_fname, 'r')
         sym_file = open(sym_fname, 'r')
         with open(host_fname) as host_file, open(sym_fname) as sym_file:
