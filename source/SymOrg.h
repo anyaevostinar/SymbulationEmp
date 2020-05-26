@@ -122,9 +122,8 @@ public:
     double hostIntVal = interaction_val; //using private variable because we can
 
     for(size_t i=0; i < syms.size(); i++){
-      
       double symIntVal = syms[i].GetIntVal();
-    
+     
       double hostPortion = 0.0;
       double hostDonation = 0.0;
       double symPortion = 0.0;
@@ -193,7 +192,9 @@ public:
         std::cout << "This should never happen." << std::endl;
 
       }
+      
     } //end syms[i] for loop
+  
   } //end DistribResources
 
   void Process(emp::Random &random) {

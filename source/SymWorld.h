@@ -166,23 +166,6 @@ public:
     return file;
   }
 
-  double CalcIntVal(size_t i) {
-    return pop[i]->GetIntVal(); 
-  }
-
-  double CalcSymIntVal(size_t i) {
-    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
-    int sym_size = syms.size();
-    double intValSum = 0.0;
-    for (i =0; i < sym_size; i++){
-      intValSum += syms[i].GetIntVal();
-    }
-    if (sym_size)
-      return (intValSum/sym_size);
-    else
-      return 0;
-  }
-
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -217,7 +200,7 @@ public:
         data_node_hostintval->Reset();
         for (size_t i = 0; i< pop.size(); i++)
           if (IsOccupied(i))
-            data_node_hostintval->AddDatum(CalcIntVal(i));
+            data_node_hostintval->AddDatum(pop[i]->GetIntVal());
       });
     }
     return *data_node_hostintval;
@@ -230,9 +213,15 @@ public:
       data_node_symintval.New();
       OnUpdate([this](size_t){
         data_node_symintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i))
-            data_node_symintval->AddDatum(CalcSymIntVal(i));
+        for (size_t i = 0; i< pop.size(); i++){
+          if (IsOccupied(i)){
+	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	    int sym_size = syms.size();
+	    for(size_t j=0; j< sym_size; j++){
+	      data_node_symintval->AddDatum(syms[j].GetIntVal());
+	    }//close for
+	  }//close if
+	}//close for
       });
     }
     return *data_node_symintval;
@@ -264,6 +253,7 @@ public:
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
+	pop[i]->SetSymbionts({});
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
@@ -277,6 +267,9 @@ public:
             host_baby->AddSymbionts(*sym_baby, sym_limit);
           } //end will transmit
         } //end for loop for each symbiont
+	if(host_baby->GetReproSymbionts().size() != 0){
+	  std::cout << "sneaky syms " << host_baby->GetReproSymbionts().size() << std::endl;
+	}
         DoBirth(*host_baby, i); //Automatically deals with grid
       }
 
