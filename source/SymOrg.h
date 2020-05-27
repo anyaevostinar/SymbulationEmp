@@ -1,3 +1,6 @@
+#ifndef SYM_ORG_H
+#define SYM_ORG_H
+
 #include "../../Empirical/source/tools/Random.h"
 #include "../../Empirical/source/tools/string_utils.h"
 #include <set>
@@ -10,11 +13,11 @@ private:
   double interaction_val;
   double points;
   std::set<int> res_types;
-  int burst_timer = 0;
 
 
 public:
 
+  int burst_timer = 0;
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) {}
   Symbiont(const Symbiont &) = default;
@@ -109,17 +112,24 @@ public:
     else if (interaction_val > 1) interaction_val = 1;
   }
   
-  void DistribResources(int resources, double synergy) { 
-    //In the event that the host has no symbionts, the host gets all resources.
+  void DistribResources(double resources, double synergy) { 
+    double hostIntVal = interaction_val; //using private variable because we can
+    
+    //In the event that the host has no symbionts, the host gets all resources not allocated to defense.
     if(syms.empty()) {
-      this->AddPoints(resources);
+
+      if(hostIntVal >= 0)
+        this->AddPoints(resources);
+      else {
+        double hostDefense = -1.0 * hostIntVal * resources;
+        this->AddPoints(resources - hostDefense);
+      }
       return; //This concludes resource distribution.
     }
 
     //Otherwise, split resources into equal chunks for each symbiont
     int num_sym = syms.size();
     double sym_piece = (double) resources / num_sym;
-    double hostIntVal = interaction_val; //using private variable because we can
 
     for(size_t i=0; i < syms.size(); i++){
       
@@ -196,10 +206,12 @@ public:
     } //end syms[i] for loop
   } //end DistribResources
 
-  void Process(emp::Random &random) {
+  void Process(emp::Random &random, double resources_per_host_per_update, double synergy) {
     //Currently just wrapping to use the existing function
     //TODO: make the below config options
-    DistribResources(100, 5); 
+    DistribResources(resources_per_host_per_update, synergy); 
   }
   
 };//Host
+
+#endif

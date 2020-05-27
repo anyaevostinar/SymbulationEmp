@@ -1,3 +1,6 @@
+#ifndef SYM_WORLD_H
+#define SYM_WORLD_H
+
 #include "../../Empirical/source/Evolve/World.h"
 #include "../../Empirical/source/data/DataFile.h"
 #include "../../Empirical/source/tools/random_utils.h"
@@ -18,6 +21,8 @@ private:
   double host_repro = 0;
   double sym_h_res = 0;
   double sym_lysis_res = 0;
+  double resources_per_host_per_update = 0;
+  double synergy = 0;
   emp::Random random;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
@@ -52,7 +57,10 @@ public:
   void SetHostRepro(double val) {host_repro = val;}
   void SetSymHRes(double val) {sym_h_res = val;}
   void SetSymLysisRes(double val) {sym_lysis_res = val;}
+  void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
+  void SetSynergy(double val) {synergy = val;}
 
+  emp::World<Host>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
     return random.GetDouble(0.0, 1.0) <= vertTrans;
@@ -239,7 +247,7 @@ public:
   }
   
 
-  void Update(size_t new_resources=10) {
+  void Update() {
     emp::World<Host>::Update();
 
     //TODO: put in fancy scheduler at some point
@@ -253,7 +261,7 @@ public:
        
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(random);
+      pop[i]->Process(random, resources_per_host_per_update, synergy);
   
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
@@ -341,3 +349,5 @@ public:
     } // for each cell in schedule
   } // Update()
 };// SymWorld class
+
+#endif
