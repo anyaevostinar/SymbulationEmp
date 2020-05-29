@@ -4,3 +4,6 @@ SymSettings.cfg
 project_name
 source/.DS_Store
 symbulation
+*~
+*.data
+*.dat

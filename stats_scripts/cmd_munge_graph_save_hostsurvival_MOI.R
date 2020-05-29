@@ -23,7 +23,10 @@ for(treatment in 1:((length(args)-2)/3)) {
 		sym_count <- as.numeric(tail(sym_data,n=1)["count"])
 				
 		survival <- host_count / population
-		moi <- sym_count / host_count
+		if(host_count != 0)
+			moi <- sym_count / host_count
+		else
+			moi <- 0
 		
 		graph_data <- rbind(graph_data,list(MOI=moi, survival=survival, treatment=treatment_name, label="Label"))
 	}
