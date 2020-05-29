@@ -178,19 +178,6 @@ public:
     return pop[i]->GetIntVal(); 
   }
 
-  double CalcSymIntVal(size_t i) {
-    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
-    int sym_size = syms.size();
-    double intValSum = 0.0;
-    for (i =0; i < sym_size; i++){
-      intValSum += syms[i].GetIntVal();
-    }
-    if (sym_size)
-      return (intValSum/sym_size);
-    else
-      return 0;
-  }
-
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -238,11 +225,17 @@ public:
       data_node_symintval.New();
       OnUpdate([this](size_t){
         data_node_symintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i))
-            data_node_symintval->AddDatum(CalcSymIntVal(i));
-      });
-    }
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	    int sym_size = syms.size();
+	    for(size_t j=0; j< sym_size; j++){
+	      data_node_symintval->AddDatum(syms[j].GetIntVal());
+	    }//close for
+	  }//close if
+	}//close for
+	});
+    }//close if
     return *data_node_symintval;
   }
   
@@ -306,7 +299,7 @@ public:
               break;  //continue to next organism
 
             } else {
-              syms[j].IncBurstTimer();
+              syms[j].IncBurstTimer(random);
               //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
               int offspring_per_tick = burst_size/burst_time;
               for(size_t o=0; o< offspring_per_tick; o++) {

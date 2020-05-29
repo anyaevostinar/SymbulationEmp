@@ -105,7 +105,7 @@ TEST_CASE( "Interaction Patterns" ) {
         w.InjectSymbiont(new_sym);
       }
       
-      //Simmulate
+      //Simulate
       for(int i = 0; i < 21; i++)//Burst time + 1
         w.Update();
 
@@ -147,7 +147,7 @@ TEST_CASE( "Interaction Patterns" ) {
         w.InjectSymbiont(new_sym);
       }
       
-      //Simmulate
+      //Simulate
       for(int i = 0; i < 51; i++)
         w.Update();
 

@@ -29,7 +29,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_PATH, string, "", "Output file path"),
     VALUE(FILE_NAME, string, "_data_", "Root output file name")
 )
-//TODO: add option for world structure, currently mixed only
+
 
 int symbulation_main(int argc, char * argv[])
 {    
@@ -81,13 +81,11 @@ int symbulation_main(int argc, char * argv[])
   //Configuring it adds another variable, but not another degree of freedom.
   world.SetResPerUpdate(100);
 
-  const int TIMING_REPEAT = 100;
-  const bool STAGGER_STARTING_BURST_TIMERS = false;
+  const int TIMING_REPEAT = 1;
+  const bool STAGGER_STARTING_BURST_TIMERS = true;
 
   //Set up files
   world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
-  //world.SetupHostIntValFile("HostVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
-  //world.SetupSymIntValFile("SymVals"+to_string(config.SEED())+"_"+to_string(config.VERTICAL_TRANSMISSION())+".data").SetTimingRepeat(10);
 
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
@@ -99,14 +97,14 @@ int symbulation_main(int argc, char * argv[])
     Host *new_org;
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
-    world.Inject(*new_org);
+        world.Inject(*new_org);
 
     for (int j = 0; j < start_moi; j++){ 
       Symbiont new_sym; 
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
       if(STAGGER_STARTING_BURST_TIMERS)
-        new_sym.burst_timer = random.GetInt(0,config.BURST_TIME());//Up through BT-1.
+        new_sym.burst_timer = random.GetInt(-5,5);
       world.InjectSymbiont(new_sym);
     }
   }
@@ -121,7 +119,7 @@ int symbulation_main(int argc, char * argv[])
 }
 
 /*
-This defenition gaurd prevents main from being defined twice during testing.
+This defenition guard prevents main from being defined twice during testing.
 In testing, Catch will define a main function which will initiate tests
 (including testing the symbulation_main function above).
 */

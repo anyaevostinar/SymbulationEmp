@@ -17,7 +17,7 @@ private:
 
 public:
 
-  int burst_timer = 0;
+  double burst_timer = 0;
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) {}
   Symbiont(const Symbiont &) = default;
@@ -30,13 +30,13 @@ public:
   double GetIntVal() const {return interaction_val;}
   double GetPoints() {return points;}
   //  std::set<int> GetResTypes() const {return res_types;}
-  int GetBurstTimer() {return burst_timer;}
+  double GetBurstTimer() {return burst_timer;}
 
   void SetIntVal(double _in) { interaction_val = _in;}
   void SetPoints(double _in) { points = _in;}
   void AddPoints(double _in) { points += _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
-  void IncBurstTimer() {burst_timer++;}
+  void IncBurstTimer(emp::Random &random) {burst_timer += random.GetRandNormal(1.0, 0.5);}
 
   //TODO: change everything to camel case
   void mutate(emp::Random &random, double mut_rate){
@@ -208,7 +208,6 @@ public:
 
   void Process(emp::Random &random, double resources_per_host_per_update, double synergy) {
     //Currently just wrapping to use the existing function
-    //TODO: make the below config options
     DistribResources(resources_per_host_per_update, synergy); 
   }
   

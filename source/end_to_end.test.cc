@@ -11,7 +11,7 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
     double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1, 
     int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10, 
     int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1, 
-    double sym_horiz_trans_res = 100, bool grid = 0) {
+	  double sym_horiz_trans_res = 100, int start_moi = 1, bool grid = 0) {
 
   SymConfigBase config;
 
@@ -32,6 +32,7 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
   config.HOST_REPRO_RES(host_repro_res);     //How many resources required for host reproduction
   config.SYM_LYSIS_RES(sym_lysis_res);         //How many resources required for symbiont to create offspring for lysis each update
   config.SYM_HORIZ_TRANS_RES(sym_horiz_trans_res); //How many resources required for symbiont non-lytic horizontal transmission
+  config.START_MOI(start_moi);     //How many symbionts per host to start
   config.GRID(grid);                  //Do offspring get placed immediately next to parents on grid, same for symbiont spreading
   config.FILE_PATH("");            //Output file location, leave blank for current folder
   config.FILE_NAME("_Test");       //Root output file name
@@ -53,7 +54,8 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
           string(" burst_time = ") + to_string(burst_time) + 
           string(" host_repro_res = ") + to_string(host_repro_res) + 
           string(" sym_lysis_res = ") + to_string(sym_lysis_res) + 
-          string(" sym_horiz_trans_res = ") + to_string(sym_horiz_trans_res) + 
+          string(" sym_horiz_trans_res = ") + to_string(sym_horiz_trans_res) +
+	 string(" start_moi = ") + to_string(start_moi) +
           string(" grid = ") + to_string(grid) + " }") {
     
     config.Write("SymSettings.cfg");
@@ -75,7 +77,7 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
         ifstream actual, expected;
         actual.open(type + "_Test.data", ios::in);
         expected.open(path, ios::in);
-        REQUIRE(actual.is_open());
+	REQUIRE(actual.is_open());
         REQUIRE(expected.is_open());
       
         //Is this a good length of text to display to the user?
@@ -110,6 +112,11 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
 }//void Test(.........)
 
 TEST_CASE( "End To End" ) {
-    Test("example_1", 5, 0.002, 5, 0, -2, -1, 40, 40, 801, 999999999, 1, 0, 999999999, 2, 60, 0.27518325026004, 100, 0);
-    Test("example_2", 17, 0.02, 3, 0, -2, -2, 10, 71, 952, 9, 1, 0, 4, 2, 71.123, .32117, 100, 0);
+  Test("vert_trans_0", 17, 0.002, 5, 0, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.5", 17, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_1", 17, 0.002, 5, 1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.1", 17, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.1_spa", 17, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
+  Test("vert_trans_0.5_spa", 17, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
+
 }
