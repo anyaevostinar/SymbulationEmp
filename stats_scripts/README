@@ -1,4 +1,4 @@
-This folder contains the python and R scripts used in my dissertation.
+This folder contains the python and R scripts used in my dissertation and the paper Spatial Structure Can Decrease Symbiotic Cooperation.
 
 munge_data.py is a general script for taking data files, extracting the desired data points, and combining them into a single file with proper labels for my R scripts.
 
@@ -11,4 +11,8 @@ StartingConditionInitialStats is the R script for the line plots in section 4.3.
 TasksInitialGraphs and TasksBucketGraphs generate the graphs in section 4.4
 
 SpatialBucketGraphs and SpatialInitialStats generate the graphs in section 4.5
+
+simple_repeat.py can be used to run multiple replicates and treatments locally.
+
+MOIAnalysis.R is in-progress and analyzes MOI and host survival over time.
 

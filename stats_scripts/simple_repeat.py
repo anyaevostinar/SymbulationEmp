@@ -1,4 +1,4 @@
-#Simplified versino of create_graphs.py
+#a script to run several replicates of several treatments locally
 
 directory = "no_Evol/"
 seeds = range(10, 21)
