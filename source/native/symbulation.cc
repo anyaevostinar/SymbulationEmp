@@ -8,6 +8,7 @@ using namespace std;
 
 EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
+    VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
     VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
@@ -80,7 +81,7 @@ int symbulation_main(int argc, char * argv[])
   //Configuring it adds another variable, but not another degree of freedom.
   world.SetResPerUpdate(100);
 
-  const int TIMING_REPEAT = 1;
+  int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;
 
   //Set up files
@@ -110,7 +111,7 @@ int symbulation_main(int argc, char * argv[])
 
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
-    if((i%100)==0) {
+    if((i%TIMING_REPEAT)==0) {
       cout <<"Update: "<< i << endl;
       cout.flush();
     }

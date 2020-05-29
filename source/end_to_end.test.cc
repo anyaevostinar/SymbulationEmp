@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void Test(std::string expected_result_file, int seed = 10, double mutation_rate = 0.002, 
+void Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002, 
     double synergy = 5, double vertical_transmission = 1, double host_int = 0, 
     double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1, 
     int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10, 
@@ -16,6 +16,7 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
   SymConfigBase config;
 
   config.SEED(seed);                 //What value should the random seed be? If seed <= 0, then it is randomly re-chosen.
+  config.DATA_INT(data_int);      //How frequently data should be written
   config.MUTATION_RATE(mutation_rate);     //Standard deviation of the distribution to mutate by
   config.SYNERGY(synergy);               //Amount symbiont's returned resources should be multiplied by
   config.VERTICAL_TRANSMISSION(vertical_transmission); //Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces
@@ -39,6 +40,7 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
 
   GIVEN( string("The configuration {") +
           string(" seed = ") + to_string(seed) + 
+	 string(" data_int = ") + to_string(data_int) +
           string(" mutation_rate = ") + to_string(mutation_rate) + 
           string(" synergy = ") + to_string(synergy) + 
           string(" vertical_transmission = ") + to_string(vertical_transmission) + 
@@ -112,11 +114,11 @@ void Test(std::string expected_result_file, int seed = 10, double mutation_rate 
 }//void Test(.........)
 
 TEST_CASE( "End To End" ) {
-  Test("vert_trans_0", 17, 0.002, 5, 0, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
-  Test("vert_trans_0.5", 17, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
-  Test("vert_trans_1", 17, 0.002, 5, 1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
-  Test("vert_trans_0.1", 17, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
-  Test("vert_trans_0.1_spa", 17, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
-  Test("vert_trans_0.5_spa", 17, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
+  Test("vert_trans_0", 17, 100, 0.002, 5, 0, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.5", 17, 100, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_1", 17, 100, 0.002, 5, 1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.1", 17, 100, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
+  Test("vert_trans_0.1_spa", 17, 100, 0.002, 5, 0.1, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
+  Test("vert_trans_0.5_spa", 17, 100, 0.002, 5, 0.5, -2, -2, 100, 100, 601, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 1);
 
 }
