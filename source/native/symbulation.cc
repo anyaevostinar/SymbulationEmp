@@ -31,7 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_NAME, string, "_data_", "Root output file name")
 )
 
-int symbulation_main(int argc, char * argv[])
+int symbulation_main(int argc, char * argv[]) // personalized main for testing 
 {    
   SymConfigBase config;
     
@@ -50,7 +50,7 @@ int symbulation_main(int argc, char * argv[])
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
-
+// params
   int numupdates = config.UPDATES();
   int start_moi = config.START_MOI();
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
@@ -61,10 +61,10 @@ int symbulation_main(int argc, char * argv[])
 
   emp::Random random(config.SEED());
       
-  SymWorld world(random);
-  if (config.GRID() == 0) world.SetPopStruct_Mixed();
+  SymWorld world(random); // create the world
+  if (config.GRID() == 0) world.SetPopStruct_Mixed(); // needed on UI. Assume it's mixed offspring
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
-
+// settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
   world.SetMutRate(config.MUTATION_RATE());
   world.SetSymLimit(config.SYM_LIMIT());
@@ -79,7 +79,7 @@ int symbulation_main(int argc, char * argv[])
 
   //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
   //Configuring it adds another variable, but not another degree of freedom.
-  world.SetResPerUpdate(100);
+  world.SetResPerUpdate(100); // number of resources distributed per update
 
   int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -87,6 +87,7 @@ int symbulation_main(int argc, char * argv[])
   //Set up files
   world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
 
+  // How we set what the data files will be called.
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
 
@@ -94,10 +95,10 @@ int symbulation_main(int argc, char * argv[])
 
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
-    Host *new_org;
+    Host *new_org; // Organisms are objects
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
-        world.Inject(*new_org);
+        world.Inject(*new_org); // empirical-provided tool to put our host into the world
 
     for (int j = 0; j < start_moi; j++){ 
       Symbiont new_sym; 
@@ -105,7 +106,7 @@ int symbulation_main(int argc, char * argv[])
       else new_sym = *(new Symbiont(config.SYM_INT()));
       if(STAGGER_STARTING_BURST_TIMERS)
         new_sym.burst_timer = random.GetInt(-5,5);
-      world.InjectSymbiont(new_sym);
+      world.InjectSymbiont(new_sym); // inject symbionts into hosts cause Empirical doesn't have a built-in tool
     }
   }
 
