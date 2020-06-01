@@ -10,14 +10,14 @@
 
 class Symbiont {
 private:  
-  double interaction_val;
+  double interaction_val; // dictates whether it gives away resources or invest in defense/parasitism
   double points;
-  std::set<int> res_types;
+  std::set<int> res_types; // resource types
 
 
 public:
 
-  double burst_timer = 0;
+  double burst_timer = 0; // should be corrected?
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) {}
   Symbiont(const Symbiont &) = default;
@@ -38,7 +38,8 @@ public:
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
   void IncBurstTimer(emp::Random &random) {burst_timer += random.GetRandNormal(1.0, 0.5);}
 
-  //TODO: change everything to camel case
+  //TODO: change everything to camel case. Pull from a normal distribution with mean = 0, and 
+  // mutation rate = standard deviation, this is a great approximation of nature.
   void mutate(emp::Random &random, double mut_rate){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
@@ -63,8 +64,8 @@ std::string PrintSym(Symbiont  org){
 class Host {
 private:
   double interaction_val;
-  emp::vector<Symbiont> syms;
-  emp::vector<Symbiont> repro_syms;
+  emp::vector<Symbiont> syms; // all the symbionts occupying a given host
+  emp::vector<Symbiont> repro_syms; // has to do with lysis. Can ignore for now.
   std::set<int> res_types;
   double points;
 
@@ -112,6 +113,8 @@ public:
     else if (interaction_val > 1) interaction_val = 1;
   }
   
+  // Mutualism: synergy factor. The symbiont can do something the host can't, and only this symbiosis can
+  // evolve.
   void DistribResources(double resources, double synergy) { 
     double hostIntVal = interaction_val; //using private variable because we can
     
@@ -141,7 +144,7 @@ public:
       double bonus = synergy; 
 
   
-
+      // See explanation on page 7 of paper. Note that equal to 0 means no resource exchange.
       if (hostIntVal >= 0 && symIntVal >= 0)  {  
         hostDonation = sym_piece * hostIntVal;
         hostPortion = sym_piece - hostDonation;  

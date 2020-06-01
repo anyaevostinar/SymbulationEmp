@@ -107,7 +107,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetSymIntValDataNode();
-    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
+    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive. Range convention of c++
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
@@ -252,7 +252,7 @@ public:
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       pop[i]->Process(random, resources_per_host_per_update, synergy);
   
-      //Check reproduction                                                                                                                              
+      //Check reproduction (happens in the world cause it's outside of an individual)                                                                                                                             
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             
