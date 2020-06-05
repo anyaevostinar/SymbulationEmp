@@ -96,7 +96,7 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     Host *new_org; // Organisms are objects
-    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
+    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1)); // random phenotypical host?
     else new_org = new Host(config.HOST_INT());
         world.Inject(*new_org); // empirical-provided tool to put our host into the world
 

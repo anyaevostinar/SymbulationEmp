@@ -25,7 +25,7 @@ private:
   double synergy = 0;
   emp::Random random;
   
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
