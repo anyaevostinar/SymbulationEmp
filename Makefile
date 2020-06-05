@@ -41,6 +41,11 @@ $(PROJECT):	source/native/$(PROJECT).cc
 $(PROJECT).js: source/web/$(PROJECT)-web.cc
 	$(CXX_web) $(CFLAGS_web) source/web/$(PROJECT)-web.cc -o web/$(PROJECT).js
 
+.PHONY: clean test serve
+
+serve:
+	python3 -m http.server
+
 clean:
 	rm -f $(PROJECT) web/$(PROJECT).js web/*.js.map web/*.js.map *~ source/*.o
 
