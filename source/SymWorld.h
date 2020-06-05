@@ -223,7 +223,7 @@ public:
         data_node_symintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts(); // pop[i] stores a Host, and this Host has a GetSymbionts func we defined 
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j].GetIntVal());
