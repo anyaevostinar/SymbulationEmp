@@ -24,7 +24,6 @@ private:
   double resources_per_host_per_update = 0;
   double synergy = 0;
   emp::Random random;
-  emp::vector<int> burst_sizes;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -89,7 +88,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node = GetBurstSizeDataNode();
     file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_burstsize", "Average burst size");
+    file.AddMean(node, "mean_burstsize", "Average burst size", true);
     file.PrintHeaderKeys();
 
     return file;
@@ -196,14 +195,6 @@ public:
   emp::DataMonitor<double>& GetBurstSizeDataNode() {
     if (!data_node_burst_size) {
       data_node_burst_size.New();
-      OnUpdate([this](size_t){
-	  //TODO: figure out how not to need a separate vector to record this
-	  data_node_burst_size -> Reset();
-	  for (size_t i : burst_sizes) {
-	    data_node_burst_size->AddDatum(burst_sizes[i]);
-	  }
-	  burst_sizes.clear();
-	});
     }
     return *data_node_burst_size;
 
@@ -296,7 +287,7 @@ public:
               //TODO: SymDoBirth should replace the below
               emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
 	      //Record the burst size
-	      burst_sizes.push_back(repro_syms.size());
+	      data_node_burst_size -> AddDatum(repro_syms.size());
               for(size_t r = 0; r < repro_syms.size(); r++){
                 size_t newLoc = GetNeighborHost(i);
                 if (IsOccupied(newLoc) == true)
