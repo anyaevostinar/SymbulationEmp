@@ -29,6 +29,8 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
+  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+
 
 
 public:
@@ -45,6 +47,7 @@ public:
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
+    if (data_node_burst_size) data_node_burst_size.Delete();
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -81,25 +84,13 @@ public:
     }
   }
 
-  //TODO: Can I put the counts into the int val file??
-  emp::DataFile & SetupSymCountFile(const std::string & filename) {
+  emp::DataFile & SetupLysisFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetSymCountDataNode();
+    auto & node = GetBurstSizeDataNode();
     file.AddVar(update, "update", "Update");
-    file.AddTotal(node, "count", "Total number of symbionts");
-
+    file.AddMean(node, "mean_burstsize", "Average burst size", true);
     file.PrintHeaderKeys();
 
-    return file;
-  }
-
-  emp::DataFile & SetupHostCountFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetHostCountDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddTotal(node, "count", "Total number of hosts");
-
-    file.PrintHeaderKeys();
     return file;
   }
 
@@ -202,6 +193,14 @@ public:
     return *data_node_symcount;
   }
 
+  emp::DataMonitor<double>& GetBurstSizeDataNode() {
+    if (!data_node_burst_size) {
+      data_node_burst_size.New();
+    }
+    return *data_node_burst_size;
+
+  }
+
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
       data_node_hostintval.New();
@@ -288,6 +287,8 @@ public:
               //distribute all the offspring in the repro offspring list 
               //TODO: SymDoBirth should replace the below
               emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
+	      //Record the burst size
+	      data_node_burst_size -> AddDatum(repro_syms.size());
               for(size_t r = 0; r < repro_syms.size(); r++){
                 size_t newLoc = GetNeighborHost(i);
                 if (IsOccupied(newLoc) == true)

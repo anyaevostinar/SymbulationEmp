@@ -85,9 +85,11 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
   const bool STAGGER_STARTING_BURST_TIMERS = true;
 
   //Set up files
-  world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
+  //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
 
-  // How we set what the data files will be called.
+  if (config.LYSIS() == 1) {
+    world.SetupLysisFile(config.FILE_PATH()+"Lysis"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  }
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
 
