@@ -11,7 +11,7 @@ UI::Document doc("emp_base");
 //emp::web::Table my_table(10, 2, "my_table");
 
 int main(){
-    doc << "<h1>Symbulation</h1>"
+    doc << "<h1>Symbulation</h1>";
 
     return 0;
 }
