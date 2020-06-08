@@ -6,6 +6,7 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <cmath> // for math::pow
 
 
 class Symbiont {
