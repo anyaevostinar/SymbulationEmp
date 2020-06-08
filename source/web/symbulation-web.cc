@@ -61,9 +61,9 @@ int main(){
     // for (Host *h : p){
     //     double k = h->GetPoints();
     // }
-
-    my_table.GetCell(0, 1) << p[0]->GetPoints();
-    my_table.GetCell(0, 0) << "1st org";
+    // Testing
+    my_table.GetCell(0, 1) << !p[0]->HasSym();
+    my_table.GetCell(0, 0) << "1st org:  ";
     std::cout << p[0]->GetPoints() << std::endl;
     doc << "<h1>Symbulation Project</h1>";
     doc << my_table;
