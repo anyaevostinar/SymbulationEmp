@@ -98,7 +98,7 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     Host *new_org; // Organisms are objects
-    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1)); // random phenotypical host?
+    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
         world.Inject(*new_org); // empirical-provided tool to put our host into the world
 
@@ -108,7 +108,7 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
       else new_sym = *(new Symbiont(config.SYM_INT()));
       if(STAGGER_STARTING_BURST_TIMERS)
         new_sym.burst_timer = random.GetInt(-5,5);
-      world.InjectSymbiont(new_sym); // inject symbionts into hosts cause Empirical doesn't have a built-in tool
+      world.InjectSymbiont(new_sym); 
     }
   }
 
