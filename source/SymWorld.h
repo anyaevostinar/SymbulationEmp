@@ -98,7 +98,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetSymIntValDataNode();
-    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive. Range convention of c++
+    node.SetupBins(-1.0, 1.1, 21);
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
@@ -122,8 +122,6 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-// AddHistBin specifies a range. The number of nodes within that range will be graphed,
-// while other values will be ignored?
 
     file.PrintHeaderKeys();
 
@@ -223,7 +221,7 @@ public:
         data_node_symintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts(); // pop[i] stores a Ptr::Host, and this Host has a GetSymbionts func we defined 
+	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts(); 
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j].GetIntVal());
