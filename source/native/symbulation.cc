@@ -31,7 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_NAME, string, "_data_", "Root output file name")
 )
 
-int symbulation_main(int argc, char * argv[]) // personalized main for testing 
+int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;
     
@@ -61,8 +61,8 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
 
   emp::Random random(config.SEED());
       
-  SymWorld world(random); // create the world
-  if (config.GRID() == 0) world.SetPopStruct_Mixed(); // needed on UI. Assume it's mixed offspring
+  SymWorld world(random);
+  if (config.GRID() == 0) world.SetPopStruct_Mixed();
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 // settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
@@ -77,8 +77,6 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
   world.SetSynergy(config.SYNERGY());
 
-  //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
-  //Configuring it adds another variable, but not another degree of freedom.
   world.SetResPerUpdate(100); // number of resources distributed per update
 
   int TIMING_REPEAT = config.DATA_INT();
@@ -97,7 +95,7 @@ int symbulation_main(int argc, char * argv[]) // personalized main for testing
 
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
-    Host *new_org; // Organisms are objects
+    Host *new_org;
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
         world.Inject(*new_org); // empirical-provided tool to put our host into the world
