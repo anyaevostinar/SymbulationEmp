@@ -2,15 +2,15 @@ import os.path
 import gzip
 from itertools import izip
 
-folder = 'SLR_Sweep/'
+folder = 'UninfectedMOISweep/'
 
-treatment_postfixes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-slrs = [0.3, 1, 2, 3, 4, 5, 10, 15, 20, 25, 50]
+treatment_postfixes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+slrs = [15]
 partners = ["Host", "Sym"]
-reps = range(10,12)
+reps = range(10,21)
 #reps = range(1001, 1021)
 final_update = 3
-header = "uid smoi slr rep update host_count sym_count sym_val host_val burst_size\n"
+header = "uid smoi slr rep update host_count sym_count sym_val host_val burst_size uninfected\n"
 
 outputFileName = folder+"munged_data.dat"
 
@@ -34,6 +34,6 @@ for t in treatment_postfixes:
                         symline = sym_line.split(',')
                         lysisline = lysis_line.split(',')
                     #                    if int(splitline[0]) == final_update:
-                        outstring1 = "{} {} {} {} {} {} {} {} {} {}\n".format(uid, t, s, r, splitline[0], splitline[2], symline[2], symline[1], splitline[1], lysisline[1])
+                        outstring1 = "{} {} {} {} {} {} {} {} {} {} {}\n".format(uid, t, s, r, splitline[0], splitline[2], symline[2], symline[1], splitline[1], lysisline[1].strip(), splitline[3])
                         outFile.write(outstring1)
 outFile.close()

@@ -1,10 +1,10 @@
 #a script to run several replicates of several treatments locally
 
-directory = "SLR_Sweep/"
+directory = "UninfectedMOISweep/"
 seeds = range(10, 21)
-start_mois = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+start_mois = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 
-slrs = [0.3, 1, 2, 3, 4]
+slrs = [15]
 #verts = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 
 
