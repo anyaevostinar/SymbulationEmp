@@ -25,10 +25,12 @@ private:
   double synergy = 0;
   emp::Random random;
   
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
+  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+
 
 
 public:
@@ -45,6 +47,7 @@ public:
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
+    if (data_node_burst_size) data_node_burst_size.Delete();
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -81,25 +84,13 @@ public:
     }
   }
 
-  //TODO: Can I put the counts into the int val file??
-  emp::DataFile & SetupSymCountFile(const std::string & filename) {
+  emp::DataFile & SetupLysisFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetSymCountDataNode();
+    auto & node = GetBurstSizeDataNode();
     file.AddVar(update, "update", "Update");
-    file.AddTotal(node, "count", "Total number of symbionts");
-
+    file.AddMean(node, "mean_burstsize", "Average burst size", true);
     file.PrintHeaderKeys();
 
-    return file;
-  }
-
-  emp::DataFile & SetupHostCountFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetHostCountDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddTotal(node, "count", "Total number of hosts");
-
-    file.PrintHeaderKeys();
     return file;
   }
 
@@ -131,7 +122,6 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
 
     file.PrintHeaderKeys();
 
@@ -201,6 +191,14 @@ public:
     return *data_node_symcount;
   }
 
+  emp::DataMonitor<double>& GetBurstSizeDataNode() {
+    if (!data_node_burst_size) {
+      data_node_burst_size.New();
+    }
+    return *data_node_burst_size;
+
+  }
+
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
       data_node_hostintval.New();
@@ -223,7 +221,7 @@ public:
         data_node_symintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts(); 
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j].GetIntVal());
@@ -252,7 +250,7 @@ public:
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       pop[i]->Process(random, resources_per_host_per_update, synergy);
   
-      //Check reproduction                                                                                                                              
+      //Check reproduction                                                                                                                         
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             
@@ -287,6 +285,8 @@ public:
               //distribute all the offspring in the repro offspring list 
               //TODO: SymDoBirth should replace the below
               emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
+	      //Record the burst size
+	      data_node_burst_size -> AddDatum(repro_syms.size());
               for(size_t r = 0; r < repro_syms.size(); r++){
                 size_t newLoc = GetNeighborHost(i);
                 if (IsOccupied(newLoc) == true)

@@ -10,9 +10,9 @@
 
 class Symbiont {
 private:  
-  double interaction_val;
+  double interaction_val; // whether org gives away resources or invest in defense/parasitism
   double points;
-  std::set<int> res_types;
+  std::set<int> res_types; // resource types
 
 
 public:
@@ -38,7 +38,7 @@ public:
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
   void IncBurstTimer(emp::Random &random) {burst_timer += random.GetRandNormal(1.0, 0.5);}
 
-  //TODO: change everything to camel case
+  //TODO: change everything to camel case. 
   void mutate(emp::Random &random, double mut_rate){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
@@ -141,7 +141,6 @@ public:
       double bonus = synergy; 
 
   
-
       if (hostIntVal >= 0 && symIntVal >= 0)  {  
         hostDonation = sym_piece * hostIntVal;
         hostPortion = sym_piece - hostDonation;  

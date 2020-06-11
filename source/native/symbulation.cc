@@ -50,7 +50,7 @@ int symbulation_main(int argc, char * argv[])
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
-
+// params
   int numupdates = config.UPDATES();
   int start_moi = config.START_MOI();
   double POP_SIZE = config.GRID_X() * config.GRID_Y();
@@ -64,7 +64,7 @@ int symbulation_main(int argc, char * argv[])
   SymWorld world(random);
   if (config.GRID() == 0) world.SetPopStruct_Mixed();
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
-
+// settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
   world.SetMutRate(config.MUTATION_RATE());
   world.SetSymLimit(config.SYM_LIMIT());
@@ -77,16 +77,17 @@ int symbulation_main(int argc, char * argv[])
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
   world.SetSynergy(config.SYNERGY());
 
-  //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
-  //Configuring it adds another variable, but not another degree of freedom.
-  world.SetResPerUpdate(100);
+  world.SetResPerUpdate(100); // number of resources distributed per update
 
   int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;
 
   //Set up files
-  world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
+  //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
 
+  if (config.LYSIS() == 1) {
+    world.SetupLysisFile(config.FILE_PATH()+"Lysis"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  }
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
 
@@ -97,7 +98,7 @@ int symbulation_main(int argc, char * argv[])
     Host *new_org;
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
-        world.Inject(*new_org);
+        world.Inject(*new_org); // empirical-provided tool to put our host into the world
 
     for (int j = 0; j < start_moi; j++){ 
       Symbiont new_sym; 
@@ -105,7 +106,7 @@ int symbulation_main(int argc, char * argv[])
       else new_sym = *(new Symbiont(config.SYM_INT()));
       if(STAGGER_STARTING_BURST_TIMERS)
         new_sym.burst_timer = random.GetInt(-5,5);
-      world.InjectSymbiont(new_sym);
+      world.InjectSymbiont(new_sym); 
     }
   }
 
