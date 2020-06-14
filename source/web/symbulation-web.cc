@@ -66,9 +66,10 @@ int symbulation_main(int argc, char * argv[]){
 
     emp::Random random(config.SEED());
       
-    SymWorld world(random); // create the world
-    if (config.GRID() == 0) world.SetPopStruct_Mixed(); // needed on UI. Assume it's mixed offspring
+    SymWorld world(random);
+    if (config.GRID() == 0) world.SetPopStruct_Mixed();
     else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
+
     // settings
     world.SetVertTrans(config.VERTICAL_TRANSMISSION());
     world.SetMutRate(config.MUTATION_RATE());
@@ -81,7 +82,7 @@ int symbulation_main(int argc, char * argv[]){
     world.SetSymHRes(config.SYM_HORIZ_TRANS_RES());
     world.SetSymLysisRes(config.SYM_LYSIS_RES());
     world.SetSynergy(config.SYNERGY());
-    world.SetResPerUpdate(100); // number of resources distributed per update
+    world.SetResPerUpdate(100); 
 
     int TIMING_REPEAT = config.DATA_INT();
     const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -89,9 +90,9 @@ int symbulation_main(int argc, char * argv[]){
     //inject organisms
     for (size_t i = 0; i < POP_SIZE; i++){
       Host *new_org;
-      if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1)); // Want random host genomes
-      else new_org = new Host(config.HOST_INT()); // want predefined host genomes
-          world.Inject(*new_org); // empirical-provided tool to put our host into the world
+      if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
+      else new_org = new Host(config.HOST_INT()); 
+          world.Inject(*new_org); 
 
       for (int j = 0; j < start_moi; j++){ 
         Symbiont new_sym; 
@@ -103,15 +104,16 @@ int symbulation_main(int argc, char * argv[]){
       }
     }
 
-    // Drawing a virtual petri dish according to population size and color cells by intVal(interaction value)
+    // Draw a virtual petri dish according to population size and color cells by IntVal (interaction value)
     auto p = world.getPop();
     constexpr int RECT_WIDTH = 15;
     int side_x = config.GRID_X();
     int side_y = config.GRID_Y();
-    for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " ";
+
+    for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
     doc << "</br>";
-    //auto hostCanvas = doc.AddCanvas(side_x * RECT_WIDTH, side_y * RECT_WIDTH, "can"); 
-    auto hostCanvas = doc.AddCanvas(side_x * RECT_WIDTH, side_y * RECT_WIDTH, "can"); // weird behavior of canvas. Have to do +1
+
+    auto hostCanvas = doc.AddCanvas(side_x * RECT_WIDTH, side_y * RECT_WIDTH, "can"); // weird behavior of canvas. Fix later.
     for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the starting coordinate
       for (int y = 0; y < side_y; y++){
         std::string color;
@@ -120,16 +122,6 @@ int symbulation_main(int argc, char * argv[]){
         hostCanvas.Rect(20 + x * RECT_WIDTH, 20 + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
       }
     }
-
-    // for (Host *h : p){
-    //     double k = h->GetPoints();
-    // }
-    // Testing
-    // my_table.GetCell(0, 1) << !p[0]->HasSym();
-    // my_table.GetCell(0, 0) << "1st org:  ";
-    // std::cout << p[0]->GetPoints() << std::endl;
-    // doc << "<h1>Symbulation Project</h1>";
-    // doc << my_table;
 
     return 0;
 }
