@@ -77,7 +77,7 @@ int symbulation_main(int argc, char * argv[])
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
   world.SetSynergy(config.SYNERGY());
 
-  world.SetResPerUpdate(100); // number of resources distributed per update
+  world.SetResPerUpdate(100);
 
   int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -98,7 +98,7 @@ int symbulation_main(int argc, char * argv[])
     Host *new_org;
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
-        world.Inject(*new_org); // empirical-provided tool to put our host into the world
+        world.Inject(*new_org); 
 
     for (int j = 0; j < start_moi; j++){ 
       Symbiont new_sym; 
