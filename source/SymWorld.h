@@ -68,7 +68,9 @@ public:
   emp::World<Host>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
-    return random.GetDouble(0.0, 1.0) <= vertTrans;
+    bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
+    return result;
+
   }
 
   size_t GetNeighborHost (size_t i) {
@@ -280,7 +282,6 @@ public:
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
-	pop[i]->SetSymbionts({});
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
@@ -292,6 +293,7 @@ public:
             sym_baby->mutate(random, mut_rate);
             parent.mutate(random, mut_rate); //mutate parent symbiont                                   
             host_baby->AddSymbionts(*sym_baby, sym_limit);
+
           } //end will transmit
         } //end for loop for each symbiont
         DoBirth(*host_baby, i); //Automatically deals with grid
