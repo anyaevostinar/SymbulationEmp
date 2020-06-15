@@ -109,17 +109,18 @@ int symbulation_main(int argc, char * argv[]){
     constexpr int RECT_WIDTH = 15;
     int side_x = config.GRID_X();
     int side_y = config.GRID_Y();
+    int offset = 20; // offset against the left page boundary by 20px
 
     for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
     doc << "</br>";
 
-    auto hostCanvas = doc.AddCanvas(side_x * RECT_WIDTH, side_y * RECT_WIDTH, "can"); // weird behavior of canvas. Fix later.
+    auto hostCanvas = doc.AddCanvas(offset + side_x * RECT_WIDTH, offset + side_y * RECT_WIDTH, "can"); // weird behavior of canvas. Fix later.
     for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the starting coordinate
       for (int y = 0; y < side_y; y++){
         std::string color;
         if (p[y]->GetIntVal() < 0) color = "blue";
         else color = "yellow";
-        hostCanvas.Rect(20 + x * RECT_WIDTH, 20 + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
+        hostCanvas.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
       }
     }
 
