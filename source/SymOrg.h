@@ -1,4 +1,4 @@
-ifndef SYM_ORG_H
+#ifndef SYM_ORG_H
 #define SYM_ORG_H
 
 #include "../../Empirical/source/tools/Random.h"
