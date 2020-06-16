@@ -40,7 +40,7 @@ UI::Document doc("emp_base");
 int symbulation_main(int argc, char * argv[]){
     //n_objects(); // some line added to force it to call in order to fix the "js doesn't exist" problem.
     SymConfigBase config;
-    config.Read("SymSettings.cfg");
+    //config.Read("SymSettings.cfg"); // comment out to temporarily avoid the file reading issue
     auto args = emp::cl::ArgManager(argc, argv);
     if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
       cerr << "There was a problem in processing the options file." << endl;
@@ -60,7 +60,7 @@ int symbulation_main(int argc, char * argv[]){
     int start_moi = config.START_MOI();
     double POP_SIZE = config.GRID_X() * config.GRID_Y();
     bool random_phen_host = true;
-    bool random_phen_sym = false;
+    bool random_phen_sym = true;
     if(config.HOST_INT() == -2) random_phen_host = true;
     if(config.SYM_INT() == -2) random_phen_sym = true;
 
@@ -103,7 +103,7 @@ int symbulation_main(int argc, char * argv[]){
         world.InjectSymbiont(new_sym); 
       }
     }
-
+    // Random has a seed set. So the random values don't change upon reload of the webpage
     // Draw a virtual petri dish according to population size and color cells by IntVal (interaction value)
     auto p = world.getPop();
     constexpr int RECT_WIDTH = 15;
