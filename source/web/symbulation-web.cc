@@ -117,8 +117,9 @@ int symbulation_main(int argc, char * argv[]){
     for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
     doc << "</br>";
 
-    auto hostCanvas = web.addCanvas(doc); // create a canvas onto doc
+    auto hostCanvas = web.addHostCanvas(doc); // create a canvas onto doc
     web.drawPetriDish(hostCanvas, p); // draw a petri dish on the desired canvas
+    // Draw petridish has a problem! It's not drawing different columns correctly. 
     return 0;
 }
 

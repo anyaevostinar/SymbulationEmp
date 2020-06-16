@@ -30,17 +30,19 @@ public:
         offset = off;
     }
 
-    UI::Canvas addCanvas(UI::Document & doc){
-        return doc.AddCanvas(offset + side_x * RECT_WIDTH, offset + side_y * RECT_WIDTH, "can");
+    UI::Canvas addHostCanvas(UI::Document & doc){
+        return doc.AddCanvas(offset + side_x * RECT_WIDTH, offset + side_y * RECT_WIDTH, "host_can");
     }
 
     void drawPetriDish(UI::Canvas & can, emp::vector<emp::Ptr<Host>> & p){
+        int i = 0;
         for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the starting coordinate
             for (int y = 0; y < side_y; y++){
                 std::string color;
-                if (p[y]->GetIntVal() < 0) color = "blue";
+                if (p[i]->GetIntVal() < 0) color = "blue";
                 else color = "yellow";
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
+                i++;
             }
         }
     }
