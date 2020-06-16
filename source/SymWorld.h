@@ -258,7 +258,7 @@ public:
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
-	pop[i]->SetSymbionts({});
+	      pop[i]->SetSymbionts({});
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){

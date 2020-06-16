@@ -1,9 +1,7 @@
 #include <iostream>
 #include "../SymWorld.h"
 #include "../../Empirical/source/config/ArgManager.h"
-#include "web/web.h"
-#include "web/d3/visualizations.h"
-#include "web/Document.h"
+#include "../Web.h"
 
 using namespace std;
 
@@ -106,24 +104,21 @@ int symbulation_main(int argc, char * argv[]){
     // Random has a seed set. So the random values don't change upon reload of the webpage
     // Draw a virtual petri dish according to population size and color cells by IntVal (interaction value)
     auto p = world.getPop();
-    constexpr int RECT_WIDTH = 15;
     int side_x = config.GRID_X();
     int side_y = config.GRID_Y();
     int offset = 20; // offset against the left page boundary by 20px
 
+    // Add a Web object for interface manipulation. Settings for web
+    Web web;
+    web.setSideX(side_x);
+    web.setSideY(side_y);
+    web.setOffset(offset);
+
     for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
     doc << "</br>";
 
-    auto hostCanvas = doc.AddCanvas(offset + side_x * RECT_WIDTH, offset + side_y * RECT_WIDTH, "can"); // weird behavior of canvas. Fix later.
-    for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the starting coordinate
-      for (int y = 0; y < side_y; y++){
-        std::string color;
-        if (p[y]->GetIntVal() < 0) color = "blue";
-        else color = "yellow";
-        hostCanvas.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
-      }
-    }
-
+    auto hostCanvas = web.addCanvas(doc); // create a canvas onto doc
+    web.drawPetriDish(hostCanvas, p); // draw a petri dish on the desired canvas
     return 0;
 }
 
