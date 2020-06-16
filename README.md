@@ -5,3 +5,5 @@ To build, you must first download Empirical (https://github.com/devosoft/Empiric
 The current settings can be configured in SymSettings.cfg. 
 
 To run end-to-end tests run 'make test'. This will overwrite the default SymSettings.cfg!
+
+Created part of my free logo at LogoMakr.com.
