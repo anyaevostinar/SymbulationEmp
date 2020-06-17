@@ -31,8 +31,82 @@ EMP_BUILD_CONFIG(SymConfigBase,
 )
 
 namespace UI = emp::web;
-UI::Table my_table(10, 2, "my_table");
-UI::Document doc("emp_base");
+
+class MyAnimate : public UI::Animate {
+private:
+  UI::Document doc;
+
+  // Define population
+  size_t POP_SIZE = 100;
+  size_t GENS = 10000;
+  const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);
+  emp::Random random;
+  emp::World<int> grid_world{random};
+  emp::vector<emp::Ptr<int>> p;
+  int side_x = POP_SIDE;
+  int side_y = POP_SIDE;
+  const int offset = 20;
+  const int RECT_WIDTH = 10;
+  int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
+
+public: // initialize the class by creating a doc. 
+
+  MyAnimate() : doc("emp_base") {
+    // set up our world population params
+    grid_world.SetPopStruct_Grid(POP_SIDE, POP_SIDE);
+
+    // How big should each canvas be?
+    const double w = can_size;
+    const double h = can_size;
+
+    auto mycanvas = doc.AddCanvas(w, h, "can");
+    targets.push_back(mycanvas); // targets is an Animation thing that tells you what widget to be refreshed after redraw
+
+    // Add a button that allows for pause and start toggle.
+    doc << "<br>";
+    doc.AddButton([this](){
+        ToggleActive();
+        auto but = doc.Button("toggle"); // to access doc, we must capture this, or the current class object, as doc is declared in the scope of this object
+        if (GetActive()) but.SetLabel("Pause");
+        else but.SetLabel("Start");
+      }, "Start", "toggle");
+
+    //doc << UI::Text("fps") << "FPS = " << UI::Live( [this](){return 1000.0 / GetStepTime();} ) ;
+    doc << UI::Text("genome") << "Genome = " << UI::Live( [this](){ return grid_world[0]; } );
+  }
+
+    void drawPetriDish(UI::Canvas & can){
+        int i = 0;
+        for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the starting coordinate
+            for (int y = 0; y < side_y; y++){
+                std::string color;
+                if (grid_world[i] < 0) color = "blue";
+                else color = "yellow";
+                can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
+                i++;
+            }
+        }
+    }
+
+    void mutate(){
+        for (int i = 0; i < grid_world.size(); i++){
+            grid_world.InjectAt(random.GetInt(-10, 10), i);
+        }
+    }
+
+    // a function inherited from the Animation class?
+  void DoFrame() {
+    auto mycanvas = doc.Canvas("can"); // canvas is added. Here we are getting it by id.
+    mycanvas.Clear();
+
+    // Mutate grid_world element and redraw
+    mutate();
+    drawPetriDish(mycanvas);
+    doc.Text("genome").Redraw();
+  }
+};
+
+MyAnimate anim;
 
 
 int symbulation_main(int argc, char * argv[]){
@@ -103,22 +177,22 @@ int symbulation_main(int argc, char * argv[]){
     }
     // Random has a seed set. So the random values don't change upon reload of the webpage
     // Draw a virtual petri dish according to population size and color cells by IntVal (interaction value)
-    auto p = world.getPop();
-    int side_x = config.GRID_X();
-    int side_y = config.GRID_Y();
-    int offset = 20; // offset against the left page boundary by 20px
+    // auto p = world.getPop();
+    // int side_x = config.GRID_X();
+    // int side_y = config.GRID_Y();
+    // int offset = 20; // offset against the left page boundary by 20px
 
     // Add a Web object for interface manipulation. Settings for web
-    Web web;
-    web.setSideX(side_x);
-    web.setSideY(side_y);
-    web.setOffset(offset);
+    // Web web;
+    // web.setSideX(side_x);
+    // web.setSideY(side_y);
+    // web.setOffset(offset);
 
-    for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
-    doc << "</br>";
+    // for (size_t i = 0; i < p.size(); i++) doc << p[i]->GetIntVal() << " "; // View initialized values
+    // doc << "</br>";
 
-    auto hostCanvas = web.addHostCanvas(doc); // create a canvas onto doc
-    web.drawPetriDish(hostCanvas, p); // draw a petri dish on the desired canvas
+    //auto hostCanvas = web.addHostCanvas(doc); // create a canvas onto doc
+    //web.drawPetriDish(hostCanvas, p); // draw a petri dish on the desired canvas
     // Draw petridish has a problem! It's not drawing different columns correctly. 
     return 0;
 }
