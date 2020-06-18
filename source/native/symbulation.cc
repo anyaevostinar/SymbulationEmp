@@ -98,9 +98,14 @@ int symbulation_main(int argc, char * argv[])
     Host *new_org;
     if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
     else new_org = new Host(config.HOST_INT());
-        world.Inject(*new_org); 
+    world.Inject(*new_org);
+  }
 
-    for (int j = 0; j < start_moi; j++){ 
+
+  //This loop must be outside of the host generation loop since otherwise
+  //syms try to inject into mostly empty spots at first
+  int total_syms = POP_SIZE * start_moi;
+  for (int j = 0; j < total_syms; j++){ 
       Symbiont new_sym; 
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
@@ -108,7 +113,6 @@ int symbulation_main(int argc, char * argv[])
         new_sym.burst_timer = random.GetInt(-5,5);
       world.InjectSymbiont(new_sym); 
     }
-  }
 
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
