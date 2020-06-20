@@ -49,12 +49,58 @@ private:
   const int offset = 20;
   const int RECT_WIDTH = 10;
   int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
-  int curr_update = 0;
 
-public: // initialize the class by creating a doc. 
+public:
 
   MyAnimate() : doc("emp_base") {
+    initializeWorld();
+    
+    // Add explanation for organism color:
+    doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
+
+    // Add a canvas for petri dish and draw the initial petri dish
+    auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
+    targets.push_back(mycanvas);
+    drawPetriDish(mycanvas);
+
+    // Add a button that allows for pause and start toggle.
+    doc << "<br>";
+    doc.AddButton([this](){
+        ToggleActive();
+        auto but = doc.Button("toggle"); 
+        if (GetActive()) but.SetLabel("Pause");
+        else but.SetLabel("Start");
+      }, "Start", "toggle");
+
+    // Add a reset button. You can't simply initialize, because Inject checks for valid position.
+    // If a position is occupied, new org is deleted and your world isn't reset.
+    // Also, canvas must be redrawn to let users see that it is reset
+    doc.AddButton([this](){
+      world.Reset();
+      doc.Text("update").Redraw();
+      initializeWorld();
+      p = world.getPop();
+    
+      if (GetActive()) { // If animation is running, stop animation and adjust button label
+        ToggleActive(); 
+        auto but = doc.Button("toggle"); 
+        but.SetLabel("Start"); 
+      }
+
+      // redraw petri dish
+      auto mycanvas = doc.Canvas("can");
+      drawPetriDish(mycanvas);
+    }, "Reset");
+
+    doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
+  }
+
+  void initializeWorld(){
     //config.Read("SymSettings.cfg"); // comment out to temporarily avoid the file reading issue
+   
+    // Reset the seed and the random machine of world to ensure consistent result (??)
+    random.ResetSeed(config.SEED());
+    world.SetRandom(random);
 
     // params
     int numupdates = config.UPDATES();
@@ -104,31 +150,11 @@ public: // initialize the class by creating a doc.
       world.InjectSymbiont(new_sym); 
     }
     p = world.getPop();
-    
-    // Add explanation for color:
-    doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
-
-    // Add a canvas for petri dish and draw the initial petri dish
-    auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
-    targets.push_back(mycanvas);
-    drawPetriDish(mycanvas);
-
-    // Add a button that allows for pause and start toggle.
-    doc << "<br>";
-    doc.AddButton([this](){
-        ToggleActive();
-        auto but = doc.Button("toggle"); // to access doc, we must capture this, or the current class object, as doc is declared in the scope of this object
-        if (GetActive()) but.SetLabel("Pause");
-        else but.SetLabel("Start");
-      }, "Start", "toggle");
-
-    //doc << UI::Text("fps") << "FPS = " << UI::Live( [this](){return 1000.0 / GetStepTime();} ) ;
-    doc << UI::Text("genome") << "Update = " << UI::Live( [this](){ return curr_update; } );
   }
-
+  // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
-        for (int x = 0; x < side_x; x++){ // now draw a virtual petri dish. 20 is the coordinate offset
+        for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
                 std::string color;
                 if (p[i]->GetIntVal() < 0) color = "blue";
@@ -139,24 +165,15 @@ public: // initialize the class by creating a doc.
         }
   }
 
-    void mutate(){
-        for (int i = 0; i < p.size(); i++){
-          p[i]->mutate(random, 0.8);
-        }
-    }
-
-    // a function inherited from the Animation class?
   void DoFrame() {
-    curr_update++;
-    auto mycanvas = doc.Canvas("can"); // canvas is added. Here we are getting it by id.
+    auto mycanvas = doc.Canvas("can"); // get canvas by id
     mycanvas.Clear();
 
-    // Mutate grid_world element and redraw
-    //mutate();
+    // Update world and draw the new petri dish
     world.Update();
-    p = world.getPop(); // update population
+    p = world.getPop();
     drawPetriDish(mycanvas);
-    doc.Text("genome").Redraw();
+    doc.Text("update").Redraw();
   }
 };
 
