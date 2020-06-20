@@ -13,8 +13,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
     VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
     VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-    VALUE(GRID_X, int, 10, "Width of the world, just multiplied by the height to get total size"),
-    VALUE(GRID_Y, int, 10, "Height of world, just multiplied by width to get total size"),
+    VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
+    VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
     VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
@@ -85,20 +85,24 @@ public: // initialize the class by creating a doc.
     const bool STAGGER_STARTING_BURST_TIMERS = true;
 
   // Initialize organisms by injecting them
-    for (size_t i = 0; i < POP_SIZE; i++){
-      Host *new_org;
-      if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
-      else new_org = new Host(config.HOST_INT()); 
-          world.Inject(*new_org); 
+  for (size_t i = 0; i < POP_SIZE; i++){
+    Host *new_org;
+    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
+    else new_org = new Host(config.HOST_INT());
+    world.Inject(*new_org);
+  }
 
-      for (int j = 0; j < start_moi; j++){ 
-        Symbiont new_sym; 
-        if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
-        else new_sym = *(new Symbiont(config.SYM_INT()));
-        if(STAGGER_STARTING_BURST_TIMERS)
-          new_sym.burst_timer = random.GetInt(-5,5);
-        world.InjectSymbiont(new_sym); 
-      }
+
+  //This loop must be outside of the host generation loop since otherwise
+  //syms try to inject into mostly empty spots at first
+  int total_syms = POP_SIZE * start_moi;
+  for (int j = 0; j < total_syms; j++){ 
+      Symbiont new_sym; 
+      if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
+      else new_sym = *(new Symbiont(config.SYM_INT()));
+      if(STAGGER_STARTING_BURST_TIMERS)
+        new_sym.burst_timer = random.GetInt(-5,5);
+      world.InjectSymbiont(new_sym); 
     }
     p = world.getPop();
 
