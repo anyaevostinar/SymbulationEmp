@@ -92,7 +92,6 @@ public: // initialize the class by creating a doc.
     world.Inject(*new_org);
   }
 
-
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
   int total_syms = POP_SIZE * start_moi;
@@ -105,6 +104,9 @@ public: // initialize the class by creating a doc.
       world.InjectSymbiont(new_sym); 
     }
     p = world.getPop();
+    
+    // Add explanation for color:
+    doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
 
     // Add a canvas for petri dish and draw the initial petri dish
     auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
@@ -150,7 +152,9 @@ public: // initialize the class by creating a doc.
     mycanvas.Clear();
 
     // Mutate grid_world element and redraw
-    mutate();
+    //mutate();
+    world.Update();
+    p = world.getPop(); // update population
     drawPetriDish(mycanvas);
     doc.Text("genome").Redraw();
   }
