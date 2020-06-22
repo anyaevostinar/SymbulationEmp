@@ -11,8 +11,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
-    VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
-    VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
+    VALUE(HOST_INT, double, -2, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
+    VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
     VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
     VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
     VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
@@ -105,8 +105,8 @@ public:
     // params
     int numupdates = config.UPDATES();
     int start_moi = config.START_MOI();
-    bool random_phen_host = true;
-    bool random_phen_sym = true;
+    bool random_phen_host = false;
+    bool random_phen_sym = false;
     if(config.HOST_INT() == -2) random_phen_host = true;
     if(config.SYM_INT() == -2) random_phen_sym = true;
 
@@ -151,6 +151,7 @@ public:
     }
     p = world.getPop();
   }
+
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
