@@ -37,13 +37,17 @@ class MyAnimate : public UI::Animate {
 private:
   UI::Document doc;
 
-  // Define population
+  // Define world and population
   size_t POP_SIZE = config.GRID_X() * config.GRID_Y();
   size_t GENS = 10000;
   const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);
   emp::Random random{config.SEED()};
   SymWorld world{random};
+  //int numupdates = config.UPDATES();
+  int numupdates = 10;
   emp::vector<emp::Ptr<Host>> p;
+
+  // Params for controlling petri dish
   int side_x = config.GRID_X();
   int side_y = config.GRID_Y();
   const int offset = 20;
@@ -66,11 +70,12 @@ public:
     // Add a button that allows for pause and start toggle.
     doc << "<br>";
     doc.AddButton([this](){
-        ToggleActive();
-        auto but = doc.Button("toggle"); 
-        if (GetActive()) but.SetLabel("Pause");
-        else but.SetLabel("Start");
-      }, "Start", "toggle");
+      // animate up to the number of updates
+      ToggleActive();
+      auto but = doc.Button("toggle"); 
+      if (GetActive()) but.SetLabel("Pause");
+      else but.SetLabel("Start");
+    }, "Start", "toggle");
 
     // Add a reset button. You can't simply initialize, because Inject checks for valid position.
     // If a position is occupied, new org is deleted and your world isn't reset.
@@ -82,10 +87,10 @@ public:
       p = world.getPop();
     
       if (GetActive()) { // If animation is running, stop animation and adjust button label
-        ToggleActive(); 
-        auto but = doc.Button("toggle"); 
-        but.SetLabel("Start"); 
+        ToggleActive();   
       }
+      auto but = doc.Button("toggle"); 
+      but.SetLabel("Start"); 
 
       // redraw petri dish
       auto mycanvas = doc.Canvas("can");
@@ -103,7 +108,6 @@ public:
     world.SetRandom(random);
 
     // params
-    int numupdates = config.UPDATES();
     int start_moi = config.START_MOI();
     bool random_phen_host = false;
     bool random_phen_sym = false;
@@ -167,14 +171,19 @@ public:
   }
 
   void DoFrame() {
-    auto mycanvas = doc.Canvas("can"); // get canvas by id
-    mycanvas.Clear();
+    if (world.GetUpdate() == numupdates && GetActive()) {
+        ToggleActive();
+    } else {
+      auto mycanvas = doc.Canvas("can"); // get canvas by id
+      mycanvas.Clear();
 
-    // Update world and draw the new petri dish
-    world.Update();
-    p = world.getPop();
-    drawPetriDish(mycanvas);
-    doc.Text("update").Redraw();
+      // Update world and draw the new petri dish
+      world.Update();
+      p = world.getPop();
+      drawPetriDish(mycanvas);
+      doc.Text("update").Redraw();
+      doc.Text("update2").Redraw();
+    }
   }
 };
 
