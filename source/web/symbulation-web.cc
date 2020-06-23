@@ -36,6 +36,9 @@ SymConfigBase config;
 class MyAnimate : public UI::Animate {
 private:
   UI::Document doc;
+  UI::Text error_message{"em"};
+  // UI::TextArea vert_transmit;
+  // UI::TextArea grid;
 
   // Define world and population
   size_t POP_SIZE = config.GRID_X() * config.GRID_Y();
@@ -43,8 +46,9 @@ private:
   const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);
   emp::Random random{config.SEED()};
   SymWorld world{random};
-  //int numupdates = config.UPDATES();
-  int numupdates = 10;
+  int numupdates = config.UPDATES();
+  double vert_transmit = config.VERTICAL_TRANSMISSION();
+  bool grid = config.GRID();
   emp::vector<emp::Ptr<Host>> p;
 
   // Params for controlling petri dish
@@ -54,11 +58,13 @@ private:
   const int RECT_WIDTH = 10;
   int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
 
+  // params for controlling textarea input
+  bool empty_vert = false;
+
 public:
 
   MyAnimate() : doc("emp_base") {
     initializeWorld();
-    
     // Add explanation for organism color:
     doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
 
@@ -66,6 +72,29 @@ public:
     auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
     targets.push_back(mycanvas);
     drawPetriDish(mycanvas);
+    doc << "<br>";
+
+
+    // Input field for modifying the vertical transmission rate
+    doc.AddTextArea([this](const std::string & in){
+      bool isValidInput = true;
+      for (char c : in){
+        if (c == 46) continue;
+        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double)
+      }
+      if (in.empty()) { 
+        error_message.SetCSS("opacity", "0"); 
+        empty_vert = true; doc.Text("update2").Redraw(); 
+      } // set empty_vert so nothing's printed
+      //TO DO: make stod(in) be called only once
+      else if (isValidInput && stod(in) <= 1) { // only valid if input is a parsable number AND <= 1. 
+        error_message.SetCSS("opacity", "0"); // make error message go away
+        vert_transmit = stod(in); 
+        doc.Text("update2").Redraw(); 
+        empty_vert = false;
+      }
+      else { error_message.SetCSS("opacity", "1"); } // make error message appear
+    }, "update_vert_transmit");
 
     // Add a button that allows for pause and start toggle.
     doc << "<br>";
@@ -98,6 +127,13 @@ public:
     }, "Reset");
 
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
+    doc << "<br>";
+    doc << UI::Text("update2") << "Vert trans = " << 
+      UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
+    error_message << "Invalid Input!";
+    error_message.SetCSS("color", "red");
+    error_message.SetCSS("opacity", "0");
+    doc << error_message;
   }
 
   void initializeWorld(){
@@ -114,11 +150,11 @@ public:
     if(config.HOST_INT() == -2) random_phen_host = true;
     if(config.SYM_INT() == -2) random_phen_sym = true;
 
-    if (config.GRID() == 0) world.SetPopStruct_Mixed();
+    if (grid == 0) world.SetPopStruct_Mixed();
     else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 
     // settings
-    world.SetVertTrans(config.VERTICAL_TRANSMISSION());
+    world.SetVertTrans(vert_transmit);
     world.SetMutRate(config.MUTATION_RATE());
     world.SetSymLimit(config.SYM_LIMIT());
     world.SetLysisBool(config.LYSIS());
@@ -182,7 +218,6 @@ public:
       p = world.getPop();
       drawPetriDish(mycanvas);
       doc.Text("update").Redraw();
-      doc.Text("update2").Redraw();
     }
   }
 };
