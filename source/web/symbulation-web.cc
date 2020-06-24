@@ -15,7 +15,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
     VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
     VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
-    VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
+    VALUE(UPDATES, int, 601, "Number of updates to run before quitting"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
     VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
@@ -36,6 +36,10 @@ SymConfigBase config;
 class MyAnimate : public UI::Animate {
 private:
   UI::Document doc;
+  UI::Text em_vert_trans{"em_vert_trans"};
+  UI::Text em_grid{"em_grid"};
+  // UI::TextArea vert_transmit;
+  // UI::TextArea grid;
 
   // Define world and population
   size_t POP_SIZE = config.GRID_X() * config.GRID_Y();
@@ -43,8 +47,9 @@ private:
   const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);
   emp::Random random{config.SEED()};
   SymWorld world{random};
-  //int numupdates = config.UPDATES();
-  int numupdates = 10;
+  int numupdates = config.UPDATES();
+  double vert_transmit = config.VERTICAL_TRANSMISSION();
+  bool grid = config.GRID();
   emp::vector<emp::Ptr<Host>> p;
 
   // Params for controlling petri dish
@@ -54,11 +59,14 @@ private:
   const int RECT_WIDTH = 10;
   int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
 
+  // params for controlling textarea input
+  bool empty_vert = false;
+  bool empty_grid = false;
+
 public:
 
   MyAnimate() : doc("emp_base") {
     initializeWorld();
-    
     // Add explanation for organism color:
     doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
 
@@ -66,8 +74,61 @@ public:
     auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
     targets.push_back(mycanvas);
     drawPetriDish(mycanvas);
+    doc << "<br>";
 
-    // Add a button that allows for pause and start toggle.
+
+    // ----------------------- Input field for modifying the vertical transmission rate -----------------------
+    doc << "<b>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
+    doc.AddTextArea([this](const std::string & in){
+      bool isValidInput = true;
+      for (char c : in){
+        if (c == 46) continue; // "." is part of a double, skip
+        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double <= 1)
+      }
+      if (in.empty()) { 
+        em_vert_trans.SetCSS("opacity", "0");  // set empty_vert so nothing's printed
+        empty_vert = true; doc.Text("vert_trans_txt").Redraw();
+      } 
+      //TO DO: make stod(in) be called only once
+      else if (isValidInput && stod(in) <= 1) {
+        em_vert_trans.SetCSS("opacity", "0");
+        vert_transmit = stod(in); 
+        doc.Text("vert_trans_txt").Redraw(); 
+        empty_vert = false;
+      }
+      else { em_vert_trans.SetCSS("opacity", "1"); } // turn on error message
+    }, "update_vert_transmit");
+    doc << em_vert_trans; 
+    doc << "<br>";
+    doc << UI::Text("vert_trans_txt") << "Vert trans = " << 
+      UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
+
+
+    // ----------------------- Input field for changing the grid setting -----------------------
+    doc << "<br>";
+    doc << "<b>Please type in 0 or 1 for grid setting, then click Reset: </b><br>";
+    doc.AddTextArea([this](const std::string & in){
+      bool isValidInput = (in.size() == 1 && (in == "0" || in == "1")); // input must be either "0" or "1"
+      if (in.empty()) { 
+        em_grid.SetCSS("opacity", "0"); 
+        empty_grid = true; // set empty_grid so nothing's printed
+        doc.Text("grid_txt").Redraw(); 
+      } 
+      else if (isValidInput) {
+        em_grid.SetCSS("opacity", "0"); 
+        grid = stoi(in); 
+        doc.Text("grid_txt").Redraw(); 
+        empty_grid = false;
+      }
+      else { em_grid.SetCSS("opacity", "1"); } // turn on error message
+    }, "update_grid");
+    doc << em_grid;
+    doc << "<br>";
+    doc << UI::Text("grid_txt") << "Grid = " << 
+      UI::Live( [this](){ return grid; } );
+      //UI::Live( [this](){ return empty_grid ? "" : ((grid)? "Yes" : "No"); } );
+
+    // ----------------------- Add a button that allows for pause and start toggle -----------------------
     doc << "<br>";
     doc.AddButton([this](){
       // animate up to the number of updates
@@ -77,9 +138,10 @@ public:
       else but.SetLabel("Start");
     }, "Start", "toggle");
 
-    // Add a reset button. You can't simply initialize, because Inject checks for valid position.
-    // If a position is occupied, new org is deleted and your world isn't reset.
-    // Also, canvas must be redrawn to let users see that it is reset
+    // ----------------------- Add a reset button to reset the animation/world -----------------------
+    /* Note: Must first run world.Reset(), because Inject checks for valid position.
+      If a position is occupied, new org is deleted and your world isn't reset.
+      Also, canvas must be redrawn to let users see that it is reset */
     doc.AddButton([this](){
       world.Reset();
       doc.Text("update").Redraw();
@@ -97,13 +159,24 @@ public:
       drawPetriDish(mycanvas);
     }, "Reset");
 
+
+    // ----------------------- Keep track of number of updates -----------------------
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
+    doc << "<br>";
+
+
+    // ----------------------- Error message settings -----------------------
+    em_vert_trans << "Invalid Input!";
+    em_vert_trans.SetCSS("color", "red");
+    em_vert_trans.SetCSS("opacity", "0");
+
+    em_grid << "Invalid Input!";
+    em_grid.SetCSS("color", "red");
+    em_grid.SetCSS("opacity", "0");
   }
 
   void initializeWorld(){
-    //config.Read("SymSettings.cfg"); // comment out to temporarily avoid the file reading issue
-   
-    // Reset the seed and the random machine of world to ensure consistent result (??)
+     // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
     world.SetRandom(random);
 
@@ -114,11 +187,11 @@ public:
     if(config.HOST_INT() == -2) random_phen_host = true;
     if(config.SYM_INT() == -2) random_phen_sym = true;
 
-    if (config.GRID() == 0) world.SetPopStruct_Mixed();
+    if (grid == 0) world.SetPopStruct_Mixed();
     else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 
     // settings
-    world.SetVertTrans(config.VERTICAL_TRANSMISSION());
+    world.SetVertTrans(vert_transmit);
     world.SetMutRate(config.MUTATION_RATE());
     world.SetSymLimit(config.SYM_LIMIT());
     world.SetLysisBool(config.LYSIS());
@@ -182,7 +255,6 @@ public:
       p = world.getPop();
       drawPetriDish(mycanvas);
       doc.Text("update").Redraw();
-      doc.Text("update2").Redraw();
     }
   }
 };
