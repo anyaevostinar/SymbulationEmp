@@ -36,7 +36,8 @@ SymConfigBase config;
 class MyAnimate : public UI::Animate {
 private:
   UI::Document doc;
-  UI::Text error_message{"em"};
+  UI::Text em_vert_trans{"em_vert_trans"};
+  UI::Text em_grid{"em_grid"};
   // UI::TextArea vert_transmit;
   // UI::TextArea grid;
 
@@ -60,6 +61,7 @@ private:
 
   // params for controlling textarea input
   bool empty_vert = false;
+  bool empty_grid = false;
 
 public:
 
@@ -75,33 +77,58 @@ public:
     doc << "<br>";
 
 
-    // Input field for modifying the vertical transmission rate
-    doc << "<b>Please type in a vertical transmisson between 0 and 1, then click Reset: </b><br>";
+    // ----------------------- Input field for modifying the vertical transmission rate -----------------------
+    doc << "<b>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
     doc.AddTextArea([this](const std::string & in){
       bool isValidInput = true;
       for (char c : in){
         if (c == 46) continue; // "." is part of a double, skip
-        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double)
+        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double <= 1)
       }
       if (in.empty()) { 
-        error_message.SetCSS("opacity", "0"); 
-        empty_vert = true; doc.Text("update2").Redraw(); 
-      } // set empty_vert so nothing's printed
+        em_vert_trans.SetCSS("opacity", "0");  // set empty_vert so nothing's printed
+        empty_vert = true; doc.Text("vert_trans_txt").Redraw();
+      } 
       //TO DO: make stod(in) be called only once
-      else if (isValidInput && stod(in) <= 1) { // only valid if input is a parsable number AND <= 1. 
-        error_message.SetCSS("opacity", "0"); // make error message go away
+      else if (isValidInput && stod(in) <= 1) {
+        em_vert_trans.SetCSS("opacity", "0");
         vert_transmit = stod(in); 
-        doc.Text("update2").Redraw(); 
+        doc.Text("vert_trans_txt").Redraw(); 
         empty_vert = false;
       }
-      else { error_message.SetCSS("opacity", "1"); } // make error message appear
+      else { em_vert_trans.SetCSS("opacity", "1"); } // turn on error message
     }, "update_vert_transmit");
-    doc << error_message;
+    doc << em_vert_trans; 
     doc << "<br>";
-    doc << UI::Text("update2") << "Vert trans = " << 
+    doc << UI::Text("vert_trans_txt") << "Vert trans = " << 
       UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
-    
-    // Add a button that allows for pause and start toggle.
+
+
+    // ----------------------- Input field for changing the grid setting -----------------------
+    doc << "<br>";
+    doc << "<b>Please type in 0 or 1 for grid setting, then click Reset: </b><br>";
+    doc.AddTextArea([this](const std::string & in){
+      bool isValidInput = (in.size() == 1 && (in == "0" || in == "1")); // input must be either "0" or "1"
+      if (in.empty()) { 
+        em_grid.SetCSS("opacity", "0"); 
+        empty_grid = true; // set empty_grid so nothing's printed
+        doc.Text("grid_txt").Redraw(); 
+      } 
+      else if (isValidInput) {
+        em_grid.SetCSS("opacity", "0"); 
+        grid = stoi(in); 
+        doc.Text("grid_txt").Redraw(); 
+        empty_grid = false;
+      }
+      else { em_grid.SetCSS("opacity", "1"); } // turn on error message
+    }, "update_grid");
+    doc << em_grid;
+    doc << "<br>";
+    doc << UI::Text("grid_txt") << "Grid = " << 
+      UI::Live( [this](){ return grid; } );
+      //UI::Live( [this](){ return empty_grid ? "" : ((grid)? "Yes" : "No"); } );
+
+    // ----------------------- Add a button that allows for pause and start toggle -----------------------
     doc << "<br>";
     doc.AddButton([this](){
       // animate up to the number of updates
@@ -111,9 +138,10 @@ public:
       else but.SetLabel("Start");
     }, "Start", "toggle");
 
-    // Add a reset button. You can't simply initialize, because Inject checks for valid position.
-    // If a position is occupied, new org is deleted and your world isn't reset.
-    // Also, canvas must be redrawn to let users see that it is reset
+    // ----------------------- Add a reset button to reset the animation/world -----------------------
+    /* Note: Must first run world.Reset(), because Inject checks for valid position.
+      If a position is occupied, new org is deleted and your world isn't reset.
+      Also, canvas must be redrawn to let users see that it is reset */
     doc.AddButton([this](){
       world.Reset();
       doc.Text("update").Redraw();
@@ -131,20 +159,24 @@ public:
       drawPetriDish(mycanvas);
     }, "Reset");
 
-    // Keep track of number of updates
+
+    // ----------------------- Keep track of number of updates -----------------------
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
     doc << "<br>";
 
-    // Error message CSS parameters
-    error_message << "Invalid Input!";
-    error_message.SetCSS("color", "red");
-    error_message.SetCSS("opacity", "0");
+
+    // ----------------------- Error message settings -----------------------
+    em_vert_trans << "Invalid Input!";
+    em_vert_trans.SetCSS("color", "red");
+    em_vert_trans.SetCSS("opacity", "0");
+
+    em_grid << "Invalid Input!";
+    em_grid.SetCSS("color", "red");
+    em_grid.SetCSS("opacity", "0");
   }
 
   void initializeWorld(){
-    //config.Read("SymSettings.cfg"); // comment out to temporarily avoid the file reading issue
-   
-    // Reset the seed and the random machine of world to ensure consistent result (??)
+     // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
     world.SetRandom(random);
 
