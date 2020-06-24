@@ -15,7 +15,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
     VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
     VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
-    VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
+    VALUE(UPDATES, int, 601, "Number of updates to run before quitting"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
     VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
@@ -76,10 +76,11 @@ public:
 
 
     // Input field for modifying the vertical transmission rate
+    doc << "<b>Please type in a vertical transmisson between 0 and 1, then click Reset: </b><br>";
     doc.AddTextArea([this](const std::string & in){
       bool isValidInput = true;
       for (char c : in){
-        if (c == 46) continue;
+        if (c == 46) continue; // "." is part of a double, skip
         else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double)
       }
       if (in.empty()) { 
@@ -95,7 +96,11 @@ public:
       }
       else { error_message.SetCSS("opacity", "1"); } // make error message appear
     }, "update_vert_transmit");
-
+    doc << error_message;
+    doc << "<br>";
+    doc << UI::Text("update2") << "Vert trans = " << 
+      UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
+    
     // Add a button that allows for pause and start toggle.
     doc << "<br>";
     doc.AddButton([this](){
@@ -126,14 +131,14 @@ public:
       drawPetriDish(mycanvas);
     }, "Reset");
 
+    // Keep track of number of updates
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
     doc << "<br>";
-    doc << UI::Text("update2") << "Vert trans = " << 
-      UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
+
+    // Error message CSS parameters
     error_message << "Invalid Input!";
     error_message.SetCSS("color", "red");
     error_message.SetCSS("opacity", "0");
-    doc << error_message;
   }
 
   void initializeWorld(){
