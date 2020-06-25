@@ -249,9 +249,25 @@ public:
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
                 can.Circle(offset + x * RECT_WIDTH + RECT_WIDTH/2, offset + y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
+
+                // Molly's code to increase colors
+                // std::string color;
+                // if (p[i]->GetIntVal() >= -1 && p[i]->GetIntVal() < -0.667) color = "navy";
+                // if (p[i]->GetIntVal() >= -.667 && p[i]->GetIntVal() < -0.333) color = "blue";
+                // if (p[i]->GetIntVal() >= -.0333 && p[i]->GetIntVal() < 0) color = "purple";
+                // if (p[i]->GetIntVal() >= 0 && p[i]->GetIntVal() < 0.333) color = "pink";
+                // if (p[i]->GetIntVal() >= 0.333 && p[i]->GetIntVal() < 0.667) color = "orange";
+                // if (p[i]->GetIntVal() >= 0.667 && p[i]->GetIntVal() <= 1) color = "yellow";
+                // can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
                 i++;
             }
         }
+  }
+
+  // create a box that will display more info about a host you select/hover over
+  void makeInfoBox(UI::Canvas & can) {
+      doc <<"The host intval is:";
+      
   }
 
   void DoFrame() {
