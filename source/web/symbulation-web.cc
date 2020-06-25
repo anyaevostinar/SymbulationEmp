@@ -6,19 +6,19 @@
 using namespace std;
 
 EMP_BUILD_CONFIG(SymConfigBase,
-    VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
+    VALUE(SEED, int, 17, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
     VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
     VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
-    VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
+    VALUE(VERTICAL_TRANSMISSION, double, 0, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
     VALUE(HOST_INT, double, -2, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
     VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-    VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
-    VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
-    VALUE(UPDATES, int, 601, "Number of updates to run before quitting"),
+    VALUE(GRID_X, int, 50, "Width of the world, just multiplied by the height to get total size"),
+    VALUE(GRID_Y, int, 50, "Height of world, just multiplied by width to get total size"),
+    VALUE(UPDATES, int, 1001, "Number of updates to run before quitting"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
-    VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
+    VALUE(HORIZ_TRANS, bool, 1, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
     VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
     VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
     VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
@@ -67,18 +67,8 @@ public:
 
   MyAnimate() : doc("emp_base") {
     initializeWorld();
-    // Add explanation for organism color:
-    doc << "Blue: IntVal < 0 <br> Yellow: IntVal >= 0";
-
-    // Add a canvas for petri dish and draw the initial petri dish
-    auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
-    targets.push_back(mycanvas);
-    drawPetriDish(mycanvas);
-    doc << "<br>";
-
-
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
-    doc << "<b>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
+    doc << "<b>See what happens at different vertical transmission rates!<br>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
     doc.AddTextArea([this](const std::string & in){
       bool isValidInput = true;
       for (char c : in){
@@ -106,7 +96,7 @@ public:
 
     // ----------------------- Input field for changing the grid setting -----------------------
     doc << "<br>";
-    doc << "<b>Please type in 0 or 1 for grid setting, then click Reset: </b><br>";
+    doc << "<b>See how global versus local reproduction changes evolution! <br>Please type in 0 for global reproduction  or 1 for local reproduction, then click Reset: </b><br>";
     doc.AddTextArea([this](const std::string & in){
       bool isValidInput = (in.size() == 1 && (in == "0" || in == "1")); // input must be either "0" or "1"
       if (in.empty()) { 
@@ -127,6 +117,21 @@ public:
     doc << UI::Text("grid_txt") << "Grid = " << 
       UI::Live( [this](){ return grid; } );
       //UI::Live( [this](){ return empty_grid ? "" : ((grid)? "Yes" : "No"); } );
+
+
+
+    // ----------------------- Error message settings -----------------------
+    em_vert_trans << "Invalid Input!";
+    em_vert_trans.SetCSS("color", "red");
+    em_vert_trans.SetCSS("opacity", "0");
+
+    em_grid << "Invalid Input!";
+    em_grid.SetCSS("color", "red");
+    em_grid.SetCSS("opacity", "0");
+
+    // Add explanation for organism color:
+    doc << "<br><br>Blue squares are hosts that are defensive against a parasitic symbiont" <<
+      "<br> Yellow are hosts that are cooperating with a mutualistic symbiont <br>";
 
     // ----------------------- Add a button that allows for pause and start toggle -----------------------
     doc << "<br>";
@@ -164,15 +169,14 @@ public:
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
     doc << "<br>";
 
+    // Add a canvas for petri dish and draw the initial petri dish
+    auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
+    targets.push_back(mycanvas);
+    drawPetriDish(mycanvas);
+    doc << "<br>";
 
-    // ----------------------- Error message settings -----------------------
-    em_vert_trans << "Invalid Input!";
-    em_vert_trans.SetCSS("color", "red");
-    em_vert_trans.SetCSS("opacity", "0");
 
-    em_grid << "Invalid Input!";
-    em_grid.SetCSS("color", "red");
-    em_grid.SetCSS("opacity", "0");
+
   }
 
   void initializeWorld(){
