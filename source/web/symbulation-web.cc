@@ -239,8 +239,12 @@ public:
         for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
                 std::string color;
-                if (p[i]->GetIntVal() < 0) color = "blue";
-                else color = "yellow";
+                if (p[i]->GetIntVal() > -1 && p[i]->GetIntVal() < -0.667) color = "navy";
+                if (p[i]->GetIntVal() > -.667 && p[i]->GetIntVal() < -0.333) color = "blue";
+                if (p[i]->GetIntVal() > -.0333 && p[i]->GetIntVal() < 0) color = "purple";
+                if (p[i]->GetIntVal() > 0 && p[i]->GetIntVal() < 0.333) color = "pink";
+                if (p[i]->GetIntVal() > 0.333 && p[i]->GetIntVal() < 0.667) color = "orange";
+                if (p[i]->GetIntVal() > 0.667 && p[i]->GetIntVal() < 1) color = "yellow";
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
                 i++;
             }
