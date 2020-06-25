@@ -175,7 +175,7 @@ public:
     drawPetriDish(mycanvas);
     doc << "<br>";
 
-
+    doc << "If you'd like to learn more, please see the publication <a href=\"https://www.mitpressjournals.org/doi/abs/10.1162/artl_a_00273\">Spatial Structure Can Decrease Symbiotic Cooperation</a>.";
 
   }
 
