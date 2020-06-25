@@ -90,7 +90,7 @@ public:
     }, "update_vert_transmit");
     doc << em_vert_trans; 
     doc << "<br>";
-    doc << UI::Text("vert_trans_txt") << "Vert trans = " << 
+    doc << UI::Text("vert_trans_txt") << "Vertical Transmission Rate = " << 
       UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
 
 
@@ -114,7 +114,7 @@ public:
     }, "update_grid");
     doc << em_grid;
     doc << "<br>";
-    doc << UI::Text("grid_txt") << "Grid = " << 
+    doc << UI::Text("grid_txt") << "Reproduction location = " << 
       UI::Live( [this](){ return grid; } );
       //UI::Live( [this](){ return empty_grid ? "" : ((grid)? "Yes" : "No"); } );
 
