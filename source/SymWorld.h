@@ -30,6 +30,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+  emp::Ptr<emp::DataMonitor<int>> data_node_uninfected;
 
 
 
@@ -48,6 +49,7 @@ public:
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
+    if (data_node_uninfected) data_node_uninfected.Delete();
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -66,7 +68,9 @@ public:
   emp::World<Host>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
-    return random.GetDouble(0.0, 1.0) <= vertTrans;
+    bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
+    return result;
+
   }
 
   size_t GetNeighborHost (size_t i) {
@@ -132,11 +136,13 @@ public:
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     auto & node1 = GetHostCountDataNode();
+    auto & uninfected_node = GetUninfectedDataNode();
     node.SetupBins(-1.0, 1.1, 21);
 
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
     file.AddTotal(node1, "count", "Total number of hosts");
+    file.AddTotal(uninfected_node, "uninfected_count", "Total number of uninfected hosts");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -189,6 +195,23 @@ public:
       });
     }
     return *data_node_symcount;
+  }
+ 
+  emp::DataMonitor<int>& GetUninfectedDataNode() {
+    if(!data_node_uninfected) {
+      data_node_uninfected.New();
+      OnUpdate([this](size_t){
+	  data_node_uninfected -> Reset();
+	  for (size_t i = 0; i < pop.size(); i++) {
+	    if(IsOccupied(i)) {
+	      if((pop[i]->GetSymbionts()).empty()) {
+		data_node_uninfected->AddDatum(1);
+	      } //endif
+	    } //endif
+	  } //end for
+	}); //end OnUpdate
+    } //end if
+    return *data_node_uninfected;
   }
 
   emp::DataMonitor<double>& GetBurstSizeDataNode() {
@@ -258,7 +281,6 @@ public:
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
-	pop[i]->SetSymbionts({});
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
@@ -270,6 +292,7 @@ public:
             sym_baby->mutate(random, mut_rate);
             parent.mutate(random, mut_rate); //mutate parent symbiont                                   
             host_baby->AddSymbionts(*sym_baby, sym_limit);
+
           } //end will transmit
         } //end for loop for each symbiont
         DoBirth(*host_baby, i); //Automatically deals with grid

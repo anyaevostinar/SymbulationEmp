@@ -118,8 +118,10 @@ public:
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense.
     if(syms.empty()) {
 
-      if(hostIntVal >= 0)
-        this->AddPoints(resources);
+      if(hostIntVal >= 0){
+	double spent = resources * hostIntVal;
+        this->AddPoints(resources - spent);
+      }
       else {
         double hostDefense = -1.0 * hostIntVal * resources;
         this->AddPoints(resources - hostDefense);
