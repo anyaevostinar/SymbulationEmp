@@ -127,7 +127,9 @@ public:
 
     // Add explanation for organism color:
     doc << "<br><br>Blue squares are hosts that are defensive against a parasitic symbiont" <<
-      "<br> Yellow are hosts that are cooperating with a mutualistic symbiont <br>";
+      "<br> Yellow squares are hosts that are cooperating with a mutualistic symbiont <br>" <<
+      "Blue dots are symbionts that steal resources from the host<br>" <<
+      "Yellow dots are symbionts that are cooperating with a mutualistic host <br>";
 
     // ----------------------- Add a button that allows for pause and start toggle -----------------------
     doc << "<br>";
@@ -234,10 +236,19 @@ public:
         int i = 0;
         for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
-                std::string color;
-                if (p[i]->GetIntVal() < 0) color = "blue";
-                else color = "yellow";
-                can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
+                std::string color_host;
+                std::string color_sym;
+                // color setting for host
+                if (p[i]->GetIntVal() < 0) color_host = "blue";
+                else color_host = "yellow";
+                // color setting for symbiont
+                emp::vector<Symbiont>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
+                if (syms[0].GetIntVal() < 0) color_sym = "blue";
+                else color_sym = "yellow";
+                // Draw the host and symbiont
+                can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
+                int radius = RECT_WIDTH / 4;
+                can.Circle(offset + x * RECT_WIDTH + RECT_WIDTH/2, offset + y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
                 i++;
             }
         }
