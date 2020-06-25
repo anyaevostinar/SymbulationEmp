@@ -243,6 +243,12 @@ public:
         }
   }
 
+  // create a box that will display more info about a host you select/hover over
+  void makeInfoBox(UI::Canvas & can) {
+      doc <<"The host intval is:";
+      
+  }
+
   void DoFrame() {
     if (world.GetUpdate() == numupdates && GetActive()) {
         ToggleActive();
