@@ -38,8 +38,6 @@ private:
   UI::Document doc;
   UI::Text em_vert_trans{"em_vert_trans"};
   UI::Text em_grid{"em_grid"};
-  // UI::TextArea vert_transmit;
-  // UI::TextArea grid;
 
   // Define world and population
   size_t POP_SIZE = config.GRID_X() * config.GRID_Y();
@@ -116,8 +114,6 @@ public:
     doc << "<br>";
     doc << UI::Text("grid_txt") << "Reproduction location = " << 
       UI::Live( [this](){ return grid; } );
-      //UI::Live( [this](){ return empty_grid ? "" : ((grid)? "Yes" : "No"); } );
-
 
 
     // ----------------------- Error message settings -----------------------
