@@ -236,29 +236,14 @@ public:
         int i = 0;
         for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
-                std::string color_host;
-                std::string color_sym;
-                // color setting for host
-                if (p[i]->GetIntVal() < 0) color_host = "blue";
-                else color_host = "yellow";
-                // color setting for symbiont
                 emp::vector<Symbiont>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
-                if (syms[0].GetIntVal() < 0) color_sym = "blue";
-                else color_sym = "yellow";
-                // Draw the host and symbiont
+                // color setting for host and symbiont
+                std::string color_host = matchColor(p[i]->GetIntVal()); 
+                std::string color_sym = matchColor(syms[0].GetIntVal());
+                // Draw host rect and symbiont dot
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
                 can.Circle(offset + x * RECT_WIDTH + RECT_WIDTH/2, offset + y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
-
-                // Molly's code to increase colors
-                // std::string color;
-                // if (p[i]->GetIntVal() >= -1 && p[i]->GetIntVal() < -0.667) color = "navy";
-                // if (p[i]->GetIntVal() >= -.667 && p[i]->GetIntVal() < -0.333) color = "blue";
-                // if (p[i]->GetIntVal() >= -.0333 && p[i]->GetIntVal() < 0) color = "purple";
-                // if (p[i]->GetIntVal() >= 0 && p[i]->GetIntVal() < 0.333) color = "pink";
-                // if (p[i]->GetIntVal() >= 0.333 && p[i]->GetIntVal() < 0.667) color = "orange";
-                // if (p[i]->GetIntVal() >= 0.667 && p[i]->GetIntVal() <= 1) color = "yellow";
-                // can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color, "black");
                 i++;
             }
         }
@@ -268,6 +253,31 @@ public:
   void makeInfoBox(UI::Canvas & can) {
       doc <<"The host intval is:";
       
+  }
+
+  // match the interaction value to colors, assuming that -1.0 <= intVal <= 1.0. 
+  // The antogonistic have light colors, and the cooperative have dark colors.
+  std::string matchColor(double intVal){
+    if (-1.0 <= intVal < -0.9) return "#EFFDF0";
+    else if (-0.9 <= intVal < -0.8) return "#D4FFDD";
+    else if (-0.8 <= intVal < -0.7) return "#BBFFDB";
+    else if (-0.7 <= intVal < -0.6) return "#B2FCE3";
+    else if (-0.6 <= intVal < -0.5) return "#96FFF7";
+    else if (-0.5 <= intVal < -0.4) return "#86E9FE";
+    else if (-0.4 <= intVal < -0.3) return "#6FC4FE";
+    else if (-0.3 <= intVal < -0.2) return "#4755FF";
+    else if (-0.2 <= intVal < -0.1) return "#5E8EFF";
+    else if (-0.1 <= intVal < 0.0) return "#5731FD";
+    else if (0.0 <= intVal < 0.1) return "#7B1DFF";
+    else if (0.1 <= intVal < 0.2) return "#AB08FF";
+    else if (0.2 <= intVal < 0.3) return "#E401E7";
+    else if (0.3 <= intVal < 0.4) return "#D506AD";
+    else if (0.4 <= intVal < 0.5) return "#CD0778";
+    else if (0.5 <= intVal < 0.6) return "#B50142";
+    else if (0.6 <= intVal < 0.7) return "#A7000F";
+    else if (0.7 <= intVal < 0.8) return "#891901";
+    else if (0.8 <= intVal < 0.9) return "#7D3002";
+    else return "#673F03";
   }
 
   void DoFrame() {
