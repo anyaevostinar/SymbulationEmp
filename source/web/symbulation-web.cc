@@ -256,7 +256,7 @@ public:
   }
 
   // match the interaction value to colors, assuming that -1.0 <= intVal <= 1.0. 
-  // The antogonistic have light colors, and the cooperative have dark colors.
+  // The antogonistic have light colors, and the cooperative have dark, brownish colors.
   std::string matchColor(double intVal){
     if (-1.0 <= intVal < -0.9) return "#EFFDF0";
     else if (-0.9 <= intVal < -0.8) return "#D4FFDD";
