@@ -30,7 +30,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
-  emp::Ptr<emp::DataMonitor<int>> data_node_uninfected;
+  emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 
 
@@ -49,7 +49,7 @@ public:
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
-    if (data_node_uninfected) data_node_uninfected.Delete();
+    if (data_node_cfu) data_node_cfu.Delete();
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -73,17 +73,22 @@ public:
 
   }
 
-  size_t GetNeighborHost (size_t i) {
-    size_t newLoc = GetRandomNeighborPos(i).GetIndex();
-    while (newLoc == i) {
-      newLoc = GetRandomNeighborPos(i).GetIndex();
+  int GetNeighborHost (size_t i) {
+    const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
+    if (validNeighbors.empty()) return -1;
+    else {
+      int randI = random.GetUInt(0, validNeighbors.size());
+      return validNeighbors[randI];
     }
-    return newLoc;
   }
 
   void InjectSymbiont(Symbiont newSym){
     int newLoc = GetRandomCellID();
     if(IsOccupied(newLoc) == true) {
+      if (lysis) {
+	//Check if symbiont lysogenizes, symbiont sets bool itself
+	newSym.CheckLysogeny(random);
+      }
       pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
@@ -137,13 +142,14 @@ public:
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode(); 
     auto & node1 = GetHostCountDataNode();
-    auto & uninfected_node = GetUninfectedDataNode();
+    auto & cfu_node = GetCFUDataNode();
     node.SetupBins(-1.0, 1.1, 21);
 
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average host interaction value");
     file.AddTotal(node1, "count", "Total number of hosts");
-    file.AddTotal(uninfected_node, "uninfected_count", "Total number of uninfected hosts");
+    file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
+    //either aren't infected at all or only with lysogenic phage if lysis is enabled
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -198,21 +204,21 @@ public:
     return *data_node_symcount;
   }
  
-  emp::DataMonitor<int>& GetUninfectedDataNode() {
-    if(!data_node_uninfected) {
-      data_node_uninfected.New();
+  emp::DataMonitor<int>& GetCFUDataNode() {
+    if(!data_node_cfu) {
+      data_node_cfu.New();
       OnUpdate([this](size_t){
-	  data_node_uninfected -> Reset();
+	  data_node_cfu -> Reset();
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i)) {
-	      if((pop[i]->GetSymbionts()).empty()) {
-		data_node_uninfected->AddDatum(1);
-	      } //endif
+	      if((pop[i]->GetSymbionts()).empty() || pop[i]->SymsLysogenized()) {
+		data_node_cfu->AddDatum(1);
+	      }
 	    } //endif
 	  } //end for
 	}); //end OnUpdate
     } //end if
-    return *data_node_uninfected;
+    return *data_node_cfu;
   }
 
   emp::DataMonitor<double>& GetBurstSizeDataNode() {
@@ -272,7 +278,8 @@ public:
        
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(random, resources_per_host_per_update, synergy);
+      pop[i]->Process(random, resources_per_host_per_update, synergy, lysis);
+      //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
   
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
@@ -282,12 +289,21 @@ public:
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
+	
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
           Symbiont parent = ((pop[i]->GetSymbionts()))[j];
-          
-          if (WillTransmit()) { //Vertical transmission!  
+	  if (lysis && parent.GetLysogenized()){
+	    //lysogenized phage always get into offspring
+	    //TODO: wrap symbiont reproduction code
+	    Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0);
+	    sym_baby->SetLysogenized(true);        
+	    
+	    sym_baby->mutate(random, mut_rate);
+	    parent.mutate(random, mut_rate);
+	    host_baby->AddSymbionts(*sym_baby, sym_limit);
+	  }else if (WillTransmit()) { //Vertical transmission!  
             
             Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
             sym_baby->mutate(random, mut_rate);
@@ -312,29 +328,32 @@ public:
 	      //Record the burst size
 	      data_node_burst_size -> AddDatum(repro_syms.size());
               for(size_t r = 0; r < repro_syms.size(); r++){
-                size_t newLoc = GetNeighborHost(i);
-                if (IsOccupied(newLoc) == true)
+                int newLoc = GetNeighborHost(i);
+		if (newLoc > -1) { //-1 means no living neighbors
                   pop[newLoc]->AddSymbionts(repro_syms[r], sym_limit);
+		}
               }
               DoDeath(i); //kill organism
               break;  //continue to next organism
 
             } else {
-              syms[j].IncBurstTimer(random);
-              //std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
-              int offspring_per_tick = burst_size/burst_time;
-              for(size_t o=0; o< offspring_per_tick; o++) {
-                if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
-                  //if so, make a new symbiont and add it to Repro sym list
-                  Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
-                  sym_baby->mutate(random, mut_rate);
-                  syms[j].mutate(random, mut_rate);
-                  pop[i]->AddReproSym(*sym_baby);
-                  syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
-                }
-                else
-                  break;
-              }
+	      if (!(syms[j].GetLysogenized())) {
+		syms[j].IncBurstTimer(random);
+		//std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
+		int offspring_per_tick = burst_size/burst_time;
+		for(size_t o=0; o< offspring_per_tick; o++) {
+		  if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
+		    //if so, make a new symbiont and add it to Repro sym list
+		    Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
+		    sym_baby->mutate(random, mut_rate);
+		    syms[j].mutate(random, mut_rate);
+		    pop[i]->AddReproSym(*sym_baby);
+		    syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
+		  }
+		  else
+		    break;
+		}
+	      }
             } 
           }
 
@@ -353,8 +372,9 @@ public:
               // pick new host to infect, if one exists at the new location and isn't at the limit
 
               int newLoc = GetNeighborHost(i);
-              if (IsOccupied(newLoc) == true)
+              if (newLoc > -1) { //-1 means no living neighbors
                 pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
+	      }
 
             } // if syms[j]
           } // non-lytic horizontal transmission enabled

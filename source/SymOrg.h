@@ -13,11 +13,12 @@ private:
   double interaction_val;
   double points;
   std::set<int> res_types;
+  double burst_timer = 0;
+  bool lysogenized = false;
 
 
 public:
 
-  double burst_timer = 0;
   Symbiont(double _intval=0.0, double _points = 0.0, std::set<int> _set = std::set<int>())
     : interaction_val(_intval), points(_points), res_types(_set) {}
   Symbiont(const Symbiont &) = default;
@@ -31,18 +32,33 @@ public:
   double GetPoints() {return points;}
   //  std::set<int> GetResTypes() const {return res_types;}
   double GetBurstTimer() {return burst_timer;}
+  bool GetLysogenized() {return lysogenized;}
 
+  void SetLysogenized(bool _in) {lysogenized = _in;}
   void SetIntVal(double _in) { interaction_val = _in;}
   void SetPoints(double _in) { points = _in;}
   void AddPoints(double _in) { points += _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
-  void IncBurstTimer(emp::Random &random) {burst_timer += random.GetRandNormal(1.0, 0.5);}
+  void IncBurstTimer(emp::Random &random) {
+    if (!GetLysogenized()){
+      burst_timer += random.GetRandNormal(1.0, 0.5);
+    }
+  }
+  void SetBurstTimer(int _in) {burst_timer = _in;}
 
   //TODO: change everything to camel case
   void mutate(emp::Random &random, double mut_rate){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;
+  }
+  
+  void CheckLysogeny(emp::Random &random) {
+    if (random.GetDouble(0.0, 1.0) < ((-1 - GetIntVal())*-1)){
+      SetLysogenized(true);
+    } else {
+      SetLysogenized(false);
+    }
   }
 
 };
@@ -106,16 +122,25 @@ public:
     return syms.size() != 0;
   }
 
+  bool SymsLysogenized() {
+    for (size_t i=0; i<syms.size(); i++) {
+      if (!(syms[i].GetLysogenized())) {
+	return false;
+      }
+    }
+    return true;
+  }
+
   void mutate(emp::Random &random, double mut_rate){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;
   }
   
-  void DistribResources(double resources, double synergy) { 
+  void DistribResources(double resources, double synergy, bool lysis) { 
     double hostIntVal = interaction_val; //using private variable because we can
     
-    //In the event that the host has no symbionts, the host gets all resources not allocated to defense.
+    //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 
       if(hostIntVal >= 0){
@@ -135,6 +160,15 @@ public:
 
     for(size_t i=0; i < syms.size(); i++){
       double symIntVal = syms[i].GetIntVal();
+      if (lysis && symIntVal < 0){
+	if (syms[i].GetLysogenized()) {
+	  symIntVal = 0; //lysogenized phage neither steals nor helps
+	}else {
+	  symIntVal = -1; //non-lysogenized lytic phage shuts down host reproduction if possible
+	}
+      }
+	
+
      
       double hostPortion = 0.0;
       double hostDonation = 0.0;
@@ -209,9 +243,9 @@ public:
   
   } //end DistribResources
 
-  void Process(emp::Random &random, double resources_per_host_per_update, double synergy) {
+  void Process(emp::Random &random, double resources_per_host_per_update, double synergy, bool lysis) {
     //Currently just wrapping to use the existing function
-    DistribResources(resources_per_host_per_update, synergy); 
+    DistribResources(resources_per_host_per_update, synergy, lysis); 
   }
   
 };//Host
