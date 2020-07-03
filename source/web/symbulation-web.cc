@@ -1,14 +1,14 @@
 #include <iostream>
 #include "../SymWorld.h"
 #include "../../Empirical/source/config/ArgManager.h"
-#include "../MyAnimate.h"
+#include "../SymAnimate.h"
 #include "../SymConfig.h"
 
 using namespace std;
 
 namespace UI = emp::web;
 SymConfigBase config;
-MyAnimate anim;
+SymAnimate anim;
 
 int symbulation_main(int argc, char * argv[]){
     auto args = emp::cl::ArgManager(argc, argv);

@@ -1,6 +1,6 @@
 // This file contains all operations related to the web interface
-#ifndef MY_ANIMATE_H
-#define MY_ANIMATE_H
+#ifndef SYM_ANIMATE_H
+#define SYM_ANIMATE_H
 
 #include <iostream>
 #include "SymWorld.h"
@@ -12,7 +12,7 @@
 
 namespace UI = emp::web;
 
-class MyAnimate : public UI::Animate {
+class SymAnimate : public UI::Animate {
 private:
   SymConfigBase config; // load the default configuration
   UI::Document doc;
@@ -43,7 +43,7 @@ private:
 
 public:
 
-  MyAnimate() : doc("emp_base") {
+  SymAnimate() : doc("emp_base") {
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
     doc << "<b>See what happens at different vertical transmission rates!<br>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
