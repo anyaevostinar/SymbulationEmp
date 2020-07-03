@@ -11,6 +11,9 @@
 #include "../../Empirical/source/config/ArgManager.h"
 
 namespace UI = emp::web;
+EM_JS(void, game, (), {
+  alert('Play Game!');
+});
 
 class SymAnimate : public UI::Animate {
 private:
@@ -37,13 +40,26 @@ private:
   const int RECT_WIDTH = 10;
   int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
 
-  // params for controlling textarea input
+  // Params for controlling textarea input
   bool empty_vert = false;
   bool empty_grid = false;
+
+  // Params for controlling game mode
+  bool game_mode = false;
 
 public:
 
   SymAnimate() : doc("emp_base") {
+    // ----------------------- Add a playgame button that toggles game_mode -----------------------
+    doc << UI::Text("game_mode") << "Game Mode: " << 
+      UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
+    doc.AddButton([this](){
+      game_mode = !game_mode;
+      game();
+      doc.Text("game_mode").Redraw();
+    }, "Play Game", "play");
+    doc << "<br>";
+
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
     doc << "<b>See what happens at different vertical transmission rates!<br>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
@@ -120,6 +136,7 @@ public:
       if (GetActive()) but.SetLabel("Pause");
       else but.SetLabel("Start");
     }, "Start", "toggle");
+    doc.Button("toggle").SetCSS("border-radius", "4px");
 
     // ----------------------- Add a reset button to reset the animation/world -----------------------
     /* Note: Must first run world.Reset(), because Inject checks for valid position.
@@ -140,8 +157,9 @@ public:
       // redraw petri dish
       auto mycanvas = doc.Canvas("can");
       drawPetriDish(mycanvas);
-    }, "Reset");
-
+    }, "Reset", "reset");
+    doc.Button("reset").SetCSS("border-radius", "4px");
+    doc.Button("reset").SetCSS("margin-left", "5px");
 
     // ----------------------- Keep track of number of updates -----------------------
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
