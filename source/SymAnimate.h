@@ -11,8 +11,17 @@
 #include "../../Empirical/source/config/ArgManager.h"
 
 namespace UI = emp::web;
-EM_JS(void, game, (), {
-  alert('Play Game!');
+// All JS code related to game
+EM_JS(void, showChallenge, (), {
+  $('#playGame').modal('toggle')
+});
+
+EM_JS(void, showSuccess, (), {
+  $('#successAlert').modal('toggle')
+});
+
+EM_JS(void, showFailure, (), {
+  $('#failureAlert').modal('toggle')
 });
 
 class SymAnimate : public UI::Animate {
@@ -46,6 +55,8 @@ private:
 
   // Params for controlling game mode
   bool game_mode = false;
+  std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of doc to indicate whether it is in game mode
+  bool passed = false; // whether player passed the challenge
 
 public:
 
@@ -54,11 +65,10 @@ public:
     doc << UI::Text("game_mode") << "Game Mode: " << 
       UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
     doc.AddButton([this](){
-      game_mode = !game_mode;
-      game();
-      doc.Text("game_mode").Redraw();
+      toggleGame();
     }, "Play Game", "play");
     doc << "<br>";
+   //doc.Button("play").OnMouseOver([this](){ auto but = doc.Button("play"); but.SetCSS("background-color", "grey"); });
 
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
@@ -232,12 +242,15 @@ public:
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
+        bool temp_passed = true; 
         for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
                 emp::vector<Symbiont>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
                 std::string color_host = matchColor(p[i]->GetIntVal()); 
                 std::string color_sym = matchColor(syms[0].GetIntVal());
+                // while drawing, test whether every organism is mutualistic
+                if (p[i]->GetIntVal() <= 0 || syms[0].GetIntVal() <= 0) temp_passed = false;
                 // Draw host rect and symbiont dot
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
@@ -245,6 +258,7 @@ public:
                 i++;
             }
         }
+        passed = temp_passed; // update passed
   }
 
   // create a box that will display more info about a host you select/hover over
@@ -278,9 +292,22 @@ public:
     else return "#673F03";
   }
 
-  void DoFrame() {
+  void toggleGame(){
+    game_mode = !game_mode;
+    doc.Text("game_mode").Redraw();
+    doc.SetCSS("background-color", bg_colors[game_mode]);
+    if (game_mode) showChallenge();
+  }
+
+  void DoFrame() { 
+    if (game_mode && passed) { // game succeeded. No need to continue
+      ToggleActive();
+      showSuccess();
+    }
+
     if (world.GetUpdate() == numupdates && GetActive()) {
         ToggleActive();
+        if (!passed) showFailure();
     } else {
       auto mycanvas = doc.Canvas("can"); // get canvas by id
       mycanvas.Clear();
