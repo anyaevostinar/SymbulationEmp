@@ -12,7 +12,9 @@
 
 namespace UI = emp::web;
 // All JS code related to game
-EM_JS(void, showChallenge, (), {
+EM_JS(void, showChallenge, (const char* str), {
+  $('#playGame .modal-title').html(UTF8ToString(str));
+  $('#playGame .modal-body').text(UTF8ToString(str));
   $('#playGame').modal('toggle')
 });
 
@@ -55,8 +57,10 @@ private:
 
   // Params for controlling game mode
   bool game_mode = false;
+  int challenge_ind = 0;
   std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of doc to indicate whether it is in game mode
   bool passed = false; // whether player passed the challenge
+  std::vector<std::string> challenges{ "Make all organisms mutualistic", "Make all organisms parasitic" };
 
 public:
 
@@ -299,7 +303,9 @@ public:
     game_mode = !game_mode;
     doc.Text("game_mode").Redraw();
     doc.SetCSS("background-color", bg_colors[game_mode]);
-    if (game_mode) showChallenge();
+    if (game_mode) { 
+      showChallenge("this worked");
+    }
   }
 
   void DoFrame() { 
