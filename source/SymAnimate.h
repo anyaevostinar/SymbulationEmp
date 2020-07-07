@@ -66,6 +66,9 @@ public:
       UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
     doc.AddButton([this](){
       toggleGame();
+      auto but = doc.Button("play");
+      if (game_mode) but.SetLabel("End Game");
+      else but.SetLabel("Play Game");
     }, "Play Game", "play");
     doc << "<br>";
    //doc.Button("play").OnMouseOver([this](){ auto but = doc.Button("play"); but.SetCSS("background-color", "grey"); });
