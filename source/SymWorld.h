@@ -83,7 +83,7 @@ public:
   }
 
   void InjectSymbiont(Symbiont newSym){
-    int newLoc = GetRandomCellID();
+    int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
       if (lysis) {
 	//Check if symbiont lysogenizes, symbiont sets bool itself

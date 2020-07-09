@@ -1,4 +1,4 @@
-update,mean_intval,count,uninfected_count,Hist_-1,Hist_-0.9,Hist_-0.8,Hist_-0.7,Hist_-0.6,Hist_-0.5,Hist_-0.4,Hist_-0.3,Hist_-0.2,Hist_-0.1,Hist_0.0,Hist_0.1,Hist_0.2,Hist_0.3,Hist_0.4,Hist_0.5,Hist_0.6,Hist_0.7,Hist_0.8,Hist_0.9
+update,mean_intval,count,cfu_count,Hist_-1,Hist_-0.9,Hist_-0.8,Hist_-0.7,Hist_-0.6,Hist_-0.5,Hist_-0.4,Hist_-0.3,Hist_-0.2,Hist_-0.1,Hist_0.0,Hist_0.1,Hist_0.2,Hist_0.3,Hist_0.4,Hist_0.5,Hist_0.6,Hist_0.7,Hist_0.8,Hist_0.9
 0,-0.00812729,10000,3675,539,509,520,462,479,554,510,502,453,497,508,515,502,495,522,465,479,524,473,492
 100,0.852956,10000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1256,2117,2476,4150
 200,0.854688,10000,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1190,1984,2588,4238

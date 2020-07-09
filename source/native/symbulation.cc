@@ -16,6 +16,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
     VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
     VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
+    VALUE(POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
     VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
@@ -53,7 +54,8 @@ int symbulation_main(int argc, char * argv[])
 
   int numupdates = config.UPDATES();
   int start_moi = config.START_MOI();
-  double POP_SIZE = config.GRID_X() * config.GRID_Y();
+  int POP_SIZE = config.POP_SIZE();
+  if (POP_SIZE == -1) POP_SIZE = config.GRID_X() * config.GRID_Y();
   bool random_phen_host = false;
   bool random_phen_sym = false;
   if(config.HOST_INT() == -2) random_phen_host = true;
@@ -77,8 +79,6 @@ int symbulation_main(int argc, char * argv[])
   world.SetSymLysisRes(config.SYM_LYSIS_RES());
   world.SetSynergy(config.SYNERGY());
 
-  //This parameter is redundant with HOST_REPRO_RES, SYM_HORIZ_TRANS_RES, and SYM_LYSIS_RES.
-  //Configuring it adds another variable, but not another degree of freedom.
   world.SetResPerUpdate(100);
 
   int TIMING_REPEAT = config.DATA_INT();
@@ -103,6 +103,7 @@ int symbulation_main(int argc, char * argv[])
     world.Inject(*new_org);
   }
 
+  world.Resize(config.GRID_X(), config.GRID_Y()); //if the world wasn't full, creates room for more organisms
 
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
@@ -112,7 +113,7 @@ int symbulation_main(int argc, char * argv[])
       if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
       else new_sym = *(new Symbiont(config.SYM_INT()));
       if(STAGGER_STARTING_BURST_TIMERS)
-        new_sym.burst_timer = random.GetInt(-5,5);
+        new_sym.SetBurstTimer(random.GetInt(-5,5));
       world.InjectSymbiont(new_sym);
     }
 
@@ -129,7 +130,7 @@ int symbulation_main(int argc, char * argv[])
 }
 
 /*
-This defenition guard prevents main from being defined twice during testing.
+This definition guard prevents main from being defined twice during testing.
 In testing, Catch will define a main function which will initiate tests
 (including testing the symbulation_main function above).
 */
