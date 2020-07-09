@@ -3,6 +3,8 @@ StatsConfig.cfg
 SymSettings.cfg
 project_name
 source/.DS_Store
+web/symbulation.wasm
+web/symbulation.js
 symbulation
 *~
 *.data
