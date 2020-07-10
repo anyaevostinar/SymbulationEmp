@@ -11,6 +11,7 @@
 #include "../../Empirical/source/config/ArgManager.h"
 
 namespace UI = emp::web;
+<<<<<<< HEAD
 // All JS code related to game
 EM_JS(void, showChallenge, (const char* str), {
   $('#playGame .modal-title').html(UTF8ToString(str));
@@ -24,6 +25,10 @@ EM_JS(void, showSuccess, (), {
 
 EM_JS(void, showFailure, (), {
   $('#failureAlert').modal('toggle')
+=======
+EM_JS(void, game, (), {
+  alert("Play Game!");
+>>>>>>> 2a694e1e798dddff2b449ddef13f422effb7721b
 });
 
 class SymAnimate : public UI::Animate {
@@ -66,6 +71,7 @@ public:
 
   SymAnimate() : doc("emp_base") {
     // ----------------------- Add a playgame button that toggles game_mode -----------------------
+<<<<<<< HEAD
     doc << UI::Text("game_mode") << "Game Mode: " << 
       UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
     doc.AddButton([this](){
@@ -76,6 +82,16 @@ public:
     }, "Play Game", "play");
     doc << "<br>";
    //doc.Button("play").OnMouseOver([this](){ auto but = doc.Button("play"); but.SetCSS("background-color", "grey"); });
+=======
+    //    doc << UI::Text("game_mode") << "Game Mode: " << 
+    // UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
+    //doc.AddButton([this](){
+    //  game_mode = !game_mode;
+    //  game();
+    //  doc.Text("game_mode").Redraw();
+    //}, "Play Game", "play");
+    //doc << "<br>";
+>>>>>>> 2a694e1e798dddff2b449ddef13f422effb7721b
 
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
@@ -139,10 +155,9 @@ public:
     em_grid.SetCSS("opacity", "0");
 
     // Add explanation for organism color:
-    doc << "<br><br>Blue squares are hosts that are defensive against a parasitic symbiont" <<
-      "<br> Yellow squares are hosts that are cooperating with a mutualistic symbiont <br>" <<
-      "Blue dots are symbionts that steal resources from the host<br>" <<
-      "Yellow dots are symbionts that are cooperating with a mutualistic host <br>";
+    doc << "<br><br><img style=\"max-width:175px;\" src=\"diagram.png\"> <br>" <<
+      "<img style=\"max-width:600px;\" src = \"gradient.png\"/> <br>";
+      
 
     // ----------------------- Add a button that allows for pause and start toggle -----------------------
     doc << "<br>";
@@ -277,25 +292,25 @@ public:
   // match the interaction value to colors, assuming that -1.0 <= intVal <= 1.0. 
   // The antogonistic have light colors, and the cooperative have dark, brownish colors.
   std::string matchColor(double intVal){
-    if (-1.0 <= intVal < -0.9) return "#EFFDF0";
-    else if (-0.9 <= intVal < -0.8) return "#D4FFDD";
-    else if (-0.8 <= intVal < -0.7) return "#BBFFDB";
-    else if (-0.7 <= intVal < -0.6) return "#B2FCE3";
-    else if (-0.6 <= intVal < -0.5) return "#96FFF7";
-    else if (-0.5 <= intVal < -0.4) return "#86E9FE";
-    else if (-0.4 <= intVal < -0.3) return "#6FC4FE";
-    else if (-0.3 <= intVal < -0.2) return "#4755FF";
-    else if (-0.2 <= intVal < -0.1) return "#5E8EFF";
-    else if (-0.1 <= intVal < 0.0) return "#5731FD";
-    else if (0.0 <= intVal < 0.1) return "#7B1DFF";
-    else if (0.1 <= intVal < 0.2) return "#AB08FF";
-    else if (0.2 <= intVal < 0.3) return "#E401E7";
-    else if (0.3 <= intVal < 0.4) return "#D506AD";
-    else if (0.4 <= intVal < 0.5) return "#CD0778";
-    else if (0.5 <= intVal < 0.6) return "#B50142";
-    else if (0.6 <= intVal < 0.7) return "#A7000F";
-    else if (0.7 <= intVal < 0.8) return "#891901";
-    else if (0.8 <= intVal < 0.9) return "#7D3002";
+    if ((-1.0 <= intVal) && (intVal < -0.9)) return "#EFFDF0";
+    else if ((-0.9 <= intVal) && (intVal < -0.8)) return "#D4FFDD";
+    else if ((-0.8 <= intVal) && (intVal < -0.7)) return "#BBFFDB";
+    else if ((-0.7 <= intVal) && (intVal < -0.6)) return "#B2FCE3";
+    else if ((-0.6 <= intVal) && (intVal < -0.5)) return "#96FFF7";
+    else if ((-0.5 <= intVal) && (intVal < -0.4)) return "#86E9FE";
+    else if ((-0.4 <= intVal) && (intVal < -0.3)) return "#6FC4FE";
+    else if ((-0.3 <= intVal) && (intVal < -0.2)) return "#5E8EFF";
+    else if ((-0.2 <= intVal) && (intVal < -0.1)) return "#4755FF";
+    else if ((-0.1 <= intVal) && (intVal < 0.0)) return "#5731FD";
+    else if ((0.0 <= intVal) && (intVal < 0.1)) return "#7B1DFF";
+    else if ((0.1 <= intVal) && (intVal < 0.2)) return "#AB08FF";
+    else if ((0.2 <= intVal) && (intVal < 0.3)) return "#E401E7";
+    else if ((0.3 <= intVal) && (intVal < 0.4)) return "#D506AD";
+    else if ((0.4 <= intVal) && (intVal < 0.5)) return "#CD0778";
+    else if ((0.5 <= intVal) && (intVal < 0.6)) return "#B50142";
+    else if ((0.6 <= intVal) && (intVal < 0.7)) return "#A7000F";
+    else if ((0.7 <= intVal) && (intVal < 0.8)) return "#891901";
+    else if ((0.8 <= intVal) && (intVal < 0.9)) return "#7D3002";
     else return "#673F03";
   }
 
