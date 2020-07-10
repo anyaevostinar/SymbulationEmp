@@ -11,7 +11,6 @@
 #include "../../Empirical/source/config/ArgManager.h"
 
 namespace UI = emp::web;
-<<<<<<< HEAD
 // All JS code related to game
 EM_JS(void, showChallenge, (const char* str), {
   $('#playGame .modal-title').html(UTF8ToString(str));
@@ -25,10 +24,6 @@ EM_JS(void, showSuccess, (), {
 
 EM_JS(void, showFailure, (), {
   $('#failureAlert').modal('toggle')
-=======
-EM_JS(void, game, (), {
-  alert("Play Game!");
->>>>>>> 2a694e1e798dddff2b449ddef13f422effb7721b
 });
 
 class SymAnimate : public UI::Animate {
@@ -71,7 +66,6 @@ public:
 
   SymAnimate() : doc("emp_base") {
     // ----------------------- Add a playgame button that toggles game_mode -----------------------
-<<<<<<< HEAD
     doc << UI::Text("game_mode") << "Game Mode: " << 
       UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
     doc.AddButton([this](){
@@ -82,16 +76,6 @@ public:
     }, "Play Game", "play");
     doc << "<br>";
    //doc.Button("play").OnMouseOver([this](){ auto but = doc.Button("play"); but.SetCSS("background-color", "grey"); });
-=======
-    //    doc << UI::Text("game_mode") << "Game Mode: " << 
-    // UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
-    //doc.AddButton([this](){
-    //  game_mode = !game_mode;
-    //  game();
-    //  doc.Text("game_mode").Redraw();
-    //}, "Play Game", "play");
-    //doc << "<br>";
->>>>>>> 2a694e1e798dddff2b449ddef13f422effb7721b
 
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
