@@ -12,10 +12,10 @@
 
 namespace UI = emp::web;
 // All JS code related to game
-EM_JS(void, showChallenge, (const char* str), {
-  $('#playGame .modal-title').html(UTF8ToString(str));
+EM_JS(void, showChallenge, (const char* str, int ind), {
+  $('#playGame .modal-title').html("Challenge " + (ind + 1));
   $('#playGame .modal-body').text(UTF8ToString(str));
-  $('#playGame').modal('toggle')
+  $('#playGame').modal('toggle');
 });
 
 EM_JS(void, showSuccess, (), {
@@ -61,6 +61,7 @@ private:
   std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of doc to indicate whether it is in game mode
   bool passed = false; // whether player passed the challenge
   std::vector<std::string> challenges{ "Make all organisms mutualistic", "Make all organisms parasitic" };
+  int challenge_number = challenges.size();
 
 public:
 
@@ -303,14 +304,19 @@ public:
     doc.Text("game_mode").Redraw();
     doc.SetCSS("background-color", bg_colors[game_mode]);
     if (game_mode) { 
-      showChallenge("this worked");
-    }
+      auto str = challenges[challenge_ind].c_str();
+      showChallenge(str, challenge_ind);
+    } else challenge_ind = 0;
   }
 
   void DoFrame() { 
     if (game_mode && passed) { // game succeeded. No need to continue
       ToggleActive();
       showSuccess();
+      if (++challenge_ind < challenge_number) {
+        auto str = challenges[challenge_ind].c_str();
+        showChallenge(str, challenge_ind);
+      }
     }
 
     if (world.GetUpdate() == numupdates && GetActive()) {
