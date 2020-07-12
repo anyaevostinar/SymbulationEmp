@@ -12,16 +12,31 @@
 
 namespace UI = emp::web;
 // All JS code related to game
-EM_JS(void, showChallenge, (const char* str, int ind), {
-  $('#playGame .modal-title').html("Challenge " + (ind + 1));
-  $('#playGame .modal-body').text(UTF8ToString(str));
+// Modifies the content of the challenge box according to the challenge user has reached
+EM_JS(void, modifyChallenge, (const char* str, int ind, int challenge_number), {
+  if (ind >= challenge_number) {
+    $('#playGame .modal-title').html("Congrats!");
+    $('#playGame .modal-body').text("There are no challenges remaining!");
+  } else if (ind == 0){ // first challenge, no need to remind users of reset
+    $('#playGame .modal-title').html("Challenge " + (ind + 1));
+    $('#playGame .modal-body').html(UTF8ToString(str));
+  } else {
+    $('#playGame .modal-title').html("Challenge " + (ind + 1));
+    $('#playGame .modal-body').html(UTF8ToString(str) + "<br><b>Click Reset to restart the simulation.</b>");
+  }
+});
+
+// Toggles the challenge modal to show the challenge
+EM_JS(void, showChallenge, (), {
   $('#playGame').modal('toggle');
 });
 
+// Toggles successAlert modal to show success of challenge
 EM_JS(void, showSuccess, (), {
   $('#successAlert').modal('toggle')
 });
 
+// Toggles failureAlert modal to show failure of challenge
 EM_JS(void, showFailure, (), {
   $('#failureAlert').modal('toggle')
 });
@@ -59,7 +74,9 @@ private:
   bool game_mode = false;
   int challenge_ind = 0;
   std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of doc to indicate whether it is in game mode
-  bool passed = false; // whether player passed the challenge
+  bool passed; // whether player passed the challenge
+  int num_mutualistic = 0;
+  int num_parasitic = 0;
   std::vector<std::string> challenges{ "Make all organisms mutualistic", "Make all organisms parasitic" };
   int challenge_number = challenges.size();
 
@@ -181,6 +198,9 @@ public:
     // ----------------------- Keep track of number of updates -----------------------
     doc << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } );
     doc << "<br>";
+    doc << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } );
+    doc << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
+    doc << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
     auto mycanvas = doc.AddCanvas(can_size, can_size, "can");
@@ -249,7 +269,9 @@ public:
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
-        bool temp_passed = true; 
+        num_mutualistic = 0;
+        num_parasitic = 0;
+        //bool temp_passed = true; 
         for (int x = 0; x < side_x; x++){ 
             for (int y = 0; y < side_y; y++){
                 emp::vector<Symbiont>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
@@ -257,7 +279,11 @@ public:
                 std::string color_host = matchColor(p[i]->GetIntVal()); 
                 std::string color_sym = matchColor(syms[0].GetIntVal());
                 // while drawing, test whether every organism is mutualistic
-                if (p[i]->GetIntVal() <= 0 || syms[0].GetIntVal() <= 0) temp_passed = false;
+                //if (p[i]->GetIntVal() <= 0 || syms[0].GetIntVal() <= 0) temp_passed = false;
+                if (p[i]->GetIntVal() <= 0) num_parasitic++; 
+                else num_mutualistic++;
+                if (syms[0].GetIntVal() <= 0) num_parasitic++;
+                else num_mutualistic++;
                 // Draw host rect and symbiont dot
                 can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
@@ -265,13 +291,7 @@ public:
                 i++;
             }
         }
-        passed = temp_passed; // update passed
-  }
-
-  // create a box that will display more info about a host you select/hover over
-  void makeInfoBox(UI::Canvas & can) {
-      doc <<"The host intval is:";
-      
+        //passed = temp_passed; // update passed
   }
 
   // match the interaction value to colors, assuming that -1.0 <= intVal <= 1.0. 
@@ -305,17 +325,20 @@ public:
     doc.SetCSS("background-color", bg_colors[game_mode]);
     if (game_mode) { 
       auto str = challenges[challenge_ind].c_str();
-      showChallenge(str, challenge_ind);
-    } else challenge_ind = 0;
+      modifyChallenge(str, challenge_ind, challenge_number);
+      showChallenge();
+    } else challenge_ind = 0; // resetting the game resets the challenge
   }
 
   void DoFrame() { 
-    if (game_mode && passed) { // game succeeded. No need to continue
-      ToggleActive();
-      showSuccess();
-      if (++challenge_ind < challenge_number) {
+    passed = checkPassed();
+    if (game_mode && passed) { // actions that will be taken ONLY when game passes
+      ToggleActive(); showSuccess();  // game succeeded. No need to continue the current simulation
+      if (++challenge_ind < challenge_number) { // continue challenges if there are any left
         auto str = challenges[challenge_ind].c_str();
-        showChallenge(str, challenge_ind);
+        modifyChallenge(str, challenge_ind, challenge_number);
+      } else {
+        modifyChallenge("", challenge_ind, challenge_number);
       }
     }
 
@@ -331,7 +354,16 @@ public:
       p = world.getPop();
       drawPetriDish(mycanvas);
       doc.Text("update").Redraw();
+      doc.Text("mut").Redraw();
+      doc.Text("par").Redraw();
     }
+  }
+
+  // Checks if a particular challenge is passed
+  bool checkPassed(){
+    if (challenge_ind == 0) return (num_parasitic == 0);
+    else if (challenge_ind == 1) return (num_mutualistic == 0);
+    else return false;
   }
 };
 
