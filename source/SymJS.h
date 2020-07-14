@@ -1,3 +1,5 @@
+#include "web/init.h"
+
 // All JS code related to game
 // Modifies the content of the challenge box according to the challenge user has reached
 EM_JS(void, modifyChallenge, (const char* str, int ind, int challenge_number), {
