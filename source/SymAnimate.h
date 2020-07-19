@@ -72,8 +72,10 @@ public:
       else but.SetLabel("Play Game");
     }, "Play Game", "play");
     settings << "<br>";
-   //settings.Button("play").OnMouseOver([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "grey"); });
-
+    setButtonStyle("play");
+    settings.Button("play").OnMouseOver([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
+    settings.Button("play").OnMouseOut([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "#D3D3D3"); });
+    
     initializeWorld();
     // ----------------------- Input field for modifying the vertical transmission rate -----------------------
     settings << "<b>See what happens at different vertical transmission rates!<br>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
@@ -150,7 +152,9 @@ public:
       if (GetActive()) but.SetLabel("Pause");
       else but.SetLabel("Start");
     }, "Start", "toggle");
-    settings.Button("toggle").SetCSS("border-radius", "4px");
+    setButtonStyle("toggle");
+    settings.Button("toggle").OnMouseOver([this](){ auto but = settings.Button("toggle"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
+    settings.Button("toggle").OnMouseOut([this](){ auto but = settings.Button("toggle"); but.SetCSS("background-color", "#D3D3D3"); });
 
     // ----------------------- Add a reset button to reset the animation/world -----------------------
     /* Note: Must first run world.Reset(), because Inject checks for valid position.
@@ -172,8 +176,9 @@ public:
       auto mycanvas = animation.Canvas("can");
       drawPetriDish(mycanvas);
     }, "Reset", "reset");
-    settings.Button("reset").SetCSS("border-radius", "4px");
-    settings.Button("reset").SetCSS("margin-left", "5px");
+    setButtonStyle("reset");
+    settings.Button("reset").OnMouseOver([this](){ auto but = settings.Button("reset"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
+    settings.Button("reset").OnMouseOut([this](){ auto but = settings.Button("reset"); but.SetCSS("background-color", "#D3D3D3"); });
 
     // ----------------------- Keep track of number of updates -----------------------
     settings << "<br>";
@@ -244,6 +249,13 @@ public:
       world.InjectSymbiont(new_sym); 
     }
     p = world.getPop();
+  }
+
+  void setButtonStyle(string but_id){
+    auto but = settings.Button(but_id);
+    but.SetCSS("background-color", "#D3D3D3");
+    but.SetCSS("border-radius", "4px");
+    but.SetCSS("margin-left", "5px");    
   }
 
   // now draw a virtual petri dish with coordinate offset from the left frame
