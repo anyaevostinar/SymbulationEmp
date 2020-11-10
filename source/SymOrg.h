@@ -1,8 +1,8 @@
 #ifndef SYM_ORG_H
 #define SYM_ORG_H
 
-#include "../../Empirical/source/tools/Random.h"
-#include "../../Empirical/source/tools/string_utils.h"
+#include "../../Empirical/include/emp/math/Random.hpp"
+#include "../../Empirical/include/emp/tools/string_utils.hpp"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream

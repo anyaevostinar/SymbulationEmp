@@ -1,10 +1,10 @@
 #ifndef SYM_WORLD_H
 #define SYM_WORLD_H
 
-#include "../../Empirical/source/Evolve/World.h"
-#include "../../Empirical/source/data/DataFile.h"
-#include "../../Empirical/source/tools/random_utils.h"
-#include "../../Empirical/source/tools/Random.h"
+#include "../../Empirical/include/emp/Evolve/World.hpp"
+#include "../../Empirical/include/emp/data/DataFile.hpp"
+#include "../../Empirical/include/emp/math/random_utils.hpp"
+#include "../../Empirical/include/emp/math/Random.hpp"
 #include "SymOrg.h"
 #include <set>
 #include <math.h>

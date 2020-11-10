@@ -1,7 +1,7 @@
 # Project-specific settings
 PROJECT := symbulation
 TEST_MAIN := source/catch/main
-EMP_DIR := ../Empirical/source
+EMP_DIR := ../Empirical/include/emp
 
 # Flags to use regardless of compiler
 CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/
