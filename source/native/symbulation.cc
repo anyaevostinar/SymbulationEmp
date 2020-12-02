@@ -1,5 +1,5 @@
 #include "../SymWorld.h"
-#include "../../Empirical/source/config/ArgManager.h"
+#include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 
 using namespace std;
@@ -108,12 +108,20 @@ int symbulation_main(int argc, char * argv[])
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
   int total_syms = POP_SIZE * start_moi;
-  for (int j = 0; j < total_syms; j++){ 
-      Symbiont new_sym; 
-      if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
-      else new_sym = *(new Symbiont(config.SYM_INT()));
-      if(STAGGER_STARTING_BURST_TIMERS)
-        new_sym.SetBurstTimer(random.GetInt(-5,5));
+  for (int j = 0; j < total_syms; j++){
+      //TODO: figure out better way of doing the type
+      if(config.LYSIS() == 1) { 
+        Phage new_sym;
+        if(random_phen_sym) new_sym = *(new Phage(random, world, random.GetDouble(-1, 1)));
+        else new_sym = *(new Phage(config.SYM_INT()));
+        if(STAGGER_STARTING_BURST_TIMERS) {
+          new_sym.SetBurstTimer(random.GetInt(-5,5));
+        }
+      } else {
+        Symbiont new_sym; 
+        if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
+        else new_sym = *(new Symbiont(config.SYM_INT()));
+      }
       world.InjectSymbiont(new_sym);
     }
 

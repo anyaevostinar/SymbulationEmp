@@ -1,11 +1,11 @@
 #ifndef SYM_WORLD_H
 #define SYM_WORLD_H
 
-#include "../../Empirical/source/Evolve/World.h"
-#include "../../Empirical/source/data/DataFile.h"
-#include "../../Empirical/source/tools/random_utils.h"
-#include "../../Empirical/source/tools/Random.h"
-#include "SymOrg.h"
+#include "../../Empirical/include/emp/Evolve/World.hpp"
+#include "../../Empirical/include/emp/data/DataFile.hpp"
+#include "../../Empirical/include/emp/math/random_utils.hpp"
+#include "../../Empirical/include/emp/math/Random.hpp"
+#include "Host.h"
 #include <set>
 #include <math.h>
 
@@ -14,12 +14,11 @@ private:
   double vertTrans = 0; 
   double mut_rate = 0;
   int sym_limit = -1;
-  bool lysis = 0;
   bool h_trans = 0;
   int burst_size = 0;
   int burst_time = 0;
   double host_repro = 0;
-  double sym_h_res = 0;
+
   double sym_lysis_res = 0;
   double resources_per_host_per_update = 0;
   double synergy = 0;
@@ -55,7 +54,6 @@ public:
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetMutRate(double mut) {mut_rate = mut;}
   void SetSymLimit(int num) {sym_limit = num;}
-  void SetLysisBool(bool val) {lysis = val;}
   void SetHTransBool(bool val) {h_trans = val;}
   void SetBurstSize(int val) {burst_size = val;}
   void SetBurstTime(int val) {burst_time = val;}
@@ -85,11 +83,7 @@ public:
   void InjectSymbiont(Symbiont newSym){
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
-      if (lysis) {
-	//Check if symbiont lysogenizes, symbiont sets bool itself
-	newSym.CheckLysogeny(random);
-      }
-      pop[newLoc]->AddSymbionts(newSym, sym_limit);
+    pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
 
@@ -211,7 +205,7 @@ public:
 	  data_node_cfu -> Reset();
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i)) {
-	      if((pop[i]->GetSymbionts()).empty() || pop[i]->SymsLysogenized()) {
+	      if((pop[i]->GetSymbionts()).empty()) {
 		data_node_cfu->AddDatum(1);
 	      }
 	    } //endif
@@ -262,6 +256,13 @@ public:
     }
     return *data_node_symintval;
   }
+
+  void SymDoBirth(Symbiont &sym_offspring, size_t i) {
+    // pick new host to infect, if one exists at the new location and isn't at the limit
+    int newLoc = GetNeighborHost(i);
+    if (newLoc > -1) { //-1 means no living neighbors
+      pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
+  }
   
 
   void Update() {
@@ -294,16 +295,7 @@ public:
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
           Symbiont parent = ((pop[i]->GetSymbionts()))[j];
-	  if (lysis && parent.GetLysogenized()){
-	    //lysogenized phage always get into offspring
-	    //TODO: wrap symbiont reproduction code
-	    Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0);
-	    sym_baby->SetLysogenized(true);        
-	    
-	    sym_baby->mutate(random, mut_rate);
-	    parent.mutate(random, mut_rate);
-	    host_baby->AddSymbionts(*sym_baby, sym_limit);
-	  }else if (WillTransmit()) { //Vertical transmission!  
+           if (WillTransmit()) { //Vertical transmission!  
             
             Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
             sym_baby->mutate(random, mut_rate);
@@ -315,69 +307,11 @@ public:
         DoBirth(*host_baby, i); //Automatically deals with grid
       }
 
-      if (pop[i]->HasSym()) { //check each sym for horizontal transmission and lysis
+      if (pop[i]->HasSym()) { //let each sym do whatever they need to do
         emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          
-          if(lysis) { //lysis enabled, checking for lysis
-            if (syms[j].GetBurstTimer() >= burst_time) { //time to lyse!
-              //        std::cout << "Lysis time!" << std::endl;
-              //distribute all the offspring in the repro offspring list 
-              //TODO: SymDoBirth should replace the below
-              emp::vector<Symbiont>& repro_syms = (pop[i] ->GetReproSymbionts());
-	      //Record the burst size
-	      data_node_burst_size -> AddDatum(repro_syms.size());
-              for(size_t r = 0; r < repro_syms.size(); r++){
-                int newLoc = GetNeighborHost(i);
-		if (newLoc > -1) { //-1 means no living neighbors
-                  pop[newLoc]->AddSymbionts(repro_syms[r], sym_limit);
-		}
-              }
-              DoDeath(i); //kill organism
-              break;  //continue to next organism
+          syms[j].process(i);
 
-            } else {
-	      if (!(syms[j].GetLysogenized())) {
-		syms[j].IncBurstTimer(random);
-		//std::cout << "Should have incremented " << syms[j].GetBurstTimer() << std::endl;
-		int offspring_per_tick = burst_size/burst_time;
-		for(size_t o=0; o< offspring_per_tick; o++) {
-		  if(syms[j].GetPoints() >= sym_lysis_res) { //check if sym has resources to produce offspring
-		    //if so, make a new symbiont and add it to Repro sym list
-		    Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
-		    sym_baby->mutate(random, mut_rate);
-		    syms[j].mutate(random, mut_rate);
-		    pop[i]->AddReproSym(*sym_baby);
-		    syms[j].SetPoints(syms[j].GetPoints() - sym_lysis_res);
-		  }
-		  else
-		    break;
-		}
-	      }
-            } 
-          }
-
-          if(h_trans) { //non-lytic horizontal transmission enabled
-            if (syms[j].GetPoints() >= sym_h_res) {
-              // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
-              // new symbiont in this host with mutated value
-              // TODO: Make SymDoBirth instead of injecting
-              syms[j].SetPoints(0);
-              //TODO: test just subtracting points instead of setting to 0
-              Symbiont *sym_baby = new Symbiont(syms[j].GetIntVal());
-              sym_baby->mutate(random, mut_rate);
-              syms[j].mutate(random, mut_rate);
-
-              
-              // pick new host to infect, if one exists at the new location and isn't at the limit
-
-              int newLoc = GetNeighborHost(i);
-              if (newLoc > -1) { //-1 means no living neighbors
-                pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
-	      }
-
-            } // if syms[j]
-          } // non-lytic horizontal transmission enabled
         } //for each sym in syms
       } //if org has syms
     } // for each cell in schedule
