@@ -1,4 +1,7 @@
 #include "../SymWorld.h"
+#include "../Phage.h"
+#include "../Symbiont.h"
+#include "../Host.h"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 
@@ -70,13 +73,8 @@ int symbulation_main(int argc, char * argv[])
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
   world.SetMutRate(config.MUTATION_RATE());
   world.SetSymLimit(config.SYM_LIMIT());
-  world.SetLysisBool(config.LYSIS());
   world.SetHTransBool(config.HORIZ_TRANS());
-  world.SetBurstSize(config.BURST_SIZE());
-  world.SetBurstTime(config.BURST_TIME());
   world.SetHostRepro(config.HOST_REPRO_RES());
-  world.SetSymHRes(config.SYM_HORIZ_TRANS_RES());
-  world.SetSymLysisRes(config.SYM_LYSIS_RES());
   world.SetSynergy(config.SYNERGY());
 
   world.SetResPerUpdate(100);
@@ -111,18 +109,25 @@ int symbulation_main(int argc, char * argv[])
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
       if(config.LYSIS() == 1) { 
-        Phage new_sym;
-        if(random_phen_sym) new_sym = *(new Phage(random, world, random.GetDouble(-1, 1)));
-        else new_sym = *(new Phage(config.SYM_INT()));
+        Phage new_sym = *(new Phage(random, world, 0, 
+           config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(),
+           config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
+           config.LYSIS(), config.SYM_LYSIS_RES()));
+        if(random_phen_sym){
+          new_sym.SetIntVal(random.GetDouble(-1, 1));
+        }
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym.SetBurstTimer(random.GetInt(-5,5));
         }
+        world.InjectSymbiont(new_sym);
       } else {
-        Symbiont new_sym; 
-        if(random_phen_sym) new_sym = *(new Symbiont(random.GetDouble(-1, 1)));
-        else new_sym = *(new Symbiont(config.SYM_INT()));
+        Symbiont new_sym = *(new Symbiont(random, world, 0, 
+          config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(), 
+          config.HORIZ_TRANS(), config.MUTATION_RATE())); 
+        if(random_phen_sym) new_sym.SetIntVal(random.GetDouble(-1, 1));
+        world.InjectSymbiont(new_sym);
       }
-      world.InjectSymbiont(new_sym);
+      
     }
 
   //Loop through updates

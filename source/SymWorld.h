@@ -15,11 +15,8 @@ private:
   double mut_rate = 0;
   int sym_limit = -1;
   bool h_trans = 0;
-  int burst_size = 0;
-  int burst_time = 0;
   double host_repro = 0;
 
-  double sym_lysis_res = 0;
   double resources_per_host_per_update = 0;
   double synergy = 0;
   emp::Random random;
@@ -55,11 +52,7 @@ public:
   void SetMutRate(double mut) {mut_rate = mut;}
   void SetSymLimit(int num) {sym_limit = num;}
   void SetHTransBool(bool val) {h_trans = val;}
-  void SetBurstSize(int val) {burst_size = val;}
-  void SetBurstTime(int val) {burst_time = val;}
   void SetHostRepro(double val) {host_repro = val;}
-  void SetSymHRes(double val) {sym_h_res = val;}
-  void SetSymLysisRes(double val) {sym_lysis_res = val;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetSynergy(double val) {synergy = val;}
 
@@ -83,7 +76,8 @@ public:
   void InjectSymbiont(Symbiont newSym){
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
-    pop[newLoc]->AddSymbionts(newSym, sym_limit);
+      newSym.SetHost(pop[newLoc]);
+      pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
 
@@ -257,11 +251,12 @@ public:
     return *data_node_symintval;
   }
 
-  void SymDoBirth(Symbiont &sym_offspring, size_t i) {
+  void SymDoBirth(Symbiont &sym_baby, size_t i) {
     // pick new host to infect, if one exists at the new location and isn't at the limit
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
-      pop[newLoc]->AddSymbionts(*sym_baby, sym_limit);
+      pop[newLoc]->AddSymbionts(sym_baby, sym_limit);
+    }
   }
   
 
@@ -279,7 +274,7 @@ public:
        
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(random, resources_per_host_per_update, synergy, lysis);
+      pop[i]->Process(random, resources_per_host_per_update, synergy);
       //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
   
       //Check reproduction                                                                                                                              
@@ -297,9 +292,10 @@ public:
           Symbiont parent = ((pop[i]->GetSymbionts()))[j];
            if (WillTransmit()) { //Vertical transmission!  
             
-            Symbiont * sym_baby = new Symbiont(parent.GetIntVal(), 0.0); //constructor that takes parent values                                             
-            sym_baby->mutate(random, mut_rate);
-            parent.mutate(random, mut_rate); //mutate parent symbiont                                   
+            Symbiont * sym_baby = new Symbiont(parent); //constructor that takes parent values                                             
+            sym_baby->SetPoints(0);
+            sym_baby->mutate();
+            parent.mutate(); //mutate parent symbiont                                   
             host_baby->AddSymbionts(*sym_baby, sym_limit);
 
           } //end will transmit

@@ -160,7 +160,7 @@ public:
   
   } //end DistribResources
 
-  void Process(emp::Random &random, double resources_per_host_per_update, double synergy, bool lysis) {
+  void Process(emp::Random &random, double resources_per_host_per_update, double synergy) {
     //Currently just wrapping to use the existing function
     DistribResources(resources_per_host_per_update, synergy); 
   }

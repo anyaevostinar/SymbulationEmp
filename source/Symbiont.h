@@ -23,14 +23,10 @@ protected:
 
 public:
 
-  Symbiont(emp::Random _random, SymWorld _world, Host _host, double _intval=0.0,
-    double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
-    double _mut_rate = 0.002) 
-    : interaction_val(_intval), points(_points), random(_random), my_world(_world), 
-    my_host(_host), sym_h_res(_h_res), h_trans(_h_trans), mut_rate(_mut_rate) {}
+  Symbiont(emp::Random &_random, SymWorld &_world, Host &_host, double _intval=0.0, double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, double _mut_rate = 0.002) : interaction_val(_intval), points(_points), random(_random), my_world(_world), my_host(_host), sym_h_res(_h_res), h_trans(_h_trans), mut_rate(_mut_rate) {;}
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
-  
+
 
   Symbiont & operator=(const Symbiont &) = default;
   Symbiont & operator=(Symbiont &&) = default;
@@ -44,6 +40,7 @@ public:
   void SetIntVal(double _in) { interaction_val = _in;}
   void SetPoints(double _in) { points = _in;}
   void AddPoints(double _in) { points += _in;}
+  void SetHost(Host& _in) {my_host = _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
 
@@ -59,8 +56,8 @@ public:
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
         // new symbiont in this host with mutated value
-        setPoints(0); //TODO: test just subtracting points instead of setting to 0
-        Symbiont * sym_baby = new Symbiont(this);
+        SetPoints(0); //TODO: test just subtracting points instead of setting to 0
+        Symbiont * sym_baby = new Symbiont(*this);
         sym_baby->SetPoints(0);
         sym_baby->mutate();
         mutate();
