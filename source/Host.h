@@ -6,19 +6,21 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
-#include "Symbiont.h"
-#include "Phage.h"
+#include "Organism.h"
 
-class Host {
+
+class Host: public Organism {
 private:
   double interaction_val;
-  emp::vector<Symbiont> syms;
-  emp::vector<Symbiont> repro_syms;
+  emp::vector<Organism> syms; //change to emp::vector<emp::Ptr<Symbiont>>
+  emp::vector<Organism> repro_syms;
   std::set<int> res_types;
   double points;
+  double mut_rate = 0.002;
+  emp::Random &random;
 
 public:
-  Host(double _intval =0.0, emp::vector<Symbiont> _syms = {},emp::vector<Symbiont> _repro_syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
+  Host(emp::Random &_random, double _intval =0.0, emp::vector<Organism> _syms = {},emp::vector<Organism> _repro_syms = {}, std::set<int> _set = std::set<int>(), double _points = 0.0) : random(_random), interaction_val(_intval), syms(_syms), res_types(_set), points(_points) { ; }
   Host(const Host &) = default;
   Host(Host &&) = default;
 
@@ -29,14 +31,14 @@ public:
 
 
   double GetIntVal() const { return interaction_val;}
-  emp::vector<Symbiont>& GetSymbionts() { return syms;}
-  emp::vector<Symbiont>& GetReproSymbionts() {return repro_syms;}
+  emp::vector<Organism>& GetSymbionts() { return syms;}
+  emp::vector<Organism>& GetReproSymbionts() {return repro_syms;}
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
 
 
   void SetIntVal(double _in) {interaction_val = _in;}
-  void SetSymbionts(emp::vector<Symbiont> _in) {syms = _in;}
+  void SetSymbionts(emp::vector<Organism> _in) {syms = _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
 
@@ -44,12 +46,12 @@ public:
   void AddPoints(double _in) {points += _in;}
 
 
-  void AddSymbionts(Symbiont _in, int sym_limit) {
+  void AddSymbionts(Organism _in, int sym_limit) {
     if(syms.size() < sym_limit){
       syms.push_back(_in);
     }
   }  
-  void AddReproSym(Symbiont _in) {repro_syms.push_back(_in);}
+  void AddReproSym(Organism _in) {repro_syms.push_back(_in);}
   
   bool HasSym() {
     return syms.size() != 0;
@@ -57,7 +59,7 @@ public:
 
 
 
-  void mutate(emp::Random &random, double mut_rate){
+  void mutate(){
     interaction_val += random.GetRandNormal(0.0, mut_rate);
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;

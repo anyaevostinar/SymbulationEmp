@@ -96,8 +96,8 @@ int symbulation_main(int argc, char * argv[])
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     Host *new_org;
-    if (random_phen_host) new_org = new Host(random.GetDouble(-1, 1));
-    else new_org = new Host(config.HOST_INT());
+    if (random_phen_host) new_org = new Host(random, random.GetDouble(-1, 1));
+    else new_org = new Host(random, config.HOST_INT());
     world.Inject(*new_org);
   }
 
@@ -109,7 +109,7 @@ int symbulation_main(int argc, char * argv[])
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
       if(config.LYSIS() == 1) { 
-        Phage new_sym = *(new Phage(random, world, 0, 
+        Phage new_sym = *(new Phage(random, world, 
            config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(),
            config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
            config.LYSIS(), config.SYM_LYSIS_RES()));
@@ -121,7 +121,7 @@ int symbulation_main(int argc, char * argv[])
         }
         world.InjectSymbiont(new_sym);
       } else {
-        Symbiont new_sym = *(new Symbiont(random, world, 0, 
+        Symbiont new_sym = *(new Symbiont(random, world, 
           config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(), 
           config.HORIZ_TRANS(), config.MUTATION_RATE())); 
         if(random_phen_sym) new_sym.SetIntVal(random.GetDouble(-1, 1));

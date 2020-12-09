@@ -5,11 +5,12 @@
 #include "../../Empirical/include/emp/data/DataFile.hpp"
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
+#include "Organism.h"
 #include "Host.h"
 #include <set>
 #include <math.h>
 
-class SymWorld : public emp::World<Host>{
+class SymWorld : public emp::World<Organism>{
 private:
   double vertTrans = 0; 
   double mut_rate = 0;
@@ -32,8 +33,8 @@ private:
 
 public:
   //set fun_print_org to equal function that prints hosts/syms correctly
-  SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
-    fun_print_org = [](Host & org, std::ostream & os) {
+  SymWorld(emp::Random &random) : emp::World<Organism>(random), random(random) {
+    fun_print_org = [](Organism & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
@@ -56,7 +57,7 @@ public:
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetSynergy(double val) {synergy = val;}
 
-  emp::World<Host>::pop_t getPop() {return pop;}
+  emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
     bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
@@ -73,10 +74,10 @@ public:
     }
   }
 
-  void InjectSymbiont(Symbiont newSym){
+  void InjectSymbiont(Organism newSym){
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
-      newSym.SetHost(pop[newLoc]);
+      newSym.SetHost(*(pop[newLoc]));
       pop[newLoc]->AddSymbionts(newSym, sym_limit);
     }
   }
@@ -239,7 +240,7 @@ public:
         data_node_symintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-	    emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+	    emp::vector<Organism>& syms = pop[i]->GetSymbionts();
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j].GetIntVal());
@@ -251,7 +252,7 @@ public:
     return *data_node_symintval;
   }
 
-  void SymDoBirth(Symbiont &sym_baby, size_t i) {
+  void SymDoBirth(Organism &sym_baby, size_t i) {
     // pick new host to infect, if one exists at the new location and isn't at the limit
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
@@ -261,7 +262,7 @@ public:
   
 
   void Update() {
-    emp::World<Host>::Update();
+    emp::World<Organism>::Update();
 
     //TODO: put in fancy scheduler at some point
     
@@ -281,7 +282,7 @@ public:
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             
-        Host *host_baby = new Host(pop[i]->GetIntVal());
+        Organism *host_baby = new Host(random, pop[i]->GetIntVal());
         host_baby->mutate(random, mut_rate);
         pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
@@ -289,13 +290,10 @@ public:
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
-          Symbiont parent = ((pop[i]->GetSymbionts()))[j];
+          Organism parent = ((pop[i]->GetSymbionts()))[j];
            if (WillTransmit()) { //Vertical transmission!  
             
-            Symbiont * sym_baby = new Symbiont(parent); //constructor that takes parent values                                             
-            sym_baby->SetPoints(0);
-            sym_baby->mutate();
-            parent.mutate(); //mutate parent symbiont                                   
+            Organism * sym_baby = parent.reproduce();                                  
             host_baby->AddSymbionts(*sym_baby, sym_limit);
 
           } //end will transmit
@@ -304,7 +302,7 @@ public:
       }
 
       if (pop[i]->HasSym()) { //let each sym do whatever they need to do
-        emp::vector<Symbiont>& syms = pop[i]->GetSymbionts();
+        emp::vector<Organism>& syms = pop[i]->GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
           syms[j].process(i);
 

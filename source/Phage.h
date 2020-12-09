@@ -3,7 +3,6 @@
 
 #include "Symbiont.h"
 #include "SymWorld.h"
-#include "Host.h"
 
 class Phage: public Symbiont {
 protected:
@@ -15,10 +14,10 @@ protected:
 
 public:
 
-  Phage(emp::Random _random, SymWorld _world, Host _host=0, double _intval=0.0,
+  Phage(emp::Random &_random, SymWorld &_world, double _intval=0.0,
     double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
     double _mut_rate = 0.002, double _bt = 60, bool _lysis = true, double _l_res = 15) 
-    : Symbiont(_random, _world, _host, _intval, _points, _h_res, _h_trans, 
+    : Symbiont(_random, _world, _intval, _points, _h_res, _h_trans, 
     _mut_rate), burst_time(_bt), sym_lysis_res(_l_res) {}
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
@@ -40,13 +39,13 @@ public:
   void process(size_t location) {
     if(lysis) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
-        emp::vector<Symbiont>& repro_syms = my_host->GetReproSyms();
+        emp::vector<Organism>& repro_syms = my_host.GetReproSymbionts();
         //Record the burst size
 	      // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
         for(size_t r=0; r<repro_syms.size(); r++) {
-          my_world->SymDoBirth(repro_syms[r], location);
+          my_world.SymDoBirth(repro_syms[r], location);
         }
-        my_world->DoDeath(location);
+        my_world.DoDeath(location);
         
       } else {
         IncBurstTimer();
@@ -60,7 +59,7 @@ public:
           sym_baby->SetPoints(0);
           sym_baby->mutate();
           Symbiont::mutate(); // TODO: test removing this since it's weird
-          my_host->AddReproSym(*sym_baby);
+          my_host.AddReproSym(*sym_baby);
           Symbiont::SetPoints(GetPoints() - sym_lysis_res);
         }
       }
