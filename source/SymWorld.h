@@ -74,7 +74,7 @@ public:
     }
   }
 
-  void InjectSymbiont(Organism newSym){
+  void InjectSymbiont(Organism& newSym){
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
       newSym.SetHost(*(pop[newLoc]));
@@ -283,8 +283,8 @@ public:
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             
         Organism *host_baby = new Host(random, pop[i]->GetIntVal());
-        host_baby->mutate(random, mut_rate);
-        pop[i]->mutate(random, mut_rate); //parent mutates and loses current resources, ie new organism but same symbiont  
+        host_baby->mutate();
+        pop[i]->mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
 	
 

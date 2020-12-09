@@ -98,7 +98,13 @@ int symbulation_main(int argc, char * argv[])
     Host *new_org;
     if (random_phen_host) new_org = new Host(random, random.GetDouble(-1, 1));
     else new_org = new Host(random, config.HOST_INT());
-    world.Inject(*new_org);
+    //Currently hacked because there isn't an AddOrg function, but there probably should be
+    if(config.GRID()) {
+      world.AddOrgAt(new_org, emp::WorldPosition(world.GetRandomCellID()));
+    } else {
+      world.AddOrgAt(new_org, world.size());
+    }
+    //world.Inject(*new_org);
   }
 
   world.Resize(config.GRID_X(), config.GRID_Y()); //if the world wasn't full, creates room for more organisms

@@ -18,7 +18,7 @@ protected:
   double mut_rate = 0.002;
   emp::Random &random;
   SymWorld &my_world;
-  Organism &my_host = *(new Organism()); //Change to emp::Ptr<Organism>
+  Organism &my_host = *(new Organism()); //Change to emp::Ptr<Organism>, need to clean up this memory somehow
 
 public:
 

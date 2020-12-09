@@ -43,7 +43,6 @@ class Organism {
   virtual void AddSymbionts(Organism _in, int sym_limit) {}
   virtual void AddReproSym(Organism _in) {}
   virtual bool HasSym() {return false;}
-  virtual void mutate(emp::Random &random, double mut_rate)  {}
   virtual void DistribResources(double resources, double synergy) {}
   virtual void Process(emp::Random &random, double resources_per_host_per_update, double synergy)  {}
 
