@@ -67,6 +67,7 @@ int symbulation_main(int argc, char * argv[])
   emp::Random random(config.SEED());
       
   SymWorld world(random);
+
   if (config.GRID() == 0) world.SetPopStruct_Mixed();
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 
@@ -95,9 +96,9 @@ int symbulation_main(int argc, char * argv[])
 
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
-    Host *new_org;
-    if (random_phen_host) new_org = new Host(random, random.GetDouble(-1, 1));
-    else new_org = new Host(random, config.HOST_INT());
+    emp::Ptr<Host> new_org;
+    if (random_phen_host) new_org = new Host(&random, random.GetDouble(-1, 1));
+    else new_org = new Host(&random, config.HOST_INT());
     //Currently hacked because there isn't an AddOrg function, but there probably should be
     if(config.GRID()) {
       world.AddOrgAt(new_org, emp::WorldPosition(world.GetRandomCellID()));
@@ -115,22 +116,22 @@ int symbulation_main(int argc, char * argv[])
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
       if(config.LYSIS() == 1) { 
-        Phage new_sym = *(new Phage(random, world, 
+        emp::Ptr<Phage> new_sym = new Phage(&random, &world, 
            config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(),
            config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
-           config.LYSIS(), config.SYM_LYSIS_RES()));
+           config.LYSIS(), config.SYM_LYSIS_RES());
         if(random_phen_sym){
-          new_sym.SetIntVal(random.GetDouble(-1, 1));
+          new_sym->SetIntVal(random.GetDouble(-1, 1));
         }
         if(STAGGER_STARTING_BURST_TIMERS) {
-          new_sym.SetBurstTimer(random.GetInt(-5,5));
+          new_sym->SetBurstTimer(random.GetInt(-5,5));
         }
         world.InjectSymbiont(new_sym);
       } else {
-        Symbiont new_sym = *(new Symbiont(random, world, 
+        emp::Ptr<Symbiont> new_sym = new Symbiont(&random, &world, 
           config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(), 
-          config.HORIZ_TRANS(), config.MUTATION_RATE())); 
-        if(random_phen_sym) new_sym.SetIntVal(random.GetDouble(-1, 1));
+          config.HORIZ_TRANS(), config.MUTATION_RATE()); 
+        if(random_phen_sym) new_sym->SetIntVal(random.GetDouble(-1, 1));
         world.InjectSymbiont(new_sym);
       }
       

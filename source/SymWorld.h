@@ -10,7 +10,7 @@
 #include <set>
 #include <math.h>
 
-class SymWorld : public emp::World<Organism>{
+class SymWorld : public emp::World<Host>{
 private:
   double vertTrans = 0; 
   double mut_rate = 0;
@@ -20,7 +20,8 @@ private:
 
   double resources_per_host_per_update = 0;
   double synergy = 0;
-  emp::Random random;
+  emp::Random &random;
+  emp::Ptr<emp::Random> random_ptr;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -33,8 +34,9 @@ private:
 
 public:
   //set fun_print_org to equal function that prints hosts/syms correctly
-  SymWorld(emp::Random &random) : emp::World<Organism>(random), random(random) {
-    fun_print_org = [](Organism & org, std::ostream & os) {
+  SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
+    random_ptr.New(random);
+    fun_print_org = [](Host & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
@@ -57,7 +59,7 @@ public:
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetSynergy(double val) {synergy = val;}
 
-  emp::World<Organism>::pop_t getPop() {return pop;}
+  emp::World<Host>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
     bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
@@ -74,11 +76,11 @@ public:
     }
   }
 
-  void InjectSymbiont(Organism& newSym){
+  void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
-      newSym.SetHost(*(pop[newLoc]));
-      pop[newLoc]->AddSymbionts(newSym, sym_limit);
+      newSym->SetHost(pop[newLoc]);
+      pop[newLoc]->AddSymbiont(newSym, sym_limit);
     }
   }
 
@@ -231,8 +233,6 @@ public:
     return *data_node_hostintval;
   }
 
-
-
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
@@ -240,10 +240,10 @@ public:
         data_node_symintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-	    emp::vector<Organism>& syms = pop[i]->GetSymbionts();
+	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
-	      data_node_symintval->AddDatum(syms[j].GetIntVal());
+	      data_node_symintval->AddDatum(syms[j]->GetIntVal());
 	    }//close for
 	  }//close if
 	}//close for
@@ -252,17 +252,17 @@ public:
     return *data_node_symintval;
   }
 
-  void SymDoBirth(Organism &sym_baby, size_t i) {
+  void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
     // pick new host to infect, if one exists at the new location and isn't at the limit
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
-      pop[newLoc]->AddSymbionts(sym_baby, sym_limit);
+      pop[newLoc]->AddSymbiont(sym_baby, sym_limit);
     }
   }
   
 
   void Update() {
-    emp::World<Organism>::Update();
+    emp::World<Host>::Update();
 
     //TODO: put in fancy scheduler at some point
     
@@ -275,14 +275,14 @@ public:
        
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(random, resources_per_host_per_update, synergy);
+      pop[i]->Process(resources_per_host_per_update, synergy);
       //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
   
       //Check reproduction                                                                                                                              
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             
-        Organism *host_baby = new Host(random, pop[i]->GetIntVal());
+        emp::Ptr<Host> host_baby = new Host(random_ptr, pop[i]->GetIntVal());
         host_baby->mutate();
         pop[i]->mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
         pop[i]->SetPoints(0);
@@ -290,21 +290,23 @@ public:
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (pop[i]->GetSymbionts()).size(); j++){
-          Organism parent = ((pop[i]->GetSymbionts()))[j];
+          emp::Ptr<Organism> parent = ((pop[i]->GetSymbionts()))[j];
            if (WillTransmit()) { //Vertical transmission!  
             
-            Organism * sym_baby = parent.reproduce();                                  
-            host_baby->AddSymbionts(*sym_baby, sym_limit);
+            emp::Ptr<Organism> sym_baby = parent->reproduce();                                  
+            host_baby->AddSymbiont(sym_baby, sym_limit);
 
           } //end will transmit
         } //end for loop for each symbiont
+        //Will need to change this to AddOrgAt and write my own position grabber 
+        //when I want ecto-symbionts
         DoBirth(*host_baby, i); //Automatically deals with grid
       }
 
       if (pop[i]->HasSym()) { //let each sym do whatever they need to do
-        emp::vector<Organism>& syms = pop[i]->GetSymbionts();
+        emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          syms[j].process(i);
+          syms[j]->process(i);
 
         } //for each sym in syms
       } //if org has syms
