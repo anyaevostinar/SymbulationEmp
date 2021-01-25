@@ -103,7 +103,6 @@ public:
       double bonus = synergy; 
 
   
-
       if (hostIntVal >= 0 && symIntVal >= 0)  {  
         hostDonation = sym_piece * hostIntVal;
         hostPortion = sym_piece - hostDonation;  

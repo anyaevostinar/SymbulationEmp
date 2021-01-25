@@ -23,7 +23,7 @@ private:
   emp::Random &random;
   emp::Ptr<emp::Random> random_ptr;
   
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
@@ -122,7 +122,6 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
 
     file.PrintHeaderKeys();
 
@@ -278,7 +277,7 @@ public:
       pop[i]->Process(resources_per_host_per_update, synergy);
       //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
   
-      //Check reproduction                                                                                                                              
+      //Check reproduction                                                                                                                         
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                             

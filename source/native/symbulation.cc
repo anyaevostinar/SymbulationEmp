@@ -54,7 +54,7 @@ int symbulation_main(int argc, char * argv[])
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
-
+// params
   int numupdates = config.UPDATES();
   int start_moi = config.START_MOI();
   int POP_SIZE = config.POP_SIZE();
@@ -70,7 +70,7 @@ int symbulation_main(int argc, char * argv[])
 
   if (config.GRID() == 0) world.SetPopStruct_Mixed();
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
-
+// settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
   world.SetMutRate(config.MUTATION_RATE());
   world.SetSymLimit(config.SYM_LIMIT());
