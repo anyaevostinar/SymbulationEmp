@@ -56,6 +56,7 @@ public:
   void AddSymbiont(emp::Ptr<Organism> _in, int sym_limit) {
     if(syms.size() < sym_limit){
       syms.push_back(_in);
+      _in->SetHost(this);
     }
   }  
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}

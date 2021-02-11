@@ -262,7 +262,6 @@ public:
 
   void Update() {
     emp::World<Host>::Update();
-
     //TODO: put in fancy scheduler at some point
     
     emp::vector<size_t> schedule = emp::GetPermutation(random, GetSize());
@@ -271,16 +270,14 @@ public:
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
 
-       
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       pop[i]->Process(resources_per_host_per_update, synergy);
       //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
-  
       //Check reproduction                                                                                                                         
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero                                             
+        // while resetting resource points for host and symbiont to zero                                           
         emp::Ptr<Host> host_baby = new Host(random_ptr, pop[i]->GetIntVal());
         host_baby->mutate();
         pop[i]->mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
