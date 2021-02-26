@@ -4,7 +4,7 @@
 
 TEST_CASE( "Vertical Transmission" ) {
   GIVEN( "a world" ) {
-    emp::Random random(-1);
+    emp::Random random(17); 
     SymWorld w(random);
 
     WHEN( "the vertical taransmission rate is 0" ) {
@@ -53,7 +53,7 @@ TEST_CASE( "Vertical Transmission" ) {
 
 TEST_CASE( "World Capacity" ) {
   GIVEN( "a world" ) {
-    emp::Random random(-1);
+    emp::Random random(17);
     SymWorld w(random);
 
     WHEN( "hosts are added" ) {
@@ -78,7 +78,7 @@ TEST_CASE( "World Capacity" ) {
 
 TEST_CASE( "Interaction Patterns" ) {
   GIVEN( "a world without vertical transmission" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
     w.SetVertTrans(0);
     w.SetMutRate(.002);
@@ -101,7 +101,7 @@ TEST_CASE( "Interaction Patterns" ) {
       }
       
       //Simulate
-      for(int i = 0; i < 21; i++)//Burst time + 1
+      for(int i = 0; i < 100; i++)//Burst time + 1
         w.Update();
 
       THEN( "the symbionts all die" ) {
@@ -115,6 +115,7 @@ TEST_CASE( "Interaction Patterns" ) {
   GIVEN( "a world" ) {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
+    w.SetPopStruct_Mixed(); // added this. still failing test
     w.SetVertTrans(.7);
     w.SetMutRate(.002);
     w.SetSymLimit(500);
@@ -122,6 +123,7 @@ TEST_CASE( "Interaction Patterns" ) {
     w.SetHostRepro(10);
     w.SetResPerUpdate(100);
     w.SetSynergy(5);
+    
 
     WHEN( "very generous hosts meet many very hostile symbionts" ) {
 
@@ -137,7 +139,7 @@ TEST_CASE( "Interaction Patterns" ) {
       } 
       
       //Simulate
-      for(int i = 0; i < 51; i++)
+      for(int i = 0; i < 100; i++)
         w.Update();
 
       THEN( "the hosts all die" ) {

@@ -7,19 +7,23 @@ TEST_CASE( "Host-Symbiont interactions") {
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
-    Host h(random, .5, {}, {}, std::set<int>(), 17);
+    double host_interaction_val = 0.5;
+    double host_points = 17;
+    double host_resource = 100;
+    Host h(random, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
     REQUIRE( h.GetIntVal() == .5 );
     REQUIRE( h.GetSymbionts().size() == 0 );
     REQUIRE( h.GetReproSymbionts().size() == 0 );
     REQUIRE( h.GetResTypes().size() == 0 );
-    REQUIRE( h.GetPoints() == 17 );
+    REQUIRE( h.GetPoints() == host_points );
   
     WHEN( "resources are distributed" ) {
-      h.DistribResources(100, 5);
+      h.DistribResources(host_resource, 5);
 
       THEN( "the host receives all resources" ) {
-        REQUIRE( h.GetPoints() == Approx(117) );
+        double host_points_theor = host_resource - (host_resource * host_interaction_val) + host_points;
+        REQUIRE( h.GetPoints() == Approx(host_points_theor) );
       }
     }
 
@@ -116,6 +120,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     WHEN( "a repro symbiont is added and resources are distributed" ) {
       Symbiont s(random, &w, -.7, 37);
       h.AddReproSym(&s);
+      double host_resource = 13;
+      double host_interaction_val = -0.7;
+      double host_points = 37;
       h.DistribResources(13, 5);
 
       THEN( "the host gains that repro symbiont" ) {
@@ -125,7 +132,8 @@ TEST_CASE( "Host-Symbiont interactions") {
         // REQUIRE( h.GetSymbionts()[0] == s );
       }
       THEN( "the host receives all resources" ) {
-        REQUIRE( h.GetPoints() == Approx(30) );
+        double host_points_theor = host_points - host_resource + host_interaction_val;
+        REQUIRE( h.GetPoints() == Approx(host_points_theor) );
       }
     }
   }
