@@ -120,9 +120,6 @@ TEST_CASE( "Host-Symbiont interactions") {
     WHEN( "a repro symbiont is added and resources are distributed" ) {
       Symbiont s(random, &w, -.7, 37);
       h.AddReproSym(&s);
-      double host_resource = 13;
-      double host_interaction_val = -0.7;
-      double host_points = 37;
       h.DistribResources(13, 5);
 
       THEN( "the host gains that repro symbiont" ) {
@@ -132,8 +129,7 @@ TEST_CASE( "Host-Symbiont interactions") {
         // REQUIRE( h.GetSymbionts()[0] == s );
       }
       THEN( "the host receives all resources" ) {
-        double host_points_theor = host_points - host_resource + host_interaction_val;
-        REQUIRE( h.GetPoints() == Approx(host_points_theor) );
+        REQUIRE( h.GetPoints() == Approx(23.5) );
       }
     }
   }

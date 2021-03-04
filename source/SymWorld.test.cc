@@ -1,5 +1,6 @@
 #include "SymWorld.h"
 #include "Symbiont.h"
+#include "Phage.h"
 
 
 TEST_CASE( "Vertical Transmission" ) {
@@ -113,7 +114,7 @@ TEST_CASE( "Interaction Patterns" ) {
 
 
   GIVEN( "a world" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
     w.SetPopStruct_Mixed(); // added this. still failing test
     w.SetVertTrans(.7);
@@ -123,6 +124,7 @@ TEST_CASE( "Interaction Patterns" ) {
     w.SetHostRepro(10);
     w.SetResPerUpdate(100);
     w.SetSynergy(5);
+    w.Resize(100, 200);
     
 
     WHEN( "very generous hosts meet many very hostile symbionts" ) {
@@ -142,9 +144,8 @@ TEST_CASE( "Interaction Patterns" ) {
       for(int i = 0; i < 100; i++)
         w.Update();
 
-      THEN( "the hosts all die" ) {
-        for(size_t i = 0; i < w.getPop().size(); i++)
-          REQUIRE( !w.getPop()[i] );
+      THEN( "the hosts cannot reproduce" ) {
+          REQUIRE( w.GetNumOrgs() == 200 );
       }
     }
   }

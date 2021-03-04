@@ -16,6 +16,7 @@ private:
   double mut_rate = 0;
   int sym_limit = -1;
   bool h_trans = 0;
+  bool lysis = 0;
   double host_repro = 0;
 
   double resources_per_host_per_update = 0;
