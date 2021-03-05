@@ -32,6 +32,9 @@ public:
     for(int i=0; i<syms.size(); i++){
       syms[i].Delete();
     }
+    for(int i=0; i<repro_syms.size(); i++){
+        repro_syms.Delete();
+    }
   }
 
   Host(const Host &) = default;
