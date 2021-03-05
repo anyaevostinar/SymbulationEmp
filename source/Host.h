@@ -33,7 +33,7 @@ public:
       syms[i].Delete();
     }
     for(int i=0; i<repro_syms.size(); i++){
-        repro_syms.Delete();
+      repro_syms.Delete();
     }
   }
 
