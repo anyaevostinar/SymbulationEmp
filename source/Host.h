@@ -20,13 +20,22 @@ private:
   emp::Ptr<emp::Random> random;
 
 public:
-  Host(emp::Ptr<emp::Random> _random, double _intval =0.0, 
+  Host(emp::Ptr<emp::Random> _random, double _intval =0.0,
   emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {}, 
-  std::set<int> _set = std::set<int>(), 
-  double _points = 0.0) : random(_random), 
-  interaction_val(_intval), syms(_syms), 
+  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+  std::set<int> _set = std::set<int>(),
+  double _points = 0.0) : random(_random),
+  interaction_val(_intval), syms(_syms),
   res_types(_set), points(_points) { ; }
+
+  ~Host(){
+    for(int i=0; i<syms.size(); i++){
+      syms[i].Delete();
+    }
+    for(int j=0; j<repro_syms.size(); j++){
+      repro_syms[j].Delete();
+    }
+  }
 
   Host(const Host &) = default;
   Host(Host &&) = default;
@@ -58,9 +67,9 @@ public:
       syms.push_back(_in);
       _in->SetHost(this);
     }
-  }  
+  }
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
-  
+
   bool HasSym() {
     return syms.size() != 0;
   }
@@ -72,10 +81,10 @@ public:
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;
   }
-  
-  void DistribResources(double resources, double synergy) { 
+
+  void DistribResources(double resources, double synergy) {
     double hostIntVal = interaction_val; //using private variable because we can
-    
+
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 
@@ -96,66 +105,66 @@ public:
 
     for(size_t i=0; i < syms.size(); i++){
       double symIntVal = syms[i]->GetIntVal();
-     
+
       double hostPortion = 0.0;
       double hostDonation = 0.0;
       double symPortion = 0.0;
       double symReturn = 0.0;
-      double bonus = synergy; 
+      double bonus = synergy;
 
-  
-      if (hostIntVal >= 0 && symIntVal >= 0)  {  
+
+      if (hostIntVal >= 0 && symIntVal >= 0)  {
         hostDonation = sym_piece * hostIntVal;
-        hostPortion = sym_piece - hostDonation;  
-            
-        symReturn = (hostDonation * symIntVal) * bonus;  
+        hostPortion = sym_piece - hostDonation;
+
+        symReturn = (hostDonation * symIntVal) * bonus;
         symPortion = hostDonation - (hostDonation * symIntVal);
 
         hostPortion += symReturn;
-            
+
         syms[i]->AddPoints(symPortion);
         this->AddPoints(hostPortion);
-      
+
       } else if (hostIntVal <= 0 && symIntVal < 0) {
         double hostDefense = -1.0 * (hostIntVal * sym_piece);
         double remainingResources = 0.0;
         remainingResources = sym_piece - hostDefense;
-             
-        // if both are hostile, then the symbiont must be more hostile than in order to gain any resources 
+
+        // if both are hostile, then the symbiont must be more hostile than in order to gain any resources
         if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
           double symSteals = (hostIntVal - symIntVal) * remainingResources;
 
           symPortion = symSteals;
           hostPortion = remainingResources - symSteals;
 
-        } else { // symbiont cannot overcome host's defenses         
+        } else { // symbiont cannot overcome host's defenses
           symPortion = 0.0;
           hostPortion = remainingResources;
         }
 
         syms[i]->AddPoints(symPortion);
         this->AddPoints(hostPortion);
-         
+
       } else if (hostIntVal > 0 && symIntVal < 0) {
         hostDonation = hostIntVal * sym_piece;
         hostPortion = sym_piece - hostDonation;
         sym_piece = sym_piece - hostDonation;
-          
+
         double symSteals = -1.0 * (sym_piece * symIntVal);
         hostPortion = hostPortion - symSteals;
         symPortion = hostDonation + symSteals;
-          
+
         syms[i]->AddPoints(symPortion);
         this->AddPoints(hostPortion);
-    
-    
+
+
       } else if (hostIntVal < 0 && symIntVal >= 0) {
         double hostDefense = -1.0 * (hostIntVal * sym_piece);
         hostPortion = sym_piece - hostDefense;
-          
+
         // symbiont gets nothing from antagonistic host
         symPortion = 0.0;
-          
+
         syms[i]->AddPoints(symPortion);
         this->AddPoints(hostPortion);
       } else {
@@ -164,16 +173,16 @@ public:
         std::cout << "This should never happen." << std::endl;
 
       }
-      
+
     } //end syms[i] for loop
-  
+
   } //end DistribResources
 
   void Process(double resources_per_host_per_update, double synergy) {
     //Currently just wrapping to use the existing function
-    DistribResources(resources_per_host_per_update, synergy); 
+    DistribResources(resources_per_host_per_update, synergy);
   }
-  
+
 };//Host
 
 #endif
