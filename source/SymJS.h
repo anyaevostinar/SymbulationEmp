@@ -1,4 +1,4 @@
-#include "web/init.h"
+#include "../../Empirical/include/emp/web/init.hpp"
 
 // All JS code related to game
 // Modifies the content of the challenge box according to the challenge user has reached
