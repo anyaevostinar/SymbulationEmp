@@ -116,8 +116,17 @@ int symbulation_main(int argc, char * argv[])
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
       if(config.LYSIS() == 1) { 
+        int sym_int;
+        if (random_phen_sym)
+        {
+            int sym_int = random.GetInt(-1,1);
+        }
+        else
+        {
+          int sym_int = config.SYM_INT();
+        }
         emp::Ptr<Phage> new_sym = new Phage(&random, &world, 
-           config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(),
+           sym_int, 0, config.SYM_HORIZ_TRANS_RES(),
            config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
            config.LYSIS(), config.SYM_LYSIS_RES());
         if(random_phen_sym){
@@ -128,8 +137,19 @@ int symbulation_main(int argc, char * argv[])
         }
         world.InjectSymbiont(new_sym);
       } else {
+
+        int sym_int;
+        if (random_phen_sym)
+        {
+            int sym_int = random.GetInt(-1,1);
+        }
+        else
+        {
+          int sym_int = config.SYM_INT();
+        }
+
         emp::Ptr<Symbiont> new_sym = new Symbiont(&random, &world, 
-          config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(), 
+          sym_int, 0, config.SYM_HORIZ_TRANS_RES(), 
           config.HORIZ_TRANS(), config.MUTATION_RATE()); 
         if(random_phen_sym) new_sym->SetIntVal(random.GetDouble(-1, 1));
         world.InjectSymbiont(new_sym);
