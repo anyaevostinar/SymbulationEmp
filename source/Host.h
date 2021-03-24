@@ -12,7 +12,7 @@
 class Host: public Organism {
 private:
   double interaction_val;
-  emp::vector<emp::Ptr<Organism>> syms; //change to emp::vector<emp::Ptr<Symbiont>>
+  emp::vector<emp::Ptr<Organism>> syms; 
   emp::vector<emp::Ptr<Organism>> repro_syms;
   std::set<int> res_types;
   double points;
@@ -57,6 +57,9 @@ public:
   void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {syms = _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
+  void ClearReproSyms() {
+    repro_syms.resize(0);
+  }
 
 
   void AddPoints(double _in) {points += _in;}

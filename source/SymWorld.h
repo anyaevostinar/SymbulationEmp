@@ -34,8 +34,8 @@ private:
 
 public:
   //set fun_print_org to equal function that prints hosts/syms correctly
-  SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
-    random_ptr.New(random);
+  SymWorld(emp::Random & _random) : emp::World<Host>(_random), random(_random) {
+    random_ptr.New(_random);
     fun_print_org = [](Host & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
@@ -256,6 +256,8 @@ public:
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
       pop[newLoc]->AddSymbiont(sym_baby, sym_limit);
+    } else {
+      sym_baby.Delete();
     }
   }
   
@@ -296,13 +298,16 @@ public:
         } //end for loop for each symbiont
         //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts
+        
         DoBirth(*host_baby, i); //Automatically deals with grid
       }
 
       if (pop[i]->HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
+          if (IsOccupied(i) == false) continue; //Previous symbiont might have killed host and symbionts?
           syms[j]->process(i);
+          
 
         } //for each sym in syms
       } //if org has syms
