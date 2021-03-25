@@ -21,6 +21,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
     VALUE(POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
     VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
+    VALUE(RES_DISTRIBUTE, int, 100, "Number of resources to give to each host each update if they are available"),
+    VALUE(LIMITED_RES_TOTAL, int, -1, "Number of total resources available over the entire run, -1 for unlimited"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
     VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
@@ -38,8 +40,12 @@ EMP_BUILD_CONFIG(SymConfigBase,
 int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;
-    
-  config.Read("SymSettings.cfg");
+
+  bool success = config.Read("SymSettings.cfg");
+  if(!success) {
+    std::cout << "You didn't have a SymSettings.cfg, so one is being written, please try again" << std::endl;
+    config.Write("SymSettings.cfg");
+  }
 
   auto args = emp::cl::ArgManager(argc, argv);
   if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
@@ -77,8 +83,9 @@ int symbulation_main(int argc, char * argv[])
   world.SetHTransBool(config.HORIZ_TRANS());
   world.SetHostRepro(config.HOST_REPRO_RES());
   world.SetSynergy(config.SYNERGY());
+  world.SetTotalRes(config.LIMITED_RES_TOTAL());
 
-  world.SetResPerUpdate(100);
+  world.SetResPerUpdate(config.RES_DISTRIBUTE());
 
   int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;

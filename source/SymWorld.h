@@ -17,6 +17,8 @@ private:
   int sym_limit = -1;
   bool h_trans = 0;
   double host_repro = 0;
+  int total_res = -1;
+  bool limited_res = false;
 
   double resources_per_host_per_update = 0;
   double synergy = 0;
@@ -58,6 +60,15 @@ public:
   void SetHostRepro(double val) {host_repro = val;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetSynergy(double val) {synergy = val;}
+  void SetLimitedRes(bool val) {limited_res = val;}
+  void SetTotalRes(int val) {
+    if(val<0){
+      SetLimitedRes(false);
+    } else {
+      SetLimitedRes(true);
+      total_res = val;
+    }
+  }
 
   emp::World<Host>::pop_t getPop() {return pop;}
 
@@ -65,6 +76,24 @@ public:
     bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
     return result;
 
+  }
+
+  int PullResources() {
+    
+    if(!limited_res) {
+      return resources_per_host_per_update;
+    } else {
+      if (total_res>=resources_per_host_per_update) {
+        total_res = total_res - resources_per_host_per_update;
+        return resources_per_host_per_update;
+      } else if (total_res>0) {
+        int resources_to_return = total_res;
+        total_res = 0;
+        return resources_to_return;
+      } else {
+        return 0;
+      }
+    }
   }
 
   int GetNeighborHost (size_t i) {
@@ -274,8 +303,9 @@ public:
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(resources_per_host_per_update, synergy);
-      //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
+    
+      pop[i]->Process(PullResources(), synergy);
+      
       //Check reproduction                                                                                                                         
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values

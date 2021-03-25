@@ -3,6 +3,36 @@
 #include "Phage.h"
 
 
+TEST_CASE("PullResources") {
+  GIVEN(" a world ") {
+    emp::Random random(19);
+    SymWorld world(random);
+    int full_share = 100;
+    world.SetResPerUpdate(full_share);
+
+    WHEN(" the resources are unlimited ") {
+      world.SetLimitedRes(false);
+
+      THEN(" hosts get the full share of resources ") {
+        REQUIRE(world.PullResources() == full_share);
+      }
+    }
+
+    WHEN( " the resources are limited ") {
+      world.SetLimitedRes(true);
+      int original_total = 150;
+      world.SetTotalRes(original_total);
+
+      THEN(" first host gets full share of resources, next host gets a bit, everyone else gets nothing ") {
+        REQUIRE(world.PullResources() == full_share);
+        REQUIRE(world.PullResources() == (original_total-full_share));
+        REQUIRE(world.PullResources() == 0);
+        REQUIRE(world.PullResources() == 0);
+      }
+    }
+  }
+}
+
 TEST_CASE( "Vertical Transmission" ) {
   GIVEN( "a world" ) {
     emp::Random random(17); 
