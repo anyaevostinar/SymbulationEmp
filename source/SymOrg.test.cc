@@ -10,7 +10,6 @@ TEST_CASE( "Host-Symbiont interactions") {
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
-
     Host h(random, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
     REQUIRE( h.GetIntVal() == .5 );
