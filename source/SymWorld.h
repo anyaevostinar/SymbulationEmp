@@ -18,6 +18,8 @@ private:
   bool h_trans = 0;
   bool lysis = 0;
   double host_repro = 0;
+  int total_res = -1;
+  bool limited_res = false;
 
   double resources_per_host_per_update = 0;
   double synergy = 0;
@@ -35,8 +37,8 @@ private:
 
 public:
   //set fun_print_org to equal function that prints hosts/syms correctly
-  SymWorld(emp::Random &random) : emp::World<Host>(random), random(random) {
-    random_ptr.New(random);
+  SymWorld(emp::Random & _random) : emp::World<Host>(_random), random(_random) {
+    random_ptr.New(_random);
     fun_print_org = [](Host & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
@@ -59,6 +61,15 @@ public:
   void SetHostRepro(double val) {host_repro = val;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetSynergy(double val) {synergy = val;}
+  void SetLimitedRes(bool val) {limited_res = val;}
+  void SetTotalRes(int val) {
+    if(val<0){
+      SetLimitedRes(false);
+    } else {
+      SetLimitedRes(true);
+      total_res = val;
+    }
+  }
 
   emp::World<Host>::pop_t getPop() {return pop;}
 
@@ -66,6 +77,24 @@ public:
     bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
     return result;
 
+  }
+
+  int PullResources() {
+    
+    if(!limited_res) {
+      return resources_per_host_per_update;
+    } else {
+      if (total_res>=resources_per_host_per_update) {
+        total_res = total_res - resources_per_host_per_update;
+        return resources_per_host_per_update;
+      } else if (total_res>0) {
+        int resources_to_return = total_res;
+        total_res = 0;
+        return resources_to_return;
+      } else {
+        return 0;
+      }
+    }
   }
 
   int GetNeighborHost (size_t i) {
@@ -257,13 +286,14 @@ public:
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
       pop[newLoc]->AddSymbiont(sym_baby, sym_limit);
+    } else {
+      sym_baby.Delete();
     }
   }
   
 
   void Update() {
     emp::World<Host>::Update();
-
     //TODO: put in fancy scheduler at some point
     
     emp::vector<size_t> schedule = emp::GetPermutation(random, GetSize());
@@ -272,16 +302,15 @@ public:
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
 
-       
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      pop[i]->Process(resources_per_host_per_update, synergy);
-      //      std::cout << pop[i]->GetReproSymbionts().size() << std::endl;
-  
+    
+      pop[i]->Process(PullResources(), synergy);
+      
       //Check reproduction                                                                                                                         
       if (pop[i]->GetPoints() >= host_repro ) {  // if host has more points than required for repro                                                                                                   
         // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero                                             
+        // while resetting resource points for host and symbiont to zero                                           
         emp::Ptr<Host> host_baby = new Host(random_ptr, pop[i]->GetIntVal());
         host_baby->mutate();
         pop[i]->mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
@@ -300,13 +329,16 @@ public:
         } //end for loop for each symbiont
         //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts
+        
         DoBirth(*host_baby, i); //Automatically deals with grid
       }
 
       if (pop[i]->HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
+          if (IsOccupied(i) == false) continue; //Previous symbiont might have killed host and symbionts?
           syms[j]->process(i);
+          
 
         } //for each sym in syms
       } //if org has syms

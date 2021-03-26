@@ -36,6 +36,15 @@ public:
     
   }
 
+  emp::Ptr<Organism> reproduce() {
+    emp::Ptr<Phage> sym_baby = new Phage(*this); //constructor that takes parent values                                             
+    sym_baby->SetPoints(0);
+    sym_baby->SetBurstTimer(0);
+    sym_baby->mutate();
+    mutate(); //mutate parent symbiont
+    return sym_baby;
+  }
+
   void process(size_t location) {
     if(lysis) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
@@ -45,6 +54,7 @@ public:
         for(size_t r=0; r<repro_syms.size(); r++) {
           my_world->SymDoBirth(repro_syms[r], location);
         }
+        my_host->ClearReproSyms();
         my_world->DoDeath(location);
         
       } else {
@@ -54,13 +64,10 @@ public:
            infinite loop, please change" << std::endl;
           std::exit(1);
         }
-        while(Symbiont::GetPoints() >= sym_lysis_res) {
-          emp::Ptr<Organism> sym_baby = new Phage(*this);
-          sym_baby->SetPoints(0);
-          sym_baby->mutate();
-          Symbiont::mutate(); // TODO: test removing this since it's weird
+        while(GetPoints() >= sym_lysis_res) {
+          emp::Ptr<Organism> sym_baby = reproduce();
           my_host->AddReproSym(sym_baby);
-          Symbiont::SetPoints(GetPoints() - sym_lysis_res);
+          SetPoints(GetPoints() - sym_lysis_res);
         }
       }
     }
