@@ -15,7 +15,9 @@ protected:
   double points;
   double sym_h_res = 100;
   bool h_trans = true;
-  double mut_rate = 0.002;
+  double mut_size = 0.002;
+  double ht_mut_size = 0.002;
+  double mut_rate = 0.1;
   emp::Ptr<emp::Random> random;
   emp::Ptr<SymWorld> my_world;
   emp::Ptr<Organism> my_host = new Organism(); //need to clean up this memory still
@@ -24,9 +26,9 @@ public:
 
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, double _intval=0.0,
    double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
-   double _mut_rate = 0.002) : interaction_val(_intval), points(_points), 
+   double _mut_size = 0.002) : interaction_val(_intval), points(_points), 
    random(_random), my_world(_world), sym_h_res(_h_res), h_trans(_h_trans), 
-   mut_rate(_mut_rate) {
+   mut_size(_mut_size) {
      if ( _intval > 1 || _intval < -1) {
        throw "Invalid _intval. Must be between -1 and 1";   // NEW
      };
@@ -59,10 +61,21 @@ public:
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
+  bool WillMutate() {
+    bool result = random->GetDouble(0.0, 1.0) <= mut_rate;
+    return result;
+
+  }
 
   //TODO: change everything to camel case
   void mutate(){
-    interaction_val += random->GetRandNormal(0.0, mut_rate);
+    interaction_val += random->GetRandNormal(0.0, mut_size);
+    if(interaction_val < -1) interaction_val = -1;
+    else if (interaction_val > 1) interaction_val = 1;
+  }
+
+  void HorizMutate(){
+    interaction_val += random->GetRandNormal(0.0, ht_mut_size);
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;
   }
@@ -75,8 +88,8 @@ public:
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Symbiont> sym_baby = new Symbiont(*this);
         sym_baby->SetPoints(0);
-        sym_baby->mutate();
-        mutate();
+        sym_baby->HorizMutate();
+        HorizMutate();
         
         my_world->SymDoBirth(sym_baby, location);
 
