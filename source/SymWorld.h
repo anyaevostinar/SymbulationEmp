@@ -13,6 +13,9 @@
 class SymWorld : public emp::World<Host>{
 private:
   double vertTrans = 0; 
+  double mut_size = 0;
+  double vt_mut_size = 0;
+  double ht_mut_size = 0;
   double mut_rate = 0;
   int sym_limit = -1;
   bool h_trans = 0;
@@ -55,6 +58,9 @@ public:
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
+  void SetMutSize(double mut) {mut_size = mut;}
+  void SetVertMutSize(double mut) {vt_mut_size = mut;}
+  void SetHorizMutSize(double mut) {ht_mut_size = mut;}
   void SetMutRate(double mut) {mut_rate = mut;}
   void SetSymLimit(int num) {sym_limit = num;}
   void SetHTransBool(bool val) {h_trans = val;}
