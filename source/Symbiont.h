@@ -81,6 +81,7 @@ public:
   }
 
   void process(size_t location) {
+    bool will_mutate = WillMutate();
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
@@ -88,8 +89,10 @@ public:
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Symbiont> sym_baby = new Symbiont(*this);
         sym_baby->SetPoints(0);
-        sym_baby->HorizMutate();
-        HorizMutate();
+        if (will_mutate) {
+          sym_baby->HorizMutate();
+          HorizMutate();
+        }
         
         my_world->SymDoBirth(sym_baby, location);
 
