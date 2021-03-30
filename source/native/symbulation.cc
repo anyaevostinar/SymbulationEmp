@@ -12,7 +12,10 @@ using namespace std;
 EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
     VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
-    VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
+    VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
+    VALUE(VERT_MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
+    VALUE(HORIZ_MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
+    VALUE(MUTATION_RATE, double, 0.1, "Value 0 to 1 of probability of mutation"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
     VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
@@ -78,6 +81,9 @@ int symbulation_main(int argc, char * argv[])
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 // settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
+  world.SetMutSize(config.MUTATION_SIZE());
+  world.SetVertMutSize(config.VERT_MUTATION_SIZE());
+  world.SetHorizMutSize(config.HORIZ_MUTATION_SIZE());
   world.SetMutRate(config.MUTATION_RATE());
   world.SetSymLimit(config.SYM_LIMIT());
   world.SetHTransBool(config.HORIZ_TRANS());
@@ -137,7 +143,7 @@ int symbulation_main(int argc, char * argv[])
       if(config.LYSIS() == 1) { 
         emp::Ptr<Phage> new_sym = new Phage(&random, &world, 
            sym_int, 0, config.SYM_HORIZ_TRANS_RES(),
-           config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
+           config.HORIZ_TRANS(), config.MUTATION_SIZE(), config.BURST_TIME(),
            config.LYSIS(), config.SYM_LYSIS_RES());
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
@@ -146,7 +152,7 @@ int symbulation_main(int argc, char * argv[])
       } else {
         emp::Ptr<Symbiont> new_sym = new Symbiont(&random, &world, 
           sym_int, 0, config.SYM_HORIZ_TRANS_RES(), 
-          config.HORIZ_TRANS(), config.MUTATION_RATE()); 
+          config.HORIZ_TRANS(), config.MUTATION_SIZE()); 
         world.InjectSymbiont(new_sym);
       }
       
