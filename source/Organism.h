@@ -30,6 +30,7 @@ class Organism {
   //Symbiont functions
 
   virtual void mutate() {}
+  virtual void HorizMutate() {}
   virtual void process(size_t location) {}
   virtual emp::Ptr<Organism> reproduce() {return nullptr;}
 
