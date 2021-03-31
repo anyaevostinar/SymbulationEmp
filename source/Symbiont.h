@@ -28,7 +28,9 @@ public:
    double _mut_rate = 0.002) : interaction_val(_intval), points(_points), 
    random(_random), my_world(_world), sym_h_res(_h_res), h_trans(_h_trans), 
    mut_rate(_mut_rate) {
-     ;
+     if ( _intval > 1 || _intval < -1) {
+       throw "Invalid _intval. Must be between -1 and 1";   // NEW
+     };
   }
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, SymConfigBase _config, double _intval=0.0, double _points = 0.0) : random(_random), my_world(_world), my_config(_config) {
     sym_h_res = my_config.SYM_HORIZ_TRANS_RES();
@@ -48,7 +50,16 @@ public:
 
 
 
-  void SetIntVal(double _in) { interaction_val = _in;}
+  void SetIntVal(double _in) { 
+    if ( _in > 1 || _in < -1) {
+       throw "Invalid _in. Must be between -1 and 1";   // NEW
+     }
+     else {
+        interaction_val = _in;
+     }
+       
+  }
+  
   void SetPoints(double _in) { points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
