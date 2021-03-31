@@ -108,6 +108,9 @@ TEST_CASE( "World Capacity" ) {
 
 
 TEST_CASE( "Interaction Patterns" ) {
+  SymConfigBase config;
+  emp::Ptr<SymConfigBase> config_ptr = &config;
+
   GIVEN( "a world without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
@@ -127,7 +130,7 @@ TEST_CASE( "Interaction Patterns" ) {
         new_org = new Host(random, -.1);
         w.Inject(*new_org);
       
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, .1);
+        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, config_ptr, .1);
         w.InjectSymbiont(new_sym);
       }
       
@@ -166,7 +169,7 @@ TEST_CASE( "Interaction Patterns" ) {
         w.Inject(*new_org);
       }
       for (size_t i = 0; i < 10000; i++){//Odds of failure should be 1 in 29387493568128248844
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, -1);
+        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, config_ptr, -1);
         w.InjectSymbiont(new_sym);
       } 
       

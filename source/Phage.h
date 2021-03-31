@@ -14,11 +14,17 @@ protected:
 
 public:
 
-  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, double _intval=0.0,
+  /*Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, double _intval=0.0,
     double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
     double _mut_rate = 0.002, double _bt = 60, bool _lysis = true, double _l_res = 15) 
     : Symbiont(_random, _world, _intval, _points, _h_res, _h_trans, 
     _mut_rate), burst_time(_bt), sym_lysis_res(_l_res) {}
+    */
+
+  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
+    burst_time = my_config->BURST_TIME();
+    sym_lysis_res = my_config->SYM_LYSIS_RES();
+  }
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
 
