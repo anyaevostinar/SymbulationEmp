@@ -94,7 +94,7 @@ TEST_CASE( "World Capacity" ) {
       //inject organisms
       for (size_t i = 0; i < n; i++){
         Host *new_org;
-        new_org = new Host(0);
+        new_org = new Host(&random, &w, 0);
         w.Inject(*new_org);
       }
         
@@ -127,7 +127,7 @@ TEST_CASE( "Interaction Patterns" ) {
       //inject organisms
       for (size_t i = 0; i < 1000; i++){
         Host *new_org;
-        new_org = new Host(random, -.1);
+        new_org = new Host(random, &w, -.1);
         w.Inject(*new_org);
       
         emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, config_ptr, .1);
@@ -165,7 +165,7 @@ TEST_CASE( "Interaction Patterns" ) {
       //inject organisms
       for (size_t i = 0; i < 200; i++){
         Host *new_org;
-        new_org = new Host(random, 1);
+        new_org = new Host(random, &w, 1);
         w.Inject(*new_org);
       }
       for (size_t i = 0; i < 10000; i++){//Odds of failure should be 1 in 29387493568128248844

@@ -12,7 +12,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
-    Host h(random, host_interaction_val, {}, {}, std::set<int>(), host_points);
+    Host h(random, &w, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
     REQUIRE( h.GetIntVal() == .5 );
     REQUIRE( h.GetSymbionts().size() == 0 );
@@ -141,7 +141,7 @@ TEST_CASE( "Host-Symbiont interactions") {
   GIVEN( "an empty slightly defensive host" ) {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymWorld w(*random);
-    Host h(random, -.2);
+    Host h(random, &w, -.2);
 
     REQUIRE( h.GetIntVal() == -.2 );
     REQUIRE( h.GetSymbionts().size() == 0 );

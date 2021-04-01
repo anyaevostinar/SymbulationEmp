@@ -78,8 +78,8 @@ int symbulation_main(int argc, char * argv[])
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
-    if (random_phen_host) new_org = new Host(&random, random.GetDouble(-1, 1));
-    else new_org = new Host(&random, config.HOST_INT());
+    if (random_phen_host) new_org = new Host(&random, &world, random.GetDouble(-1, 1));
+    else new_org = new Host(&random, &world, config.HOST_INT());
     //Currently hacked because there isn't an AddOrg function, but there probably should be
     if(config.GRID()) {
       world.AddOrgAt(new_org, emp::WorldPosition(world.GetRandomCellID()));

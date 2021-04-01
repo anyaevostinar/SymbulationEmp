@@ -4,13 +4,14 @@
 
 TEST_CASE("Host SetIntVal, GetIntVal") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
     double int_val = 1;
 
-    Host * h1 = new Host(random);
+    Host * h1 = new Host(random, &w);
     double default_int_val = 0.0;
     REQUIRE(h1->GetIntVal() == default_int_val);
 
-    Host * h2 = new Host(random, int_val);
+    Host * h2 = new Host(random, &w, int_val);
     
     double expected_int_val = 1;
     REQUIRE(h2->GetIntVal() == expected_int_val);
@@ -23,9 +24,10 @@ TEST_CASE("Host SetIntVal, GetIntVal") {
 
 TEST_CASE("SetPoints, AddPoints, GetPoints") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, int_val);
+    Host * h = new Host(random, &w, int_val);
 
     double points = 50;
     h->SetPoints(points);
@@ -41,12 +43,13 @@ TEST_CASE("SetPoints, AddPoints, GetPoints") {
 
 TEST_CASE("SetResTypes, GetResTypes") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
     double int_val = 1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
     std::set<int> res_types {1,3,5,9,2};
 
-    Host * h = new Host(random, int_val, syms, repro_syms, res_types);
+    Host * h = new Host(random, &w, int_val, syms, repro_syms, res_types);
     
     std::set<int> expected_res_types = h->GetResTypes();
     for (int number : res_types)
@@ -68,10 +71,11 @@ TEST_CASE("SetResTypes, GetResTypes") {
 
 TEST_CASE("HasSym") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
     double int_val = 1;
 
     WHEN("Host has no symbionts") {
-        Host * h = new Host(random, int_val);
+        Host * h = new Host(random, &w, int_val);
 
         THEN("HasSym is false") {
             bool expected = false;
@@ -82,9 +86,10 @@ TEST_CASE("HasSym") {
 
 TEST_CASE("Host Mutate") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
+    SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, int_val);
+    Host * h = new Host(random, &w, int_val);
     h->mutate();
     double expected_int_val = 0.9994602838;
     REQUIRE(h->GetIntVal() == Approx(expected_int_val));
@@ -99,6 +104,7 @@ TEST_CASE("Host Mutate") {
 
 TEST_CASE("DistributeResources") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
 
@@ -107,7 +113,7 @@ TEST_CASE("DistributeResources") {
         double synergy = 5;
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
         
-        Host * h = new Host(random, int_val);
+        Host * h = new Host(random, &w, int_val);
         h->DistribResources(resources, synergy);
         
         THEN("Points increase") {
@@ -126,7 +132,7 @@ TEST_CASE("DistributeResources") {
         double synergy = 5;
         double orig_points = 0;
 
-        Host * h = new Host(random, int_val);
+        Host * h = new Host(random, &w, int_val);
         h->DistribResources(resources, synergy);
         
         THEN("Points decrease") {
@@ -144,7 +150,7 @@ TEST_CASE("DistributeResources") {
         double synergy = 5;
         double orig_points = 27;
 
-        Host * h = new Host(random, int_val);
+        Host * h = new Host(random, &w, int_val);
         h->AddPoints(orig_points);
         h->DistribResources(resources, synergy);
         

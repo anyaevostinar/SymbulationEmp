@@ -48,7 +48,7 @@ class Organism {
   virtual void AddReproSym(emp::Ptr<Organism> _in) {}
   virtual bool HasSym() {return false;}
   virtual void DistribResources(double resources, double synergy) {}
-  virtual void Process(double resources_per_host_per_update, double synergy)  {}
+  virtual void Process(double resources_per_host_per_update, double synergy, int location)  {}
   virtual void ClearReproSyms() {}
 
   //Phage functions
