@@ -26,7 +26,11 @@ public:
   std::set<int> _set = std::set<int>(),
   double _points = 0.0) : random(_random),
   interaction_val(_intval), syms(_syms),
-  res_types(_set), points(_points) { ; }
+  res_types(_set), points(_points) { 
+    if ( _intval > 1 || _intval < -1) {
+       throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
+     };
+   }
 
   ~Host(){
     for(int i=0; i<syms.size(); i++){
@@ -53,7 +57,14 @@ public:
   double GetPoints() { return points;}
 
 
-  void SetIntVal(double _in) {interaction_val = _in;}
+  void SetIntVal(double _in) {
+    if ( _in > 1 || _in < -1) {
+       throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
+     }
+     else {
+       interaction_val = _in;
+     }
+  }
   void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {syms = _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
