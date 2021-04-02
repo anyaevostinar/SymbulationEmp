@@ -113,6 +113,13 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
   }//GIVEN
 }//void Test(.........)
 
+/*Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002, 
+    double synergy = 5, double vertical_transmission = 1, double host_int = 0, 
+    double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1, 
+    int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10, 
+    int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1, 
+	  double sym_horiz_trans_res = 100, int start_moi = 1, bool grid = 0)
+*/
 TEST_CASE( "End To End" ) {
   Test("vert_trans_0", 17, 100, 0.002, 5, 0, -2, -2, 100, 100, 1001, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);
   Test("vert_trans_0.5", 17, 100, 0.002, 5, 0.5, -2, -2, 100, 100, 1001, 1, 0, 1, 4, 2, 1000, 0.3, 100, 1, 0);

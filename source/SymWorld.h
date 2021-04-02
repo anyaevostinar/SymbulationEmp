@@ -22,8 +22,6 @@ private:
 
   double resources_per_host_per_update = 0;
   double synergy = 0;
-  emp::Random &random;
-  emp::Ptr<emp::Random> random_ptr;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -36,8 +34,7 @@ private:
 
 public:
   //set fun_print_org to equal function that prints hosts/syms correctly
-  SymWorld(emp::Random & _random) : emp::World<Organism>(_random), random(_random) {
-    random_ptr.New(_random);
+  SymWorld(emp::Random & _random) : emp::World<Organism>(_random) {
     fun_print_org = [](Organism & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
@@ -75,7 +72,7 @@ public:
   emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
-    bool result = random.GetDouble(0.0, 1.0) <= vertTrans;
+    bool result = GetRandom().GetDouble(0.0, 1.0) <= vertTrans;
     return result;
 
   }
@@ -98,11 +95,25 @@ public:
     }
   }
 
+  //Overriding World's DoBirth to take a pointer instead of a reference
+  //Because it takes a pointer, it doesn't support birthing multiple copies
+  emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
+    before_repro_sig.Trigger(parent_pos);
+    emp::WorldPosition pos;                                        // Position of each offspring placed.
+    
+    offspring_ready_sig.Trigger(*new_org, parent_pos);
+    pos = fun_find_birth_pos(new_org, parent_pos);
+
+    if (pos.IsValid()) AddOrgAt(new_org, pos, parent_pos);  // If placement pos is valid, do so!
+    else new_org.Delete();                                  // Otherwise delete the organism.
+    return pos;
+  }
+
   int GetNeighborHost (size_t i) {
     const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
     if (validNeighbors.empty()) return -1;
     else {
-      int randI = random.GetUInt(0, validNeighbors.size());
+      int randI = GetRandom().GetUInt(0, validNeighbors.size());
       return validNeighbors[randI];
     }
   }
@@ -112,6 +123,8 @@ public:
     if(IsOccupied(newLoc) == true) {
       newSym->SetHost(pop[newLoc]);
       pop[newLoc]->AddSymbiont(newSym, sym_limit);
+    } else {
+      newSym.Delete();
     }
   }
 
@@ -297,7 +310,7 @@ public:
     emp::World<Organism>::Update();
     //TODO: put in fancy scheduler at some point
     
-    emp::vector<size_t> schedule = emp::GetPermutation(random, GetSize());
+    emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     
     // divvy up and distribute resources to host and symbiont in each cell 
     for (size_t i : schedule) {
@@ -306,7 +319,7 @@ public:
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
     
-      pop[i]->Process(PullResources(), synergy, i);
+      pop[i]->Process(PullResources(), i);
       
       
 

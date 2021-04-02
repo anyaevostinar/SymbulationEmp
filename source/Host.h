@@ -12,23 +12,26 @@
 
 class Host: public Organism {
 private:
-  double interaction_val;
-  emp::vector<emp::Ptr<Organism>> syms; 
-  emp::vector<emp::Ptr<Organism>> repro_syms;
-  std::set<int> res_types;
-  double points;
-  double mut_rate = 0.002;
-  emp::Ptr<emp::Random> random;
-  emp::Ptr<SymWorld> my_world;
+  double interaction_val = 0;
+  emp::vector<emp::Ptr<Organism>> syms = {}; 
+  emp::vector<emp::Ptr<Organism>> repro_syms = {};
+  std::set<int> res_types = {};
+  double points = 0;
+  double mut_rate = 0;
+  emp::Ptr<emp::Random> random = NULL;
+  emp::Ptr<SymWorld> my_world = NULL;
+  emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
-  Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world,
+  Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : random(_random), my_world(_world),
-  interaction_val(_intval), syms(_syms),
-  res_types(_set), points(_points) { ; }
+  double _points = 0.0) : random(_random), my_world(_world), my_config(_config),
+  interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
+  res_types(_set), points(_points) { 
+    mut_rate = my_config->MUTATION_RATE();
+   }
 
   ~Host(){
     for(int i=0; i<syms.size(); i++){
@@ -49,8 +52,7 @@ public:
 
 
   double GetIntVal() const { return interaction_val;}
-  emp::vector<emp::Ptr<Organism>>& GetSymbionts() { 
-    std::cout<< "Here!" << std::endl; return syms;}
+  emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
   emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
@@ -72,6 +74,8 @@ public:
     if(syms.size() < sym_limit){
       syms.push_back(_in);
       _in->SetHost(this);
+    } else {
+      _in.Delete();
     }
   }
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
@@ -95,7 +99,7 @@ public:
     if(syms.empty()) {
 
       if(hostIntVal >= 0){
-	double spent = resources * hostIntVal;
+	      double spent = resources * hostIntVal;
         this->AddPoints(resources - spent);
       }
       else {
@@ -184,18 +188,17 @@ public:
 
   } //end DistribResources
 
-  void Process(double resources_per_host_per_update, double synergy, int location) {
+  void Process(double resources, int location) {
     //Currently just wrapping to use the existing function
-    DistribResources(resources_per_host_per_update, synergy);
+    DistribResources(resources, my_config->SYNERGY());
     // Check reproduction                                                 
-      if (GetPoints() >= my_world->GetHostRepro() ) {  // if host has more points than required for repro                                                                                                   
+    if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro                                                            
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                           
-        emp::Ptr<Host> host_baby = new Host(random, my_world, GetIntVal());
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
         host_baby->mutate();
         mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
         SetPoints(0);
-	
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
@@ -203,19 +206,20 @@ public:
            if (my_world->WillTransmit()) { //Vertical transmission!  
             
             emp::Ptr<Organism> sym_baby = parent->reproduce();                                  
-            host_baby->AddSymbiont(sym_baby, my_world->GetSymLimit());
+            host_baby->AddSymbiont(sym_baby, my_config->SYM_LIMIT());
 
           } //end will transmit
         } //end for loop for each symbiont
         //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts
-        
-        my_world->DoBirth(*host_baby, location); //Automatically deals with grid
+        my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          if (my_world->IsOccupied(location) == false) continue; //Previous symbiont might have killed host and symbionts?
+          if (my_world->IsOccupied(location) == false){ 
+            continue; //Previous symbiont might have killed host and symbionts?
+          }
           syms[j]->process(location);
           
 

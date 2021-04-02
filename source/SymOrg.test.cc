@@ -4,7 +4,6 @@
 
 TEST_CASE( "Host-Symbiont interactions") {
   SymConfigBase config;
-  emp::Ptr<SymConfigBase> config_ptr = &config;
   
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -12,7 +11,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
-    Host h(random, &w, host_interaction_val, {}, {}, std::set<int>(), host_points);
+    Host h(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
     REQUIRE( h.GetIntVal() == .5 );
     REQUIRE( h.GetSymbionts().size() == 0 );
@@ -30,7 +29,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat generous symbiont with no resource type and with 203 points is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr,  .6, 203);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config,  .6, 203);
       h.AddSymbiont(s, 3);
       h.DistribResources(100, 5);
 
@@ -56,7 +55,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "synergy is higher" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, .6, 203);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, .6, 203);
       h.AddSymbiont(s, 3);
       h.DistribResources(100, 5.5);
 
@@ -66,7 +65,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat hostile symbiont with no resource type and with 101 points is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.65, 101);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.65, 101);
       h.AddSymbiont(s, 3);
       h.DistribResources(113, 5);
 
@@ -90,21 +89,21 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "more symbionts are added than the limit" ) {
-      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, config_ptr, .12, 101);
+      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, &config, .12, 101);
       h.AddSymbiont(s1, 3);
-      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, config_ptr, .12, 102);
+      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, &config, .12, 102);
       h.AddSymbiont(s2, 3);
-      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, config_ptr, .12, 103);
+      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, &config, .12, 103);
       h.AddSymbiont(s3, 3);
-      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, config_ptr, .12, 104);
+      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, &config, .12, 104);
       h.AddSymbiont(s4, 3);
-      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, config_ptr, .12, 105);
+      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, &config, .12, 105);
       h.AddSymbiont(s5, 3);
-      emp::Ptr<Symbiont> s6 = new Symbiont(random, &w, config_ptr, .12, 106);
+      emp::Ptr<Symbiont> s6 = new Symbiont(random, &w, &config, .12, 106);
       h.AddSymbiont(s6, 3);
-      emp::Ptr<Symbiont> s7 = new Symbiont(random, &w, config_ptr, .12, 107);
+      emp::Ptr<Symbiont> s7 = new Symbiont(random, &w, &config, .12, 107);
       h.AddSymbiont(s7, 3);
-      emp::Ptr<Symbiont> s8 = new Symbiont(random, &w, config_ptr, .12, 108);
+      emp::Ptr<Symbiont> s8 = new Symbiont(random, &w, &config, .12, 108);
       h.AddSymbiont(s8, 3);
       
 
@@ -120,7 +119,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a repro symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.7, 37);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.7, 37);
       h.AddReproSym(s);
       h.DistribResources(13, 5);
 
@@ -141,7 +140,7 @@ TEST_CASE( "Host-Symbiont interactions") {
   GIVEN( "an empty slightly defensive host" ) {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymWorld w(*random);
-    Host h(random, &w, -.2);
+    Host h(random, &w, &config, -.2);
 
     REQUIRE( h.GetIntVal() == -.2 );
     REQUIRE( h.GetSymbionts().size() == 0 );
@@ -159,7 +158,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat generous symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, .6);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, .6);
       h.AddSymbiont(s, 3);
       h.DistribResources(1, 5);
 
@@ -175,7 +174,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a very slightly hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.1);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.1);
       h.AddSymbiont(s, 3);
       h.DistribResources(1, 5);
 
@@ -191,7 +190,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.5);
       h.AddSymbiont(s, 3);
       h.DistribResources(1, 5);
 
@@ -207,7 +206,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a fully hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -1);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -1);
       h.AddSymbiont(s, 3);
       h.DistribResources(1, 5);
 
@@ -225,15 +224,15 @@ TEST_CASE( "Host-Symbiont interactions") {
 
 
     WHEN( "many symbionts are added" ) {
-      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, config_ptr, 1);
+      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, &config, 1);
       h.AddSymbiont(s1, 3);
-      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, config_ptr, -.15);
+      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, &config, -.15);
       h.AddSymbiont(s2, 3);
-      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, config_ptr, -.73);
+      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, &config, -.73);
       h.AddSymbiont(s3, 3);
-      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, config_ptr, .6);
+      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, &config, .6);
       h.AddSymbiont(s4, 3);
-      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, config_ptr, -1);
+      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, &config, -1);
       h.AddSymbiont(s5, 3);
       h.DistribResources(1, 5);
 
