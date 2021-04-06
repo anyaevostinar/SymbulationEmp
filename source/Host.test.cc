@@ -116,11 +116,11 @@ TEST_CASE("DistributeResources") {
 
         double int_val = 0.6;
         double resources = 80;
-        double synergy = 5;
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
+        config.SYNERGY(5);
         
         Host * h = new Host(random, &w, &config, int_val);
-        h->DistribResources(resources, synergy);
+        h->DistribResources(resources);
         
         THEN("Points increase") {
             double expected_points = resources - (resources * int_val); // 48
@@ -135,11 +135,11 @@ TEST_CASE("DistributeResources") {
 
         double int_val = 1.3; // should not be greater than 1 
         double resources = 80;
-        double synergy = 5;
         double orig_points = 0;
+        config.SYNERGY(5);
 
         Host * h = new Host(random, &w, &config, int_val);
-        h->DistribResources(resources, synergy);
+        h->DistribResources(resources);
         
         THEN("Points decrease") {
             double expected_points = resources - (resources * int_val); // -24
@@ -153,12 +153,12 @@ TEST_CASE("DistributeResources") {
 
         double int_val = -0.4;
         double resources = 30;
-        double synergy = 5;
         double orig_points = 27;
+        config.SYNERGY(5);
 
         Host * h = new Host(random, &w, &config, int_val);
         h->AddPoints(orig_points);
-        h->DistribResources(resources, synergy);
+        h->DistribResources(resources);
         
         THEN("Points increase") {
             // add in host_defense 

@@ -21,6 +21,7 @@ public:
   }
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
+  Phage() = default;
 
   double GetBurstTimer() {return burst_timer;}
   void IncBurstTimer() {
@@ -55,7 +56,8 @@ public:
           my_world->SymDoBirth(repro_syms[r], location);
         }
         my_host->ClearReproSyms();
-        my_world->DoDeath(location);
+        my_host->SetDead();
+        return;
         
       } else {
         IncBurstTimer();

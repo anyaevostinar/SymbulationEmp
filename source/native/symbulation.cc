@@ -52,11 +52,6 @@ int symbulation_main(int argc, char * argv[])
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 // settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
-  world.SetMutRate(config.MUTATION_RATE());
-  world.SetSymLimit(config.SYM_LIMIT());
-  world.SetHTransBool(config.HORIZ_TRANS());
-  world.SetHostRepro(config.HOST_REPRO_RES());
-  world.SetSynergy(config.SYNERGY());
   world.SetTotalRes(config.LIMITED_RES_TOTAL());
 
   world.SetResPerUpdate(config.RES_DISTRIBUTE());

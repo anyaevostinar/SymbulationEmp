@@ -15,7 +15,7 @@ protected:
   double points = 0;
   double sym_h_res = 100;
   bool h_trans = true;
-  double mut_rate = 0.002;
+  double mut_rate = 0.0;
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<Organism> my_host = NULL; 
@@ -32,6 +32,7 @@ public:
   }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
+  Symbiont() = default;
 
 
   Symbiont & operator=(const Symbiont &) = default;

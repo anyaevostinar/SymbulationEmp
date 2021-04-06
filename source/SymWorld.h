@@ -12,16 +12,10 @@
 class SymWorld : public emp::World<Organism>{
 private:
   double vertTrans = 0; 
-  double mut_rate = 0;
-  int sym_limit = -1;
-  bool h_trans = 0;
-  bool lysis = 0;
-  double host_repro = 0;
   int total_res = -1;
   bool limited_res = false;
 
   double resources_per_host_per_update = 0;
-  double synergy = 0;
   
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -51,14 +45,14 @@ public:
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
-  void SetMutRate(double mut) {mut_rate = mut;}
-  void SetSymLimit(int num) {sym_limit = num;}
-  int GetSymLimit() {return sym_limit;} //TODO: remove
-  void SetHTransBool(bool val) {h_trans = val;}
-  void SetHostRepro(double val) {host_repro = val;}
-  double GetHostRepro() {return host_repro;} //TODO: remove
+  //void SetMutRate(double mut) {mut_rate = mut;}
+  //void SetSymLimit(int num) {sym_limit = num;}
+  //int GetSymLimit() {return sym_limit;} //TODO: remove
+  //void SetHTransBool(bool val) {h_trans = val;}
+  //void SetHostRepro(double val) {host_repro = val;}
+  //double GetHostRepro() {return host_repro;} //TODO: remove
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
-  void SetSynergy(double val) {synergy = val;}
+  //void SetSynergy(double val) {synergy = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
   void SetTotalRes(int val) {
     if(val<0){
@@ -72,7 +66,7 @@ public:
   emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
-    bool result = GetRandom().GetDouble(0.0, 1.0) <= vertTrans;
+    bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
     return result;
 
   }
@@ -104,7 +98,7 @@ public:
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
 
-    if (pos.IsValid()) AddOrgAt(new_org, pos, parent_pos);  // If placement pos is valid, do so!
+    if (pos.IsValid() && pos.GetIndex() != parent_pos) AddOrgAt(new_org, pos, parent_pos);  // If placement pos is valid, do so!
     else new_org.Delete();                                  // Otherwise delete the organism.
     return pos;
   }
@@ -122,7 +116,7 @@ public:
     int newLoc = GetRandomOrgID();
     if(IsOccupied(newLoc) == true) {
       newSym->SetHost(pop[newLoc]);
-      pop[newLoc]->AddSymbiont(newSym, sym_limit);
+      pop[newLoc]->AddSymbiont(newSym);
     } else {
       newSym.Delete();
     }
@@ -299,7 +293,7 @@ public:
     // pick new host to infect, if one exists at the new location and isn't at the limit
     int newLoc = GetNeighborHost(i);
     if (newLoc > -1) { //-1 means no living neighbors
-      pop[newLoc]->AddSymbiont(sym_baby, sym_limit);
+      pop[newLoc]->AddSymbiont(sym_baby);
     } else {
       sym_baby.Delete();
     }
@@ -309,7 +303,6 @@ public:
   void Update() {
     emp::World<Organism>::Update();
     //TODO: put in fancy scheduler at some point
-    
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     
     // divvy up and distribute resources to host and symbiont in each cell 
@@ -320,6 +313,9 @@ public:
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
     
       pop[i]->Process(PullResources(), i);
+      if (pop[i]->GetDead()) { //Check if the host died
+        DoDeath(i);
+      }
       
       
 

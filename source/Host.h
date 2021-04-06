@@ -21,6 +21,7 @@ private:
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<SymConfigBase> my_config = NULL;
+  bool dead = false;
 
 public:
   Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
@@ -44,6 +45,7 @@ public:
 
   Host(const Host &) = default;
   Host(Host &&) = default;
+  Host() = default;
 
   Host & operator=(const Host &) = default;
   Host & operator=(Host &&) = default;
@@ -65,13 +67,15 @@ public:
   void ClearReproSyms() {
     repro_syms.resize(0);
   }
+  void SetDead() { dead = true;}
+  bool GetDead() {return dead;}
 
 
   void AddPoints(double _in) {points += _in;}
 
 
-  void AddSymbiont(emp::Ptr<Organism> _in, int sym_limit) {
-    if(syms.size() < sym_limit){
+  void AddSymbiont(emp::Ptr<Organism> _in) {
+    if(syms.size() < my_config->SYM_LIMIT()){
       syms.push_back(_in);
       _in->SetHost(this);
     } else {
@@ -92,9 +96,9 @@ public:
     else if (interaction_val > 1) interaction_val = 1;
   }
 
-  void DistribResources(double resources, double synergy) {
+  void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
-
+    double synergy = my_config->SYNERGY();
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 
@@ -190,8 +194,9 @@ public:
 
   void Process(double resources, int location) {
     //Currently just wrapping to use the existing function
-    DistribResources(resources, my_config->SYNERGY());
-    // Check reproduction                                                 
+    DistribResources(resources);
+    // Check reproduction    
+
     if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro                                                            
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                           
@@ -205,8 +210,8 @@ public:
           emp::Ptr<Organism> parent = GetSymbionts()[j];
            if (my_world->WillTransmit()) { //Vertical transmission!  
             
-            emp::Ptr<Organism> sym_baby = parent->reproduce();                                  
-            host_baby->AddSymbiont(sym_baby, my_config->SYM_LIMIT());
+            emp::Ptr<Organism> sym_baby = parent->reproduce(); 
+            host_baby->AddSymbiont(sym_baby);
 
           } //end will transmit
         } //end for loop for each symbiont
@@ -214,11 +219,14 @@ public:
         //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
+    if (GetDead()){ 
+        return; //If host is dead, return
+      }
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          if (my_world->IsOccupied(location) == false){ 
-            continue; //Previous symbiont might have killed host and symbionts?
+          if (GetDead()){ 
+            return; //If previous symbiont killed host, we're done
           }
           syms[j]->process(location);
           

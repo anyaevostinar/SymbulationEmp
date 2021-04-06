@@ -1,6 +1,7 @@
 #include "SymWorld.h"
 #include "Symbiont.h"
 #include "Phage.h"
+#include "Host.h"
 
 
 TEST_CASE("PullResources") {
@@ -96,7 +97,7 @@ TEST_CASE( "World Capacity" ) {
       for (size_t i = 0; i < n; i++){
         emp::Ptr<Host> new_org;
         new_org = new Host(&random, &w, &config, 0);
-        w.Inject(*new_org);
+        w.AddOrgAt(new_org, w.size());
       }
         
       THEN( "the world's size becomes the number of hosts that were added" ) {
@@ -114,29 +115,32 @@ TEST_CASE( "Interaction Patterns" ) {
   GIVEN( "a world without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
+    config.VERTICAL_TRANSMISSION(0);
     w.SetVertTrans(0);
-    w.SetMutRate(.002);
-    w.SetSymLimit(500);
-    w.SetHTransBool(true);
-    w.SetHostRepro(400);
+    config.MUTATION_RATE(0);
+    config.SYM_LIMIT(500);
+    config.HORIZ_TRANS(true);
+    config.HOST_REPRO_RES(400);
+    config.RES_DISTRIBUTE(100);
     w.SetResPerUpdate(100);
-    w.SetSynergy(5);
+    config.SYNERGY(5);
 
     WHEN( "hostile hosts meet generous symbionts" ) {
 
       //inject organisms
-      for (size_t i = 0; i < 1000; i++){
-        Host *new_org;
-        new_org = new Host(random, &w, &config, -.1);
-        w.Inject(*new_org);
-      
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, &config, .1);
+      for (size_t i = 0; i < 10; i++){
+        emp::Ptr<Host> new_org = emp::NewPtr<Host>(random, &w, &config, -0.1);
+        w.AddOrgAt(new_org, w.size());
+      }
+      for (size_t i = 0; i< 10; i++){
+        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, &w, &config, 0.1);
         w.InjectSymbiont(new_sym);
       }
       
       //Simulate
-      for(int i = 0; i < 100; i++)//Burst time + 1
+      for(int i = 0; i < 10; i++) {
         w.Update();
+      }
 
       THEN( "the symbionts all die" ) {
         for(size_t i = 0; i < w.getPop().size(); i++)
@@ -146,17 +150,21 @@ TEST_CASE( "Interaction Patterns" ) {
   }
 
 
+
+
   GIVEN( "a world" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
     w.SetPopStruct_Mixed(); 
-    w.SetVertTrans(.7);
-    w.SetMutRate(.002);
-    w.SetSymLimit(500);
-    w.SetHTransBool(true);
-    w.SetHostRepro(10);
-    w.SetResPerUpdate(100);
-    w.SetSynergy(5);
+    config.GRID(0);
+    config.VERTICAL_TRANSMISSION(0.7);
+    w.SetVertTrans(0.7);
+    config.MUTATION_RATE(0.002);
+    config.SYM_LIMIT(500);
+    config.HORIZ_TRANS(true);
+    config.HOST_REPRO_RES(10);
+    config.RES_DISTRIBUTE(100);
+    config.SYNERGY(5);
     w.Resize(100, 200);
     
 
@@ -166,7 +174,7 @@ TEST_CASE( "Interaction Patterns" ) {
       for (size_t i = 0; i < 200; i++){
         Host *new_org;
         new_org = new Host(random, &w, &config, 1);
-        w.Inject(*new_org);
+        w.AddOrgAt(new_org, w.size());
       }
       for (size_t i = 0; i < 10000; i++){
         emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, &config, -1);
