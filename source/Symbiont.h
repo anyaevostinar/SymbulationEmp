@@ -11,30 +11,32 @@
 
 class Symbiont: public Organism {
 protected:  
-  double interaction_val;
-  double points;
+  double interaction_val = 0;
+  double points = 0;
   double sym_h_res = 100;
   bool h_trans = true;
   double mut_size = 0.002;
   double ht_mut_size = 0.002;
   double mut_rate = 0.1;
-  emp::Ptr<emp::Random> random;
-  emp::Ptr<SymWorld> my_world;
-  emp::Ptr<Organism> my_host = new Organism(); //need to clean up this memory still
+  emp::Ptr<emp::Random> random = NULL;
+  emp::Ptr<SymWorld> my_world = NULL;
+  emp::Ptr<Organism> my_host = NULL; 
+  emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
-
-  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, double _intval=0.0,
-   double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
-   double _mut_size = 0.002) : interaction_val(_intval), points(_points), 
-   random(_random), my_world(_world), sym_h_res(_h_res), h_trans(_h_trans), 
-   mut_size(_mut_size) {
-     if ( _intval > 1 || _intval < -1) {
-       throw "Invalid _intval. Must be between -1 and 1";   // NEW
-     };
+  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : random(_random), my_world(_world), my_config(_config), interaction_val(_intval), points(_points) {
+    sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
+    h_trans = my_config->HORIZ_TRANS();
+    mut_rate = my_config->MUTATION_RATE();
+    mut_size = my_config->MUTATION_SIZE();
+    ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
+    if ( _intval > 1 || _intval < -1) {
+       throw "Invalid _intval. Must be between -1 and 1";   
+    };
   }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
+  Symbiont() = default;
 
 
   Symbiont & operator=(const Symbiont &) = default;
@@ -87,7 +89,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Symbiont> sym_baby = new Symbiont(*this);
+        emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
         sym_baby->SetPoints(0);
         if (will_mutate) {
           sym_baby->HorizMutate();
@@ -101,7 +103,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Symbiont> sym_baby = new Symbiont(*this); //constructor that takes parent values                                             
+    emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->mutate();
     mutate(); //mutate parent symbiont

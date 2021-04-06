@@ -1,6 +1,7 @@
 #include "SymWorld.h"
 #include "Symbiont.h"
 #include "Phage.h"
+#include "Host.h"
 
 
 TEST_CASE("PullResources") {
@@ -85,6 +86,7 @@ TEST_CASE( "Vertical Transmission" ) {
 TEST_CASE( "World Capacity" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
+    SymConfigBase config;
     SymWorld w(random);
 
     WHEN( "hosts are added" ) {
@@ -93,9 +95,9 @@ TEST_CASE( "World Capacity" ) {
 
       //inject organisms
       for (size_t i = 0; i < n; i++){
-        Host *new_org;
-        new_org = new Host(0);
-        w.Inject(*new_org);
+        emp::Ptr<Host> new_org;
+        new_org = new Host(&random, &w, &config, 0);
+        w.AddOrgAt(new_org, w.size());
       }
         
       THEN( "the world's size becomes the number of hosts that were added" ) {
@@ -108,32 +110,37 @@ TEST_CASE( "World Capacity" ) {
 
 
 TEST_CASE( "Interaction Patterns" ) {
+  SymConfigBase config;
+
   GIVEN( "a world without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
+    config.VERTICAL_TRANSMISSION(0);
     w.SetVertTrans(0);
-    w.SetMutRate(.002);
-    w.SetSymLimit(500);
-    w.SetHTransBool(true);
-    w.SetHostRepro(400);
+    config.MUTATION_SIZE(0);
+    config.SYM_LIMIT(500);
+    config.HORIZ_TRANS(true);
+    config.HOST_REPRO_RES(400);
+    config.RES_DISTRIBUTE(100);
     w.SetResPerUpdate(100);
-    w.SetSynergy(5);
+    config.SYNERGY(5);
 
     WHEN( "hostile hosts meet generous symbionts" ) {
 
       //inject organisms
-      for (size_t i = 0; i < 1000; i++){
-        Host *new_org;
-        new_org = new Host(random, -.1);
-        w.Inject(*new_org);
-      
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, .1);
+      for (size_t i = 0; i < 10; i++){
+        emp::Ptr<Host> new_org = emp::NewPtr<Host>(random, &w, &config, -0.1);
+        w.AddOrgAt(new_org, w.size());
+      }
+      for (size_t i = 0; i< 10; i++){
+        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, &w, &config, 0.1);
         w.InjectSymbiont(new_sym);
       }
       
       //Simulate
-      for(int i = 0; i < 100; i++)//Burst time + 1
+      for(int i = 0; i < 100; i++) {
         w.Update();
+      }
 
       THEN( "the symbionts all die" ) {
         for(size_t i = 0; i < w.getPop().size(); i++)
@@ -143,17 +150,21 @@ TEST_CASE( "Interaction Patterns" ) {
   }
 
 
+
+
   GIVEN( "a world" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
-    w.SetPopStruct_Mixed(); // added this. still failing test
-    w.SetVertTrans(.7);
-    w.SetMutRate(.002);
-    w.SetSymLimit(500);
-    w.SetHTransBool(true);
-    w.SetHostRepro(10);
-    w.SetResPerUpdate(100);
-    w.SetSynergy(5);
+    w.SetPopStruct_Mixed(); 
+    config.GRID(0);
+    config.VERTICAL_TRANSMISSION(0.7);
+    w.SetVertTrans(0.7);
+    config.MUTATION_SIZE(0.002);
+    config.SYM_LIMIT(500);
+    config.HORIZ_TRANS(true);
+    config.HOST_REPRO_RES(10);
+    config.RES_DISTRIBUTE(100);
+    config.SYNERGY(5);
     w.Resize(100, 200);
     
 
@@ -162,11 +173,11 @@ TEST_CASE( "Interaction Patterns" ) {
       //inject organisms
       for (size_t i = 0; i < 200; i++){
         Host *new_org;
-        new_org = new Host(random, 1);
-        w.Inject(*new_org);
+        new_org = new Host(random, &w, &config, 1);
+        w.AddOrgAt(new_org, w.size());
       }
-      for (size_t i = 0; i < 10000; i++){//Odds of failure should be 1 in 29387493568128248844
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, -1);
+      for (size_t i = 0; i < 10000; i++){
+        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, &config, -1);
         w.InjectSymbiont(new_sym);
       } 
       
@@ -181,3 +192,41 @@ TEST_CASE( "Interaction Patterns" ) {
   }
 }
 
+TEST_CASE( "Hosts injected correctly" ) {
+  GIVEN( "a world" ) {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld w(random);
+
+    WHEN( "host added with interaction value 1" ) {
+      //inject organism
+      emp::Ptr<Host> new_org1;
+      new_org1 = new Host(&random, &w, &config, 1);
+      w.AddOrgAt(new_org1, 0);
+      
+      THEN( "host has interaction value of 1" ) {
+        REQUIRE( w.GetOrg(0).GetIntVal() == 1 );
+      }
+    }
+    WHEN( "host added with interaction value -1" ) {
+      //inject organism
+      emp::Ptr<Host> new_org1;
+      new_org1 = new Host(&random, &w, &config, -1);
+      w.AddOrgAt(new_org1, 0);
+      
+      THEN( "host has interaction value of -1" ) {
+        REQUIRE( w.GetOrg(0).GetIntVal() == -1 );
+      }
+    }
+    WHEN( "host added with interaction value 0" ) {
+      //inject organism
+      emp::Ptr<Host> new_org1;
+      new_org1 = new Host(&random, &w, &config, 0);
+      w.AddOrgAt(new_org1, 0);
+      
+      THEN( "host has interaction value of 0" ) {
+        REQUIRE( w.GetOrg(0).GetIntVal() == 0 );
+      }
+    }
+  }
+}

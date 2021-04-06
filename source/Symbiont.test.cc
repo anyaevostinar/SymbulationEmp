@@ -4,36 +4,38 @@
 TEST_CASE("Symbiont Constructor") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
     
     double int_val = -2;
-    REQUIRE_THROWS(new Symbiont(random, world, int_val) ); 
+    REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) ); 
 
     int_val = -1;
-    Symbiont * s = new Symbiont(random, world, int_val);
+    Symbiont * s = new Symbiont(random, world, &config, int_val);
 
     int_val = 1;
-    Symbiont * s2 = new Symbiont(random, world, int_val);
+    Symbiont * s2 = new Symbiont(random, world, &config, int_val);
 
     int_val = 2;
-    REQUIRE_THROWS(new Symbiont(random, world, int_val) ); 
+    REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) ); 
 }
 
 TEST_CASE("SetIntVal, GetIntVal") {
     
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
     
     double int_val = -1;
-    Symbiont * s = new Symbiont(random, world, int_val);
+    Symbiont * s = new Symbiont(random, world, &config, int_val);
     
     int_val = -2;
     REQUIRE_THROWS( s->SetIntVal(int_val) ); 
 
     int_val = -1;
-    Symbiont * s2 = new Symbiont(random, world, int_val);
+    Symbiont * s2 = new Symbiont(random, world, &config, int_val);
 
     int_val = 1;
     s2->SetIntVal(int_val);
@@ -42,13 +44,13 @@ TEST_CASE("SetIntVal, GetIntVal") {
     REQUIRE(s2->GetIntVal() == orig_int_val);
 
     int_val = -1;
-    Symbiont * s3 = new Symbiont(random, world, int_val);
+    Symbiont * s3 = new Symbiont(random, world, &config, int_val);
 
     int_val = 2;
     REQUIRE_THROWS( s3->SetIntVal(int_val) ) ; 
 
     int_val = 0;
-    Symbiont * s4 = new Symbiont(random, world, int_val);
+    Symbiont * s4 = new Symbiont(random, world, &config, int_val);
 
     int_val = -1;
     s4->SetIntVal(int_val);
@@ -61,11 +63,12 @@ TEST_CASE("SetIntVal, GetIntVal") {
 TEST_CASE("SetPoints, GetPoints") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
     
     double int_val = -1;
-    Symbiont * s = new Symbiont(random, world, int_val);
+    Symbiont * s = new Symbiont(random, world, &config, int_val);
 
     int points = 1;
     s->SetPoints(points);
@@ -89,12 +92,14 @@ TEST_CASE("SetPoints, GetPoints") {
 TEST_CASE("mutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
-        Symbiont * s = new Symbiont(random, world, int_val);
+        config.MUTATION_SIZE(0.002);
+        Symbiont * s = new Symbiont(random, world, &config, int_val);
         
         s->mutate();
 
@@ -109,10 +114,11 @@ TEST_CASE("mutate") {
         double int_val = 1;
         int orig_int_val = 1;
         double points = 0.0;
-        double h_res = 100.0;
-        bool h_trans = true;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(100.0);
+        config.HORIZ_TRANS(true);
+        config.MUTATION_RATE(0);
+        config.MUTATION_SIZE(0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         s->mutate();
 
@@ -127,6 +133,7 @@ TEST_CASE("mutate") {
 TEST_CASE("reproduce") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
 
@@ -135,10 +142,10 @@ TEST_CASE("reproduce") {
         double int_val = 0;
         double parent_orig_int_val = 0;
         double points = 0.0;
-        double h_res = 100.0;
-        bool h_trans = true;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(100.0);
+        config.HORIZ_TRANS(true);
+        config.MUTATION_SIZE(0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         emp::Ptr<Organism> sym_baby = s->reproduce();
 
@@ -162,10 +169,10 @@ TEST_CASE("reproduce") {
         double int_val = 0;
         double parent_orig_int_val = 0;
         double points = 0.0;
-        double h_res = 100.0;
-        bool h_trans = true;
-        double mutation_rate = 0.01;
-        Symbiont * s2 = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(100.0);
+        config.HORIZ_TRANS(true);
+        config.MUTATION_SIZE(0.01);
+        Symbiont * s2 = new Symbiont(random, world, &config, int_val, points);
         
         emp::Ptr<Organism> sym_baby = s2->reproduce();
 
@@ -191,6 +198,7 @@ TEST_CASE("reproduce") {
 TEST_CASE("process") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
     SymWorld w(*random);
     SymWorld * world = &w;
 
@@ -199,10 +207,10 @@ TEST_CASE("process") {
         double int_val = 1;
         double parent_orig_int_val = 1;
         double points = 0.0;
-        double h_res = 140.0;
-        bool h_trans = true;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(140.0);
+        config.HORIZ_TRANS(true);
+        config.MUTATION_SIZE(0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int add_points = 200;
         s->AddPoints(add_points);
@@ -222,10 +230,10 @@ TEST_CASE("process") {
         double int_val = 1;
         double parent_orig_int_val = 1;
         double points = 0.0;
-        double h_res = 200.0;
-        bool h_trans = true;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(200.0);
+        config.HORIZ_TRANS(true);
+        config.MUTATION_SIZE(0.0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int add_points = 50;
         s->AddPoints(add_points);
@@ -245,10 +253,10 @@ TEST_CASE("process") {
         double int_val = 1;
         double parent_orig_int_val = 1;
         double points = 100.0;
-        double h_res = 80.0;
-        bool h_trans = false;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(80.0);
+        config.HORIZ_TRANS(false);
+        config.MUTATION_SIZE(0.0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
         s->process(location);
@@ -264,10 +272,10 @@ TEST_CASE("process") {
         double int_val = 1;
         double parent_orig_int_val = 1;
         double points = 40.0;
-        double h_res = 80.0;
-        bool h_trans = false;
-        double mutation_rate = 0;
-        Symbiont * s = new Symbiont(random, world, int_val, points, h_res, h_trans, mutation_rate);
+        config.SYM_HORIZ_TRANS_RES(80.0);
+        config.HORIZ_TRANS(false);
+        config.MUTATION_SIZE(0.0);
+        Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
         s->process(location);
