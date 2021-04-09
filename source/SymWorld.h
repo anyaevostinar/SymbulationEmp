@@ -45,14 +45,7 @@ public:
   }
   
   void SetVertTrans(double vt) {vertTrans = vt;}
-  //void SetMutRate(double mut) {mut_rate = mut;}
-  //void SetSymLimit(int num) {sym_limit = num;}
-  //int GetSymLimit() {return sym_limit;} //TODO: remove
-  //void SetHTransBool(bool val) {h_trans = val;}
-  //void SetHostRepro(double val) {host_repro = val;}
-  //double GetHostRepro() {return host_repro;} //TODO: remove
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
-  //void SetSynergy(double val) {synergy = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
   void SetTotalRes(int val) {
     if(val<0){

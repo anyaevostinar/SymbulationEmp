@@ -117,7 +117,7 @@ TEST_CASE( "Interaction Patterns" ) {
     SymWorld w(*random);
     config.VERTICAL_TRANSMISSION(0);
     w.SetVertTrans(0);
-    config.MUTATION_RATE(0);
+    config.MUTATION_SIZE(0);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
     config.HOST_REPRO_RES(400);
@@ -138,7 +138,7 @@ TEST_CASE( "Interaction Patterns" ) {
       }
       
       //Simulate
-      for(int i = 0; i < 10; i++) {
+      for(int i = 0; i < 100; i++) {
         w.Update();
       }
 
@@ -159,7 +159,7 @@ TEST_CASE( "Interaction Patterns" ) {
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);
     w.SetVertTrans(0.7);
-    config.MUTATION_RATE(0.002);
+    config.MUTATION_SIZE(0.002);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
     config.HOST_REPRO_RES(10);

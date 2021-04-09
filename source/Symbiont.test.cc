@@ -98,7 +98,7 @@ TEST_CASE("mutate") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
-        config.MUTATION_RATE(0.002);
+        config.MUTATION_SIZE(0.002);
         Symbiont * s = new Symbiont(random, world, &config, int_val);
         
         s->mutate();
@@ -117,6 +117,7 @@ TEST_CASE("mutate") {
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
+        config.MUTATION_SIZE(0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         s->mutate();
@@ -143,7 +144,7 @@ TEST_CASE("reproduce") {
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
-        config.MUTATION_RATE(0);
+        config.MUTATION_SIZE(0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         emp::Ptr<Organism> sym_baby = s->reproduce();
@@ -170,7 +171,7 @@ TEST_CASE("reproduce") {
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
-        config.MUTATION_RATE(0.01);
+        config.MUTATION_SIZE(0.01);
         Symbiont * s2 = new Symbiont(random, world, &config, int_val, points);
         
         emp::Ptr<Organism> sym_baby = s2->reproduce();
@@ -208,7 +209,7 @@ TEST_CASE("process") {
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(140.0);
         config.HORIZ_TRANS(true);
-        config.MUTATION_RATE(0);
+        config.MUTATION_SIZE(0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int add_points = 200;
@@ -231,7 +232,7 @@ TEST_CASE("process") {
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(200.0);
         config.HORIZ_TRANS(true);
-        config.MUTATION_RATE(0.0);
+        config.MUTATION_SIZE(0.0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int add_points = 50;
@@ -254,7 +255,7 @@ TEST_CASE("process") {
         double points = 100.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
-        config.MUTATION_RATE(0.0);
+        config.MUTATION_SIZE(0.0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
@@ -273,7 +274,7 @@ TEST_CASE("process") {
         double points = 40.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
-        config.MUTATION_RATE(0.0);
+        config.MUTATION_SIZE(0.0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
