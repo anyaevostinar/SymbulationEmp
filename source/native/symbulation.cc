@@ -9,8 +9,6 @@ using namespace std;
 
 // This is the main function for the NATIVE version of this project.
 
-
-
 int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;

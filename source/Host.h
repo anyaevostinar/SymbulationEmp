@@ -17,7 +17,6 @@ private:
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
   std::set<int> res_types = {};
   double points = 0;
-  double mut_rate = 0;
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<SymConfigBase> my_config = NULL;
@@ -31,7 +30,6 @@ public:
   double _points = 0.0) : random(_random), my_world(_world), my_config(_config),
   interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
   res_types(_set), points(_points) { 
-    mut_rate = my_config->MUTATION_RATE();
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
@@ -101,7 +99,7 @@ public:
 
 
   void mutate(){
-    interaction_val += random->GetRandNormal(0.0, mut_rate);
+    interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
     if(interaction_val < -1) interaction_val = -1;
     else if (interaction_val > 1) interaction_val = 1;
   }
