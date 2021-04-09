@@ -9,4 +9,5 @@
 #include "../Symbiont.test.cc"
 #include "../Host.test.cc"
 #include "../Phage.test.cc"
+#include "../HostSymbiontInteraction.test.cc"
 #include "../end_to_end.test.cc"

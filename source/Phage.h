@@ -21,11 +21,12 @@ public:
   }
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
+  Phage() = default;
 
   double GetBurstTimer() {return burst_timer;}
   void IncBurstTimer() {
 
-    burst_timer += random->GetRandNormal(1.0, 0.5);
+    burst_timer += random->GetRandNormal(1.0, 1.0);
     
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
@@ -37,7 +38,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = new Phage(*this); //constructor that takes parent values                                             
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
@@ -55,7 +56,8 @@ public:
           my_world->SymDoBirth(repro_syms[r], location);
         }
         my_host->ClearReproSyms();
-        my_world->DoDeath(location);
+        my_host->SetDead();
+        return;
         
       } else {
         IncBurstTimer();

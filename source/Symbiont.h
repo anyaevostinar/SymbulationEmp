@@ -11,15 +11,15 @@
 
 class Symbiont: public Organism {
 protected:  
-  double interaction_val;
-  double points;
+  double interaction_val = 0;
+  double points = 0;
   double sym_h_res = 100;
   bool h_trans = true;
-  double mut_rate = 0.002;
-  emp::Ptr<emp::Random> random;
-  emp::Ptr<SymWorld> my_world;
-  emp::Ptr<Organism> my_host = new Organism(); 
-  emp::Ptr<SymConfigBase> my_config;
+  double mut_rate = 0.0;
+  emp::Ptr<emp::Random> random = NULL;
+  emp::Ptr<SymWorld> my_world = NULL;
+  emp::Ptr<Organism> my_host = NULL; 
+  emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : random(_random), my_world(_world), my_config(_config), interaction_val(_intval), points(_points) {
@@ -32,6 +32,7 @@ public:
   }
   Symbiont(const Symbiont &) = default;
   Symbiont(Symbiont &&) = default;
+  Symbiont() = default;
 
 
   Symbiont & operator=(const Symbiont &) = default;
@@ -72,7 +73,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Symbiont> sym_baby = new Symbiont(*this);
+        emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
         sym_baby->SetPoints(0);
         sym_baby->mutate();
         mutate();
@@ -84,7 +85,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Symbiont> sym_baby = new Symbiont(*this); //constructor that takes parent values                                             
+    emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->mutate();
     mutate(); //mutate parent symbiont

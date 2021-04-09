@@ -4,7 +4,7 @@
 
 TEST_CASE( "Host-Symbiont interactions") {
   SymConfigBase config;
-  emp::Ptr<SymConfigBase> config_ptr = &config;
+  config.SYM_LIMIT(3);
   
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -12,7 +12,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
-    Host h(random, host_interaction_val, {}, {}, std::set<int>(), host_points);
+    Host h(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
     REQUIRE( h.GetIntVal() == .5 );
     REQUIRE( h.GetSymbionts().size() == 0 );
@@ -21,7 +21,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetPoints() == host_points );
   
     WHEN( "resources are distributed" ) {
-      h.DistribResources(host_resource, 5);
+      h.DistribResources(host_resource);
 
       THEN( "the host receives all resources" ) {
         double host_points_theor = host_resource - (host_resource * host_interaction_val) + host_points;
@@ -30,9 +30,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat generous symbiont with no resource type and with 203 points is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr,  .6, 203);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(100, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config,  .6, 203);
+      h.AddSymbiont(s);
+      h.DistribResources(100);
 
       THEN( "the host gains that symbiont" ) {
         REQUIRE( h.GetSymbionts().size() == 1 );
@@ -55,20 +55,10 @@ TEST_CASE( "Host-Symbiont interactions") {
       }
     }
 
-    WHEN( "synergy is higher" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, .6, 203);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(100, 5.5);
-
-      THEN( "bonus larger is applied to returned resources" ) {
-        REQUIRE( (h.GetPoints()-17)+(h.GetSymbionts()[0]->GetPoints()-203) - 100 == Approx(100*.5*.6*(5.5-1)) );
-      }
-    }
-
     WHEN( "a somewhat hostile symbiont with no resource type and with 101 points is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.65, 101);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(113, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.65, 101);
+      h.AddSymbiont(s);
+      h.DistribResources(113);
 
 
       THEN( "the host gains that symbiont" ) {
@@ -90,22 +80,22 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "more symbionts are added than the limit" ) {
-      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, config_ptr, .12, 101);
-      h.AddSymbiont(s1, 3);
-      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, config_ptr, .12, 102);
-      h.AddSymbiont(s2, 3);
-      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, config_ptr, .12, 103);
-      h.AddSymbiont(s3, 3);
-      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, config_ptr, .12, 104);
-      h.AddSymbiont(s4, 3);
-      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, config_ptr, .12, 105);
-      h.AddSymbiont(s5, 3);
-      emp::Ptr<Symbiont> s6 = new Symbiont(random, &w, config_ptr, .12, 106);
-      h.AddSymbiont(s6, 3);
-      emp::Ptr<Symbiont> s7 = new Symbiont(random, &w, config_ptr, .12, 107);
-      h.AddSymbiont(s7, 3);
-      emp::Ptr<Symbiont> s8 = new Symbiont(random, &w, config_ptr, .12, 108);
-      h.AddSymbiont(s8, 3);
+      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, &config, .12, 101);
+      h.AddSymbiont(s1);
+      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, &config, .12, 102);
+      h.AddSymbiont(s2);
+      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, &config, .12, 103);
+      h.AddSymbiont(s3);
+      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, &config, .12, 104);
+      h.AddSymbiont(s4);
+      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, &config, .12, 105);
+      h.AddSymbiont(s5);
+      emp::Ptr<Symbiont> s6 = new Symbiont(random, &w, &config, .12, 106);
+      h.AddSymbiont(s6);
+      emp::Ptr<Symbiont> s7 = new Symbiont(random, &w, &config, .12, 107);
+      h.AddSymbiont(s7);
+      emp::Ptr<Symbiont> s8 = new Symbiont(random, &w, &config, .12, 108);
+      h.AddSymbiont(s8);
       
 
       THEN( "the host gains as many symbionts as the limit" ) {
@@ -120,9 +110,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a repro symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.7, 37);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.7, 37);
       h.AddReproSym(s);
-      h.DistribResources(13, 5);
+      h.DistribResources(13);
 
       THEN( "the host gains that repro symbiont" ) {
         REQUIRE( h.GetReproSymbionts().size() == 1 );
@@ -141,7 +131,7 @@ TEST_CASE( "Host-Symbiont interactions") {
   GIVEN( "an empty slightly defensive host" ) {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymWorld w(*random);
-    Host h(random, -.2);
+    Host h(random, &w, &config, -.2);
 
     REQUIRE( h.GetIntVal() == -.2 );
     REQUIRE( h.GetSymbionts().size() == 0 );
@@ -150,7 +140,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetPoints() == 0 );
   
     WHEN( "resources are distributed" ) {
-      h.DistribResources(1, 5);
+      h.DistribResources(1);
 
       THEN( "the host does not receive all resources" ) {
         REQUIRE( h.GetPoints() < 1 );
@@ -159,9 +149,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat generous symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, .6);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(1, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, .6);
+      h.AddSymbiont(s);
+      h.DistribResources(1);
 
       THEN( "the host receives some resources" ) {
         REQUIRE( h.GetPoints() == Approx(.8) );
@@ -175,9 +165,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a very slightly hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.1);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(1, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.1);
+      h.AddSymbiont(s);
+      h.DistribResources(1);
 
       THEN( "the host receives some resources" ) {
         REQUIRE( h.GetPoints() == Approx(.8) );
@@ -191,9 +181,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a somewhat hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -.5);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(1, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -.5);
+      h.AddSymbiont(s);
+      h.DistribResources(1);
 
       THEN( "the host receives fewer resources" ) {
         REQUIRE( h.GetPoints() == Approx(.8*.7) );
@@ -207,9 +197,9 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
 
     WHEN( "a fully hostile symbiont is added and resources are distributed" ) {
-      emp::Ptr<Symbiont> s = new Symbiont(random, &w, config_ptr, -1);
-      h.AddSymbiont(s, 3);
-      h.DistribResources(1, 5);
+      emp::Ptr<Symbiont> s = new Symbiont(random, &w, &config, -1);
+      h.AddSymbiont(s);
+      h.DistribResources(1);
 
       THEN( "the host receives very few resources" ) {
         REQUIRE( h.GetPoints() == Approx(.8*.2) );
@@ -225,17 +215,17 @@ TEST_CASE( "Host-Symbiont interactions") {
 
 
     WHEN( "many symbionts are added" ) {
-      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, config_ptr, 1);
-      h.AddSymbiont(s1, 3);
-      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, config_ptr, -.15);
-      h.AddSymbiont(s2, 3);
-      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, config_ptr, -.73);
-      h.AddSymbiont(s3, 3);
-      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, config_ptr, .6);
-      h.AddSymbiont(s4, 3);
-      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, config_ptr, -1);
-      h.AddSymbiont(s5, 3);
-      h.DistribResources(1, 5);
+      emp::Ptr<Symbiont> s1 = new Symbiont(random, &w, &config, 1);
+      h.AddSymbiont(s1);
+      emp::Ptr<Symbiont> s2 = new Symbiont(random, &w, &config, -.15);
+      h.AddSymbiont(s2);
+      emp::Ptr<Symbiont> s3 = new Symbiont(random, &w, &config, -.73);
+      h.AddSymbiont(s3);
+      emp::Ptr<Symbiont> s4 = new Symbiont(random, &w, &config, .6);
+      h.AddSymbiont(s4);
+      emp::Ptr<Symbiont> s5 = new Symbiont(random, &w, &config, -1);
+      h.AddSymbiont(s5);
+      h.DistribResources(1);
 
       THEN( "the host receives the right amount of resources" ) {
         REQUIRE( h.GetPoints() == Approx(.8*(1+1+.47)/3) );

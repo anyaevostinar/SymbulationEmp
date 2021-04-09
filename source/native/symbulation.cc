@@ -52,11 +52,6 @@ int symbulation_main(int argc, char * argv[])
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 // settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
-  world.SetMutRate(config.MUTATION_RATE());
-  world.SetSymLimit(config.SYM_LIMIT());
-  world.SetHTransBool(config.HORIZ_TRANS());
-  world.SetHostRepro(config.HOST_REPRO_RES());
-  world.SetSynergy(config.SYNERGY());
   world.SetTotalRes(config.LIMITED_RES_TOTAL());
 
   world.SetResPerUpdate(config.RES_DISTRIBUTE());
@@ -74,12 +69,11 @@ int symbulation_main(int argc, char * argv[])
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
 
   
-
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
-    if (random_phen_host) new_org = new Host(&random, random.GetDouble(-1, 1));
-    else new_org = new Host(&random, config.HOST_INT());
+    if (random_phen_host) new_org.New(&random, &world, &config, random.GetDouble(-1, 1));
+    else new_org.New(&random, &world, &config, config.HOST_INT());
     //Currently hacked because there isn't an AddOrg function, but there probably should be
     if(config.GRID()) {
       world.AddOrgAt(new_org, emp::WorldPosition(world.GetRandomCellID()));
@@ -97,31 +91,25 @@ int symbulation_main(int argc, char * argv[])
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
 
-      double sym_int;
-        if (random_phen_sym)
-        {
-            sym_int = random.GetDouble(-1,1);
-        }
-        else
-        {
-          sym_int = config.SYM_INT();
-        }
-
+      double sym_int = 0;
+      if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
+      else {sym_int = config.SYM_INT();}
 
       if(config.LYSIS() == 1) { 
-        emp::Ptr<Phage> new_sym = new Phage(&random, &world, &config, 
+        emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&random, &world, &config, 
            sym_int, 0);
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
         }
         world.InjectSymbiont(new_sym);
+        
       } else {
-        emp::Ptr<Symbiont> new_sym = new Symbiont(&random, &world, &config, 
+        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, &world, &config, 
           sym_int, 0); 
         world.InjectSymbiont(new_sym);
       }
       
-    }
+  }
 
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
