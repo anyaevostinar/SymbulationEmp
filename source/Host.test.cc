@@ -21,6 +21,13 @@ TEST_CASE("Host SetIntVal, GetIntVal") {
     h2->SetIntVal(int_val);
     expected_int_val = -0.7;
     REQUIRE(h2->GetIntVal() == expected_int_val);
+
+    int_val = -1.3;
+    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+
+    int_val = 1.8;
+    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+    
 }
 
 TEST_CASE("SetPoints, AddPoints, GetPoints") {
@@ -131,25 +138,24 @@ TEST_CASE("DistributeResources") {
     }
 
 
-    WHEN("There are no symbionts and interaction value is greater than 1") {
+    WHEN("There are no symbionts and interaction value is 0") {
 
-        double int_val = 1.3; // should not be greater than 1 
-        double resources = 80;
+        double int_val = 0;
+        double resources = 10;
         double orig_points = 0;
         config.SYNERGY(5);
 
         Host * h = new Host(random, &w, &config, int_val);
         h->DistribResources(resources);
         
-        THEN("Points decrease") {
-            double expected_points = resources - (resources * int_val); // -24
+        THEN("Resources are added to points") {
+            double expected_points = orig_points + resources; // 0
             double points = h->GetPoints();
             REQUIRE(points == expected_points);
-            REQUIRE(points < orig_points);
         }
     }
 
-    WHEN("There are no symbionts and interaction value is less than 0") {
+    WHEN("There are no symbionts and interaction value is between -1 and 0") {
 
         double int_val = -0.4;
         double resources = 30;
@@ -161,8 +167,9 @@ TEST_CASE("DistributeResources") {
         h->DistribResources(resources);
         
         THEN("Points increase") {
-            // add in host_defense 
-            double expected_points = resources + (orig_points + (resources * int_val)); // 45
+            double host_defense =  -1.0 * int_val * resources; // the resources spent on defense
+            double add_points  = resources - host_defense;
+            double expected_points = orig_points + add_points;
             double points = h->GetPoints();
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);

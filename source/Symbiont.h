@@ -31,7 +31,7 @@ public:
     mut_size = my_config->MUTATION_SIZE();
     ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
     if ( _intval > 1 || _intval < -1) {
-       throw "Invalid _intval. Must be between -1 and 1";   
+       throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
   }
   Symbiont(const Symbiont &) = default;
@@ -50,7 +50,7 @@ public:
 
   void SetIntVal(double _in) { 
     if ( _in > 1 || _in < -1) {
-       throw "Invalid _in. Must be between -1 and 1";   // NEW
+       throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
      }
      else {
         interaction_val = _in;
