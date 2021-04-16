@@ -44,6 +44,7 @@ public:
 
   double GetIntVal() const {return interaction_val;}
   double GetPoints() {return points;}
+  emp::Ptr<Organism> GetHost() {return my_host;}
   //  std::set<int> GetResTypes() const {return res_types;}
 
 
