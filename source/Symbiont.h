@@ -17,7 +17,9 @@ protected:
   bool h_trans = true;
   double mut_size = 0.002;
   double ht_mut_size = 0.002;
-  double mut_rate = 0.1;
+  double mut_rate = 0;
+  double ht_mut_rate = 0;
+
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<Organism> my_host = NULL; 
@@ -28,8 +30,17 @@ public:
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
+    if(my_config->HORIZ_MUTATION_RATE() < 0){
+      ht_mut_rate = mut_rate;
+    } else {
+      ht_mut_rate = my_config->HORIZ_MUTATION_RATE();
+    }
     mut_size = my_config->MUTATION_SIZE();
-    ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
+    if(my_config->HORIZ_MUTATION_SIZE() < 0) {
+      ht_mut_size = mut_size;
+    } else {
+      ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
+    }
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
@@ -70,6 +81,11 @@ public:
 
   }
 
+  bool HorizWillMutate() {
+    bool result = random->GetDouble(0.0, 1.0) <= ht_mut_rate;
+    return result;
+  }
+
   //TODO: change everything to camel case
   void mutate(){
     interaction_val += random->GetRandNormal(0.0, mut_size);
@@ -84,10 +100,10 @@ public:
   }
 
   void process(size_t location) {
-    bool will_mutate = WillMutate();
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
-        // symbiont reproduces independently (horizontal transmission) if it has >= 100 resources (by default)
+        bool will_mutate = HorizWillMutate();
+        // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
