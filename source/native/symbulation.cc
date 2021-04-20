@@ -9,37 +9,15 @@ using namespace std;
 
 // This is the main function for the NATIVE version of this project.
 
-EMP_BUILD_CONFIG(SymConfigBase,
-    VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
-    VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
-    VALUE(MUTATION_RATE, double, 0.002, "Standard deviation of the distribution to mutate by"),
-    VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
-    VALUE(VERTICAL_TRANSMISSION, double, 1, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
-    VALUE(HOST_INT, double, 0, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
-    VALUE(SYM_INT, double, 0, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-    VALUE(GRID_X, int, 5, "Width of the world, just multiplied by the height to get total size"),
-    VALUE(GRID_Y, int, 5, "Height of world, just multiplied by width to get total size"),
-    VALUE(POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
-    VALUE(UPDATES, int, 1, "Number of updates to run before quitting"),
-    VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
-    VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
-    VALUE(HORIZ_TRANS, bool, 0, "Should non-lytic horizontal transmission occur? 0 for no, 1 for yes"),
-    VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
-    VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
-    VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
-    VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
-    VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
-    VALUE(START_MOI, int, 1, "Ratio of symbionts to hosts that experiment should start with"),
-    VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
-    VALUE(FILE_PATH, string, "", "Output file path"),
-    VALUE(FILE_NAME, string, "_data_", "Root output file name")
-)
-
 int symbulation_main(int argc, char * argv[])
 {    
   SymConfigBase config;
-    
-  config.Read("SymSettings.cfg");
+
+  bool success = config.Read("SymSettings.cfg");
+  if(!success) {
+    std::cout << "You didn't have a SymSettings.cfg, so one is being written, please try again" << std::endl;
+    config.Write("SymSettings.cfg");
+  }
 
   auto args = emp::cl::ArgManager(argc, argv);
   if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
@@ -72,13 +50,9 @@ int symbulation_main(int argc, char * argv[])
   else world.SetPopStruct_Grid(config.GRID_X(), config.GRID_Y());
 // settings
   world.SetVertTrans(config.VERTICAL_TRANSMISSION());
-  world.SetMutRate(config.MUTATION_RATE());
-  world.SetSymLimit(config.SYM_LIMIT());
-  world.SetHTransBool(config.HORIZ_TRANS());
-  world.SetHostRepro(config.HOST_REPRO_RES());
-  world.SetSynergy(config.SYNERGY());
+  world.SetTotalRes(config.LIMITED_RES_TOTAL());
 
-  world.SetResPerUpdate(100);
+  world.SetResPerUpdate(config.RES_DISTRIBUTE());
 
   int TIMING_REPEAT = config.DATA_INT();
   const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -93,12 +67,11 @@ int symbulation_main(int argc, char * argv[])
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
 
   
-
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
-    if (random_phen_host) new_org = new Host(&random, random.GetDouble(-1, 1));
-    else new_org = new Host(&random, config.HOST_INT());
+    if (random_phen_host) new_org.New(&random, &world, &config, random.GetDouble(-1, 1));
+    else new_org.New(&random, &world, &config, config.HOST_INT());
     //Currently hacked because there isn't an AddOrg function, but there probably should be
     if(config.GRID()) {
       world.AddOrgAt(new_org, emp::WorldPosition(world.GetRandomCellID()));
@@ -115,27 +88,26 @@ int symbulation_main(int argc, char * argv[])
   int total_syms = POP_SIZE * start_moi;
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
+
+      double sym_int = 0;
+      if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
+      else {sym_int = config.SYM_INT();}
+
       if(config.LYSIS() == 1) { 
-        emp::Ptr<Phage> new_sym = new Phage(&random, &world, 
-           config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(),
-           config.HORIZ_TRANS(), config.MUTATION_RATE(), config.BURST_TIME(),
-           config.LYSIS(), config.SYM_LYSIS_RES());
-        if(random_phen_sym){
-          new_sym->SetIntVal(random.GetDouble(-1, 1));
-        }
+        emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&random, &world, &config, 
+           sym_int, 0);
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
         }
         world.InjectSymbiont(new_sym);
+        
       } else {
-        emp::Ptr<Symbiont> new_sym = new Symbiont(&random, &world, 
-          config.SYM_INT(), 0, config.SYM_HORIZ_TRANS_RES(), 
-          config.HORIZ_TRANS(), config.MUTATION_RATE()); 
-        if(random_phen_sym) new_sym->SetIntVal(random.GetDouble(-1, 1));
+        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, &world, &config, 
+          sym_int, 0); 
         world.InjectSymbiont(new_sym);
       }
       
-    }
+  }
 
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {

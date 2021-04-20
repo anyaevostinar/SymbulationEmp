@@ -14,18 +14,19 @@ protected:
 
 public:
 
-  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, double _intval=0.0,
-    double _points = 0.0, double _h_res = 100.0, bool _h_trans = true, 
-    double _mut_rate = 0.002, double _bt = 60, bool _lysis = true, double _l_res = 15) 
-    : Symbiont(_random, _world, _intval, _points, _h_res, _h_trans, 
-    _mut_rate), burst_time(_bt), sym_lysis_res(_l_res) {}
+  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
+    burst_time = my_config->BURST_TIME();
+    sym_lysis_res = my_config->SYM_LYSIS_RES();
+    lysis = my_config->LYSIS();
+  }
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
+  Phage() = default;
 
   double GetBurstTimer() {return burst_timer;}
   void IncBurstTimer() {
 
-    burst_timer += random->GetRandNormal(1.0, 0.5);
+    burst_timer += random->GetRandNormal(1.0, 1.0);
     
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
@@ -34,6 +35,15 @@ public:
   double GetIntVal() const {
     return -1; //non-lysogenized lytic phage shuts down host reproduction if possible
     
+  }
+
+  emp::Ptr<Organism> reproduce() {
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
+    sym_baby->SetPoints(0);
+    sym_baby->SetBurstTimer(0);
+    sym_baby->mutate();
+    mutate(); //mutate parent symbiont
+    return sym_baby;
   }
 
   void process(size_t location) {
@@ -45,7 +55,9 @@ public:
         for(size_t r=0; r<repro_syms.size(); r++) {
           my_world->SymDoBirth(repro_syms[r], location);
         }
-        my_world->DoDeath(location);
+        my_host->ClearReproSyms();
+        my_host->SetDead();
+        return;
         
       } else {
         IncBurstTimer();
@@ -54,13 +66,10 @@ public:
            infinite loop, please change" << std::endl;
           std::exit(1);
         }
-        while(Symbiont::GetPoints() >= sym_lysis_res) {
-          emp::Ptr<Organism> sym_baby = new Phage(*this);
-          sym_baby->SetPoints(0);
-          sym_baby->mutate();
-          Symbiont::mutate(); // TODO: test removing this since it's weird
+        while(GetPoints() >= sym_lysis_res) {
+          emp::Ptr<Organism> sym_baby = reproduce();
           my_host->AddReproSym(sym_baby);
-          Symbiont::SetPoints(GetPoints() - sym_lysis_res);
+          SetPoints(GetPoints() - sym_lysis_res);
         }
       }
     }
