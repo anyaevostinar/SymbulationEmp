@@ -1,6 +1,6 @@
 #include <iostream>
 #include "../SymWorld.h"
-#include "../../Empirical/source/config/ArgManager.h"
+#include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include "../SymAnimate.h"
 #include "../SymConfig.h"
 

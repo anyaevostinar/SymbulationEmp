@@ -4,7 +4,7 @@
 /*
 Configuration for parameters. Refactored to make code more readable and editable
 */
-#include "../../Empirical/source/config/ArgManager.h"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 using namespace std;
 
 EMP_BUILD_CONFIG(SymConfigBase,
