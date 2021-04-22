@@ -103,7 +103,7 @@ TEST_CASE("mutate") {
         
         s->mutate();
 
-        double int_val_post_mutation = -0.0007962661;
+        double int_val_post_mutation = 0.0010984306;
         THEN("Mutation occurs and interaction value changes") {
             REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
         }
@@ -178,8 +178,8 @@ TEST_CASE("reproduce") {
 
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
-            double sym_baby_int_val = -0.002698581;
-            double parent_int_val = -0.0083202466;
+            double sym_baby_int_val = 0.0057803391;
+            double parent_int_val = 0.0139135536;
             REQUIRE( sym_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE( sym_baby->GetIntVal() == Approx(sym_baby_int_val));
             REQUIRE( s2->GetIntVal() == Approx(parent_int_val));

@@ -96,20 +96,21 @@ TEST_CASE("HasSym") {
 }
 
 TEST_CASE("Host Mutate") {
+    //TODO: put in tests for mutation size and mutation rate separately
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
     SymWorld w(*random);
-    double int_val = 1;
+    double int_val = 0;
 
     Host * h = new Host(random, &w, &config, int_val);
     h->mutate();
-    double expected_int_val = 0.9994602838;
+    double expected_int_val = 0.0011560678;
     REQUIRE(h->GetIntVal() == Approx(expected_int_val));
 
     int_val = -0.31;
     h->SetIntVal(int_val);
     h->mutate();
-    expected_int_val = -0.3116640493;
+    expected_int_val = -0.3072172893;
     REQUIRE(h->GetIntVal() == Approx(expected_int_val));
 
 }

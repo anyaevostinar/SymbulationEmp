@@ -75,43 +75,36 @@ public:
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
-  bool WillMutate() {
-    bool result = random->GetDouble(0.0, 1.0) <= mut_rate;
-    return result;
 
-  }
-
-  bool HorizWillMutate() {
-    bool result = random->GetDouble(0.0, 1.0) <= ht_mut_rate;
-    return result;
-  }
 
   //TODO: change everything to camel case
   void mutate(){
-    interaction_val += random->GetRandNormal(0.0, mut_size);
-    if(interaction_val < -1) interaction_val = -1;
-    else if (interaction_val > 1) interaction_val = 1;
+    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
+      interaction_val += random->GetRandNormal(0.0, mut_size);
+      if(interaction_val < -1) interaction_val = -1;
+      else if (interaction_val > 1) interaction_val = 1;
+    }
   }
 
   void HorizMutate(){
-    interaction_val += random->GetRandNormal(0.0, ht_mut_size);
-    if(interaction_val < -1) interaction_val = -1;
-    else if (interaction_val > 1) interaction_val = 1;
+    if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
+      interaction_val += random->GetRandNormal(0.0, ht_mut_size);
+      if(interaction_val < -1) interaction_val = -1;
+      else if (interaction_val > 1) interaction_val = 1;
+    }
   }
 
   void process(size_t location) {
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
-        bool will_mutate = HorizWillMutate();
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
         sym_baby->SetPoints(0);
-        if (will_mutate) {
-          sym_baby->HorizMutate();
-          HorizMutate();
-        }
+        sym_baby->HorizMutate();
+        HorizMutate();
+        
         
         my_world->SymDoBirth(sym_baby, location);
 

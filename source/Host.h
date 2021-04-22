@@ -99,9 +99,11 @@ public:
 
 
   void mutate(){
-    interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
-    if(interaction_val < -1) interaction_val = -1;
-    else if (interaction_val > 1) interaction_val = 1;
+    if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
+      interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
+      if(interaction_val < -1) interaction_val = -1;
+      else if (interaction_val > 1) interaction_val = 1;
+    }
   }
 
   void DistribResources(double resources) {

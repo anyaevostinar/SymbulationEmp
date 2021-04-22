@@ -43,9 +43,6 @@ class Organism {
   virtual void HorizMutate() {
     std::cout << "HorizMutate called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual bool HorizWillMutate() {
-    std::cout << "HorizWillMutate called from Organism" << std::endl;
-    throw "Organism method called!";}
   virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
