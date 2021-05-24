@@ -240,10 +240,34 @@ TEST_CASE("Host DistribResources") {
             }
         }
     }
+    WHEN("Host interaction value > 0 and Symbiont interaction value < 0, single symbiont") {
+        double host_int_val = 0.1;
+        double sym_int_val = -0.1;
+        double host_orig_points = 0;
+        double sym_orig_points = 0;
 
-    WHEN("Host interaction value > 0 and Symbiont interaction value < 0") {
-         double host_int_val = 0.6;
-        double sym_int_val = -0.2;
+        Host * h = new Host(random, &w, &config, host_int_val);
+        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
+        h->AddSymbiont(s);
+
+        int resources = 100;
+        h->DistribResources(resources);
+
+        int host_donation = 10; //host_int_val * resources
+        int host_portion = 90;  //remaining amount
+        int sym_steals = 9; //host_portion * sym_int_val * -1
+        int sym_portion = 19; //sym_steals + host_donation
+        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
+
+        THEN("Symbionts points and Host points increase the correct amounts") {
+            REQUIRE(s->GetPoints() == sym_orig_points+sym_portion);
+            REQUIRE(h->GetPoints() == host_orig_points+host_portion);
+        }
+
+    }
+    WHEN("Host interaction value > 0 and Symbiont interaction value < 0, multiple symbionts") {
+        double host_int_val = 0.1;
+        double sym_int_val = -0.1;
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
@@ -261,30 +285,26 @@ TEST_CASE("Host DistribResources") {
 
 
         int num_syms = 3;
-        double sym_piece = resources / num_syms;
-        double host_donation = 0;
-        double host_portion = 0;
-        double sym_portion = 0;
-        double host_points = 0;
+        double sym_piece = 40; //resources / num_syms
+
+        int host_donation = 4; //host_int_val * sym_piece
+        double host_portion = 36;  //remaining amount
+        double sym_steals = 3.6; //host_portion * sym_int_val * -1
+        double sym_portion = 7.6; //sym_steals + host_donation
+        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
+
+        double host_final_portion = host_portion * num_syms;
         
 
        THEN("Symbionts points and Host points increase") {
            for( emp::Ptr<Organism> symbiont : syms) {
-               host_donation = host_int_val * sym_piece; 
-               host_portion = sym_piece - host_donation; 
-               sym_piece -= host_donation; 
-                
-               double sym_steals = -1.0 * (sym_piece * sym_int_val); 
-               host_portion -= sym_steals; 
-               sym_portion = host_donation + sym_steals; 
+
 
                REQUIRE(symbiont->GetPoints() == sym_portion); 
                REQUIRE(symbiont->GetPoints() > sym_orig_points);
-
-               host_points += host_portion; // portion gets added to points in each iteration 
             }
 
-            REQUIRE(h->GetPoints() == host_points); 
+            REQUIRE(h->GetPoints() == host_final_portion); 
             REQUIRE(h->GetPoints() > host_orig_points);
         }
 

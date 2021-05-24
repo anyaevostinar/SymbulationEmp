@@ -172,9 +172,8 @@ public:
       } else if (hostIntVal > 0 && symIntVal < 0) {
         hostDonation = hostIntVal * sym_piece;
         hostPortion = sym_piece - hostDonation;
-        sym_piece = sym_piece - hostDonation;
 
-        double symSteals = -1.0 * (sym_piece * symIntVal);
+        double symSteals = -1.0 * (hostPortion * symIntVal);
         hostPortion = hostPortion - symSteals;
         symPortion = hostDonation + symSteals;
 
