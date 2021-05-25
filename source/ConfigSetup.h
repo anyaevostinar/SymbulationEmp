@@ -1,4 +1,6 @@
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#ifndef CONFIG_H
+#define CONFIG_H
+#include "../../Empirical/include/emp/config/config.hpp"
 
 EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
@@ -30,3 +32,4 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")
 )
+#endif

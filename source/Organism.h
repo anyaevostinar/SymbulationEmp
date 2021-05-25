@@ -4,7 +4,7 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
-#include "native/config_setup.hpp"
+#include "ConfigSetup.h"
 
 class Organism {
 

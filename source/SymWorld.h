@@ -14,6 +14,7 @@ private:
   double vertTrans = 0; 
   int total_res = -1;
   bool limited_res = false;
+  
 
   double resources_per_host_per_update = 0;
   

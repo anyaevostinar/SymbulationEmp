@@ -53,7 +53,8 @@ public:
   Symbiont & operator=(const Symbiont &) = default;
   Symbiont & operator=(Symbiont &&) = default;
 
-  double GetIntVal() const {return interaction_val;}
+  double GetIntVal() const {
+    return interaction_val;}
   double GetPoints() {return points;}
   emp::Ptr<Organism> GetHost() {return my_host;}
   //  std::set<int> GetResTypes() const {return res_types;}
@@ -74,7 +75,6 @@ public:
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
-
 
 
   //TODO: change everything to camel case

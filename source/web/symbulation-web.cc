@@ -2,7 +2,7 @@
 #include "../SymWorld.h"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include "../SymAnimate.h"
-#include "../SymConfig.h"
+//#include "../SymConfig.h"
 
 using namespace std;
 
