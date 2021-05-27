@@ -1,4 +1,4 @@
-![Symbulation Logo](https://github.com/anyaevostinar/SymbulationEmp/blob/master/SymbulationLogo.png "Symbulation")
+![Symbulation Logo](https://github.com/anyaevostinar/SymbulationEmp/blob/main/SymbulationLogo.png "Symbulation")
 
 This is a software model of symbiosis which allows for evolution of parasitism and mutualism. 
 
