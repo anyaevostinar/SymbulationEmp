@@ -6,6 +6,7 @@
 #include "sanity_check.test.cc"
 #include "../SymWorld.test.cc"
 #include "../Symbiont.test.cc"
+#include "../EfficientSymbiont.test.cc"
 #include "../Host.test.cc"
 #include "../Phage.test.cc"
 #include "../HostSymbiontInteraction.test.cc"

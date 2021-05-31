@@ -2,8 +2,10 @@
 #define CONFIG_H
 #include "../../Empirical/include/emp/config/config.hpp"
 
+//TODO: use GROUPs
 EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
+    VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)"),
     VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
     VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
@@ -27,8 +29,9 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
     VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
-    VALUE(START_MOI, int, 1, "Ratio of symbionts to hosts that experiment should start with"),
+    VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
+    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")
 )

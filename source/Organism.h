@@ -53,6 +53,12 @@ class Organism {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
 
+  //EfficientSymbiont functions
+  virtual double GetEfficiency() {
+    std::cout << "GetEfficiency called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+
   //Host functions
 
   virtual emp::vector<emp::Ptr<Organism>>& GetSymbionts() {

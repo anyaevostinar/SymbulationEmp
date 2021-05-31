@@ -33,8 +33,8 @@ private:
   double horiz_rate = config.HORIZ_MUTATION_RATE(0.1);
   int synergy = config.SYNERGY(2);
 
-  int side_x = config.GRID_X(50); 
-  int side_y = config.GRID_Y(50); 
+  int side_x = config.GRID_X(100); 
+  int side_y = config.GRID_Y(100); 
   size_t POP_SIZE = config.GRID_X() * config.GRID_Y(); 
   size_t GENS = 10000;
   const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);

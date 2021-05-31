@@ -179,10 +179,11 @@ TEST_CASE("reproduce") {
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
             double sym_baby_int_val = 0.0057803391;
-            double parent_int_val = 0.0139135536;
+            //double parent_int_val = 0.0139135536;
             REQUIRE( sym_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE( sym_baby->GetIntVal() == Approx(sym_baby_int_val));
-            REQUIRE( s2->GetIntVal() == Approx(parent_int_val));
+            //REQUIRE( s2->GetIntVal() == Approx(parent_int_val));
+            //The above is for when parents mutate when they reproduce only
         }
 
         THEN("Offspring's points are zero") {
