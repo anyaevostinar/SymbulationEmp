@@ -51,6 +51,9 @@ int symbulation_main(int argc, char * argv[])
   }
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  if (config.EFFICIENT_SYM() == 1) {
+    world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  }
 
   worldSetup(&world, &config);
   int numupdates = config.UPDATES();
