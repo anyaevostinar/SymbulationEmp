@@ -49,7 +49,7 @@ public:
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->mutate();
-    mutate(); //mutate parent symbiont
+    //mutate(); //mutate parent symbiont
     return sym_baby;
   }
 
@@ -62,8 +62,7 @@ public:
         emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(*this);
         sym_baby->SetPoints(0);
         sym_baby->HorizMutate();
-        HorizMutate();
-        
+        //HorizMutate();
         
         my_world->SymDoBirth(sym_baby, location);
 

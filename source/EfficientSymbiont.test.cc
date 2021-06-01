@@ -139,10 +139,8 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
             double sym_baby_efficiency = 0.5139135536;
-            double parent_efficiency = 0.4970546827;
             REQUIRE( sym_baby->GetEfficiency() != parent_orig_efficiency);
             REQUIRE( sym_baby->GetEfficiency() == Approx(sym_baby_efficiency));
-            REQUIRE( s2->GetEfficiency() == Approx(parent_efficiency));
         }
 
         THEN("Offspring's points are zero") {
