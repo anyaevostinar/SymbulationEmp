@@ -37,7 +37,8 @@ public:
 
   void HorizMutate() {
       Symbiont::HorizMutate();
-      if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
+      //
+      if (random->GetDouble(0.0, 1.0) <= my_config->EFFICIENCY_MUT_RATE()) {
         efficiency += random->GetRandNormal(0.0, ht_mut_size);
         if(efficiency < 0) efficiency = 0;
         else if (efficiency > 1) efficiency = 1;

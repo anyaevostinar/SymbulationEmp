@@ -152,3 +152,29 @@ TEST_CASE("EfficientSymbiont reproduce") {
     }
  
 }
+
+TEST_CASE("EfficientSymbiont HorizMutate") {
+    emp::Ptr<emp::Random> random = new emp::Random(10);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    double int_val = 0;
+    double efficiency = 0.5;
+    double points = 0;
+    config.MUTATION_SIZE(0.002);
+
+    WHEN("EfficiencyMutation rate is not zero but everything else is") {
+        config.MUTATION_RATE(0);
+        config.HORIZ_MUTATION_RATE(0);
+        config.EFFICIENCY_MUT_RATE(1);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+
+        s->HorizMutate();
+
+        THEN("Efficiency changes during horizontal mutation, int val stays the same") {
+            REQUIRE(s->GetEfficiency() != efficiency);
+            REQUIRE(s->GetIntVal() == int_val);
+        }
+
+    }
+}

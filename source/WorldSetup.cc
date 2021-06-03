@@ -17,6 +17,8 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   if(my_config->HOST_INT() == -2 && !my_config->COMPETITION_MODE()) random_phen_host = true;
   if(my_config->SYM_INT() == -2) random_phen_sym = true;
 
+  if(my_config->EFFICIENCY_MUT_RATE() == -1) my_config->EFFICIENCY_MUT_RATE(my_config->HORIZ_MUTATION_RATE());
+
   if (my_config->GRID() == 0) world->SetPopStruct_Mixed();
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y());
 // settings
@@ -25,7 +27,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
-  double comp_host_1 = -0.5;
+  double comp_host_1 = 0;
   double comp_host_2 = 0.95;
   //inject organisms
   for (size_t i = 0; i < POP_SIZE; i++){
