@@ -37,17 +37,8 @@ private:
   emp::vector<emp::Ptr<Organism>> p;
 
 
-
-
-  // Params for controlling game mode
-  bool game_mode = false;
-  int challenge_ind = 0;
-  std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of settings to indicate whether it is in game mode
-  bool passed; // whether player passed the challenge
   int num_mutualistic = 0;
   int num_parasitic = 0;
-  std::vector<std::string> challenges{ "Make all organisms mutualistic", "Make all organisms parasitic" };
-  int challenge_number = challenges.size();
 
 public:
 
@@ -64,21 +55,11 @@ public:
     settings.SetCSS("flex-grow", "1");
     settings.SetCSS("max-width", "600px");
 
-    // ----------------------- Add a playgame button that toggles game_mode -----------------------
-    settings << UI::Text("game_mode") << "Game Mode: " <<
-      UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
-    settings.AddButton([this](){
-      toggleGame();
-      auto but = settings.Button("play");
-      if (game_mode) but.SetLabel("End Game");
-      else but.SetLabel("Play Game");
-    }, "Play Game", "play");
-    settings << "<br>";
-    setButtonStyle("play");
-    settings.Button("play").OnMouseOver([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
-    settings.Button("play").OnMouseOut([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "#D3D3D3"); });
 
     initializeWorld();
+    emp::prefab::Card config_panel_ex("INIT_CLOSED");
+    settings << config_panel_ex;
+  config_panel_ex.AddHeaderContent("<h3>Settings</h3>");
     emp::prefab::ConfigPanel config_panel(config);
     // apply configuration query params and config files to config
     auto specs = emp::ArgManager::make_builtin_specs(&config);
@@ -89,7 +70,7 @@ public:
 
     // setup configuration panel
     config_panel.Setup();
-    settings << config_panel.GetConfigPanelDiv();
+    config_panel_ex.AddBodyContent(config_panel.GetConfigPanelDiv());
 
 
     // Add explanation for organism color:
@@ -234,32 +215,12 @@ public:
     else return "#673F03";
   }
 
-  void toggleGame(){
-    game_mode = !game_mode;
-    settings.Text("game_mode").Redraw();
-    settings.SetCSS("background-color", bg_colors[game_mode]);
-    if (game_mode) {
-      auto str = challenges[challenge_ind].c_str();
-      modifyChallenge(str, challenge_ind, challenge_number);
-      showChallenge();
-    } else challenge_ind = 0; // resetting the game resets the challenge
-  }
+
 
   void DoFrame() {
-    passed = checkPassed();
-    if (game_mode && passed) { // actions that will be taken ONLY when game passes
-      ToggleActive(); showSuccess();  // game succeeded. No need to continue the current simulation
-      if (++challenge_ind < challenge_number) { // continue challenges if there are any left
-        auto str = challenges[challenge_ind].c_str();
-        modifyChallenge(str, challenge_ind, challenge_number);
-      } else {
-        modifyChallenge("", challenge_ind, challenge_number);
-      }
-    }
 
     if (world.GetUpdate() == config.UPDATES() && GetActive()) {
         ToggleActive();
-        if (!passed) showFailure();
     } else {
       auto mycanvas = animation.Canvas("can"); // get canvas by id
       mycanvas.Clear();
@@ -274,12 +235,7 @@ public:
     }
   }
 
-  // Checks if a particular challenge is passed
-  bool checkPassed(){
-    if (challenge_ind == 0) return (num_parasitic == 0);
-    else if (challenge_ind == 1) return (num_mutualistic == 0);
-    else return false;
-  }
+
 };
 
 #endif
