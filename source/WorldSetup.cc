@@ -1,3 +1,6 @@
+#ifndef WORLD_SETUP_C
+#define WORLD_SETUP_C
+
 #include "SymWorld.h"
 #include "Host.h"
 #include "Symbiont.h"
@@ -80,3 +83,5 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   }
 
 }
+
+#endif
