@@ -23,6 +23,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 
@@ -121,6 +122,16 @@ public:
     auto & node = GetBurstSizeDataNode();
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_burstsize", "Average burst size", true);
+    file.PrintHeaderKeys();
+
+    return file;
+  }
+
+  emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetEfficiencyDataNode();
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_efficiency", "Average efficiency", true);
     file.PrintHeaderKeys();
 
     return file;
@@ -250,6 +261,29 @@ public:
     return *data_node_burst_size;
 
   }
+
+  
+
+  emp::DataMonitor<double>& GetEfficiencyDataNode() {
+    if (!data_node_efficiency) {
+      data_node_efficiency.New();
+      OnUpdate([this](size_t){
+        data_node_efficiency->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+	    int sym_size = syms.size();
+	    for(size_t j=0; j< sym_size; j++){
+	      data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
+	    }//close for
+	  }//close if
+	}//close for
+      });
+    }
+    return *data_node_efficiency;
+  }
+
+  
 
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {

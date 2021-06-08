@@ -211,7 +211,7 @@ public:
         // while resetting resource points for host and symbiont to zero                                           
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
         host_baby->mutate();
-        mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
+        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
         SetPoints(0);
 
         //Now check if symbionts get to vertically transmit

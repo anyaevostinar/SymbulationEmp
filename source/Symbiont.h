@@ -79,19 +79,27 @@ public:
 
   //TODO: change everything to camel case
   void mutate(){
+    double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
       interaction_val += random->GetRandNormal(0.0, mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
+    //if((pre_value*interaction_val) < 0) {
+    //  std::cout << "switched2!" << std::endl;
+    //}
   }
 
   void HorizMutate(){
+    double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
       interaction_val += random->GetRandNormal(0.0, ht_mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
+    //if((pre_value*interaction_val) < 0) {
+    //  std::cout << "switched!" << std::endl;
+    //}
   }
 
   void process(size_t location) {
@@ -103,7 +111,7 @@ public:
         emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
         sym_baby->SetPoints(0);
         sym_baby->HorizMutate();
-        HorizMutate();
+        //HorizMutate();
         
         
         my_world->SymDoBirth(sym_baby, location);
@@ -116,7 +124,7 @@ public:
     emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->mutate();
-    mutate(); //mutate parent symbiont
+    //mutate(); //mutate parent symbiont
     return sym_baby;
   }
   

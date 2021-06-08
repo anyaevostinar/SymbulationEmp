@@ -1,9 +1,19 @@
 <!doctype html>
 <html>
 <head>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <!-- @prefab indicates branch/version -->
+<link rel="stylesheet/less" type="text/css" href="https://cdn.jsdelivr.net/gh/devosoft/Empirical@master/include/emp/prefab/DefaultPrefabStyles.less">
+<script src="//cdn.jsdelivr.net/npm/less" ></script>
+<!-- Font Awesome Icons -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial=scale=1.0">
 <title>Symbulation</title>
+<script src="jquery-1.11.2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -13,74 +23,41 @@
 Symbulation is a research platform for simulating the evolution of symbionts and hosts, give it a try!</p>
 </div>
 
-<div class="container" style="display:flex; flex-wrap:wrap;">
-    <div id="emp_settings"></div>
-    <div id="emp_animate"></div>
-</div>
 
-<!-- Bootstrap popup modal for game mode -->
-<div class="modal fade" id="playGame" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="challengeLabel">Start a game</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body" id="challengeBody">
-          Symbulation game challenge: make all organisms mutualistic by tweaking the parameters!
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        </div>
-      </div>
+<div class="container">
+  <div class="row justify-content-lg-left">
+    <div class="col-lg-7">
+      <div id="emp_settings"></div>
+      <div id="emp_explanation"></div>
+      <div id="emp_learnmore"></div>
+    </div>
+    <div class="col-lg-5">
+      <div id="emp_buttons"></div>
+      <div id="emp_animate"></div> 
     </div>
   </div>
-
-<!-- Success message -->
-<div class="modal fade" id="successAlert" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label=""><span>×</span></button>
-             </div>           
-            <div class="modal-body">            
-                <div class="thank-you-pop">
-                    <h1>You made it!</h1>            
-                 </div>              
-            </div>          
-        </div>
-    </div>
 </div>
 
-<!-- Failure message -->
-<div class="modal fade" id="failureAlert" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label=""><span>×</span></button>
-             </div>           
-            <div class="modal-body">            
-                <div class="thank-you-pop">
-                    <h1>Oops</h1>
-                    <p>You failed this challenge!</p>                
-                 </div>              
-            </div>          
-        </div>
-    </div>
+<!--
+<div class="container" >
+  <div id="emp_explanation"></div>
 </div>
+<div class="container" >
   
-<script src="jquery-1.11.2.min.js"></script>
-<script type="text/javascript" src="symbulation.js"></script>
-<script type="text/javascript">
-$('#successAlert').on('hidden.bs.modal', function () {
-  // Load up the next challenge (already modified in c++)
-  $('#playGame').modal('show')
-})
-</script>
+</div>
+<div class="container" >
+  <div id="emp_animate"></div>
+</div>
+<div class="container" >
+  <div id="emp_learnmore"></div>
+</div>
+-->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
+<!-- HighlightJS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.0.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/devosoft/Empirical@prefab/source/prefab/HighlightJS.js"></script>
+
+<script type="text/javascript" src="symbulation.js"></script>
 </body>
 </html>

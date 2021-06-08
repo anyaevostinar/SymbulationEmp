@@ -13,231 +13,150 @@
 #include "../../Empirical/include/emp/web/Canvas.hpp"
 #include "../../Empirical/include/emp/web/web.hpp"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../../Empirical/include/emp/prefab/ConfigPanel.hpp"
+#include "../../../Empirical/include/emp/web/UrlParams.hpp"
 #include "WorldSetup.cc"
 
 
 namespace UI = emp::web;
+SymConfigBase config; // load the default configuration
+emp::prefab::ConfigPanel config_panel(config);
+
 
 class SymAnimate : public UI::Animate {
 private:
-  SymConfigBase config; // load the default configuration
+
   UI::Document animation;
   UI::Document settings;
-  UI::Text em_vert_trans{"em_vert_trans"};
-  UI::Text em_grid{"em_grid"};
-  UI::Text em_horiz{"em_horiz"};
+  UI::Document explanation;
+  UI::Document learnmore;
+  UI::Document buttons;
+  UI::Canvas mycanvas;
 
-  // Define world and population
-  double vert_transmit = config.VERTICAL_TRANSMISSION(0.3);
-  double mutation_rate = config.MUTATION_RATE(0.1);
-  double horiz_rate = config.HORIZ_MUTATION_RATE(0.1);
-  int synergy = config.SYNERGY(2);
-
-  int side_x = config.GRID_X(50); 
-  int side_y = config.GRID_Y(50); 
-  size_t POP_SIZE = config.GRID_X() * config.GRID_Y(); 
-  size_t GENS = 10000;
-  const size_t POP_SIDE = (size_t) std::sqrt(POP_SIZE);
+  const int RECT_WIDTH = 10;
+  
   emp::Random random{config.SEED()};
   SymWorld world{random};
-  int numupdates = config.UPDATES(30000);
-  
-  bool grid = config.GRID();
+
+
   emp::vector<emp::Ptr<Organism>> p;
 
-  // Params for controlling petri dish
-  const int offset = 20;
-  const int RECT_WIDTH = 10;
-  int can_size = offset + RECT_WIDTH * POP_SIDE; // set canvas size to be just enough to incorporate petri dish
 
-  // Params for controlling textarea input
-  bool empty_vert = false;
-  bool empty_grid = false;
-  bool empty_horiz =false;
-
-  // Params for controlling game mode
-  bool game_mode = false;
-  int challenge_ind = 0;
-  std::vector<std::string> bg_colors{ "transparent", "yellow"}; // bg color of settings to indicate whether it is in game mode
-  bool passed; // whether player passed the challenge
   int num_mutualistic = 0;
   int num_parasitic = 0;
-  std::vector<std::string> challenges{ "Make all organisms mutualistic", "Make all organisms parasitic" };
-  int challenge_number = challenges.size();
 
 public:
 
-  SymAnimate() : animation("emp_animate"), settings("emp_settings") {
-    // Set parameters for "animation" and "settings" div to enable flex box
-    if(horiz_rate == -1) {
-      horiz_rate = config.HORIZ_MUTATION_RATE(config.MUTATION_RATE());
-    }
+  SymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
+
+    config.GRID_X(50); 
+    config.GRID_Y(50); 
+    config.UPDATES(30000);
+
+    //Exclude all the settings that control 
+    //things that don't show up in the GUI correctly
+    config_panel.ExcludeConfig("SYM_LIMIT"); 
+    config_panel.ExcludeConfig("DATA_INT");
+    config_panel.ExcludeConfig("POP_SIZE");
+    config_panel.ExcludeConfig("LYSIS");
+    config_panel.ExcludeConfig("BURST_SIZE");
+    config_panel.ExcludeConfig("BURST_TIME");
+    config_panel.ExcludeConfig("SYM_LYSIS_RES");
+    config_panel.ExcludeConfig("START_MOI");
+    config_panel.ExcludeConfig("FILE_PATH");
+    config_panel.ExcludeConfig("FILE_NAME");
+    config_panel.ExcludeConfig("COMPETITION_MODE");
+
+    
+
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
     settings.SetCSS("flex-grow", "1");
     settings.SetCSS("max-width", "600px");
+    explanation.SetCSS("flex-grow", "1");
+    explanation.SetCSS("max-width", "600px");
+    learnmore.SetCSS("flex-grow", "1");
+    learnmore.SetCSS("max-width", "600px");
+    buttons.SetCSS("flex-grow", "1");
+    buttons.SetCSS("max-width", "600px");
 
-    // ----------------------- Add a playgame button that toggles game_mode -----------------------
-    settings << UI::Text("game_mode") << "Game Mode: " <<
-      UI::Live( [this](){ return (game_mode)? "On" : "Off"; } ) << "<br>";
-    settings.AddButton([this](){
-      toggleGame();
-      auto but = settings.Button("play");
-      if (game_mode) but.SetLabel("End Game");
-      else but.SetLabel("Play Game");
-    }, "Play Game", "play");
-    settings << "<br>";
-    setButtonStyle("play");
-    settings.Button("play").OnMouseOver([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
-    settings.Button("play").OnMouseOut([this](){ auto but = settings.Button("play"); but.SetCSS("background-color", "#D3D3D3"); });
 
     initializeWorld();
-    // ----------------------- Input field for modifying the vertical transmission rate -----------------------
-    settings << "<b>See what happens at different vertical transmission rates!<br>Please type in a vertical transmisson rate between 0 and 1, then click Reset: </b><br>";
-    settings.AddTextArea([this](const std::string & in){
-      bool isValidInput = true;
-      for (char c : in){
-        if (c == 46) continue; // "." is part of a double, skip
-        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double <= 1)
-      }
-      if (in.empty()) {
-        em_vert_trans.SetCSS("opacity", "0");  // set empty_vert so nothing's printed
-        empty_vert = true; settings.Text("vert_trans_txt").Redraw();
-      }
-      //TO DO: make stod(in) be called only once
-      else if (isValidInput && stod(in) <= 1) {
-        em_vert_trans.SetCSS("opacity", "0");
-        vert_transmit = stod(in);
-        settings.Text("vert_trans_txt").Redraw();
-        empty_vert = false;
-        double vert_temp = config.VERTICAL_TRANSMISSION(vert_transmit);
-        world.SetVertTrans(vert_transmit); // enable vertical transmission to be updated in the middle of a run
-      }
-      else { em_vert_trans.SetCSS("opacity", "1"); } // turn on error message
-    }, "update_vert_transmit");
-    settings << em_vert_trans;
-    settings << "<br>";
-    settings << UI::Text("vert_trans_txt") << "Vertical Transmission Rate = " <<
-      UI::Live( [this](){ return empty_vert ? "" : std::to_string(vert_transmit); } );
+    emp::prefab::Card config_panel_ex("INIT_CLOSED");
+    settings << config_panel_ex;
+    config_panel_ex.AddHeaderContent("<h3>Settings</h3>");
+    
+    // apply configuration query params and config files to config
+    auto specs = emp::ArgManager::make_builtin_specs(&config);
+    emp::ArgManager am(emp::web::GetUrlParams(), specs);
+    // cfg.Read("config.cfg");
+    am.UseCallbacks();
+    if (am.HasUnused()) std::exit(EXIT_FAILURE);
 
-// ----------------------- Input field for modifying the horizontal mutation rate -----------------------
-    settings << "<br>";
-    settings << "<b>See what happens at different rates of mutation for horizontal transmission!<br>Please type in a rate between 0 and 1, then click Reset: </b><br>";
-    settings.AddTextArea([this](const std::string & in){
-      bool isValidInput = true;
-      for (char c : in){
-        if (c == 46) continue; // "." is part of a double, skip
-        else if (c < 48 || c > 57){ isValidInput = false; break; } // check for valid input string (must be a double <= 1)
-      }
-      if (in.empty()) {
-        em_horiz.SetCSS("opacity", "0");  // set empty_horiz so nothing's printed
-        empty_horiz = true; settings.Text("horiz_rate_txt").Redraw();
-      }
-      //TO DO: make stod(in) be called only once
-      else if (isValidInput && stod(in) <= 1) {
-        em_horiz.SetCSS("opacity", "0");
-        horiz_rate = stod(in);
-        settings.Text("horiz_rate_txt").Redraw();
-        empty_horiz = false;
-        horiz_rate = config.HORIZ_MUTATION_RATE(horiz_rate);
-        
-      }
-      else { em_horiz.SetCSS("opacity", "1"); } // turn on error message
-    }, "update_horiz_rate");
-    settings << em_horiz;
-    settings << "<br>";
-    settings << UI::Text("horiz_rate_txt") << "Horizontal Transmission Mutation Rate = " <<
-      UI::Live( [this](){ return empty_horiz ? "" : std::to_string(horiz_rate); } );
+    // setup configuration panel
+    config_panel.Setup();
+    config_panel_ex.AddBodyContent(config_panel.GetConfigPanelDiv());
 
-    // ----------------------- Input field for changing the grid setting -----------------------
-    settings << "<br>";
-    settings << "<b>See how global versus local reproduction changes evolution! <br>Please type in 0 for global reproduction  or 1 for local reproduction, then click Reset: </b><br>";
-    settings.AddTextArea([this](const std::string & in){
-      bool isValidInput = (in.size() == 1 && (in == "0" || in == "1")); // input must be either "0" or "1"
-      if (in.empty()) {
-        em_grid.SetCSS("opacity", "0");
-        empty_grid = true; // set empty_grid so nothing's printed
-        settings.Text("grid_txt").Redraw();
-      }
-      else if (isValidInput) {
-        em_grid.SetCSS("opacity", "0");
-        grid = stoi(in);
-        settings.Text("grid_txt").Redraw();
-        empty_grid = false;
-      }
-      else { em_grid.SetCSS("opacity", "1"); } // turn on error message
-    }, "update_grid");
-    settings << em_grid;
-    settings << "<br>";
-    settings << UI::Text("grid_txt") << "Reproduction location = " <<
-      UI::Live( [this](){ return grid; } );
-
-
-    // ----------------------- Error message settings -----------------------
-    em_vert_trans << "Invalid Input!";
-    em_vert_trans.SetCSS("color", "red");
-    em_vert_trans.SetCSS("opacity", "0");
-
-    em_grid << "Invalid Input!";
-    em_grid.SetCSS("color", "red");
-    em_grid.SetCSS("opacity", "0");
 
     // Add explanation for organism color:
-    settings << "<br><br><img style=\"max-width:175px;\" src=\"diagram1.png\"> <br>" <<
+    explanation << "<br><br><img style=\"max-width:175px;\" src=\"diagram1.png\"> <br>" <<
       "<img style=\"max-width:600px;\" src = \"gradient1.png\"/> <br>";
 
 
     // ----------------------- Add a button that allows for pause and start toggle -----------------------
-    settings << "<br>";
-    settings.AddButton([this](){
+    buttons << "<br>";
+    buttons.AddButton([this](){
       // animate up to the number of updates
       ToggleActive();
-      auto but = settings.Button("toggle");
+      auto but = buttons.Button("toggle");
       if (GetActive()) but.SetLabel("Pause");
       else but.SetLabel("Start");
     }, "Start", "toggle");
     setButtonStyle("toggle");
-    settings.Button("toggle").OnMouseOver([this](){ auto but = settings.Button("toggle"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
-    settings.Button("toggle").OnMouseOut([this](){ auto but = settings.Button("toggle"); but.SetCSS("background-color", "#D3D3D3"); });
+    buttons.Button("toggle").OnMouseOver([this](){ auto but = buttons.Button("toggle"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
+    buttons.Button("toggle").OnMouseOut([this](){ auto but = buttons.Button("toggle"); but.SetCSS("background-color", "#D3D3D3"); });
 
     // ----------------------- Add a reset button to reset the animation/world -----------------------
     /* Note: Must first run world.Reset(), because Inject checks for valid position.
       If a position is occupied, new org is deleted and your world isn't reset.
       Also, canvas must be redrawn to let users see that it is reset */
-    settings.AddButton([this](){
+    buttons.AddButton([this](){
       world.Reset();
-      settings.Text("update").Redraw();
+      buttons.Text("update").Redraw();
       initializeWorld();
       p = world.getPop();
 
       if (GetActive()) { // If animation is running, stop animation and adjust button label
         ToggleActive();
       }
-      auto but = settings.Button("toggle");
+      auto but = buttons.Button("toggle");
       but.SetLabel("Start");
 
       // redraw petri dish
-      auto mycanvas = animation.Canvas("can");
+      mycanvas.SetWidth(RECT_WIDTH*config.GRID_X());
+      mycanvas.SetHeight(RECT_WIDTH*config.GRID_Y());
       drawPetriDish(mycanvas);
+      ToggleActive();//turn on quick to update the grid if the size changed
+      ToggleActive();//turn off again
     }, "Reset", "reset");
     setButtonStyle("reset");
-    settings.Button("reset").OnMouseOver([this](){ auto but = settings.Button("reset"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
-    settings.Button("reset").OnMouseOut([this](){ auto but = settings.Button("reset"); but.SetCSS("background-color", "#D3D3D3"); });
+    buttons.Button("reset").OnMouseOver([this](){ auto but = buttons.Button("reset"); but.SetCSS("background-color", "grey"); but.SetCSS("cursor", "pointer"); });
+    buttons.Button("reset").OnMouseOut([this](){ auto but = buttons.Button("reset"); but.SetCSS("background-color", "#D3D3D3"); });
 
     // ----------------------- Keep track of number of updates -----------------------
-    settings << "<br>";
-    settings << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } ) << "  ";
-    settings << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } ) << "  ";
-    settings << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
-    settings << "<br>";
+    buttons << "<br>";
+    buttons << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } ) << "  ";
+    buttons << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } ) << "  ";
+    buttons << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
+    buttons << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
-    auto mycanvas = animation.AddCanvas(can_size, can_size, "can");
+    mycanvas = animation.AddCanvas(RECT_WIDTH*config.GRID_X(), RECT_WIDTH*config.GRID_Y(), "can");
     targets.push_back(mycanvas);
     drawPetriDish(mycanvas);
     animation << "<br>";
 
-    settings << "If you'd like to learn more, please see the publication <a href=\"https://www.mitpressjournals.org/doi/abs/10.1162/artl_a_00273\">Spatial Structure Can Decrease Symbiotic Cooperation</a>.";
+    learnmore << "If you'd like to learn more, please see the publication <a href=\"https://www.mitpressjournals.org/doi/abs/10.1162/artl_a_00273\">Spatial Structure Can Decrease Symbiotic Cooperation</a>.";
 
   }
 
@@ -253,7 +172,7 @@ public:
   }
 
   void setButtonStyle(std::string but_id){
-    auto but = settings.Button(but_id);
+    auto but = buttons.Button(but_id);
     but.SetCSS("background-color", "#D3D3D3");
     but.SetCSS("border-radius", "4px");
     but.SetCSS("margin-left", "5px");
@@ -265,25 +184,24 @@ public:
         num_mutualistic = 0;
         num_parasitic = 0;
         //bool temp_passed = true;
-        for (int x = 0; x < side_x; x++){
-            for (int y = 0; y < side_y; y++){
+        for (int x = 0; x < config.GRID_X(); x++){
+            for (int y = 0; y < config.GRID_Y(); y++){
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
 
                 std::string color_host = matchColor(p[i]->GetIntVal());
                 
-                // while drawing, test whether every organism is mutualistic
-                if (p[i]->GetIntVal() <= 0) num_parasitic++;
-                else num_mutualistic++;
+                
                 
                 // Draw host rect and symbiont dot
-                can.Rect(offset + x * RECT_WIDTH, offset + y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
+                can.Rect(x * RECT_WIDTH, y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
                 if(syms.size() == 1) {
                   std::string color_sym = matchColor(syms[0]->GetIntVal());
+                  // while drawing, test whether every organism is mutualistic
                   if (syms[0]->GetIntVal() <= 0) num_parasitic++;
                   else num_mutualistic++;
-                  can.Circle(offset + x * RECT_WIDTH + RECT_WIDTH/2, offset + y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
+                  can.Circle(x * RECT_WIDTH + RECT_WIDTH/2, y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
                 }
                 i++;
                 
@@ -317,52 +235,27 @@ public:
     else return "#673F03";
   }
 
-  void toggleGame(){
-    game_mode = !game_mode;
-    settings.Text("game_mode").Redraw();
-    settings.SetCSS("background-color", bg_colors[game_mode]);
-    if (game_mode) {
-      auto str = challenges[challenge_ind].c_str();
-      modifyChallenge(str, challenge_ind, challenge_number);
-      showChallenge();
-    } else challenge_ind = 0; // resetting the game resets the challenge
-  }
+
 
   void DoFrame() {
-    passed = checkPassed();
-    if (game_mode && passed) { // actions that will be taken ONLY when game passes
-      ToggleActive(); showSuccess();  // game succeeded. No need to continue the current simulation
-      if (++challenge_ind < challenge_number) { // continue challenges if there are any left
-        auto str = challenges[challenge_ind].c_str();
-        modifyChallenge(str, challenge_ind, challenge_number);
-      } else {
-        modifyChallenge("", challenge_ind, challenge_number);
-      }
-    }
 
-    if (world.GetUpdate() == numupdates && GetActive()) {
+    if (world.GetUpdate() == config.UPDATES() && GetActive()) {
         ToggleActive();
-        if (!passed) showFailure();
     } else {
-      auto mycanvas = animation.Canvas("can"); // get canvas by id
+      mycanvas = animation.Canvas("can"); // get canvas by id
       mycanvas.Clear();
 
       // Update world and draw the new petri dish
       world.Update();
       p = world.getPop();
       drawPetriDish(mycanvas);
-      settings.Text("update").Redraw();
-      settings.Text("mut").Redraw();
-      settings.Text("par").Redraw();
+      buttons.Text("update").Redraw();
+      buttons.Text("mut").Redraw();
+      buttons.Text("par").Redraw();
     }
   }
 
-  // Checks if a particular challenge is passed
-  bool checkPassed(){
-    if (challenge_ind == 0) return (num_parasitic == 0);
-    else if (challenge_ind == 1) return (num_mutualistic == 0);
-    else return false;
-  }
+
 };
 
 #endif
