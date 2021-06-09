@@ -5,16 +5,16 @@
 #include <iostream>
 #include "SymWorld.h"
 #include "ConfigSetup.h"
-#include "SymJS.h"
+//#include "SymJS.h"
 #include "Symbiont.h"
 #include "Host.h"
 #include "Phage.h"
-#include "../../Empirical/include/emp/web/Document.hpp"
-#include "../../Empirical/include/emp/web/Canvas.hpp"
-#include "../../Empirical/include/emp/web/web.hpp"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
-#include "../../../Empirical/include/emp/prefab/ConfigPanel.hpp"
-#include "../../../Empirical/include/emp/web/UrlParams.hpp"
+#include "emp/web/Document.hpp"
+#include "emp/web/Canvas.hpp"
+#include "emp/web/web.hpp"
+#include "emp/config/ArgManager.hpp"
+#include "emp/prefab/ConfigPanel.hpp"
+#include "emp/web/UrlParams.hpp"
 #include "WorldSetup.cc"
 
 
