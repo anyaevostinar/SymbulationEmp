@@ -13,9 +13,10 @@ using namespace std;
 
 int symbulation_main(int argc, char * argv[])
 {    
+  
   SymConfigBase config;
 
-  bool success = config.Read("SymSettings.cfg");
+  bool success = config.Read("../../SymSettings.cfg");
   if(!success) {
     std::cout << "You didn't have a SymSettings.cfg, so one is being written, please try again" << std::endl;
     config.Write("SymSettings.cfg");
@@ -34,6 +35,8 @@ int symbulation_main(int argc, char * argv[])
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
+  std::cout<< "new simulation starts with vertical transmission: "  << config.VERTICAL_TRANSMISSION() << "\n";
+  //choose your output according to the specific repuirments you have 
 
   emp::Random random(config.SEED());
       
