@@ -28,7 +28,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
     VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
-    
+    VALUE(FREE_LIVING_PHAGE, bool, 0, "Can symbionts freely live outside the host?"),
+
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
@@ -36,7 +37,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
     VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
-    
+
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")
 )

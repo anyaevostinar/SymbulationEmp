@@ -27,6 +27,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 // settings
   world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
+  world->SetFreeLivingPhage(my_config->FREE_LIVING_PHAGE());
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -63,23 +64,23 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
       else {sym_int = my_config->SYM_INT();}
 
-      if(my_config->LYSIS() == 1) { 
-        emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&random, world, my_config, 
+      if(my_config->LYSIS() == 1) {
+        emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&random, world, my_config,
            sym_int, 0);
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
         }
         world->InjectSymbiont(new_sym);
-        
+
       } else if (my_config->EFFICIENT_SYM()) {
-        emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&random, world, my_config, sym_int, 0, 1); 
-        world->InjectSymbiont(new_sym); 
+        emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&random, world, my_config, sym_int, 0, 1);
+        world->InjectSymbiont(new_sym);
       } else {
-        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, world, my_config, 
-          sym_int, 0); 
+        emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, world, my_config,
+          sym_int, 0);
         world->InjectSymbiont(new_sym);
       }
-      
+
   }
 
 }
