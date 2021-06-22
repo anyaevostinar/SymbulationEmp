@@ -13,7 +13,7 @@
 class Host: public Organism {
 private:
   double interaction_val = 0;
-  emp::vector<emp::Ptr<Organism>> syms = {}; 
+  emp::vector<emp::Ptr<Organism>> syms = {};
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
   std::set<int> res_types = {};
   double points = 0;
@@ -29,7 +29,7 @@ public:
   std::set<int> _set = std::set<int>(),
   double _points = 0.0) : random(_random), my_world(_world), my_config(_config),
   interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
-  res_types(_set), points(_points) { 
+  res_types(_set), points(_points) {
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
@@ -59,6 +59,7 @@ public:
   emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
+  bool IsHost() { return true; }
 
 
   void SetIntVal(double _in) {
@@ -204,41 +205,41 @@ public:
   void Process(double resources, int location) {
     //Currently just wrapping to use the existing function
     DistribResources(resources);
-    // Check reproduction    
+    // Check reproduction
 
-    if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro                                                            
+    if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero                                           
+        // while resetting resource points for host and symbiont to zero
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
         host_baby->mutate();
-        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
+        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
         SetPoints(0);
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
           emp::Ptr<Organism> parent = GetSymbionts()[j];
-           if (my_world->WillTransmit()) { //Vertical transmission!  
-            
-            emp::Ptr<Organism> sym_baby = parent->reproduce(); 
+           if (my_world->WillTransmit()) { //Vertical transmission!
+
+            emp::Ptr<Organism> sym_baby = parent->reproduce();
             host_baby->AddSymbiont(sym_baby);
 
           } //end will transmit
         } //end for loop for each symbiont
-        //Will need to change this to AddOrgAt and write my own position grabber 
+        //Will need to change this to AddOrgAt and write my own position grabber
         //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
-    if (GetDead()){ 
+    if (GetDead()){
         return; //If host is dead, return
       }
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          if (GetDead()){ 
+          if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
           syms[j]->process(location);
-          
+
 
         } //for each sym in syms
       } //if org has syms

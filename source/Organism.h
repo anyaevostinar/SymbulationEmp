@@ -37,6 +37,9 @@ class Organism {
   virtual void SetHost(emp::Ptr<Organism> _in) {
     std::cout << "SetHost called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool IsHost() {
+    std::cout << "IsHost called from Organism" << std::endl;
+    throw "Organism method called!";}
 
   //Symbiont functions
 
@@ -88,7 +91,7 @@ class Organism {
   virtual void DistribResources(double resources) {
     std::cout << "DistribResources called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void Process(double resources_per_host_per_update, int location) 
+  virtual void Process(double resources_per_host_per_update, int location)
    {std::cout << "Process called from Organism" << std::endl;
      throw "Organism method called!";}
   virtual void ClearReproSyms() {
