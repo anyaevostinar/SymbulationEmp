@@ -10,6 +10,7 @@ protected:
   bool lysis = true;
   double burst_time = 60;
   double sym_lysis_res = 15;
+  double chance_of_lysis = 0;
 
 
 public:
@@ -30,6 +31,9 @@ public:
     
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
+
+  double GetLysisChance() {return chance_of_lysis;}
+  void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
 
   double GetIntVal() const {

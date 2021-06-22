@@ -112,6 +112,12 @@ class Organism {
   virtual void SetBurstTimer(int _in) {
     std::cout << "SetBurstTimer called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual double GetLysisChance() {
+    std::cout << "GetLysisChance called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetLysisChance(double _in){
+    std::cout << "SetLysisChance called from Organism" << std::endl;
+    throw "Organism method called!";}
 
 };
 
