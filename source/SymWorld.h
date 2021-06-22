@@ -11,13 +11,14 @@
 
 class SymWorld : public emp::World<Organism>{
 private:
-  double vertTrans = 0; 
+  double vertTrans = 0;
   int total_res = -1;
   bool limited_res = false;
-  
+  bool do_free_living_phage = false;
+
 
   double resources_per_host_per_update = 0;
-  
+
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
@@ -45,10 +46,11 @@ public:
     if (data_node_burst_size) data_node_burst_size.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
   }
-  
+
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
+  void SetFreeLivingPhage(bool flp) {do_free_living_phage = flp; }
   void SetTotalRes(int val) {
     if(val<0){
       SetLimitedRes(false);
@@ -67,7 +69,7 @@ public:
   }
 
   int PullResources() {
-    
+
     if(!limited_res) {
       return resources_per_host_per_update;
     } else {
@@ -84,16 +86,38 @@ public:
     }
   }
 
+  //ripping off empirical RemoveOrgAt() except without deleting the element
+  void ExtractOrganism(emp::WorldPosition pos) {
+    size_t id = pos.GetIndex();
+    if (pos.IsActive()) {
+      pop[id] = nullptr;
+      --num_orgs;                    // Track one fewer organisms in the population
+      if (cache_on) ClearCache(id);  // Delete any cached info about this organism
+    }
+  }
+
   //Overriding World's DoBirth to take a pointer instead of a reference
   //Because it takes a pointer, it doesn't support birthing multiple copies
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos;                                        // Position of each offspring placed.
-    
+
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
 
-    if (pos.IsValid() && pos.GetIndex() != parent_pos) AddOrgAt(new_org, pos, parent_pos);  // If placement pos is valid, do so!
+    if (pos.IsValid() && pos.GetIndex() != parent_pos) {
+      if(IsOccupied(pos) && !pop[pos.GetIndex()]->IsHost() && new_org->IsHost()){ //if the spot is occupied by a free-living sym
+          //absorb it, delete it from the grid, and add the host in that position
+          emp::Ptr<Organism> sym = pop[pos.GetIndex()];
+          new_org->AddSymbiont(sym);
+          ExtractOrganism(pos);
+          AddOrgAt(new_org, pos);
+      }
+      else { // if not occupied by a sym, just add normally
+        AddOrgAt(new_org, pos, parent_pos);
+      } // If placement pos is valid, do so!
+    }
+
     else new_org.Delete();                                  // Otherwise delete the organism.
     return pos;
   }
@@ -170,10 +194,10 @@ public:
 
     return file;
   }
-  
+
   emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetHostIntValDataNode(); 
+    auto & node = GetHostIntValDataNode();
     auto & node1 = GetHostCountDataNode();
     auto & cfu_node = GetCFUDataNode();
     node.SetupBins(-1.0, 1.1, 21);
@@ -236,7 +260,7 @@ public:
     }
     return *data_node_symcount;
   }
- 
+
   emp::DataMonitor<int>& GetCFUDataNode() {
     if(!data_node_cfu) {
       data_node_cfu.New();
@@ -262,7 +286,7 @@ public:
 
   }
 
-  
+
 
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
     if (!data_node_efficiency) {
@@ -283,7 +307,7 @@ public:
     return *data_node_efficiency;
   }
 
-  
+
 
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
@@ -318,34 +342,51 @@ public:
   }
 
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
-    // pick new host to infect, if one exists at the new location and isn't at the limit
-    int newLoc = GetNeighborHost(i);
-    if (newLoc > -1) { //-1 means no living neighbors
-      pop[newLoc]->AddSymbiont(sym_baby);
+    if(!do_free_living_phage){
+      int newLoc = GetNeighborHost(i);
+      if (newLoc > -1) { //-1 means no living neighbors
+        pop[newLoc]->AddSymbiont(sym_baby);
+      } else {
+        sym_baby.Delete();
+      }
     } else {
-      sym_baby.Delete();
+      emp::WorldPosition newLoc = GetRandomNeighborPos(i);
+      if(newLoc.IsValid()){
+        int newLocIndex = newLoc.GetIndex();
+        if(!IsOccupied(newLoc)){ //unoccupied, just add the sym at the position
+          AddOrgAt(sym_baby, newLoc);
+        }
+        else if(pop[newLocIndex]->IsHost()){ //occupied by a host, add the sym to the host sym vector
+          pop[newLocIndex]->AddSymbiont(sym_baby);
+          int numsyms = pop[newLocIndex]->GetSymbionts().size();
+        }
+        else{ //occupied by sym, kill the occupying sym and replace it with the baby
+          //DoDeath(newLoc);
+          AddOrgAt(sym_baby, newLoc);
+        }
+      }
     }
   }
-  
+
 
   void Update() {
     emp::World<Organism>::Update();
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-    
-    // divvy up and distribute resources to host and symbiont in each cell 
+
+    // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-    
+
       pop[i]->Process(PullResources(), i);
       if (pop[i]->GetDead()) { //Check if the host died
         DoDeath(i);
       }
-      
-      
+
+
 
 
     } // for each cell in schedule
