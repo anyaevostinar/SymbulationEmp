@@ -35,7 +35,7 @@ int symbulation_main(int argc, char * argv[])
   	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
   	exit(1);
   }
-  std::cout<< "new simulation starts with vertical transmission: "  << config.VERTICAL_TRANSMISSION() << "\n";
+  config.Write(std::cout);
   //choose your output according to the specific repuirments you have 
 
   emp::Random random(config.SEED());
