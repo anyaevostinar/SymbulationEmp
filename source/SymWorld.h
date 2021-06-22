@@ -358,10 +358,8 @@ public:
         }
         else if(pop[newLocIndex]->IsHost()){ //occupied by a host, add the sym to the host sym vector
           pop[newLocIndex]->AddSymbiont(sym_baby);
-          int numsyms = pop[newLocIndex]->GetSymbionts().size();
         }
         else{ //occupied by sym, kill the occupying sym and replace it with the baby
-          //DoDeath(newLoc);
           AddOrgAt(sym_baby, newLoc);
         }
       }
