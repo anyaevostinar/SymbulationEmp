@@ -8,6 +8,7 @@ class Phage: public Symbiont {
 protected:
   double burst_timer = 0;
   bool lysis = true;
+  bool lysogeny = false;
   double burst_time = 60;
   double sym_lysis_res = 15;
   double chance_of_lysis = 0;
@@ -41,11 +42,21 @@ public:
     
   }
 
+  void chooseLysisOrLysogeny() {
+    double rand_chance = random->GetDouble(0.0, 1.0);
+    if (rand_chance <= chance_of_lysis){
+      lysogeny = false;
+    } else {
+      lysogeny = true;
+    }
+  }
+
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
+    sym_baby->chooseLysisOrLysogeny();
     mutate(); //mutate parent symbiont
     return sym_baby;
   }

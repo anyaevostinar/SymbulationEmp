@@ -30,6 +30,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
     
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
+    VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
     VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
