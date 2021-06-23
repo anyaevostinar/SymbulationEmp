@@ -121,6 +121,9 @@ class Organism {
   virtual void chooseLysisOrLysogeny() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool GetLysogeny() {
+    std::cout << "GetLysogeny called from Organism" << std::endl;
+    throw "Organism method called!";}
 
 };
 

@@ -61,3 +61,41 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
 
 }
+
+TEST_CASE("Phage SetLysisChance, GetLysisChance"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+
+    double lysis_chance = 0.5;
+    p->SetLysisChance(lysis_chance);
+    double expected_lysis_chance = 0.5;
+    REQUIRE(p->GetLysisChance() == expected_lysis_chance);
+}
+
+TEST_CASE("chooseLysisOrLysogeny"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+
+    //initialization of phage sets lysogeny to false
+    bool expected_lysogeny = false;
+    REQUIRE(p->GetLysogeny() == expected_lysogeny);
+
+    //phage should choose lysis by default
+    p->chooseLysisOrLysogeny();
+    expected_lysogeny = false;
+    REQUIRE(p->GetLysogeny() == expected_lysogeny);
+
+    //if chance of lysis is 0, phage should choose lysogeny
+    p->SetLysisChance(0.0);
+    p->chooseLysisOrLysogeny();
+    expected_lysogeny = true;
+    REQUIRE(p->GetLysogeny() == expected_lysogeny);
+}

@@ -11,7 +11,7 @@ protected:
   bool lysogeny = false;
   double burst_time = 60;
   double sym_lysis_res = 15;
-  double chance_of_lysis = 0;
+  double chance_of_lysis = 1;
 
 
 public:
@@ -36,6 +36,7 @@ public:
   double GetLysisChance() {return chance_of_lysis;}
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
+  bool GetLysogeny() {return lysogeny;}
 
   double GetIntVal() const {
     return -1; //non-lysogenized lytic phage shuts down host reproduction if possible
@@ -51,6 +52,21 @@ public:
     }
   }
 
+  void mutate() {
+    double pre_value = interaction_val;
+    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
+      //mutate interaction value
+      interaction_val += random->GetRandNormal(0.0, mut_size);
+      if(interaction_val < -1) interaction_val = -1;
+      else if (interaction_val > 1) interaction_val = 1;
+
+      //mutate chance of lysis/lysogeny
+      chance_of_lysis += random->GetRandNormal(0.0, mut_size);
+      if(chance_of_lysis < 0) chance_of_lysis = 0;
+      else if (chance_of_lysis > 1) chance_of_lysis = 1;
+    }
+  }
+
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
@@ -58,6 +74,7 @@ public:
     sym_baby->mutate();
     sym_baby->chooseLysisOrLysogeny();
     mutate(); //mutate parent symbiont
+    chooseLysisOrLysogeny(); //check if parent enters lytic cycle
     return sym_baby;
   }
 
