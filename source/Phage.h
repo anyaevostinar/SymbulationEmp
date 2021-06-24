@@ -21,6 +21,7 @@ public:
     burst_time = my_config->BURST_TIME();
     sym_lysis_res = my_config->SYM_LYSIS_RES();
     lysis_enabled = my_config->LYSIS();
+    chance_of_lysis = my_config->LYSIS_CHANCE();
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
   }
   Phage(const Phage &) = default;
@@ -40,11 +41,6 @@ public:
 
   bool GetLysogeny() {return lysogeny;}
 
-  double GetIntVal() const {
-    return -1; //non-lysogenized lytic phage shuts down host reproduction if possible
-    
-  }
-
   void uponInjection() {
     //decide if the phage will choose lysis or lysogeny
     double rand_chance = random->GetDouble(0.0, 1.0);
@@ -56,14 +52,9 @@ public:
   }
 
   void mutate() {
-    double pre_value = interaction_val;
+   Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      //mutate interaction value
-      interaction_val += random->GetRandNormal(0.0, mut_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
-
-      //mutate chance of lysis/lysogeny, if enabled
+           //mutate chance of lysis/lysogeny, if enabled
       if(mutate_chance_of_lysis){
         chance_of_lysis += random->GetRandNormal(0.0, mut_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;

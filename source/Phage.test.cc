@@ -99,3 +99,20 @@ TEST_CASE("Phage uponInjection"){
     expected_lysogeny = true;
     REQUIRE(p->GetLysogeny() == expected_lysogeny);
 }
+TEST_CASE("phage_mutate"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    config.LYSIS_CHANCE(.5);
+    WHEN("Mutation rate is not zero") {
+        double int_val = 0;
+        config.MUTATION_SIZE(0.002);
+        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        p->mutate();
+        double lysis_chance_post_mutation = 2.5;
+        THEN("Mutation occurs and interaction value changes") {
+            REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+        }
+    }
+}

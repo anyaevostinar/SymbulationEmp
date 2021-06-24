@@ -72,8 +72,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
         //Set the chance of lysis vs. lysogeny for the starting population of phage
         if(my_config->LYSIS_CHANCE() == -1){ //random chance
           new_sym->SetLysisChance(random.GetDouble(0.0, 1.0));
-        } else { //chance set by user
-          new_sym->SetLysisChance(my_config->LYSIS_CHANCE());
         }
         world->InjectSymbiont(new_sym);
         
