@@ -118,7 +118,7 @@ class Organism {
   virtual void SetLysisChance(double _in){
     std::cout << "SetLysisChance called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void chooseLysisOrLysogeny() {
+  virtual void uponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual bool GetLysogeny() {

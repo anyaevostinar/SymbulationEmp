@@ -86,6 +86,7 @@ public:
     if(syms.size() < my_config->SYM_LIMIT()){
       syms.push_back(_in);
       _in->SetHost(this);
+      _in->uponInjection();
     } else {
       _in.Delete();
     }
@@ -217,12 +218,13 @@ public:
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
           emp::Ptr<Organism> parent = GetSymbionts()[j];
-           if (my_world->WillTransmit()) { //Vertical transmission!  
-            
+
+          //Vertical transmission dependent on VT rate or lysogeny status
+          if (my_world->WillTransmit() || parent->GetLysogeny()) {  
             emp::Ptr<Organism> sym_baby = parent->reproduce(); 
             host_baby->AddSymbiont(sym_baby);
-
           } //end will transmit
+
         } //end for loop for each symbiont
         //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts

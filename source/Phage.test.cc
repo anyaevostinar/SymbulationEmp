@@ -76,7 +76,7 @@ TEST_CASE("Phage SetLysisChance, GetLysisChance"){
     REQUIRE(p->GetLysisChance() == expected_lysis_chance);
 }
 
-TEST_CASE("chooseLysisOrLysogeny"){
+TEST_CASE("Phage uponInjection"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -89,13 +89,13 @@ TEST_CASE("chooseLysisOrLysogeny"){
     REQUIRE(p->GetLysogeny() == expected_lysogeny);
 
     //phage should choose lysis by default
-    p->chooseLysisOrLysogeny();
+    p->uponInjection();
     expected_lysogeny = false;
     REQUIRE(p->GetLysogeny() == expected_lysogeny);
 
     //if chance of lysis is 0, phage should choose lysogeny
     p->SetLysisChance(0.0);
-    p->chooseLysisOrLysogeny();
+    p->uponInjection();
     expected_lysogeny = true;
     REQUIRE(p->GetLysogeny() == expected_lysogeny);
 }

@@ -76,6 +76,13 @@ public:
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
+  void uponInjection(){
+    //does nothing for now, added for backwards compatibility from phage to symbiont
+  }
+  
+  bool GetLysogeny(){
+    return false;
+  }
 
   //TODO: change everything to camel case
   void mutate(){
