@@ -27,18 +27,18 @@ public:
   void IncBurstTimer() {
 
     burst_timer += random->GetRandNormal(1.0, 1.0);
-    
+
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
 
 
   double GetIntVal() const {
     return -1; //non-lysogenized lytic phage shuts down host reproduction if possible
-    
+
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
@@ -47,7 +47,7 @@ public:
   }
 
   void process(size_t location) {
-    if(lysis) { //lysis enabled, checking for lysis
+    if(lysis && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
         emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
         //Record the burst size
@@ -58,7 +58,7 @@ public:
         my_host->ClearReproSyms();
         my_host->SetDead();
         return;
-        
+
       } else {
         IncBurstTimer();
         if(sym_lysis_res == 0) {
@@ -72,7 +72,10 @@ public:
           SetPoints(GetPoints() - sym_lysis_res);
         }
       }
+    } else {
+      int i = 0;
     }
+
   }
 
 };

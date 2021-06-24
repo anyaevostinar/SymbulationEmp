@@ -236,18 +236,12 @@ TEST_CASE( "SymDoBirth" ) {
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-
     SymWorld w(random);
+    w.Resize(2,2);
 
     WHEN( "free living phage are not allowed" ) {
       config.FREE_LIVING_PHAGE(0);
-
-      //ensure that distance is not the problem
-      config.GRID_X(2);
-      config.GRID_Y(2);
-
       w.SetFreeLivingPhage(false);
-      w.Resize(2,2);
 
       WHEN( "there is a valid neighbouring host" ){
         emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
@@ -279,9 +273,7 @@ TEST_CASE( "SymDoBirth" ) {
 
     WHEN( "free living phage are allowed"){
       config.FREE_LIVING_PHAGE(1);
-
       w.SetFreeLivingPhage(true);
-      w.Resize(2,2);
       config.SYM_LIMIT(3);
 
       emp::Ptr<Host> host1 = new Host(&random, &w, &config, int_val);
@@ -342,7 +334,7 @@ TEST_CASE( "SymDoBirth" ) {
           w.AddOrgAt(sym1, 0);
           w.AddOrgAt(sym2, 1);
           w.AddOrgAt(oldSym, 2);
-          w.DoBirth(oldHost, 0);
+          w.DoBirth(oldHost, 1);
 
           emp::Ptr<Organism> newOrg = &w.GetOrg(2);
 
@@ -350,6 +342,82 @@ TEST_CASE( "SymDoBirth" ) {
           REQUIRE(oldHost->GetSymbionts().size() == 1);
           REQUIRE(oldHost->GetSymbionts().at(0) == oldSym);
           REQUIRE(w.GetNumOrgs() == 3);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE( "Update" ){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+    w.SetLimitedRes(0);
+    int resPerUpdate = 10;
+    w.SetResPerUpdate(resPerUpdate);
+
+
+    emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+
+    WHEN("free living syms are not allowed"){
+      w.AddOrgAt(host, 0);
+
+      WHEN("a host is dead"){
+        THEN("it is removed from the world"){
+          host->SetDead();
+          REQUIRE(w.GetNumOrgs() == 1);
+
+          w.Update();
+          REQUIRE(w.GetNumOrgs() == 0);
+        }
+      }
+      THEN("hosts process normally"){
+        int resBeforeUpdate = host->GetPoints();
+        w.Update();
+        int resAfterUpdate = host->GetPoints();
+        int resChange = resAfterUpdate - resBeforeUpdate;
+        REQUIRE(resPerUpdate == resChange);
+      }
+    }
+    WHEN("free living syms are allowed"){
+      w.SetFreeLivingPhage(1);
+      WHEN("there are no syms in the world"){
+        THEN("hosts process normally"){
+          w.AddOrgAt(host, 0);
+          REQUIRE(w.GetNumOrgs() == 1);
+
+          w.Update();
+          REQUIRE(host->GetPoints() == resPerUpdate);
+        }
+      }
+      WHEN("there are syms in the world"){
+        config.LYSIS(1);
+        w.SetLimitedRes(0);
+        int burst_time = 5;
+        config.BURST_TIME(burst_time);
+        int resPerUpdate = 500;
+        w.SetResPerUpdate(resPerUpdate);
+        w.Resize(4,4);
+
+        THEN("if only syms nothing changes"){
+          w.SymDoBirth(new Symbiont(&random, &w, &config, int_val), 0);
+          for(int i = 0; i <= burst_time; i++){
+            w.Update();
+          }
+          REQUIRE(w.GetNumOrgs() == 1);
+        }
+        THEN("hosts and syms can mingle in the environment"){
+          w.AddOrgAt(host, 0);
+          w.SymDoBirth(new Symbiont(&random, &w, &config, int_val), 1);
+
+          for(int i = 0; i <= burst_time; i++){
+            w.Update();
+          }
+
+          REQUIRE(w.GetNumOrgs() == 5);
         }
       }
     }
