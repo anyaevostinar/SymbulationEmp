@@ -78,7 +78,6 @@ public:
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
     mutate(); //mutate parent symbiont
-    uponInjection(); //check if parent enters lytic cycle
     return sym_baby;
   }
 
