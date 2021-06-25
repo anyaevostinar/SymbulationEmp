@@ -210,14 +210,14 @@ TEST_CASE("Phage Exclude") {
       config.PHAGE_EXCLUDE(phage_exclude);
 
       THEN("syms have a decreasing change of entering the host"){
-        int goal_num_syms[] = {3,1,2,2};
+        int goal_num_syms[] = {2,1,2,2};
 
         for(int i = 0; i < 4; i ++){
           emp::Ptr<emp::Random> random = new emp::Random(i);
           SymWorld w(*random);
 
           Host * h = new Host(random, &w, &config, int_val);
-          for(double i = 0; i < sym_limit; i++){
+          for(double i = 0; i < 4; i++){
             h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
           }
           int host_num_syms = (h->GetSymbionts()).size();
