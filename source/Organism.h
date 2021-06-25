@@ -37,6 +37,9 @@ class Organism {
   virtual void SetHost(emp::Ptr<Organism> _in) {
     std::cout << "SetHost called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<Organism> GetHost() {
+    std::cout << "GetHost called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual bool IsHost() {
     std::cout << "IsHost called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -54,6 +57,9 @@ class Organism {
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SymDoBirth(size_t i) {
+    std::cout << "SymDoBirth called from Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
@@ -104,6 +110,11 @@ class Organism {
     std::cout << "GetDead called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void DoBirth(size_t parent_pos) {
+    std::cout << "DoBirth called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+
 
   //Phage functions
   virtual double GetBurstTimer() {
