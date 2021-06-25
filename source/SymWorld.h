@@ -402,7 +402,7 @@ public:
           DoDeath(i);
         }
       } else { //sym process
-        pop[i]->process(i);
+        pop[i]->process(0, i);
         //MoveFreeSym(i);
       }
 

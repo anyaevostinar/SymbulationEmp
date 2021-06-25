@@ -103,8 +103,12 @@ public:
     //}
   }
 
-  void process(size_t location) {
+  void process(double resources, size_t location) {
     if (h_trans) { //non-lytic horizontal transmission enabled
+      double rss = GetPoints();
+      if (my_host == NULL){
+        rss = resources + GetPoints();
+      }
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
@@ -113,8 +117,6 @@ public:
         sym_baby->SetPoints(0);
         sym_baby->HorizMutate();
         //HorizMutate();
-
-
         my_world->SymDoBirth(sym_baby, location);
 
       }

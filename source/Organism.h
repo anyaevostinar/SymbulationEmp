@@ -52,7 +52,7 @@ class Organism {
   virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void process(size_t location) {
+  virtual void process(double resources, size_t location) {
     std::cout << "process called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
