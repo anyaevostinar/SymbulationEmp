@@ -402,11 +402,7 @@ public:
           DoDeath(i);
         }
       } else { //sym process
-<<<<<<< HEAD
         pop[i]->process(0,i);
-=======
-        pop[i]->process(i);
->>>>>>> 20b36a6ef637ae43a4f5944cb907bbe7d7900398
       }
 
 
