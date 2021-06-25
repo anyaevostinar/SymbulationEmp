@@ -35,7 +35,7 @@ TEST_CASE("Phage reproduce") {
 }
 
 TEST_CASE("Phage reproduce 2") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(1);
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
@@ -87,12 +87,11 @@ TEST_CASE("Phage reproduce 2") {
 
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
-            double phage_baby_int_val = -0.0020898421;
+            double phage_baby_int_val = 0.0005266628;
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE( phage_baby->GetIntVal() == Approx(phage_baby_int_val));
-            
-            double phage_baby_lysis_chance = 2.0;
-            std::cout << phage_baby->GetLysisChance() << std::endl;
+
+            double phage_baby_lysis_chance = 0.4961644916;
             REQUIRE( phage_baby->GetLysisChance() != parent_orig_lysis_chance);
             REQUIRE( phage_baby->GetLysisChance() == Approx(phage_baby_lysis_chance));
         }
