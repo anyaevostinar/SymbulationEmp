@@ -8,7 +8,7 @@
 #include <sstream> // stringstream
 #include "Organism.h"
 #include "SymWorld.h"
-
+ 
 
 class Host: public Organism {
 private:
