@@ -376,8 +376,8 @@ public:
 
   void MoveFreeSym(size_t i){
     emp::Ptr<Organism> sym = pop[i];
-    if(sym->GetHost() == NULL){
-      pop[i] = nullptr;
+    if(!sym->IsHost()){
+      pop[i] = NULL;
       MoveToFreeWorldPosition(sym, i);
     }
   }
@@ -403,7 +403,6 @@ public:
         }
       } else { //sym process
         pop[i]->process(i);
-        //MoveFreeSym(i);
       }
 
 

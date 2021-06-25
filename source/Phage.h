@@ -73,7 +73,7 @@ public:
         }
       }
     } else {
-      int i = 0;
+      my_world->MoveFreeSym(location);
     }
 
   }
