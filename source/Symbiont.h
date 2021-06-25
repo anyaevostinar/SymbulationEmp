@@ -104,9 +104,6 @@ public:
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
-    //if((pre_value*interaction_val) < 0) {
-    //  std::cout << "switched!" << std::endl;
-    //}
   }
 
   void process(size_t location) {
