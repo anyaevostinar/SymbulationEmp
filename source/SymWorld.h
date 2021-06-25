@@ -403,7 +403,7 @@ public:
         }
       } else { //sym process
         pop[i]->process(i);
-        MoveFreeSym(i);
+        //MoveFreeSym(i);
       }
 
 
