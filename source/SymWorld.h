@@ -60,6 +60,8 @@ public:
     }
   }
 
+
+  bool GetDoFreeLivingPhage(){ return do_free_living_phage;}
   emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
@@ -96,14 +98,12 @@ public:
     pos = fun_find_birth_pos(new_org, parent_pos);
 
     if (pos.IsValid() && pos.GetIndex() != parent_pos) {
-      if(!IsOccupied(pos)){ //if unoccupied, add regularly
+      if(!IsOccupied(pos) || (pop[pos.GetIndex()]->IsHost())){ //if unoccupied or occupied by a host, add regularly
         AddOrgAt(new_org, pos, parent_pos);
       } else if(!pop[pos.GetIndex()]->IsHost() && new_org->IsHost()){ //If the new_org is a host and the occupying org is a sym, absorb it
         emp::Ptr<Organism> sym = pop[pos.GetIndex()];
         new_org->AddSymbiont(sym);
         pop[pos.GetIndex()] = new_org;
-      } else if (pop[pos.GetIndex()]->IsHost()){ //kill the occupying host and replace it
-        AddOrgAt(new_org, pos, parent_pos);
       } else { //this shouldn't happen
         new_org.Delete();
       }
@@ -230,7 +230,7 @@ public:
       OnUpdate([this](size_t){
         data_node_hostcount -> Reset();
         for (size_t i = 0; i< pop.size(); i++)
-          if(IsOccupied(i))
+          if(IsOccupied(i) && pop[i]->IsHost())
             data_node_hostcount->AddDatum(1);
       });
     }
@@ -288,12 +288,17 @@ public:
       OnUpdate([this](size_t){
         data_node_efficiency->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i) && pop[i]->IsHost()) {
+          if (IsOccupied(i)) {
+            if(pop[i]->IsHost()){
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	    int sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
 	    }//close for
+    }
+    else {
+      data_node_efficiency->AddDatum(pop[i]->GetEfficiency());
+    }
 	  }//close if
 	}//close for
       });
@@ -349,22 +354,31 @@ public:
         sym_baby.Delete();
       }
     } else {
-      emp::WorldPosition newLoc = GetRandomNeighborPos(i);
-      int newLocIndex = newLoc.GetIndex();
-      if(newLoc.IsValid()){
-        if(!IsOccupied(newLoc)){ //if the spot is empty, add normally
-          sym_baby->SetHost(NULL);
-          AddOrgAt(sym_baby, newLoc, i);
-        } else if(pop[newLocIndex]->IsHost()){ //if it's occcupied by a host, be sucked up
-          pop[newLocIndex]->AddSymbiont(sym_baby);
-          //AddSymbiont will set the baby's host appropriately
-        } else if (!pop[newLocIndex]->IsHost()) { //if it's occupied by a sym, kill and replace it
-          sym_baby->SetHost(NULL);
-          AddOrgAt(sym_baby, newLoc);
-        }
-        else sym_baby.Delete(); //this shouldn't happen
-      }
-      else sym_baby.Delete();
+      MoveToFreeWorldPosition(sym_baby, i);
+    }
+  }
+
+  void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
+    emp::WorldPosition newLoc = GetRandomNeighborPos(i);
+    int newLocIndex = newLoc.GetIndex();
+    if(newLoc.IsValid()){
+      if(!IsOccupied(newLoc) || (IsOccupied(newLoc) && !pop[newLocIndex]->IsHost())){
+        //if the spot is empty or contains a sym, add normally
+        sym->SetHost(NULL);
+        AddOrgAt(sym, newLoc, i);
+      } else if(pop[newLocIndex]->IsHost()){ //if it's occcupied by a host, be sucked up
+        pop[newLocIndex]->AddSymbiont(sym);
+        //AddSymbiont will set the baby's host appropriately
+      } else sym.Delete(); //this shouldn't happen
+    }
+    else sym.Delete();
+  }
+
+  void MoveFreeSym(size_t i){
+    emp::Ptr<Organism> sym = pop[i];
+    if(sym->GetHost() == NULL){
+      pop[i] = nullptr;
+      //MoveToFreeWorldPosition(sym, i);
     }
   }
 
