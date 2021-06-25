@@ -238,7 +238,7 @@ public:
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
-          syms[j]->process(location);
+          syms[j]->process(0, location);
 
 
         } //for each sym in syms
