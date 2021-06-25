@@ -217,7 +217,7 @@ TEST_CASE("process") {
         s->AddPoints(add_points);
         
         int location = 10;
-        s->process(location);
+        s->process(0,location);
 
 
         THEN("Points changes and is set to 0") {
@@ -240,7 +240,7 @@ TEST_CASE("process") {
         s->AddPoints(add_points);
         
         int location = 10;
-        s->process(location);
+        s->process(0,location);
         
         
         THEN("Points does not change") {
@@ -260,7 +260,7 @@ TEST_CASE("process") {
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
-        s->process(location);
+        s->process(0,location);
 
 
         THEN("Points does not change") {
@@ -279,7 +279,7 @@ TEST_CASE("process") {
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         
         int location = 10;
-        s->process(location);
+        s->process(0,location);
 
 
         THEN("Points does not change") {
