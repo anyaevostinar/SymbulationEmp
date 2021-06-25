@@ -27,7 +27,7 @@ TEST_CASE("Phage Process") {
             size_t location = 2;
             double resources_per_host_per_update = 40;
             
-            p->process(location);
+            p->process(0,location);
             
             bool host_dead = true;
             std::vector<emp::Ptr<Organism>> empty_syms = {};
@@ -60,7 +60,7 @@ TEST_CASE("Phage Process") {
             size_t location = 2;
             bool host_dead = false;
             
-            p->process(location);
+            p->process(0,location);
 
             REQUIRE(h->GetDead() == false);
             
