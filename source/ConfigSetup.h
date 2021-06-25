@@ -28,7 +28,9 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
     VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
+    
     VALUE(FREE_LIVING_PHAGE, bool, 0, "Can symbionts freely live outside the host?"),
+    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a reduced chance of entering a host if that host already contains phage"),
 
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
