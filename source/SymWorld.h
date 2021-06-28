@@ -140,7 +140,7 @@ public:
 
     return file;
   }
-
+  
   emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetEfficiencyDataNode();
@@ -235,9 +235,8 @@ public:
       });
     }
     return *data_node_hostcount;
-
   }
-
+  
   emp::DataMonitor<int>& GetSymCountDataNode() {
     if(!data_node_symcount) {
       data_node_symcount.New();
@@ -276,11 +275,9 @@ public:
     if (!data_node_burst_size) {
       data_node_burst_size.New();
     }
-    return *data_node_burst_size;
+    return *data_node_burst_size; 
 
   }
-
-
 
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
     if (!data_node_efficiency) {

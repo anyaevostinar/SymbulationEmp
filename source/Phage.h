@@ -47,9 +47,13 @@ public:
   }
 
   void process(double resources, size_t location) {
+     
     if(lysis && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
         emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
+        emp::DataMonitor<double>& data_node_burst = my_world->GetBurstSizeDataNode();
+        data_node_burst.AddDatum(repro_syms.size());
+
         //Record the burst size
 	      // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
         for(size_t r=0; r<repro_syms.size(); r++) {
