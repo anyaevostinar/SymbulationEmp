@@ -5,7 +5,7 @@
 
 
 TEST_CASE("PullResources") {
-  GIVEN(" a world ") {
+  GIVEN(" a world ") {  
     emp::Random random(19);
     SymWorld world(random);
     int full_share = 100;
@@ -18,7 +18,7 @@ TEST_CASE("PullResources") {
         REQUIRE(world.PullResources() == full_share);
       }
     }
-
+ 
     WHEN( " the resources are limited ") {
       world.SetLimitedRes(true);
       int original_total = 150;

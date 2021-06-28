@@ -5,7 +5,7 @@
 //TODO: use GROUPs
 EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(MAIN, "Global Settings"),
-    VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
+    VALUE(SEED, int, -1, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
     VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)"),
     VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
