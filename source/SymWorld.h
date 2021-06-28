@@ -123,9 +123,13 @@ public:
 
   void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
-    if(IsOccupied(newLoc) == true) {
+    if(do_free_living_phage){ newLoc = GetRandomCellID(); }
+
+    if(IsOccupied(newLoc) == true && pop[newLoc]->IsHost()) {
       newSym->SetHost(pop[newLoc]);
       pop[newLoc]->AddSymbiont(newSym);
+    } else if (!IsOccupied(newLoc) && do_free_living_phage) {
+      AddOrgAt(newSym, newLoc);
     } else {
       newSym.Delete();
     }
@@ -402,7 +406,12 @@ public:
           DoDeath(i);
         }
       } else { //sym process
-        pop[i]->process(0,i);
+        if(pop[i]->IsPhage()){
+          pop[i]->process(0,i);
+        }
+        else {
+          pop[i]->process(PullResources(),i);
+        }
       }
 
 

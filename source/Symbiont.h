@@ -56,6 +56,7 @@ public:
   double GetIntVal() const {
     return interaction_val;}
   double GetPoints() {return points;}
+  bool IsPhage() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
   //  std::set<int> GetResTypes() const {return res_types;}
 
@@ -105,10 +106,8 @@ public:
 
   void process(double resources, size_t location) {
     double rss = GetPoints();
+    if (my_host == NULL) { rss += resources; }
     if (h_trans) { //non-lytic horizontal transmission enabled
-      if (my_host == NULL){
-        rss = resources + GetPoints();
-      }
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value

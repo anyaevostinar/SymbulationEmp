@@ -58,8 +58,8 @@ class Organism {
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SymDoBirth(size_t i) {
-    std::cout << "SymDoBirth called from Organism" << std::endl;
+  virtual bool IsPhage() {
+    std::cout << "IsPhage called from Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
