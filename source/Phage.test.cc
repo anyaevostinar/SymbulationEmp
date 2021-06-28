@@ -210,7 +210,7 @@ TEST_CASE("phage_mutate"){
 }
 
 TEST_CASE("Phage process"){
-    emp::Ptr<emp::Random> random = new emp::Random(5);
+    emp::Ptr<emp::Random> random = new emp::Random(9);
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
@@ -219,7 +219,7 @@ TEST_CASE("Phage process"){
     config.GRID_X(2); 
     config.GRID_Y(1);
     config.SYM_LIMIT(2);
-    int location = 1;
+    int location = 0;
 
     WHEN("The phage chooses lysogeny"){
         config.LYSIS_CHANCE(0.0); //0% chance of lysis, 100% chance of lysogeny
@@ -273,7 +273,7 @@ TEST_CASE("Phage process"){
                 p->process(location);
 
                 THEN("The burst timer is incremented but no offspring are created"){
-                    double expected_burst_timer = 2.0760424677;
+                    double expected_burst_timer = 1.5306015114;
                     REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
                     REQUIRE(size(h->GetReproSymbionts()) == repro_syms_size_pre_process);
                     REQUIRE(p->GetPoints() == expected_points);
@@ -288,7 +288,7 @@ TEST_CASE("Phage process"){
                 p->process(location);
 
                 THEN("The burst timer is incremented and offspring are created"){
-                    double expected_burst_timer = 2.0760424677;
+                    double expected_burst_timer = 1.5306015114;
                     REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
                     REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size_post_process);
                     REQUIRE(p->GetPoints() == expected_points);
@@ -301,17 +301,24 @@ TEST_CASE("Phage process"){
             double expected_int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
             
+            //create two hosts and add both to world as neighbors
             Host * orig_h = new Host(random, &w, &config, int_val);
             Host * new_h = new Host(random, &w, &config, int_val);
-            world->AddOrgAt(orig_h, 1);
-            world->AddOrgAt(new_h, 2);
-            
             orig_h->AddSymbiont(p);
-            p->SetBurstTimer(10.0);
-            p->SetPoints(10.0);
+            world->AddOrgAt(orig_h, 0);
+            world->AddOrgAt(new_h, 1);
 
+            //add phage offspring to the original host's repro syms
+            emp::Ptr<Organism> p_baby1 = p->reproduce();
+            emp::Ptr<Organism> p_baby2 = p->reproduce();
+            orig_h->AddReproSym(p_baby1);
+            orig_h->AddReproSym(p_baby2);
+ 
+            //call the process such that the phage bursts and we can check injection
             int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
+            p->SetBurstTimer(10.0);
             p->process(location);
+
             THEN("The phage offspring are injected into new hosts and the current host dies"){
                 REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
                 REQUIRE(size(orig_h->GetReproSymbionts()) == 0);

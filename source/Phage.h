@@ -68,7 +68,7 @@ public:
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
-    mutate(); //mutate parent symbiont
+    //mutate(); //mutate parent symbiont
     return sym_baby;
   }
 
