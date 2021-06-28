@@ -31,6 +31,8 @@ public:
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
 
+  bool IsPhage() {return true;}
+
 
   double GetIntVal() const {
     return -1; //non-lysogenized lytic phage shuts down host reproduction if possible

@@ -123,9 +123,13 @@ public:
 
   void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
-    if(IsOccupied(newLoc) == true) {
+    if(do_free_living_phage){ newLoc = GetRandomCellID(); }
+
+    if(IsOccupied(newLoc) == true && pop[newLoc]->IsHost()) {
       newSym->SetHost(pop[newLoc]);
       pop[newLoc]->AddSymbiont(newSym);
+    } else if (!IsOccupied(newLoc) && do_free_living_phage) {
+      AddOrgAt(newSym, newLoc);
     } else {
       newSym.Delete();
     }
@@ -140,7 +144,7 @@ public:
 
     return file;
   }
-  
+
   emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetEfficiencyDataNode();
@@ -236,7 +240,7 @@ public:
     }
     return *data_node_hostcount;
   }
-  
+
   emp::DataMonitor<int>& GetSymCountDataNode() {
     if(!data_node_symcount) {
       data_node_symcount.New();
@@ -275,7 +279,7 @@ public:
     if (!data_node_burst_size) {
       data_node_burst_size.New();
     }
-    return *data_node_burst_size; 
+    return *data_node_burst_size;
 
   }
 
@@ -399,8 +403,12 @@ public:
           DoDeath(i);
         }
       } else { //sym process
-        pop[i]->process(0, i);
-        //MoveFreeSym(i);
+        if(pop[i]->IsPhage()){
+          pop[i]->process(0,i);
+        }
+        else {
+          pop[i]->process(PullResources(),i);
+        }
       }
 
 

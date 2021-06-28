@@ -8,7 +8,7 @@
 #include <sstream> // stringstream
 #include "Organism.h"
 #include "SymWorld.h"
- 
+
 
 class Host: public Organism {
 private:
@@ -84,11 +84,25 @@ public:
 
 
   void AddSymbiont(emp::Ptr<Organism> _in) {
-    if(syms.size() < my_config->SYM_LIMIT()){
+    if(syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
       _in->SetHost(this);
     } else {
       _in.Delete();
+    }
+  }
+
+  bool SymAllowedIn(){
+    bool do_phage_exclusion = my_config->PHAGE_EXCLUDE();
+    if(!do_phage_exclusion){
+     return true;
+    }
+    else{
+     int num_syms = syms.size();
+     //essentially imitaties a 1/ 2^n chance, with n = number of symbionts
+     int enter_chance = random->GetUInt((int) pow(2.0, num_syms));
+     if(enter_chance == 0) { return true; }
+     return false;
     }
   }
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
