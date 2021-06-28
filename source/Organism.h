@@ -85,12 +85,18 @@ class Organism {
   virtual bool HasSym() {
     std::cout << "HasSym called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void LoseProphage() {
+    std::cout << "LoseProphage called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void DistribResources(double resources) {
     std::cout << "DistribResources called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void Process(double resources_per_host_per_update, int location) 
    {std::cout << "Process called from Organism" << std::endl;
      throw "Organism method called!";}
+  virtual void ClearSyms() {
+    std::cout << "ClearSyms called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}

@@ -36,6 +36,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
     VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
     VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
+    VALUE(PROPHAGE_LOSS_RATE, double, 0, "Rate at which infected lysogens become re-susceptible to new phage"),
     VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
     

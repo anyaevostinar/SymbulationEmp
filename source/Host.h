@@ -72,6 +72,9 @@ public:
   void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {syms = _in;}
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
+  void ClearSyms() {
+    syms.resize(0);
+  }
   void ClearReproSyms() {
     repro_syms.resize(0);
   }
@@ -97,7 +100,14 @@ public:
     return syms.size() != 0;
   }
 
-
+  void LoseProphage(){
+    if (my_config->LYSIS()){
+      if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
+        ClearSyms();
+        ClearReproSyms();
+      }
+    }
+  }
 
   void mutate(){
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
