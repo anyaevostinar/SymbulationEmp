@@ -101,10 +101,13 @@ public:
   }
 
   void LoseProphage(){
+    //TODO: refactor so this is in phage.h and doesn't apply to symbionts
     if (my_config->LYSIS()){
-      if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
-        ClearSyms();
-        ClearReproSyms();
+      if(syms.size() > 0){
+        if(syms[0]->GetLysogeny() && random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
+          ClearSyms();
+          ClearReproSyms();
+        }
       }
     }
   }
