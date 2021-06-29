@@ -46,15 +46,17 @@ public:
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
       lysogeny = false;
+      SetIntVal(-1); //lytic phage are antagonistic
     } else {
       lysogeny = true;
+      SetIntVal(0); //lysogenic phage are neutral
     }
   }
 
   void mutate() {
    Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-           //mutate chance of lysis/lysogeny, if enabled
+      //mutate chance of lysis/lysogeny, if enabled
       if(mutate_chance_of_lysis){
         chance_of_lysis += random->GetRandNormal(0.0, mut_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;

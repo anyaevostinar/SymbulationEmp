@@ -139,6 +139,12 @@ public:
     double sym_piece = (double) resources / num_sym;
 
     for(size_t i=0; i < syms.size(); i++){
+      //TODO: fix encapsulation of phage code so that it's not here
+      if(syms[i]->GetLysogeny()){
+        this->AddPoints(sym_piece);
+        continue;
+      }
+
       double symIntVal = syms[i]->GetIntVal();
 
       double hostPortion = 0.0;
@@ -214,6 +220,7 @@ public:
 
   void Process(double resources, int location) {
     //Currently just wrapping to use the existing function
+    LoseProphage();
     DistribResources(resources);
     // Check reproduction    
 
