@@ -15,8 +15,17 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout Symbulation
+        uses: actions/checkout@v2
+        with:
+          path: SymbulationEmp
+
+      - name: Checkout Empirical
+        uses: actions/checkout@v2
+        with:
+          repository: devosoft/Empirical
+          path: Empirical
 
       # Runs a single command using the runners shell
       - name: Make tests
-        run: make test
+        run: cd SymbulationEmp && make test
