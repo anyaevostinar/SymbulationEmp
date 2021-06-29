@@ -49,7 +49,6 @@ public:
   }
 
   void process(double resources, size_t location) {
-
     if(lysis && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
         emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
@@ -59,8 +58,6 @@ public:
         emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
         data_node_burst_count.AddDatum(1);
 
-        //Record the burst size
-	      // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
         for(size_t r=0; r<repro_syms.size(); r++) {
           my_world->SymDoBirth(repro_syms[r], location);
         }
@@ -84,9 +81,7 @@ public:
     } else {
       my_world->MoveFreeSym(location);
     }
-
   }
-
 };
 
 #endif
