@@ -52,8 +52,11 @@ public:
     if(lysis && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
         emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-        emp::DataMonitor<double>& data_node_burst = my_world->GetBurstSizeDataNode();
-        data_node_burst.AddDatum(repro_syms.size());
+        emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+        data_node_burst_size.AddDatum(repro_syms.size());
+
+        emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+        data_node_burst_count.AddDatum(1);
 
         for(size_t r=0; r<repro_syms.size(); r++) {
           my_world->SymDoBirth(repro_syms[r], location);

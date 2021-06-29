@@ -24,6 +24,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
     emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
   emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
@@ -46,6 +47,7 @@ public:
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
+    if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
     if (data_node_hosted_syms) data_node_hosted_syms.Delete();
     if (data_node_free_syms) data_node_free_syms.Delete();
@@ -100,7 +102,6 @@ public:
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
-
     if (pos.IsValid() && pos.GetIndex() != parent_pos) {
       if(!IsOccupied(pos) || (pop[pos.GetIndex()]->IsHost())){ //if unoccupied or occupied by a host, add regularly
         AddOrgAt(new_org, pos, parent_pos);
@@ -141,9 +142,11 @@ public:
 
   emp::DataFile & SetupLysisFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetBurstSizeDataNode();
+    auto & node1 = GetBurstSizeDataNode();
+    auto & node = GetBurstCountDataNode();
     file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_burstsize", "Average burst size", true);
+    file.AddMean(node1, "mean_burstsize", "Average burst size", true);
+    file.AddTotal(node, "burst_count", "Average burst count", true);
     file.PrintHeaderKeys();
 
     return file;
@@ -288,6 +291,14 @@ public:
       data_node_burst_size.New();
     }
     return *data_node_burst_size;
+
+  }
+
+  emp::DataMonitor<int>& GetBurstCountDataNode() {
+    if (!data_node_burst_count) {
+      data_node_burst_count.New();
+    }
+    return *data_node_burst_count;
 
   }
 
