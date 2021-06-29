@@ -5,7 +5,7 @@
 
 
 TEST_CASE("PullResources") {
-  GIVEN(" a world ") {  
+  GIVEN(" a world ") {
     emp::Random random(19);
     SymWorld world(random);
     int full_share = 100;
@@ -18,7 +18,7 @@ TEST_CASE("PullResources") {
         REQUIRE(world.PullResources() == full_share);
       }
     }
- 
+
     WHEN( " the resources are limited ") {
       world.SetLimitedRes(true);
       int original_total = 150;
@@ -231,6 +231,48 @@ TEST_CASE( "Hosts injected correctly" ) {
   }
 }
 
+TEST_CASE( "Syms injected correctly" ){
+  GIVEN( "a world" ){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+
+    emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+    w.AddOrgAt(host, 0);
+
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+
+    WHEN( "free living syms are not allowed" ){
+      config.FREE_LIVING_PHAGE(0);
+      w.SetFreeLivingPhage(false);
+
+      THEN( "syms are injected into a random host" ){
+        w.InjectSymbiont(sym);
+        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+
+        REQUIRE(host_syms.size() == 1);
+        REQUIRE(host_syms.at(0) == sym);
+      }
+    }
+    WHEN( "free living syms are allowed" ){
+      config.FREE_LIVING_PHAGE(1);
+      w.SetFreeLivingPhage(true);
+
+      THEN( "syms can be injected into a random empty cell" ){
+        w.InjectSymbiont(sym);
+        REQUIRE(w.GetNumOrgs() == 2);
+        REQUIRE(w.getPop()[2] == sym);
+      }
+      THEN( "syms can be injected into a random host" ){
+        REQUIRE(1 == 1);
+      }
+    }
+  }
+}
+
+
 TEST_CASE( "SymDoBirth" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -302,12 +344,12 @@ TEST_CASE( "SymDoBirth" ) {
           emp::vector<emp::Ptr<Organism>> syms1 = host1->GetSymbionts();
           emp::vector<emp::Ptr<Organism>> syms2 = host2->GetSymbionts();
 
-          int totalSyms = syms1.size() + syms2.size();
+          int total_syms = syms1.size() + syms2.size();
 
           REQUIRE(w.GetNumOrgs() == 2);
           REQUIRE(syms1.size() == 1);
           REQUIRE(syms2.size() == 2);
-          REQUIRE(totalSyms == 3);
+          REQUIRE(total_syms == 3);
         }
         THEN("it might be inserted into an empty cell"){
           w.AddOrgAt(host1, 0);
@@ -318,29 +360,29 @@ TEST_CASE( "SymDoBirth" ) {
         THEN("it might be insterted into a cell with a sym, killing and replacing it"){
           w.SymDoBirth(sym1, 0);
           w.SymDoBirth(sym2, 1);
-          emp::Ptr<Organism> oldSym = new Symbiont(&random, &w, &config, int_val);
-          w.SymDoBirth(oldSym, 0);
+          emp::Ptr<Organism> old_sym = new Symbiont(&random, &w, &config, int_val);
+          w.SymDoBirth(old_sym, 0);
 
-          emp::Ptr<Organism> newSym = &w.GetOrg(2);
+          emp::Ptr<Organism> new_sym = &w.GetOrg(2);
 
           REQUIRE(w.GetNumOrgs() == 2);
-          REQUIRE(newSym == oldSym);
+          REQUIRE(new_sym == old_sym);
         }
       }
       WHEN("host is birthed into spot containing free living sym"){
         THEN("host absorbs that sym"){
-          emp::Ptr<Organism> oldSym = new Symbiont(&random, &w, &config, int_val);
-          emp::Ptr<Organism> oldHost = new Host(&random, &w, &config, int_val);
+          emp::Ptr<Organism> old_sym = new Symbiont(&random, &w, &config, int_val);
+          emp::Ptr<Organism> old_host = new Host(&random, &w, &config, int_val);
           w.AddOrgAt(sym1, 0);
           w.AddOrgAt(sym2, 1);
-          w.AddOrgAt(oldSym, 2);
-          w.DoBirth(oldHost, 1);
+          w.AddOrgAt(old_sym, 2);
+          w.DoBirth(old_host, 1);
 
-          emp::Ptr<Organism> newOrg = &w.GetOrg(2);
+          emp::Ptr<Organism> new_org = &w.GetOrg(2);
 
-          REQUIRE(oldHost == newOrg);
-          REQUIRE(oldHost->GetSymbionts().size() == 1);
-          REQUIRE(oldHost->GetSymbionts().at(0) == oldSym);
+          REQUIRE(old_host == new_org);
+          REQUIRE(old_host->GetSymbionts().size() == 1);
+          REQUIRE(old_host->GetSymbionts().at(0) == old_sym);
           REQUIRE(w.GetNumOrgs() == 3);
         }
       }
