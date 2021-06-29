@@ -69,7 +69,6 @@ public:
      else {
         interaction_val = _in;
      }
-
   }
 
   void SetPoints(double _in) { points = _in;}
@@ -106,7 +105,9 @@ public:
 
   void process(double resources, size_t location) {
     double rss = GetPoints();
-    if (my_host == NULL) { rss += resources; }
+    if (my_host == NULL && my_config->FREE_LIVING_PHAGE()) { rss += resources;
+    my_world->MoveFreeSym(location);
+     }
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
