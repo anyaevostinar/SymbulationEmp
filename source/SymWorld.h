@@ -410,10 +410,6 @@ public:
           pop[i]->process(PullResources(),i);
         }
       }
-
-
-
-
     } // for each cell in schedule
   } // Update()
 };// SymWorld class
