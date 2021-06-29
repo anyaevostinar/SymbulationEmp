@@ -24,7 +24,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
-  emp::Ptr<emp::DataMonitor<double>> data_node_burst_count;
+  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
@@ -98,7 +98,6 @@ public:
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
-
     if (pos.IsValid() && pos.GetIndex() != parent_pos) {
       if(!IsOccupied(pos) || (pop[pos.GetIndex()]->IsHost())){ //if unoccupied or occupied by a host, add regularly
         AddOrgAt(new_org, pos, parent_pos);
@@ -143,7 +142,7 @@ public:
     auto & node = GetBurstCountDataNode();
     file.AddVar(update, "update", "Update");
     file.AddMean(node1, "mean_burstsize", "Average burst size", true);
-    file.AddMean(node, "mean_burstcount", "Average burst count", true);
+    file.AddTotal(node, "burst_count", "Average burst count", true);
     file.PrintHeaderKeys();
 
     return file;
@@ -287,7 +286,7 @@ public:
 
   }
 
-  emp::DataMonitor<double>& GetBurstCountDataNode() {
+  emp::DataMonitor<int>& GetBurstCountDataNode() {
     if (!data_node_burst_count) {
       data_node_burst_count.New();
     }

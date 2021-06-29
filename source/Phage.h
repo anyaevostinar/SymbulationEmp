@@ -56,7 +56,7 @@ public:
         emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
         data_node_burst_size.AddDatum(repro_syms.size());
 
-        emp::DataMonitor<double>& data_node_burst_count = my_world->GetBurstCountDataNode();
+        emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
         data_node_burst_count.AddDatum(1);
 
         //Record the burst size

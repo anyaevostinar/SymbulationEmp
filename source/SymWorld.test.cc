@@ -81,8 +81,6 @@ TEST_CASE( "Vertical Transmission" ) {
   }
 }
 
-
-
 TEST_CASE( "World Capacity" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -106,8 +104,6 @@ TEST_CASE( "World Capacity" ) {
     }
   }
 }
-
-
 
 TEST_CASE( "Interaction Patterns" ) {
   SymConfigBase config;
@@ -266,12 +262,66 @@ TEST_CASE( "Syms injected correctly" ){
         REQUIRE(w.getPop()[2] == sym);
       }
       THEN( "syms can be injected into a random host" ){
-        REQUIRE(1 == 1);
+        w.Reset();
+        w.Resize(1,1);
+        host = new Host(&random, &w, &config, int_val);
+        sym = new Symbiont(&random, &w, &config, int_val);
+        w.AddOrgAt(host, 0);
+        w.InjectSymbiont(sym);
+
+        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_syms.size() == 1);
+        REQUIRE(host_syms.at(0) == sym);
       }
     }
   }
 }
 
+TEST_CASE( "DoBirth" ){
+  GIVEN( "a world" ) {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,1);
+    emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+
+    WHEN( "born into an empty spot" ){
+      THEN( "occupies that spot" ){
+        w.DoBirth(host, 0);
+        emp::Ptr<Organism> new_host = &w.GetOrg(1);
+
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(new_host == host);
+      }
+    }
+    WHEN( "born into a spot occupied by another host" ){
+      THEN( "kills that host and replaces it" ){
+        emp::Ptr<Organism> other_host = new Host(&random, &w, &config, int_val);
+        w.AddOrgAt(other_host, 1);
+        w.DoBirth(host, 0);
+        emp::Ptr<Organism> new_host = &w.GetOrg(1);
+
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(new_host == host);
+      }
+    }
+    WHEN( "born into a spot occupied by a free living sym" ){
+      //only applies in free living symbiont condition
+      THEN( "absorbs that sym" ){
+        emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+        w.AddOrgAt(sym, 1);
+        w.DoBirth(host, 0);
+        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_syms[0] == sym);
+      }
+    }
+  }
+}
 
 TEST_CASE( "SymDoBirth" ) {
   GIVEN( "a world" ) {
@@ -367,23 +417,6 @@ TEST_CASE( "SymDoBirth" ) {
 
           REQUIRE(w.GetNumOrgs() == 2);
           REQUIRE(new_sym == old_sym);
-        }
-      }
-      WHEN("host is birthed into spot containing free living sym"){
-        THEN("host absorbs that sym"){
-          emp::Ptr<Organism> old_sym = new Symbiont(&random, &w, &config, int_val);
-          emp::Ptr<Organism> old_host = new Host(&random, &w, &config, int_val);
-          w.AddOrgAt(sym1, 0);
-          w.AddOrgAt(sym2, 1);
-          w.AddOrgAt(old_sym, 2);
-          w.DoBirth(old_host, 1);
-
-          emp::Ptr<Organism> new_org = &w.GetOrg(2);
-
-          REQUIRE(old_host == new_org);
-          REQUIRE(old_host->GetSymbionts().size() == 1);
-          REQUIRE(old_host->GetSymbionts().at(0) == old_sym);
-          REQUIRE(w.GetNumOrgs() == 3);
         }
       }
     }
