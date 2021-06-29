@@ -99,7 +99,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
     
     WHEN("Mutation rate is zero")  {
-        double efficiency = 0.5;
+        // double efficiency = 0.5;
         double parent_orig_efficiency = 0.5;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);

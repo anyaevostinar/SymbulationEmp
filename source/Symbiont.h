@@ -26,7 +26,7 @@ protected:
   emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
-  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : random(_random), my_world(_world), my_config(_config), interaction_val(_intval), points(_points) {
+  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), random(_random), my_world(_world), my_config(_config) {
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
@@ -79,7 +79,7 @@ public:
 
   //TODO: change everything to camel case
   void mutate(){
-    double pre_value = interaction_val;
+    // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
       interaction_val += random->GetRandNormal(0.0, mut_size);
       if(interaction_val < -1) interaction_val = -1;
@@ -91,7 +91,7 @@ public:
   }
 
   void HorizMutate(){
-    double pre_value = interaction_val;
+    // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
       interaction_val += random->GetRandNormal(0.0, ht_mut_size);
       if(interaction_val < -1) interaction_val = -1;

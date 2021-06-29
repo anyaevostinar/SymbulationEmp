@@ -253,7 +253,7 @@ TEST_CASE("Host DistribResources") {
         int resources = 100;
         h->DistribResources(resources);
 
-        int host_donation = 10; //host_int_val * resources
+        // int host_donation = 10; //host_int_val * resources
         int host_portion = 90;  //remaining amount
         int sym_steals = 9; //host_portion * sym_int_val * -1
         int sym_portion = 19; //sym_steals + host_donation
@@ -285,9 +285,9 @@ TEST_CASE("Host DistribResources") {
 
 
         int num_syms = 3;
-        double sym_piece = 40; //resources / num_syms
+        // double sym_piece = 40; //resources / num_syms
 
-        int host_donation = 4; //host_int_val * sym_piece
+        // int host_donation = 4; //host_int_val * sym_piece
         double host_portion = 36;  //remaining amount
         double sym_steals = 3.6; //host_portion * sym_int_val * -1
         double sym_portion = 7.6; //sym_steals + host_donation

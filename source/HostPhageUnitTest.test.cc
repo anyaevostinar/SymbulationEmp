@@ -25,7 +25,7 @@ TEST_CASE("Phage Process") {
 
         THEN("Lysis occurs, the host dies") {
             size_t location = 2;
-            double resources_per_host_per_update = 40;
+            // double resources_per_host_per_update = 40;
             
             p->process(location);
             
@@ -58,7 +58,7 @@ TEST_CASE("Phage Process") {
 
         THEN("Phage reproduces, Host gains repro symbionts, Phage loses points") {
             size_t location = 2;
-            bool host_dead = false;
+            // bool host_dead = false;
             
             p->process(location);
 
@@ -66,7 +66,7 @@ TEST_CASE("Phage Process") {
             
             std::vector<emp::Ptr<Organism>> updated_repro_syms = h->GetReproSymbionts();
 
-            REQUIRE( updated_repro_syms.size() > num_host_orig_syms); // host gained repro syms
+            REQUIRE( (int) updated_repro_syms.size() > num_host_orig_syms); // host gained repro syms
 
             REQUIRE(p->GetPoints() < phage_points); // phage lost points
 

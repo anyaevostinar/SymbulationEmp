@@ -94,14 +94,14 @@ TEST_CASE( "World Capacity" ) {
       int n = 7532;
 
       //inject organisms
-      for (size_t i = 0; i < n; i++){
+      for (int i = 0; i < n; i++){
         emp::Ptr<Host> new_org;
         new_org = new Host(&random, &w, &config, 0);
         w.AddOrgAt(new_org, w.size());
       }
         
       THEN( "the world's size becomes the number of hosts that were added" ) {
-        REQUIRE( w.getPop().size() == n );
+        REQUIRE( (int) w.getPop().size() == n );
       }
     }
   }
