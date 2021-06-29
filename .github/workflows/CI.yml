@@ -25,6 +25,7 @@ jobs:
         with:
           repository: devosoft/Empirical
           path: Empirical
+          submodules: "recursive"
 
       # Runs a single command using the runners shell
       - name: Make tests
