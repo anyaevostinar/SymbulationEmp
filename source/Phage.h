@@ -78,9 +78,7 @@ public:
     } else {
       my_world->MoveFreeSym(location);
     }
-
   }
-
 };
 
 #endif

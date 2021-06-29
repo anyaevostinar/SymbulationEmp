@@ -25,6 +25,8 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
+    emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
+  emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 
@@ -45,6 +47,8 @@ public:
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
+    if (data_node_hosted_syms) data_node_hosted_syms.Delete();
+    if (data_node_free_syms) data_node_free_syms.Delete();
   }
 
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -157,12 +161,16 @@ public:
 
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node1 = GetSymCountDataNode();
     auto & node = GetSymIntValDataNode();
+    auto & node1 = GetSymCountDataNode();
+    auto & node2 = GetCountHostedSymsDataNode();
+    auto & node3 = GetCountFreeSymsDataNode();
     node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddTotal(node2, "hosted_phage", "Total number of phage in a host");
+    file.AddTotal(node3, "free_phage", "Total number of free phage");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -322,6 +330,32 @@ public:
     return *data_node_hostintval;
   }
 
+  emp::DataMonitor<double>& GetCountHostedSymsDataNode(){
+    if (!data_node_hosted_syms) {
+      data_node_hosted_syms.New();
+      OnUpdate([this](size_t){
+        data_node_hosted_syms->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (IsOccupied(i) && pop[i]->IsHost())
+            data_node_hosted_syms->AddDatum(pop[i]->GetSymbionts().size());
+      });
+    }
+    return *data_node_hosted_syms;
+  }
+
+    emp::DataMonitor<double>& GetCountFreeSymsDataNode(){
+    if (!data_node_free_syms) {
+      data_node_free_syms.New();
+      OnUpdate([this](size_t){
+        data_node_free_syms->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (IsOccupied(i) && !pop[i]->IsHost())
+            data_node_free_syms->AddDatum(1);
+      });
+    }
+    return *data_node_free_syms;
+  }
+
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
@@ -380,6 +414,7 @@ public:
     if(!sym->IsHost()){
       pop[i] = NULL;
       MoveToFreeWorldPosition(sym, i);
+      //why computer dont like this for sym 
     }
   }
 
