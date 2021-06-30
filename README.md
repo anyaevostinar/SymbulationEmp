@@ -1,5 +1,7 @@
 ![Symbulation Logo](https://github.com/anyaevostinar/SymbulationEmp/blob/main/SymbulationLogo.png "Symbulation")
 
+[![CI](https://github.com/emilydolson/SymbulationEmp/actions/workflows/CI.yml/badge.svg)](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml)
+
 This is a software model of symbiosis which allows for evolution of parasitism and mutualism. 
 
 Go to [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html) to try it out in your web browser!

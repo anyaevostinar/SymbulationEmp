@@ -15,7 +15,9 @@ TEST_CASE("Phage constructor, GetIntVal") {
     int_val = 0;
     Phage * p2 = new Phage(random, world, &config, int_val);
     expected_int_val = -1;
-    REQUIRE(p->GetIntVal() == expected_int_val);
+    REQUIRE(p2->GetIntVal() == expected_int_val);
+    delete p;
+    delete p2;
 }
 
 TEST_CASE("Phage reproduce") {
@@ -32,6 +34,7 @@ TEST_CASE("Phage reproduce") {
     REQUIRE(phage_baby->GetBurstTimer() == expected_burst_time);
     REQUIRE(phage_baby->GetPoints() == expected_points);
 
+    phage_baby.Delete();
 }
 
 TEST_CASE("SetBurstTimer, IncBurstTimer")
@@ -43,7 +46,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
-    int default_burst_time = 0;
+    // int default_burst_time = 0;
     REQUIRE(p->GetBurstTimer() == 0);
 
     p->IncBurstTimer();

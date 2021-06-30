@@ -272,7 +272,7 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-	    int sym_size = syms.size();
+	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
 	    }//close for
@@ -306,7 +306,7 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-	    int sym_size = syms.size();
+	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j]->GetIntVal());
 	    }//close for
