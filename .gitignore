@@ -9,4 +9,5 @@ symbulation
 *~
 *.data
 *.dat
-.Rproj.user
+.Rproj*
+.Rhistory
