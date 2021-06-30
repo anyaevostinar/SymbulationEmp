@@ -34,6 +34,7 @@ TEST_CASE("Phage reproduce") {
     REQUIRE(phage_baby->GetBurstTimer() == expected_burst_time);
     REQUIRE(phage_baby->GetPoints() == expected_points);
 
+    phage_baby.Delete();
 }
 
 TEST_CASE("SetBurstTimer, IncBurstTimer")

@@ -53,5 +53,9 @@ test:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o $(PROJECT).test
 	./$(PROJECT).test
 
+test-debug:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o $(PROJECT).test
+	./$(PROJECT).test
+
 # Debugging information
 print-%: ; @echo '$(subst ','\'',$*=$($*))'

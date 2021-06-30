@@ -40,15 +40,18 @@ TEST_CASE("Host SetSymbionts") {
 }
 
 TEST_CASE("Host SymLimit") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random;
+    random.New(-1);
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
 
     Host * h = new Host(random, &w, &config);
 
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s1; 
+    s1.New(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s2; 
+    s2.New(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> syms;
     
@@ -65,6 +68,8 @@ TEST_CASE("Host SymLimit") {
         }
 
     }
+    random.Delete();
+    s1.Delete();
 
 }
 

@@ -122,6 +122,8 @@ TEST_CASE("EfficientSymbiont reproduce") {
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
+
+        sym_baby.Delete();
     }
 
 
@@ -148,6 +150,8 @@ TEST_CASE("EfficientSymbiont reproduce") {
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
+
+        sym_baby.Delete();
 
     }
  
