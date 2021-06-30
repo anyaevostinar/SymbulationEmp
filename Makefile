@@ -10,6 +10,7 @@ CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/
 CXX_nat := g++
 CFLAGS_nat := -O3 -DNDEBUG $(CFLAGS_all)
 CFLAGS_nat_debug := -g -DEMP_TRACK_MEM $(CFLAGS_all)
+CFLAGS_nat_coverage := --coverage $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
@@ -56,6 +57,11 @@ test:
 test-debug:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o $(PROJECT).test
 	./$(PROJECT).test
+
+coverage:
+	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o $(PROJECT).test
+	./$(PROJECT).test
+
 
 # Debugging information
 print-%: ; @echo '$(subst ','\'',$*=$($*))'
