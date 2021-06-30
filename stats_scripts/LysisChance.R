@@ -80,10 +80,34 @@ lysischances_plot <- ggplot(data=lysischances, aes(x=update, y=mean_lysischance,
   guides(fill=FALSE) + scale_colour_manual(values=colors) + 
   scale_fill_manual(values=colors)
 
-hostvals_plot
-lysischances_plot
+#hostvals_plot
+#lysischances_plot
 
 #ggsave(filename="LysisChance.pdf", plot = lysischances_plot)
+
+hostcount_plot <- ggplot(data=hostvals, aes(x=update, y=count, 
+                                           group=Prophage_loss_rate, colour=Prophage_loss_rate)) + 
+  ylab("Host Count") + xlab("Updates") + 
+  stat_summary(aes(color=Prophage_loss_rate, fill=Prophage_loss_rate),
+               fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + 
+  theme(panel.background = element_rect(fill='white', colour='black')) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  guides(fill=FALSE) + scale_colour_manual(values=colors) + 
+  scale_fill_manual(values=colors)
+
+hostcount_plot
+
+phagecount_plot <- ggplot(data=lysischances, aes(x=update, y=count,
+                                                   group=Prophage_loss_rate, color=Prophage_loss_rate)) +
+  ylab("Phage count") + xlab("Updates") + 
+  stat_summary(aes(color=Prophage_loss_rate, fill=Prophage_loss_rate),
+               fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + 
+  theme(panel.background = element_rect(fill='white', colour='black')) +
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+  guides(fill=FALSE) + scale_colour_manual(values=colors) + 
+  scale_fill_manual(values=colors)
+
+phagecount_plot
   
 
 

@@ -37,6 +37,13 @@ class Organism {
   virtual void SetHost(emp::Ptr<Organism> _in) {
     std::cout << "SetHost called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetDead() {
+    std::cout << "SetDead called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual bool GetDead() {
+    std::cout << "GetDead called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
@@ -51,6 +58,12 @@ class Organism {
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    std::cout << "reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double ProcessResources(double sym_piece){
+    std::cout << "ProcessResources called from an Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
@@ -85,9 +98,6 @@ class Organism {
   virtual bool HasSym() {
     std::cout << "HasSym called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void LoseProphage() {
-    std::cout << "LoseProphage called from Organism" << std::endl;
-    throw "Organism method called!";}
   virtual void DistribResources(double resources) {
     std::cout << "DistribResources called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -100,13 +110,6 @@ class Organism {
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetDead() {
-    std::cout << "SetDead called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual bool GetDead() {
-    std::cout << "GetDead called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
 
   //Phage functions
   virtual double GetBurstTimer() {

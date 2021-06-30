@@ -11,3 +11,4 @@ symbulation
 *.dat
 .Rproj*
 .Rhistory
+.Rproj.user

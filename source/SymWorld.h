@@ -9,6 +9,9 @@
 #include <set>
 #include <math.h>
 
+// #include <typeinfo>
+// string s = typeid(p).name()
+
 class SymWorld : public emp::World<Organism>{
 private:
   double vertTrans = 0; 
@@ -264,16 +267,29 @@ public:
   }
  
   emp::DataMonitor<int>& GetCFUDataNode() {
+    //keep track of host organisms that are uninfected or infected by only lysogenic phage
     if(!data_node_cfu) {
       data_node_cfu.New();
       OnUpdate([this](size_t){
 	  data_node_cfu -> Reset();
+
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i)) {
-	      if((pop[i]->GetSymbionts()).empty()) {
-		data_node_cfu->AddDatum(1);
-	      }
-	    } //endif
+        emp::vector<emp::Ptr<Organism>> syms = pop[i]->GetSymbionts();
+	      if(syms.empty()) { //uninfected
+          data_node_cfu->AddDatum(1);
+	      } 
+        else { //infected, check for lytic phage
+          bool all_lysogenic = true;
+          for(size_t i=0; i < syms.size(); i++){
+            //if any of syms[i] is lytic, set all_lysogenic to false
+            //TODO - how to tell if a sym is a phage 
+          }
+          if (all_lysogenic){
+            data_node_cfu->AddDatum(1);
+          }
+        }
+	    } //endif isoccupied
 	  } //end for
 	}); //end OnUpdate
     } //end if

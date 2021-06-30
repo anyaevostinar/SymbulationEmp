@@ -70,13 +70,28 @@ public:
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
-    //mutate(); //mutate parent symbiont
     return sym_baby;
+  }
+
+  void VerticalTransmission(emp::Ptr<Organism> host_baby){
+    //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
+    if(lysogeny){
+      emp::Ptr<Organism> phage_baby = reproduce();
+      host_baby->AddSymbiont(phage_baby);
+    }
+  }
+
+  double ProcessResources(double sym_piece){
+    if(lysogeny){
+      return sym_piece; //lysogenic phage don't steal any resources from their host
+    } else {
+      return Symbiont::ProcessResources(sym_piece); //lytic phage do steal resources
+    }
   }
 
   void process(size_t location) {
     if(lysis_enabled) { //lysis enabled, checking for lysis
-      if(!lysogeny){ //phage has not chosen to lysogenize
+      if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
           //Record the burst size
@@ -102,8 +117,11 @@ public:
           }
         }
       }
-      else if(lysogeny){
-        //do nothing, the phage is temperate
+      else if(lysogeny){ //phage has chosen lysogeny
+        //check if the phage's host should become susceptible again
+        if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
+          SetDead();
+        }
       }
     }
   }

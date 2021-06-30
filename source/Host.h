@@ -100,18 +100,6 @@ public:
     return syms.size() != 0;
   }
 
-  void LoseProphage(){
-    //TODO: refactor so this is in phage.h and doesn't apply to symbionts
-    if (my_config->LYSIS()){
-      if(syms.size() > 0){
-        if(syms[0]->GetLysogeny() && random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
-          ClearSyms();
-          ClearReproSyms();
-        }
-      }
-    }
-  }
-
   void mutate(){
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
       interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
@@ -142,11 +130,11 @@ public:
     double sym_piece = (double) resources / num_sym;
 
     for(size_t i=0; i < syms.size(); i++){
-      //TODO: fix encapsulation of phage code so that it's not here
-      if(syms[i]->GetLysogeny()){
-        this->AddPoints(sym_piece);
-        continue;
-      }
+      // double hostPortion = syms[i]->ProcessResources(sym_piece);
+      // this->AddPoints(hostPortion);
+
+      // double symUses = syms[i]->ProcessResources(sym_piece);
+      // 
 
       double symIntVal = syms[i]->GetIntVal();
 
@@ -223,10 +211,9 @@ public:
 
   void Process(double resources, int location) {
     //Currently just wrapping to use the existing function
-    LoseProphage();
     DistribResources(resources);
+    
     // Check reproduction    
-
     if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro                                                            
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero                                           
@@ -238,14 +225,9 @@ public:
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
           emp::Ptr<Organism> parent = GetSymbionts()[j];
+          parent->VerticalTransmission(host_baby);
+        }
 
-          //Vertical transmission dependent on VT rate or lysogeny status
-          if (my_world->WillTransmit() || parent->GetLysogeny()) {  
-            emp::Ptr<Organism> sym_baby = parent->reproduce(); 
-            host_baby->AddSymbiont(sym_baby);
-          } //end will transmit
-
-        } //end for loop for each symbiont
         //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
@@ -260,8 +242,9 @@ public:
             return; //If previous symbiont killed host, we're done
           }
           syms[j]->process(location);
-          
-
+          if(syms[j]->GetDead()){
+            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+          }
         } //for each sym in syms
       } //if org has syms
   }
