@@ -22,8 +22,8 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 
   if(my_config->EFFICIENCY_MUT_RATE() == -1) my_config->EFFICIENCY_MUT_RATE(my_config->HORIZ_MUTATION_RATE());
 
-  if (my_config->GRID() == 0) world->SetPopStruct_Mixed();
-  else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y());
+  if (my_config->GRID() == 0) world->SetPopStruct_Mixed(false);
+  else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 // settings
   world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
@@ -52,8 +52,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
     //world.Inject(*new_org);
   }
 
-  world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
-
+  
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
   int total_syms = POP_SIZE * start_moi;
@@ -82,6 +81,8 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       }
 
   }
+  world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
+
 
 }
 
