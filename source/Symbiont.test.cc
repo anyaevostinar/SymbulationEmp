@@ -203,7 +203,7 @@ TEST_CASE("process") {
     SymWorld w(*random);
     SymWorld * world = &w;
 
-    //add new test for free living sym not moving when it shouldnt 
+
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
         double parent_orig_int_val = 1;

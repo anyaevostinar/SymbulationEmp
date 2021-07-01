@@ -105,7 +105,7 @@ public:
 
   void process(double resources, size_t location) {
     double rss = GetPoints();
-    if (my_host == NULL && my_config->FREE_LIVING_PHAGE()) { rss += resources;
+    if (my_host == NULL && my_config->FREE_LIVING_PHAGE()) {rss += resources;
     my_world->MoveFreeSym(location);
      }
     if (h_trans) { //non-lytic horizontal transmission enabled
