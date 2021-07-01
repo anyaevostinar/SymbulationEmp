@@ -94,14 +94,14 @@ TEST_CASE( "World Capacity" ) {
       int n = 7532;
 
       //inject organisms
-      for (size_t i = 0; i < n; i++){
+      for (int i = 0; i < n; i++){
         emp::Ptr<Host> new_org;
-        new_org = new Host(&random, &w, &config, 0);
+        new_org.New(&random, &w, &config, 0);
         w.AddOrgAt(new_org, w.size());
       }
         
       THEN( "the world's size becomes the number of hosts that were added" ) {
-        REQUIRE( w.getPop().size() == n );
+        REQUIRE( (int) w.getPop().size() == n );
       }
     }
   }
@@ -153,8 +153,8 @@ TEST_CASE( "Interaction Patterns" ) {
 
 
   GIVEN( "a world" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(17);
-    SymWorld w(*random);
+    emp::Random random(17);
+    SymWorld w(random);
     w.SetPopStruct_Mixed(); 
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);
@@ -172,12 +172,13 @@ TEST_CASE( "Interaction Patterns" ) {
 
       //inject organisms
       for (size_t i = 0; i < 200; i++){
-        Host *new_org;
-        new_org = new Host(random, &w, &config, 1);
+        emp::Ptr<Host> new_org;
+        new_org.New(&random, &w, &config, 1);
         w.AddOrgAt(new_org, w.size());
       }
       for (size_t i = 0; i < 10000; i++){
-        emp::Ptr<Symbiont> new_sym = new Symbiont(random, &w, &config, -1);
+        emp::Ptr<Symbiont> new_sym; 
+        new_sym.New(&random, &w, &config, -1);
         w.InjectSymbiont(new_sym);
       } 
       
@@ -201,7 +202,7 @@ TEST_CASE( "Hosts injected correctly" ) {
     WHEN( "host added with interaction value 1" ) {
       //inject organism
       emp::Ptr<Host> new_org1;
-      new_org1 = new Host(&random, &w, &config, 1);
+      new_org1.New(&random, &w, &config, 1);
       w.AddOrgAt(new_org1, 0);
       
       THEN( "host has interaction value of 1" ) {
@@ -211,7 +212,7 @@ TEST_CASE( "Hosts injected correctly" ) {
     WHEN( "host added with interaction value -1" ) {
       //inject organism
       emp::Ptr<Host> new_org1;
-      new_org1 = new Host(&random, &w, &config, -1);
+      new_org1.New(&random, &w, &config, -1);
       w.AddOrgAt(new_org1, 0);
       
       THEN( "host has interaction value of -1" ) {
@@ -221,7 +222,7 @@ TEST_CASE( "Hosts injected correctly" ) {
     WHEN( "host added with interaction value 0" ) {
       //inject organism
       emp::Ptr<Host> new_org1;
-      new_org1 = new Host(&random, &w, &config, 0);
+      new_org1.New(&random, &w, &config, 0);
       w.AddOrgAt(new_org1, 0);
       
       THEN( "host has interaction value of 0" ) {

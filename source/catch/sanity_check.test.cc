@@ -1,4 +1,4 @@
-unsigned int Cube( unsigned int number ) {
+int Cube( int number ) {
   return number*number*number;
 }
 

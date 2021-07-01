@@ -48,15 +48,18 @@ TEST_CASE("Host SetSymbionts") {
 }
 
 TEST_CASE("Host SymLimit") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random;
+    random.New(-1);
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
 
     Host * h = new Host(random, &w, &config);
 
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s1; 
+    s1.New(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s2; 
+    s2.New(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> syms;
     
@@ -73,6 +76,8 @@ TEST_CASE("Host SymLimit") {
         }
 
     }
+    random.Delete();
+    s1.Delete();
 
 }
 
@@ -262,7 +267,7 @@ TEST_CASE("Host DistribResources") {
         int resources = 100;
         h->DistribResources(resources);
 
-        int host_donation = 10; //host_int_val * resources
+        // int host_donation = 10; //host_int_val * resources
         int host_portion = 90;  //remaining amount
         int sym_steals = 9; //host_portion * sym_int_val * -1
         int sym_portion = 19; //sym_steals + host_donation
@@ -294,9 +299,9 @@ TEST_CASE("Host DistribResources") {
 
 
         int num_syms = 3;
-        double sym_piece = 40; //resources / num_syms
+        // double sym_piece = 40; //resources / num_syms
 
-        int host_donation = 4; //host_int_val * sym_piece
+        // int host_donation = 4; //host_int_val * sym_piece
         double host_portion = 36;  //remaining amount
         double sym_steals = 3.6; //host_portion * sym_int_val * -1
         double sym_portion = 7.6; //sym_steals + host_donation

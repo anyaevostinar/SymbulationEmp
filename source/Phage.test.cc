@@ -14,18 +14,20 @@ TEST_CASE("Phage constructor, GetIntVal") {
 
     int_val = 0;
     Phage * p2 = new Phage(random, world, &config, int_val);
-    expected_int_val = -1;
-    REQUIRE(p->GetIntVal() == expected_int_val);
+    expected_int_val = 0;
+    REQUIRE(p2->GetIntVal() == expected_int_val);
+    delete p;
+    delete p2;
 }
 
 TEST_CASE("Phage reproduce") {
-    emp::Ptr<emp::Random> random = new emp::Random(1);
+    emp::Ptr<emp::Random> random = new emp::Random(3);
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
     config.MUTATE_LYSIS_CHANCE(1);
     config.LYSIS_CHANCE(.5);
-    
+
     WHEN("Mutation rate is zero")  {
         double int_val = 0;
         double parent_orig_int_val = 0;
@@ -47,15 +49,15 @@ TEST_CASE("Phage reproduce") {
             REQUIRE( phage_baby->GetLysisChance() == parent_orig_lysis_chance);
             REQUIRE( p->GetLysisChance() == parent_orig_lysis_chance);
         }
-
         THEN("Offspring's points and burst timer are zero") {
             int phage_baby_points = 0;
             int phage_baby_burst_timer = 0;
             REQUIRE( phage_baby->GetPoints() == phage_baby_points);
             REQUIRE(phage_baby->GetBurstTimer() == phage_baby_burst_timer);
         }
+        delete p;
+        delete phage_baby;
     }
-
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
         double parent_orig_int_val = 0;
@@ -67,11 +69,11 @@ TEST_CASE("Phage reproduce") {
         emp::Ptr<Organism> phage_baby = p->reproduce();
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
-            double phage_baby_int_val = 0.0005266628;
+            double phage_baby_int_val = 0.0011560678;
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE( phage_baby->GetIntVal() == Approx(phage_baby_int_val));
 
-            double phage_baby_lysis_chance = 0.4961644916;
+            double phage_baby_lysis_chance = 0.5027827107;
             REQUIRE( phage_baby->GetLysisChance() != parent_orig_lysis_chance);
             REQUIRE( phage_baby->GetLysisChance() == Approx(phage_baby_lysis_chance));
         }
@@ -82,10 +84,13 @@ TEST_CASE("Phage reproduce") {
             int phage_baby_burst_timer = 0;
             REQUIRE( phage_baby->GetBurstTimer() == phage_baby_burst_timer);
         }
+        delete p;
+        delete phage_baby;
     }
 }
 
-TEST_CASE("SetBurstTimer, IncBurstTimer"){
+TEST_CASE("SetBurstTimer, IncBurstTimer")
+{
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -93,7 +98,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
-    int default_burst_time = 0;
+    // int default_burst_time = 0;
     REQUIRE(p->GetBurstTimer() == 0);
 
     p->IncBurstTimer();
@@ -124,6 +129,8 @@ TEST_CASE("Phage SetLysisChance, GetLysisChance"){
     p->SetLysisChance(lysis_chance);
     double expected_lysis_chance = 0.5;
     REQUIRE(p->GetLysisChance() == expected_lysis_chance);
+
+    delete p;
 }
 
 TEST_CASE("Phage uponInjection"){
@@ -149,6 +156,8 @@ TEST_CASE("Phage uponInjection"){
     p->uponInjection();
     expected_lysogeny = true;
     REQUIRE(p->GetLysogeny() == expected_lysogeny);
+
+    delete p;
 }
 
 TEST_CASE("phage_mutate"){
@@ -168,6 +177,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
         }
+        delete p;
     }
 
     WHEN("Mutation rate is not zero and chance of lysis mutations are not enabled"){
@@ -180,6 +190,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
         }
+        delete p;
     }
 
     WHEN("Mutation rate is zero and chance of lysis mutations are enabled"){
@@ -193,6 +204,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
         }
+        delete p;
     }
 
     WHEN("Mutation rate is zero and chance of lysis mutations are not enabled"){
@@ -206,6 +218,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
         }
+        delete p;
     }
 }
 
@@ -249,12 +262,14 @@ TEST_CASE("Phage process"){
             REQUIRE(p->GetBurstTimer() == expected_burst_timer);
             REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size);
         }
+
+        delete h; //will also delete its syms, including p
     }
 
     WHEN("The phage chooses lysis"){
         config.LYSIS_CHANCE(1.0); //100% chance of lysis, 0% chance of lysogeny
         config.SYM_LYSIS_RES(5);
-        config.BURST_TIME(10); 
+        config.BURST_TIME(10);
 
         WHEN("It is not time to burst"){
             double int_val = 0;
@@ -294,6 +309,7 @@ TEST_CASE("Phage process"){
                     REQUIRE(p->GetPoints() == expected_points);
                 }
             }
+            delete h; //will also delete its syms, including p
         }
 
         WHEN("It is time to burst"){
@@ -317,13 +333,16 @@ TEST_CASE("Phage process"){
             //call the process such that the phage bursts and we can check injection
             int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
             p->SetBurstTimer(10.0);
-            p->process(location);
+            p->process(location); 
 
             THEN("The phage offspring are injected into new hosts and the current host dies"){
                 REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
                 REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
                 REQUIRE(orig_h->GetDead() == true);
             }
+            //deleting hosts also deletes any symbiont pointers
+            // delete orig_h;
+            // delete new_h;
         }
     }
 }
@@ -348,5 +367,7 @@ TEST_CASE("Phage ProcessResources"){
         THEN("Phage doesn't take or give resources to the host"){
             REQUIRE(p->ProcessResources(sym_piece)==expected_return);
         }
+
+        delete p;
     }
 }
