@@ -27,7 +27,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 // settings
   world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
-  world->SetFreeLivingSyms(my_config->FREE_LIVING_PHAGE());
+  world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
@@ -52,7 +52,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
     //world.Inject(*new_org);
   }
 
-  
+
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
   int total_syms = POP_SIZE * start_moi;
