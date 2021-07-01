@@ -37,5 +37,4 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v1.5.2
         with:
-          working-directory: SymbulationEmp
           root_dir: SymbulationEmp
