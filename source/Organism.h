@@ -65,6 +65,9 @@ class Organism {
   virtual double ProcessResources(double sym_piece){
     std::cout << "ProcessResources called from an Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<Organism> GetHost() {
+    std::cout << "GetHost called from an Organism" << std::endl;
+    throw "Organism method called!";}
 
   //EfficientSymbiont functions
   virtual double GetEfficiency() {

@@ -126,18 +126,40 @@ public:
       hostPortion += symReturn; //hostPortion is positive
     }
     else if (hostIntVal <= 0 && symIntVal < 0){ //antagonistic from both sides
-      double hostDefense = -1.0 * (hostIntVal * sym_piece); //pos
-      double remainingResources = sym_piece - hostDefense; //pos
+      double hostDefense = -1.0 * (hostIntVal * sym_piece);
+      double remainingResources = 0.0;
+      remainingResources = sym_piece - hostDefense;
 
-      //if both are hostile, then the symbiont must be more hostile in order to gain any resources
-      if (symIntVal < hostIntVal) { //symbiont overcomes host defenses
+      // if both are hostile, then the symbiont must be more hostile than in order to gain any resources
+      if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
         double symSteals = (hostIntVal - symIntVal) * remainingResources;
 
         symPortion = symSteals;
         hostPortion = remainingResources - symSteals;
+
+      } else { // symbiont cannot overcome host's defenses
+        symPortion = 0.0;
+        hostPortion = remainingResources;
       }
     }
+    else if (hostIntVal > 0 && symIntVal < 0){
+      hostDonation = hostIntVal * sym_piece;
+      hostPortion = sym_piece - hostDonation;
 
+      double symSteals = -1.0 * (hostPortion * symIntVal);
+      hostPortion = hostPortion - symSteals;
+      symPortion = hostDonation + symSteals;
+    }
+    else if (hostIntVal < 0 && symIntVal >= 0){
+      double hostDefense = -1.0 * (hostIntVal * sym_piece);
+      hostPortion = sym_piece - hostDefense;
+
+      // symbiont gets nothing from antagonistic host
+      symPortion = 0.0;
+    }
+    else {
+      std::cout << "This should never happen." << std::endl;
+    }
     this->AddPoints(symPortion);
     return hostPortion;
   }
