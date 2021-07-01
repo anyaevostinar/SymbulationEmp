@@ -40,8 +40,8 @@ public:
   
   //Constructors
   Host(const genome_t & in_genome) : AvidaCPU_Base(in_genome) { ; }
-  Host(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(emp::Genome(inst_lib)) { ; }
-  Host(const inst_lib_t & inst_lib) : AvidaCPU_Base(emp::Genome(&inst_lib)) { ; }
+  Host(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(genome_t(inst_lib)) { ; }
+  Host(const inst_lib_t & inst_lib) : AvidaCPU_Base(genome_t(&inst_lib)) { ; }
   Host() = default;
   Host(const Host &) = default;
   Host(Host &&) = default;

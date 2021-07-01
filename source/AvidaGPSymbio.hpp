@@ -22,8 +22,8 @@ class Symbiont : public emp::AvidaCPU_Base<Symbiont> {
   using typename base_t::inst_lib_t;
 
   Symbiont(const genome_t & in_genome) : AvidaCPU_Base(in_genome) { ; }
-  Symbiont(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(emp::Genome(inst_lib)) { ; }
-  Symbiont(const inst_lib_t & inst_lib) : AvidaCPU_Base(emp::Genome(&inst_lib)) { ; }
+  Symbiont(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(genome_t(inst_lib)) { ; }
+  Symbiont(const inst_lib_t & inst_lib) : AvidaCPU_Base(genome_t(&inst_lib)) { ; }
 
   Symbiont() = default;
   Symbiont(const Symbiont &) = default;
