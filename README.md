@@ -1,6 +1,7 @@
 ![Symbulation Logo](https://github.com/anyaevostinar/SymbulationEmp/blob/main/SymbulationLogo.png "Symbulation")
 
 [![CI](https://github.com/emilydolson/SymbulationEmp/actions/workflows/CI.yml/badge.svg)](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/anyaevostinar/SymbulationEmp/branch/main/graph/badge.svg?token=BVQUX9SK5S)](https://codecov.io/gh/anyaevostinar/SymbulationEmp)
 
 This is a software model of symbiosis which allows for evolution of parasitism and mutualism. 
 
