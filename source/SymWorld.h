@@ -422,12 +422,7 @@ public:
     return newLocIndex;
   }
 
-<<<<<<< HEAD
   size_t MoveFreeSym(size_t i){
-=======
-
-  void MoveFreeSym(size_t i){
->>>>>>> 349e36ca35def3e5ab65d72b79bbb374a652098c
     emp::Ptr<Organism> sym = pop[i];
     if(!sym->IsHost()){
       pop[i] = NULL;
@@ -447,7 +442,7 @@ public:
     for (size_t i : schedule) {
       if (IsOccupied(i) == false){
         continue;
-      } 
+      }
         // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
