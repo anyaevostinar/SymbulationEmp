@@ -88,7 +88,7 @@ int main()
 
     std::cout << (ud+1) << " : " << 0 << " : " << fit0 << std::endl;
     // Keep the best individual.
-    EliteSelect(world, 1, 1);
+    emp::EliteSelect(world, 1, 1);
 
     // Run a tournament for the rest...
     emp::TournamentSelect(world, 5 , POP_SIZE-1);
