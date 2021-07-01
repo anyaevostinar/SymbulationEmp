@@ -32,7 +32,9 @@ jobs:
         run: cd SymbulationEmp && make coverage
         
       - name: Generate coverage
-        run: gcov -abcfu main
+        run: cd SymbulationEmp && gcov -abcfu main.cc
         
       - name: Upload coverage
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v1.5.2
+        with:
+          root_dir: SymbulationEmp

@@ -1,0 +1,2 @@
+ignore:
+  - "soure/catch"  # ignore folders and all its contents
