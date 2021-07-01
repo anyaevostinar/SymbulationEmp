@@ -221,7 +221,7 @@ public:
     DistribResources(resources);
     // Check reproduction
 
-    if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro
+    if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
