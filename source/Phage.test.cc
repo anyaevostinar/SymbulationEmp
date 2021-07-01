@@ -327,3 +327,26 @@ TEST_CASE("Phage process"){
         }
     }
 }
+
+TEST_CASE("Phage ProcessResources"){
+    emp::Ptr<emp::Random> random = new emp::Random(9);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+
+    WHEN("Phage is Lysogenic"){
+        config.LYSIS(1);
+        config.LYSIS_CHANCE(0);
+
+        double int_val=0;
+        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        p->uponInjection();
+
+        double sym_piece = 40;
+        double expected_return = 40;
+
+        THEN("Phage doesn't take or give resources to the host"){
+            REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+        }
+    }
+}
