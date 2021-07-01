@@ -1,3 +1,5 @@
+//note: there is a different symbulation file in Edwin's branch so check which one to use
+
 #include "../SymWorld.h"
 #include "../Phage.h"
 #include "../Symbiont.h"

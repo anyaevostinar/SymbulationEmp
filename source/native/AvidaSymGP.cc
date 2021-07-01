@@ -4,8 +4,8 @@
 #include "../../Empirical/include/emp/hardware/AvidaGP.hpp"
 #include "../../Empirical/include/emp/hardware/InstLib.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
-#include "AvidaGPHost.hpp"
-#include "AvidaGPSymbio.hpp"
+#include "../AvidaGPHost.hpp"
+#include "../AvidaGPSymbio.hpp"
 
 //is this SymWorld.h?
 //#include "../SymbiosisWorld.h"
@@ -91,7 +91,7 @@ int main()
     EliteSelect(world, 1, 1);
 
     // Run a tournament for the rest...
-    TournamentSelect(world, 5 , POP_SIZE-1);
+    emp::TournamentSelect(world, 5 , POP_SIZE-1);
     //LexicaseSelect(world, fit_set, POP_SIZE-1);
     // EcoSelect(world, fit0_fun, fit_set, 100, 5, POP_SIZE-1);
 

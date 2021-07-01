@@ -1,7 +1,7 @@
 # Project-specific settings
-PROJECT := symbulation
+PROJECT := AvidaSymGP
 TEST_MAIN := source/catch/main
-EMP_DIR := ../Empirical/include
+EMP_DIR := ../Empirical/source
 
 # Flags to use regardless of compiler
 CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/
@@ -13,7 +13,7 @@ CFLAGS_nat_debug := -g -DEMP_TRACK_MEM $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
-OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 #--embed-file configs
+OFLAGS_web_all := -s "EXTRA_EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8']" -s TOTAL_MEMORY=67108864 --js-library $(EMP_DIR)/web/library_emp.js --js-library ../Empirical/source/web/d3/library_d3.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 #--embed-file configs
 OFLAGS_web := -Oz -DNDEBUG
 OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
 
