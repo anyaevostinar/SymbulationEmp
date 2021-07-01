@@ -14,7 +14,7 @@ private:
   double vertTrans = 0;
   int total_res = -1;
   bool limited_res = false;
-  bool do_free_living_phage = false;
+  bool do_free_living_syms = false;
 
 
   double resources_per_host_per_update = 0;
@@ -56,7 +56,7 @@ public:
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
-  void SetFreeLivingPhage(bool flp) {do_free_living_phage = flp; }
+  void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
   void SetTotalRes(int val) {
     if(val<0){
       SetLimitedRes(false);
@@ -66,8 +66,6 @@ public:
     }
   }
 
-
-  bool GetDoFreeLivingPhage(){ return do_free_living_phage;}
   emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
@@ -128,12 +126,12 @@ public:
 
   void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
-    if(do_free_living_phage){ newLoc = GetRandomCellID(); }
+    if(do_free_living_syms){ newLoc = GetRandomCellID(); }
 
     if(IsOccupied(newLoc) == true && pop[newLoc]->IsHost()) {
       newSym->SetHost(pop[newLoc]);
       pop[newLoc]->AddSymbiont(newSym);
-    } else if (!IsOccupied(newLoc) && do_free_living_phage) {
+    } else if (!IsOccupied(newLoc) && do_free_living_syms) {
       AddOrgAt(newSym, newLoc);
     } else {
       newSym.Delete();
@@ -172,8 +170,8 @@ public:
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "hosted_phage", "Total number of phage in a host");
-    file.AddTotal(node3, "free_phage", "Total number of free phage");
+    file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
+    file.AddTotal(node3, "free_syms", "Total number of free syms");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -392,7 +390,7 @@ public:
   }
 
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
-    if(!do_free_living_phage){
+    if(!do_free_living_syms){
       int newLoc = GetNeighborHost(i);
       if (newLoc > -1) { //-1 means no living neighbors
         pop[newLoc]->AddSymbiont(sym_baby);
@@ -404,7 +402,7 @@ public:
     }
   }
 
-  void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
+  size_t MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     int newLocIndex = newLoc.GetIndex();
     if(newLoc.IsValid()){
@@ -418,14 +416,16 @@ public:
       } else sym.Delete(); //this shouldn't happen
     }
     else sym.Delete();
+    return newLocIndex;
   }
 
-  void MoveFreeSym(size_t i){
+  size_t MoveFreeSym(size_t i){
     emp::Ptr<Organism> sym = pop[i];
     if(!sym->IsHost()){
       pop[i] = NULL;
-      MoveToFreeWorldPosition(sym, i);
-      //why computer dont like this for sym
+      num_orgs--;
+      size_t newPos = MoveToFreeWorldPosition(sym, i);
+      return newPos;
     }
   }
 
@@ -434,7 +434,7 @@ public:
     emp::World<Organism>::Update();
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-
+  
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false) continue;  // no organism at that cell
@@ -448,12 +448,17 @@ public:
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
-      } else { //sym process
-        if(pop[i]->IsPhage()){
+      } else { //not-host org process
+        if(pop[i]->IsPhage()){//phage process
           pop[i]->process(0,i);
-        }
-        else {
-          pop[i]->process(PullResources(),i);
+        } else {//sym process
+          emp::Ptr<Organism> sym = pop[i];
+          size_t newPos = MoveFreeSym(i);
+          if(sym->GetHost() == NULL){ //check if it gets to grab world resources
+            sym->process(PullResources(),newPos);
+          } else {
+            sym->process(0,newPos);
+          }
         }
       }
     } // for each cell in schedule

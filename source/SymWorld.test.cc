@@ -241,8 +241,8 @@ TEST_CASE( "Syms injected correctly" ){
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
     WHEN( "free living syms are not allowed" ){
-      config.FREE_LIVING_PHAGE(0);
-      w.SetFreeLivingPhage(false);
+      config.FREE_LIVING_SYMS(0);
+      w.SetFreeLivingSyms(false);
 
       THEN( "syms are injected into a random host" ){
         w.InjectSymbiont(sym);
@@ -253,8 +253,8 @@ TEST_CASE( "Syms injected correctly" ){
       }
     }
     WHEN( "free living syms are allowed" ){
-      config.FREE_LIVING_PHAGE(1);
-      w.SetFreeLivingPhage(true);
+      config.FREE_LIVING_SYMS(1);
+      w.SetFreeLivingSyms(true);
 
       THEN( "syms can be injected into a random empty cell" ){
         w.InjectSymbiont(sym);
@@ -332,8 +332,8 @@ TEST_CASE( "SymDoBirth" ) {
     w.Resize(2,2);
 
     WHEN( "free living phage are not allowed" ) {
-      config.FREE_LIVING_PHAGE(0);
-      w.SetFreeLivingPhage(false);
+      config.FREE_LIVING_SYMS(0);
+      w.SetFreeLivingSyms(false);
 
       WHEN( "there is a valid neighbouring host" ){
         emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
@@ -364,8 +364,8 @@ TEST_CASE( "SymDoBirth" ) {
 
 
     WHEN( "free living phage are allowed"){
-      config.FREE_LIVING_PHAGE(1);
-      w.SetFreeLivingPhage(true);
+      config.FREE_LIVING_SYMS(1);
+      w.SetFreeLivingSyms(true);
       config.SYM_LIMIT(3);
 
       emp::Ptr<Host> host1 = new Host(&random, &w, &config, int_val);
@@ -430,10 +430,8 @@ TEST_CASE( "Update" ){
     int int_val = 0;
     SymWorld w(random);
     w.Resize(2,2);
-    w.SetLimitedRes(0);
     int resPerUpdate = 10;
     w.SetResPerUpdate(resPerUpdate);
-
 
     emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
 
@@ -458,41 +456,76 @@ TEST_CASE( "Update" ){
       }
     }
     WHEN("free living syms are allowed"){
-      w.SetFreeLivingPhage(1);
+      int resPerUpdate = 80;
+      w.SetResPerUpdate(resPerUpdate);
+      w.Resize(4,4);
+      w.SetFreeLivingSyms(1);
+      config.FREE_LIVING_SYMS(1);
+
       WHEN("there are no syms in the world"){
         THEN("hosts process normally"){
           w.AddOrgAt(host, 0);
-          REQUIRE(w.GetNumOrgs() == 1);
-
+          int orig_points = host->GetPoints();
           w.Update();
-          REQUIRE(host->GetPoints() == resPerUpdate);
+
+          REQUIRE(host->GetPoints() - orig_points == resPerUpdate);
         }
       }
-      WHEN("there are syms in the world"){
-        config.LYSIS(1);
-        w.SetLimitedRes(0);
-        int burst_time = 5;
-        config.BURST_TIME(burst_time);
-        int resPerUpdate = 500;
-        w.SetResPerUpdate(resPerUpdate);
-        w.Resize(4,4);
 
-        THEN("if only syms nothing changes"){
-          w.SymDoBirth(new Symbiont(&random, &w, &config, int_val), 0);
-          for(int i = 0; i <= burst_time; i++){
-            w.Update();
+      WHEN("lysis is permitted, and thus phage are used"){
+        config.LYSIS(1);
+        int burst_time = 2;
+        config.BURST_TIME(burst_time);
+        emp::Ptr<Organism> p = new Phage(&random, &w, &config, int_val);
+
+        WHEN("there are no hosts"){
+          THEN("phage don't reproduce or get points on update"){
+            w.SymDoBirth(p, 0);
+
+            int orig_num_orgs = w.GetNumOrgs();
+            int orig_points = p->GetPoints();
+
+            for(int i = 0; i < 4; i ++){
+              w.Update();
+            }
+
+            int new_num_orgs = w.GetNumOrgs();
+            int new_points = p->GetPoints();
+
+            REQUIRE(new_num_orgs == orig_num_orgs);
+            REQUIRE(new_points == orig_points);
           }
-          REQUIRE(w.GetNumOrgs() == 1);
+        }
+        WHEN("there are hosts"){
+          THEN("phage and hosts mingle in the world"){
+            w.AddOrgAt(host, 0);
+            w.SymDoBirth(p, 1);
+
+            for(int i = 0; i < 5; i++){
+              w.Update();
+            }
+
+            REQUIRE(w.GetNumOrgs() == 2);
+          }
+        }
+      }
+
+      WHEN("lysis is not permitted, and symbionts are used"){
+        config.LYSIS(0);
+        config.HORIZ_TRANS(1);
+        THEN("if only syms in the world they can get resources and reproduce"){
+          emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+          w.SymDoBirth(sym, 0);
+          for(int i = 0; i <= 4; i++){ w.Update(); }
+
+          REQUIRE(w.GetNumOrgs() == 3);
         }
         THEN("hosts and syms can mingle in the environment"){
           w.AddOrgAt(host, 0);
-          w.SymDoBirth(new Symbiont(&random, &w, &config, int_val), 1);
+          w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), 1);
+          for(int i = 0; i <= 4; i++){ w.Update(); }
 
-          for(int i = 0; i <= burst_time; i++){
-            w.Update();
-          }
-
-          REQUIRE(w.GetNumOrgs() == 5);
+          REQUIRE(w.GetNumOrgs() == 7);
         }
       }
     }
