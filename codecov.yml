@@ -1,5 +1,5 @@
 ignore:
-  - "soure/catch"  # ignore folders and all its contents
+  - "source/catch"  # ignore folders and all its contents
   - "stats_scripts" # the scripts for statistics do not currently have a test framework
   - "web" # the web code does not currently have a test framework
   - "source/Organism.h"
