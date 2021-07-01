@@ -11,6 +11,7 @@
 //#include "../SymbiosisWorld.h"
 
 
+
 void Print(const Host & cpu) {
   for (size_t i = 0; i < 16; i++) {
     std::cout << "[" << cpu.GetReg(i) << "] ";
