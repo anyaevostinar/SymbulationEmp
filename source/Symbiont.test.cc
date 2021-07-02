@@ -373,11 +373,11 @@ TEST_CASE("Symbiont ProcessResources"){
         Host * h = new Host(random, &w, &config, host_int_val);
         h->AddSymbiont(s);
 
-        int resources = 100;
-        int host_donation = host_int_val * resources;
-        int host_portion = resources - host_donation;
-        int sym_steals = host_portion * sym_int_val * -1;
-        int sym_portion = sym_steals + host_donation;
+        double resources = 40;
+        double host_donation = host_int_val * resources;
+        double host_portion = resources - host_donation;
+        double sym_steals = host_portion * sym_int_val * -1;
+        double sym_portion = sym_steals + host_donation;
 
         double sym_piece = 40;
         s->ProcessResources(sym_piece);
