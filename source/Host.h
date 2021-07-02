@@ -170,12 +170,14 @@ public:
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
+          emp::Ptr<Organism> curSym = syms[j];
           if (GetDead()){ 
             return; //If previous symbiont killed host, we're done
           }
-          syms[j]->process(location);
-          if(syms[j]->GetDead()){
+          curSym->process(location);
+          if(curSym->GetDead()){
             syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+            curSym.Delete();
           }
         } //for each sym in syms
       } //if org has syms

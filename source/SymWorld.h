@@ -279,16 +279,6 @@ public:
 	      if(syms.empty()) { //uninfected
           data_node_cfu->AddDatum(1);
 	      } 
-        else { //infected, check for lytic phage
-          bool all_lysogenic = true;
-          for(size_t i=0; i < syms.size(); i++){
-            //if any of syms[i] is lytic, set all_lysogenic to false
-            //TODO - how to tell if a sym is a phage 
-          }
-          if (all_lysogenic){
-            data_node_cfu->AddDatum(1);
-          }
-        }
 	    } //endif isoccupied
 	  } //end for
 	}); //end OnUpdate
