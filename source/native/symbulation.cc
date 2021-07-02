@@ -35,6 +35,7 @@ int symbulation_main(int argc, char * argv[])
   	exit(1);
   }
 
+  config.Write(std::cout);
   emp::Random random(config.SEED());
       
   SymWorld world(random);

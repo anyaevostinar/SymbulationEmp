@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/emilydolson/SymbulationEmp/actions/workflows/CI.yml/badge.svg)](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/anyaevostinar/SymbulationEmp/branch/main/graph/badge.svg?token=BVQUX9SK5S)](https://codecov.io/gh/anyaevostinar/SymbulationEmp)
+[![DOI](https://zenodo.org/badge/92536524.svg)](https://zenodo.org/badge/latestdoi/92536524)
+
 
 This is a software model of symbiosis which allows for evolution of parasitism and mutualism. 
 

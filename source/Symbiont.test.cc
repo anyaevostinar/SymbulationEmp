@@ -294,3 +294,112 @@ TEST_CASE("process") {
     }
 
 }
+
+TEST_CASE("Symbiont ProcessResources"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    config.SYNERGY(5);
+
+    WHEN("Host interaction value >= 0 and  Symbiont interaction value >= 0") {
+        double host_int_val = 0.5;
+        double sym_int_val = 1;
+
+        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
+        Host * h = new Host(random, &w, &config, host_int_val);
+        h->AddSymbiont(s);
+
+        double sym_piece = 40;
+        // double host_donation = 20; //sym_piece * host_int_val;  
+        double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
+        s->ProcessResources(sym_piece);
+
+        THEN("Symbiont points increase") {
+            REQUIRE(s->GetPoints() == sym_portion);
+        }
+    }
+
+    WHEN("Host and symbiont interaction values <0"){
+        double host_int_val = -0.5;
+        double sym_int_val = -0.1;
+
+        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
+        Host * h = new Host(random, &w, &config, host_int_val);
+        h->AddSymbiont(s);
+
+        WHEN("Host interaction value < symbiont interaction value"){
+            double sym_orig_points = 0;
+            double sym_piece = 40;
+            s->ProcessResources(sym_piece);
+            
+            THEN("Symbiont points do not change (gets nothing from host)") {
+                REQUIRE(s->GetPoints() == sym_orig_points);
+            }
+
+        }
+        WHEN("Host interaction value > symbiont interaction value") {
+            double host_int_val = -0.2;
+            double sym_int_val = -0.6;
+            double sym_orig_points = 0;
+
+            Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
+            Host * h = new Host(random, &w, &config, host_int_val);
+            h->AddSymbiont(s);
+
+            double sym_piece = 40;
+            // double host_defense = 8; // -1 * (host_int_val * sym_piece);
+            // double remaining_resources = 32; //sym_piece - host_defense;
+            double sym_steals = 12.8; //(host_int_val - sym_int_val) * remaining_resources;
+            s->ProcessResources(sym_piece);
+            
+            THEN("Symbiont steals resources and points increase"){
+                REQUIRE(s->GetPoints() == Approx(sym_steals));
+                REQUIRE(s->GetPoints() > sym_orig_points);
+            }
+        }
+
+
+    }
+
+    WHEN("Host interaction value > 0 and Symbiont interaction value < 0") {
+        double host_int_val = 0.1;
+        double sym_int_val = -0.1;
+        double sym_orig_points = 0;
+
+        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
+        Host * h = new Host(random, &w, &config, host_int_val);
+        h->AddSymbiont(s);
+
+        // double resources = 40;
+        // double host_donation = 4; //host_int_val * resources;
+        // double host_portion = 36; //resources - host_donation;
+        // double sym_steals = 3.6; //host_portion * sym_int_val * -1;
+        double sym_portion = 7.6; //sym_steals + host_donation;
+
+        double sym_piece = 40;
+        s->ProcessResources(sym_piece);
+        THEN("Symbiont points increase the correct amount"){
+            REQUIRE(s->GetPoints() == sym_orig_points+sym_portion);
+        }
+    } 
+
+    WHEN("Host interaction value < 0 and Symbiont interaction value >= 0"){
+        double host_int_val = -0.1;
+        double sym_int_val = 0.8;
+        double symbiont_orig_points = 0;
+
+        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
+        Host * h = new Host(random, &w, &config, host_int_val);
+        h->AddSymbiont(s);
+
+        double sym_piece = 40;
+        double sym_portion = 0;
+
+        s->ProcessResources(sym_piece);
+        
+        THEN("Symbiont points do not change (gets nothing from host)"){
+            REQUIRE(s->GetPoints() == sym_portion);
+            REQUIRE(s->GetPoints() == symbiont_orig_points);
+        }
+    }   
+}

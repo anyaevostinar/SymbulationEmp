@@ -22,6 +22,7 @@ TEST_CASE("Host SetSymbionts") {
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
+    config.SYM_LIMIT(2);
 
     Host * h = new Host(random, &w, &config);
     Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
@@ -32,7 +33,14 @@ TEST_CASE("Host SetSymbionts") {
     syms.push_back(s2);
 
     h->SetSymbionts(syms);
-    REQUIRE(h->GetSymbionts() == syms);
+
+    REQUIRE(h->GetSymbionts().size() == syms.size());
+
+    for(size_t i = 0; i < syms.size(); i++){
+        emp::Ptr<Organism> curSym = h->GetSymbionts()[i];
+        REQUIRE(curSym == syms[i]);
+        REQUIRE(curSym->GetHost() == h);
+    }
 
     bool has_sym = true;
     REQUIRE(h->HasSym() == has_sym);
@@ -151,6 +159,7 @@ TEST_CASE("Host DistribResources") {
 
         double resources = 120;
         h->DistribResources(resources);
+
 
         int num_syms = 3;
         double sym_piece = resources / num_syms; // how much resource each sym gets
