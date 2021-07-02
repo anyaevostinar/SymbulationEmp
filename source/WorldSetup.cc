@@ -33,7 +33,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;
   //inject organisms
-  for (size_t i = 0; i < POP_SIZE; i++){
+  for (int i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
     if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
     } else if (my_config->COMPETITION_MODE() && i%2==0) {
@@ -68,10 +68,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
            sym_int, 0);
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
-        }
-        //Set the chance of lysis vs. lysogeny for the starting population of phage
-        if(my_config->LYSIS_CHANCE() == -1){ //random chance
-          new_sym->SetLysisChance(random.GetDouble(0.0, 1.0));
         }
         world->InjectSymbiont(new_sym);
         

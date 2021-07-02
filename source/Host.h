@@ -27,19 +27,18 @@ public:
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : random(_random), my_world(_world), my_config(_config),
-  interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
-  res_types(_set), points(_points) { 
+  double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
+  res_types(_set), points(_points), random(_random), my_world(_world), my_config(_config) { 
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
    }
 
   ~Host(){
-    for(int i=0; i<syms.size(); i++){
+    for(size_t i=0; i<syms.size(); i++){
       syms[i].Delete();
     }
-    for(int j=0; j<repro_syms.size(); j++){
+    for(size_t j=0; j<repro_syms.size(); j++){
       repro_syms[j].Delete();
     }
   }
@@ -86,7 +85,7 @@ public:
 
 
   void AddSymbiont(emp::Ptr<Organism> _in) {
-    if(syms.size() < my_config->SYM_LIMIT()){
+    if((int)syms.size() < my_config->SYM_LIMIT()){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->uponInjection();

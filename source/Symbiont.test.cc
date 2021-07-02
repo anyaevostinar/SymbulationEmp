@@ -13,9 +13,11 @@ TEST_CASE("Symbiont Constructor") {
 
     int_val = -1;
     Symbiont * s = new Symbiont(random, world, &config, int_val);
+    CHECK(s->GetIntVal() == int_val);
 
     int_val = 1;
     Symbiont * s2 = new Symbiont(random, world, &config, int_val);
+    CHECK(s2->GetIntVal() == int_val);
 
     int_val = 2;
     REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) ); 
@@ -162,6 +164,8 @@ TEST_CASE("reproduce") {
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
+
+        sym_baby.Delete();
     }
 
 
@@ -192,6 +196,7 @@ TEST_CASE("reproduce") {
 
         }
 
+        sym_baby.Delete();
     }
  
 }
@@ -206,7 +211,7 @@ TEST_CASE("process") {
 
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
-        double parent_orig_int_val = 1;
+        // double parent_orig_int_val = 1;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(140.0);
         config.HORIZ_TRANS(true);
@@ -229,7 +234,7 @@ TEST_CASE("process") {
 
     WHEN("Horizontal transmission is true and points is less than sym_h_res") {
         double int_val = 1;
-        double parent_orig_int_val = 1;
+        // double parent_orig_int_val = 1;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(200.0);
         config.HORIZ_TRANS(true);
@@ -252,7 +257,7 @@ TEST_CASE("process") {
 
     WHEN("Horizontal transmission is false and points and points is greater then sym_h_res") {
         double int_val = 1;
-        double parent_orig_int_val = 1;
+        // double parent_orig_int_val = 1;
         double points = 100.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
@@ -271,7 +276,7 @@ TEST_CASE("process") {
 
     WHEN("Horizontal transmission is false and points and points is less then sym_h_res") {
         double int_val = 1;
-        double parent_orig_int_val = 1;
+        // double parent_orig_int_val = 1;
         double points = 40.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
