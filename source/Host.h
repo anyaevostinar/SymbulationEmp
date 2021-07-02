@@ -216,8 +216,9 @@ public:
 
   } //end DistribResources
 
-  void Process(double resources, int location) {
+  void Process(size_t location) {
     //Currently just wrapping to use the existing function
+    double resources = my_world->PullResources();
     DistribResources(resources);
     // Check reproduction
 
@@ -247,16 +248,14 @@ public:
         return; //If host is dead, return
       }
     if (HasSym()) { //let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
-        for(size_t j = 0; j < syms.size(); j++){
-          if (GetDead()){
-            return; //If previous symbiont killed host, we're done
-          }
-          syms[j]->process(0, location);
-
-
-        } //for each sym in syms
-      } //if org has syms
+      emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+      for(size_t j = 0; j < syms.size(); j++){
+        if (GetDead()){
+          return; //If previous symbiont killed host, we're done
+        }
+        syms[j]->Process(location);
+      } //for each sym in syms
+    } //if org has syms
   }
 
 };//Host

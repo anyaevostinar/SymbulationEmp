@@ -48,7 +48,7 @@ public:
     return sym_baby;
   }
 
-  void process(double resources, size_t location) {
+  void Process(size_t location) {
     if(lysis && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(GetBurstTimer() >= burst_time) { //time to lyse!
         emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();

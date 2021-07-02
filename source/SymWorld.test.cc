@@ -525,7 +525,7 @@ TEST_CASE( "Update" ){
           w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), 1);
           for(int i = 0; i <= 4; i++){ w.Update(); }
 
-          REQUIRE(w.GetNumOrgs() == 7);
+          REQUIRE(w.GetNumOrgs() == 4);
         }
       }
     }

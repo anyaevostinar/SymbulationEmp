@@ -16,7 +16,7 @@ TEST_CASE("Phage Process") {
 
     WHEN("Lysis is enabled and the Phage's burst timer >= the burst time") {
 
-        p->SetHost(h); 
+        p->SetHost(h);
         int time = 15;
         p->SetBurstTimer(time);
 
@@ -26,9 +26,9 @@ TEST_CASE("Phage Process") {
         THEN("Lysis occurs, the host dies") {
             size_t location = 2;
             double resources_per_host_per_update = 40;
-            
-            p->process(0,location);
-            
+
+            p->Process(location);
+
             bool host_dead = true;
             std::vector<emp::Ptr<Organism>> empty_syms = {};
             REQUIRE(h->GetDead() == host_dead);
@@ -52,18 +52,18 @@ TEST_CASE("Phage Process") {
 
         h->AddReproSym(p1);
         h->AddReproSym(p2);
-        std::vector<emp::Ptr<Organism>> repro_syms = {p1, p2}; 
+        std::vector<emp::Ptr<Organism>> repro_syms = {p1, p2};
         int num_host_orig_syms = 2;
         p->SetHost(h);
 
         THEN("Phage reproduces, Host gains repro symbionts, Phage loses points") {
             size_t location = 2;
             bool host_dead = false;
-            
-            p->process(0,location);
+
+            p->Process(location);
 
             REQUIRE(h->GetDead() == false);
-            
+
             std::vector<emp::Ptr<Organism>> updated_repro_syms = h->GetReproSymbionts();
 
             REQUIRE( updated_repro_syms.size() > num_host_orig_syms); // host gained repro syms
@@ -74,5 +74,5 @@ TEST_CASE("Phage Process") {
         }
 
     }
-    
+
 }

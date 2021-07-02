@@ -57,6 +57,7 @@ public:
     return interaction_val;}
   double GetPoints() {return points;}
   bool IsPhage() {return false;}
+  bool IsHost() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
   //  std::set<int> GetResTypes() const {return res_types;}
 
@@ -70,11 +71,11 @@ public:
         interaction_val = _in;
      }
   }
-
-  void SetPoints(double _in) { points = _in;}
+  void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
-  bool IsHost() { return false; }
+
+
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
 
@@ -103,8 +104,9 @@ public:
     //}
   }
 
-  void process(double resources, size_t location) {
+  void Process(size_t location) {
     if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
+      double resources = my_world->PullResources();
       AddPoints(resources);
     }
     if (h_trans) { //non-lytic horizontal transmission enabled
@@ -118,6 +120,9 @@ public:
         //HorizMutate();
         my_world->SymDoBirth(sym_baby, location);
       }
+    }
+
+    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);
     }
   }
 
