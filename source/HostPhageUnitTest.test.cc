@@ -89,3 +89,119 @@ TEST_CASE("Phage Process") {
         random.Delete();
     }    
 }
+
+TEST_CASE("Phage Vertical Transmission"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    config.LYSIS(1);
+
+    WHEN("phage is lytic"){
+        config.LYSIS_CHANCE(1);
+
+        WHEN("Vertical Transmission is enabled"){
+            world->SetVertTrans(1);
+            double host_int_val = .5;
+            double sym_int_val = -.5;
+            
+            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+            h->AddSymbiont(p);
+
+            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+            p->VerticalTransmission(host_baby);
+
+            THEN ("Phage does not vertically transmit") {
+                REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+            }
+        }
+         WHEN("Vertical Transmission is disabled"){
+            world->SetVertTrans(0);
+            double host_int_val = .5;
+            double sym_int_val = -.5;
+            
+            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+            h->AddSymbiont(p);
+
+            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+            p->VerticalTransmission(host_baby);
+
+            THEN ("Phage does not vertically transmit") {
+                REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+            }
+        }
+
+    }
+
+    WHEN("phage is lysogenic"){
+        config.LYSIS_CHANCE(0);
+
+        WHEN("Vertical Transmission is enabled"){
+            world->SetVertTrans(1);
+            double host_int_val = .5;
+            double sym_int_val = -.5;
+            
+            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+            h->AddSymbiont(p);
+
+            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            long unsigned int expected_sym_size = host_baby->GetSymbionts().size() +1;
+            p->VerticalTransmission(host_baby);
+
+            THEN ("Phage does vertically transmit") {
+                REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+            }
+        }
+         WHEN("Vertical Transmission is disabled"){
+            world->SetVertTrans(0);
+            double host_int_val = .5;
+            double sym_int_val = -.5;
+            
+            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+            h->AddSymbiont(p);
+        
+            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            long unsigned int expected_sym_size = host_baby->GetSymbionts().size()+1;
+            p->VerticalTransmission(host_baby);
+
+            THEN ("Phage does vertically transmit") {
+                REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+            }
+        }
+
+    }
+
+}
+
+TEST_CASE("Host phage death and removal from syms list"){
+    emp::Ptr<emp::Random> random = new emp::Random(6);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+        
+    WHEN("when phage is dead"){
+        double host_int_val = .5;
+        double sym_int_val = -.5;
+
+        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+        emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+       
+        p->SetLysisChance(0);
+        h->AddSymbiont(p);
+        p->SetDead();
+
+        long unsigned int expected_sym_size = 0;
+        h->Process(100,0);
+
+        THEN("phage is removed from syms list"){
+            REQUIRE(h->GetSymbionts().size() == expected_sym_size);
+        }
+    }
+
+}
