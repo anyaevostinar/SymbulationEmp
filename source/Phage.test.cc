@@ -61,7 +61,6 @@ TEST_CASE("Phage reproduce") {
         double int_val = 0;
         double parent_orig_int_val = 0;
         double parent_orig_lysis_chance=.5;
-        double points = 0.0;
         config.MUTATION_RATE(1);
         config.MUTATION_SIZE(0.002);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -250,8 +249,7 @@ TEST_CASE("Phage process"){
         double expected_burst_timer = 0;
         p->SetBurstTimer(burst_timer);
 
-        int orig_repro_syms_size = size(h->GetReproSymbionts());
-        int expected_repro_syms_size = size(h->GetReproSymbionts());
+        long unsigned int expected_repro_syms_size = size(h->GetReproSymbionts());
 
         p->process(location);
 
@@ -272,7 +270,6 @@ TEST_CASE("Phage process"){
 
         WHEN("It is not time to burst"){
             double int_val = 0;
-            double expected_int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
             Host * h = new Host(random, &w, &config, int_val);
             h->AddSymbiont(p);
@@ -329,7 +326,7 @@ TEST_CASE("Phage process"){
             orig_h->AddReproSym(p_baby2);
  
             //call the process such that the phage bursts and we can check injection
-            int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
+            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
             p->SetBurstTimer(10.0);
             p->process(location); 
 

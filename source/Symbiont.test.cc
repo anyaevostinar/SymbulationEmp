@@ -299,7 +299,6 @@ TEST_CASE("Symbiont ProcessResources"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
-    SymWorld * world = &w;
     config.SYNERGY(5);
 
     WHEN("Host interaction value >= 0 and  Symbiont interaction value >= 0") {
@@ -311,7 +310,7 @@ TEST_CASE("Symbiont ProcessResources"){
         h->AddSymbiont(s);
 
         double sym_piece = 40;
-        double host_donation = 20; //sym_piece * host_int_val;  
+        // double host_donation = 20; //sym_piece * host_int_val;  
         double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
         s->ProcessResources(sym_piece);
 
@@ -348,8 +347,8 @@ TEST_CASE("Symbiont ProcessResources"){
             h->AddSymbiont(s);
 
             double sym_piece = 40;
-            double host_defense = 8; // -1 * (host_int_val * sym_piece);
-            double remaining_resources = 32; //sym_piece - host_defense;
+            // double host_defense = 8; // -1 * (host_int_val * sym_piece);
+            // double remaining_resources = 32; //sym_piece - host_defense;
             double sym_steals = 12.8; //(host_int_val - sym_int_val) * remaining_resources;
             s->ProcessResources(sym_piece);
             
@@ -371,10 +370,10 @@ TEST_CASE("Symbiont ProcessResources"){
         Host * h = new Host(random, &w, &config, host_int_val);
         h->AddSymbiont(s);
 
-        double resources = 40;
-        double host_donation = 4; //host_int_val * resources;
-        double host_portion = 36; //resources - host_donation;
-        double sym_steals = 3.6; //host_portion * sym_int_val * -1;
+        // double resources = 40;
+        // double host_donation = 4; //host_int_val * resources;
+        // double host_portion = 36; //resources - host_donation;
+        // double sym_steals = 3.6; //host_portion * sym_int_val * -1;
         double sym_portion = 7.6; //sym_steals + host_donation;
 
         double sym_piece = 40;
