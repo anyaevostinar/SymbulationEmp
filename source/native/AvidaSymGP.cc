@@ -26,7 +26,7 @@ constexpr size_t UPDATES = 100;
 int main()
 {
   emp::Random random;
-  emp::World<host> world(random, "AvidaWorld");
+  emp::World<Host> world(random, "AvidaWorld");
   world.SetPopStruct_Mixed(true);
 
   // Build a random initial popoulation.

@@ -25,7 +25,7 @@ class Host : public emp::AvidaCPU_Base<Host>{
   emp::vector<Symbiont> syms;
 
   //make instance of points here, would this be vector symbiont?
-  emp::vector<Symbiont> points;
+  emp::vector<Host> points;
 
   /*
   bool HasSym() {
