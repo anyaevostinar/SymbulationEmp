@@ -91,6 +91,25 @@ TEST_CASE("SetPoints, GetPoints") {
     REQUIRE(s->GetPoints() == orig_points);
 }
 
+TEST_CASE("Symbiont SetDead, GetDead"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    
+    double int_val = -1;
+    Symbiont * s = new Symbiont(random, world, &config, int_val);
+
+    //new symbionts are alive until specified otherwise
+    bool expected_dead = false;
+    REQUIRE(s->GetDead() == expected_dead);
+
+    //verify that setting it to dead means that death is set to true
+    expected_dead = true;
+    s->SetDead();
+    REQUIRE(s->GetDead() == expected_dead);
+}
+
 TEST_CASE("mutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
