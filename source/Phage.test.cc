@@ -100,7 +100,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     REQUIRE(p->GetBurstTimer() == 0);
 
     p->IncBurstTimer();
-    double incremented_burst_time = 1.3804783599;
+    double incremented_burst_time = 2.0760424677;
     REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
 
     int burst_time = 15;
@@ -110,7 +110,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     REQUIRE(p->GetBurstTimer() == expected_burst_time);
 
     p->IncBurstTimer();
-    incremented_burst_time = 17.2075375655;
+    incremented_burst_time = 17.2344552608;
     REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
 
 }

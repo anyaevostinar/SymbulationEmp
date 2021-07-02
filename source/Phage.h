@@ -24,7 +24,7 @@ public:
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
     if(chance_of_lysis == -1){
-      chance_of_lysis = random.GetDouble(0.0, 1.0);
+      chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
   }
   Phage(const Phage &) = default;
