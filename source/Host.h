@@ -115,7 +115,7 @@ public:
 
   void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
-    double synergy = my_config->SYNERGY();
+
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 

@@ -32,7 +32,6 @@ TEST_CASE("Phage reproduce") {
         double int_val = 0;
         double parent_orig_int_val = 0;
         double parent_orig_lysis_chance=.5;
-        double points = 0.0;
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -314,7 +313,6 @@ TEST_CASE("Phage process"){
 
         WHEN("It is time to burst"){
             double int_val = 0;
-            double expected_int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
             
             //create two hosts and add both to world as neighbors
