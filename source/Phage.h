@@ -21,8 +21,11 @@ public:
     burst_time = my_config->BURST_TIME();
     sym_lysis_res = my_config->SYM_LYSIS_RES();
     lysis_enabled = my_config->LYSIS();
-    chance_of_lysis = my_config->LYSIS_CHANCE();
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
+    chance_of_lysis = my_config->LYSIS_CHANCE();
+    if(chance_of_lysis == -1){
+      chance_of_lysis = random.GetDouble(0.0, 1.0);
+    }
   }
   Phage(const Phage &) = default;
   Phage(Phage &&) = default;
