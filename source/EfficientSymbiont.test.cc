@@ -26,7 +26,7 @@ TEST_CASE("EfficientSymbiont mutate") {
 
     WHEN("Mutation rate is zero") {
         double int_val = 1;
-        int orig_efficiency = 0.5;
+        double orig_efficiency = 0.5;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
