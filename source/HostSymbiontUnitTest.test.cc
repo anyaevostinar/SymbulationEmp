@@ -37,9 +37,11 @@ TEST_CASE("Host SetSymbionts") {
     REQUIRE(h->GetSymbionts().size() == syms.size());
 
     for(size_t i = 0; i < syms.size(); i++){
-        emp::Ptr<Organism> curSym = h->GetSymbionts()[i];
-        REQUIRE(curSym == syms[i]);
-        REQUIRE(curSym->GetHost() == h);
+        emp::vector<emp::Ptr<Organism>> host_syms = h->GetSymbionts();
+        Organism * curSym = host_syms[i];
+        Organism * curHost = curSym->GetHost();
+        REQUIRE(curSym == (Organism *) syms[i]);
+        REQUIRE(curHost == h);
     }
 
     bool has_sym = true;

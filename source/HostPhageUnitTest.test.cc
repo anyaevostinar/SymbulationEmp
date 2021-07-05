@@ -184,6 +184,7 @@ TEST_CASE("Host phage death and removal from syms list"){
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
+    config.SYM_LIMIT(2);
         
     WHEN("there is a single lysogenic phage and it is dead"){
         config.LYSIS_CHANCE(0);
@@ -209,19 +210,23 @@ TEST_CASE("Host phage death and removal from syms list"){
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
-        emp::Ptr<Phage> p1 = new Phage(random, world, &config, sym_int_val);
-        emp::Ptr<Phage> p2 = new Phage(random, world, &config, sym_int_val);
+        Host * h = new Host(random, world, &config, host_int_val);
+        Phage * p1 = new Phage(random, world, &config, sym_int_val);
+        Phage * p2 = new Phage(random, world, &config, 0.0);
 
         h->AddSymbiont(p1);
         h->AddSymbiont(p2);
         p1->SetDead();
 
-        long unsigned int expected_sym_size;
-
+        long unsigned int expected_sym_size = 1;
+        h->Process(100, 0);
 
         THEN("Only the dead phage is removed from the syms list"){
+            REQUIRE(h->GetSymbionts().size() == expected_sym_size);
 
+            Organism * curSym = h->GetSymbionts()[0];
+            REQUIRE(curSym->GetIntVal() == p2->GetIntVal());
+            REQUIRE(curSym == p2);
         }
     }
 
