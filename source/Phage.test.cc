@@ -353,7 +353,9 @@ TEST_CASE("Phage ProcessResources"){
         config.LYSIS_CHANCE(0);
 
         double int_val=0;
-        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        //emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        emp::Ptr<Phage> p;
+        p.New(random, world, &config, int_val)
         p->uponInjection();
 
         double sym_piece = 40;
@@ -363,6 +365,6 @@ TEST_CASE("Phage ProcessResources"){
             REQUIRE(p->ProcessResources(sym_piece)==expected_return);
         }
 
-        delete p;
+        p.Delete();
     }
 }
