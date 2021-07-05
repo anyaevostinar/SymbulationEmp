@@ -1,4 +1,6 @@
 #a script to run several replicates of several treatments locally
+#RUN SIMPLE_REPEATS.PY FROM WITHIN THE FOLDER WHERE THE DATA SHOULD GO
+#EX: INSIDE OF SymbulationEmp/Data, RUN python3 ../stats_scripts/simple_repeats.py
 import sys
 
 directory = "PartPop/"
@@ -31,20 +33,18 @@ if(len(sys.argv) > 1):
 
 seeds = range(start_range, end_range)
 
-cmd("mkdir "+directory)
 print("Copying SymSettings.cfg and executable to "+directory)
-cmd("cp SymSettings.cfg "+directory)
-cmd("cp symbulation "+directory)
-cmd("cd "+directory)
+cmd("cp ../SymSettings.cfg .")
+cmd("cp ../symbulation .")
 print("Using seeds", start_range, "up to", end_range)
 
 for a in seeds:
     for b in start_mois:
         for c in slrs:
-            command_str = './symbulation -SEED '+str(a)+' -START_MOI '+str(b)+' -FILE_PATH '+directory+' -FILE_NAME SM'+str(b)+'_Seed'+str(a)+'_SLR'+str(c)+' -SYM_LYSIS_RES '+str(c)
+            command_str = './symbulation -SEED '+str(a)+' -START_MOI '+str(b)+' -FILE_NAME SM'+str(b)+'_Seed'+str(a)+'_SLR'+str(c)+' -SYM_LYSIS_RES '+str(c)
             # command_str = './symbulation -SEED '+str(a)+' -START_MOI '+str(b)+' -FILE_PATH '+directory+' -FILE_NAME SM'+str(b)+'_Seed'+str(a)+'_VT'+str(c)+' -VERTICAL_TRANSMISSION '+str(c)
             # command_str = './symbulation -SEED '+str(a)+' -START_MOI '+str(b)+' -FILE_PATH '+directory+' -FILE_NAME SM'+str(b)+'_Seed'+str(a)+'_SINT'+str(c)+' -SYM_INT '+str(c)
             # command_str = './symbulation -SEED '+str(a)+' -VERTICAL_TRANSMISSION '+str(b)+' -FILE_NAME _VT'+str(b)+'_Seed'+str(a) + " -FILE_PATH "+directory
-            settings_filename = directory+"Output_SM"+str(b)+"_Seed"+str(a)+"_SLR"+str(c)+".data"
+            settings_filename = "Output_SM"+str(b)+"_Seed"+str(a)+"_SLR"+str(c)+".data"
             print(command_str)
             cmd(command_str+" > "+settings_filename)
