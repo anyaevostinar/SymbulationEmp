@@ -1,6 +1,6 @@
 #a script to run several replicates of several treatments locally
-#RUN SIMPLE_REPEATS.PY FROM WITHIN THE FOLDER WHERE THE DATA SHOULD GO
-#EX: INSIDE OF SymbulationEmp/Data, RUN python3 ../stats_scripts/simple_repeats.py
+#RUN SIMPLE_REPEAT.PY FROM WITHIN THE FOLDER WHERE THE DATA SHOULD GO
+#EX: INSIDE OF SymbulationEmp/Data, RUN python3 ../stats_scripts/simple_repeat.py
 import sys
 
 directory = "PartPop/"
