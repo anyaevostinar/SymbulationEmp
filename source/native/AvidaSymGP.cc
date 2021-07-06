@@ -8,11 +8,11 @@
 #include "../AvidaGPSymbio.hpp"
 
 //is this SymWorld.h?
-//#include "../SymbiosisWorld.h"
+#include "../AvidaGPWorld.h"
 
 
 
-void Print(const Host & cpu) {
+void Print(const GPHost & cpu) {
   for (size_t i = 0; i < 16; i++) {
     std::cout << "[" << cpu.GetReg(i) << "] ";
   }
@@ -26,23 +26,23 @@ constexpr size_t UPDATES = 100;
 int main()
 {
   emp::Random random;
-  emp::World<Host> world(random, "AvidaWorld");
+  AvidaGPWorld world(random);
   world.SetPopStruct_Mixed(true);
 
   // Build a random initial popoulation.
   for (size_t i = 0; i < POP_SIZE; i++) {
-    Host cpu;
+    GPHost cpu;
     cpu.PushRandom(random, GENOME_SIZE);
     world.Inject(cpu.GetGenome(),1);
-    emp::vector<Symbiont> symbiont_vec;
-    Symbiont sb;
+    emp::vector<GPSymbiont> symbiont_vec;
+    GPSymbiont sb;
     sb.PushRandom(random, GENOME_SIZE);
     symbiont_vec.push_back(sb);
     world.GetOrg(i).SetSymbio(symbiont_vec);
   }
 
   // Setup the mutation function.
-  world.SetMutFun( [](Host & org, emp::Random & random) {
+  world.SetMutFun( [](GPHost & org, emp::Random & random) {
 
       uint32_t num_muts = random.GetUInt(4);  // 0 to 3 mutations.
       uint32_t num_muts_for_syms = random.GetUInt(4);
@@ -50,7 +50,7 @@ int main()
         const uint32_t pos = random.GetUInt(GENOME_SIZE);
         org.RandomizeInst(pos, random);
         for (int i = 0; i < org.GetSymbio().size(); i++){
-          emp::vector<Symbiont> symbiont_vec = org.GetSymbio();
+          emp::vector<GPSymbiont> symbiont_vec = org.GetSymbio();
           symbiont_vec[i].RandomizeInst(pos, random);
         }
       }
@@ -60,8 +60,8 @@ int main()
   world.GetOrg(0).GetSymbio()[0].PrintGenome();
   // setting symbioint in affecting hosts' fitness!!!!!!!!!!!!!!!!!!!
   // Setup the fitness function.
-  std::function<double(const Host &)> fit_fun =
-    [](const Host & org) {
+  std::function<double(const GPHost &)> fit_fun =
+    [](const GPHost & org) {
     int count = 0;
     for (int i = 0; i < 16; i++) {
       if (org.GetOutput(i) == (double) (i*i)) count++;

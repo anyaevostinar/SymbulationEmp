@@ -13,25 +13,25 @@
 using std::endl; using std::cout;
 
 /*
-* Class represents a single symbiont that inherits from AvidaCPU_base class 
+* Class represents a single GPSymbiont that inherits from AvidaCPU_base class 
 */
-class Symbiont : public emp::AvidaCPU_Base<Symbiont> {
+class GPSymbiont : public emp::AvidaCPU_Base<GPSymbiont> {
  public:
-  using base_t = AvidaCPU_Base<Symbiont>;
+  using base_t = AvidaCPU_Base<GPSymbiont>;
   using typename base_t::genome_t;
   using typename base_t::inst_lib_t;
 
-  Symbiont(const genome_t & in_genome) : AvidaCPU_Base(in_genome) { ; }
-  Symbiont(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(genome_t(inst_lib)) { ; }
-  Symbiont(const inst_lib_t & inst_lib) : AvidaCPU_Base(genome_t(&inst_lib)) { ; }
+  GPSymbiont(const genome_t & in_genome) : AvidaCPU_Base(in_genome) { ; }
+  GPSymbiont(emp::Ptr<const inst_lib_t> inst_lib) : AvidaCPU_Base(genome_t(inst_lib)) { ; }
+  GPSymbiont(const inst_lib_t & inst_lib) : AvidaCPU_Base(genome_t(&inst_lib)) { ; }
 
-  Symbiont() = default;
-  Symbiont(const Symbiont &) = default;
-  Symbiont(Symbiont &&) = default;
+  GPSymbiont() = default;
+  GPSymbiont(const GPSymbiont &) = default;
+  GPSymbiont(GPSymbiont &&) = default;
 
 
    // what does this line mean?
-  virtual ~Symbiont() { ; }
+  virtual ~GPSymbiont() { ; }
 
 
 };
