@@ -35,7 +35,7 @@ TEST_CASE("Phage Process") {
                 size_t location = 2;
                 // double resources_per_host_per_update = 40;
                 
-                p->process(0,location);
+                p->Process(location);
                 
                 bool host_dead = true;
                 std::vector<emp::Ptr<Organism>> empty_syms = {};
@@ -69,7 +69,7 @@ TEST_CASE("Phage Process") {
                 size_t location = 2;
                 // bool host_dead = false;
                 
-                p3->process(0,location);
+                p3->Process(location);
 
                 REQUIRE(h->GetDead() == false);
                 
@@ -198,7 +198,7 @@ TEST_CASE("Host phage death and removal from syms list"){
         p->SetDead();
 
         long unsigned int expected_sym_size = 0;
-        h->Process(100,0);
+        h->Process(0);
 
         THEN("phage is removed from syms list"){
             REQUIRE(h->GetSymbionts().size() == expected_sym_size);
@@ -219,7 +219,7 @@ TEST_CASE("Host phage death and removal from syms list"){
         p1->SetDead();
 
         long unsigned int expected_sym_size = 1;
-        h->Process(100, 0);
+        h->Process(0);
 
         THEN("Only the dead phage is removed from the syms list"){
             REQUIRE(h->GetSymbionts().size() == expected_sym_size);
@@ -229,5 +229,4 @@ TEST_CASE("Host phage death and removal from syms list"){
             REQUIRE(curSym == p2);
         }
     }
-
 }

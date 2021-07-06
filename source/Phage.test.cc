@@ -255,7 +255,7 @@ TEST_CASE("Phage process"){
             bool expected_dead = false;
             long unsigned int expected_repro_syms_size = size(h->GetReproSymbionts());
 
-            p->process(0,location);
+            p->Process(location);
 
             THEN("The phage doesn't die and there is no change to the status of any objects - the phage is temperate"){
                 REQUIRE(p->GetIntVal() == expected_int_val);
@@ -281,7 +281,7 @@ TEST_CASE("Phage process"){
 
             bool expected_dead = true;
 
-            p->process(0,location);
+            p->Process(location);
 
             THEN("The phage is set to dead"){
                 REQUIRE(p->GetDead() == expected_dead);
@@ -310,7 +310,7 @@ TEST_CASE("Phage process"){
                 double orig_points = 3.0;
                 double expected_points = 3.0;
                 p->SetPoints(orig_points);
-                p->process(0,location);
+                p->Process(location);
 
                 THEN("The burst timer is incremented but no offspring are created"){
                     double expected_burst_timer = 1.5306015114;
@@ -325,7 +325,7 @@ TEST_CASE("Phage process"){
                 double orig_points = 5.0;
                 double expected_points = 0.0;
                 p->SetPoints(orig_points);
-                p->process(0,location);
+                p->Process(location);
 
                 THEN("The burst timer is incremented and offspring are created"){
                     double expected_burst_timer = 1.5306015114;
@@ -357,7 +357,7 @@ TEST_CASE("Phage process"){
             //call the process such that the phage bursts and we can check injection
             long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
             p->SetBurstTimer(10.0);
-            p->process(0,location); 
+            p->Process(location);
 
             THEN("The phage offspring are injected into new hosts and the current host dies"){
                 REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);

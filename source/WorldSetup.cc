@@ -22,7 +22,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 
   if(my_config->EFFICIENCY_MUT_RATE() == -1) my_config->EFFICIENCY_MUT_RATE(my_config->HORIZ_MUTATION_RATE());
 
-  if (my_config->GRID() == 0) world->SetPopStruct_Mixed(false);
+  if (my_config->GRID() == 0) {world->SetPopStruct_Mixed(false);} 
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 // settings
   world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
@@ -81,8 +81,13 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       }
 
   }
+<<<<<<< HEAD
 
 
+=======
+  world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
+  std::cout<< "world size should be " << world->getPop().size() << std::endl;
+>>>>>>> d7302b4c4ef1542945a0f5662d959db37bc03ece
 
 }
 

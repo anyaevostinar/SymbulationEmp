@@ -475,6 +475,7 @@ TEST_CASE( "Update" ){
 
       WHEN("lysis is permitted, and thus phage are used"){
         config.LYSIS(1);
+        config.LYSIS_CHANCE(1);
         int burst_time = 2;
         config.BURST_TIME(burst_time);
         emp::Ptr<Organism> p = new Phage(&random, &w, &config, int_val);
@@ -526,7 +527,7 @@ TEST_CASE( "Update" ){
           w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), 1);
           for(int i = 0; i <= 4; i++){ w.Update(); }
 
-          REQUIRE(w.GetNumOrgs() == 7);
+          REQUIRE(w.GetNumOrgs() == 4);
         }
       }
     }

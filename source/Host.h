@@ -156,8 +156,9 @@ public:
 
   } //end DistribResources
 
-  void Process(double resources, int location) {
+  void Process(size_t location) {
     //Currently just wrapping to use the existing function
+    double resources = my_world->PullResources();
     DistribResources(resources);
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
@@ -189,7 +190,7 @@ public:
             return; //If previous symbiont killed host, we're done
           }
           if(!curSym->GetDead()){
-            curSym->process(0,location);
+            curSym->Process(location);
           }
           if(curSym->GetDead()){
             syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list

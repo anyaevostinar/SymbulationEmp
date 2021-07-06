@@ -92,7 +92,7 @@ public:
     }
   }
 
-  void process(double resource, size_t location) {
+  void Process(size_t location) {
     if(lysis_enabled && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!

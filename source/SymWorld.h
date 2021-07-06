@@ -455,7 +455,7 @@ public:
     }
   }
 
-  size_t MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
+  void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     int newLocIndex = newLoc.GetIndex();
     if(newLoc.IsValid()){
@@ -469,44 +469,40 @@ public:
       } else sym.Delete(); //this shouldn't happen
     }
     else sym.Delete();
-    return newLocIndex;
   }
 
-  size_t MoveFreeSym(size_t i){
+  void MoveFreeSym(size_t i){
     emp::Ptr<Organism> sym = pop[i];
     if(!sym->IsHost() && sym->GetDead() == false){
       pop[i] = NULL;
       num_orgs--;
-      size_t newPos = MoveToFreeWorldPosition(sym, i);
-      return newPos;
+      MoveToFreeWorldPosition(sym, i);
     }
   }
 
 
   void Update() {
     emp::World<Organism>::Update();
+
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
 
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
-      if (IsOccupied(i) == false){
-        continue;
-      }
-        // no organism at that cell
+      if (IsOccupied(i) == false){ continue;} // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-
-      //check if it's a host and do host/sym processes as necessary
-      if(pop[i]->IsHost()){ //host process
-        pop[i]->Process(PullResources(), i);
+      if(pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
+        pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
-      } else { //not-host org process
-        pop[i]-> process(0,i);
       }
+      else{
+        pop[i]->Process(i);
+      }
+
     } // for each cell in schedule
   } // Update()
 };// SymWorld class
