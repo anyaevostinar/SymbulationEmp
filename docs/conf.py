@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Empirical documentation build configuration file, created by
-# sphinx-quickstart on Fri Oct 16 21:33:50 2015.
+# Symbulation documentation build configuration file, created by
+# sphinx-quickstart on July 5th
 #
 # This file is execfile()d with the current directory set to its
 # containing dir.
@@ -78,7 +78,7 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'Empirical'
+project = u'Symbulation'
 copyright = u"2021, Anya Vostinar"
 author = u"Anya Vostinar"
 
