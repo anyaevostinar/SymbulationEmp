@@ -1,8 +1,6 @@
 Symbulation -- Agent based modeling of symbiont ecology and evolution
 ===================================================================
 
-% MyST does not yet have support for field lists, so we need to use rST
-here % see https://github.com/executablebooks/MyST-Parser/issues/163
 :Authors: Anya Vostinar 
 
 :GitHub: https://github.com/anyaevostinar/SymbulationEmp
