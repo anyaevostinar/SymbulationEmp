@@ -51,7 +51,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
     }
     //world.Inject(*new_org);
   }
-
+    world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
 
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
@@ -81,7 +81,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       }
 
   }
-  world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
+
 
 
 }

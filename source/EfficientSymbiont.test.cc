@@ -26,7 +26,7 @@ TEST_CASE("EfficientSymbiont mutate") {
 
     WHEN("Mutation rate is zero") {
         double int_val = 1;
-        int orig_efficiency = 0.5;
+        double orig_efficiency = 0.5;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
@@ -99,7 +99,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
     
     WHEN("Mutation rate is zero")  {
-        double efficiency = 0.5;
+        // double efficiency = 0.5;
         double parent_orig_efficiency = 0.5;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
@@ -122,6 +122,8 @@ TEST_CASE("EfficientSymbiont reproduce") {
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
+
+        sym_baby.Delete();
     }
 
 
@@ -148,6 +150,8 @@ TEST_CASE("EfficientSymbiont reproduce") {
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
+
+        sym_baby.Delete();
 
     }
  

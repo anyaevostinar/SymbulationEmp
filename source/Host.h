@@ -27,19 +27,18 @@ public:
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : random(_random), my_world(_world), my_config(_config),
-  interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
-  res_types(_set), points(_points) {
+  double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
+  res_types(_set), points(_points), random(_random), my_world(_world), my_config(_config) { 
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
    }
 
   ~Host(){
-    for(int i=0; i<syms.size(); i++){
+    for(size_t i=0; i<syms.size(); i++){
       syms[i].Delete();
     }
-    for(int j=0; j<repro_syms.size(); j++){
+    for(size_t j=0; j<repro_syms.size(); j++){
       repro_syms[j].Delete();
     }
   }
@@ -70,9 +69,18 @@ public:
        interaction_val = _in;
      }
   }
-  void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {syms = _in;}
+  void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
+    ClearSyms();
+    for(size_t i = 0; i < _in.size(); i++){
+      AddSymbiont(_in[i]);
+    }
+  }
+
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
+  void ClearSyms() {
+    syms.resize(0);
+  }
   void ClearReproSyms() {
     repro_syms.resize(0);
   }
@@ -84,9 +92,10 @@ public:
 
 
   void AddSymbiont(emp::Ptr<Organism> _in) {
-    if(syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
       _in->SetHost(this);
+      _in->uponInjection();
     } else {
       _in.Delete();
     }
@@ -111,8 +120,6 @@ public:
     return syms.size() != 0;
   }
 
-
-
   void mutate(){
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
       interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
@@ -123,7 +130,7 @@ public:
 
   void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
-    double synergy = my_config->SYNERGY();
+
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 
@@ -135,7 +142,7 @@ public:
         double hostDefense = -1.0 * hostIntVal * resources;
         this->AddPoints(resources - hostDefense);
       }
-      return; //This concludes resource distribution.
+      return; //This concludes resource distribution for a host without symbionts
     }
 
     //Otherwise, split resources into equal chunks for each symbiont
@@ -143,76 +150,9 @@ public:
     double sym_piece = (double) resources / num_sym;
 
     for(size_t i=0; i < syms.size(); i++){
-      double symIntVal = syms[i]->GetIntVal();
-
-      double hostPortion = 0.0;
-      double hostDonation = 0.0;
-      double symPortion = 0.0;
-      double symReturn = 0.0;
-      double bonus = synergy;
-
-
-      if (hostIntVal >= 0 && symIntVal >= 0)  {
-        hostDonation = sym_piece * hostIntVal;
-        hostPortion = sym_piece - hostDonation;
-
-        symReturn = (hostDonation * symIntVal) * bonus;
-        symPortion = hostDonation - (hostDonation * symIntVal);
-
-        hostPortion += symReturn;
-
-        syms[i]->AddPoints(symPortion);
-        this->AddPoints(hostPortion);
-
-      } else if (hostIntVal <= 0 && symIntVal < 0) {
-        double hostDefense = -1.0 * (hostIntVal * sym_piece);
-        double remainingResources = 0.0;
-        remainingResources = sym_piece - hostDefense;
-
-        // if both are hostile, then the symbiont must be more hostile than in order to gain any resources
-        if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
-          double symSteals = (hostIntVal - symIntVal) * remainingResources;
-
-          symPortion = symSteals;
-          hostPortion = remainingResources - symSteals;
-
-        } else { // symbiont cannot overcome host's defenses
-          symPortion = 0.0;
-          hostPortion = remainingResources;
-        }
-
-        syms[i]->AddPoints(symPortion);
-        this->AddPoints(hostPortion);
-
-      } else if (hostIntVal > 0 && symIntVal < 0) {
-        hostDonation = hostIntVal * sym_piece;
-        hostPortion = sym_piece - hostDonation;
-
-        double symSteals = -1.0 * (hostPortion * symIntVal);
-        hostPortion = hostPortion - symSteals;
-        symPortion = hostDonation + symSteals;
-
-        syms[i]->AddPoints(symPortion);
-        this->AddPoints(hostPortion);
-
-
-      } else if (hostIntVal < 0 && symIntVal >= 0) {
-        double hostDefense = -1.0 * (hostIntVal * sym_piece);
-        hostPortion = sym_piece - hostDefense;
-
-        // symbiont gets nothing from antagonistic host
-        symPortion = 0.0;
-
-        syms[i]->AddPoints(symPortion);
-        this->AddPoints(hostPortion);
-      } else {
-
-        //TODO: add error here
-        std::cout << "This should never happen." << std::endl;
-
-      }
-
-    } //end syms[i] for loop
+      double hostPortion = syms[i]->ProcessResources(sym_piece);
+      this->AddPoints(hostPortion);
+    }
 
   } //end DistribResources
 
@@ -220,7 +160,6 @@ public:
     //Currently just wrapping to use the existing function
     DistribResources(resources);
     // Check reproduction
-
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero
@@ -232,14 +171,10 @@ public:
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
           emp::Ptr<Organism> parent = GetSymbionts()[j];
-           if (my_world->WillTransmit()) { //Vertical transmission!
+          parent->VerticalTransmission(host_baby);
+        }
 
-            emp::Ptr<Organism> sym_baby = parent->reproduce();
-            host_baby->AddSymbiont(sym_baby);
-
-          } //end will transmit
-        } //end for loop for each symbiont
-        //Will need to change this to AddOrgAt and write my own position grabber
+        //Will need to change this to AddOrgAt and write my own position grabber 
         //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
@@ -249,12 +184,17 @@ public:
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          if (GetDead()){
+          emp::Ptr<Organism> curSym = syms[j];
+          if (GetDead()){ 
             return; //If previous symbiont killed host, we're done
           }
-          syms[j]->process(0, location);
-
-
+          if(!curSym->GetDead()){
+            curSym->process(0,location);
+          }
+          if(curSym->GetDead()){
+            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+            curSym.Delete();
+          }
         } //for each sym in syms
       } //if org has syms
   }
