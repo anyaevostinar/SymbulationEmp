@@ -5,11 +5,12 @@
 
 Welcome to Symbulation's documentation!
 =======================================
-Install $Symbulation by running:
-	install project 
+:Authors: Anya Vostinar
+:GitHub: https://github.com/anyaevostinar/SymbulationEmp
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
 
 
 
