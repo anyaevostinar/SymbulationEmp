@@ -1,9 +1,11 @@
-Empirical -- A library of tools for scientific software development
+Symbulation -- Agent based modeling of symbiont ecology and evolution
 ===================================================================
 
 % MyST does not yet have support for field lists, so we need to use rST
 here % see https://github.com/executablebooks/MyST-Parser/issues/163
-``{eval-rst} :Authors: Anya Vostinar :GitHub: https://github.com/anyaevostinar/SymbulationEmp``
+:Authors: Anya Vostinar 
+
+:GitHub: https://github.com/anyaevostinar/SymbulationEmp
 
 This is a software model of symbiosis which allows for evolution of
 parasitism and mutualism.
