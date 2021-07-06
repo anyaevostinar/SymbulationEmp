@@ -3,21 +3,21 @@
 % MyST does not yet have support for field lists, so we need to use rST here
 % see https://github.com/executablebooks/MyST-Parser/issues/163
 ```{eval-rst}
-:Authors: Charles Ofria, Emily Dolson, Alex Lalejini, Jacob Fenton, Matthew Andres Moreno
-:GitHub: https://github.com/devosoft/Empirical
+:Authors: Anya Vostinar
+:GitHub: https://github.com/anyaevostinar/SymbulationEmp
 ```
 
-Empirical is a library of tools for scientific software development with
-an emphasis on being able to build web interfaces using Mozilla\'s
-Emscripten compiler. The project goal is to improve the accessibility
-and reproducibility of the computational research.
+This is a software model of symbiosis which allows for evolution of parasitism and mutualism.
 
-Empirical is a C++ project though it uses Python for development
-infrastructure.
+Go to https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html to try it out in your web browser!
 
-The developer documentation is for contributing to the Empirical project
-and the user documentation is for those wanting to incorporate the
-Empirical library into their own projects.
+To build, you must first download Empirical (https://github.com/devosoft/Empirical) and place the two repositories on the same level. Then within SymbulationEmp, run 'make' and then './symbulation'. The script 'stats_scripts/simple_repeat.py' can be used to run many replicates and treatments.
+
+The current settings can be configured in SymSettings.cfg.
+
+To run end-to-end tests run 'make test'. This will overwrite the default SymSettings.cfg!
+
+Created part of my free logo at LogoMakr.com.
 
 Contents:
 
