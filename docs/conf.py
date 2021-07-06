@@ -37,8 +37,6 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
     'sphinx_rtd_theme',
-    'breathe',
-    'exhale',
     'myst_parser',
 ]
 
