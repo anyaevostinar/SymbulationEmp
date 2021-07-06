@@ -37,7 +37,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
     'sphinx_rtd_theme',
-    'myst_parser'
+    'exhale'
 ]
 
 # Setup the breathe extension
