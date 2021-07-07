@@ -16,9 +16,8 @@ To build, you must first download Empirical
 (https://github.com/devosoft/Empirical) and place the two repositories
 on the same level. Then within SymbulationEmp run: 
 .. code-block:: 
-
-make
-./symbulation
+  make
+  ./symbulation
 
 
 The script 'stats\_scripts/simple\_repeat.py' can be
