@@ -29,10 +29,9 @@ To run end-to-end tests run 'make test'. This will overwrite the default
 SymSettings.cfg!
 
 ```{toctree}
-:caption: Using Empirical
+:caption: Using Symbulation
 :maxdepth: 2
 
-BuiltWithEmpiricalGallery/index
 QuickStartGuides/index
 library/index
 api/library_root
@@ -40,10 +39,10 @@ api/library_root
 ```
 
 ```{toctree}
-:caption: Contributing to Empirical
+:caption: Contributing to Symbulation
 :maxdepth: 0
 
-dev/empirical-development-practices
+dev/Symbulation-development-practices
 dev/getting-started
 dev/contribution-guidelines-and-review
 dev/adding-documentation
