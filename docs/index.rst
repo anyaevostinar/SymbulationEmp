@@ -40,14 +40,14 @@ Contents:
 Using Symbulation
 ==================
 
-* :ref:`QuickStartGuides/index`
-* :ref:`library/index`
-* :ref:`api/library_root`
+* :ref:`Quick start <QuickStartGuides/index.rst>`_
+* :ref:`Using Symbulation <library/index.rst>`_
+* :ref:`Library <api/library_root.rst>`_
 
 
 .. toctree::
-:caption: Contributing to Symbulation
-:maxdepth: 0
+  :caption: Contributing to Symbulation
+  :maxdepth: 0
 
 Contributing to Symbulation
 ==================
