@@ -81,14 +81,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       }
 
   }
-<<<<<<< HEAD
-
-
-=======
-  world->Resize(my_config->GRID_X(), my_config->GRID_Y()); //if the world wasn't full, creates room for more organisms
-  std::cout<< "world size should be " << world->getPop().size() << std::endl;
->>>>>>> d7302b4c4ef1542945a0f5662d959db37bc03ece
-
 }
 
 #endif
