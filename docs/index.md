@@ -31,20 +31,18 @@ SymSettings.cfg!
 
 
 Contents:
-
+#### Getting Started 
 * [Quick start guide]()
 * [Library]()
 
+#### Contributing to Symbulation
 
-```{toctree}
-:caption: Contributing to Symbulation
-:maxdepth: 0
 
-dev/symbulation-development-practices
-dev/getting-started
-dev/contribution-guidelines-and-review
-dev/adding-documentation
-dev/guide-to-testing
+* [Sumbulation development practices]()
+* [Getting started]()
+* [Contribution guidelines and review]()
+* [Adding documentation]()
+* [Guide to testing]()
 ```
 
 {ref}`genindex`
