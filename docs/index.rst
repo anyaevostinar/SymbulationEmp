@@ -40,9 +40,9 @@ Contents:
 Using Symbulation
 ==================
 
-* :ref:`QuickStartGuides/index.rst<Quick start guide>`
-* :ref:`Using Symbulation <library/index.rst>`_
-* :ref:`Library <api/library_root.rst>`_
+* Quick start guide
+* Using Symbulation
+* Library
 
 
 .. toctree::
@@ -51,11 +51,8 @@ Using Symbulation
 
 Contributing to Symbulation
 ==================
-* :ref:`dev/empirical-development-practices`
-* :ref:`dev/getting-started`
-* :ref:`dev/contribution-guidelines-and-review`
-* :ref:`dev/adding-documentation`
-* :ref:`dev/guide-to-testing`
-
-{ref}`genindex`
-
+* Symbulation development practices 
+* Getting started 
+* Contribution guidelines and review 
+* Adding documentation
+* Guide to testing 
