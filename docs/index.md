@@ -28,7 +28,29 @@ The current settings can be configured in SymSettings.cfg.
 To run end-to-end tests run 'make test'. This will overwrite the default
 SymSettings.cfg!
 
+```{toctree}
+:caption: Using Empirical
+:maxdepth: 2
 
+BuiltWithEmpiricalGallery/index
+QuickStartGuides/index
+library/index
+api/library_root
+
+```
+
+```{toctree}
+:caption: Contributing to Empirical
+:maxdepth: 0
+
+dev/empirical-development-practices
+dev/getting-started
+dev/contribution-guidelines-and-review
+dev/adding-documentation
+dev/guide-to-testing
+```
+
+{ref}`genindex`
 Contents:
 #### Getting Started 
 * [Quick start guide]() - Coming soon! 
