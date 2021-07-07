@@ -37,11 +37,10 @@ Contents:
    :caption: Contents:
 
 
-
-Indices and tables
+Using Symbulation
 ==================
 
-* :ref:`genindex`
+* :ref:`QuickStartGuides/index`
 * :ref:`modindex`
 * :ref:`search`
 
@@ -49,7 +48,7 @@ Indices and tables
 :caption: Using Symbulation
 :maxdepth: 2
 
-  QuickStartGuides/index
+
   library/index
   api/library_root
 
