@@ -35,8 +35,6 @@ Contents:
 ```{toctree}
 :caption: Using Empirical
 :maxdepth: 2
-
-BuiltWithEmpiricalGallery/index
 QuickStartGuides/index
 library/index
 
