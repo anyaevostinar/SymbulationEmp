@@ -16,10 +16,10 @@ try it out in your web browser!
 To build, you must first download Empirical
 (https://github.com/devosoft/Empirical) and place the two repositories
 on the same level. Then within SymbulationEmp run
-
+```
   make
   ./symbulation
-
+```
 
 The script 'stats\_scripts/simple\_repeat.py' can be
 used to run many replicates and treatments.
@@ -32,13 +32,9 @@ SymSettings.cfg!
 
 Contents:
 
-```{toctree}
-:caption: Using Empirical
-:maxdepth: 2
-QuickStartGuides/index
-library/index
+* [Quick start guide]()
+* [Library]()
 
-```
 
 ```{toctree}
 :caption: Contributing to Symbulation
