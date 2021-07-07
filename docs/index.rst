@@ -31,3 +31,25 @@ SymSettings.cfg!
 Created part of my free logo at LogoMakr.com.
 
 Contents:
+
+..toctree::
+:caption: Using Symbulation
+:maxdepth: 2
+  QuickStartGuides/index
+  library/index
+  api/library_root
+
+
+
+..toctree::
+:caption: Contributing to Empirical
+:maxdepth: 0
+
+  dev/empirical-development-practices
+  dev/getting-started
+  dev/contribution-guidelines-and-review
+  dev/adding-documentation
+  dev/guide-to-testing
+
+{ref}`genindex`
+
