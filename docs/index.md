@@ -43,6 +43,6 @@ Contents:
 * [Contribution guidelines and review]()
 * [Adding documentation]()
 * [Guide to testing]()
-```
+
 
 {ref}`genindex`
