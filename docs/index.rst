@@ -32,7 +32,7 @@ Created part of my free logo at LogoMakr.com.
 
 Contents:
 
-..toctree::
+.. toctree::
 :caption: Using Symbulation
 :maxdepth: 2
   QuickStartGuides/index
@@ -41,8 +41,8 @@ Contents:
 
 
 
-..toctree::
-:caption: Contributing to Empirical
+.. toctree::
+:caption: Contributing to Symbulation
 :maxdepth: 0
 
   dev/empirical-development-practices
