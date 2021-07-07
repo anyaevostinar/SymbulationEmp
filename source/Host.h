@@ -13,7 +13,7 @@
 class Host: public Organism {
 private:
   double interaction_val = 0;
-  emp::vector<emp::Ptr<Organism>> syms = {}; 
+  emp::vector<emp::Ptr<Organism>> syms = {};
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
   std::set<int> res_types = {};
   double points = 0;
@@ -58,6 +58,7 @@ public:
   emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
+  bool IsHost() { return true; }
 
 
   void SetIntVal(double _in) {
@@ -91,12 +92,26 @@ public:
 
 
   void AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() < my_config->SYM_LIMIT()){
+    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->uponInjection();
     } else {
       _in.Delete();
+    }
+  }
+
+  bool SymAllowedIn(){
+    bool do_phage_exclusion = my_config->PHAGE_EXCLUDE();
+    if(!do_phage_exclusion){
+     return true;
+    }
+    else{
+     int num_syms = syms.size();
+     //essentially imitaties a 1/ 2^n chance, with n = number of symbionts
+     int enter_chance = random->GetUInt((int) pow(2.0, num_syms));
+     if(enter_chance == 0) { return true; }
+     return false;
     }
   }
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
@@ -141,17 +156,17 @@ public:
 
   } //end DistribResources
 
-  void Process(double resources, int location) {
+  void Process(size_t location) {
     //Currently just wrapping to use the existing function
+    double resources = my_world->PullResources();
     DistribResources(resources);
-    
-    // Check reproduction    
-    if (GetPoints() >= my_config->HOST_REPRO_RES() ) {  // if host has more points than required for repro                                                            
+    // Check reproduction
+    if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero                                           
+        // while resetting resource points for host and symbiont to zero
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
         host_baby->mutate();
-        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont  
+        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
         SetPoints(0);
 
         //Now check if symbionts get to vertically transmit
@@ -164,7 +179,7 @@ public:
         //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
-    if (GetDead()){ 
+    if (GetDead()){
         return; //If host is dead, return
       }
     if (HasSym()) { //let each sym do whatever they need to do
@@ -174,7 +189,9 @@ public:
           if (GetDead()){ 
             return; //If previous symbiont killed host, we're done
           }
-          curSym->process(location);
+          if(!curSym->GetDead()){
+            curSym->Process(location);
+          }
           if(curSym->GetDead()){
             syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
             curSym.Delete();

@@ -44,6 +44,9 @@ class Organism {
     std::cout << "GetDead called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void Process(size_t location)
+   {std::cout << "Process called from Organism" << std::endl;
+     throw "Organism method called!";}
 
   //Symbiont functions
 
@@ -52,9 +55,6 @@ class Organism {
     throw "Organism method called!";}
   virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual void process(size_t location) {
-    std::cout << "process called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
@@ -65,6 +65,9 @@ class Organism {
   virtual double ProcessResources(double sym_piece){
     std::cout << "ProcessResources called from an Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool IsPhage(){
+    std::cout << "IsPhage called from an Organism" << std::endl;
+    throw "Organism method called!";}   
   virtual emp::Ptr<Organism> GetHost() {
     std::cout << "GetHost called from an Organism" << std::endl;
     throw "Organism method called!";}
@@ -101,12 +104,12 @@ class Organism {
   virtual bool HasSym() {
     std::cout << "HasSym called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool IsHost() {
+    std::cout << "IsHost called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void DistribResources(double resources) {
     std::cout << "DistribResources called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void Process(double resources_per_host_per_update, int location) 
-   {std::cout << "Process called from Organism" << std::endl;
-     throw "Organism method called!";}
   virtual void ClearSyms() {
     std::cout << "ClearSyms called from Organism" << std::endl;
     throw "Organism method called!";}

@@ -43,7 +43,7 @@ public:
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
   bool GetLysogeny() {return lysogeny;}
-
+  bool IsPhage(){return true;}
   void uponInjection() {
     //decide if the phage will choose lysis or lysogeny
     double rand_chance = random->GetDouble(0.0, 1.0);
@@ -92,10 +92,10 @@ public:
     }
   }
 
-  void process(size_t location) {
-    if(lysis_enabled) { //lysis enabled, checking for lysis
+  void Process(size_t location) {
+    if(lysis_enabled && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(!lysogeny){ //phage has chosen lysis
-        if(GetBurstTimer() >= burst_time) { //time to lyse!
+        if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
           //Record the burst size
           // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
@@ -126,6 +126,8 @@ public:
           SetDead();
         }
       }
+    }else{
+      my_world->MoveFreeSym(location);
     }
   }
 

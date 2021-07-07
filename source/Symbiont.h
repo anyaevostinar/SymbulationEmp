@@ -10,7 +10,7 @@
 
 
 class Symbiont: public Organism {
-protected:  
+protected:
   double interaction_val = 0;
   double points = 0;
   double sym_h_res = 100;
@@ -23,7 +23,7 @@ protected:
 
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
-  emp::Ptr<Organism> my_host = NULL; 
+  emp::Ptr<Organism> my_host = NULL;
   emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
@@ -57,25 +57,27 @@ public:
   double GetIntVal() const {
     return interaction_val;}
   double GetPoints() {return points;}
+  bool IsPhage() {return false;}
+  bool IsHost() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
   //  std::set<int> GetResTypes() const {return res_types;}
 
   void SetDead() { dead = true; }
   bool GetDead() { return dead; }
 
-  void SetIntVal(double _in) { 
+  void SetIntVal(double _in) {
     if ( _in > 1 || _in < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
      }
      else {
         interaction_val = _in;
      }
-       
   }
-  
-  void SetPoints(double _in) { points = _in;}
+  void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
+
+
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
   void uponInjection(){
@@ -164,7 +166,11 @@ public:
     return hostPortion;
   }
 
-  void process(size_t location) {
+  void Process(size_t location) {
+    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
+      double resources = my_world->PullResources();
+      AddPoints(resources);
+    }
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -174,16 +180,14 @@ public:
         sym_baby->SetPoints(0);
         sym_baby->HorizMutate();
         //HorizMutate();
-        
-        
         my_world->SymDoBirth(sym_baby, location);
-
       }
     }
+    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values                                             
+    emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->mutate();
     //mutate(); //mutate parent symbiont
@@ -201,14 +205,14 @@ public:
 
 std::string PrintSym(emp::Ptr<Symbiont>  org){
   if (org->GetPoints() < 0) return "-";
-  double out_val = org->GetIntVal();  
-  
+  double out_val = org->GetIntVal();
+
   // this prints the symbiont with two decimal places for easier reading
   std::stringstream temp;
   temp << std::fixed << std::setprecision(2) << out_val;
   std::string formattedstring = temp.str();
   return formattedstring;
-  
+
   // return emp::to_string(out_val);  // creates a string without specifying format
 }//Symbiont
 #endif

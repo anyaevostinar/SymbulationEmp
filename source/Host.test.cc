@@ -13,7 +13,7 @@ TEST_CASE("Host SetIntVal, GetIntVal") {
     REQUIRE(h1->GetIntVal() == default_int_val);
 
     Host * h2 = new Host(random, &w, &config, int_val);
-    
+
     double expected_int_val = 1;
     REQUIRE(h2->GetIntVal() == expected_int_val);
 
@@ -27,7 +27,7 @@ TEST_CASE("Host SetIntVal, GetIntVal") {
 
     int_val = 1.8;
     REQUIRE_THROWS(new Host(random, &w, &config, int_val));
-    
+
 }
 
 TEST_CASE("SetPoints, AddPoints, GetPoints") {
@@ -60,7 +60,7 @@ TEST_CASE("SetResTypes, GetResTypes") {
     std::set<int> res_types {1,3,5,9,2};
 
     Host * h = new Host(random, &w, &config, int_val, syms, repro_syms, res_types);
-    
+
     std::set<int> expected_res_types = h->GetResTypes();
     for (int number : res_types)
     {
@@ -126,10 +126,10 @@ TEST_CASE("DistributeResources") {
         double resources = 80;
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
         config.SYNERGY(5);
-        
+
         Host * h = new Host(random, &w, &config, int_val);
         h->DistribResources(resources);
-        
+
         THEN("Points increase") {
             double expected_points = resources - (resources * int_val); // 48
             double points = h->GetPoints();
@@ -148,7 +148,7 @@ TEST_CASE("DistributeResources") {
 
         Host * h = new Host(random, &w, &config, int_val);
         h->DistribResources(resources);
-        
+
         THEN("Resources are added to points") {
             double expected_points = orig_points + resources; // 0
             double points = h->GetPoints();
@@ -166,7 +166,7 @@ TEST_CASE("DistributeResources") {
         Host * h = new Host(random, &w, &config, int_val);
         h->AddPoints(orig_points);
         h->DistribResources(resources);
-        
+
         THEN("Points increase") {
             double host_defense =  -1.0 * int_val * resources; // the resources spent on defense
             double add_points  = resources - host_defense;
@@ -177,3 +177,53 @@ TEST_CASE("DistributeResources") {
         }
     }
 }
+
+TEST_CASE("Phage Exclude") {
+    emp::Ptr<emp::Random> random = new emp::Random(3);
+    SymWorld w(*random);
+
+    SymConfigBase config;
+    int sym_limit = 4;
+    config.SYM_LIMIT(sym_limit);
+
+    double int_val = 0;
+
+    WHEN("Phage exclude is set to false"){
+      bool phage_exclude = 0;
+      config.PHAGE_EXCLUDE(phage_exclude);
+      Host * h = new Host(random, &w, &config, int_val);
+
+      THEN("syms are added without issue"){
+        for(int i = 0; i < sym_limit; i++){
+          h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
+        }
+        int num_syms = (h->GetSymbionts()).size();
+
+        REQUIRE(num_syms==sym_limit);
+        //with random seed 3 and phage exclusion on,
+        //num_syms not reach the sym_limit (would be 2 not 4)
+      }
+    }
+
+    WHEN("Phage exclude is set to true"){
+      bool phage_exclude = 1;
+      config.PHAGE_EXCLUDE(phage_exclude);
+
+      THEN("syms have a decreasing change of entering the host"){
+        int goal_num_syms[] = {3,3,2,2};
+
+        for(int i = 0; i < 4; i ++){
+          emp::Ptr<emp::Random> random = new emp::Random(i+1);
+          SymWorld w(*random);
+
+          Host * h = new Host(random, &w, &config, int_val);
+          for(double i = 0; i < 6; i++){
+            h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
+          }
+          int host_num_syms = (h->GetSymbionts()).size();
+
+          REQUIRE(goal_num_syms[i] == host_num_syms);
+        }
+      }
+    }
+  }
