@@ -9,12 +9,11 @@
 This is a software model of symbiosis which allows for evolution of
 parasitism and mutualism.
 
-Go to
-https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html to
+Click [here](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html) to
 try it out in your web browser!
 
 To build, you must first download Empirical
-(https://github.com/devosoft/Empirical) and place the two repositories
+([https://github.com/devosoft/Empirical](https://github.com/devosoft/Empirical)) and place the two repositories
 on the same level. Then within SymbulationEmp run
 ```
   make
