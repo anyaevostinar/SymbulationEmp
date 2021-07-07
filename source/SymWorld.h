@@ -9,12 +9,15 @@
 #include <set>
 #include <math.h>
 
+// #include <typeinfo>
+// string s = typeid(p).name()
+
 class SymWorld : public emp::World<Organism>{
 private:
   double vertTrans = 0;
   int total_res = -1;
   bool limited_res = false;
-  bool do_free_living_phage = false;
+  bool do_free_living_syms = false;
 
 
 
@@ -22,12 +25,13 @@ private:
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
   emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
-    emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
+  emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
   emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
@@ -45,6 +49,7 @@ public:
   ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
+    if (data_node_lysischance) data_node_lysischance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
@@ -57,7 +62,7 @@ public:
   void SetVertTrans(double vt) {vertTrans = vt;}
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
-  void SetFreeLivingPhage(bool flp) {do_free_living_phage = flp; }
+  void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
   void SetTotalRes(int val) {
     if(val<0){
       SetLimitedRes(false);
@@ -67,8 +72,6 @@ public:
     }
   }
 
-
-  bool GetDoFreeLivingPhage(){ return do_free_living_phage;}
   emp::World<Organism>::pop_t getPop() {return pop;}
 
   bool WillTransmit() {
@@ -131,12 +134,12 @@ public:
 
   void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
-    if(do_free_living_phage){ newLoc = GetRandomCellID(); }
+    if(do_free_living_syms){ newLoc = GetRandomCellID(); }
 
     if(IsOccupied(newLoc) == true && pop[newLoc]->IsHost()) {
       newSym->SetHost(pop[newLoc]);
       pop[newLoc]->AddSymbiont(newSym);
-    } else if (!IsOccupied(newLoc) && do_free_living_phage) {
+    } else if (!IsOccupied(newLoc) && do_free_living_syms) {
       AddOrgAt(newSym, newLoc);
     } else {
       newSym.Delete();
@@ -175,8 +178,8 @@ public:
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "hosted_phage", "Total number of phage in a host");
-    file.AddTotal(node3, "free_phage", "Total number of free phage");
+    file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
+    file.AddTotal(node3, "free_syms", "Total number of free syms");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -242,6 +245,30 @@ public:
     return file;
   }
 
+    emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node1 = GetSymCountDataNode();
+    auto & node = GetLysisChanceDataNode();
+    node.SetupBins(0.0, 1.1, 11); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_lysischance", "Average chance of lysis");
+    file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    file.PrintHeaderKeys();
+
+    return file;
+  }
+
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -273,14 +300,16 @@ public:
   }
 
   emp::DataMonitor<int>& GetCFUDataNode() {
+    //keep track of host organisms that are uninfected or infected by only lysogenic phage
     if(!data_node_cfu) {
       data_node_cfu.New();
       OnUpdate([this](size_t){
 	  data_node_cfu -> Reset();
+
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i) && pop[i]->IsHost()) {
 	      if((pop[i]->GetSymbionts()).empty()) {
-		data_node_cfu->AddDatum(1);
+		      data_node_cfu->AddDatum(1);
 	      }
 	    } //endif
 	  } //end for
@@ -314,7 +343,7 @@ public:
           if (IsOccupied(i)) {
             if(pop[i]->IsHost()){
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-	    int sym_size = syms.size();
+	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
 	    }//close for
@@ -379,7 +408,7 @@ public:
           if (IsOccupied(i)) {
             if(pop[i]->IsHost()){
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-      int sym_size = syms.size();
+	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
 	      data_node_symintval->AddDatum(syms[j]->GetIntVal());
 	    }//close for
@@ -394,8 +423,27 @@ public:
     return *data_node_symintval;
   }
 
+  emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
+    if (!data_node_lysischance) {
+      data_node_lysischance.New();
+      OnUpdate([this](size_t){
+        data_node_lysischance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+	          int sym_size = syms.size();
+	          for(size_t j=0; j< sym_size; j++){
+	            data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
+	          }//close for
+	        }//close if
+	      }//close for
+      });
+    }
+    return *data_node_lysischance;
+  }
+
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
-    if(!do_free_living_phage){
+    if(!do_free_living_syms){
       int newLoc = GetNeighborHost(i);
       if (newLoc > -1) { //-1 means no living neighbors
         pop[newLoc]->AddSymbiont(sym_baby);
@@ -423,46 +471,38 @@ public:
     else sym.Delete();
   }
 
-
   void MoveFreeSym(size_t i){
     emp::Ptr<Organism> sym = pop[i];
-    if(!sym->IsHost()){
+    if(!sym->IsHost() && sym->GetDead() == false){
       pop[i] = NULL;
+      num_orgs--;
       MoveToFreeWorldPosition(sym, i);
-      //why computer dont like this for sym 
     }
   }
 
 
   void Update() {
     emp::World<Organism>::Update();
+
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
 
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
-      if (IsOccupied(i) == false){
-        continue;
-      } 
-        // no organism at that cell
+      if (IsOccupied(i) == false){ continue;} // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-
-      //check if it's a host and do host/sym processes as necessary
-      if(pop[i]->IsHost()){ //host process
-        pop[i]->Process(PullResources(), i);
+      if(pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
+        pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
-      } else { //sym process
-        if(pop[i]->IsPhage()){
-          pop[i]->process(0,i);
-        }
-        else {
-          pop[i]->process(PullResources(),i);
-        }
       }
+      else{
+        pop[i]->Process(i);
+      }
+
     } // for each cell in schedule
   } // Update()
 };// SymWorld class

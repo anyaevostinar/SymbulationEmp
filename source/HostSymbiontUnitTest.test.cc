@@ -22,6 +22,7 @@ TEST_CASE("Host SetSymbionts") {
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
+    config.SYM_LIMIT(2);
 
     Host * h = new Host(random, &w, &config);
     Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
@@ -32,7 +33,16 @@ TEST_CASE("Host SetSymbionts") {
     syms.push_back(s2);
 
     h->SetSymbionts(syms);
-    REQUIRE(h->GetSymbionts() == syms);
+
+    REQUIRE(h->GetSymbionts().size() == syms.size());
+
+    for(size_t i = 0; i < syms.size(); i++){
+        emp::vector<emp::Ptr<Organism>> host_syms = h->GetSymbionts();
+        Organism * curSym = host_syms[i];
+        Organism * curHost = curSym->GetHost();
+        REQUIRE(curSym == (Organism *) syms[i]);
+        REQUIRE(curHost == h);
+    }
 
     bool has_sym = true;
     REQUIRE(h->HasSym() == has_sym);
@@ -40,15 +50,18 @@ TEST_CASE("Host SetSymbionts") {
 }
 
 TEST_CASE("Host SymLimit") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random;
+    random.New(-1);
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
 
     Host * h = new Host(random, &w, &config);
 
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s1; 
+    s1.New(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> s2; 
+    s2.New(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> syms;
     
@@ -65,6 +78,8 @@ TEST_CASE("Host SymLimit") {
         }
 
     }
+    random.Delete();
+    s1.Delete();
 
 }
 
@@ -146,6 +161,7 @@ TEST_CASE("Host DistribResources") {
 
         double resources = 120;
         h->DistribResources(resources);
+
 
         int num_syms = 3;
         double sym_piece = resources / num_syms; // how much resource each sym gets
@@ -253,7 +269,7 @@ TEST_CASE("Host DistribResources") {
         int resources = 100;
         h->DistribResources(resources);
 
-        int host_donation = 10; //host_int_val * resources
+        // int host_donation = 10; //host_int_val * resources
         int host_portion = 90;  //remaining amount
         int sym_steals = 9; //host_portion * sym_int_val * -1
         int sym_portion = 19; //sym_steals + host_donation
@@ -285,9 +301,9 @@ TEST_CASE("Host DistribResources") {
 
 
         int num_syms = 3;
-        double sym_piece = 40; //resources / num_syms
+        // double sym_piece = 40; //resources / num_syms
 
-        int host_donation = 4; //host_int_val * sym_piece
+        // int host_donation = 4; //host_int_val * sym_piece
         double host_portion = 36;  //remaining amount
         double sym_steals = 3.6; //host_portion * sym_int_val * -1
         double sym_portion = 7.6; //sym_steals + host_donation
@@ -348,4 +364,48 @@ TEST_CASE("Host DistribResources") {
 
         }
     }
+}
+
+TEST_CASE("Vertical Transmission of Symbiont") {
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    
+
+    WHEN("When vertical transmission is enabled"){
+        world->SetVertTrans(1);
+        double host_int_val = .5;
+        double sym_int_val = -.5;
+        
+        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
+       
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
+        s->VerticalTransmission(host_baby);
+
+        THEN("Symbiont offspring are injected into host offspring") {
+            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+        }
+    }
+    WHEN("When vertical transmission is disabled"){
+        world->SetVertTrans(0);
+        double host_int_val = .5;
+        double sym_int_val = -.5;
+        
+        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
+       
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+        s->VerticalTransmission(host_baby);
+
+        THEN("Symbiont offspring are not injected into host offspring") {
+            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+        }
+    }
+
+
+
 }
