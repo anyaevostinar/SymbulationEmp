@@ -34,12 +34,16 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
+   :caption: Contents:
 
-   intro
-   strings
-   datatypes
-   numeric
-   (many more documents listed here)
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
 
 .. toctree::
 :caption: Using Symbulation
