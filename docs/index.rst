@@ -33,8 +33,18 @@ Created part of my free logo at LogoMakr.com.
 Contents:
 
 .. toctree::
+   :maxdepth: 2
+
+   intro
+   strings
+   datatypes
+   numeric
+   (many more documents listed here)
+
+.. toctree::
 :caption: Using Symbulation
 :maxdepth: 2
+
   QuickStartGuides/index
   library/index
   api/library_root
