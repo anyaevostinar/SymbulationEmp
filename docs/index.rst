@@ -40,7 +40,7 @@ Contents:
 Using Symbulation
 ==================
 
-* :ref:`QuickStartGuide/index.rst<Quick start guide>`
+* :ref:`QuickStartGuides/index.rst<Quick start guide>`
 * :ref:`Using Symbulation <library/index.rst>`_
 * :ref:`Library <api/library_root.rst>`_
 
