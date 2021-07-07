@@ -31,17 +31,17 @@ SymSettings.cfg!
 
 Contents:
 #### Getting Started 
-* [Quick start guide]()
-* [Library]()
+* [Quick start guide]() - Coming soon! 
+* [Library]() - Coming soon! 
 
 #### Contributing to Symbulation
 
 
-* [Sumbulation development practices]()
-* [Getting started]()
-* [Contribution guidelines and review]()
-* [Adding documentation]()
-* [Guide to testing]()
+* [Symbulation development practices]() - Coming soon! 
+* [Getting started]() - Coming soon! 
+* [Contribution guidelines and review]() - Coming soon! 
+* [Adding documentation]() - Coming soon! 
+* [Guide to testing]() - Coming soon! 
 
 
 {ref}`genindex`
