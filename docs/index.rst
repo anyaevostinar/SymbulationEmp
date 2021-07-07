@@ -41,28 +41,21 @@ Using Symbulation
 ==================
 
 * :ref:`QuickStartGuides/index`
-* :ref:`modindex`
-* :ref:`search`
-
-.. toctree::
-:caption: Using Symbulation
-:maxdepth: 2
-
-
-  library/index
-  api/library_root
-
+* :ref:`library/index`
+* :ref:`api/library_root`
 
 
 .. toctree::
 :caption: Contributing to Symbulation
 :maxdepth: 0
 
-  dev/empirical-development-practices
-  dev/getting-started
-  dev/contribution-guidelines-and-review
-  dev/adding-documentation
-  dev/guide-to-testing
+Contributing to Symbulation
+==================
+* :ref:`dev/empirical-development-practices`
+* :ref:`dev/getting-started`
+* :ref:`dev/contribution-guidelines-and-review`
+* :ref:`dev/adding-documentation`
+* :ref:`dev/guide-to-testing`
 
 {ref}`genindex`
 
