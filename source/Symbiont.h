@@ -167,7 +167,7 @@ public:
   }
 
   void Process(size_t location) {
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
       double resources = my_world->PullResources();
       AddPoints(resources);
     }
@@ -183,7 +183,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
   }
 
   emp::Ptr<Organism> reproduce() {
