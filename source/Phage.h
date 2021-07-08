@@ -93,7 +93,7 @@ public:
   }
 
   void Process(size_t location) {
-    if(lysis_enabled && GetHost() != NULL) { //lysis enabled, checking for lysis
+    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled, checking for lysis
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
