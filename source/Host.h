@@ -60,7 +60,7 @@ public:
   double GetPoints() { return points;}
   bool IsHost() { return true; }
 
-
+/// A function for setting an interaction value 
   void SetIntVal(double _in) {
     if ( _in > 1 || _in < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
