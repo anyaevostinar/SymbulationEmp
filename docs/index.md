@@ -50,19 +50,3 @@ dev/guide-to-testing
 ```
 
 {ref}`genindex`
-Contents:
-#### Getting Started 
-* [Quick start guide]() - Coming soon! 
-* [Library]() - Coming soon! 
-
-#### Contributing to Symbulation
-
-
-* [Symbulation development practices]() - Coming soon! 
-* [Getting started]() - Coming soon! 
-* [Contribution guidelines and review]() - Coming soon! 
-* [Adding documentation]() - Coming soon! 
-* [Guide to testing]() - Coming soon! 
-
-
-{ref}`genindex`
