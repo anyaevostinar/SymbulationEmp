@@ -429,7 +429,7 @@ public:
       OnUpdate([this](size_t){
         data_node_lysischance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
+          if (IsOccupied(i) && pop[i]->IsHost()) {
 	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	          int sym_size = syms.size();
 	          for(size_t j=0; j< sym_size; j++){
