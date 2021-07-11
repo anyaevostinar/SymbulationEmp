@@ -18,10 +18,8 @@ private:
   int total_res = -1;
   bool limited_res = false;
   bool do_free_living_syms = false;
-
-
-
   double resources_per_host_per_update = 0;
+  pop_t sym_pop; //pop is for hosts
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -73,6 +71,7 @@ public:
   }
 
   emp::World<Organism>::pop_t getPop() {return pop;}
+  emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
   bool WillTransmit() {
     bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
@@ -98,24 +97,63 @@ public:
     }
   }
 
+  //overwriting empirical resize so that sym_pop is also resized
+  void Resize(size_t new_width, size_t new_height) {
+    size_t new_size = new_width * new_height;
+    pop.resize(new_size);
+    sym_pop.resize(new_size);
+    pop_sizes.resize(2);
+    pop_sizes[0] = new_width; pop_sizes[1] = new_height;
+  }
+
+  //Overwriting the empirical AddOrgAt function to permit syms to be added into sym_pop
+  void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
+    emp_assert(new_org);         // The new organism must exist.
+    emp_assert(pos.IsValid());   // Position must be legal.
+
+    if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
+      emp::World<Organism>::AddOrgAt(new_org, pos,p_pos);
+    } else { //if it is not a host, then add it to the sym population
+      size_t pos_index = pos.GetIndex();
+      if( IsOccupied(pos) && pop[pos_index]->IsHost()){
+        pop[pos_index]->AddSymbiont(new_org);
+      } else if (do_free_living_syms){
+        //if it is adding a sym to the pop, add to the num_org count
+        //otherwise, delete the sym currently occupying the spot
+        if(!sym_pop[pos_index]) ++num_orgs;
+        else sym_pop[pos_index].Delete();
+
+        //set the pointer to NULL
+        sym_pop[pos_index] = nullptr;
+        sym_pop[pos_index] = new_org;
+      }
+    }
+  }
+
+  bool IsSymPopOccupied(emp::WorldPosition pos){
+    size_t pos_index = pos.GetIndex();
+    if(pos_index < sym_pop.size()) return (sym_pop[pos_index] != nullptr);
+    return false;
+  }
+
   //Overriding World's DoBirth to take a pointer instead of a reference
   //Because it takes a pointer, it doesn't support birthing multiple copies
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);
-    emp::WorldPosition pos;                                        // Position of each offspring placed.
+    emp::WorldPosition pos;  // Position of each offspring placed.
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
     if (pos.IsValid() && pos.GetIndex() != parent_pos) {
-      if(!IsOccupied(pos) || (pop[pos.GetIndex()]->IsHost())){ //if unoccupied or occupied by a host, add regularly
-        AddOrgAt(new_org, pos, parent_pos);
-      } else if(!pop[pos.GetIndex()]->IsHost() && new_org->IsHost()){ //If the new_org is a host and the occupying org is a sym, absorb it
-        emp::Ptr<Organism> sym = pop[pos.GetIndex()];
+      if(sym_pop[pos.GetIndex()]){ //if there exists a free-living sym, absorb it
+        //grab the sym, add it to the host, set the sym position to null, and decriment the number of free-living organisms
+        emp::Ptr<Organism> sym = sym_pop[pos.GetIndex()];
         new_org->AddSymbiont(sym);
-        pop[pos.GetIndex()] = new_org;
-      } else { //this shouldn't happen
-        new_org.Delete();
+        sym_pop[pos.GetIndex()] = nullptr;
+        num_orgs--;
       }
+      //Add to the specified position, overwriting what may exist there
+      AddOrgAt(new_org, pos, parent_pos);
     }
     else {
       new_org.Delete();
@@ -132,17 +170,17 @@ public:
     }
   }
 
-  void InjectSymbiont(emp::Ptr<Organism> newSym){
-    int newLoc = GetRandomOrgID();
-    if(do_free_living_syms){ newLoc = GetRandomCellID(); }
+  void InjectSymbiont(emp::Ptr<Organism> new_sym){
+    int new_loc = GetRandomOrgID();
+    if(do_free_living_syms){ new_loc = GetRandomCellID(); }
 
-    if(IsOccupied(newLoc) == true && pop[newLoc]->IsHost()) {
-      newSym->SetHost(pop[newLoc]);
-      pop[newLoc]->AddSymbiont(newSym);
-    } else if (!IsOccupied(newLoc) && do_free_living_syms) {
-      AddOrgAt(newSym, newLoc);
+    if(IsOccupied(new_loc) == true && pop[new_loc]->IsHost()) {
+      new_sym->SetHost(pop[new_loc]);
+      pop[new_loc]->AddSymbiont(new_sym);
+    } else if (!IsOccupied(new_loc) && do_free_living_syms) {
+      AddOrgAt(new_sym, new_loc);
     } else {
-      newSym.Delete();
+      new_sym.Delete();
     }
   }
 
@@ -292,6 +330,8 @@ public:
             if(pop[i]->IsHost()){
               data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
             } else data_node_symcount->AddDatum(1);
+          } else if (IsSymPopOccupied(i)){
+            data_node_symcount->AddDatum(1);
           }
 
       });
@@ -392,8 +432,8 @@ public:
       OnUpdate([this](size_t){
         data_node_free_syms->Reset();
         for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i) && !pop[i]->IsHost())
-            data_node_free_syms->AddDatum(1);
+          if (IsOccupied(i) && !pop[i]->IsHost()) data_node_free_syms->AddDatum(1);
+          else if (IsSymPopOccupied(i)) data_node_free_syms->AddDatum(1);
       });
     }
     return *data_node_free_syms;
@@ -407,17 +447,19 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             if(pop[i]->IsHost()){
-	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-	    size_t sym_size = syms.size();
-	    for(size_t j=0; j< sym_size; j++){
-	      data_node_symintval->AddDatum(syms[j]->GetIntVal());
-	    }//close for
-    } else {
-      data_node_symintval->AddDatum(pop[i]->GetIntVal());
-    }
-
-	  }//close if
-	}//close for
+      	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+      	    size_t sym_size = syms.size();
+      	    for(size_t j=0; j< sym_size; j++){
+      	      data_node_symintval->AddDatum(syms[j]->GetIntVal());
+      	    }//close for
+            } else {
+              data_node_symintval->AddDatum(pop[i]->GetIntVal());
+            }
+      	  }//close if
+          else if(IsSymPopOccupied(i)){
+            data_node_symintval->AddDatum(sym_pop[i]->GetIntVal());
+          }
+      	}//close for
       });
     }
     return *data_node_symintval;
@@ -430,12 +472,19 @@ public:
         data_node_lysischance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost()) {
-	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-	          int sym_size = syms.size();
-	          for(size_t j=0; j< sym_size; j++){
-	            data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
-	          }//close for
+            if(pop[i]->IsHost()){
+  	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+  	          int sym_size = syms.size();
+  	          for(size_t j=0; j< sym_size; j++){
+  	            data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
+  	          }//close for
+            } else {
+              data_node_lysischance->AddDatum(pop[i]->GetLysisChance());
+            }
 	        }//close if
+          else if (IsSymPopOccupied(i)){
+            data_node_lysischance->AddDatum(sym_pop[i]->GetLysisChance());
+          }
 	      }//close for
       });
     }
@@ -459,22 +508,21 @@ public:
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     int newLocIndex = newLoc.GetIndex();
     if(newLoc.IsValid()){
-      if(!IsOccupied(newLoc) || (IsOccupied(newLoc) && !pop[newLocIndex]->IsHost())){
-        //if the spot is empty or contains a sym, add normally
+      if(IsOccupied(newLoc) && pop[newLocIndex]->IsHost()){
+        pop[newLocIndex]->AddSymbiont(sym);
+      }
+      else {
         sym->SetHost(NULL);
         AddOrgAt(sym, newLoc, i);
-      } else if(pop[newLocIndex]->IsHost()){ //if it's occcupied by a host, be sucked up
-        pop[newLocIndex]->AddSymbiont(sym);
-        //AddSymbiont will set the baby's host appropriately
-      } else sym.Delete(); //this shouldn't happen
+      }
     }
     else sym.Delete();
   }
 
   void MoveFreeSym(size_t i){
-    emp::Ptr<Organism> sym = pop[i];
+    emp::Ptr<Organism> sym = sym_pop[i];
     if(!sym->IsHost() && sym->GetDead() == false){
-      pop[i] = NULL;
+      sym_pop[i] = nullptr;
       num_orgs--;
       MoveToFreeWorldPosition(sym, i);
     }
@@ -487,20 +535,21 @@ public:
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
 
+
     // divvy up and distribute resources to host and symbiont in each cell
+
     for (size_t i : schedule) {
-      if (IsOccupied(i) == false){ continue;} // no organism at that cell
+      if (IsOccupied(i) == false && !sym_pop[i]){continue;} // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      if(pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
+      if(IsOccupied(i) && pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
         pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
-      }
-      else{
-        pop[i]->Process(i);
+      } else if (sym_pop[i]) {
+        sym_pop[i]->Process(i);
       }
 
     } // for each cell in schedule

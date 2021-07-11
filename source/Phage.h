@@ -35,7 +35,7 @@ public:
   void IncBurstTimer() {
 
     burst_timer += random->GetRandNormal(1.0, 1.0);
-    
+
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
 
@@ -69,7 +69,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
@@ -97,15 +97,19 @@ public:
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-          //Record the burst size
-          // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
+          emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+          data_node_burst_size.AddDatum(repro_syms.size());
+
+          emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+          data_node_burst_count.AddDatum(1);
+
           for(size_t r=0; r<repro_syms.size(); r++) {
             my_world->SymDoBirth(repro_syms[r], location);
           }
           my_host->ClearReproSyms();
           my_host->SetDead();
           return;
-          
+
         } else { //not time to lyse
           IncBurstTimer();
           if(sym_lysis_res == 0) {
@@ -126,7 +130,7 @@ public:
           SetDead();
         }
       }
-    }else{
+    } else {
       my_world->MoveFreeSym(location);
     }
   }
