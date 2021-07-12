@@ -249,7 +249,7 @@ public:
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetLysisChanceDataNode();
-    node.SetupBins(0.0, 1.1, 11); //Necessary because range exclusive
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_lysischance", "Average chance of lysis");
     file.AddTotal(node1, "count", "Total number of symbionts");
@@ -300,7 +300,7 @@ public:
   }
 
   emp::DataMonitor<int>& GetCFUDataNode() {
-    //keep track of host organisms that are uninfected or infected by only lysogenic phage
+    //keep track of host organisms that are uninfected
     if(!data_node_cfu) {
       data_node_cfu.New();
       OnUpdate([this](size_t){
@@ -436,6 +436,9 @@ public:
 	            data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
 	          }//close for
 	        }//close if
+          if (IsOccupied(i) && pop[i]->IsPhage()){
+            data_node_lysischance->AddDatum(pop[i]->GetLysisChance());
+          } 
 	      }//close for
       });
     }
