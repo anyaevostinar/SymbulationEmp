@@ -35,7 +35,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
       emp::Ptr<GPHost> new_org = emp::NewPtr<GPHost>(mem);
       emp::vector<GPSymbiont> new_symbiont = mem->GetSymbio();
       //for loop here, should be iterating through mem
-      for (size_t j = 0; j < mem.size(); j++){ // loop through mem symbionts, copy each one
+      for (size_t j = 0; j < new_symbiont.size(); j++){ // loop through mem symbionts, copy each one
         //get vector of symbionts
         //emp::vector<GPSymbiont> symbiont_copy = new_symbiont; //copy symbiont from mem
   
