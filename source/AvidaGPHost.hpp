@@ -25,6 +25,7 @@ class GPHost : public emp::AvidaCPU_Base<GPHost>{
   emp::vector<GPSymbiont> syms;
 
   //make instance of points here, would this be vector symbiont?
+  // should this be public?
   emp::vector<GPHost> points;
 
   /*
