@@ -34,6 +34,7 @@ private:
   emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
   emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
+  emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
 
@@ -55,6 +56,7 @@ public:
     if (data_node_burst_size) data_node_burst_size.Delete();
     if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
+    if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_hosted_syms) data_node_hosted_syms.Delete();
     if (data_node_free_syms) data_node_free_syms.Delete();
   }
@@ -211,6 +213,7 @@ public:
     auto & node = GetHostIntValDataNode();
     auto & node1 = GetHostCountDataNode();
     auto & cfu_node = GetCFUDataNode();
+    auto & uninf_hosts_node = GetUninfectedHostsDataNode();
     node.SetupBins(-1.0, 1.1, 21);
 
     file.AddVar(update, "update", "Update");
@@ -218,6 +221,7 @@ public:
     file.AddTotal(node1, "count", "Total number of hosts");
     file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
     //either aren't infected at all or only with lysogenic phage if lysis is enabled
+    file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -299,22 +303,56 @@ public:
     return *data_node_symcount;
   }
 
-  emp::DataMonitor<int>& GetCFUDataNode() {
+  emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
     //keep track of host organisms that are uninfected
-    if(!data_node_cfu) {
-      data_node_cfu.New();
+    if(!data_node_uninf_hosts) {
+      data_node_uninf_hosts.New();
       OnUpdate([this](size_t){
-	  data_node_cfu -> Reset();
+	  data_node_uninf_hosts -> Reset();
 
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i) && pop[i]->IsHost()) {
 	      if((pop[i]->GetSymbionts()).empty()) {
-		      data_node_cfu->AddDatum(1);
+		      data_node_uninf_hosts->AddDatum(1);
 	      }
 	    } //endif
 	  } //end for
 	}); //end OnUpdate
     } //end if
+    return *data_node_uninf_hosts;
+  }
+
+  emp::DataMonitor<int>& GetCFUDataNode() {
+    //keep track of host organisms that are uninfected or infected with only lysogenic phage
+    if(!data_node_cfu) {
+      data_node_cfu.New();
+      OnUpdate([this](size_t){
+	      data_node_cfu -> Reset();
+
+        for (size_t i = 0; i < pop.size(); i++) {
+          if(IsOccupied(i) && pop[i]->IsHost()) {
+            //uninfected hosts
+            if((pop[i]->GetSymbionts()).empty()) {
+		          data_node_cfu->AddDatum(1);
+	          }
+
+            //infected hosts, check if all symbionts are lysogenic
+            if(pop[i]->HasSym()) {
+              emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+              bool all_lysogenic = true;
+              for(long unsigned int j = 0; j < syms.size(); j++){
+                if(syms[j]->GetLysogeny() == false){
+                  all_lysogenic = false;
+                }
+              }
+              if(all_lysogenic){
+                data_node_cfu->AddDatum(1);
+              }
+            }
+          } //endif
+        } //end for
+	  }); //end OnUpdate
+  } //end if
     return *data_node_cfu;
   }
 
