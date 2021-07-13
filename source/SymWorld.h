@@ -341,9 +341,11 @@ public:
               emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
               bool all_lysogenic = true;
               for(long unsigned int j = 0; j < syms.size(); j++){
-                if(syms[j]->GetLysogeny() == false){
-                  all_lysogenic = false;
-                }
+                //if(syms[j]->IsPhage()){
+                  if(syms[j]->GetLysogeny() == false){
+                    all_lysogenic = false;
+                  }
+                //}
               }
               if(all_lysogenic){
                 data_node_cfu->AddDatum(1);
@@ -474,7 +476,7 @@ public:
 	            data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
 	          }//close for
 	        }//close if
-          if (IsOccupied(i) && pop[i]->IsPhage()){
+          if (IsOccupied(i) && !pop[i]->IsHost()){
             data_node_lysischance->AddDatum(pop[i]->GetLysisChance());
           } 
 	      }//close for
