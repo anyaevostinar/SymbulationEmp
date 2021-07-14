@@ -84,11 +84,12 @@ public:
     }
   }
 
-  double ProcessResources(double sym_piece){
+  double ProcessResources(double hostDonation){
     if(lysogeny){
-      return sym_piece; //lysogenic phage don't steal any resources from their host
-    } else {
-      return Symbiont::ProcessResources(sym_piece); //lytic phage do steal resources
+      return 0; 
+    } 
+    else{
+      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
     }
   }
 
