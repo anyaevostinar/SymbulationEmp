@@ -91,8 +91,8 @@ public:
   bool GetDead() {return dead;}
 
   double StealResources(double _intval){
-    hostIntVal = GetIntVal();
-    res_in_process = GetResInProcess();
+    double hostIntVal = GetIntVal();
+    double res_in_process = GetResInProcess();
     //calculate how many resources another organism can steal from this host
     if (_intval < hostIntVal){ 
       //organism trying to steal can overcome host's defense
