@@ -117,10 +117,10 @@ public:
       interaction_val += change;
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
-
+      /*
       infection_chance += change;
       if (infection_chance < 0) infection_chance = 0;
-      else if (infection_chance > 1) infection_chance = 1;
+      else if (infection_chance > 1) infection_chance = 1;*/
     }
   }
 
