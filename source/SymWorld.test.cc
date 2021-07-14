@@ -165,8 +165,6 @@ TEST_CASE( "Interaction Patterns" ) {
     config.HOST_REPRO_RES(10);
     config.RES_DISTRIBUTE(100);
     config.SYNERGY(5);
-    w.Resize(100, 200);
-
 
     WHEN( "very generous hosts meet many very hostile symbionts" ) {
 
@@ -177,6 +175,8 @@ TEST_CASE( "Interaction Patterns" ) {
         w.AddOrgAt(new_org, w.size());
       }
 
+      w.Resize(100, 200);
+      
       for (size_t i = 0; i < 10000; i++){
         emp::Ptr<Symbiont> new_sym;
         new_sym.New(&random, &w, &config, -1);
