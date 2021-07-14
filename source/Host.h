@@ -17,6 +17,7 @@ private:
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
   std::set<int> res_types = {};
   double points = 0;
+  double res_in_process = 0;
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<SymConfigBase> my_config = NULL;
@@ -59,6 +60,7 @@ public:
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
   bool IsHost() { return true; }
+  double GetResInProcess() { return res_in_process; }
 
 
   void SetIntVal(double _in) {
@@ -78,6 +80,7 @@ public:
 
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
+  void SetResInProcess(double _in) { res_in_process = _in; }
   void ClearSyms() {
     syms.resize(0);
   }
@@ -86,6 +89,22 @@ public:
   }
   void SetDead() { dead = true;}
   bool GetDead() {return dead;}
+
+  double StealResources(double _intval){
+    hostIntVal = GetIntVal();
+    res_in_process = GetResInProcess()
+    //calculate how many resources another organism can steal from this host
+    if (_intval < hostIntVal){ 
+      //organism trying to steal can overcome host's defense
+      double stolen = (hostIntVal - _intval) * res_in_process;
+      double remainingResources = res_in_process - stolen;
+      SetResInProcess(remainingResources);
+      return stolen
+    } else { 
+      //defense cannot be overcome, no resources are stolen
+      return 0;
+    }
+  }
 
 
   void AddPoints(double _in) {points += _in;}
