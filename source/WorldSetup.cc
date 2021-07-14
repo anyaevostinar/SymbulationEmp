@@ -61,7 +61,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
   int total_syms = POP_SIZE * start_moi;
-  double infection_chance = my_config->SYM_INFECTION_CHANCE();
   for (int j = 0; j < total_syms; j++){
       //TODO: figure out better way of doing the type
 
@@ -75,17 +74,14 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
         if(STAGGER_STARTING_BURST_TIMERS) {
           new_sym->SetBurstTimer(random.GetInt(-5,5));
         }
-        new_sym->SetInfectionChance(infection_chance);
         world->InjectSymbiont(new_sym);
 
       } else if (my_config->EFFICIENT_SYM()) {
         emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&random, world, my_config, sym_int, 0, 1);
-        new_sym->SetInfectionChance(infection_chance);
         world->InjectSymbiont(new_sym);
       } else {
         emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, world, my_config,
           sym_int, 0);
-        new_sym->SetInfectionChance(infection_chance);
         world->InjectSymbiont(new_sym);
       }
 

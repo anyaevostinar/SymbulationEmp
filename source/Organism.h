@@ -74,6 +74,10 @@ class Organism {
   virtual bool WantsToInfect() {
     std::cout << "WantsToInfect called from an Organism" << std::endl;
     throw "Organism method called!";}
+  virtual double GetInfectChance() {
+    std::cout << "GetInfectChance called from an Organism" << std::endl;
+    throw "Organism method called!";}
+
 
   //EfficientSymbiont functions
   virtual double GetEfficiency() {

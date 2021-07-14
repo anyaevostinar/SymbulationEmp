@@ -33,6 +33,7 @@ public:
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
+    infection_chance = my_config->SYM_INFECTION_CHANCE();
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = mut_rate;
     } else {
@@ -59,6 +60,7 @@ public:
   double GetIntVal() const {
     return interaction_val;}
   double GetPoints() {return points;}
+  double GetInfectChance() {return infection_chance;}
   bool IsPhage() {return false;}
   bool IsHost() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
@@ -90,9 +92,17 @@ public:
   void mutate(){
     // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, mut_size);
+      double change = random->GetRandNormal(0.0, mut_size);
+
+      interaction_val += change;
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      //also modify infection chance, which is between 0 and 1
+      /*
+      infection_chance += change;
+      if (infection_chance < 0) infection_chance = 0;
+      else if (infection_chance > 1) infection_chance = 1;*/
     }
     //if((pre_value*interaction_val) < 0) {
     //  std::cout << "switched2!" << std::endl;
@@ -102,9 +112,15 @@ public:
   void HorizMutate(){
     // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, ht_mut_size);
+      double change = random->GetRandNormal(0.0, ht_mut_size);
+
+      interaction_val += change;
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      infection_chance += change;
+      if (infection_chance < 0) infection_chance = 0;
+      else if (infection_chance > 1) infection_chance = 1;
     }
   }
 
