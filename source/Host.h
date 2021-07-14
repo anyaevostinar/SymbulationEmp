@@ -92,14 +92,14 @@ public:
 
   double StealResources(double _intval){
     hostIntVal = GetIntVal();
-    res_in_process = GetResInProcess()
+    res_in_process = GetResInProcess();
     //calculate how many resources another organism can steal from this host
     if (_intval < hostIntVal){ 
       //organism trying to steal can overcome host's defense
       double stolen = (hostIntVal - _intval) * res_in_process;
       double remainingResources = res_in_process - stolen;
       SetResInProcess(remainingResources);
-      return stolen
+      return stolen;
     } else { 
       //defense cannot be overcome, no resources are stolen
       return 0;
