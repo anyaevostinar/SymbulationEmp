@@ -4,6 +4,7 @@
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/tools/string_utils.hpp"
 #include "SymWorld.h"
+#include <math.h>
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
@@ -20,6 +21,7 @@ protected:
   double mut_rate = 0;
   double ht_mut_rate = 0;
   bool dead = false;
+  double infection_chance = 0.0;
 
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
@@ -76,13 +78,13 @@ public:
   void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
-
+  void SetInfectionChance(double _in) {infection_chance = _in;}
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
   void uponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
-  } 
+  }
 
   //TODO: change everything to camel case
   void mutate(){
@@ -108,7 +110,7 @@ public:
 
   double ProcessResources(double sym_piece){
     //TODO - not what it should be right now, it is supposed to be only calculating
-    //symPortion, but it's also doing hostPortion. Need to figure out how to 
+    //symPortion, but it's also doing hostPortion. Need to figure out how to
     //calculate and separate out so I'm not just copying and pasting code
     double symIntVal = GetIntVal();
     double hostIntVal = my_host->GetIntVal();
@@ -166,11 +168,17 @@ public:
     return hostPortion;
   }
 
+  bool WantsToInfect(){
+    bool result = random->GetDouble(0.0, 1.0) < infection_chance;
+    return result;
+  }
+
   void Process(size_t location) {
     if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
       double resources = my_world->PullResources();
       AddPoints(resources);
     }
+
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -183,7 +191,11 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
+
+    //If the sym is free living, it now moves
+    if(my_host==NULL && my_config->FREE_LIVING_SYMS()){
+      my_world->MoveFreeSym(location);
+    }
   }
 
   emp::Ptr<Organism> reproduce() {

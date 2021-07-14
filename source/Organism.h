@@ -67,9 +67,12 @@ class Organism {
     throw "Organism method called!";}
   virtual bool IsPhage(){
     std::cout << "IsPhage called from an Organism" << std::endl;
-    throw "Organism method called!";}   
+    throw "Organism method called!";}
   virtual emp::Ptr<Organism> GetHost() {
     std::cout << "GetHost called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual bool WantsToInfect() {
+    std::cout << "WantsToInfect called from an Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
