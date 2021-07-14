@@ -429,7 +429,7 @@ public:
       data_node_free_syms.New();
       OnUpdate([this](size_t){
         data_node_free_syms->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
+        for (size_t i = 0; i< sym_pop.size(); i++)
           if (sym_pop[i]) data_node_free_syms->AddDatum(1);
       });
     }
@@ -566,14 +566,14 @@ public:
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
+      if(IsOccupied(i)){//host process
         pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
       }
 
-      if (sym_pop[i]){ //sym process
+      if (sym_pop[i]){ //free-living sym process
         sym_pop[i]->Process(i);
       }
 
