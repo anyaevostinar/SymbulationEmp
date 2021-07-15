@@ -92,15 +92,13 @@ public:
   void mutate(){
     // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      double change = random->GetRandNormal(0.0, mut_size);
-
-      interaction_val += change;
+      interaction_val += random->GetRandNormal(0.0, mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
 
-      infection_chance += change;
+      infection_chance += random->GetRandNormal(0.0, mut_size);
       if (infection_chance < 0) infection_chance = 0;
       else if (infection_chance > 1) infection_chance = 1;
     }
@@ -112,13 +110,11 @@ public:
   void HorizMutate(){
     // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      double change = random->GetRandNormal(0.0, ht_mut_size);
-
-      interaction_val += change;
+      interaction_val += random->GetRandNormal(0.0, ht_mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
-      infection_chance += change;
+      infection_chance += random->GetRandNormal(0.0, ht_mut_size);
       if (infection_chance < 0) infection_chance = 0;
       else if (infection_chance > 1) infection_chance = 1;
     }
