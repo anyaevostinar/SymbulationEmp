@@ -99,7 +99,7 @@ TEST_CASE( "World Capacity" ) {
       }
 
       THEN( "the world's size becomes the number of hosts that were added" ) {
-        REQUIRE( (int) w.getPop().size() == n );
+        REQUIRE( (int) w.GetPop().size() == n );
       }
     }
   }
@@ -143,8 +143,8 @@ TEST_CASE( "Interaction Patterns" ) {
 
       THEN( "the symbionts all die" ) {
 
-        for(size_t i = 0; i < w.getPop().size(); i++)
-          REQUIRE( !(w.getPop()[i] && w.getPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
+        for(size_t i = 0; i < w.GetPop().size(); i++)
+          REQUIRE( !(w.GetPop()[i] && w.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
   }
@@ -176,7 +176,7 @@ TEST_CASE( "Interaction Patterns" ) {
       }
 
       w.Resize(100, 200);
-      
+
       for (size_t i = 0; i < 10000; i++){
         emp::Ptr<Symbiont> new_sym;
         new_sym.New(&random, &w, &config, -1);

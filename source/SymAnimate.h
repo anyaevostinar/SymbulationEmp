@@ -34,7 +34,7 @@ private:
   UI::Canvas mycanvas;
 
   const int RECT_WIDTH = 10;
-  
+
   emp::Random random{config.SEED()};
   SymWorld world{random};
 
@@ -49,13 +49,13 @@ public:
 
   SymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
 
-    config.GRID_X(50); 
-    config.GRID_Y(50); 
+    config.GRID_X(50);
+    config.GRID_Y(50);
     config.UPDATES(30000);
 
-    //Exclude all the settings that control 
+    //Exclude all the settings that control
     //things that don't show up in the GUI correctly
-    config_panel.ExcludeConfig("SYM_LIMIT"); 
+    config_panel.ExcludeConfig("SYM_LIMIT");
     config_panel.ExcludeConfig("DATA_INT");
     config_panel.ExcludeConfig("POP_SIZE");
     config_panel.ExcludeConfig("LYSIS");
@@ -67,7 +67,7 @@ public:
     config_panel.ExcludeConfig("FILE_NAME");
     config_panel.ExcludeConfig("COMPETITION_MODE");
 
-    
+
 
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
@@ -85,7 +85,7 @@ public:
     emp::prefab::Card config_panel_ex("INIT_CLOSED");
     settings << config_panel_ex;
     config_panel_ex.AddHeaderContent("<h3>Settings</h3>");
-    
+
     // apply configuration query params and config files to config
     auto specs = emp::ArgManager::make_builtin_specs(&config);
     emp::ArgManager am(emp::web::GetUrlParams(), specs);
@@ -124,7 +124,7 @@ public:
       world.Reset();
       buttons.Text("update").Redraw();
       initializeWorld();
-      p = world.getPop();
+      p = world.GetPop();
 
       if (GetActive()) { // If animation is running, stop animation and adjust button label
         ToggleActive();
@@ -166,8 +166,8 @@ public:
     world.SetRandom(random);
 
     worldSetup(&world, &config);
-    
-    p = world.getPop();
+
+    p = world.GetPop();
 
   }
 
@@ -190,9 +190,9 @@ public:
                 // color setting for host and symbiont
 
                 std::string color_host = matchColor(p[i]->GetIntVal());
-                
-                
-                
+
+
+
                 // Draw host rect and symbiont dot
                 can.Rect(x * RECT_WIDTH, y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
@@ -204,7 +204,7 @@ public:
                   can.Circle(x * RECT_WIDTH + RECT_WIDTH/2, y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
                 }
                 i++;
-                
+
             }
         }
         //passed = temp_passed; // update passed
@@ -247,7 +247,7 @@ public:
 
       // Update world and draw the new petri dish
       world.Update();
-      p = world.getPop();
+      p = world.GetPop();
       drawPetriDish(mycanvas);
       buttons.Text("update").Redraw();
       buttons.Text("mut").Redraw();

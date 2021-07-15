@@ -73,7 +73,7 @@ public:
     }
   }
 
-  emp::World<Organism>::pop_t getPop() {return pop;}
+  emp::World<Organism>::pop_t GetPop() {return pop;}
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
   bool WillTransmit() {
