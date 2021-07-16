@@ -29,4 +29,12 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Make tests
-        run: cd SymbulationEmp && make test
+        run: cd SymbulationEmp && make coverage
+        
+      - name: Generate coverage
+        run: cd SymbulationEmp && gcov -abcfu main.cc
+        
+      - name: Upload coverage
+        uses: codecov/codecov-action@v1.5.2
+        with:
+          root_dir: SymbulationEmp

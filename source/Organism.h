@@ -37,6 +37,16 @@ class Organism {
   virtual void SetHost(emp::Ptr<Organism> _in) {
     std::cout << "SetHost called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetDead() {
+    std::cout << "SetDead called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual bool GetDead() {
+    std::cout << "GetDead called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void Process(size_t location)
+   {std::cout << "Process called from Organism" << std::endl;
+     throw "Organism method called!";}
 
   //Symbiont functions
 
@@ -46,11 +56,20 @@ class Organism {
   virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void process(size_t location) {
-    std::cout << "process called from Organism" << std::endl;
-    throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    std::cout << "reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double ProcessResources(double sym_piece){
+    std::cout << "ProcessResources called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual bool IsPhage(){
+    std::cout << "IsPhage called from an Organism" << std::endl;
+    throw "Organism method called!";}   
+  virtual emp::Ptr<Organism> GetHost() {
+    std::cout << "GetHost called from an Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
@@ -70,6 +89,15 @@ class Organism {
   virtual std::set<int> GetResTypes() const {
     std::cout << "GetResTypes called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetResInProcess(double _in){
+    std::cout << "SetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double GetResInProcess(){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double StealResources(double _intval){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -85,22 +113,18 @@ class Organism {
   virtual bool HasSym() {
     std::cout << "HasSym called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool IsHost() {
+    std::cout << "IsHost called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void DistribResources(double resources) {
     std::cout << "DistribResources called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void Process(double resources_per_host_per_update, int location) 
-   {std::cout << "Process called from Organism" << std::endl;
-     throw "Organism method called!";}
+  virtual void ClearSyms() {
+    std::cout << "ClearSyms called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetDead() {
-    std::cout << "SetDead called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual bool GetDead() {
-    std::cout << "GetDead called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
 
   //Phage functions
   virtual double GetBurstTimer() {
@@ -111,6 +135,18 @@ class Organism {
     throw "Organism method called!";}
   virtual void SetBurstTimer(int _in) {
     std::cout << "SetBurstTimer called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double GetLysisChance() {
+    std::cout << "GetLysisChance called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetLysisChance(double _in){
+    std::cout << "SetLysisChance called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void uponInjection() {
+    std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual bool GetLysogeny() {
+    std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
 
 };
