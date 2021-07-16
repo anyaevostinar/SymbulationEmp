@@ -84,21 +84,27 @@ public:
     }
   }
 
-  double ProcessResources(double sym_piece){
+  double ProcessResources(double hostDonation){
     if(lysogeny){
-      return sym_piece; //lysogenic phage don't steal any resources from their host
-    } else {
-      return Symbiont::ProcessResources(sym_piece); //lytic phage do steal resources
+      return 0; 
+    } 
+    else{
+      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
     }
   }
 
   void Process(size_t location) {
-    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled, checking for lysis
+    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-          //Record the burst size
-          // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
+
+          //Record the burst size and count
+          emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+          data_node_burst_size.AddDatum(repro_syms.size());
+          emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+          data_node_burst_count.AddDatum(1);
+
           for(size_t r=0; r<repro_syms.size(); r++) {
             my_world->SymDoBirth(repro_syms[r], location);
           }
@@ -126,8 +132,11 @@ public:
           SetDead();
         }
       }
-    }else{
-      my_world->MoveFreeSym(location);
+    }
+    else{ //phage is free living
+      if (my_config->MOVE_FREE_SYMS()){
+        my_world->MoveFreeSym(location);
+      }
     }
   }
 

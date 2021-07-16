@@ -388,7 +388,7 @@ TEST_CASE("Phage ProcessResources"){
         p->uponInjection();
 
         double sym_piece = 40;
-        double expected_return = 40;
+        double expected_return = 0;
 
         THEN("Phage doesn't take or give resources to the host"){
             REQUIRE(p->ProcessResources(sym_piece)==expected_return);
