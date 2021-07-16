@@ -9,3 +9,6 @@ symbulation
 *~
 *.data
 *.dat
+*.gcov
+*.gcda
+*.gcno
