@@ -41,7 +41,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
-    
+    VALUE(SGG_DONATE, double, 0, "Ratio of symbionts‘ energy to sgg pool that experiment should start with"),
+    VALUE(SGG, int, 0, "whether have social goods game among syms" ),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")
 )

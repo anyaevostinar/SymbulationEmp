@@ -2,6 +2,8 @@
 #include "../Phage.h"
 #include "../Symbiont.h"
 #include "../Host.h"
+#include"../sggsym.h"
+#include"../Sgghost.h"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../WorldSetup.cc"
@@ -50,6 +52,9 @@ int symbulation_main(int argc, char * argv[])
   if (config.LYSIS() == 1) {
     world.SetupLysisFile(config.FILE_PATH()+"Lysis"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
     world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  }else if(config.SGG() == 1){
+    world.SetupSggHostIntValFile(config.FILE_PATH()+"SGGHostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupSggSymIntValFile(config.FILE_PATH()+"SGGSymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   }
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
