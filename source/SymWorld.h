@@ -589,7 +589,12 @@ public:
     int n=0;
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
+<<<<<<< HEAD
       if (IsOccupied(i) == false){ continue;} // no organism at that cell
+=======
+      
+      if (IsOccupied(i) == false) continue;  // no organism at that cell
+>>>>>>> 5ab9566c8c97a3e6e5bea35eacd3e036d6906fe4
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
