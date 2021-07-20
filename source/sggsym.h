@@ -49,7 +49,7 @@ public:
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
+    if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
       sgg_donate += random->GetRandNormal(0.0, ht_mut_size);
       if(sgg_donate < 0) sgg_donate = 0;
       else if (sgg_donate > 1) sgg_donate = 1;
