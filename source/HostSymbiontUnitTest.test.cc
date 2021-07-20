@@ -271,8 +271,8 @@ TEST_CASE("Host DistribResources") {
 
         // int host_donation = 10; //host_int_val * resources
         int host_portion = 90;  //remaining amount
-        int sym_steals = 9; //host_portion * sym_int_val * -1
-        int sym_portion = 19; //sym_steals + host_donation
+        int sym_steals = 9; //host_portion * sym_int_val * -1; new code value should be 18
+        int sym_portion = 19; //sym_steals + host_donation; new code value should be 28
         host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
 
         THEN("Symbionts points and Host points increase the correct amounts") {

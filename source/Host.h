@@ -17,6 +17,7 @@ protected:
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
   std::set<int> res_types = {};
   double points = 0;
+  double res_in_process = 0;
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
   emp::Ptr<SymConfigBase> my_config = NULL;
@@ -59,6 +60,7 @@ public:
   std::set<int> GetResTypes() const { return res_types;}
   double GetPoints() { return points;}
   bool IsHost() { return true; }
+  double GetResInProcess() { return res_in_process; }
 
 
   void SetIntVal(double _in) {
@@ -78,6 +80,7 @@ public:
 
   void SetResTypes(std::set<int> _in) {res_types = _in;}
   void SetPoints(double _in) {points = _in;}
+  void SetResInProcess(double _in) { res_in_process = _in; }
   void ClearSyms() {
     syms.resize(0);
   }
@@ -86,6 +89,25 @@ public:
   }
   void SetDead() { dead = true;}
   bool GetDead() {return dead;}
+
+  double StealResources(double _intval){
+    double hostIntVal = GetIntVal();
+    double res_in_process = GetResInProcess();
+    //calculate how many resources another organism can steal from this host
+    if (hostIntVal>0){ //cooperative hosts shouldn't be over punished by StealResources
+      hostIntVal = 0;
+    }
+    if (_intval < hostIntVal){ 
+      //organism trying to steal can overcome host's defense
+      double stolen = (hostIntVal - _intval) * res_in_process;
+      double remainingResources = res_in_process - stolen;
+      SetResInProcess(remainingResources);
+      return stolen;
+    } else { 
+      //defense cannot be overcome, no resources are stolen
+      return 0;
+    }
+  }
 
 
   void AddPoints(double _in) {points += _in;}
@@ -130,7 +152,7 @@ public:
 
   void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
-
+    
     //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
     if(syms.empty()) {
 
@@ -147,11 +169,23 @@ public:
 
     //Otherwise, split resources into equal chunks for each symbiont
     int num_sym = syms.size();
+    double hostDonation = 0;
     double sym_piece = (double) resources / num_sym;
 
     for(size_t i=0; i < syms.size(); i++){
-      double hostPortion = syms[i]->ProcessResources(sym_piece);
-      this->AddPoints(hostPortion);
+      if(hostIntVal < 0){
+        double hostDefense = hostIntVal * sym_piece * -1.0;
+        hostDonation = 0;
+        SetResInProcess(sym_piece - hostDefense);
+      }
+      else if(hostIntVal >= 0){
+        hostDonation = hostIntVal * sym_piece;
+        SetResInProcess(sym_piece - hostDonation);
+      }
+
+      double sym_return = syms[i]->ProcessResources(hostDonation);
+      this->AddPoints(sym_return + GetResInProcess());
+      SetResInProcess(0);
     }
 
   } //end DistribResources

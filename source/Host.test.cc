@@ -227,3 +227,74 @@ TEST_CASE("Phage Exclude") {
       }
     }
   }
+
+  TEST_CASE("SetResInProcess, GetResInProcess") {
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    double int_val = 1;
+
+    Host * h = new Host(random, &w, &config, int_val);
+
+    double expected_res_in_process = 0;
+    REQUIRE(h->GetResInProcess() == expected_res_in_process);
+
+    h->SetResInProcess(126);
+    expected_res_in_process = 126;
+    REQUIRE(h->GetResInProcess() == expected_res_in_process);
+
+}
+
+TEST_CASE("Steal resources unit test"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config; 
+        
+
+    WHEN ("sym_int_val < host_int_val"){
+        double sym_int_val = -0.6;
+        
+        WHEN("host_int_val > 0"){
+            double host_int_val = 0.2;
+            Host * h = new Host(random, &w, &config, host_int_val);
+            
+            h->SetResInProcess(100);
+            double expected_stolen = 60; // sym_int_val * res_in_process * -1
+            double expected_res_in_process = 40; // res_in_process - expected_stolen
+            
+            THEN("Amount stolen is dependent only on sym_int_val"){
+                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
+                REQUIRE(h->GetResInProcess() == expected_res_in_process);
+            }
+        }
+        WHEN("host_int_val < 0"){
+            double host_int_val = -0.2;
+            Host * h = new Host(random, &w, &config, host_int_val);
+            
+            h->SetResInProcess(100);
+            double expected_stolen = 40; // (host_int_val - sym_int_val) * res_in_process
+            double expected_res_in_process = 60; // res_in_process - expected_stolen
+            
+            THEN("Amount stolen is dependent on both sym_int_val and host_int_val"){
+                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
+                REQUIRE(h->GetResInProcess() == expected_res_in_process);
+            }
+        }
+    }
+
+    WHEN("host_int_val > sym_int_val"){
+        double sym_int_val = -0.3;
+        double host_int_val = -0.5;
+        Host * h = new Host(random, &w, &config, host_int_val);
+            
+        h->SetResInProcess(100);
+        double expected_stolen = 0;
+        double expected_res_in_process = 100; 
+            
+            THEN("Symbiont fails to steal resources"){
+                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
+                REQUIRE(h->GetResInProcess() == expected_res_in_process);
+            }
+        }
+}
