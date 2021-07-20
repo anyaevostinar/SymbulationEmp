@@ -31,21 +31,10 @@ public:
   sggHost(const sggHost &) = default;
   sggHost(sggHost &&) = default;
   sggHost() = default;
-
-  sggHost & operator=(const sggHost &) = default;
-  sggHost & operator=(sggHost &&) = default;
-  bool operator==(const sggHost &other) const { return (this == &other);}
-  bool operator!=(const sggHost &other) const {return !(*this == other);}
-
-
  
   double GetPool() {return sourcepool;}
   void SetPool(double _in) {sourcepool= _in;}
   void AddPool(double _in) {sourcepool += _in;}
-
-
-
-
 
 
   void DistribResources(double resources) {

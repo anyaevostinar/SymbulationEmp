@@ -34,7 +34,7 @@ private:
   emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
   emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sgg;
+  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_sgg;
 
 
 public:
@@ -104,7 +104,7 @@ public:
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos;                                        // Position of each offspring placed.
-    
+
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
     if (pos.IsValid() && pos.GetIndex() != parent_pos) {
@@ -208,38 +208,28 @@ public:
   }
   emp::DataFile & SetupSggSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
-    auto & node = GetSymIntValDataNode();
     auto & node1 = GetSymCountDataNode();
     auto & node2 = GetCountHostedSymsDataNode();
     auto & node3 = GetCountFreeSymsDataNode();
     auto & node4 = GetSggDataNode();
-    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
+    node.SetupBins(0, 1.1, 11); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
     file.AddTotal(node3, "free_syms", "Total number of free syms");
     file.AddMean(node4, "sgg_donationrate","Average donation rate");
-    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+    file.AddHistBin(node4, 0, "Hist_0", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node4, 3, "Hist_0.3", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node4, 4, "Hist_0.4", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node4, 5, "Hist_0.5", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node4, 6, "Hist_0.6", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node4, 7, "Hist_0.7", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node4, 8, "Hist_0.8", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node4, 9, "Hist_0.9", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node4, 10, "Hist_1.0", "Count for histogram bin 0.9 to 1.0");
+  
 
     file.PrintHeaderKeys();
 
@@ -247,44 +237,6 @@ public:
   }
 
   emp::DataFile & SetupHostIntValFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetHostIntValDataNode();
-    auto & node1 = GetHostCountDataNode();
-    auto & cfu_node = GetCFUDataNode();
-    node.SetupBins(-1.0, 1.1, 21);
-
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_intval", "Average host interaction value");
-    file.AddTotal(node1, "count", "Total number of hosts");
-    file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
-    //either aren't infected at all or only with lysogenic phage if lysis is enabled
-    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-
-    file.PrintHeaderKeys();
-
-    return file;
-  }
-  emp::DataFile & SetupSggHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode();
     auto & node1 = GetHostCountDataNode();
@@ -520,19 +472,23 @@ public:
     return *data_node_lysischance;
   }
 
-  emp::DataMonitor<double>& GetSggDataNode() {
-    if (!data_node_sgg){
+  emp::DataMonitor<double, emp::data::Histogram>& GetSggDataNode() {
+    if (!data_node_sgg) {
       data_node_sgg.New();
       OnUpdate([this](size_t){
         data_node_sgg->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
+            if(pop[i]->IsHost()){
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
-        
-	      data_node_sgg->AddDatum(syms[j]->Getdonation());
+	      data_node_sgg->AddDatum(syms[j]->GetDonation());
 	    }//close for
+    } else {
+      data_node_sgg->AddDatum(pop[i]->GetDonation());
+    }
+
 	  }//close if
 	}//close for
       });
@@ -586,15 +542,10 @@ public:
 
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-    int n=0;
+
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
-<<<<<<< HEAD
-      if (IsOccupied(i) == false){ continue;} // no organism at that cell
-=======
-      
       if (IsOccupied(i) == false) continue;  // no organism at that cell
->>>>>>> 5ab9566c8c97a3e6e5bea35eacd3e036d6906fe4
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?

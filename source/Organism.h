@@ -140,6 +140,27 @@ class Organism {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
 
+  //Social goods game host functions 
+  virtual void SetPool() {
+    std::cout << "Set rescources pool from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual void AddPool() {
+    std::cout << "Add rescources pool from Organism" << std::endl;
+    throw "Organism method called!";} 
+  virtual void DistribPool() {
+    std::cout << "dis rescources pool from Organism" << std::endl;
+    throw "Organism method called!";} 
+  //Social goods game sym functions
+  virtual double Getdonation() {
+    std::cout << "Get rescources donation from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual void Setdonation() {
+    std::cout << "Set rescources pool from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual double ProcessPool() {
+    std::cout << "Dis called from Organism" << std::endl;
+    throw "Organism method called!";}
+
 };
 
 #endif

@@ -66,7 +66,7 @@ public:
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      }
      else {
-       interaction_val = _in; 
+       interaction_val = _in;
      }
   }
   void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
