@@ -2,30 +2,19 @@
 #include "Symbiont.h"
 #include <set>
 
-TEST_CASE("Host SetIntVal, GetIntVal") {
+TEST_CASE("sggHost get pool") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
-    double int_val = 1;
+    double pool = 1;
 
     sggHost * h1 = new sggHost(random, &w, &config);
-    double default_int_val = 0.0;
-    REQUIRE(h1->GetIntVal() == default_int_val);
+    double default_pool = 0.0;
+    REQUIRE(h1->GetPool() == default_pool);
 
-    sggHost * h2 = new sggHost(random, &w, &config, int_val);
-    
-    double expected_int_val = 1;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
+    sggHost * h2 = new sggHost(random, &w, &config);
+    h2->SetPool(pool);
+    double expected_pool = 1;
+    REQUIRE(h2->GetPool() == expected_pool);
 
-    int_val = -0.7;
-    h2->SetIntVal(int_val);
-    expected_int_val = -0.7;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
-
-    // int_val = -1.3;
-    // REQUIRE_THROWS(new Host(random, &w, &config, int_val));
-
-    // int_val = 1.8;
-    // REQUIRE_THROWS(new Host(random, &w, &config, int_val));
-    
 }

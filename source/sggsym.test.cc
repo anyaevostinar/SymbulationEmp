@@ -1,7 +1,7 @@
 #include "Sgghost.h"
 #include "sggsym.h"
 
-TEST_CASE("Symbiont Constructor") {
+TEST_CASE("SggSymbiont Constructor") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -20,7 +20,7 @@ TEST_CASE("Symbiont Constructor") {
     CHECK(s2->Getdonation() == 2);
 
 }
-TEST_CASE("mutate") {
+TEST_CASE("sggmutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
