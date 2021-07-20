@@ -483,10 +483,10 @@ public:
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
-	      data_node_sgg->AddDatum(syms[j]->GetDonation());
+	      data_node_sgg->AddDatum(syms[j]->Getdonation());
 	    }//close for
     } else {
-      data_node_sgg->AddDatum(pop[i]->GetDonation());
+      data_node_sgg->AddDatum(pop[i]->Getdonation());
     }
 
 	  }//close if
