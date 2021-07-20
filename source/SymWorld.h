@@ -550,7 +550,6 @@ public:
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       if(pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
-        n=n+1;
         pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
