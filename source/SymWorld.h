@@ -212,7 +212,7 @@ public:
     auto & node2 = GetCountHostedSymsDataNode();
     auto & node3 = GetCountFreeSymsDataNode();
     auto & node4 = GetSggDataNode();
-    node.SetupBins(0, 1.1, 11); //Necessary because range exclusive
+    node4.SetupBins(0, 1.1, 11); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
@@ -545,7 +545,7 @@ public:
 
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
-      if (IsOccupied(i) == false) continue;  // no organism at that cell
+      if (IsOccupied(i) == false) { continue;}  // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
