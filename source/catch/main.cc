@@ -13,6 +13,7 @@
 #include "../sgghost.test.cc"
 #include "../HostSymbiontInteraction.test.cc"
 #include "../HostSymbiontUnitTest.test.cc"
+#include "../SggHostSggSymUnitTest.test.cc"
 #include "../HostPhageUnitTest.test.cc"
 //#include "../sggendtoend.test.cc"
 //#include "../end_to_end.test.cc"

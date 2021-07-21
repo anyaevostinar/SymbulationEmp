@@ -1,7 +1,33 @@
 #include "Sgghost.h"
 #include "sggsym.h"
 #include <set>
+TEST_CASE("sggHost SetIntVal, GetIntVal") {
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    double int_val = 1;
 
+    Host * h1 = new Host(random, &w, &config);
+    double default_int_val = 0.0;
+    REQUIRE(h1->GetIntVal() == default_int_val);
+
+    Host * h2 = new Host(random, &w, &config, int_val);
+
+    double expected_int_val = 1;
+    REQUIRE(h2->GetIntVal() == expected_int_val);
+
+    int_val = -0.7;
+    h2->SetIntVal(int_val);
+    expected_int_val = -0.7;
+    REQUIRE(h2->GetIntVal() == expected_int_val);
+
+    int_val = -1.3;
+    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+
+    int_val = 1.8;
+    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+
+}
 TEST_CASE("sggHost get pool") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
