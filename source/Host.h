@@ -11,7 +11,7 @@
 
 
 class Host: public Organism {
-private:
+protected:
   double interaction_val = 0;
   emp::vector<emp::Ptr<Organism>> syms = {};
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
