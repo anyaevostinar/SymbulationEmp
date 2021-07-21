@@ -32,8 +32,7 @@ public:
       else if (interaction_val > 1) interaction_val = 1;
     }
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      double mutate_size = random->GetRandNormal(0.0, mut_size);
-      sgg_donate += mutate_size;
+      sgg_donate += random->GetRandNormal(0.0, mut_size);
       if(sgg_donate < 0) sgg_donate = 0;
       else if (sgg_donate > 1) sgg_donate = 1;
     }
@@ -92,14 +91,6 @@ public:
     return sym_baby;
   }
 
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    if(my_world->WillTransmit()){
-      emp::Ptr<Organism> sym_baby = reproduce();
-      host_baby->AddSymbiont(sym_baby);
-    }
-  }
-
-};
 
 std::string PrintSym(emp::Ptr<SggSymbiont>  org){
   if (org->GetPoints() < 0) return "-";
@@ -113,4 +104,5 @@ std::string PrintSym(emp::Ptr<SggSymbiont>  org){
 
   // return emp::to_string(out_val);  // creates a string without specifying format
 }//Symbiont
+};
 #endif

@@ -55,7 +55,6 @@ int symbulation_main(int argc, char * argv[])
   }else if(config.SGG() == 1){
     world.SetupSggSymIntValFile(config.FILE_PATH()+"SGGSymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   }
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   if (config.EFFICIENT_SYM() == 1) {
     world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
