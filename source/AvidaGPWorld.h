@@ -33,7 +33,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
     emp::WorldPosition pos;                                        // Position of each offspring placed.
     for (size_t i = 0; i < copy_count; i++) {                 // Loop through offspring, adding each
       emp::Ptr<GPHost> new_org = emp::NewPtr<GPHost>(mem);
-      emp::vector<GPHost> new_symbiont = mem.GetSymbio();
+      emp::vector<GPHost> new_symbiont = mem->GetSymbio();
       //for loop here, should be iterating through mem
       for (size_t j = 0; j < new_symbiont.size(); j++){ // loop through mem symbionts, copy each one
         //get vector of symbionts
@@ -58,7 +58,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
   /// @param world The emp::World object with the organisms to be selected.
   /// @param e_count How many distinct organisms should be chosen, starting from the most fit.
   /// @param copy_count How many copies should be made of each elite organism?
-  void AvidaGPEliteSelect(World<GPHost> & world, size_t e_count=1, size_t copy_count=1) {
+  void AvidaGPEliteSelect(AvidaGPWorld & world, size_t e_count=1, size_t copy_count=1) {
     emp_assert(e_count > 0 && e_count <= world.GetNumOrgs(), e_count);
     emp_assert(copy_count > 0);
 
@@ -80,7 +80,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
     }
   }
 
- void AvidaGPTournamentSelect(AvidaGPWorld<GPHost> & world, size_t t_size, size_t tourny_count=1) {
+ void AvidaGPTournamentSelect(AvidaGPWorld & world, size_t t_size, size_t tourny_count=1) {
     emp_assert(t_size > 0, "Cannot have a tournament with zero organisms.", t_size, world.GetNumOrgs());
     emp_assert(t_size <= world.GetNumOrgs(), "Tournament too big for world.", t_size, world.GetNumOrgs());
     emp_assert(tourny_count > 0);
