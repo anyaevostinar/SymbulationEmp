@@ -341,11 +341,11 @@ public:
               emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
               bool all_lysogenic = true;
               for(long unsigned int j = 0; j < syms.size(); j++){
-                //if(syms[j]->IsPhage()){
+                if(syms[j]->IsPhage()){
                   if(syms[j]->GetLysogeny() == false){
                     all_lysogenic = false;
                   }
-                //}
+                }
               }
               if(all_lysogenic){
                 data_node_cfu->AddDatum(1);
