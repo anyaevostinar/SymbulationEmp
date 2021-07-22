@@ -28,7 +28,7 @@ jobs:
           submodules: "recursive"
 
       - name: run symbulation
-        run: cd SymbulationEmp && make debug && ./symbulation
+        run: cd SymbulationEmp && make debug && ./symbulation -GRID_X 5 -GRID_Y 5
 
       # Runs a single command using the runners shell
       - name: Make tests
