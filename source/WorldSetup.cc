@@ -34,7 +34,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;
   //inject organisms
-  for (size_t i = 0; i < POP_SIZE; i++){
+  for (int i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
     if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
     } else if (my_config->COMPETITION_MODE() && i%2==0) {

@@ -44,6 +44,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living phage move around in the world? 0 for no, 1 for yes"),
     
     VALUE(FILE_PATH, std::string, "", "Output file path"),
-    VALUE(FILE_NAME, std::string, "_data_", "Root output file name")
+    VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),
+    VALUE(OUTPUT_ECOLOGY_DATA, bool, 0, "Should ecology data (within host mean and variance) be output")
 )
 #endif
