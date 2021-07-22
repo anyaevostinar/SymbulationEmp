@@ -26,7 +26,7 @@ jobs:
           repository: devosoft/Empirical
           path: Empirical
           submodules: "recursive"
-	  
+
       - name: run symbulation
         run: cd SymbulationEmp && make debug && ./symbulation
 
