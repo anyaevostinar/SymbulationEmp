@@ -26,6 +26,9 @@ jobs:
           repository: devosoft/Empirical
           path: Empirical
           submodules: "recursive"
+	  
+      - name: run symbulation
+        run: cd SymbulationEmp && make debug && ./symbulation
 
       # Runs a single command using the runners shell
       - name: Make tests
