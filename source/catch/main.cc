@@ -13,7 +13,7 @@
 #include "../Pgghost.test.cc"
 #include "../HostSymbiontInteraction.test.cc"
 #include "../HostSymbiontUnitTest.test.cc"
-#include "../PGGHostPGGSymUnitTest.test.cc"
+#include "../PggHostPggSymUnitTest.test.cc"
 #include "../HostPhageUnitTest.test.cc"
 //#include "../Pggendtoend.test.cc"
 //#include "../end_to_end.test.cc"
