@@ -1,5 +1,5 @@
-#ifndef SGGHOST_H
-#define SGGHOST_H
+#ifndef PGGHOST_H
+#define PGGHOST_H
 
 // #include "../../Empirical/include/emp/math/Random.hpp"
 // #include "../../Empirical/include/emp/tools/string_utils.hpp"
@@ -10,13 +10,13 @@
 #include "SymWorld.h"
 
 
-class sggHost: public Host {
+class PggHost: public Host {
 protected:
   double sourcepool=0;
 
 
 public:
-  sggHost(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
+  PggHost(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
@@ -28,9 +28,9 @@ public:
 
 
 
-  sggHost(const sggHost &) = default;
-  sggHost(sggHost &&) = default;
-  sggHost() = default;
+  PggHost(const PggHost &) = default;
+  PggHost(PggHost &&) = default;
+  PggHost() = default;
  
   double GetPool() {return sourcepool;}
   void SetPool(double _in) {sourcepool= _in;}
@@ -99,7 +99,7 @@ public:
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero
-        emp::Ptr<sggHost> host_baby = emp::NewPtr<sggHost>(random, my_world, my_config, GetIntVal());
+        emp::Ptr<PggHost> host_baby = emp::NewPtr<PggHost>(random, my_world, my_config, GetIntVal());
         host_baby->mutate();
         //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
         SetPoints(0);

@@ -43,9 +43,9 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
     VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living phage move around in the world? 0 for no, 1 for yes"),
     
-    GROUP(SGG,"Social Goods Game Settings"),
-    VALUE(SGG_DONATE, double, 0, "Ratio of symbionts‘ energy to sgg pool that experiment should start with"),
-    VALUE(SGG, int, 0, "whether have social goods game among syms" ),
+    GROUP(PGG,"Public Goods Game Settings"),
+    VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to Pgg pool that experiment should start with"),
+    VALUE(PGG, int, 0, "whether have social goods game among syms" ),
     
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")

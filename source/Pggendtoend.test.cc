@@ -35,10 +35,10 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
   config.SYM_HORIZ_TRANS_RES(sym_horiz_trans_res); //How many resources required for symbiont non-lytic horizontal transmission
   config.START_MOI(start_moi);     //How many symbionts per host to start
   config.GRID(grid);                  //Do offspring get placed immediately next to parents on grid, same for symbiont spreading
-  config.FILE_PATH("source/sgg_end_to_end_test_data");            //Output file location, leave blank for current folder
+  config.FILE_PATH("source/Pgg_end_to_end_test_data");            //Output file location, leave blank for current folder
   config.FILE_NAME("_Test");       //Root output file name
-  config.SGG(1);
-  config.SGG_DONATE(donation);
+  config.PGG(1);
+  config.PGG_DONATE(donation);
 
   GIVEN( string("The configuration {") +
           string(" seed = ") + to_string(seed) + 
@@ -61,7 +61,7 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
           string(" sym_horiz_trans_res = ") + to_string(sym_horiz_trans_res) +
 	 string(" start_moi = ") + to_string(start_moi) +
           string(" grid = ") + to_string(grid) +
-          string("sgg_donation = ")+to_string(donation)+"}") {
+          string("Pgg_donation = ")+to_string(donation)+"}") {
     
     config.Write("SymSettings.cfg");
 
@@ -76,7 +76,7 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
       else
         type = "HostVals";
 
-      string path = "source/sgg_end_to_end_test_data/"+type+"_"+expected_result_file+".data";
+      string path = "source/Pgg_end_to_end_test_data/"+type+"_"+expected_result_file+".data";
 
       THEN( "Symbulation's actual "+type+" output found at \"" + type + "_Test.data\" matches the expected output at \"" + path + "\"" ) {
         ifstream actual, expected;

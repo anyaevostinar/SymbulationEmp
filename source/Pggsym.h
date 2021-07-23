@@ -1,40 +1,36 @@
-#ifndef SGGSYM_H
-#define SGGSYM_H
+#ifndef PGGSYM_H
+#define PGGSYM_H
 
 #include "Symbiont.h"
 #include "SymWorld.h"
 
-class SggSymbiont: public Symbiont {
+class PGGSymbiont: public Symbiont {
 protected:
-  double sgg_donate = 0;
+  double Pgg_donate = 0;
 
 
 public:
-  SggSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),sgg_donate(_donation)
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),Pgg_donate(_donation)
   {}
-  SggSymbiont(const SggSymbiont &) = default;
-  SggSymbiont(SggSymbiont &&) = default;
-  SggSymbiont() = default;
+  PGGSymbiont(const PGGSymbiont &) = default;
+  PGGSymbiont(PGGSymbiont &&) = default;
+  PGGSymbiont() = default;
 
 
-  SggSymbiont & operator=(const SggSymbiont &) = default;
-  SggSymbiont & operator=(SggSymbiont &&) = default;
+  PGGSymbiont & operator=(const PGGSymbiont &) = default;
+  PGGSymbiont & operator=(PGGSymbiont &&) = default;
 
 
-  double Getdonation() {return sgg_donate;}
-  void Setdonation(double _in) {sgg_donate = _in;}
+  double Getdonation() {return Pgg_donate;}
+  void Setdonation(double _in) {Pgg_donate = _in;}
 
   void mutate(){
     // double pre_value = interaction_val;
+    Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, mut_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
-    }
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      sgg_donate += random->GetRandNormal(0.0, mut_size);
-      if(sgg_donate < 0) sgg_donate = 0;
-      else if (sgg_donate > 1) sgg_donate = 1;
+      Pgg_donate += random->GetRandNormal(0.0, mut_size);
+      if(Pgg_donate < 0) Pgg_donate = 0;
+      else if (Pgg_donate > 1) Pgg_donate = 1;
     }
     //if((pre_value*interaction_val) < 0) {
     //  std::cout << "switched2!" << std::endl;
@@ -43,15 +39,11 @@ public:
 
   void HorizMutate(){
     // double pre_value = interaction_val;
+    Symbiont::HorizMutate();
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, ht_mut_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
-    }
-    if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      sgg_donate += random->GetRandNormal(0.0, ht_mut_size);
-      if(sgg_donate < 0) sgg_donate = 0;
-      else if (sgg_donate > 1) sgg_donate = 1;
+      Pgg_donate += random->GetRandNormal(0.0, ht_mut_size);
+      if(Pgg_donate < 0) Pgg_donate = 0;
+      else if (Pgg_donate > 1) Pgg_donate = 1;
     }
   }
 
@@ -73,7 +65,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<SggSymbiont> sym_baby = emp::NewPtr<SggSymbiont>(*this);
+        emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this);
         sym_baby->SetPoints(0);
         sym_baby->HorizMutate();
         //HorizMutate();
@@ -84,7 +76,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<SggSymbiont> sym_baby = emp::NewPtr<SggSymbiont>(*this); //constructor that takes parent values
+    emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->mutate();
     //mutate(); //mutate parent symbiont
@@ -92,7 +84,7 @@ public:
   }
 
 
-std::string PrintSym(emp::Ptr<SggSymbiont>  org){
+std::string PrintSym(emp::Ptr<PGGSymbiont>  org){
   if (org->GetPoints() < 0) return "-";
   double out_val = org->GetIntVal();
 

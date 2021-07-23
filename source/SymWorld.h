@@ -34,7 +34,7 @@ private:
   emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
   emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_sgg;
+  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -60,7 +60,7 @@ public:
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_hosted_syms) data_node_hosted_syms.Delete();
     if (data_node_free_syms) data_node_free_syms.Delete();
-    if (data_node_sgg) data_node_sgg.Delete();
+    if (data_node_Pgg) data_node_Pgg.Delete();
   }
 
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -209,18 +209,18 @@ public:
 
     return file;
   }
-  emp::DataFile & SetupSggSymIntValFile(const std::string & filename) {
+  emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node2 = GetCountHostedSymsDataNode();
     auto & node3 = GetCountFreeSymsDataNode();
-    auto & node4 = GetSggDataNode();
+    auto & node4 = GetPGGDataNode();
     node4.SetupBins(0, 1.1, 11); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
     file.AddTotal(node3, "free_syms", "Total number of free syms");
-    file.AddMean(node4, "sgg_donationrate","Average donation rate");
+    file.AddMean(node4, "Pgg_donationrate","Average donation rate");
     file.AddHistBin(node4, 0, "Hist_0", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.1 to <0.2");
@@ -516,28 +516,28 @@ public:
     return *data_node_lysischance;
   }
 
-  emp::DataMonitor<double, emp::data::Histogram>& GetSggDataNode() {
-    if (!data_node_sgg) {
-      data_node_sgg.New();
+  emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
+    if (!data_node_Pgg) {
+      data_node_Pgg.New();
       OnUpdate([this](size_t){
-        data_node_sgg->Reset();
+        data_node_Pgg->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             if(pop[i]->IsHost()){
 	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	    size_t sym_size = syms.size();
 	    for(size_t j=0; j< sym_size; j++){
-	      data_node_sgg->AddDatum(syms[j]->Getdonation());
+	      data_node_Pgg->AddDatum(syms[j]->Getdonation());
 	    }//close for
     } else {
-      data_node_sgg->AddDatum(pop[i]->Getdonation());
+      data_node_Pgg->AddDatum(pop[i]->Getdonation());
     }
 
 	  }//close if
 	}//close for
       });
     }
-    return *data_node_sgg;
+    return *data_node_Pgg;
   }
 
 

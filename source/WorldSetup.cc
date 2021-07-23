@@ -3,8 +3,8 @@
 
 #include "SymWorld.h"
 #include "Host.h"
-#include "Sgghost.h"
-#include "sggsym.h"
+#include "PGGhost.h"
+#include "Pggsym.h"
 #include "Symbiont.h"
 #include "Phage.h"
 #include "ConfigSetup.h"
@@ -37,7 +37,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   double comp_host_2 = 0.95;
   //inject organisms
 
-  if(my_config->SGG()==0){
+  if(my_config->PGG()==0){
      
     for (size_t i = 0; i < POP_SIZE; i++){
       emp::Ptr<Host> new_org;
@@ -59,7 +59,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
     }
   } else{
     for (size_t i = 0; i < POP_SIZE; i++){
-      emp::Ptr<sggHost> new_org;
+      emp::Ptr<PggHost> new_org;
       
       if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
       } else if (my_config->COMPETITION_MODE() && i%2==0) {
@@ -100,9 +100,9 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       } else if (my_config->EFFICIENT_SYM()) {
         emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&random, world, my_config, sym_int, 0, 1);
         world->InjectSymbiont(new_sym);
-      } else if (my_config->SGG()==1){
-        double sym_donation = my_config->SGG_DONATE();
-        emp::Ptr<SggSymbiont> new_sym = emp::NewPtr<SggSymbiont>(&random, world, my_config,
+      } else if (my_config->PGG()==1){
+        double sym_donation = my_config->PGG_DONATE();
+        emp::Ptr<PGGSymbiont> new_sym = emp::NewPtr<PGGSymbiont>(&random, world, my_config,
            sym_int,sym_donation,0);
         world->InjectSymbiont(new_sym);
       } else {

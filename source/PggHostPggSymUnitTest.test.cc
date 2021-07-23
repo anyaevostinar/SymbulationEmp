@@ -1,15 +1,15 @@
-#include "Sgghost.h"
-#include "sggsym.h"
+#include "PGGhost.h"
+#include "Pggsym.h"
 
-TEST_CASE("sggSymbiont SetHost, GetHost") {
+TEST_CASE("PggSymbiont SetHost, GetHost") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
 
-    emp::Ptr<Organism> h = new sggHost(random, &w, &config);
-    SggSymbiont * s = new SggSymbiont(random, &w, &config, int_val);
+    emp::Ptr<Organism> h = new PggHost(random, &w, &config);
+    PGGSymbiont * s = new PGGSymbiont(random, &w, &config, int_val);
 
     s->SetHost(h);
 
@@ -17,16 +17,16 @@ TEST_CASE("sggSymbiont SetHost, GetHost") {
 
 }
 
-TEST_CASE("SggHost SetSymbionts") {
+TEST_CASE("PGGHost SetSymbionts") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 1;
     config.SYM_LIMIT(2);
 
-    sggHost * h = new sggHost(random, &w, &config);
-    SggSymbiont * s1 = new SggSymbiont(random, &w, &config, int_val);
-    SggSymbiont * s2 = new SggSymbiont(random, &w, &config, int_val);
+    PggHost * h = new PggHost(random, &w, &config);
+    PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, int_val);
+    PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> syms;
     syms.push_back(s1);
@@ -49,14 +49,15 @@ TEST_CASE("SggHost SetSymbionts") {
 
 }
 
-TEST_CASE("SggHost SymLimit") {
+TEST_CASE("PGGHost SymLimit") {
     emp::Ptr<emp::Random> random;
     random.New(-1);
     SymConfigBase config;
     SymWorld w(*random);
+    config.SYM_LIMIT(1);
     double int_val = 1;
 
-    sggHost * h = new sggHost(random, &w, &config);
+    PggHost * h = new PggHost(random, &w, &config);
 
     emp::Ptr<Symbiont> s1; 
     s1.New(random, &w, &config, int_val);
@@ -83,17 +84,17 @@ TEST_CASE("SggHost SymLimit") {
 
 }
 
-TEST_CASE("SggHost AddSymbiont") {
+TEST_CASE("PGGHost AddSymbiont") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     SymWorld w(*random);
     double int_val = 1;
 
-    sggHost * h = new sggHost(random, &w, &config);
+    PggHost * h = new PggHost(random, &w, &config);
     
-    SggSymbiont * s1 = new SggSymbiont(random, &w, &config, int_val);
-    SggSymbiont * s2 = new SggSymbiont(random, &w, &config, int_val);
+    PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, int_val);
+    PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> syms;
     
@@ -109,17 +110,17 @@ TEST_CASE("SggHost AddSymbiont") {
     REQUIRE(h->GetSymbionts() == syms); 
 }
 
-TEST_CASE("SggHost AddReproSym, ClearReproSym, GetReproSymbionts") {
+TEST_CASE("PGGHost AddReproSym, ClearReproSym, GetReproSymbionts") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     SymWorld w(*random);
     double int_val = 1;
 
-    sggHost * h = new sggHost(random, &w, &config);
+    PggHost * h = new PggHost(random, &w, &config);
     
-    SggSymbiont * s1 = new SggSymbiont(random, &w, &config, int_val);
-    SggSymbiont * s2 = new SggSymbiont(random, &w, &config, int_val);
+    PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, int_val);
+    PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, int_val);
     
     emp::vector<emp::Ptr<Organism>> repro_syms;
     
@@ -138,7 +139,7 @@ TEST_CASE("SggHost AddReproSym, ClearReproSym, GetReproSymbionts") {
     REQUIRE(h->GetReproSymbionts() == repro_syms);
 }
 
-TEST_CASE("SggHost DistribResources") {
+TEST_CASE("PGGHost DistribResources") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
@@ -150,12 +151,12 @@ TEST_CASE("SggHost DistribResources") {
         double host_int_val = 0.5;
         double sym_int_val = 1;
 
-        sggHost * h = new sggHost(random, &w, &config, host_int_val);
+        PggHost * h = new PggHost(random, &w, &config, host_int_val);
 
         
-        SggSymbiont * s1 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s2 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s3 = new SggSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s3 = new PGGSymbiont(random, &w, &config, sym_int_val);
         emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
         h->SetSymbionts(syms);
 
@@ -191,12 +192,12 @@ TEST_CASE("SggHost DistribResources") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        sggHost * h = new sggHost(random, &w, &config, host_int_val);
+        PggHost * h = new PggHost(random, &w, &config, host_int_val);
 
         
-        SggSymbiont * s1 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s2 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s3 = new SggSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s3 = new PGGSymbiont(random, &w, &config, sym_int_val);
         emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
         h->SetSymbionts(syms);
 
@@ -226,12 +227,12 @@ TEST_CASE("SggHost DistribResources") {
             double host_orig_points = 0;
             double sym_orig_points = 0;
 
-            sggHost * h = new sggHost(random, &w, &config, host_int_val);
+            PggHost * h = new PggHost(random, &w, &config, host_int_val);
 
             
-            SggSymbiont * s1 = new SggSymbiont(random, &w, &config, sym_int_val);
-            SggSymbiont * s2 = new SggSymbiont(random, &w, &config, sym_int_val);
-            SggSymbiont * s3 = new SggSymbiont(random, &w, &config, sym_int_val);
+            PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val);
+            PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val);
+            PGGSymbiont * s3 = new PGGSymbiont(random, &w, &config, sym_int_val);
             emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
             h->SetSymbionts(syms);
 
@@ -287,12 +288,12 @@ TEST_CASE("SggHost DistribResources") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        sggHost * h = new sggHost(random, &w, &config, host_int_val);
+        PggHost * h = new PggHost(random, &w, &config, host_int_val);
 
         
-        SggSymbiont * s1 = new SggSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        SggSymbiont * s2 = new SggSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        SggSymbiont * s3 = new SggSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
+        PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
+        PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
+        PGGSymbiont * s3 = new PGGSymbiont(random, &w, &config, sym_int_val, sym_orig_points);
         emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
         h->SetSymbionts(syms);
 
@@ -333,12 +334,12 @@ TEST_CASE("SggHost DistribResources") {
         double host_orig_points = 0;
         double symbiont_orig_points = 0;
 
-        sggHost * h = new sggHost(random, &w, &config, host_int_val);
+        PggHost * h = new PggHost(random, &w, &config, host_int_val);
 
         
-        SggSymbiont * s1 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s2 = new SggSymbiont(random, &w, &config, sym_int_val);
-        SggSymbiont * s3 = new SggSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val);
+        PGGSymbiont * s3 = new PGGSymbiont(random, &w, &config, sym_int_val);
         emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
         h->SetSymbionts(syms);
 
@@ -366,7 +367,7 @@ TEST_CASE("SggHost DistribResources") {
     }
 }
 
-TEST_CASE("SggVertical Transmission of Symbiont") {
+TEST_CASE("PGGVertical Transmission of Symbiont") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -378,10 +379,10 @@ TEST_CASE("SggVertical Transmission of Symbiont") {
         double host_int_val = .5;
         double sym_int_val = -.5;
         
-        emp::Ptr<sggHost> h = new sggHost(random, world, &config, host_int_val);
-        emp::Ptr<SggSymbiont> s = new SggSymbiont(random, world, &config, sym_int_val);
+        emp::Ptr<PggHost> h = new PggHost(random, world, &config, host_int_val);
+        emp::Ptr<PGGSymbiont> s = new PGGSymbiont(random, world, &config, sym_int_val);
        
-        emp::Ptr<sggHost> host_baby = emp::NewPtr<sggHost>(random, world, &config, h->GetIntVal());
+        emp::Ptr<PggHost> host_baby = emp::NewPtr<PggHost>(random, world, &config, h->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
         s->VerticalTransmission(host_baby);
 
@@ -394,10 +395,10 @@ TEST_CASE("SggVertical Transmission of Symbiont") {
         double host_int_val = .5;
         double sym_int_val = -.5;
         
-        emp::Ptr<sggHost> h = new sggHost(random, world, &config, host_int_val);
-        emp::Ptr<SggSymbiont> s = new SggSymbiont(random, world, &config, sym_int_val);
+        emp::Ptr<PggHost> h = new PggHost(random, world, &config, host_int_val);
+        emp::Ptr<PGGSymbiont> s = new PGGSymbiont(random, world, &config, sym_int_val);
        
-        emp::Ptr<sggHost> host_baby = emp::NewPtr<sggHost>(random, world, &config, h->GetIntVal());
+        emp::Ptr<PggHost> host_baby = emp::NewPtr<PggHost>(random, world, &config, h->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
         s->VerticalTransmission(host_baby);
 
@@ -409,3 +410,40 @@ TEST_CASE("SggVertical Transmission of Symbiont") {
 
 
 }
+
+TEST_CASE("PGGSymbiont  PGGHost Pool Interaction"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+    config.SYM_LIMIT(3);
+    config.SYNERGY(5);
+
+    double host_int_val = 1;
+    double sym_int_val = 0;
+    double donation = 0.1;
+    double donation2 = 0.2;
+
+    PggHost * h = new PggHost(random, &w, &config, host_int_val);
+
+            
+    PGGSymbiont * s1 = new PGGSymbiont(random, &w, &config, sym_int_val,donation);
+    PGGSymbiont * s2 = new PGGSymbiont(random, &w, &config, sym_int_val,donation2);
+    emp::vector<emp::Ptr<Organism>> syms = {s1, s2};
+    h->SetSymbionts(syms);
+    double resources = 120;
+    h->DistribResources(resources);
+
+
+    double host_portion = 0;  //remaining amount
+    double host_pool = 0; // no remaining pool
+    double s1_final_source = 63;
+    double s2_final_source = 57;
+
+ 
+    REQUIRE(s1->GetPoints() == s1_final_source); 
+    REQUIRE(s2->GetPoints() == s2_final_source);
+    REQUIRE(h->GetPoints() == host_portion);
+    REQUIRE(h->GetPool() == host_pool);
+
+}
+

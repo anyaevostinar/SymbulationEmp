@@ -1,7 +1,7 @@
-#include "Sgghost.h"
-#include "sggsym.h"
+#include "PGGhost.h"
+#include "Pggsym.h"
 
-TEST_CASE("SggSymbiont Constructor") {
+TEST_CASE("PGGSymbiont Constructor") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -12,18 +12,18 @@ TEST_CASE("SggSymbiont Constructor") {
     double donation = 1;
 
     double int_val = 0.5;
-    SggSymbiont * s = new SggSymbiont(random, world, &config, int_val,donation);
+    PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s->Getdonation() == donation);
 
     donation = 2;
-    SggSymbiont * s2 = new SggSymbiont(random, world, &config, int_val,donation);
+    PGGSymbiont * s2 = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s2->Getdonation() == 2);
 
     int_val = 2;
-    REQUIRE_THROWS(new SggSymbiont(random, world, &config, int_val) );
+    REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
 
 }
-TEST_CASE("sggmutate") {
+TEST_CASE("Pggmutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
@@ -34,7 +34,7 @@ TEST_CASE("sggmutate") {
         double int_val = 0;
         double donation =0.01;
         config.MUTATION_SIZE(0.002);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val,donation);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
 
         s->mutate();
        
@@ -51,7 +51,7 @@ TEST_CASE("sggmutate") {
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val, points);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, points);
 
         s->mutate();
 
@@ -63,7 +63,7 @@ TEST_CASE("sggmutate") {
     }
 }   
 
-TEST_CASE("Symbiont ProcessPool"){
+TEST_CASE("PGGSymbiont ProcessPool"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -72,8 +72,8 @@ TEST_CASE("Symbiont ProcessPool"){
     double sym_int_val = 0;
     double donation = 0.1;
 
-    SggSymbiont * s = new SggSymbiont(random, &w, &config, sym_int_val,donation);
-    sggHost * h = new sggHost(random, &w, &config, host_int_val);
+    PGGSymbiont * s = new PGGSymbiont(random, &w, &config, sym_int_val,donation);
+    PggHost * h = new PggHost(random, &w, &config, host_int_val);
     h->AddSymbiont(s);
 
     double piece = 40;
@@ -85,7 +85,7 @@ TEST_CASE("Symbiont ProcessPool"){
     CHECK(h->GetPoints() == 0);
 }
 
-TEST_CASE("SggProcess") {
+TEST_CASE("PGGProcess") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -100,7 +100,7 @@ TEST_CASE("SggProcess") {
         config.SYM_HORIZ_TRANS_RES(140.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val, 0,points);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
 
         int add_points = 200;
         s->AddPoints(add_points);
@@ -123,7 +123,7 @@ TEST_CASE("SggProcess") {
         config.SYM_HORIZ_TRANS_RES(200.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0.0);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val, 0,points);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
 
         int add_points = 50;
         s->AddPoints(add_points);
@@ -146,7 +146,7 @@ TEST_CASE("SggProcess") {
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
         config.MUTATION_SIZE(0.0);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val, 0,points);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
 
         int location = 10;
         s->Process(location);
@@ -165,7 +165,7 @@ TEST_CASE("SggProcess") {
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
         config.MUTATION_SIZE(0.0);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, int_val, 0,points);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
 
         int location = 10;
         s->Process(location);
@@ -179,7 +179,7 @@ TEST_CASE("SggProcess") {
 
 }
 
-TEST_CASE("SggSymbiont ProcessResources"){
+TEST_CASE("PGGSymbiont ProcessResources"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -193,8 +193,8 @@ TEST_CASE("SggSymbiont ProcessResources"){
 
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
-            sggHost * h = new sggHost(random, &w, &config, host_int_val);
-            SggSymbiont * s = new SggSymbiont(random, world, &config, sym_int_val);
+            PggHost * h = new PggHost(random, &w, &config, host_int_val);
+            PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
             h->AddSymbiont(s);
 
             // double resources = 100;
@@ -216,8 +216,8 @@ TEST_CASE("SggSymbiont ProcessResources"){
 
             WHEN("host successfully defends from symsteal"){
                 double host_int_val = -0.8;
-                sggHost * h = new sggHost(random, &w, &config, host_int_val);
-                SggSymbiont * s = new SggSymbiont(random, world, &config, sym_int_val);
+                PggHost * h = new PggHost(random, &w, &config, host_int_val);
+                PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
                 h->AddSymbiont(s);
 
                 // double resources = 100;
@@ -236,8 +236,8 @@ TEST_CASE("SggSymbiont ProcessResources"){
 
             WHEN("host fails at defense"){
                 double host_int_val = -0.5;
-                sggHost * h = new sggHost(random, &w, &config, host_int_val);
-                SggSymbiont * s = new SggSymbiont(random, world, &config, sym_int_val);
+                PggHost * h = new PggHost(random, &w, &config, host_int_val);
+                PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
                 h->AddSymbiont(s);
 
                 // double resources = 100;
@@ -262,8 +262,8 @@ TEST_CASE("SggSymbiont ProcessResources"){
     WHEN("sym_int_val > 0") {
         double sym_int_val = 0.2;
         double host_int_val = 0.5;
-        sggHost * h = new sggHost(random, &w, &config, host_int_val);
-        SggSymbiont * s = new SggSymbiont(random, world, &config, sym_int_val);
+        PggHost * h = new PggHost(random, &w, &config, host_int_val);
+        PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
         h->AddSymbiont(s);
 
         // double resources = 100;
