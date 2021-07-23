@@ -160,7 +160,7 @@ class Organism {
     std::cout << "dis resources pool from Organism" << std::endl;
     throw "Organism method called!";} 
   //Public goods game sym functions
-  virtual double Getdonation() {
+  virtual double GetDonarion() {
     std::cout << "Get resources donation from Organism" << std::endl;
     throw "Organism method called!";}  
   virtual void Setdonation() {

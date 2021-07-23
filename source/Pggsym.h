@@ -21,7 +21,7 @@ public:
   PGGSymbiont & operator=(PGGSymbiont &&) = default;
 
 
-  double Getdonation() {return Pgg_donate;}
+  double GetDonarion() {return Pgg_donate;}
   void Setdonation(double _in) {Pgg_donate = _in;}
 
   void mutate(){
@@ -48,7 +48,7 @@ public:
   }
 
   double ProcessPool(){
-    double symdonation = Getdonation();
+    double symdonation = GetDonarion();
     double symPortion = GetPoints();
     double hostreturn = symdonation*symPortion;
     SetPoints(symPortion-hostreturn);
