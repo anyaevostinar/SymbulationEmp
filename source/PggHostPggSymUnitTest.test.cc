@@ -1,4 +1,4 @@
-#include "PGGhost.h"
+#include "Pgghost.h"
 #include "Pggsym.h"
 
 TEST_CASE("PggSymbiont SetHost, GetHost") {

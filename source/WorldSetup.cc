@@ -3,7 +3,7 @@
 
 #include "SymWorld.h"
 #include "Host.h"
-#include "PGGhost.h"
+#include "Pgghost.h"
 #include "Pggsym.h"
 #include "Symbiont.h"
 #include "Phage.h"
