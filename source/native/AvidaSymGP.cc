@@ -62,7 +62,7 @@ int main()
   // Setup the fitness function.
   std::function<double(const GPHost &)> fit_fun =
     [](const GPHost & org) {
-    int count = 0;
+    int count = 0; 
     for (int i = 0; i < 16; i++) {
       if (org.GetOutput(i) == (double) (i*i)) count++;
     }
