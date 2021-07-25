@@ -52,15 +52,35 @@ public:
   bool operator==(const Host &other) const { return (this == &other);}
   bool operator!=(const Host &other) const {return !(*this == other);}
 
-
+  ///Input: None
+  ///Output: The double representing host's interaction value. 
+  ///Purpose: To get the double representing host's interaction value. 
   double GetIntVal() const { return interaction_val;}
+  ///Input: None
+  ///Output: A vector of pointers to the organisms that are the host's syms.  
+  ///Purpose: To get the vector containing pointers to the host's symbionts.
   emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
+  ///Input: None
+  ///Output: A vector of pointers to the organisms that are the host's repro syms.  
+  ///Purpose: To get the vector containing pointers to the host's repro syms. 
   emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
+  ///Input: None
+  ///Output: The set of ints representing a host's res type.
+  ///Purpose: To get the set of ints representing host's res type.
   std::set<int> GetResTypes() const { return res_types;}
+  ///Input: None
+  ///Output: The double representing a host's points.
+  ///Purpose: To get the host's res type.
   double GetPoints() { return points;}
+  ///Input: None
+  ///Output: The bool representing if an organism is a host. 
+  ///Purpose: To determine if an organism is a host. 
   bool IsHost() { return true; }
 
-/// A function for setting an interaction value 
+
+  ///Input: A double representing the host's new interaction value. 
+  ///Output: None. 
+  ///Purpose: To set a host's interaction value. 
   void SetIntVal(double _in) {
     if ( _in > 1 || _in < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
@@ -69,28 +89,47 @@ public:
        interaction_val = _in;
      }
   }
+
+  ///Input: A vector of pointers to organisms that will become a host's symbionts.
+  ///Output: None.
+  ///Purpose: To set a host's symbionts to the input vector of organisms. 
   void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     ClearSyms();
     for(size_t i = 0; i < _in.size(); i++){
       AddSymbiont(_in[i]);
     }
   }
-
+  ///Input: A set of ints representing a host's resource type.
+  ///Output: None
+  ///Purpose: To set a host's resource types to the input. 
   void SetResTypes(std::set<int> _in) {res_types = _in;}
+  ///Input: A double representing a host's new point value.
+  ///Output: None
+  ///Purpose: To set a host's points.
   void SetPoints(double _in) {points = _in;}
-  void ClearSyms() {
-    syms.resize(0);
-  }
-  void ClearReproSyms() {
-    repro_syms.resize(0);
-  }
+  ///Input: None
+  ///Output: None
+  ///Purpose: To clear a host's symbionts. 
+  void ClearSyms() {syms.resize(0);}
+  ///Input: None
+  ///Output: None
+  ///Purpose: To clear a host's repro symbionts. 
+  void ClearReproSyms() {repro_syms.resize(0);}
+  ///Input: None
+  ///Output: None
+  ///Purpose: To kill a host.
   void SetDead() { dead = true;}
+  ///Input: None
+  ///Output: None
+  ///Purpose: To determine if a host is dead. 
   bool GetDead() {return dead;}
-
-
+  ///Input: The double representing the number of points to be incremented onto a host's points.
+  ///Output: None
+  ///Purpose: To increment a host's points by the input value.  
   void AddPoints(double _in) {points += _in;}
-
-
+  ///Input: The pointer to the organism that is to be added to the host's symbionts.
+  ///Output: None
+  ///Purpose: To add a host's symbionts 
   void AddSymbiont(emp::Ptr<Organism> _in) {
     if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
@@ -100,7 +139,9 @@ public:
       _in.Delete();
     }
   }
-
+  ///Input: None
+  ///Output: A bool representing if a symbiont will be allowed to enter a host.
+  ///Purpose: To determine if a symbiont will be allowed into a host. 
   bool SymAllowedIn(){
     bool do_phage_exclusion = my_config->PHAGE_EXCLUDE();
     if(!do_phage_exclusion){
@@ -114,12 +155,19 @@ public:
      return false;
     }
   }
+  ///Input: A pointer to the organism to be added to the host's symbionts. 
+  ///Output: None
+  ///Purpose: To add a repro sym to the host's symbionts. 
   void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
-
+  ///Input: None
+  ///Output: A bool representing if a host has any symbionts.
+  ///Purpose: To determine if a host has any symbionts. 
   bool HasSym() {
     return syms.size() != 0;
   }
-
+  ///Input: None
+  ///Output: None
+  ///Purpose: To mutate a host's interaction value. 
   void mutate(){
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
       interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
@@ -127,7 +175,9 @@ public:
       else if (interaction_val > 1) interaction_val = 1;
     }
   }
-
+  ///Input: The double representing the number of resources to be distrubuted to the host and its symbionts.
+  ///Output: None
+  ///Purpose: To distribute resources to a host and its symbions.
   void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
 
@@ -155,7 +205,9 @@ public:
     }
 
   } //end DistribResources
-
+  ///Input: The size_t value representing the location of the host. 
+  ///Output: None
+  ///Purpose: To process the host, meaning determing eligability for reproduction, etc. 
   void Process(size_t location) {
     //Currently just wrapping to use the existing function
     double resources = my_world->PullResources();
