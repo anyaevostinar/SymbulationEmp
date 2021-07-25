@@ -52,11 +52,11 @@ public:
   bool operator==(const Host &other) const { return (this == &other);}
   bool operator!=(const Host &other) const {return !(*this == other);}
 
-  ///Input: None
+  /// Input: None
 	
-  ///Output: The double representing host's interaction value. 
+  /// Output: The double representing host's interaction value
 	
-  ///Purpose: To get the double representing host's interaction value. 
+  /// Purpose: To get the double representing host's interaction value
 	
   double GetIntVal() const { return interaction_val;}
   ///Input: None
