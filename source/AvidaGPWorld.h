@@ -28,7 +28,7 @@ public:
 //call empirical world constructor
   AvidaGPWorld(emp::Random & _random) : emp::World<GPHost>(_random) {}
 
-emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_count) {
+emp::WorldPosition DoBirth(emp::Ptr<GPHost> & mem, size_t parent_pos, size_t copy_count) {
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos;                                        // Position of each offspring placed.
     for (size_t i = 0; i < copy_count; i++) {                 // Loop through offspring, adding each
@@ -75,7 +75,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
     auto m = fit_map.rbegin();
     for (size_t i = 0; i < e_count; i++) {
       const size_t repro_id = m->second;
-      world.DoBirth( world.GetSymbio(repro_id), repro_id, copy_count);
+      world.DoBirth(world.GetOrgPtr(repro_id), repro_id, copy_count);
       ++m;
     }
   }
@@ -106,7 +106,7 @@ emp::WorldPosition DoBirth(const genome_t & mem, size_t parent_pos, size_t copy_
       }
 
       // Place the highest fitness into the next generation!
-      world.DoBirth( world.GetSymbio(best_id), best_id, 1 );
+      world.DoBirth(world.GetOrgPtr(best_id), best_id, 1 );
     }
   }
 

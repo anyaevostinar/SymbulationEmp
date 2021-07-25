@@ -89,10 +89,10 @@ int main()
 
     std::cout << (ud+1) << " : " << 0 << " : " << fit0 << std::endl;
     // Keep the best individual.
-    emp::EliteSelect(world, 1, 1);
+    AvidaGPEliteSelect(world, 1, 1);
 
     // Run a tournament for the rest...
-    emp::TournamentSelect(world, 5 , POP_SIZE-1);
+    AvidaGPTournamentSelect(world, 5 , POP_SIZE-1);
     //LexicaseSelect(world, fit_set, POP_SIZE-1);
     // EcoSelect(world, fit0_fun, fit_set, 100, 5, POP_SIZE-1);
 
