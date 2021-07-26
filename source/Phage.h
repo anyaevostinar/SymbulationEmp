@@ -16,7 +16,9 @@ protected:
 
 
 public:
-
+  /**
+   * The constructor for phage
+   */
   Phage(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
     burst_time = my_config->BURST_TIME();
     sym_lysis_res = my_config->SYM_LYSIS_RES();
@@ -27,47 +29,117 @@ public:
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
   }
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Phage(const Phage &) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */  
   Phage(Phage &&) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Phage() = default;
-  ///Input: None
-  ///Output: The double representing the phage's burst timer. 
-  ///Purpose: To get a phage's burst timer. 
+
+
+  /**Input: None
+   * 
+   * Output: The double representing the phage's burst timer. 
+   * 
+   * Purpose: To get a phage's burst timer. 
+   */
   double GetBurstTimer() {return burst_timer;}
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: To increment a phage's burst timer. 
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To increment a phage's burst timer. 
+   */
   void IncBurstTimer() {burst_timer += random->GetRandNormal(1.0, 1.0);}
 
-  ///Input: The int to be set as the phage's burst timer 
-  ///Output: None
-  ///Purpose: To set a phage's burst timer.  
-  void SetBurstTimer(int _in) {burst_timer = _in;}
 
-  ///Input: None
-  ///Output: The double representing a phage's change of lysis.
-  ///Purpose: To determine a phage's chance of lysis.
+  /**
+   * Input: The int to be set as the phage's burst timer 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a phage's burst timer.
+   */
+  void SetBurstTimer(double _in) {burst_timer = _in;}
+
+
+  /**
+   * Input: None
+   * 
+   * Output: The double representing a phage's change of lysis.
+   * 
+   * Purpose: To determine a phage's chance of lysis.
+   */
   double GetLysisChance() {return chance_of_lysis;}
 
-  ///Input: The double to be set as the phage's chance of lysis. 
-  ///Output: None
-  ///Purpose: To set a phage's chance of lysis 
+
+  /**
+   * Input: The double to be set as the phage's chance of lysis. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a phage's chance of lysis 
+   */
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
-  ///Input: None
-  ///Output: The bool representing if a phage will do lysogeny.
-  ///Purpose: To determine if a phage will do lysogeny 
+
+  /**
+   * Input: None
+   * 
+   * Output: The bool representing if a phage will do lysogeny.
+   * 
+   * Purpose: To determine if a phage is capable of lysogeny 
+   */
   bool GetLysogeny() {return lysogeny;}
 
-  ///Input: None
-  ///Output: The bool representing if an organism is a phage. 
-  ///Purpose: To determine if an organism is a phage.
-  bool IsPhage(){return true;}
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: To determine if a phage will choose lysis or lysogeny.
+  /**
+   * Input: None
+   * 
+   * Output: The bool representing if an organism is a phage, always true.
+   * 
+   * Purpose: To determine if an organism is a phage.
+   */
+  bool IsPhage() {return true;}
+
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To determine if a phage will choose lysis or lysogeny. If a phage chooses
+   * to be lytic, their interaction value will be -1 to represent them being antagonstic. 
+   * If a phage chooses to be lysogenic, their interaction value will be 0 to represent
+   * them being neutral.
+   */
   void uponInjection() {
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
@@ -79,9 +151,17 @@ public:
     }
   }
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: To mutate a phage's chance of lysis. 
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To mutate a phage's chance of lysis. The mutation will be based on a 
+   * value choosen from a normal distribution centered at 0, with a standard 
+   * deviation that is equal to the mutation size. Phage mutation can be  
+   * on or off. 
+   */
   void mutate() {
    Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
@@ -94,9 +174,16 @@ public:
     }
   }
 
-  ///Input: None
-  ///Output: The pointer to the new phage that has been produced.
-  ///Purpose: To reproduce phage. 
+
+  /**
+   * Input: None
+   * 
+   * Output: The pointer to the new phage that has been produced.
+   * 
+   * Purpose: To reproduce phage. The newly generated phage will have 
+   * 0 points, a burst timer equal to 0, and have a mutated genome 
+   * from their parent organism.
+   */
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
     sym_baby->SetPoints(0);
@@ -105,9 +192,16 @@ public:
     return sym_baby;
   }
 
-  ///Input: A pointer to the baby host to have symbiont's added. 
-  ///Output: None
-  ///Purpose: To allow for vertical transmisison to occur. 
+
+  /** 
+   * Input: A pointer to the baby host to have symbiont's added. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow for vertical transmisison to occur. lysogenic
+   * phage have 100% chance of vertical transmission, lytic phage have 
+   * 0% chance
+   */
   void VerticalTransmission(emp::Ptr<Organism> host_baby){
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
@@ -116,9 +210,15 @@ public:
     }
   }
 
-  ///Input: The double representing the resources that will be given to a phage. 
-  ///Output: The double reoresenting the resources that have been distirbuted to a phage. 
-  ///Purpose: To mutate a phage's chance of lysis. 
+
+  /**
+   * Input: The double representing the resources that will be given to a phage. 
+   * 
+   * Output: The double reoresenting the resources that are left over from what
+   * was distributed to the phage. 
+   * 
+   * Purpose: To mutate a phage's chance of lysis. 
+   */
   double ProcessResources(double sym_piece){
     if(lysogeny){
       return sym_piece; //lysogenic phage don't steal any resources from their host
@@ -127,9 +227,14 @@ public:
     }
   }
 
-  ///Input: The size_t representing the location of the phage being processed. 
-  ///Output: None
-  ///Purpose: To process a phage, meaning check for reproduciton, check for lysis, and move the phage. 
+
+  /**
+   * Input: The size_t representing the location of the phage being processed. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To process a phage, meaning check for reproduciton, check for lysis, and move the phage. 
+   */
   void Process(size_t location) {
     if(lysis_enabled && GetHost() != NULL) { //lysis enabled, checking for lysis
       if(!lysogeny){ //phage has chosen lysis
@@ -168,7 +273,5 @@ public:
       my_world->MoveFreeSym(location);
     }
   }
-
 };
-
 #endif

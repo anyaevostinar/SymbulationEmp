@@ -23,6 +23,10 @@ private:
   bool dead = false;
 
 public:
+
+  /**
+   * The constructor for the host class
+   */
   Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
@@ -34,6 +38,13 @@ public:
      };
    }
 
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To delete the memory used by a host's symbionts when the host is deleted. 
+   */
   ~Host(){
     for(size_t i=0; i<syms.size(); i++){
       syms[i].Delete();
@@ -43,13 +54,74 @@ public:
     }
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Host(const Host &) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */  
   Host(Host &&) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Host() = default;
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Host & operator=(const Host &) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Host & operator=(Host &&) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   bool operator==(const Host &other) const { return (this == &other);}
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   bool operator!=(const Host &other) const {return !(*this == other);}
 
 /**
@@ -237,7 +309,7 @@ public:
    * Output: A bool representing if a symbiont will be allowed to enter a host.
    * 
    * Purpose: To determine if a symbiont will be allowed into a host. If phage exclusion is off, this function will 
-   * always return true.If phage exclusion is on, then there is a 1/2^n chance of a new phage being allowed in, 
+   * always return true. If phage exclusion is on, then there is a 1/2^n chance of a new phage being allowed in, 
    * where n is the number of existing phage. 
    */
   bool SymAllowedIn(){
