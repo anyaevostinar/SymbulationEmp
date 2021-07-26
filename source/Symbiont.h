@@ -4,7 +4,6 @@
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/tools/string_utils.hpp"
 #include "SymWorld.h"
-#include <math.h>
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
@@ -122,29 +121,6 @@ public:
       }
     }
   }
-
-  /*
-  double ProcessResources(double sym_piece){
-    //TODO - not what it should be right now, it is supposed to be only calculating
-    //symPortion, but it's also doing hostPortion. Need to figure out how to
-    //calculate and separate out so I'm not just copying and pasting code
-    double symIntVal = GetIntVal();
-    double hostIntVal = my_host->GetIntVal();
-    double hostPortion = 0.0;
-    double hostDonation = 0.0;
-    double symPortion = 0.0;
-    double symReturn = 0.0;
-    double bonus = my_config->SYNERGY();
-
-    if (hostIntVal >= 0 && symIntVal >= 0){ //mutualistic relationship
-      hostDonation = sym_piece * hostIntVal;
-      hostPortion = sym_piece - hostDonation;
-
-      symReturn = (hostDonation * symIntVal) * bonus;
-      symPortion = hostDonation - (hostDonation * symIntVal);
-
-      hostPortion += symReturn; //hostPortion is positive
-  */
 
   double ProcessResources(double hostDonation){
     double sym_int_val = GetIntVal();

@@ -19,7 +19,7 @@ private:
   bool limited_res = false;
   bool do_free_living_syms = false;
   double resources_per_host_per_update = 0;
-  pop_t sym_pop; //pop is for hosts
+  pop_t sym_pop; //free living sym pop
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -31,13 +31,13 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
+  emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
+  emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
   emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
-  emp::Ptr<emp::DataMonitor<double>> data_node_hosted_syms;
-  emp::Ptr<emp::DataMonitor<double>> data_node_free_syms;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-
+  emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
 
@@ -53,19 +53,20 @@ public:
   ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
-    if (data_node_symintval) data_node_freesymintval.Delete();
-    if (data_node_symintval) data_node_hostedsymintval.Delete();
+    if (data_node_freesymintval) data_node_freesymintval.Delete();
+    if (data_node_hostedsymintval) data_node_hostedsymintval.Delete();
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
-    if (data_node_syminfectchance) data_node_freesyminfectchance.Delete();
-    if (data_node_syminfectchance) data_node_hostedsyminfectchance.Delete();
+    if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
+    if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_lysischance) data_node_lysischance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
+    if (data_node_freesymcount) data_node_freesymcount.Delete();
+    if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
     if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
-    if (data_node_hosted_syms) data_node_hosted_syms.Delete();
-    if (data_node_free_syms) data_node_free_syms.Delete();
+    if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
   }
 
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -87,6 +88,7 @@ public:
   bool WillTransmit() {
     bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
     return result;
+
   }
 
   int PullResources() {
@@ -115,6 +117,7 @@ public:
     pop_sizes.resize(2);
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
+
 
   //Overwriting the empirical AddOrgAt function to permit syms to be added into sym_pop
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
@@ -166,13 +169,11 @@ public:
 
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
-
     if(!do_free_living_syms){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) pop[new_loc]->AddSymbiont(new_sym);
-      else throw "Faulty !fls position in InjectSymbiont!";
-
+      else throw "Faulty! Tried to add non-free-living sym to an unoccupied position in InjectSymbiont!";
     } else {
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
@@ -217,7 +218,7 @@ public:
     node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
 
-    //sym val
+    //interaction val
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
     file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
@@ -227,12 +228,12 @@ public:
     file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
     file.AddTotal(node3, "free_syms", "Total number of free syms");
 
-    //infect chance
+    //infection chance
     file.AddMean(node4, "mean_infectchance", "Average symbiont infection chance");
     file.AddMean(node7, "mean_freeinfectchance", "Average free symbiont infection chance");
     file.AddMean(node8, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
-    //sym val histogram
+    //interaction val histogram
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -264,6 +265,7 @@ public:
     auto & node = GetHostIntValDataNode();
     auto & node1 = GetHostCountDataNode();
     auto & cfu_node = GetCFUDataNode();
+    auto & uninf_hosts_node = GetUninfectedHostsDataNode();
     node.SetupBins(-1.0, 1.1, 21);
 
     file.AddVar(update, "update", "Update");
@@ -271,6 +273,7 @@ public:
     file.AddTotal(node1, "count", "Total number of hosts");
     file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
     //either aren't infected at all or only with lysogenic phage if lysis is enabled
+    file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
     file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
@@ -298,11 +301,11 @@ public:
     return file;
   }
 
-  emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
+    emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetLysisChanceDataNode();
-    node.SetupBins(0.0, 1.1, 11); //Necessary because range exclusive
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_lysischance", "Average chance of lysis");
     file.AddTotal(node1, "count", "Total number of symbionts");
@@ -341,13 +344,10 @@ public:
       OnUpdate([this](size_t){
         data_node_symcount -> Reset();
         for (size_t i = 0; i < pop.size(); i++){
-        // count both syms in host and potential parallel sym
           if(IsOccupied(i)){
-            if(pop[i]->IsHost()){
-              data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
-            } else data_node_symcount->AddDatum(1);
+            data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
           }
-          if (sym_pop[i]){
+          if(sym_pop[i]){
             data_node_symcount->AddDatum(1);
           }
         }
@@ -356,22 +356,84 @@ public:
     return *data_node_symcount;
   }
 
-  emp::DataMonitor<int>& GetCFUDataNode() {
-    //keep track of host organisms that are uninfected or infected by only lysogenic phage
-    if(!data_node_cfu) {
-      data_node_cfu.New();
+  emp::DataMonitor<int>& GetCountHostedSymsDataNode(){
+    if (!data_node_hostedsymcount) {
+      data_node_hostedsymcount.New();
       OnUpdate([this](size_t){
-	  data_node_cfu -> Reset();
+        data_node_hostedsymcount->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (IsOccupied(i))
+            data_node_hostedsymcount->AddDatum(pop[i]->GetSymbionts().size());
+      });
+    }
+    return *data_node_hostedsymcount;
+  }
+
+    emp::DataMonitor<int>& GetCountFreeSymsDataNode(){
+    if (!data_node_freesymcount) {
+      data_node_freesymcount.New();
+      OnUpdate([this](size_t){
+        data_node_freesymcount->Reset();
+        for (size_t i = 0; i< pop.size(); i++)
+          if (sym_pop[i])
+            data_node_freesymcount->AddDatum(1);
+      });
+    }
+    return *data_node_freesymcount;
+  }
+
+  emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
+    //keep track of host organisms that are uninfected
+    if(!data_node_uninf_hosts) {
+      data_node_uninf_hosts.New();
+      OnUpdate([this](size_t){
+	  data_node_uninf_hosts -> Reset();
 
 	  for (size_t i = 0; i < pop.size(); i++) {
 	    if(IsOccupied(i)) {
 	      if((pop[i]->GetSymbionts()).empty()) {
-		      data_node_cfu->AddDatum(1);
+		      data_node_uninf_hosts->AddDatum(1);
 	      }
 	    } //endif
 	  } //end for
 	}); //end OnUpdate
     } //end if
+    return *data_node_uninf_hosts;
+  }
+
+  emp::DataMonitor<int>& GetCFUDataNode() {
+    //keep track of host organisms that are uninfected or infected with only lysogenic phage
+    if(!data_node_cfu) {
+      data_node_cfu.New();
+      OnUpdate([this](size_t){
+	      data_node_cfu -> Reset();
+
+        for (size_t i = 0; i < pop.size(); i++) {
+          if(IsOccupied(i)) {
+            //uninfected hosts
+            if((pop[i]->GetSymbionts()).empty()) {
+		          data_node_cfu->AddDatum(1);
+	          }
+
+            //infected hosts, check if all symbionts are lysogenic
+            if(pop[i]->HasSym()) {
+              emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+              bool all_lysogenic = true;
+              for(long unsigned int j = 0; j < syms.size(); j++){
+                if(syms[j]->IsPhage()){
+                  if(syms[j]->GetLysogeny() == false){
+                    all_lysogenic = false;
+                  }
+                }
+              }
+              if(all_lysogenic){
+                data_node_cfu->AddDatum(1);
+              }
+            }
+          } //endif
+        } //end for
+	  }); //end OnUpdate
+  } //end if
     return *data_node_cfu;
   }
 
@@ -380,7 +442,6 @@ public:
       data_node_burst_size.New();
     }
     return *data_node_burst_size;
-
   }
 
   emp::DataMonitor<int>& GetBurstCountDataNode() {
@@ -388,7 +449,6 @@ public:
       data_node_burst_count.New();
     }
     return *data_node_burst_count;
-
   }
 
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
@@ -398,20 +458,22 @@ public:
         data_node_efficiency->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-      	    emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
       	    size_t sym_size = syms.size();
       	    for(size_t j=0; j< sym_size; j++){
       	      data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
       	    }//close for
-      	  }//close if
-          if(sym_pop[i]){
+          }//close if
+          if(sym_pop[i]) {
             data_node_efficiency->AddDatum(sym_pop[i]->GetEfficiency());
           }//close if
-      	}//close for
+    	}//close for
       });
     }
     return *data_node_efficiency;
   }
+
+
 
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
@@ -426,30 +488,7 @@ public:
     return *data_node_hostintval;
   }
 
-  emp::DataMonitor<double>& GetCountHostedSymsDataNode(){
-    if (!data_node_hosted_syms) {
-      data_node_hosted_syms.New();
-      OnUpdate([this](size_t){
-        data_node_hosted_syms->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i) && pop[i]->IsHost())
-            data_node_hosted_syms->AddDatum(pop[i]->GetSymbionts().size());
-      });
-    }
-    return *data_node_hosted_syms;
-  }
 
-  emp::DataMonitor<double>& GetCountFreeSymsDataNode(){
-    if (!data_node_free_syms) {
-      data_node_free_syms.New();
-      OnUpdate([this](size_t){
-        data_node_free_syms->Reset();
-        for (size_t i = 0; i< sym_pop.size(); i++)
-          if (sym_pop[i]) data_node_free_syms->AddDatum(1);
-      });
-    }
-    return *data_node_free_syms;
-  }
 
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
@@ -463,70 +502,14 @@ public:
             for(size_t j=0; j< sym_size; j++){
               data_node_symintval->AddDatum(syms[j]->GetIntVal());
             }//close for
-          }//close if
-          if(sym_pop[i]){
-            data_node_symintval->AddDatum(sym_pop[i]->GetIntVal());
           }
+          if (sym_pop[i]) {
+            data_node_symintval->AddDatum(sym_pop[i]->GetIntVal());
+          } //close if
         }//close for
       });
     }
     return *data_node_symintval;
-  }
-
-  emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
-    if (!data_node_syminfectchance) {
-      data_node_syminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_syminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_syminfectchance->AddDatum(syms[j]->GetInfectChance());
-            }//close for
-          }//close if
-          if(sym_pop[i]){
-            data_node_syminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
-          }
-        }//close for
-      });
-    }
-    return *data_node_syminfectchance;
-  }
-
-  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode() {
-    if (!data_node_freesyminfectchance) {
-      data_node_freesyminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_freesyminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if(sym_pop[i]){
-            data_node_freesyminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
-          }
-        }//close for
-      });
-    }
-    return *data_node_freesyminfectchance;
-  }
-
-  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
-    if (!data_node_hostedsyminfectchance) {
-      data_node_hostedsyminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_hostedsyminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectChance());
-            }//close for
-          }//close if
-        }//close for
-      });
-    }
-    return *data_node_hostedsyminfectchance;
   }
 
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode() {
@@ -535,9 +518,9 @@ public:
       OnUpdate([this](size_t){
         data_node_freesymintval->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
-          if(sym_pop[i]){
+          if (sym_pop[i]) {
             data_node_freesymintval->AddDatum(sym_pop[i]->GetIntVal());
-          }
+          } //close if
         }//close for
       });
     }
@@ -561,6 +544,62 @@ public:
       });
     }
     return *data_node_hostedsymintval;
+  }
+
+  emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
+    if (!data_node_syminfectchance) {
+      data_node_syminfectchance.New();
+      OnUpdate([this](size_t){
+        data_node_syminfectchance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            size_t sym_size = syms.size();
+            for(size_t j=0; j< sym_size; j++){
+              data_node_syminfectchance->AddDatum(syms[j]->GetInfectChance());
+            }//close for
+          }
+          if (sym_pop[i]) {
+            data_node_syminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
+          } //close if
+        }//close for
+      });
+    }
+    return *data_node_syminfectchance;
+  }
+
+  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode() {
+    if (!data_node_freesyminfectchance) {
+      data_node_freesyminfectchance.New();
+      OnUpdate([this](size_t){
+        data_node_freesyminfectchance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (sym_pop[i]) {
+            data_node_freesyminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
+          } //close if
+        }//close for
+      });
+    }
+    return *data_node_freesyminfectchance;
+  }
+
+  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
+    if (!data_node_hostedsyminfectchance) {
+      data_node_hostedsyminfectchance.New();
+      OnUpdate([this](size_t){
+        data_node_hostedsyminfectchance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            size_t sym_size = syms.size();
+            for(size_t j=0; j< sym_size; j++){
+              data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectChance());
+            }//close for
+          }
+        }//close for
+      });
+    }
+    return *data_node_hostedsyminfectchance;
   }
 
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
@@ -609,31 +648,15 @@ public:
   }
 
   void MoveFreeSym(size_t i){
-    emp::Ptr<Organism> sym = sym_pop[i];
-
-    num_orgs--;
-    sym_pop[i] = nullptr;
-    //the sym can either move into a parallel sym or to some random position
-    if(IsOccupied(i) && sym->WantsToInfect()) {
-
-      pop[i]->AddSymbiont(sym);
+      emp::Ptr<Organism> sym = sym_pop[i];
+      num_orgs--;
+      sym_pop[i] = nullptr;
+      //the sym can either move into a parallel sym or to some random position
+      if(IsOccupied(i) && sym->WantsToInfect()) {
+        pop[i]->AddSymbiont(sym);
+      }
+      else MoveToFreeWorldPosition(sym, i);
     }
-
-    else MoveToFreeWorldPosition(sym, i);
-  }
-
-  void PrintPops(){
-    std::cout << "POP: ";
-    for(int i = 0; i < pop.size(); i++){
-      std::cout << i << ":" << pop[i] << ", ";
-    }
-    std::cout << std::endl;
-    std::cout << "SYMPOP: ";
-    for(int i = 0; i < sym_pop.size(); i++){
-      std::cout << i << ":" << sym_pop[i] << ", ";
-    }
-    std::cout << std::endl;
-  }
 
   void Update() {
     emp::World<Organism>::Update();
@@ -641,21 +664,19 @@ public:
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
 
-
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
-      if (IsOccupied(i) == false && !sym_pop[i]){continue;} // no organism at that cell
+      if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
 
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
-      if(IsOccupied(i)){//host process
+      if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
         pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
           DoDeath(i);
         }
       }
-
-      if (sym_pop[i]){ //free-living sym process
+      if(sym_pop[i]){
         sym_pop[i]->Process(i);
       }
 

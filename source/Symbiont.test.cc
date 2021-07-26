@@ -314,101 +314,6 @@ TEST_CASE("Process") {
 
 }
 
-TEST_CASE("WantsToInfect"){
-  //this only applies when FLS is turned on
-  GIVEN("FLS is turned on"){
-    emp::Random random(14);
-    SymConfigBase config;
-    SymWorld w(random);
-    w.SetFreeLivingSyms(true);
-    config.FREE_LIVING_SYMS(1);
-    config.MOVE_FREE_SYMS(1);
-    int int_val = 0;
-    w.Resize(2,2);
-
-    WHEN("Sym infection chance is set to 0"){
-      config.SYM_INFECTION_CHANCE(0);
-
-      THEN("a sym will never infect a parallel host"){
-        emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host1 = new Host(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host2 = new Host(&random, &w, &config, int_val);
-
-        w.AddOrgAt(sym1,0);
-        w.AddOrgAt(sym2,1);
-        w.AddOrgAt(host1,0);
-        w.AddOrgAt(host2,1);
-
-        REQUIRE(w.GetNumOrgs() == 4);
-        REQUIRE(host1->HasSym() == false);
-        REQUIRE(host2->HasSym() == false);
-
-        w.Update();
-
-      //  REQUIRE(w.GetNumOrgs() == 4);
-        REQUIRE(host1->HasSym() == false);
-        REQUIRE(host2->HasSym() == false);
-      }
-    }
-
-    WHEN("Sym infection chance is set between 0 and 1"){
-      config.SYM_INFECTION_CHANCE(0.5);
-
-      THEN("a sym will sometimes infect a parallel host"){
-        emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host1 = new Host(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host2 = new Host(&random, &w, &config, int_val);
-
-        w.AddOrgAt(sym1,0);
-        w.AddOrgAt(sym2,1);
-        w.AddOrgAt(host1,0);
-        w.AddOrgAt(host2,1);
-
-        REQUIRE(w.GetNumOrgs() == 4);
-        REQUIRE(host1->HasSym() == false);
-        REQUIRE(host2->HasSym() == false);
-
-        w.Update();
-
-        REQUIRE(w.GetNumOrgs() == 3);
-        REQUIRE(host1->HasSym() == true);
-        REQUIRE(host1->GetSymbionts()[0] == sym1);
-        REQUIRE(host2->HasSym() == false);
-      }
-    }
-
-    WHEN("Sym infection chance is set to 1"){
-      config.SYM_INFECTION_CHANCE(1);
-
-      THEN("a sym will always infect a parallel host"){
-        emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host1 = new Host(&random, &w, &config, int_val);
-        emp::Ptr<Organism> host2 = new Host(&random, &w, &config, int_val);
-
-        w.AddOrgAt(sym1,0);
-        w.AddOrgAt(sym2,1);
-        w.AddOrgAt(host1,0);
-        w.AddOrgAt(host2,1);
-
-        REQUIRE(w.GetNumOrgs() == 4);
-        REQUIRE(host1->HasSym() == false);
-        REQUIRE(host2->HasSym() == false);
-
-        w.Update();
-
-        REQUIRE(w.GetNumOrgs() == 2);
-        REQUIRE(host1->HasSym() == true);
-        REQUIRE(host1->GetSymbionts()[0] == sym1);
-        REQUIRE(host2->HasSym() == true);
-        REQUIRE(host2->GetSymbionts()[0] == sym2);
-      }
-    }
-  }
-}
-
 TEST_CASE("Symbiont ProcessResources"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
@@ -420,12 +325,6 @@ TEST_CASE("Symbiont ProcessResources"){
     WHEN("sym_int_val < 0"){
         double sym_int_val = -0.6;
 
-        /*
-        double sym_piece = 40;
-        // double host_donation = 20; //sym_piece * host_int_val;
-        double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
-        s->ProcessResources(sym_piece);
-        */
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
             Host * h = new Host(random, &w, &config, host_int_val);
@@ -439,14 +338,7 @@ TEST_CASE("Symbiont ProcessResources"){
             double expected_return = 0; // hostportion * synergy
 
             h->SetResInProcess(80);
-            /*WHEN("Host interaction value < symbiont interaction value"){
-                double sym_orig_points = 0;
-                double sym_piece = 40;
-                s->ProcessResources(sym_piece);
 
-                THEN("Symbiont points do not change (gets nothing from host)") {
-                    REQUIRE(s->GetPoints() == sym_orig_points);
-                }*/
             THEN("sym receives a donation and stolen resources, host receives betrayal"){
                 REQUIRE(s->ProcessResources(20) == expected_return);
                 REQUIRE(s->GetPoints() == expected_sym_points);
@@ -476,18 +368,6 @@ TEST_CASE("Symbiont ProcessResources"){
                 }
             }
 
-
-            /*
-            double sym_piece = 40;
-            // double host_defense = 8; // -1 * (host_int_val * sym_piece);
-            // double remaining_resources = 32; //sym_piece - host_defense;
-            double sym_steals = 12.8; //(host_int_val - sym_int_val) * remaining_resources;
-            s->ProcessResources(sym_piece);
-
-            THEN("Symbiont steals resources and points increase"){
-                REQUIRE(s->GetPoints() == Approx(sym_steals));
-                REQUIRE(s->GetPoints() > sym_orig_points);
-            */
             WHEN("host fails at defense"){
                 double host_int_val = -0.5;
                 Host * h = new Host(random, &w, &config, host_int_val);
@@ -520,21 +400,6 @@ TEST_CASE("Symbiont ProcessResources"){
         Symbiont * s = new Symbiont(random, world, &config, sym_int_val);
         h->AddSymbiont(s);
 
-
-        /*
-        // double resources = 40;
-        // double host_donation = 4; //host_int_val * resources;
-        // double host_portion = 36; //resources - host_donation;
-        // double sym_steals = 3.6; //host_portion * sym_int_val * -1;
-        double sym_portion = 7.6; //sym_steals + host_donation;
-
-        double sym_piece = 40;
-        s->ProcessResources(sym_piece);
-        THEN("Symbiont points increase the correct amount"){
-            REQUIRE(s->GetPoints() == sym_orig_points+sym_portion);
-        }
-    }
-        */
         // double resources = 100;
         // double hostDonation = 50;
         // double hostPortion = 10; hostDonation * sym_int_val
@@ -549,14 +414,5 @@ TEST_CASE("Symbiont ProcessResources"){
             REQUIRE(s->GetPoints() == expected_sym_points);
         }
     }
-    /*
-    s->ProcessResources(sym_piece);
-
-    THEN("Symbiont points do not change (gets nothing from host)"){
-        REQUIRE(s->GetPoints() == sym_portion);
-        REQUIRE(s->GetPoints() == symbiont_orig_points);
-    }
-  }
-    */
 
 }
