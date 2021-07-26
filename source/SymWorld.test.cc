@@ -480,19 +480,43 @@ TEST_CASE( "Update" ){
       WHEN("lysis is not permitted, and symbionts are used"){
         config.LYSIS(0);
         config.HORIZ_TRANS(1);
+        w.Resize(3,3);
+
         THEN("if only syms in the world they can get resources and reproduce"){
           emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
           w.SymDoBirth(sym, 0);
 
-          for(int i = 0; i <= 4; i++){ w.Update(); }
+          for(int i = 0; i <= 4; i++){ w.Update();}
 
-          REQUIRE(w.GetNumOrgs() == 3);
+          //the sym has reproduced at least once
+          REQUIRE(w.GetNumOrgs() > 1);
+
+          int num_pop_elements = 0;
+          for(int i = 0; i < 9; i++) if(w.GetPop()[i]) num_pop_elements++;
+          REQUIRE(num_pop_elements == 0);
         }
         THEN("hosts and syms can mingle in the environment"){
           w.AddOrgAt(host, 0);
           w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), 1);
           for(int i = 0; i <= 4; i++){ w.Update(); }
-          REQUIRE(w.GetNumOrgs() == 5);
+
+          //the organisms have done something
+          REQUIRE(w.GetNumOrgs() > 2);
+
+          int free_sym_count = 0;
+          int hosted_sym_count = 0;
+          int host_count = 0;
+          for(int i = 0; i < 9; i++){
+            if(w.GetPop()[i]){
+              host_count++;
+              hosted_sym_count += w.GetOrg(i).GetSymbionts().size();
+            }
+            if(w.GetSymPop()[i]) free_sym_count++;
+          }
+          //there should be at least one free sym, hosted sym, and host
+          REQUIRE(free_sym_count > 0);
+          REQUIRE(hosted_sym_count > 0);
+          REQUIRE(host_count > 0);
         }
       }
     }

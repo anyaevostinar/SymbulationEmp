@@ -97,10 +97,11 @@ public:
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
-
-      infection_chance += random->GetRandNormal(0.0, mut_size);
-      if (infection_chance < 0) infection_chance = 0;
-      else if (infection_chance > 1) infection_chance = 1;
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
     //if((pre_value*interaction_val) < 0) {
     //  std::cout << "switched2!" << std::endl;
@@ -114,9 +115,11 @@ public:
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
-      infection_chance += random->GetRandNormal(0.0, ht_mut_size);
-      if (infection_chance < 0) infection_chance = 0;
-      else if (infection_chance > 1) infection_chance = 1;
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, ht_mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
   }
 
