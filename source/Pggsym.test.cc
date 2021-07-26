@@ -13,11 +13,11 @@ TEST_CASE("PGGSymbiont Constructor") {
 
     double int_val = 0.5;
     PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
-    CHECK(s->GetDonarion() == donation);
+    CHECK(s->GetDonation() == donation);
 
     donation = 2;
     PGGSymbiont * s2 = new PGGSymbiont(random, world, &config, int_val,donation);
-    CHECK(s2->GetDonarion() == 2);
+    CHECK(s2->GetDonation() == 2);
 
     int_val = 2;
     REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
@@ -40,7 +40,7 @@ TEST_CASE("Pggmutate") {
        
         double int_val_post_mutation = 0.0092037339; 
         THEN("Mutation occurs and interaction value changes") {
-            REQUIRE(s->GetDonarion() == Approx(int_val_post_mutation));
+            REQUIRE(s->GetDonation() == Approx(int_val_post_mutation));
         }
     }
     WHEN("Mutation rate is zero") {
