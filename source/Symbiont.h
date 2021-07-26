@@ -27,6 +27,9 @@ protected:
   emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
+  /** 
+   * The constructor for symbiont
+   */
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), random(_random), my_world(_world), my_config(_config) {
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
@@ -46,52 +49,139 @@ public:
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
   }
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Symbiont(const Symbiont &) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */  
   Symbiont(Symbiont &&) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Symbiont() = default;
 
 
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Symbiont & operator=(const Symbiont &) = default;
+
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   Symbiont & operator=(Symbiont &&) = default;
-  ///Input: None
-  ///Output: The double representing the symbiont's interaction value
-  ///Purpose: To get a symbiont's interaction value. 
+
+
+  /**
+   * Input: None
+   * 
+   * Output: The double representing the symbiont's interaction value
+   * 
+   * Purpose: To get a symbiont's interaction value.
+   */
   double GetIntVal() const {
     return interaction_val;}
 
-  ///Input: None
-  ///Output: The double representing the symbiont's points
-  ///Purpose: To get a symbiont's points. 
+
+  /**
+   * Input: None
+   * 
+   * Output: The double representing the symbiont's points
+   * 
+   * Purpose: To get a symbiont's points.
+   */
   double GetPoints() {return points;}
 
-  ///Input: None
-  ///Output: The bool representing if a symbiont is a phage
-  ///Purpose: To determine if a symbiont is a phage
+
+  /**
+   * Input: None
+   * 
+   * Output: The bool representing if a symbiont is a phage
+   * 
+   * Purpose: To determine if a symbiont is a phage
+   */
   bool IsPhage() {return false;}
 
-  ///Input: None
-  ///Output: The bool representing if a symbiont is a host
-  ///Purpose: To determine if a symbiont is a host  
+
+  /**
+   * Input: None
+   * 
+   * Output: The bool representing if a symbiont is a host
+   * 
+   * Purpose: To determine if a symbiont is a host
+   */ 
   bool IsHost() {return false;}
 
-  ///Input: None
-  ///Output: The pointer to a symbiont's host
-  ///Purpose: To retrive a symbiont's host
+
+  /**
+   * Input: None
+   * 
+   * Output: The pointer to a symbiont's host
+   * 
+   * Purpose: To retrive a symbiont's host
+   */
   emp::Ptr<Organism> GetHost() {return my_host;}
+
+
   //  std::set<int> GetResTypes() const {return res_types;}
-  ///Input: None
-  ///Output: None
-  ///Purpose: To set a symbiont to dead
+
+
+  /** 
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a symbiont to dead
+   */
   void SetDead() { dead = true; }
 
-  ///Input: None
-  ///Output: The bool representing if a symbiont is dead
-  ///Purpose: To determine if a symbiont is dead
+
+  /**
+   * Input: None
+   * 
+   * Output: The bool representing if a symbiont is dead
+   * 
+   * Purpose: To determine if a symbiont is dead
+   */
   bool GetDead() { return dead; }
 
-  ///Input: The double representing the new interaction value of a symbiont 
-  ///Output: None
-  ///Purpose: To set a symbiont's interaction value
+
+  /**
+   * Input: The double representing the new interaction value of a symbiont 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a symbiont's interaction value
+   */
   void SetIntVal(double _in) {
     if ( _in > 1 || _in < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
@@ -101,35 +191,61 @@ public:
      }
   }
 
-  ///Input: The double representing the points to be set as a symbinot's points
-  ///Output: None
-  ///Purpose: To set a symbiont's points
+
+  /**
+   * Input: The double representing the points to be set as a symbinot's points
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a symbiont's points
+   */
   void SetPoints(double _in) {points = _in;}
 
-  ///Input: The double representing the points to be added to a symbinot's points
-  ///Output: None
-  ///Purpose: To increment a symbiont's points
+
+  /**
+   * Input: The double representing the points to be added to a symbinot's points
+   * 
+   * Output: None
+   * 
+   * Purpose: To increment a symbiont's points
+   */
   void AddPoints(double _in) { points += _in;}
 
-  ///Input: The pointer to an organism that will be set as the symbinot's host
-  ///Output: None
-  ///Purpose: To set a symbiont's host
+
+  /**
+   * Input: The pointer to an organism that will be set as the symbinot's host
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a symbiont's host
+   */
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
 
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: does nothing for now, added for backwards compatibility from phage to symbiont
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: Does nothing for now, added for backwards compatibility from phage to symbiont
+   */
   void uponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
   } 
 
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: To mutate an symbiont's interaction value 
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To mutate an symbiont's interaction value. The mutation value is choosen 
+   * from a normal distribution centered on 0 with the mutation size as the standard
+   * deviation. 
+   */
   void mutate(){
     //TODO: change everything to camel case
     // double pre_value = interaction_val;
@@ -143,9 +259,15 @@ public:
     //}
   }
 
-  ///Input: None
-  ///Output: None
-  ///Purpose: To mutate an symbiont's interaction value based upon the horizontal mutation size
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To mutate an symbiont's interaction value based upon the horizontal mutation size. 
+   * This is a function to be called during horizontal transmission.
+   */
   void HorizMutate(){
     // double pre_value = interaction_val;
     if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
@@ -155,9 +277,14 @@ public:
     }
   }
 
-  ///Input: The double representing the resources to be distributed to the symbionts
-  ///Output: The double representing the host's resources
-  ///Purpose: To process and distribute resources
+
+  /**
+   * Input: The double representing the resources to be distributed to the symbionts
+   * 
+   * Output: The double representing the host's resources
+   * 
+   * Purpose: To process and distribute resources.
+   */
   double ProcessResources(double sym_piece){
     //TODO - not what it should be right now, it is supposed to be only calculating
     //symPortion, but it's also doing hostPortion. Need to figure out how to 
@@ -218,9 +345,15 @@ public:
     return hostPortion;
   }
 
-  ///Input: The size_t representing the location of the symbiont. 
-  ///Output: None
-  ///Purpose: To process a symbiont, meaning to check for reproduction, distribute resources, and to allow for movement 
+
+  /**
+   * Input: The size_t representing the location of the symbiont. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To process a symbiont, meaning to check for reproduction, distribute resources, 
+   * and to allow for movement 
+   */
   void Process(size_t location) {
     if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
       double resources = my_world->PullResources();
@@ -241,9 +374,14 @@ public:
     if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
   }
 
-  ///Input: None
-  ///Output: The pointer to the newly created organism
-  ///Purpose: To produce a new symbiont
+
+  /**
+   * Input: None
+   * 
+   * Output: The pointer to the newly created organism
+   * 
+   * Purpose: To produce a new symbiont
+   */
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
@@ -252,31 +390,18 @@ public:
     return sym_baby;
   }
 
-  ///Input: The pointer to the organism that is the new host baby
-  ///Output: None
-  ///Purpose: To allow for vertical transmission to occur 
+  /**
+   * Input: The pointer to the organism that is the new host baby
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow for vertical transmission to occur 
+   */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if(my_world->WillTransmit()){
       emp::Ptr<Organism> sym_baby = reproduce();
       host_baby->AddSymbiont(sym_baby);
     }
   }
-
-};
-
-  ///Input: None
-  ///Output: The string with the symbiont's information
-  ///Purpose: To print a string with the symbiont's information 
-std::string PrintSym(emp::Ptr<Symbiont>  org){
-  if (org->GetPoints() < 0) return "-";
-  double out_val = org->GetIntVal();
-
-  // this prints the symbiont with two decimal places for easier reading
-  std::stringstream temp;
-  temp << std::fixed << std::setprecision(2) << out_val;
-  std::string formattedstring = temp.str();
-  return formattedstring;
-
-  // return emp::to_string(out_val);  // creates a string without specifying format
-}//Symbiont
+}; 
 #endif
