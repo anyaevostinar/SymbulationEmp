@@ -447,3 +447,24 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction"){
 
 }
 
+TEST_CASE("PGGSYM Dead and Removal") {
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    config.SYM_LIMIT(2);
+
+ 
+    double host_int_val = .5;
+    double sym_int_val = -.5;
+
+    emp::Ptr<PggHost> h = new PggHost(random, world, &config, host_int_val);
+    emp::Ptr<PGGSymbiont> p = new PGGSymbiont(random, world, &config, sym_int_val);
+       
+    h->AddSymbiont(p);
+    p->SetDead();
+
+    long unsigned int expected_sym_size = 0;
+    h->Process(0);
+    REQUIRE(h->GetSymbionts().size() == expected_sym_size);
+}
