@@ -57,7 +57,12 @@ public:
   /// Output: The double representing host's interaction value
 	
   /// Purpose: To get the double representing host's interaction value
-	
+/**
+ * This is a documentation comment
+ * across several lines
+ *
+ * This comment will be associated with the function immediately following.
+*/	
   double GetIntVal() const { return interaction_val;}
   ///Input: None
   ///Output: A vector of pointers to the organisms that are the host's syms.  
