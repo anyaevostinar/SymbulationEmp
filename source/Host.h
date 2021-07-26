@@ -53,10 +53,12 @@ public:
   bool operator!=(const Host &other) const {return !(*this == other);}
 
 /**
- * This is a documentation comment
- * across several lines
- *
- * This comment will be associated with the function immediately following.
+
+  * Input: None
+  *	
+  * Output: The double representing host's interaction value
+  *	
+  * Purpose: To get the double representing host's interaction value
 */	
   double GetIntVal() const { return interaction_val;}
   ///Input: None
