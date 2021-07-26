@@ -87,10 +87,10 @@ public:
 std::string PrintSym(emp::Ptr<PGGSymbiont>  org){
   if (org->GetPoints() < 0) return "-";
   double out_val = org->GetIntVal();
-
+  double donate_val = org->GetDonation();
   // this prints the symbiont with two decimal places for easier reading
   std::stringstream temp;
-  temp << std::fixed << std::setprecision(2) << out_val;
+  temp << std::fixed << std::setprecision(2) << "Interaction value: " << out_val << " Donation value: " << donate_val;
   std::string formattedstring = temp.str();
   return formattedstring;
 
