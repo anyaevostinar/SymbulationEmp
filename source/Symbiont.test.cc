@@ -322,6 +322,7 @@ TEST_CASE("WantsToInfect"){
     SymWorld w(random);
     w.SetFreeLivingSyms(true);
     config.FREE_LIVING_SYMS(1);
+    config.MOVE_FREE_SYMS(1);
     int int_val = 0;
     w.Resize(2,2);
 
@@ -409,56 +410,74 @@ TEST_CASE("WantsToInfect"){
 }
 
 TEST_CASE("Symbiont ProcessResources"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+   emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
     config.SYNERGY(5);
 
-    WHEN("Host interaction value >= 0 and  Symbiont interaction value >= 0") {
-        double host_int_val = 0.5;
-        double sym_int_val = 1;
 
-        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
-        Host * h = new Host(random, &w, &config, host_int_val);
-        h->AddSymbiont(s);
+    WHEN("sym_int_val < 0"){
+        double sym_int_val = -0.6;
 
+        /*
         double sym_piece = 40;
         // double host_donation = 20; //sym_piece * host_int_val;
         double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
         s->ProcessResources(sym_piece);
-
-        THEN("Symbiont points increase") {
-            REQUIRE(s->GetPoints() == sym_portion);
-        }
-    }
-
-    WHEN("Host and symbiont interaction values <0"){
-        double host_int_val = -0.5;
-        double sym_int_val = -0.1;
-
-        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
-        Host * h = new Host(random, &w, &config, host_int_val);
-        h->AddSymbiont(s);
-
-        WHEN("Host interaction value < symbiont interaction value"){
-            double sym_orig_points = 0;
-            double sym_piece = 40;
-            s->ProcessResources(sym_piece);
-
-            THEN("Symbiont points do not change (gets nothing from host)") {
-                REQUIRE(s->GetPoints() == sym_orig_points);
-            }
-
-        }
-        WHEN("Host interaction value > symbiont interaction value") {
-            double host_int_val = -0.2;
-            double sym_int_val = -0.6;
-            double sym_orig_points = 0;
-
-            Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
+        */
+        WHEN("host_int_val > 0"){
+            double host_int_val = 0.2;
             Host * h = new Host(random, &w, &config, host_int_val);
+            Symbiont * s = new Symbiont(random, world, &config, sym_int_val);
             h->AddSymbiont(s);
 
+            // double resources = 100;
+            // double hostDonation = 20;
+            // double stolen = 48;
+            double expected_sym_points = 68; // hostDonation + stolen
+            double expected_return = 0; // hostportion * synergy
+
+            h->SetResInProcess(80);
+            /*WHEN("Host interaction value < symbiont interaction value"){
+                double sym_orig_points = 0;
+                double sym_piece = 40;
+                s->ProcessResources(sym_piece);
+
+                THEN("Symbiont points do not change (gets nothing from host)") {
+                    REQUIRE(s->GetPoints() == sym_orig_points);
+                }*/
+            THEN("sym receives a donation and stolen resources, host receives betrayal"){
+                REQUIRE(s->ProcessResources(20) == expected_return);
+                REQUIRE(s->GetPoints() == expected_sym_points);
+
+            }
+        }
+
+        WHEN("host_int_val < 0 and resources are placed into defense"){
+
+            WHEN("host successfully defends from symsteal"){
+                double host_int_val = -0.8;
+                Host * h = new Host(random, &w, &config, host_int_val);
+                Symbiont * s = new Symbiont(random, world, &config, sym_int_val);
+                h->AddSymbiont(s);
+
+                // double resources = 100;
+                // double hostDonation = 0;
+                // double stolen = 0;
+                // double hostDefense = 80;
+                double expected_sym_points = 0; // hostDonation + stolen
+                double expected_return = 0; // hostportion * synergy
+
+                h->SetResInProcess(20);
+                THEN("symbiont is unsuccessful at stealing"){
+                    REQUIRE(s->ProcessResources(0) == expected_return);
+                    REQUIRE(s->GetPoints() == expected_sym_points);
+                }
+            }
+
+
+            /*
             double sym_piece = 40;
             // double host_defense = 8; // -1 * (host_int_val * sym_piece);
             // double remaining_resources = 32; //sym_piece - host_defense;
@@ -468,21 +487,41 @@ TEST_CASE("Symbiont ProcessResources"){
             THEN("Symbiont steals resources and points increase"){
                 REQUIRE(s->GetPoints() == Approx(sym_steals));
                 REQUIRE(s->GetPoints() > sym_orig_points);
-            }
-        }
+            */
+            WHEN("host fails at defense"){
+                double host_int_val = -0.5;
+                Host * h = new Host(random, &w, &config, host_int_val);
+                Symbiont * s = new Symbiont(random, world, &config, sym_int_val);
+                h->AddSymbiont(s);
 
+                // double resources = 100;
+                // double hostDonation = 0;
+                // double stolen = 5;
+                // double hostDefense = 50;
+                double expected_sym_points = 5; // hostDonation + stolen
+                double expected_return = 0; // hostportion * synergy
+
+                h->SetResInProcess(50);
+
+                THEN("Sym steals successfully"){
+                    REQUIRE(s->ProcessResources(0) == expected_return);
+                    REQUIRE(s->GetPoints() == Approx(expected_sym_points));
+                }
+            }
+
+        }
 
     }
 
-    WHEN("Host interaction value > 0 and Symbiont interaction value < 0") {
-        double host_int_val = 0.1;
-        double sym_int_val = -0.1;
-        double sym_orig_points = 0;
-
-        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
+    WHEN("sym_int_val > 0") {
+        double sym_int_val = 0.2;
+        double host_int_val = 0.5;
         Host * h = new Host(random, &w, &config, host_int_val);
+        Symbiont * s = new Symbiont(random, world, &config, sym_int_val);
         h->AddSymbiont(s);
 
+
+        /*
         // double resources = 40;
         // double host_donation = 4; //host_int_val * resources;
         // double host_portion = 36; //resources - host_donation;
@@ -495,24 +534,29 @@ TEST_CASE("Symbiont ProcessResources"){
             REQUIRE(s->GetPoints() == sym_orig_points+sym_portion);
         }
     }
+        */
+        // double resources = 100;
+        // double hostDonation = 50;
+        // double hostPortion = 10; hostDonation * sym_int_val
+        double expected_sym_points = 40; // hostDonation - hostPortion
+        double expected_return = 50; // hostPortion * synergy
 
-    WHEN("Host interaction value < 0 and Symbiont interaction value >= 0"){
-        double host_int_val = -0.1;
-        double sym_int_val = 0.8;
-        double symbiont_orig_points = 0;
+        h->SetResInProcess(50);
 
-        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val);
-        Host * h = new Host(random, &w, &config, host_int_val);
-        h->AddSymbiont(s);
 
-        double sym_piece = 40;
-        double sym_portion = 0;
-
-        s->ProcessResources(sym_piece);
-
-        THEN("Symbiont points do not change (gets nothing from host)"){
-            REQUIRE(s->GetPoints() == sym_portion);
-            REQUIRE(s->GetPoints() == symbiont_orig_points);
+        THEN("Sym attempts to give benefit back"){
+            REQUIRE(s->ProcessResources(50) == expected_return);
+            REQUIRE(s->GetPoints() == expected_sym_points);
         }
     }
+    /*
+    s->ProcessResources(sym_piece);
+
+    THEN("Symbiont points do not change (gets nothing from host)"){
+        REQUIRE(s->GetPoints() == sym_portion);
+        REQUIRE(s->GetPoints() == symbiont_orig_points);
+    }
+  }
+    */
+
 }

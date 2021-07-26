@@ -96,6 +96,15 @@ class Organism {
   virtual std::set<int> GetResTypes() const {
     std::cout << "GetResTypes called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetResInProcess(double _in){
+    std::cout << "SetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double GetResInProcess(){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double StealResources(double _intval){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}

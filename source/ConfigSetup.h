@@ -40,8 +40,9 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PROPHAGE_LOSS_RATE, double, 0, "Rate at which infected lysogens become re-susceptible to new phage"),
     VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
-    VALUE(PHAGE_EXCLUDE, bool, 0, ""),
-    VALUE(FREE_LIVING_SYMS, bool, 0, ""),
+    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
+    VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
+    VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living syms move around in the world? 0 for no, 1 for yes"),
 
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name")

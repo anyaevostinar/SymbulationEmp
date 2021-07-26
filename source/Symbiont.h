@@ -123,6 +123,7 @@ public:
     }
   }
 
+  /*
   double ProcessResources(double sym_piece){
     //TODO - not what it should be right now, it is supposed to be only calculating
     //symPortion, but it's also doing hostPortion. Need to figure out how to
@@ -143,45 +144,26 @@ public:
       symPortion = hostDonation - (hostDonation * symIntVal);
 
       hostPortion += symReturn; //hostPortion is positive
-    }
-    else if (hostIntVal <= 0 && symIntVal < 0){ //antagonistic from both sides
-      double hostDefense = -1.0 * (hostIntVal * sym_piece);
-      double remainingResources = 0.0;
-      remainingResources = sym_piece - hostDefense;
+  */
 
-      // if both are hostile, then the symbiont must be more hostile than in order to gain any resources
-      if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
-        double symSteals = (hostIntVal - symIntVal) * remainingResources;
+  double ProcessResources(double hostDonation){
+    double sym_int_val = GetIntVal();
+    double sym_portion = 0;
+    double host_portion = 0;
+    double synergy = my_config->SYNERGY();
 
-        symPortion = symSteals;
-        hostPortion = remainingResources - symSteals;
-
-      } else { // symbiont cannot overcome host's defenses
-        symPortion = 0.0;
-        hostPortion = remainingResources;
-      }
+    if (sym_int_val<0){
+      double stolen = my_host->StealResources(sym_int_val);
+      host_portion = 0;
+      sym_portion = stolen + hostDonation;
     }
-    else if (hostIntVal > 0 && symIntVal < 0){
-      hostDonation = hostIntVal * sym_piece;
-      hostPortion = sym_piece - hostDonation;
-
-      double symSteals = -1.0 * (hostPortion * symIntVal);
-      hostPortion = hostPortion - symSteals;
-      symPortion = hostDonation + symSteals;
+    else if (sym_int_val >= 0){
+      host_portion = hostDonation * sym_int_val;
+      sym_portion = hostDonation - host_portion;
     }
-    else if (hostIntVal < 0 && symIntVal >= 0){
-      double hostDefense = -1.0 * (hostIntVal * sym_piece);
-      hostPortion = sym_piece - hostDefense;
-
-      // symbiont gets nothing from antagonistic host
-      symPortion = 0.0;
+    AddPoints(sym_portion);
+    return host_portion * synergy;
     }
-    else {
-      std::cout << "This should never happen." << std::endl;
-    }
-    this->AddPoints(symPortion);
-    return hostPortion;
-  }
 
   bool WantsToInfect(){
     bool result = random->GetDouble(0.0, 1.0) < infection_chance;
@@ -189,7 +171,7 @@ public:
   }
 
   void Process(size_t location) {
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources();
       AddPoints(resources);
     }
@@ -206,9 +188,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-
-    //If the sym is free living, it now moves
-    if(my_host==NULL && my_config->FREE_LIVING_SYMS()){
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && my_config->MOVE_FREE_SYMS()) {
       my_world->MoveFreeSym(location);
     }
   }

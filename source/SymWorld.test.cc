@@ -425,6 +425,7 @@ TEST_CASE( "Update" ){
       w.Resize(4,4);
       w.SetFreeLivingSyms(1);
       config.FREE_LIVING_SYMS(1);
+      config.MOVE_FREE_SYMS(1);
 
       WHEN("there are no syms in the world"){
         THEN("hosts process normally"){
