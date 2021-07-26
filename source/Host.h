@@ -52,11 +52,6 @@ public:
   bool operator==(const Host &other) const { return (this == &other);}
   bool operator!=(const Host &other) const {return !(*this == other);}
 
-  /// Input: None
-	
-  /// Output: The double representing host's interaction value
-	
-  /// Purpose: To get the double representing host's interaction value
 /**
  * This is a documentation comment
  * across several lines
