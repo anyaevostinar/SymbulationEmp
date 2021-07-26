@@ -215,18 +215,17 @@ public:
     auto & node7 = GetFreeSymInfectChanceDataNode();
     auto & node8 = GetHostedSymInfectChanceDataNode();
     node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
-    node4.SetupBins(0.0,1.1,11);
     file.AddVar(update, "update", "Update");
-
-    //count
-    file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
-    file.AddTotal(node3, "free_syms", "Total number of free syms");
 
     //sym val
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
     file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
     file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
+
+    //count
+    file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
+    file.AddTotal(node3, "free_syms", "Total number of free syms");
 
     //infect chance
     file.AddMean(node4, "mean_infectchance", "Average symbiont infection chance");
@@ -254,18 +253,6 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    //infection chance histogram
-    file.AddHistBin(node4, 0, "ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node4, 1, "ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node4, 2, "ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node4, 3, "ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node4, 4, "ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node4, 5, "ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node4, 6, "ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node4, 7, "ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node4, 8, "ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node4, 9, "ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
     file.PrintHeaderKeys();
 
