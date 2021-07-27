@@ -59,7 +59,7 @@ public:
   double GetIntVal() const {
     return interaction_val;}
   double GetPoints() {return points;}
-  double GetInfectChance() {return infection_chance;}
+  double GetInfectionChance() {return infection_chance;}
   bool IsPhage() {return false;}
   bool IsHost() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
@@ -79,7 +79,10 @@ public:
   void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
-  void SetInfectionChance(double _in) {infection_chance = _in;}
+  void SetInfectionChance(double _in) {
+    if(_in > 1 || _in < 0) throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
+    else infection_chance = _in;
+  }
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
@@ -164,7 +167,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && my_config->MOVE_FREE_SYMS()) {
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
       my_world->MoveFreeSym(location);
     }
   }

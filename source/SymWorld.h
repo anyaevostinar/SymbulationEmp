@@ -18,6 +18,7 @@ private:
   int total_res = -1;
   bool limited_res = false;
   bool do_free_living_syms = false;
+  bool move_free_syms = false;
   double resources_per_host_per_update = 0;
   pop_t sym_pop; //free living sym pop
 
@@ -73,6 +74,7 @@ public:
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
   void SetLimitedRes(bool val) {limited_res = val;}
   void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
+  void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
   void SetTotalRes(int val) {
     if(val<0){
       SetLimitedRes(false);
@@ -207,31 +209,12 @@ public:
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetSymIntValDataNode();
-    auto & node5 = GetFreeSymIntValDataNode();
-    auto & node6 = GetHostedSymIntValDataNode();
     auto & node1 = GetSymCountDataNode();
-    auto & node2 = GetCountHostedSymsDataNode();
-    auto & node3 = GetCountFreeSymsDataNode();
-    auto & node4 = GetSymInfectChanceDataNode();
-    auto & node7 = GetFreeSymInfectChanceDataNode();
-    auto & node8 = GetHostedSymInfectChanceDataNode();
+
     node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
-
-    //interaction val
     file.AddMean(node, "mean_intval", "Average symbiont interaction value");
-    file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
-    file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
-
-    //count
     file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "hosted_syms", "Total number of syms in a host");
-    file.AddTotal(node3, "free_syms", "Total number of free syms");
-
-    //infection chance
-    file.AddMean(node4, "mean_infectchance", "Average symbiont infection chance");
-    file.AddMean(node7, "mean_freeinfectchance", "Average free symbiont infection chance");
-    file.AddMean(node8, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
     //interaction val histogram
     file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
@@ -319,6 +302,41 @@ public:
     file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    file.PrintHeaderKeys();
+
+    return file;
+  }
+
+  emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename){
+    auto & file = SetupFile(filename);
+    auto & node1 = GetSymCountDataNode(); //count
+    auto & node2 = GetCountFreeSymsDataNode();
+    auto & node3 = GetCountHostedSymsDataNode();
+    auto & node4 = GetSymIntValDataNode(); //interaction_val
+    auto & node5 = GetFreeSymIntValDataNode();
+    auto & node6 = GetHostedSymIntValDataNode();
+    auto & node7 = GetSymInfectChanceDataNode(); //infect chance
+    auto & node8 = GetFreeSymInfectChanceDataNode();
+    auto & node9 = GetHostedSymInfectChanceDataNode();
+
+    file.AddVar(update, "update", "Update");
+
+    //count
+    file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddTotal(node2, "free_syms", "Total number of free syms");
+    file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
+
+
+    //interaction val
+    file.AddMean(node4, "mean_intval", "Average symbiont interaction value");
+    file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
+    file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
+
+    //infection chance
+    file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
+    file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
+    file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
     file.PrintHeaderKeys();
 
@@ -556,11 +574,11 @@ public:
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
-              data_node_syminfectchance->AddDatum(syms[j]->GetInfectChance());
+              data_node_syminfectchance->AddDatum(syms[j]->GetInfectionChance());
             }//close for
           }
           if (sym_pop[i]) {
-            data_node_syminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
+            data_node_syminfectchance->AddDatum(sym_pop[i]->GetInfectionChance());
           } //close if
         }//close for
       });
@@ -575,7 +593,7 @@ public:
         data_node_freesyminfectchance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (sym_pop[i]) {
-            data_node_freesyminfectchance->AddDatum(sym_pop[i]->GetInfectChance());
+            data_node_freesyminfectchance->AddDatum(sym_pop[i]->GetInfectionChance());
           } //close if
         }//close for
       });
@@ -593,7 +611,7 @@ public:
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
-              data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectChance());
+              data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectionChance());
             }//close for
           }
         }//close for
@@ -633,14 +651,12 @@ public:
         sym_baby.Delete();
       }
     } else {
-      MoveToFreeWorldPosition(sym_baby, i);
+      MoveIntoNewFreeWorldPos(sym_baby, i);
     }
   }
 
-  void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
+  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
-    int newLocIndex = newLoc.GetIndex();
-
     if(newLoc.IsValid()){
       sym->SetHost(nullptr);
       AddOrgAt(sym, newLoc, i);
@@ -648,15 +664,28 @@ public:
   }
 
   void MoveFreeSym(size_t i){
+    //the sym can either move into a parallel sym or to some random position
+    if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
+      pop[i]->AddSymbiont(ExtractSym(i));
+    }
+    else if(move_free_syms) {
+      MoveIntoNewFreeWorldPos(ExtractSym(i), i);
+    }
+  }
+
+  emp::Ptr<Organism> ExtractSym(size_t i){
+    if(sym_pop[i]){
       emp::Ptr<Organism> sym = sym_pop[i];
       num_orgs--;
       sym_pop[i] = nullptr;
-      //the sym can either move into a parallel sym or to some random position
-      if(IsOccupied(i) && sym->WantsToInfect()) {
-        pop[i]->AddSymbiont(sym);
-      }
-      else MoveToFreeWorldPosition(sym, i);
+      return sym;
     }
+  }
+
+
+
+
+
 
   void Update() {
     emp::World<Organism>::Update();

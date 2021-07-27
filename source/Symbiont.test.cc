@@ -62,6 +62,31 @@ TEST_CASE("SetIntVal, GetIntVal") {
 
 }
 
+TEST_CASE("SetInfectionChance, GetInfectionChance") {
+
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+
+    double int_val = -1;
+    Symbiont * sym = new Symbiont(random, world, &config, int_val);
+
+    double infection_chance = -1;
+    REQUIRE_THROWS( sym->SetInfectionChance(infection_chance));
+
+    double orig_infection_chance = 0;
+    sym->SetInfectionChance(orig_infection_chance);
+    REQUIRE(sym->GetInfectionChance() == orig_infection_chance);
+
+    double new_infection_chance = 1;
+    sym->SetInfectionChance(new_infection_chance);
+    REQUIRE(sym->GetInfectionChance() == new_infection_chance);
+
+    infection_chance = 2;
+    REQUIRE_THROWS(sym->SetInfectionChance(infection_chance));
+}
+
 TEST_CASE("SetPoints, GetPoints") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -110,6 +135,47 @@ TEST_CASE("Symbiont SetDead, GetDead"){
     REQUIRE(s->GetDead() == expected_dead);
 }
 
+TEST_CASE("WantsToInfect"){
+    emp::Ptr<emp::Random> random = new emp::Random(17);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    double int_val = 0;
+
+    WHEN("sym infection chance is 0"){
+        config.SYM_INFECTION_CHANCE(0);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("syms never want to infect"){
+            REQUIRE(sym1->WantsToInfect() == false);
+            REQUIRE(sym2->WantsToInfect() == false);
+        }
+    }
+
+    WHEN("sym infection chance is between 0 and 1"){
+        config.SYM_INFECTION_CHANCE(0.6);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("syms sometimes want to infect, sometimes not"){
+            REQUIRE(sym1->WantsToInfect() == false);
+            REQUIRE(sym2->WantsToInfect() == true);
+        }
+    }
+
+    WHEN("sym infection chance is 1"){
+        config.SYM_INFECTION_CHANCE(1);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("syms always want to infect"){
+            REQUIRE(sym1->WantsToInfect() == true);
+            REQUIRE(sym2->WantsToInfect() == true);
+        }
+    }
+}
+
 TEST_CASE("mutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
@@ -120,13 +186,28 @@ TEST_CASE("mutate") {
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
-        Symbiont * s = new Symbiont(random, world, &config, int_val);
 
-        s->mutate();
+        WHEN("free living symbionts are allowed"){
+            config.FREE_LIVING_SYMS(1);
+            Symbiont * s = new Symbiont(random, world, &config, int_val);
+            s->mutate();
 
-        double int_val_post_mutation = 0.0010984306;
-        THEN("Mutation occurs and interaction value changes") {
-            REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
+            double int_val_post_mutation = 0.0010984306;
+            double infection_chance_post_mutation = 0.9991229745;
+            THEN("Mutation occurs and both interaction value and infection chance change"){
+                REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
+                REQUIRE(s->GetInfectionChance() == Approx(infection_chance_post_mutation));
+            }
+        }
+
+        WHEN("free living symbionts are not allowed"){
+            Symbiont * s = new Symbiont(random, world, &config, int_val);
+            s->mutate();
+
+            double int_val_post_mutation = 0.0010984306;
+            THEN("Mutation occurs and only interaction value changes") {
+                REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
+            }
         }
     }
 
@@ -147,7 +228,6 @@ TEST_CASE("mutate") {
         THEN("Mutation does not occur and interaction value does not change") {
             REQUIRE(s->GetIntVal() == orig_int_val);
         }
-
     }
 }
 

@@ -462,6 +462,7 @@ TEST_CASE( "Update" ){
             REQUIRE(new_points == orig_points);
           }
         }
+        
         WHEN("there are hosts"){
           THEN("phage and hosts mingle in the world"){
             w.AddOrgAt(host, 0);
@@ -475,8 +476,6 @@ TEST_CASE( "Update" ){
           }
         }
       }
-
-
 
       WHEN("lysis is not permitted, and symbionts are used"){
         config.LYSIS(0);
@@ -521,5 +520,101 @@ TEST_CASE( "Update" ){
         }
       }
     }
+  }
+}
+
+TEST_CASE("MoveFreeSym"){
+  GIVEN("free living syms are allowed"){
+    emp::Random random(14);
+    SymConfigBase config;
+    SymWorld w(random);
+    w.SetFreeLivingSyms(true);
+    int int_val = 0;
+    w.Resize(2,2);
+    size_t sym_index = 0;
+
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+    w.AddOrgAt(sym, sym_index);
+    WHEN("there is a parallel host and the sym wants to infect"){
+      sym->SetInfectionChance(1);
+      emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(host, sym_index);
+      REQUIRE(w.GetNumOrgs() == 2);
+      REQUIRE(host->HasSym() == false);
+
+      THEN("the sym moves into the host"){
+        w.MoveFreeSym(sym_index);
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host->HasSym());
+        REQUIRE(host->GetSymbionts()[0] == sym);
+      }
+    }
+    WHEN("the sym does not want to/can't infect a parallel host"){
+      WHEN("moving is turned on"){
+        w.SetMoveFreeSyms(1);
+        sym->SetInfectionChance(0);
+        THEN("the sym moves to a random spot in the free world"){
+          REQUIRE(w.GetSymPop()[sym_index] == sym);
+          w.MoveFreeSym(sym_index);
+
+          size_t new_sym_index = 2;
+          emp::Ptr<Organism> new_sym = w.GetSymPop()[new_sym_index];
+          REQUIRE(sym == new_sym);
+          REQUIRE(w.GetSymPop()[sym_index] == nullptr);
+        }
+      }
+      WHEN("moving is turned off"){
+        w.SetMoveFreeSyms(0);
+        THEN("the sym doesn't move"){
+          REQUIRE(w.GetSymPop()[sym_index] == sym);
+          w.MoveFreeSym(sym_index);
+          emp::Ptr<Organism> new_sym = w.GetSymPop()[sym_index];
+          REQUIRE(sym == new_sym);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("ExtractSym"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+    size_t sym_index = 1;
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+
+    w.AddOrgAt(sym, sym_index);
+    REQUIRE(w.GetSymPop()[sym_index] == sym);
+    REQUIRE(w.GetNumOrgs() == 1);
+
+    emp::Ptr<Organism> new_org = w.ExtractSym(sym_index);
+    REQUIRE(sym == new_org);
+    REQUIRE(w.GetNumOrgs() == 0);
+    REQUIRE(w.GetSymPop()[sym_index] == nullptr);
+  }
+}
+
+TEST_CASE("MoveIntoNewFreeWorldPos"){
+  GIVEN("free living syms are allowed"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+    sym->SetHost(new Host(&random, &w, &config, int_val));
+    size_t orig_pos = 0;
+    size_t new_pos = 2;
+    REQUIRE(w.GetSymPop()[new_pos] == nullptr);
+    REQUIRE(sym->GetHost() != nullptr);
+
+    w.MoveIntoNewFreeWorldPos(sym, orig_pos);
+    emp::Ptr<Organism> new_org = w.GetSymPop()[new_pos];
+    REQUIRE(sym == new_org);
+    REQUIRE(sym->GetHost() == nullptr);
   }
 }

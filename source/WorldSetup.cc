@@ -28,6 +28,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
   world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
+  world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
