@@ -151,23 +151,23 @@ class Organism {
 
   //Public goods game host functions 
   virtual void SetPool() {
-    std::cout << "Set resources pool from Organism" << std::endl;
+    std::cout << "SetPool called from Organism" << std::endl;
     throw "Organism method called!";}  
   virtual void AddPool() {
-    std::cout << "Add resources pool from Organism" << std::endl;
+    std::cout << "AddPool called from Organism" << std::endl;
     throw "Organism method called!";} 
   virtual void DistribPool() {
-    std::cout << "dis resources pool from Organism" << std::endl;
+    std::cout << "DistribPool called from Organism" << std::endl;
     throw "Organism method called!";} 
   //Public goods game sym functions
   virtual double GetDonation() {
-    std::cout << "Get resources donation from Organism" << std::endl;
+    std::cout << "GetDonation called from Organism" << std::endl;
     throw "Organism method called!";}  
   virtual void Setdonation() {
-    std::cout << "Set resources pool from Organism" << std::endl;
+    std::cout << "Setdonation called from Organism" << std::endl;
     throw "Organism method called!";}  
   virtual double ProcessPool() {
-    std::cout << "Dis called from Organism" << std::endl;
+    std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
 
 };

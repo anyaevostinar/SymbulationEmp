@@ -18,33 +18,6 @@ TEST_CASE("PggHost get pool") {
     REQUIRE(h2->GetPool() == expected_pool);
 
 }
-TEST_CASE("Pgghost SetIntVal, GetIntVal") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
-    SymWorld w(*random);
-    double int_val = 1;
-
-    Host * h1 = new PggHost(random, &w, &config);
-    double default_int_val = 0.0;
-    REQUIRE(h1->GetIntVal() == default_int_val);
-
-    Host * h2 = new PggHost(random, &w, &config, int_val);
-
-    double expected_int_val = 1;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
-
-    int_val = -0.7;
-    h2->SetIntVal(int_val);
-    expected_int_val = -0.7;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
-
-    int_val = -1.3;
-    REQUIRE_THROWS(new PggHost(random, &w, &config, int_val));
-
-    int_val = 1.8;
-    REQUIRE_THROWS(new PggHost(random, &w, &config, int_val));
-
-}
 
 
 TEST_CASE("Pgghost DistributeResources") {

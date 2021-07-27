@@ -20,11 +20,7 @@ public:
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points) { 
-    if ( _intval > 1 || _intval < -1) {
-       throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
-     };
-   }
+  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points) {}
 
 
 
