@@ -6,12 +6,54 @@
 
 class Phage: public Symbiont {
 protected:
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */    
   double burst_timer = 0;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   bool lysis_enabled = true;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   bool lysogeny = false;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   double burst_time = 60;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   double sym_lysis_res = 15;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   double chance_of_lysis = 1;
+
+  /**
+    * 
+    * Purpose: 
+    * 
+  */     
   bool mutate_chance_of_lysis = false;
 
 

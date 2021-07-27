@@ -6,6 +6,13 @@
 
 class EfficientSymbiont: public Symbiont {
 protected:
+
+  /**
+    * 
+    * Purpose: Represents the efficeny of a symbiont. This has a multiplicable imapact on a 
+    * symbiont's resource collection. 
+    * 
+  */  
   double efficiency;
 
 

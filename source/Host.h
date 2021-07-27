@@ -12,14 +12,75 @@
 
 class Host: public Organism {
 private:
+
+  /**
+    * 
+    * Purpose: Represents the interaction value between the host and symbiont. 
+    * A negative interaction value represent antagonism, while a positive
+    * one represents mutalism. Zero is a neutral value. 
+    * 
+  */  
   double interaction_val = 0;
+
+  /**
+    * 
+    * Purpose: Represents the set of symbionts belonging to a host. 
+    * This can be set with SetSymbionts(), and symbionts can be 
+    * added with AddSymbiont(). This can be cleared with ClearSyms()
+    * 
+  */    
   emp::vector<emp::Ptr<Organism>> syms = {};
+
+  /**
+    * 
+    * Purpose: Represents the set of repro symbionts belonging to a host. 
+    * Symbionts can be added with AddReproSymb(). This can be cleared with ClearSyms()
+    * 
+  */    
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
+
+  /**
+    * 
+    * Purpose: Represents the resource type avaliable to hosts. 
+    * This is currently not implemented fully. 
+    * 
+  */    
   std::set<int> res_types = {};
+
+  /**
+    * 
+    * Purpose: Represents the resource points possesed by a host. 
+    * This is what host's must collect to reproduce. 
+    * 
+  */    
   double points = 0;
+
+  /**
+    * 
+    * Purpose: Represents an instance of random.
+    * 
+  */    
   emp::Ptr<emp::Random> random = NULL;
+
+  /**
+    * 
+    * Purpose: Represents the world that the hosts are living in.
+    * 
+  */    
   emp::Ptr<SymWorld> my_world = NULL;
+
+  /**
+    * 
+    * Purpose: Represents the configuration settings for a practicular run.
+    * 
+  */    
   emp::Ptr<SymConfigBase> my_config = NULL;
+
+  /**
+    * 
+    * Purpose: Represents if a host is alive. This is set to false when a host is killed. 
+    * 
+  */    
   bool dead = false;
 
 public:

@@ -14,13 +14,39 @@
 
 class SymWorld : public emp::World<Organism>{
 private:
+  /**
+    * 
+    * Purpose: Represents the vertical transmission rate. This can be set with SetVertTrans()
+    * 
+  */  
   double vertTrans = 0;
+
+  /**
+    * 
+    * Purpose: Represents the total resources in the world. This can be set with SetTotalRes()
+    * 
+  */    
   int total_res = -1;
+
+  /**
+    * 
+    * Purpose: Represents if resources are limited or not. This can be set with SetLimitedRes()
+    * 
+  */    
   bool limited_res = false;
+
+  /**
+    * 
+    * Purpose: Represents if free living symbionts are allowed. This can be set with SetFreeLivingSyms()
+    * 
+  */    
   bool do_free_living_syms = false;
 
-
-
+  /**
+    * 
+    * Purpose: Represents how many resources each host gets per update. This can be set with SetResPerUpdate()
+    * 
+  */  
   double resources_per_host_per_update = 0;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
@@ -36,16 +62,27 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 
-
 public:
-  //set fun_print_org to equal function that prints hosts/syms correctly
+  /**
+   * Input: The world's random seed
+   * 
+   * Output: None
+   * 
+   * Purpose: To construct an instance of SymWorld
+   */
   SymWorld(emp::Random & _random) : emp::World<Organism>(_random) {
     fun_print_org = [](Organism & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
   }
-
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To destruct the data nodes belonging to SymWorld to conserve memory. 
+   */
   ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
@@ -59,10 +96,55 @@ public:
     if (data_node_free_syms) data_node_free_syms.Delete();
   }
 
+
+  /**
+   * Input: The double representing the vertical transmission rate
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the vertical transmission rate
+   */
   void SetVertTrans(double vt) {vertTrans = vt;}
+
+
+  /**
+   * Input: The double representing the number of resources each host gets in each update. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the resources that each host gets per update.
+   */  
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
+
+
+  /**
+   * Input: To boolean representing if resources are limited or not. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow for resources to be limited or unlimited. 
+   */   
   void SetLimitedRes(bool val) {limited_res = val;}
+
+
+  /**
+   * Input: The boolean representing if symbionts are allowed to be free living. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow for free-living symbionts
+   */  
   void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
+
+
+  /**
+   * Input: The int representing the total number of resources for the world. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the total number of resources in the world. If limited resources 
+   * is off, then the total resource value is of no consequence. 
+   */   
   void SetTotalRes(int val) {
     if(val<0){
       SetLimitedRes(false);
@@ -72,16 +154,41 @@ public:
     }
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output: The Empirical value pop_t that represents the world's population. 
+   * 
+   * Purpose: To get the world's population of organisms. 
+   */  
   emp::World<Organism>::pop_t getPop() {return pop;}
 
+
+  /**
+   * Input: None
+   * 
+   * Output: The boolean representing if vertical transmission will occur 
+   * 
+   * Purpose: To determine if vertical transmission will occur
+   */  
   bool WillTransmit() {
     bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
     return result;
-
   }
 
-  int PullResources() {
 
+  /**
+   * Input: None
+   * 
+   * Output: If there is unlimited resources, this will return resources_per_host_per_update. 
+   * Else, if the total resources is greater than the resources per host, the resources_per_host_per_update
+   * will be returned. If total_res is less than resources_per_host_per_update, but greater than 0, 
+   * then total_res will be returned. If none of these are true, then 0 will be returned. 
+   * 
+   * Purpose: To determine how many resources to distribute to each host.
+   */  
+  int PullResources() {
     if(!limited_res) {
       return resources_per_host_per_update;
     } else {
@@ -132,6 +239,14 @@ public:
     }
   }
 
+
+  /**
+   * Input: The pointer to a organism that will be injected into a host.
+   * 
+   * Output: None
+   * 
+   * Purpose: To add a symbiont to a host's symbionts. 
+   */  
   void InjectSymbiont(emp::Ptr<Organism> newSym){
     int newLoc = GetRandomOrgID();
     if(do_free_living_syms){ newLoc = GetRandomCellID(); }
@@ -239,7 +354,6 @@ public:
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
-
     file.PrintHeaderKeys();
 
     return file;
@@ -269,6 +383,14 @@ public:
     return file;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -282,6 +404,14 @@ public:
     return *data_node_hostcount;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<int>& GetSymCountDataNode() {
     if(!data_node_symcount) {
       data_node_symcount.New();
@@ -299,6 +429,14 @@ public:
     return *data_node_symcount;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<int>& GetCFUDataNode() {
     //keep track of host organisms that are uninfected or infected by only lysogenic phage
     if(!data_node_cfu) {
@@ -318,22 +456,44 @@ public:
     return *data_node_cfu;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double>& GetBurstSizeDataNode() {
     if (!data_node_burst_size) {
       data_node_burst_size.New();
     }
     return *data_node_burst_size;
-
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<int>& GetBurstCountDataNode() {
     if (!data_node_burst_count) {
       data_node_burst_count.New();
     }
     return *data_node_burst_count;
-
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
     if (!data_node_efficiency) {
       data_node_efficiency.New();
@@ -359,7 +519,13 @@ public:
   }
 
 
-
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
       data_node_hostintval.New();
@@ -373,6 +539,14 @@ public:
     return *data_node_hostintval;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double>& GetCountHostedSymsDataNode(){
     if (!data_node_hosted_syms) {
       data_node_hosted_syms.New();
@@ -386,6 +560,14 @@ public:
     return *data_node_hosted_syms;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
     emp::DataMonitor<double>& GetCountFreeSymsDataNode(){
     if (!data_node_free_syms) {
       data_node_free_syms.New();
@@ -399,6 +581,14 @@ public:
     return *data_node_free_syms;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
@@ -423,6 +613,14 @@ public:
     return *data_node_symintval;
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output:
+   * 
+   * Purpose: 
+   */  
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
     if (!data_node_lysischance) {
       data_node_lysischance.New();
@@ -442,6 +640,14 @@ public:
     return *data_node_lysischance;
   }
 
+
+  /**
+   * Input: 
+   * 
+   * Output: None
+   * 
+   * Purpose: 
+   */  
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
     if(!do_free_living_syms){
       int newLoc = GetNeighborHost(i);
@@ -455,6 +661,14 @@ public:
     }
   }
 
+
+  /**
+   * Input: 
+   * 
+   * Output: None
+   * 
+   * Purpose: 
+   */  
   void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     int newLocIndex = newLoc.GetIndex();
@@ -481,6 +695,13 @@ public:
   }
 
 
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: 
+   */  
   void Update() {
     emp::World<Organism>::Update();
 
@@ -506,5 +727,4 @@ public:
     } // for each cell in schedule
   } // Update()
 };// SymWorld class
-
 #endif
