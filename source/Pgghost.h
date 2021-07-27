@@ -34,41 +34,9 @@ public:
 
 
   void DistribResources(double resources) {
-    double hostIntVal = interaction_val; //using private variable because we can
-
-    //In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner.
-    if(syms.empty()) {
-
-      if(hostIntVal >= 0){
-	      double spent = resources * hostIntVal;
-        this->AddPoints(resources - spent);
-      }
-      else {
-        double hostDefense = -1.0 * hostIntVal * resources;
-        this->AddPoints(resources - hostDefense);
-      }
-      return; //This concludes resource distribution for a host without symbionts
-    }
-
-    //Otherwise, split resources into equal chunks for each symbiont
-    int num_sym = syms.size();
-    double hostDonation = 0;
-    double sym_piece = (double) resources / num_sym;
-   
+    Host::DistribResources(resources); 
 
     for(size_t i=0; i < syms.size(); i++){
-      if(hostIntVal < 0){
-        double hostDefense = hostIntVal * sym_piece * -1.0;
-        hostDonation = 0;
-        SetResInProcess(sym_piece - hostDefense);
-      }
-      else if(hostIntVal >= 0){
-        hostDonation = hostIntVal * sym_piece;
-        SetResInProcess(sym_piece - hostDonation);
-      }
-      double sym_return = syms[i]->ProcessResources(hostDonation);
-      this->AddPoints(sym_return + GetResInProcess());
-      SetResInProcess(0);
       double hostPool = syms[i]->ProcessPool();
       this->AddPool(hostPool);
     }
