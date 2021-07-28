@@ -296,6 +296,7 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction"){
     SymConfigBase config;
     config.SYM_LIMIT(3);
     config.SYNERGY(5);
+    config.PGG_SYNERGY(1.1);
 
     double host_int_val = 1;
     double sym_int_val = 0;
@@ -315,8 +316,8 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction"){
 
     double host_portion = 0;  //remaining amount
     double host_pool = 0; // no remaining pool
-    double s1_final_source = 63;
-    double s2_final_source = 57;
+    double s1_final_source = 63+6.3;
+    double s2_final_source = 57+5.7;
 
  
     REQUIRE(s1->GetPoints() == s1_final_source); 

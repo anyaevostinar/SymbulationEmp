@@ -48,6 +48,7 @@ public:
   void DistribPool(){
     //to do: marginal return
     int num_sym = syms.size();
+    double bonus = my_config->PGG_SYNERGY();
     double sym_piece = (double) sourcepool / num_sym;
     for(size_t i=0; i < syms.size(); i++){
         syms[i]->AddPoints(sym_piece);
