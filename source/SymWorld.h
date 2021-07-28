@@ -207,6 +207,13 @@ public:
 
   //Overriding World's DoBirth to take a pointer instead of a reference
   //Because it takes a pointer, it doesn't support birthing multiple copies
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */  
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos;                                        // Position of each offspring placed.
@@ -230,6 +237,14 @@ public:
     return pos;
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   int GetNeighborHost (size_t i) {
     const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
     if (validNeighbors.empty()) return -1;
@@ -261,6 +276,14 @@ public:
     }
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   emp::DataFile & SetupLysisFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetBurstSizeDataNode();
@@ -273,6 +296,14 @@ public:
     return file;
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetEfficiencyDataNode();
@@ -283,6 +314,14 @@ public:
     return file;
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetSymIntValDataNode();
@@ -321,6 +360,14 @@ public:
     return file;
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
   emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node = GetHostIntValDataNode();
@@ -359,6 +406,14 @@ public:
     return file;
   }
 
+
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
     emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();

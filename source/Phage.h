@@ -9,21 +9,21 @@ protected:
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents tbe time until lysis will be triggered.
     * 
   */    
   double burst_timer = 0;
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents if lysis is permitted. 
     * 
   */     
   bool lysis_enabled = true;
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents is lysogeny is on. 
     * 
   */     
   bool lysogeny = false;
@@ -51,7 +51,7 @@ protected:
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents if lysis mutation is permitted
     * 
   */     
   bool mutate_chance_of_lysis = false;
