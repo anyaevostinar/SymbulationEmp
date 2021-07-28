@@ -316,8 +316,8 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction"){
 
     double host_portion = 0;  //remaining amount
     double host_pool = 0; // no remaining pool
-    double s1_final_source = 63+6.3;
-    double s2_final_source = 57+5.7;
+    double s1_final_source = 63*1.1;
+    double s2_final_source = 57*1.1;
 
  
     REQUIRE(s1->GetPoints() == s1_final_source); 
