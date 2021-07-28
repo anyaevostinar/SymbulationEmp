@@ -133,7 +133,7 @@ public:
         }
       }
     }
-    else if (my_config->MOVE_FREE_SYMS()) { //if phage is free living and should move
+    else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
   }

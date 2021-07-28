@@ -120,11 +120,23 @@ public:
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
 
+  //A single-argument method to be used for AddOrgAt vector expansions
+  //ignores width and height
+  void Resize(size_t new_size){
+    pop.resize(new_size);
+    sym_pop.resize(new_size);
+    pop_sizes.resize(2);
+  }
 
   //Overwriting the empirical AddOrgAt function to permit syms to be added into sym_pop
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
+
+    //if the pos it out of bounds, expand the worlds so that they can fit it.
+    if(pos.GetIndex() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
+      Resize(pos.GetIndex() + 1);
+    }
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos,p_pos);
@@ -175,12 +187,10 @@ public:
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) pop[new_loc]->AddSymbiont(new_sym);
-      else throw "Faulty! Tried to add non-free-living sym to an unoccupied position in InjectSymbiont!";
     } else {
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
       if(new_loc < sym_pop.size()) AddOrgAt(new_sym, new_loc);
-      else throw "New position outside bounds of sym_pop in InjectSymbiont!";
     }
   }
 

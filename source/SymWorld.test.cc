@@ -462,7 +462,7 @@ TEST_CASE( "Update" ){
             REQUIRE(new_points == orig_points);
           }
         }
-        
+
         WHEN("there are hosts"){
           THEN("phage and hosts mingle in the world"){
             w.AddOrgAt(host, 0);
@@ -616,5 +616,73 @@ TEST_CASE("MoveIntoNewFreeWorldPos"){
     emp::Ptr<Organism> new_org = w.GetSymPop()[new_pos];
     REQUIRE(sym == new_org);
     REQUIRE(sym->GetHost() == nullptr);
+  }
+}
+
+TEST_CASE("Resize"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymWorld w(random);
+
+    size_t pop_size = w.GetPop().size();
+    size_t sym_pop_size = w.GetSymPop().size();
+    REQUIRE(pop_size == sym_pop_size);
+    REQUIRE(pop_size == 0);
+
+    w.Resize(3,3);
+    pop_size = w.GetPop().size();
+    sym_pop_size = w.GetSymPop().size();
+    REQUIRE(pop_size == sym_pop_size);
+    REQUIRE(pop_size == 9);
+
+    w.Resize(11);
+    pop_size = w.GetPop().size();
+    sym_pop_size = w.GetSymPop().size();
+    REQUIRE(pop_size == sym_pop_size);
+    REQUIRE(pop_size == 11);
+  }
+}
+
+TEST_CASE("AddOrgAt"){
+  //adding hosts to the world should be covered by Empirical tests,
+  //so here we'll test adding a sym
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+
+    WHEN("a sym is added into an empty spot"){
+      THEN("it occupies that spot"){
+        REQUIRE(w.GetNumOrgs() == 0);
+        REQUIRE(w.GetSymPop()[0] == nullptr);
+        w.AddOrgAt(sym, 0);
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetSymPop()[0] == sym);
+      }
+    }
+    WHEN("a sym is added into an occupied spot"){
+      THEN("it replaces the occupying sym"){
+        emp::Ptr<Organism> old_sym = new Symbiont(&random, &w, &config, int_val);
+        w.AddOrgAt(old_sym, 0);
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetSymPop()[0] == old_sym);
+
+        w.AddOrgAt(sym, 0);
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetSymPop()[0] == sym);
+      }
+    }
+    WHEN("a sym is added to an out of bounds pos"){
+      THEN("pop and sym_pop are expanded to fit it"){
+        emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+        REQUIRE(w.GetSymPop().size() == 4);
+        w.AddOrgAt(sym, 7);
+        REQUIRE(w.GetSymPop().size() == w.GetPop().size());
+        REQUIRE(w.GetSymPop().size() == 8);
+      }
+    }
   }
 }
