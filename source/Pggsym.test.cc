@@ -68,6 +68,7 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     SymConfigBase config;
     SymWorld w(*random);
     config.SYNERGY(5);
+    config.PGG_SYNERGY(1.1);
     double host_int_val = 1;
     double sym_int_val = 0;
     double donation = 0.1;
@@ -81,7 +82,7 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     h->DistribResources(40);
     
-    CHECK(s->GetPoints() == 40);
+    CHECK(s->GetPoints() == 40.4);
     CHECK(h->GetPoints() == 0);
 }
 
