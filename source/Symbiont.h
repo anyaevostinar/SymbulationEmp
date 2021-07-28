@@ -11,19 +11,105 @@
 
 class Symbiont: public Organism {
 protected:
+  /**
+    * 
+    * Purpose: Represents the interaction value between the host and symbiont. 
+    * A negative interaction value represent antagonism, while a positive
+    * one represents mutalism. Zero is a neutral value. 
+    * 
+  */  
   double interaction_val = 0;
+
+  /**
+    * 
+    * Purpose: Represents the resource points possesed by a symbiont.
+    * This is what host's must collect to reproduce. 
+    * 
+  */     
   double points = 0;
+
+  /**
+    * 
+    * Purpose: Represents tbe points threshold for horizontal 
+    * transmission to occur. 
+    * 
+  */      
   double sym_h_res = 100;
+
+  /**
+    * 
+    * Purpose: Represents if horizontal transmission is allowed
+    * to occur. 
+    * 
+  */      
   bool h_trans = true;
+
+  /**
+    * 
+    * Purpose: Represents tbe standard deviation of the values
+    * chosen as mutations of a symbiont's interaction value. 
+    * 
+  */      
   double mut_size = 0.002;
+
+  /**
+    * 
+    * Purpose: Represents tbe standard deviation of the values
+    * chosen as mutations of a symbiont's interaction value when
+    * horizontal transmission is occuring. . 
+    * 
+  */    
   double ht_mut_size = 0.002;
+
+  /**
+    * 
+    * Purpose: Represents tbe probability (0-1) of mutation occuring. 
+    * 
+  */      
   double mut_rate = 0;
+
+  /**
+    * 
+    * Purpose: Represents tbe probability (0-1) of mutation occuring
+    * during horizontal transmission. 
+    * 
+  */       
   double ht_mut_rate = 0;
+
+  /**
+    * 
+    * Purpose: Represents if a symbiont is alive. 
+    * This is set to false when a symbiont is killed. 
+    * 
+  */      
   bool dead = false;
 
+  /**
+    * 
+    * Purpose: Represents an instance of random.
+    * 
+  */     
   emp::Ptr<emp::Random> random = NULL;
+
+  /**
+    * 
+    * Purpose: Represents the world that the hosts are living in.
+    * 
+  */     
   emp::Ptr<SymWorld> my_world = NULL;
+
+  /**
+    * 
+    * Purpose: Represents tbe symbiont's host. 
+    * 
+  */      
   emp::Ptr<Organism> my_host = NULL;
+
+  /**
+    * 
+    * Purpose: Represents the configuration settings for a practicular run.
+    * 
+  */     
   emp::Ptr<SymConfigBase> my_config = NULL;
 
 public:
