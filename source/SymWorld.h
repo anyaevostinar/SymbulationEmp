@@ -208,15 +208,20 @@ public:
   //Overriding World's DoBirth to take a pointer instead of a reference
   //Because it takes a pointer, it doesn't support birthing multiple copies
   /**
-   * Input:
+   * Input: (1) The pointer to the organism that is being birthed;
+   * (2) The size_t location of the parent organism. 
    * 
-   * Output:
+   * Output: The WorldPosition of the position of the new organism. 
    * 
-   * Purpose:
+   * Purpose: To introduce new organims to the world. If the new organism is a host, 
+   * and the position generated for its location is occuried by a symbiont, then the 
+   * symbiont will be added to the host's symbionts. If the new organism is a host, 
+   * and the position generated for its location is unoccupied or occupied by a host, 
+   * then the new organism will be added regularly. 
    */  
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);
-    emp::WorldPosition pos;                                        // Position of each offspring placed.
+    emp::WorldPosition pos; // Position of each offspring placed.
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
@@ -239,11 +244,14 @@ public:
 
 
   /**
-   * Input:
+   * Input: The size_t value representing the location whose neighbors 
+   * are being searched. 
    * 
-   * Output:
+   * Output: If there is no occupied neighboring positions, -1 will be returned. 
+   * If there are occupied neighboring positions, then the location of one 
+   * occupied position will be returned. 
    * 
-   * Purpose:
+   * Purpose: To determine the location of a valid occupied neighboring position.
    */
   int GetNeighborHost (size_t i) {
     const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
@@ -278,11 +286,13 @@ public:
 
 
   /**
-   * Input:
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output:
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose:
+   * Purpose: To set up the file that will be used to track mean_burstsize,
+   * and burst_count. 
    */
   emp::DataFile & SetupLysisFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -298,11 +308,12 @@ public:
 
 
   /**
-   * Input:
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output:
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose:
+   * Purpose: To set up the file that will be used to track mean efficiency
    */
   emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -316,11 +327,15 @@ public:
 
 
   /**
-   * Input:
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output:
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose:
+   * Purpose: To set up the file that will be used to track the average symbiont
+   * interaction value, the total number of symbionts, the total number of symbionts 
+   * in a host, the total number of free syms and set up a histogram of the
+   * symbiont's interaction values. 
    */
   emp::DataFile & SetupSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -362,11 +377,15 @@ public:
 
 
   /**
-   * Input:
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output:
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose:
+   * Purpose: To set up the file that will be used to track host's
+   * interaction values, the total number of hosts, the total 
+   * number of colony forming units, and the histogram of the
+   * host's interaction values
    */
   emp::DataFile & SetupHostIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -408,11 +427,14 @@ public:
 
 
   /**
-   * Input:
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output:
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose:
+   * Purpose: To set up the file that will be used to track mean 
+   * lysis chance, the number of symbionts, and the histogram of
+   * the mean lysis chance.
    */
     emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
     auto & file = SetupFile(filename);
@@ -442,9 +464,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<int>& that has the information representing
+   * the host count. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the host count to be save to the 
+   * data file that is tracking host count
    */  
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
@@ -463,10 +487,12 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<int>& that has the information representing
+   * the symbiont count. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To collect data on the symbiont count to be save to the 
+   * data file that is tracking symbiont count
+   */   
   emp::DataMonitor<int>& GetSymCountDataNode() {
     if(!data_node_symcount) {
       data_node_symcount.New();
@@ -488,10 +514,12 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of colony forming units. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To collect data on the CFU count to be saved to the 
+   * data file that is tracking CFU
+   */    
   emp::DataMonitor<int>& GetCFUDataNode() {
     //keep track of host organisms that are uninfected or infected by only lysogenic phage
     if(!data_node_cfu) {
@@ -515,9 +543,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double>& that has the information representing
+   * the lysis burst size. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the lysis burst size to be saved to the 
+   * data file that is tracking lysis burst size. 
    */  
   emp::DataMonitor<double>& GetBurstSizeDataNode() {
     if (!data_node_burst_size) {
@@ -530,9 +560,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<int>& that has the information representing
+   * the lysis burst count. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the lysis burst count to be saved to the 
+   * data file that is tracking lysis burst count. 
    */  
   emp::DataMonitor<int>& GetBurstCountDataNode() {
     if (!data_node_burst_count) {
@@ -545,9 +577,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double>& that has the information representing
+   * the symbiont's efficiency. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the lysis burst size to be saved to the 
+   * data file that is tracking lysis burst size. 
    */  
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
     if (!data_node_efficiency) {
@@ -577,9 +611,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the host interaction value. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the host interaction value to be saved to the 
+   * data file that is tracking host interaction value. 
    */  
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
     if (!data_node_hostintval) {
@@ -598,9 +634,11 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double>& that has the information representing
+   * the count of the hosted symbionts. 
    * 
-   * Purpose: 
+   * Purpose: To collect data on the count of the hosted symbionts to be saved to the 
+   * data file that is tracking the count of the hosted symbionts. 
    */  
   emp::DataMonitor<double>& GetCountHostedSymsDataNode(){
     if (!data_node_hosted_syms) {
@@ -619,10 +657,12 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double>& that has the information representing
+   * the count of the free symbionts. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To collect data on the count of the free symbionts to be saved to the 
+   * data file that is tracking the count of the free symbionts. 
+   */   
     emp::DataMonitor<double>& GetCountFreeSymsDataNode(){
     if (!data_node_free_syms) {
       data_node_free_syms.New();
@@ -640,10 +680,12 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the symbiont interaction value. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To collect data on the symbiont interaction value to be saved to the 
+   * data file that is tracking symbionts interaction value. 
+   */
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
     if (!data_node_symintval) {
       data_node_symintval.New();
@@ -672,10 +714,12 @@ public:
   /**
    * Input: None
    * 
-   * Output:
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the chance of lysis for each symbionts. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To collect data on the chance of lysis for each symbiont to be saved to the 
+   * data file that is tracking chance of lysis for each symbionts. 
+   */
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
     if (!data_node_lysischance) {
       data_node_lysischance.New();
@@ -697,11 +741,15 @@ public:
 
 
   /**
-   * Input: 
+   * Input: The pointer to the organism that is being birthed, and the size_t location 
+   * of the parent symbiont. 
    * 
    * Output: None
    * 
-   * Purpose: 
+   * Purpose: To birth a new symbiont. If free living symbionts is on, the new symbiont 
+   * can be put into an unoccupied place in the world. If not, then it will be placed 
+   * in a host near its parent's location, or deleted if the parent's location has
+   * no eligable near-by hosts. 
    */  
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
     if(!do_free_living_syms){
@@ -718,11 +766,16 @@ public:
 
 
   /**
-   * Input: 
+   * Input: The pointer to the symbiont that is moving, the size_t to its
+   * location. 
    * 
    * Output: None
    * 
-   * Purpose: 
+   * Purpose: To allow for symbionts to move to new world positions. The
+   * symbiont can either move to a position that is occupied by a host
+   * and join its symbionts, or it can move to a place with an existing
+   * symbiont and replace the pre-existing symbiont. If the symbiont
+   * moves to a unoccupied location, then it occupy that location. 
    */  
   void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
@@ -740,6 +793,16 @@ public:
     else sym.Delete();
   }
 
+
+  /**
+   * Input: The size_t location of the symbiont to be moved. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To move a symbiont to a new world location. The 
+   * symbiont may be moved into a host, or into a free world 
+   * location. 
+   */  
   void MoveFreeSym(size_t i){
     emp::Ptr<Organism> sym = pop[i];
     if(!sym->IsHost() && sym->GetDead() == false){
@@ -755,7 +818,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose: 
+   * Purpose: To call the process functions for hosts and symbionts. 
    */  
   void Update() {
     emp::World<Organism>::Update();
@@ -766,7 +829,6 @@ public:
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false){ continue;} // no organism at that cell
-
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and places offspring as necessary?
       if(pop[i]->IsHost()){//can't call GetDead on a deleted sym, so
@@ -778,7 +840,6 @@ public:
       else{
         pop[i]->Process(i);
       }
-
     } // for each cell in schedule
   } // Update()
 };// SymWorld class

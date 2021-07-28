@@ -30,21 +30,21 @@ protected:
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents how long a lysis burst takes to occur. 
     * 
   */     
   double burst_time = 60;
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents resources required for symbiont to create offspring 
     * 
   */     
   double sym_lysis_res = 15;
 
   /**
     * 
-    * Purpose: 
+    * Purpose: Represents the chance of lysis
     * 
   */     
   double chance_of_lysis = 1;
