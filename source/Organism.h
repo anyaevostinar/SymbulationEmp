@@ -139,7 +139,5 @@ class Organism {
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
-
 };
-
 #endif
