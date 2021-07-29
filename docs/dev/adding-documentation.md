@@ -1,4 +1,4 @@
-# Symbulation Documentation Documentation
+# Documentation for Symbulation Documentation
 
 This is a quick primer on how to document things within Symbulation.
 
