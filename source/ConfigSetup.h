@@ -28,7 +28,11 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
     VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
-    
+    VALUE(FILE_PATH, std::string, "", "Output file path"),
+    VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),
+    VALUE(OUTPUT_ECOLOGY_DATA, bool, 0, "Should ecology data (within host mean and variance) be output")
+
+
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),
     VALUE(MUTATE_LYSIS_CHANCE, int, 0, "Should the chance of lysis mutate? 0 for no, 1 for yes"),
@@ -42,9 +46,11 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
     VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living phage move around in the world? 0 for no, 1 for yes"),
+
+    GROUP(PGG,"Public Goods Game Settings"),
+    VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to Pgg pool that experiment should start with"),
+    VALUE(PGG, int, 0, "whether have social goods game among syms" ),
+    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG")
     
-    VALUE(FILE_PATH, std::string, "", "Output file path"),
-    VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),
-    VALUE(OUTPUT_ECOLOGY_DATA, bool, 0, "Should ecology data (within host mean and variance) be output")
 )
 #endif
