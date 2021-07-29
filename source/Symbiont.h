@@ -20,6 +20,7 @@ protected:
   double mut_rate = 0;
   double ht_mut_rate = 0;
   bool dead = false;
+  double infection_chance = 0.0;
 
   emp::Ptr<emp::Random> random = NULL;
   emp::Ptr<SymWorld> my_world = NULL;
@@ -31,6 +32,7 @@ public:
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
+    infection_chance = my_config->SYM_INFECTION_CHANCE();
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = mut_rate;
     } else {
@@ -57,6 +59,7 @@ public:
   double GetIntVal() const {
     return interaction_val;}
   double GetPoints() {return points;}
+  double GetInfectionChance() {return infection_chance;}
   bool IsPhage() {return false;}
   bool IsHost() {return false;}
   emp::Ptr<Organism> GetHost() {return my_host;}
@@ -76,13 +79,16 @@ public:
   void SetPoints(double _in) {points = _in;}
   void AddPoints(double _in) { points += _in;}
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
-
+  void SetInfectionChance(double _in) {
+    if(_in > 1 || _in < 0) throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
+    else infection_chance = _in;
+  }
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
   void uponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
-  } 
+  }
 
   //TODO: change everything to camel case
   void mutate(){
@@ -91,6 +97,13 @@ public:
       interaction_val += random->GetRandNormal(0.0, mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      //also modify infection chance, which is between 0 and 1
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
     //if((pre_value*interaction_val) < 0) {
     //  std::cout << "switched2!" << std::endl;
@@ -103,6 +116,12 @@ public:
       interaction_val += random->GetRandNormal(0.0, ht_mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, ht_mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
   }
 
@@ -125,11 +144,17 @@ public:
     return host_portion * synergy;
     }
 
+  bool WantsToInfect(){
+    bool result = random->GetDouble(0.0, 1.0) < infection_chance;
+    return result;
+  }
+
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources();
       AddPoints(resources);
     }
+
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -142,7 +167,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && my_config->MOVE_FREE_SYMS()) {
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
       my_world->MoveFreeSym(location);
     }
   }
