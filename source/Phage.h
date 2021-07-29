@@ -111,7 +111,6 @@ public:
    */
   double GetBurstTimer() {return burst_timer;}
 
-
   /**
    * Input: None
    * 
@@ -123,7 +122,7 @@ public:
 
 
   /**
-   * Input: The int to be set as the phage's burst timer 
+   * Input: The double to be set as the phage's burst timer 
    * 
    * Output: None
    * 
@@ -227,7 +226,7 @@ public:
    * from their parent organism.
    */
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
@@ -261,11 +260,12 @@ public:
    * 
    * Purpose: To mutate a phage's chance of lysis. 
    */
-  double ProcessResources(double sym_piece){
+  double ProcessResources(double hostDonation){
     if(lysogeny){
-      return sym_piece; //lysogenic phage don't steal any resources from their host
-    } else {
-      return Symbiont::ProcessResources(sym_piece); //lytic phage do steal resources
+      return 0;
+    }
+    else{
+      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
     }
   }
 
@@ -278,19 +278,24 @@ public:
    * Purpose: To process a phage, meaning check for reproduciton, check for lysis, and move the phage. 
    */
   void Process(size_t location) {
-    if(lysis_enabled && GetHost() != NULL) { //lysis enabled, checking for lysis
+    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-          //Record the burst size
-          // update this for my_world: data_node_burst_size -> AddDatum(repro_syms.size());
+
+          //Record the burst size and count
+          emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+          data_node_burst_size.AddDatum(repro_syms.size());
+          emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+          data_node_burst_count.AddDatum(1);
+
           for(size_t r=0; r<repro_syms.size(); r++) {
             my_world->SymDoBirth(repro_syms[r], location);
           }
           my_host->ClearReproSyms();
           my_host->SetDead();
           return;
-          
+
         } else { //not time to lyse
           IncBurstTimer();
           if(sym_lysis_res == 0) {
@@ -311,7 +316,8 @@ public:
           SetDead();
         }
       }
-    }else{
+    }
+    else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
   }

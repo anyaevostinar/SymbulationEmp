@@ -11,7 +11,9 @@
 
 
 class Host: public Organism {
-private:
+
+
+protected:
 
   /**
     * 
@@ -57,9 +59,16 @@ private:
 
   /**
     * 
+    * Purpose:
+    * 
+  */   
+  double res_in_process = 0;
+  /**
+    * 
     * Purpose: Represents an instance of random.
     * 
   */    
+
   emp::Ptr<emp::Random> random = NULL;
 
   /**
@@ -234,6 +243,16 @@ public:
    */
   double GetPoints() { return points;}
 
+
+  /**
+   * Input:
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */
+  double GetResInProcess() { return res_in_process;}
+
   /**
    * Input: None
    * 
@@ -327,6 +346,15 @@ public:
 
 
   /**
+   * Input:
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */
+  void SetResInProcess(double _in) { res_in_process = _in;}
+
+  /**
    * Input: None
    * 
    * Output: None
@@ -334,6 +362,25 @@ public:
    * Purpose: To determine if a host is dead. 
    */
   bool GetDead() {return dead;}
+
+  double StealResources(double _intval){
+    double hostIntVal = GetIntVal();
+    double res_in_process = GetResInProcess();
+    //calculate how many resources another organism can steal from this host
+    if (hostIntVal>0){ //cooperative hosts shouldn't be over punished by StealResources
+      hostIntVal = 0;
+    }
+    if (_intval < hostIntVal){ 
+      //organism trying to steal can overcome host's defense
+      double stolen = (hostIntVal - _intval) * res_in_process;
+      double remainingResources = res_in_process - stolen;
+      SetResInProcess(remainingResources);
+      return stolen;
+    } else { 
+      //defense cannot be overcome, no resources are stolen
+      return 0;
+    }
+  }
 
 
   /**
@@ -437,7 +484,9 @@ public:
    */
   void DistribResources(double resources) {
     double hostIntVal = interaction_val; //using private variable because we can
-
+    
+    //In the event that the host has no symbionts, the host gets all resources not allocated to defense or
+    // given to absent partner.
     if(syms.empty()) {
       if(hostIntVal >= 0){
 	      double spent = resources * hostIntVal;
@@ -450,11 +499,23 @@ public:
       return; //This concludes resource distribution for a host without symbionts
     }
     int num_sym = syms.size();
+    double hostDonation = 0;
     double sym_piece = (double) resources / num_sym;
 
     for(size_t i=0; i < syms.size(); i++){
-      double hostPortion = syms[i]->ProcessResources(sym_piece);
-      this->AddPoints(hostPortion);
+      if(hostIntVal < 0){
+        double hostDefense = hostIntVal * sym_piece * -1.0;
+        hostDonation = 0;
+        SetResInProcess(sym_piece - hostDefense);
+      }
+      else if(hostIntVal >= 0){
+        hostDonation = hostIntVal * sym_piece;
+        SetResInProcess(sym_piece - hostDonation);
+      }
+
+      double sym_return = syms[i]->ProcessResources(hostDonation);
+      this->AddPoints(sym_return + GetResInProcess());
+      SetResInProcess(0);
     }
   } //end DistribResources
 

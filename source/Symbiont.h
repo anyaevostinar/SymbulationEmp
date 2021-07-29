@@ -83,6 +83,7 @@ protected:
     * 
   */      
   bool dead = false;
+  double infection_chance = 0.0;
 
   /**
     * 
@@ -120,6 +121,7 @@ public:
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
+    infection_chance = my_config->SYM_INFECTION_CHANCE();
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = mut_rate;
     } else {
@@ -228,6 +230,16 @@ public:
   bool IsHost() {return false;}
 
 
+ /**
+   * Input: 
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */ 
+  double GetInfectionChance() {return infection_chance;}
+
+
   /**
    * Input: None
    * 
@@ -306,7 +318,10 @@ public:
    * Purpose: To set a symbiont's host
    */
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
-
+  void SetInfectionChance(double _in) {
+    if(_in > 1 || _in < 0) throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
+    else infection_chance = _in;
+  }
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
@@ -320,7 +335,7 @@ public:
    */
   void uponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
-  } 
+  }
 
 
   /**
@@ -339,6 +354,13 @@ public:
       interaction_val += random->GetRandNormal(0.0, mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      //also modify infection chance, which is between 0 and 1
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
     //if((pre_value*interaction_val) < 0) {
     //  std::cout << "switched2!" << std::endl;
@@ -360,75 +382,53 @@ public:
       interaction_val += random->GetRandNormal(0.0, ht_mut_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+
+      if(my_config->FREE_LIVING_SYMS()){
+        infection_chance += random->GetRandNormal(0.0, ht_mut_size);
+        if (infection_chance < 0) infection_chance = 0;
+        else if (infection_chance > 1) infection_chance = 1;
+      }
     }
   }
 
 
-  /**
+/**
    * Input: The double representing the resources to be distributed to the symbionts
    * 
    * Output: The double representing the host's resources
    * 
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double sym_piece){
-    //TODO - not what it should be right now, it is supposed to be only calculating
-    //symPortion, but it's also doing hostPortion. Need to figure out how to 
-    //calculate and separate out so I'm not just copying and pasting code
-    double symIntVal = GetIntVal();
-    double hostIntVal = my_host->GetIntVal();
-    double hostPortion = 0.0;
-    double hostDonation = 0.0;
-    double symPortion = 0.0;
-    double symReturn = 0.0;
-    double bonus = my_config->SYNERGY();
+  double ProcessResources(double hostDonation){
+    double sym_int_val = GetIntVal();
+    double sym_portion = 0;
+    double host_portion = 0;
+    double synergy = my_config->SYNERGY();
 
-    if (hostIntVal >= 0 && symIntVal >= 0){ //mutualistic relationship
-      hostDonation = sym_piece * hostIntVal;
-      hostPortion = sym_piece - hostDonation;
-
-      symReturn = (hostDonation * symIntVal) * bonus;
-      symPortion = hostDonation - (hostDonation * symIntVal);
-
-      hostPortion += symReturn; //hostPortion is positive
+    if (sym_int_val<0){
+      double stolen = my_host->StealResources(sym_int_val);
+      host_portion = 0;
+      sym_portion = stolen + hostDonation;
     }
-    else if (hostIntVal <= 0 && symIntVal < 0){ //antagonistic from both sides
-      double hostDefense = -1.0 * (hostIntVal * sym_piece);
-      double remainingResources = 0.0;
-      remainingResources = sym_piece - hostDefense;
-
-      // if both are hostile, then the symbiont must be more hostile than in order to gain any resources
-      if (symIntVal < hostIntVal) { //symbiont overcomes host's defenses
-        double symSteals = (hostIntVal - symIntVal) * remainingResources;
-
-        symPortion = symSteals;
-        hostPortion = remainingResources - symSteals;
-
-      } else { // symbiont cannot overcome host's defenses
-        symPortion = 0.0;
-        hostPortion = remainingResources;
-      }
+    else if (sym_int_val >= 0){
+      host_portion = hostDonation * sym_int_val;
+      sym_portion = hostDonation - host_portion;
     }
-    else if (hostIntVal > 0 && symIntVal < 0){
-      hostDonation = hostIntVal * sym_piece;
-      hostPortion = sym_piece - hostDonation;
+    AddPoints(sym_portion);
+    return host_portion * synergy;
+  }
 
-      double symSteals = -1.0 * (hostPortion * symIntVal);
-      hostPortion = hostPortion - symSteals;
-      symPortion = hostDonation + symSteals;
-    }
-    else if (hostIntVal < 0 && symIntVal >= 0){
-      double hostDefense = -1.0 * (hostIntVal * sym_piece);
-      hostPortion = sym_piece - hostDefense;
 
-      // symbiont gets nothing from antagonistic host
-      symPortion = 0.0;
-    }
-    else {
-      std::cout << "This should never happen." << std::endl;
-    }
-    this->AddPoints(symPortion);
-    return hostPortion;
+  /**
+   * Input:
+   * 
+   * Output:
+   * 
+   * Purpose:
+   */
+  bool WantsToInfect(){
+    bool result = random->GetDouble(0.0, 1.0) < infection_chance;
+    return result;
   }
 
 
@@ -441,10 +441,11 @@ public:
    * and to allow for movement 
    */
   void Process(size_t location) {
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources();
       AddPoints(resources);
     }
+
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -457,7 +458,9 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host == NULL && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
+      my_world->MoveFreeSym(location);
+    }
   }
 
 

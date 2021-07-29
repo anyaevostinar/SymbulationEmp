@@ -67,10 +67,20 @@ class Organism {
     throw "Organism method called!";}
   virtual bool IsPhage(){
     std::cout << "IsPhage called from an Organism" << std::endl;
-    throw "Organism method called!";}   
+    throw "Organism method called!";}
   virtual emp::Ptr<Organism> GetHost() {
     std::cout << "GetHost called from an Organism" << std::endl;
     throw "Organism method called!";}
+  virtual bool WantsToInfect() {
+    std::cout << "WantsToInfect called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double GetInfectionChance() {
+    std::cout << "GetInfectionChance called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetInfectionChance(double _in) {
+    std::cout << "SetInfectionChance called from an Organism" << std::endl;
+    throw "Organism method called!";}
+
 
   //EfficientSymbiont functions
   virtual double GetEfficiency() {
@@ -88,6 +98,15 @@ class Organism {
     throw "Organism method called!";}
   virtual std::set<int> GetResTypes() const {
     std::cout << "GetResTypes called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetResInProcess(double _in){
+    std::cout << "SetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double GetResInProcess(){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual double StealResources(double _intval){
+    std::cout << "GetResInProcess called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
@@ -139,5 +158,30 @@ class Organism {
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
+<<<<<<< HEAD
+=======
+
+  //Public goods game host functions 
+  virtual void SetPool() {
+    std::cout << "SetPool called from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual void AddPool() {
+    std::cout << "AddPool called from Organism" << std::endl;
+    throw "Organism method called!";} 
+  virtual void DistribPool() {
+    std::cout << "DistribPool called from Organism" << std::endl;
+    throw "Organism method called!";} 
+  //Public goods game sym functions
+  virtual double GetDonation() {
+    std::cout << "GetDonation called from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual void Setdonation() {
+    std::cout << "Setdonation called from Organism" << std::endl;
+    throw "Organism method called!";}  
+  virtual double ProcessPool() {
+    std::cout << "ProcessPool called from Organism" << std::endl;
+    throw "Organism method called!";}
+
+>>>>>>> 777f519eae5e6b689a1917cb1faf394bbdff928a
 };
 #endif
