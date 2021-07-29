@@ -35,7 +35,7 @@ public:
   void IncBurstTimer() {
 
     burst_timer += random->GetRandNormal(1.0, 1.0);
-    
+
   }
   void SetBurstTimer(int _in) {burst_timer = _in;}
 
@@ -69,7 +69,7 @@ public:
   }
 
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values                                             
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
@@ -86,8 +86,8 @@ public:
 
   double ProcessResources(double hostDonation){
     if(lysogeny){
-      return 0; 
-    } 
+      return 0;
+    }
     else{
       return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
     }
@@ -111,7 +111,7 @@ public:
           my_host->ClearReproSyms();
           my_host->SetDead();
           return;
-          
+
         } else { //not time to lyse
           IncBurstTimer();
           if(sym_lysis_res == 0) {
@@ -133,10 +133,8 @@ public:
         }
       }
     }
-    else{ //phage is free living
-      if (my_config->MOVE_FREE_SYMS()){
-        my_world->MoveFreeSym(location);
-      }
+    else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
+      my_world->MoveFreeSym(location);
     }
   }
 
