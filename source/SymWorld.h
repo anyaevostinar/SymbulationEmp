@@ -195,7 +195,7 @@ public:
    * 
    * Purpose: To get the world's population of organisms. 
    */  
-  emp::World<Organism>::pop_t getPop() {return pop;}
+  emp::World<Organism>::pop_t GetPop() {return pop;}
 
 
   /**
@@ -790,6 +790,13 @@ public:
     return *data_node_burst_size;
   }
 
+  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
+    emp::WorldPosition newLoc = GetRandomNeighborPos(i);
+    if(newLoc.IsValid()){
+      sym->SetHost(nullptr);
+      AddOrgAt(sym, newLoc, i);
+    } else sym.Delete();
+  }
 
   /**
    * Input: None

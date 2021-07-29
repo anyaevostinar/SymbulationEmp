@@ -158,8 +158,6 @@ class Organism {
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
-<<<<<<< HEAD
-=======
 
   //Public goods game host functions 
   virtual void SetPool() {
@@ -182,6 +180,5 @@ class Organism {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
 
->>>>>>> 777f519eae5e6b689a1917cb1faf394bbdff928a
 };
 #endif
