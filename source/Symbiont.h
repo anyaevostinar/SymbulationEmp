@@ -140,6 +140,9 @@ public:
         sym_baby->HorizMutate();
         //HorizMutate();
         my_world->SymDoBirth(sym_baby, location);
+        if (my_config->OUTPUT_ECOLOGY_DATA()) {
+          my_world->GetHorizontalIntValDataNode().Add(interaction_val);
+        }
       }
     }
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && my_config->MOVE_FREE_SYMS()) {

@@ -39,7 +39,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 
   if(my_config->PGG()==0){
      
-    for (size_t i = 0; i < POP_SIZE; i++){
+    for (int i = 0; i < POP_SIZE; i++){
       emp::Ptr<Host> new_org;
       
       if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
@@ -58,7 +58,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       //world.Inject(*new_org);
     }
   } else{
-    for (size_t i = 0; i < POP_SIZE; i++){
+    for (int i = 0; i < POP_SIZE; i++){
       emp::Ptr<PggHost> new_org;
       
       if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));

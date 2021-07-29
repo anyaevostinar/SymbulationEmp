@@ -39,7 +39,7 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
   emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
-
+  emp::Ptr<emp::DataMonitor<double>> data_node_horizontal_intval;
 
 
 public:
@@ -67,6 +67,7 @@ public:
     if (data_node_hosted_syms) data_node_hosted_syms.Delete();
     if (data_node_free_syms) data_node_free_syms.Delete();
     if (data_node_Pgg) data_node_Pgg.Delete();
+    if (data_node_horizontal_intval) data_node_horizontal_intval.Delete();
   }
 
   void SetVertTrans(double vt) {vertTrans = vt;}
@@ -315,10 +316,13 @@ public:
     auto & node = GetWithinHostVarianceDataNode();
     auto & node1 = GetWithinHostMeanDataNode();
     auto & count_node = GetWithinHostCountDataNode();
+    auto & horiz_node = GetHorizontalIntValDataNode();
     node.SetupBins(-0.1, 0.26, 11); //Necessary because range exclusive
     node1.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     count_node.SetupBins(-0.1, SYM_LIMIT, 11); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
+    file.AddMean(horiz_node, "Horizontal_Transmission_Mean_IntVal", 
+                             "The average interaction value for horizontally-transmitting orgs", true);
     file.AddHistBin(node, 0, "Variance_Hist_0", "Count for histogram bin 0");
     file.AddHistBin(node, 1, "Variance_Hist_1", "Count for histogram bin 1");
     file.AddHistBin(node, 2, "Variance_Hist_2", "Count for histogram bin 2");
@@ -643,6 +647,14 @@ public:
     }
     return *data_node_within_host_count;
   }
+
+  emp::DataMonitor<double>& GetHorizontalIntValDataNode() {
+    if (!data_node_horizontal_intval) {
+      data_node_horizontal_intval.New();
+    }
+    return *data_node_horizontal_intval;
+  }
+
   emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
     if (!data_node_Pgg) {
       data_node_Pgg.New();

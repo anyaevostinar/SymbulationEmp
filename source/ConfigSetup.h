@@ -30,7 +30,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),
-    VALUE(OUTPUT_ECOLOGY_DATA, bool, 0, "Should ecology data (within host mean and variance) be output")
+    VALUE(OUTPUT_ECOLOGY_DATA, bool, 0, "Should ecology data (within host mean and variance) be output"),
 
 
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
