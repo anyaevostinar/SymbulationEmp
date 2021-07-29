@@ -28,6 +28,7 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_count; // distribution of symbionts/host
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
@@ -55,6 +56,7 @@ public:
     if (data_node_lysischance) data_node_lysischance.Delete();
     if (data_node_within_host_variance) data_node_within_host_variance.Delete();
     if (data_node_within_host_mean) data_node_within_host_mean.Delete();
+    if (data_node_within_host_mean) data_node_within_host_count.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
@@ -277,12 +279,14 @@ public:
     return file;
   }
 
-  emp::DataFile & SetupSymDiversityFile(const std::string & filename) {
+  emp::DataFile & SetupSymDiversityFile(const std::string & filename, int SYM_LIMIT) {
     auto & file = SetupFile(filename);
     auto & node = GetWithinHostVarianceDataNode();
     auto & node1 = GetWithinHostMeanDataNode();
+    auto & count_node = GetWithinHostCountDataNode();
     node.SetupBins(-0.1, 0.26, 11); //Necessary because range exclusive
     node1.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
+    count_node.SetupBins(-0.1, SYM_LIMIT, 11); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddHistBin(node, 0, "Variance_Hist_0", "Count for histogram bin 0");
     file.AddHistBin(node, 1, "Variance_Hist_1", "Count for histogram bin 1");
@@ -316,6 +320,16 @@ public:
     file.AddHistBin(node1, 18, "Mean_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node1, 19, "Mean_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
+    file.AddHistBin(count_node, 0, "Count_Hist_0", "Count for histogram bin 0");
+    file.AddHistBin(count_node, 1, "Count_Hist_1", "Count for histogram bin 1");
+    file.AddHistBin(count_node, 2, "Count_Hist_2", "Count for histogram bin 2");
+    file.AddHistBin(count_node, 3, "Count_Hist_3", "Count for histogram bin 3");
+    file.AddHistBin(count_node, 4, "Count_Hist_4", "Count for histogram bin 4");
+    file.AddHistBin(count_node, 5, "Count_Hist_5", "Count for histogram bin 5");
+    file.AddHistBin(count_node, 6, "Count_Hist_6", "Count for histogram bin 6");
+    file.AddHistBin(count_node, 7, "Count_Hist_7", "Count for histogram bin 7");
+    file.AddHistBin(count_node, 8, "Count_Hist_8", "Count for histogram bin 8");
+    file.AddHistBin(count_node, 9, "Count_Hist_9", "Count for histogram bin 9");
 
     file.PrintHeaderKeys();
 
@@ -580,6 +594,23 @@ public:
       });
     }
     return *data_node_within_host_mean;
+  }
+
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostCountDataNode() {
+    if (!data_node_within_host_count) {
+      data_node_within_host_count.New();
+      OnUpdate([this](size_t){
+        data_node_within_host_count->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i) && pop[i]->IsHost() && pop[i]->HasSym()) {
+	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+	          size_t sym_size = syms.size();
+            data_node_within_host_count->AddDatum(sym_size);
+	        }//close if
+	      }//close for
+      });
+    }
+    return *data_node_within_host_count;
   }
 
   void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {

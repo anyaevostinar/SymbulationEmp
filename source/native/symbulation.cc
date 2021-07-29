@@ -57,7 +57,7 @@ int symbulation_main(int argc, char * argv[])
     world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   }
   if (config.OUTPUT_ECOLOGY_DATA()) {
-    world.SetupSymDiversityFile(config.FILE_PATH()+"SymDiversity"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupSymDiversityFile(config.FILE_PATH()+"SymDiversity"+config.FILE_NAME()+".data", config.SYM_LIMIT()).SetTimingRepeat(TIMING_REPEAT);
   }
 
   worldSetup(&world, &config);
