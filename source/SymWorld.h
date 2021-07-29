@@ -51,7 +51,7 @@ private:
 
   /**
     * 
-    * Purpose: Represents if
+    * Purpose: Represents if free lving symbionts are permitted to move around the world. 
     * 
   */  
   bool move_free_syms = false;
@@ -92,6 +92,8 @@ public:
       os << "This doesn't work currently";
     };
   }
+
+  
   /**
    * Input: None
    * 
@@ -161,11 +163,13 @@ public:
 
 
   /**
-   * Input: 
+   * Input: The bool representing if free living symbionts are 
+   * permitted to move around in the world. 
    * 
-   * Output: 
+   * Output: None
    * 
-   * Purpose: 
+   * Purpose: To set the value representing if FLS are 
+   * permitted to move around. 
    */    
   void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
 
@@ -191,7 +195,7 @@ public:
   /**
    * Input: None
    * 
-   * Output: The Empirical value pop_t that represents the world's population. 
+   * Output: The pop_t value that represents the world's population. 
    * 
    * Purpose: To get the world's population of organisms. 
    */  
@@ -199,11 +203,12 @@ public:
 
 
   /**
-   * Input:
+   * Input: None
    * 
-   * Output: 
+   * Output: The pop_t value that represent the world's symbiont
+   * population. 
    * 
-   * Purpose: 
+   * Purpose: To get the world's symbiont population. 
    */    
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
@@ -248,7 +253,15 @@ public:
     }
   }
 
-  //overwriting empirical resize so that sym_pop is also resized
+
+  /**
+   * Input: The size_t representing the world's new width;
+   * the size_t representing the world's new height. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To overwrite the Empirical resize so that sym_pop is also resized
+   */    
   void Resize(size_t new_width, size_t new_height) {
     size_t new_size = new_width * new_height;
     pop.resize(new_size);
@@ -257,15 +270,33 @@ public:
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
 
-  //A single-argument method to be used for AddOrgAt vector expansions
-  //ignores width and height
+
+  /**
+   * Input: The size_t representing the new size of the world
+   * 
+   * Output: None
+   * 
+   * Purpose: To override the Empirical Resize function with 
+   * a single-arg method that can be used for AddOrgAt vector
+   * expansions
+   */    
   void Resize(size_t new_size){
     pop.resize(new_size);
     sym_pop.resize(new_size);
     pop_sizes.resize(2);
   }
 
-  //Overwriting the empirical AddOrgAt function to permit syms to be added into sym_pop
+
+  /**
+   * Input: The pointer to the new organims; 
+   * the world position of the location to add
+   * the new organism to. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To overwrite the empirical AddOrgAt function to permit syms to 
+   * be added into sym_pop
+   */
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
@@ -290,6 +321,7 @@ public:
       sym_pop[pos_index] = new_org;
     }
   }
+
 
   //Overriding World's DoBirth to take a pointer instead of a reference
   //Because it takes a pointer, it doesn't support birthing multiple copies
@@ -451,6 +483,15 @@ public:
 
     return file;
   }
+
+
+    /**
+   * Input:#
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */    
   emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
@@ -570,7 +611,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -708,6 +749,14 @@ public:
     return *data_node_freesymcount;
   }
 
+
+  /**
+   * Input:#
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */    
   emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
     //keep track of host organisms that are uninfected
     if(!data_node_uninf_hosts) {
@@ -790,6 +839,14 @@ public:
     return *data_node_burst_size;
   }
 
+
+  /**
+   * Input:#
+   * 
+   * Output: 
+   * 
+   * Purpose: 
+   */    
   void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     if(newLoc.IsValid()){
@@ -903,7 +960,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -926,7 +983,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -953,7 +1010,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -983,7 +1040,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -1006,7 +1063,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
@@ -1161,7 +1218,7 @@ public:
 
 
   /**
-   * Input:
+   * Input:#
    * 
    * Output: 
    * 
