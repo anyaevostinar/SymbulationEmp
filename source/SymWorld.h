@@ -841,12 +841,13 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The pointer to the symbiont that is moving, the size_t to its
+   * location. 
    * 
-   * Output: 
+   * Output: None
    * 
-   * Purpose: 
-   */    
+   * Purpose:#
+   */  
   void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
     if(newLoc.IsValid()){
@@ -855,6 +856,7 @@ public:
     } else sym.Delete();
   }
  
+
   /**
    * Input: None
    * 
@@ -1174,24 +1176,7 @@ public:
       MoveIntoNewFreeWorldPos(sym_baby, i);
     }
   }
- 
- 
-  /**
-   * Input: The pointer to the symbiont that is moving, the size_t to its
-   * location. 
-   * 
-   * Output: None
-   * 
-   * Purpose:#
-   */  
-  void MoveToFreeWorldPosition(emp::Ptr<Organism> sym, size_t i){
-    emp::WorldPosition newLoc = GetRandomNeighborPos(i);
-    if(newLoc.IsValid()){
-      sym->SetHost(nullptr);
-      AddOrgAt(sym, newLoc, i);
-    } else sym.Delete();
-  }
- 
+  
  
   /**
    * Input: The size_t location of the symbiont to be moved. 
