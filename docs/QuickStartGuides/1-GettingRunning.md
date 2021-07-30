@@ -43,7 +43,7 @@ git clone https://github.com/anyaevostinar/SymbulationEmp
 In the same level as SymbulationEmp, you will be a recursive copy of Empirical. 
 
 ```shell
-git clone https://github.com/devosoft/Empirical.git -- recursive
+git clone --recursive https://github.com/devosoft/Empirical.git 
 ```
 
 Let's compile!
