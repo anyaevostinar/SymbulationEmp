@@ -28,20 +28,25 @@ The current settings can be configured in SymSettings.cfg.
 To run end-to-end tests run 'make test'. This will overwrite the default
 SymSettings.cfg!
 
+```{toctree}
+:caption: Using Symbulation
+:maxdepth: 2
 
-Contents:
-#### Getting Started 
-* [Quick start guide]() - Coming soon! 
-* [Library]() - Coming soon! 
+QuickStartGuides/index
+library/index
+api/library_root
 
-#### Contributing to Symbulation
+```
 
+```{toctree}
+:caption: Contributing to Symbulation
+:maxdepth: 0
 
-* [Symbulation development practices]() - Coming soon! 
-* [Getting started]() - Coming soon! 
-* [Contribution guidelines and review]() - Coming soon! 
-* [Adding documentation]() - Coming soon! 
-* [Guide to testing]() - Coming soon! 
-
+dev/Symbulation-development-practices
+dev/getting-started
+dev/contribution-guidelines-and-review
+dev/adding-documentation
+dev/guide-to-testing
+```
 
 {ref}`genindex`
