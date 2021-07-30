@@ -374,7 +374,7 @@ public:
    * Output: The double representing the amount of resources 
    * that are actually stolen from the host.
    * 
-   * Purpose: To determine if a host's symbiont is eligable to 
+   * Purpose: To determine if a host's symbiont is eligible to 
    * steal resources from the host. 
    */
   double StealResources(double _intval){
