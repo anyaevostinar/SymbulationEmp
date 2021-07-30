@@ -659,7 +659,7 @@ public:
    * Output: The DataMonitor<int>& that has the information representing
    * the host count. 
    * 
-   * Purpose: To collect data on the host count to be save to the 
+   * Purpose: To collect data on the host count to be saved to the 
    * data file that is tracking host count
    */  
   emp::DataMonitor<int>& GetHostCountDataNode() {
@@ -682,7 +682,7 @@ public:
    * Output: The DataMonitor<int>& that has the information representing
    * the symbiont count. 
    * 
-   * Purpose: To collect data on the symbiont count to be save to the 
+   * Purpose: To collect data on the symbiont count to be saved to the 
    * data file that is tracking symbiont count
    */   
   emp::DataMonitor<int>& GetSymCountDataNode() {
