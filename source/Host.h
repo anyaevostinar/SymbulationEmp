@@ -59,7 +59,8 @@ protected:
 
   /**
     * 
-    * Purpose: #
+    * Purpose: Represents the resouces that could be in the process of 
+    * being stolen.
     * 
   */   
   double res_in_process = 0;
@@ -248,11 +249,11 @@ public:
 
 
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The double representing res_in_process 
    * 
-   * Purpose: 
+   * Purpose: To get the value of res_in_process
    */
   double GetResInProcess() { return res_in_process;}
 
@@ -349,11 +350,11 @@ public:
 
 
   /**
-   * Input:#
+   * Input: The double to be set as res_in_process
    * 
-   * Output: 
+   * Output: None
    * 
-   * Purpose: 
+   * Purpose: To set the value of res_in_process
    */
   void SetResInProcess(double _in) { res_in_process = _in;}
 
@@ -368,11 +369,14 @@ public:
 
 
   /**
-   * Input: #
+   * Input: The interaction value of the symbiont that
+   * is eligable to steal resources from the host. 
    * 
-   * Output: 
+   * Output: The double representing the amount of resources 
+   * that are actually stolen from the host.
    * 
-   * Purpose: 
+   * Purpose: To determine if a host's symbiont is eligable to 
+   * steal resources from the host. 
    */
   double StealResources(double _intval){
     double hostIntVal = GetIntVal();
