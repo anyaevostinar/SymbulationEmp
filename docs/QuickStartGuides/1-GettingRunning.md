@@ -6,7 +6,7 @@ Symbulation allows you to compile your C++ to target
 - running in the web browser (e.g., javascript assembly code).
 
 This how-to aims to walk you through all the nitty gritty required to
-successfully compile a simple "Hello World" for both targets.
+successfully compile a simple "Default" for both targets.
 
 ## Install: Native C++ Compiler
 
@@ -35,15 +35,21 @@ TODO Windows... Maybe you should try git for Windows (e.g.,
 ## Compile & Run: Command Line
 
 Assuming you haven't already pulled down a clone of Symbulation, let's
-get your working environment all set.
+get your working environment all set. 
 
 ```shell
 git clone https://github.com/anyaevostinar/SymbulationEmp
+```
+In the same level as SymbulationEmp, you will be a recursive copy of Empirical. 
+
+```shell
+git clone https://github.com/devosoft/Empirical.git -- recursive
 ```
 
 Let's compile!
 
 ```shell
+cd SymbulationEmp
 make
 ```
 
