@@ -153,7 +153,7 @@ public:
     buttons << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } ) << "  ";
     buttons << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } ) << "  ";
     buttons << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
-    buttons << "<br>";`
+    buttons << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
     mycanvas = animation.AddCanvas(RECT_WIDTH*config.GRID_X(), RECT_WIDTH*config.GRID_Y(), "can");
@@ -201,7 +201,7 @@ public:
 
 
   /**
-   * Input: The address of the canvas being used. 
+   * Input: The canvas being used. 
    * 
    * Output: None
    * 

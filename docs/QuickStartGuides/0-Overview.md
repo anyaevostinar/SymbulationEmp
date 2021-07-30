@@ -1,4 +1,3 @@
 # Overview
 
-The goal of Symbulation is to simplify the development of efficient,
-reliable, and accessible scientific software.
+The goal of Symbulation is to provide an evolutionary agent-based framework for studying the evolution of symbiosis.

@@ -134,17 +134,4 @@ to the toctree found in `CoolFacts/CowFacts.md`:
     ```
 ```
 
-To build the documentation, we recommend you use our [Docker container](https://hub.docker.com/r/devosoft/Symbulation)
-that already has all dependencies
-installed. If you would build them on bare metal, you will first need to
-have a Python 3 environment set up, and install doxygen via your package manager.
-After that, simply
-
-```shell
-cd doc
-pip install -r requirements.txt
-```
-
-to install all Python dependencies.
-
 

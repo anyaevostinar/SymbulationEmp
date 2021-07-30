@@ -1,4 +1,4 @@
-# Hello World
+# Default
 
 Symbulation allows you to compile your C++ to target
 

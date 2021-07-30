@@ -181,7 +181,7 @@ latex_elements = {
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'Symbulation', u'Symbulation Documentation',
-   author, 'Symbulation', 'Agent based modeling of symbiont ecology and evolution,',
+   author, 'Symbulation', 'An evolutionary agent-based modeling framework of symbiosis,',
    'Miscellaneous'),
 ]
 
