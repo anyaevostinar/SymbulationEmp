@@ -32,15 +32,17 @@ the [git-scm book](http://git-scm.com/book/en/Git-Branching).
     library, this step is optional (you can instead develop on a branch
     within the main repo).
  
-3.  Clone your copy of Symbulation to your local development environment.
+3.  Clone your copy of Symbulation and Empirical to your local development environment.
  
-    Your clone URL should look something like this:
+    Your clone URLs should look something like this:
  
         https://github.com/piperwelch/SymbulationEmp.git
+        https://github.com/devosoft/Empirical.git
  
     and the UNIX shell command should be:
  
         git clone https://github.com/piperwelch/SymbulationEmp.git
+        git clone https://github.com/devosoft/Empirical.git
  
     (This makes a local copy of Symbulation on your development machine.)
  
