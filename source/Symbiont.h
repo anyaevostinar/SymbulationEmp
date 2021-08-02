@@ -148,11 +148,32 @@ public:
     bool result = random->GetDouble(0.0, 1.0) < infection_chance;
     return result;
   }
+  /*
+  Free living syms should be encouraged to keep the interaction values close to 0;
+  unused cooperation/antagonism without a host is wasteful, and so is punished.
+  This function copies the begining portion of Host's DistribResources.
+  */
+  void DistribResources(double resources){
+    double int_val = interaction_val;
+
+    if(my_host.IsNull()) { // this method should only be called on free-living syms, but double check!
+
+      if(int_val >= 0){
+	      double spent = resources * int_val;
+        this->AddPoints(resources - spent);
+      }
+      else {
+        double attack = -1.0 * int_val * resources;
+        this->AddPoints(resources - attack);
+      }
+      return; //This concludes resource distribution for a host without symbionts
+    }
+  }
 
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
-      double resources = my_world->PullResources();
-      AddPoints(resources);
+      double resources = my_world->PullResources(); //recieve resources from the world
+      DistribResources(resources); //penalize extreme sym vals if living outside a host
     }
 
     if (h_trans) { //non-lytic horizontal transmission enabled
