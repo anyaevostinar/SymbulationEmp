@@ -22,11 +22,11 @@ using std::endl; using std::cout;
 */
 class GPHost : public emp::AvidaCPU_Base<GPHost>{
  private:
-  emp::vector<GPSymbiont> syms;
+  // vector of pointers 
+  emp::vector<emp::Ptr<GPSymbiont>> syms;
 
-  //make instance of points here, would this be vector symbiont?
-  // should this be public?
-  emp::vector<GPHost> points;
+  
+  int points;
 
   /*
   bool HasSym() {
@@ -62,6 +62,19 @@ public:
   //Destructor 
   //virtual ~Host() { ; }
 
+  //Add one symbiont into syms vector
+
+  emp::vector<GPSymbiont> AddSymbio(emp::vector<GPSymbiont> sym_in){
+    //creating a symbiont, should this be a totally new symbiont, or taken from sym_in?
+    emp::Ptr<GPSymbiont> s;
+
+    // add symbiont in syms vector
+    syms.push_back(s);
+
+    //not sure what this should return since we're adding symbio to count, so returning 1 since it would add only 1 symbio
+    int i = 1;
+    return i;
+  }
   
 };
 

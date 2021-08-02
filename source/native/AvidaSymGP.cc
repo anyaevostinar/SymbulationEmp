@@ -63,6 +63,11 @@ int main()
   std::function<double(const GPHost &)> fit_fun =
     [](const GPHost & org) {
     int count = 0; 
+  
+    //add symbio to count
+    count += org.AddSymbio(org);
+    cout << "Count:" << count;
+
     for (int i = 0; i < 16; i++) {
       if (org.GetOutput(i) == (double) (i*i)) count++;
     }

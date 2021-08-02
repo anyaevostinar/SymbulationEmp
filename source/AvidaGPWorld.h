@@ -28,19 +28,22 @@ public:
 //call empirical world constructor
   AvidaGPWorld(emp::Random & _random) : emp::World<GPHost>(_random) {}
 
-emp::WorldPosition DoBirth(emp::Ptr<GPHost> & mem, size_t parent_pos, size_t copy_count) {
+emp::WorldPosition DoBirth(emp::Ptr<GPHost> mem, size_t parent_pos, size_t copy_count) {
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos;                                        // Position of each offspring placed.
     for (size_t i = 0; i < copy_count; i++) {                 // Loop through offspring, adding each
-      emp::Ptr<GPHost> new_org = emp::NewPtr<GPHost>(mem);
-      emp::vector<GPHost> new_symbiont = mem->GetSymbio();
-      //for loop here, should be iterating through mem
+      emp::Ptr<GPHost> new_org = emp::NewPtr<GPHost>(*mem);
+      emp::vector<GPSymbiont> new_symbiont = mem->GetSymbio();
+      
+      /*//for loop here, should be iterating through mem
       for (size_t j = 0; j < new_symbiont.size(); j++){ // loop through mem symbionts, copy each one
         //get vector of symbionts
-        //emp::vector<GPSymbiont> symbiont_copy = new_symbiont; //copy symbiont from mem
-  
+        // change this to pointer 
+        emp::vector<GPSymbiont> symbiont_copy = new_symbiont; //copy symbiont from mem
+        //then add to new org
+
         
-      } 
+      } */
 
       offspring_ready_sig.Trigger(*new_org, parent_pos);
       pos = fun_find_birth_pos(new_org, parent_pos);
