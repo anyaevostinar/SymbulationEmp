@@ -22,7 +22,7 @@ the [git-scm book](http://git-scm.com/book/en/Git-Branching).
     (We use GitHub to manage Symbulation contributions.)
  
 2.  Fork
-    [github.com/anyaevostiar/SymbulatioEmp](https://github.com/anyaevostinar/SymbulationEmp).
+    [github.com/anyaevostiar/SymbulationEmp](https://github.com/anyaevostinar/SymbulationEmp).
  
     Visit that page, and then click on the 'fork' button (upper
     right).
@@ -125,11 +125,11 @@ Congratulations! You're ready to develop!
     (We're trying to avoid having multiple people working on the same
     issue.)
  
-2.  In your local copy of the source code, update your master branch
-    from the main Symbulation master branch:
+2.  In your local copy of the source code, update your main branch
+    from the main Symbulation main branch:
  
-        git checkout master
-        git pull upstream master
+        git checkout main
+        git pull upstream main
  
     (This pulls in all of the latest changes from whatever we've been
     doing on Symbulation.)
@@ -148,7 +148,7 @@ Congratulations! You're ready to develop!
         this is the branch that you have currently checked out
         =======
         Changes made on the branch that is being merged in, almost certainly
-        master.
+        main.
         >>>>>>> abcde1234
  
     Though there are a variety of tools to assist with resolving merge
@@ -156,10 +156,12 @@ Congratulations! You're ready to develop!
     usually easy enough to manually resolve the conflict.
  
     To resolve the conflict you simply have to manually 'meld' the
-    changes together and remove the merge markers.
+    changes together and remove the merge markers. Make sure that you 
+    don't remove someone else's changes while resolving the merge conflict!
  
     After this you'll have to add and commit the merge just like any
-    other set of changes. It's also recommended that you run tests.
+    other set of changes. You should also run the tests to make sure
+    that everything works as expected.
  
 3.  Create a new branch and link it to your fork on GitHub:
  
@@ -192,7 +194,7 @@ Congratulations! You're ready to develop!
  
     Once you have staged your changes, it's time to make a commit:
  
-        git commit
+        git commit -m "added x change"
  
     Git will then open your default console text editor to write a
     commit message -- this is a short (typically 1-3 sentence)
@@ -210,18 +212,18 @@ Congratulations! You're ready to develop!
     will also provide the command to create the branch. Copy/paste/run
     and you should be set.
  
-5.  Periodically update your branch from the main Symbulation master
+5.  Periodically update your branch from the Symbulation main
     branch:
  
-        git pull upstream master
+        git pull upstream main
  
     (This pulls in all of the latest changes from whatever we've been
     doing on the upstream branch- important especially during periods of
     fast change or for long-running pull requests.)
  
-6.  Run the tests and/or build the docs *before* pushing to GitHub:
+6.  Run the tests *before* pushing to GitHub:
  
-        make doc test
+        make test
  
     Make sure they all pass!
  
@@ -283,14 +285,14 @@ couple things to do to make sure your local copy of the repository is
 ready for a new issue--specifically, we need to make sure it's in sync
 with the remote repository so you aren't working on an old copy. So:
  
-    git checkout master
+    git checkout main
     git fetch --all
     git pull
  
-This puts you on the latest master branch and pulls down updates from
+This puts you on the latest main branch and pulls down updates from
 GitHub with any changes that may have been made since your last
 contribution (usually including the merge of your last contribution).
-Then we merge those changes into your local copy of the master branch.
+Then we merge those changes into your local copy of the main branch.
  
 Now, you can go back to [Claiming an issue and starting to
 develop](#claiming-an-issue-and-starting-to-develop).
@@ -298,15 +300,15 @@ develop](#claiming-an-issue-and-starting-to-develop).
 ## Pull request cleanup (commit squashing)
  
 Submitters are invited to reduce the numbers of commits in their pull
-requests either via [git rebase -i upstream/master]{.title-ref} or this
+requests either via [git rebase -i upstream/main]{.title-ref} or this
 recipe:
  
     git pull ## make sure the local is up to date
-    git pull upstream master ## get up to date
+    git pull upstream main ## get up to date
     ## fix any merge conflicts
     git status ## sanity check
-    git diff upstream/master ## does the diff look correct? (no merge markers)
-    git reset --soft upstream/master ## un-commit the differences from dib/master
+    git diff upstream/main ## does the diff look correct? (no merge markers)
+    git reset --soft upstream/main ## un-commit the differences from dib/main
     git status ## sanity check
     git commit --all ## package all differences in one commit
     git status ## sanity check
