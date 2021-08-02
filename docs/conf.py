@@ -38,7 +38,9 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx_rtd_theme',
     'sphinx.ext.intersphinx',
-    'myst_parser'
+    'breathe',
+    'exhale',
+    'myst_parser',
 ]
 
 # Setup the breathe extension
@@ -59,7 +61,7 @@ exhale_args = {
     # TIP: if using the sphinx-bootstrap-theme, you need
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../include"
+    "exhaleDoxygenStdin":    "INPUT = ../source"
 }
 
 # Tell sphinx what the primary language being documented is.
@@ -179,7 +181,7 @@ latex_elements = {
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'Symbulation', u'Symbulation Documentation',
-   author, 'Symbulation', 'A scientific software library for research, education, & public engagement.',
+   author, 'Symbulation', 'An evolutionary agent-based modeling framework of symbiosis,',
    'Miscellaneous'),
 ]
 

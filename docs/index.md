@@ -14,34 +14,32 @@ try it out in your web browser!
 
 To build, you must first download Empirical
 ([https://github.com/devosoft/Empirical](https://github.com/devosoft/Empirical)) and place the two repositories
-on the same level. Then within SymbulationEmp run
+on the same level. 
+
+Checkout our quick start guides for more information on getting started! 
+
+Search for any function, class or variable using the search feature in the 
+top right! 
+
+```{toctree}
+:caption: Using Symbulation
+:maxdepth: 2
+
+QuickStartGuides/index
+library/index
+api/library_root
+
 ```
-  make
-  ./symbulation
+
+```{toctree}
+:caption: Contributing to Symbulation
+:maxdepth: 0
+
+dev/Symbulation-development-practices
+dev/getting-started
+dev/contribution-guidelines-and-review
+dev/adding-documentation
+dev/guide-to-testing
 ```
-
-The script 'stats\_scripts/simple\_repeat.py' can be
-used to run many replicates and treatments.
-
-The current settings can be configured in SymSettings.cfg.
-
-To run end-to-end tests run 'make test'. This will overwrite the default
-SymSettings.cfg!
-
-
-Contents:
-#### Getting Started 
-* [Quick start guide]() - Coming soon! 
-* [Library]() - Coming soon! 
-
-#### Contributing to Symbulation
-
-
-* [Symbulation development practices]() - Coming soon! 
-* [Getting started]() - Coming soon! 
-* [Contribution guidelines and review]() - Coming soon! 
-* [Adding documentation]() - Coming soon! 
-* [Guide to testing]() - Coming soon! 
-
 
 {ref}`genindex`
