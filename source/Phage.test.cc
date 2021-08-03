@@ -182,42 +182,51 @@ TEST_CASE("phage_mutate"){
     config.LYSIS_CHANCE(.5);
     config.CHANCE_OF_INDUCTION(.5);
 
-    WHEN("Mutation rate is not zero and chance of lysis mutations are enabled") {
+    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
+        config.MUTATE_INDUCTION_CHANCE(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.503078154;
+        double induction_chance_post_mutation = 0.50265243380;
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
 
-    WHEN("Mutation rate is not zero and chance of lysis mutations are not enabled"){
+    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are not enabled"){
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
+        config.MUTATE_INDUCTION_CHANCE(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
-        THEN("Mutation does not occur and chance of lysis does not change") {
+        double induction_chance_post_mutation = 0.5;
+        THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
 
-    WHEN("Mutation rate is zero and chance of lysis mutations are enabled"){
+    WHEN("Mutation rate is zero and chance of lysis/chance of induction mutations are enabled"){
         double int_val = 0;
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
+        config.MUTATE_INDUCTION_CHANCE(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
-        THEN("Mutation does not occur and chance of lysis does not change") {
+        double induction_chance_post_mutation = 0.5;
+        THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
