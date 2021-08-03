@@ -13,6 +13,9 @@ protected:
   double sym_lysis_res = 15;
   double chance_of_lysis = 1;
   bool mutate_chance_of_lysis = false;
+  bool mutate_chance_of_induction = false;
+  bool induction_enabled = true;
+  double induction_chance = 1;
 
 
 public:
@@ -21,10 +24,15 @@ public:
     burst_time = my_config->BURST_TIME();
     sym_lysis_res = my_config->SYM_LYSIS_RES();
     lysis_enabled = my_config->LYSIS();
+    mutate_chance_of_induction = my_config->MUTATE_INDUCTION_CHANCE();
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
+    induction_chance = my_config->CHANCE_OF_INDUCTION();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
+    }
+    if(induction_chance == -1){
+      induction_chance = random->GetDouble(0.0, 1.0);
     }
   }
   Phage(const Phage &) = default;
@@ -41,6 +49,9 @@ public:
 
   double GetLysisChance() {return chance_of_lysis;}
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
+
+  double GetInductionChance() {return induction_chance;}
+  void SetInductionChance(double _in) {induction_chance = _in;}
 
   bool GetLysogeny() {return lysogeny;}
   bool IsPhage(){return true;}
@@ -65,6 +76,11 @@ public:
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
+      if(mutate_chance_of_induction){
+        induction_chance += random->GetRandNormal(0.0, mut_size);
+        if(induction_chance < 0) induction_chance = 0;
+        else if (induction_chance > 1) induction_chance = 1;
+    }
     }
   }
 
@@ -75,30 +91,9 @@ public:
     sym_baby->mutate();
     return sym_baby;
   }
-
-  void VerticalTransmission(emp::Ptr<Organism> host_baby){
-    //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
-    if(lysogeny){
-      emp::Ptr<Organism> phage_baby = reproduce();
-      host_baby->AddSymbiont(phage_baby);
-    }
-  }
-
-  double ProcessResources(double hostDonation){
-    if(lysogeny){
-      return 0;
-    }
-    else{
-      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
-    }
-  }
-
-  void Process(size_t location) {
-    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
-      if(!lysogeny){ //phage has chosen lysis
-        if(GetBurstTimer() >= burst_time ) { //time to lyse!
+ void HorizontalTransmission(size_t location) { //Horizontal transmission process after lysis or induction are called
+    if(GetBurstTimer() >= burst_time ) { //time to lyse!
           emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-
           //Record the burst size and count
           emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
           data_node_burst_size.AddDatum(repro_syms.size());
@@ -125,17 +120,47 @@ public:
             SetPoints(GetPoints() - sym_lysis_res);
           }
         }
-      }
-      else if(lysogeny){ //phage has chosen lysogeny
-        //check if the phage's host should become susceptible again
-        if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
-          SetDead();
+  }
+
+  void VerticalTransmission(emp::Ptr<Organism> host_baby){
+    //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
+    if(lysogeny){
+      emp::Ptr<Organism> phage_baby = reproduce();
+      host_baby->AddSymbiont(phage_baby);
+    }
+  }
+
+  double ProcessResources(double hostDonation){
+    if(lysogeny){
+      return 0;
+    }
+    else{
+      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
+    }
+  }
+
+  void Process(size_t location) {
+    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
+      if(!lysogeny){ //phage has chosen lysis
+        HorizontalTransmission(location);
         }
       }
-    }
+
+    else if(lysogeny){ //phage has chosen lysogeny
+      if (induction_enabled && !GetHost().IsNull()){ //induction enabled and phage is in host
+        double rand_chance = random->GetDouble(0.0, 1.0);
+        if (rand_chance <= induction_chance){//phage has chosen to induce and perform lysis
+          lysogeny = false;
+          HorizontalTransmission(location);
+        } 
+      }
+      else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
+        SetDead();
+      }
     else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
+  }
   }
 
 };
