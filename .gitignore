@@ -13,3 +13,5 @@ symbulation.test
 *.Rproj
 .Rhistory
 .Rproj.user
+*.gcno
+*.gcda

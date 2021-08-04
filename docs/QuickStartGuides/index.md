@@ -7,10 +7,7 @@ Contents:
 
 0-Overview
 1-GettingRunning
-2-BaseTools
-3-WebTools
-4-UsingProjectTemplate
-todos/todo
+2-CollectingData
 ```
 
 - {ref}`genindex`

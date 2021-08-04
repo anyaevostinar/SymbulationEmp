@@ -14,19 +14,12 @@ try it out in your web browser!
 
 To build, you must first download Empirical
 ([https://github.com/devosoft/Empirical](https://github.com/devosoft/Empirical)) and place the two repositories
-on the same level. Then within SymbulationEmp run
-```
-  make
-  ./symbulation
-```
+on the same level. 
 
-The script 'stats\_scripts/simple\_repeat.py' can be
-used to run many replicates and treatments.
+Checkout our quick start guides for more information on getting started! 
 
-The current settings can be configured in SymSettings.cfg.
-
-To run end-to-end tests run 'make test'. This will overwrite the default
-SymSettings.cfg!
+Search for any function, class or variable using the search feature in the 
+top left! 
 
 ```{toctree}
 :caption: Using Symbulation
