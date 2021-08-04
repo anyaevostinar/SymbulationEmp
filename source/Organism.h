@@ -190,5 +190,4 @@ class Organism {
     throw "Organism method called!";}
 
 };
-
 #endif

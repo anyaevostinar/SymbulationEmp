@@ -47,6 +47,11 @@ private:
 
 public:
 
+  /**
+   * 
+   * The contructor for SymAnimate
+   * 
+   */
   SymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
 
     config.GRID_X(50);
@@ -160,6 +165,14 @@ public:
 
   }
 
+
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To initialize the world based upon the config setting given 
+   */
   void initializeWorld(){
      // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
@@ -171,6 +184,14 @@ public:
 
   }
 
+
+  /**
+   * Input: The string representing the button identification. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To add style to the buttons displayed. 
+   */
   void setButtonStyle(std::string but_id){
     auto but = buttons.Button(but_id);
     but.SetCSS("background-color", "#D3D3D3");
@@ -178,6 +199,14 @@ public:
     but.SetCSS("margin-left", "5px");
   }
 
+
+  /**
+   * Input: The canvas being used. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To draw the petri dish of basteria and phage. 
+   */
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
@@ -212,6 +241,16 @@ public:
 
   // match the interaction value to colors, assuming that -1.0 <= intVal <= 1.0.
   // The antogonistic have light colors, and the cooperative have dark, brownish colors.
+
+
+  /**
+   * Input: The double representing bacteria and phage's interaction value 
+   * 
+   * Output: The string representing the hex value for the color of the organism. 
+   * 
+   * Purpose: To determine the color that an organism should be, given its
+   * interaction value. 
+   */  
   std::string matchColor(double intVal){
     if ((-1.0 <= intVal) && (intVal < -0.9)) return "#EFFDF0";
     else if ((-0.9 <= intVal) && (intVal < -0.8)) return "#D4FFDD";
@@ -236,7 +275,14 @@ public:
   }
 
 
-
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To update the frame displayed of the current 
+   * world state. 
+   */
   void DoFrame() {
 
     if (world.GetUpdate() == config.UPDATES() && GetActive()) {
@@ -254,8 +300,5 @@ public:
       buttons.Text("par").Redraw();
     }
   }
-
-
 };
-
 #endif
