@@ -32,7 +32,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),
-    VALUE(CHANCE_OF_INDUCTION, double, -1, "Chance of induction for starting lysogenic phage, -1 for random distribution"),
+    VALUE(CHANCE_OF_INDUCTION, double, 0, "Chance of induction for starting lysogenic phage, -1 for random distribution"),
     VALUE(MUTATE_LYSIS_CHANCE, int, 0, "Should the chance of lysis mutate? 0 for no, 1 for yes"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),

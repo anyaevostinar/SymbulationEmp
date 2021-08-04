@@ -367,7 +367,7 @@ public:
           HorizontalTransmission(location);
         }
         else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
-        SetDead();
+          SetDead();
         }
       }
     }

@@ -67,11 +67,11 @@ TEST_CASE("Phage reproduce") {
         emp::Ptr<Organism> phage_baby = p->reproduce();
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
-            double phage_baby_int_val = -0.0016640493;
+            double phage_baby_int_val = 0.0011560678;
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE( phage_baby->GetIntVal() == Approx(phage_baby_int_val));
 
-            double phage_baby_lysis_chance = 0.5011590314;
+            double phage_baby_lysis_chance = 0.5027827107;
             REQUIRE( phage_baby->GetLysisChance() != parent_orig_lysis_chance);
             REQUIRE( phage_baby->GetLysisChance() == Approx(phage_baby_lysis_chance));
         }
@@ -87,8 +87,7 @@ TEST_CASE("Phage reproduce") {
     }
 }
 
-TEST_CASE("SetBurstTimer, IncBurstTimer")
-{
+TEST_CASE("SetBurstTimer, IncBurstTimer"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -100,7 +99,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     REQUIRE(p->GetBurstTimer() == 0);
 
     p->IncBurstTimer();
-    double incremented_burst_time = 2.2075375655;
+    double incremented_burst_time = 2.0760424677;
     REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
 
     int burst_time = 15;
@@ -110,7 +109,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer")
     REQUIRE(p->GetBurstTimer() == expected_burst_time);
 
     p->IncBurstTimer();
-    incremented_burst_time = 17.5390770034;
+    incremented_burst_time = 17.2344552608;
     REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
 
 }
@@ -264,8 +263,9 @@ TEST_CASE("Phage process"){
     WHEN("The phage chooses lysogeny"){
         config.LYSIS_CHANCE(0.0); //0% chance of lysis, 100% chance of lysogeny
 
-        WHEN("The prophage loss rate is zero"){
+        WHEN("The induction chance and prophage loss rate are both zero"){
             config.PROPHAGE_LOSS_RATE(0);
+            config.CHANCE_OF_INDUCTION(0);
 
             double int_val = 0;
             double expected_int_val = 0;
@@ -296,8 +296,9 @@ TEST_CASE("Phage process"){
             delete h; //will also delete its syms, including p
         }
 
-        WHEN("The prophage loss rate is 1"){
+        WHEN("The prophage loss rate is 1 and induction chance is 0"){
             config.PROPHAGE_LOSS_RATE(1);
+            config.CHANCE_OF_INDUCTION(0);
 
             double int_val = 0;
             emp::Ptr<Phage> p;
@@ -312,19 +313,57 @@ TEST_CASE("Phage process"){
 
             p->Process(location);
 
-            THEN("The phage is set to dead"){
+            THEN("The phage doesn't induce and is set to dead"){
                 REQUIRE(p->GetDead() == expected_dead);
             }
 
             h.Delete();
         }
 
-//         // WHEN("Induction enabled and induction chance is 100%"){
+        WHEN("The induction chance is 1 and the prophage loss rate is 0"){
+            config.PROPHAGE_LOSS_RATE(0);
+            config.CHANCE_OF_INDUCTION(1);
 
-//         //     THEN("Phage calls horizontal transmission"){
+            double int_val = 0;
+            emp::Ptr<Phage> p;
+            p.New(random, world, &config, int_val);
 
-//         //     }
-//         // }
+            emp::Ptr<Host> h;
+            h.New(random, &w, &config, int_val);
+
+            h->AddSymbiont(p);
+
+            bool expected_lysogeny = false;
+
+            p->Process(location);
+
+            THEN("The phage induces and turns lytic, meaning it doesn't die"){
+                REQUIRE(p->GetLysogeny() == expected_lysogeny);
+                REQUIRE(p->GetDead() == false);
+            }
+        }
+
+        WHEN("The induction chance and prophage loss rate are both 1"){
+            config.PROPHAGE_LOSS_RATE(1);
+            config.CHANCE_OF_INDUCTION(1);
+
+            double int_val = 0;
+            emp::Ptr<Phage> p;
+            p.New(random, world, &config, int_val);
+
+            emp::Ptr<Host> h;
+            h.New(random, &w, &config, int_val);
+
+            h->AddSymbiont(p);
+
+            bool expected_lysogeny = false;
+
+            p->Process(location);
+            THEN("The phage will induce but won't die since it is no longer a prophage"){
+                REQUIRE(p->GetLysogeny() == expected_lysogeny);
+                REQUIRE(p->GetDead() == false);
+            }
+        }
         
     }
 

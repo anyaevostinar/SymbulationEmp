@@ -232,7 +232,7 @@ TEST_CASE("Host phage death and removal from syms list"){
 }
 
 TEST_CASE("Phage Horizontal Transmission") {
-    emp::Ptr<emp::Random> random = new emp::Random(6);
+    emp::Ptr<emp::Random> random = new emp::Random(9);
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
@@ -275,9 +275,6 @@ TEST_CASE("Phage Horizontal Transmission") {
                 REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
                 REQUIRE(orig_h->GetDead() == true);
             }
-            //deleting hosts also deletes any symbiont pointers
-            // delete orig_h;
-            // delete new_h;
         }
        
 
@@ -297,7 +294,7 @@ TEST_CASE("Phage Horizontal Transmission") {
                 p->Process(location);
 
                 THEN("The burst timer is incremented but no offspring are created"){
-                    double expected_burst_timer = 1.4286875497;
+                    double expected_burst_timer = 1.5306015114;
                     REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
                     REQUIRE(size(h->GetReproSymbionts()) == repro_syms_size_pre_process);
                     REQUIRE(p->GetPoints() == expected_points);
@@ -312,7 +309,7 @@ TEST_CASE("Phage Horizontal Transmission") {
                 p->Process(location);
 
                 THEN("The burst timer is incremented and offspring are created"){
-                    double expected_burst_timer = 1.4286875497;
+                    double expected_burst_timer = 1.5306015114;
                     REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
                     REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size_post_process);
                     REQUIRE(p->GetPoints() == expected_points);
