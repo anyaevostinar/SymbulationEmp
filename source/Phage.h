@@ -360,21 +360,18 @@ public:
       if(!lysogeny){ //phage has chosen lysis
         HorizontalTransmission(location);
       }
-    }
-
-    else if(lysogeny){ //phage has chosen lysogeny
-      if (induction_enabled && !GetHost().IsNull()){ //induction enabled and phage is in host
+      else if(lysogeny){ //phage has chosen lysogeny
         double rand_chance = random->GetDouble(0.0, 1.0);
         if (rand_chance <= induction_chance){//phage has chosen to induce and perform lysis
           lysogeny = false;
           HorizontalTransmission(location);
-          return;
-        } 
-      }
-      if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
+        }
+        else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
         SetDead();
+        }
       }
     }
+
     else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
