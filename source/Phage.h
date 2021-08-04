@@ -58,21 +58,15 @@ protected:
 
   /**
     * 
-    * Purpose: TODO
+    * Purpose: Represents if induction rate mutation is permitted
     * 
   */
   bool mutate_chance_of_induction = false;
 
-  /**
-    * 
-    * Purpose: TODO
-    * 
-  */
-  bool induction_enabled = true;
 
   /**
     * 
-    * Purpose: TODO
+    * Purpose: Represents the chance of a prophage inducing to the lytic process
     * 
   */
   double induction_chance = 1;
@@ -178,20 +172,20 @@ public:
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
   /**
-   * Input: TODO 
+   * Input: None
    * 
-   * Output: TODO
+   * Output: The double representing a prophage's chance of induction.
    * 
-   * Purpose: TODO
+   * Purpose: To determine a lysogenic phage's chance of inducing
    */
   double GetInductionChance() {return induction_chance;}
 
   /**
-   * Input: TODO 
+   * Input: The double to be set as the phage's chance of induction
    * 
-   * Output:TODO
+   * Output:None
    * 
-   * Purpose: TODO
+   * Purpose: To set a phage's chance of inducing
    */
   void SetInductionChance(double _in) {induction_chance = _in;}
  
@@ -229,10 +223,8 @@ public:
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
       lysogeny = false;
-      SetIntVal(-1); //lytic phage are antagonistic
     } else {
       lysogeny = true;
-      SetIntVal(0); //lysogenic phage are neutral
     }
   }
  
@@ -283,11 +275,11 @@ public:
   }
 
   /**
-   * Input: TODO
+   * Input: location of the phage attempting to horizontally transmit
    * 
-   * Output: TODO
+   * Output: None
    * 
-   * Purpose: TODO
+   * Purpose: To allow lytic/induced phage to lyse their host 
    */
   void HorizontalTransmission(size_t location) { //Horizontal transmission process after lysis or induction are called
     if(GetBurstTimer() >= burst_time ) { //time to lyse!
