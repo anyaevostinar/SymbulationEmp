@@ -85,12 +85,20 @@ protected:
   bool dead = false;
 
   /**
-  *
-  * Purpose: Represents the chance (between 0 and 1) that
-  * a free-living sym will infect a parallel host on process
-  *
+    *
+    * Purpose: Represents the chance (between 0 and 1) that
+    * a free-living sym will infect a parallel host on process
+    *
   */
   double infection_chance = 0.0;
+
+  /**
+    *
+    * Purpose: Represents the chance (between 0 and 1) that
+    * a free-living sym die trying to infect a host.
+    *
+  */
+  double infection_failure_rate = 0.0;
 
   /**
     *
@@ -129,6 +137,7 @@ public:
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
     infection_chance = my_config->SYM_INFECTION_CHANCE();
+    infection_failure_rate = my_config->SYM_INFECTION_FAILURE_RATE();
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = mut_rate;
     } else {
@@ -438,6 +447,23 @@ public:
     bool result = random->GetDouble(0.0, 1.0) < infection_chance;
     return result;
   }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The boolean representing if a symbiont
+   * will survive crossing over into the host world.
+   *
+   * Purpose: To determine if a symbiont will survive
+   * crossing over into the host world based on infection risk.
+   */
+  bool InfectionFails(){
+    //note: this can be returned true, and an infecting sym can then be killed by a host that is already infected.
+    bool sym_dies = random->GetDouble(0.0, 1.0) < infection_failure_rate;
+    return sym_dies;
+  }
+
   /**
    * Input: The double representing the resources given by the world.
    *

@@ -80,7 +80,9 @@ class Organism {
   virtual void SetInfectionChance(double _in) {
     std::cout << "SetInfectionChance called from an Organism" << std::endl;
     throw "Organism method called!";}
-
+  virtual bool InfectionFails() {
+    std::cout << "InfectionFails called from an Organism" << std::endl;
+    throw "Organism method called!";}
 
   //EfficientSymbiont functions
   virtual double GetEfficiency() {
@@ -159,23 +161,23 @@ class Organism {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
 
-  //Public goods game host functions 
+  //Public goods game host functions
   virtual void SetPool() {
     std::cout << "SetPool called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual void AddPool() {
     std::cout << "AddPool called from Organism" << std::endl;
-    throw "Organism method called!";} 
+    throw "Organism method called!";}
   virtual void DistribPool() {
     std::cout << "DistribPool called from Organism" << std::endl;
-    throw "Organism method called!";} 
+    throw "Organism method called!";}
   //Public goods game sym functions
   virtual double GetDonation() {
     std::cout << "GetDonation called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual void Setdonation() {
     std::cout << "Setdonation called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
