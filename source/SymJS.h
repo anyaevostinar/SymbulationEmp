@@ -1,3 +1,5 @@
+
+/*
 #include "../../Empirical/include/emp/web/init.hpp"
 
 // All JS code related to game
@@ -29,3 +31,4 @@ EM_JS(void, showSuccess, (), {
 EM_JS(void, showFailure, (), {
   $('#failureAlert').modal('toggle')
 });
+*/
