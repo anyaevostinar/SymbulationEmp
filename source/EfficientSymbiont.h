@@ -137,7 +137,7 @@ public:
    * Purpose: Mutating the efficiency of an efficient symbiont based upon the config setting 
    * for horizontal mutation size.
    */
-  void process(size_t location) {
+  void Process(size_t location) {
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
