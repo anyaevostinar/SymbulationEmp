@@ -25,6 +25,7 @@ top left!
 :caption: Using Symbulation
 :maxdepth: 2
 
+projects/index
 QuickStartGuides/index
 library/index
 api/library_root
