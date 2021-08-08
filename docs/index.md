@@ -19,7 +19,7 @@ on the same level.
 Checkout our quick start guides for more information on getting started! 
 
 Search for any function, class or variable using the search feature in the 
-top right! 
+top left! 
 
 ```{toctree}
 :caption: Using Symbulation

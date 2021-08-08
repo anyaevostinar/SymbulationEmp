@@ -14,4 +14,8 @@ symbulation.test
 .Rhistory
 .Rproj.user
 *.gcno
+<<<<<<< HEAD
 *.gcda
+=======
+*.gcda
+>>>>>>> upstream/main
