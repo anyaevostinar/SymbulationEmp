@@ -372,14 +372,8 @@ public:
       }
       else if(lysogeny){ //phage has chosen lysogeny
         double rand_chance = random->GetDouble(0.0, 1.0);
-        if (rand_chance <= induction_chance){//phage has chosen to induce and perform lysis
+        if (rand_chance <= induction_chance){//phage has chosen to induce and turn lytic
           lysogeny = false;
-          if(GetBurstTimer() >= burst_time ) { //time to lyse!
-            LysisBurst(location);
-          }
-          else { //not time to lyse
-            LysisStep();
-          }
         }
         else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
           SetDead();
