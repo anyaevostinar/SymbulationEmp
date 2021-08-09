@@ -50,8 +50,8 @@ int symbulation_main(int argc, char * argv[])
   //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
 
   if (config.LYSIS() == 1) {
-    world.SetupLysisFile(config.FILE_PATH()+"Lysis"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
     world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   }else if(config.PGG() == 1){
     world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
   }

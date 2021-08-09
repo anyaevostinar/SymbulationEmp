@@ -55,6 +55,21 @@ protected:
     * 
   */     
   bool mutate_chance_of_lysis = false;
+
+  /**
+    * 
+    * Purpose: Represents if induction rate mutation is permitted
+    * 
+  */
+  bool mutate_chance_of_induction = false;
+
+
+  /**
+    * 
+    * Purpose: Represents the chance of a prophage inducing to the lytic process
+    * 
+  */
+  double induction_chance = 1;
  
  
 public:
@@ -65,10 +80,15 @@ public:
     burst_time = my_config->BURST_TIME();
     sym_lysis_res = my_config->SYM_LYSIS_RES();
     lysis_enabled = my_config->LYSIS();
+    mutate_chance_of_induction = my_config->MUTATE_INDUCTION_CHANCE();
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
+    induction_chance = my_config->CHANCE_OF_INDUCTION();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
+    }
+    if(induction_chance == -1){
+      induction_chance = random->GetDouble(0.0, 1.0);
     }
   }
  
@@ -150,7 +170,24 @@ public:
    * Purpose: To set a phage's chance of lysis 
    */
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
- 
+
+  /**
+   * Input: None
+   * 
+   * Output: The double representing a prophage's chance of induction.
+   * 
+   * Purpose: To determine a lysogenic phage's chance of inducing
+   */
+  double GetInductionChance() {return induction_chance;}
+
+  /**
+   * Input: The double to be set as the phage's chance of induction
+   * 
+   * Output:None
+   * 
+   * Purpose: To set a phage's chance of inducing
+   */
+  void SetInductionChance(double _in) {induction_chance = _in;}
  
   /**
    * Input: None
@@ -186,10 +223,8 @@ public:
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
       lysogeny = false;
-      SetIntVal(-1); //lytic phage are antagonistic
     } else {
       lysogeny = true;
-      SetIntVal(0); //lysogenic phage are neutral
     }
   }
  
@@ -213,6 +248,11 @@ public:
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
+      if(mutate_chance_of_induction){
+        induction_chance += random->GetRandNormal(0.0, mut_size);
+        if(induction_chance < 0) induction_chance = 0;
+        else if (induction_chance > 1) induction_chance = 1;
+    }
     }
   }
  
@@ -233,8 +273,51 @@ public:
     sym_baby->mutate();
     return sym_baby;
   }
- 
- 
+
+  /**
+   * Input: location of the phage attempting to horizontally transmit
+   * 
+   * Output: None
+   * 
+   * Purpose: To burst host and release offspring
+   */
+  void LysisBurst(size_t location){
+    emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
+    //Record the burst size and count
+    emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+    data_node_burst_size.AddDatum(repro_syms.size());
+    emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+    data_node_burst_count.AddDatum(1);
+
+    for(size_t r=0; r<repro_syms.size(); r++) {
+      my_world->SymDoBirth(repro_syms[r], location);
+    }
+    my_host->ClearReproSyms();
+    my_host->SetDead();
+    return;
+  }
+  
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow lytic phage to produce offspring and increment the burst timer
+   */
+  void LysisStep(){
+    IncBurstTimer();
+    if(sym_lysis_res == 0) {
+      std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
+      infinite loop, please change" << std::endl;
+      std::exit(1);
+    }
+    while(GetPoints() >= sym_lysis_res) {
+      emp::Ptr<Organism> sym_baby = reproduce();
+      my_host->AddReproSym(sym_baby);
+      SetPoints(GetPoints() - sym_lysis_res);
+    }
+  }
+
   /** 
    * Input: A pointer to the baby host to have symbionts added. 
    * 
@@ -259,7 +342,7 @@ public:
    * Output: The double representing the resources that are left over from what
    * was distributed to the phage. 
    * 
-   * Purpose: To mutate a phage's chance of lysis. 
+   * Purpose: To allow a phage to steal or use donated resources from their host. 
    */
   double ProcessResources(double hostDonation){
     if(lysogeny){
@@ -269,8 +352,7 @@ public:
       return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
     }
   }
- 
- 
+
   /**
    * Input: The size_t representing the location of the phage being processed. 
    * 
@@ -282,42 +364,23 @@ public:
     if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= burst_time ) { //time to lyse!
-          emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
- 
-          //Record the burst size and count
-          emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
-          data_node_burst_size.AddDatum(repro_syms.size());
-          emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
-          data_node_burst_count.AddDatum(1);
- 
-          for(size_t r=0; r<repro_syms.size(); r++) {
-            my_world->SymDoBirth(repro_syms[r], location);
-          }
-          my_host->ClearReproSyms();
-          my_host->SetDead();
-          return;
- 
-        } else { //not time to lyse
-          IncBurstTimer();
-          if(sym_lysis_res == 0) {
-            std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
-            infinite loop, please change" << std::endl;
-            std::exit(1);
-          }
-          while(GetPoints() >= sym_lysis_res) {
-            emp::Ptr<Organism> sym_baby = reproduce();
-            my_host->AddReproSym(sym_baby);
-            SetPoints(GetPoints() - sym_lysis_res);
-          }
+          LysisBurst(location);
+        }
+        else { //not time to lyse
+          LysisStep();
         }
       }
       else if(lysogeny){ //phage has chosen lysogeny
-        //check if the phage's host should become susceptible again
-        if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){
+        double rand_chance = random->GetDouble(0.0, 1.0);
+        if (rand_chance <= induction_chance){//phage has chosen to induce and turn lytic
+          lysogeny = false;
+        }
+        else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
           SetDead();
         }
       }
     }
+
     else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
