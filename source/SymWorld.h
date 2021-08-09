@@ -290,7 +290,7 @@ public:
   /**
    * Input: The pointer to the new organism; 
    * the world position of the location to add
-   * the new organism to. 
+   * the new organism. 
    * 
    * Output: None
    * 
@@ -670,7 +670,7 @@ public:
    * 
    * Purpose: To collect data on the host count to be saved to the 
    * data file that is tracking host count
-   */  
+   */
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -867,7 +867,7 @@ public:
     } else sym.Delete();
   }
  
-
+ 
   /**
    * Input: None
    * 
@@ -1031,7 +1031,7 @@ public:
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
    * the infection chance for each symbionts. 
    * 
-   * Purpose: To acess the data node that is tracking the 
+   * Purpose: To access the data node that is tracking the 
    * symbiont infection chance 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
@@ -1089,7 +1089,7 @@ public:
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
    * the infection chance for the hosted symbionts 
    * 
-   * Purpose: To retrive the data nodes that is tracking the 
+   * Purpose: To retrieve the data nodes that is tracking the 
    * infection chance within the hosted symbionts. 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
@@ -1116,10 +1116,10 @@ public:
    * Input: None
    * 
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of lysis for each symbionts. 
+   * the chance of lysis for each symbiont. 
    * 
    * Purpose: To collect data on the chance of lysis for each symbiont to be saved to the 
-   * data file that is tracking chance of lysis for each symbiont. 
+   * data file that is tracking the chance of lysis for each symbiont. 
    */
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
     if (!data_node_lysischance) {
@@ -1204,7 +1204,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose: To move a symbiont, either into a host, or into a free workd position
+   * Purpose: To move a symbiont, either into a host, or into a free world position
    */  
   void MoveFreeSym(size_t i){
     //the sym can either move into a parallel sym or to some random position
