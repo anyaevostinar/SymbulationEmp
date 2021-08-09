@@ -161,8 +161,11 @@ class Organism {
   virtual void uponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void HorizontalTransmission(size_t location) {
-    std::cout << "HorizontalTransmission called from Organism" << std::endl;
+  virtual void LysisBurst(size_t location) {
+    std::cout << "LysisBurst called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void LysisStep() {
+    std::cout << "LysisStep called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;

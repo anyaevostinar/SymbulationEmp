@@ -279,40 +279,45 @@ public:
    * 
    * Output: None
    * 
-   * Purpose: To allow lytic/induced phage to lyse their host 
+   * Purpose: To burst host and release offspring
    */
-  void HorizontalTransmission(size_t location) { //Horizontal transmission process after lysis or induction are called
-    if(GetBurstTimer() >= burst_time ) { //time to lyse!
-          emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
-          //Record the burst size and count
-          emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
-          data_node_burst_size.AddDatum(repro_syms.size());
-          emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
-          data_node_burst_count.AddDatum(1);
+  void LysisBurst(size_t location){
+    emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
+    //Record the burst size and count
+    emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
+    data_node_burst_size.AddDatum(repro_syms.size());
+    emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
+    data_node_burst_count.AddDatum(1);
 
-          for(size_t r=0; r<repro_syms.size(); r++) {
-            my_world->SymDoBirth(repro_syms[r], location);
-          }
-          my_host->ClearReproSyms();
-          my_host->SetDead();
-          return;
-
-        } else { //not time to lyse
-          IncBurstTimer();
-          if(sym_lysis_res == 0) {
-            std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
-            infinite loop, please change" << std::endl;
-            std::exit(1);
-          }
-          while(GetPoints() >= sym_lysis_res) {
-            emp::Ptr<Organism> sym_baby = reproduce();
-            my_host->AddReproSym(sym_baby);
-            SetPoints(GetPoints() - sym_lysis_res);
-          }
-        }
+    for(size_t r=0; r<repro_syms.size(); r++) {
+      my_world->SymDoBirth(repro_syms[r], location);
+    }
+    my_host->ClearReproSyms();
+    my_host->SetDead();
+    return;
   }
- 
- 
+  
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To allow lytic phage to produce offspring and increment the burst timer
+   */
+  void LysisStep(){
+    IncBurstTimer();
+    if(sym_lysis_res == 0) {
+      std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
+      infinite loop, please change" << std::endl;
+      std::exit(1);
+    }
+    while(GetPoints() >= sym_lysis_res) {
+      emp::Ptr<Organism> sym_baby = reproduce();
+      my_host->AddReproSym(sym_baby);
+      SetPoints(GetPoints() - sym_lysis_res);
+    }
+  }
+
   /** 
    * Input: A pointer to the baby host to have symbionts added. 
    * 
@@ -358,13 +363,23 @@ public:
   void Process(size_t location) {
     if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
-        HorizontalTransmission(location);
+        if(GetBurstTimer() >= burst_time ) { //time to lyse!
+          LysisBurst(location);
+        }
+        else { //not time to lyse
+          LysisStep();
+        }
       }
       else if(lysogeny){ //phage has chosen lysogeny
         double rand_chance = random->GetDouble(0.0, 1.0);
         if (rand_chance <= induction_chance){//phage has chosen to induce and perform lysis
           lysogeny = false;
-          HorizontalTransmission(location);
+          if(GetBurstTimer() >= burst_time ) { //time to lyse!
+            LysisBurst(location);
+          }
+          else { //not time to lyse
+            LysisStep();
+          }
         }
         else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
           SetDead();
