@@ -486,12 +486,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output: 
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose: 
-   */    
+   * Purpose: To set up the file that will be used to track 
+   * information about the PGG symbiont's interaction values
+   */   
   emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
@@ -611,12 +613,19 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output: 
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To set up the file that will be used to track mean 
+   * information about the free living symbionts in the world. 
+   *  This includes: (1) their total count, (2) the counts
+   * of the free and hosted symbionts, (3) the interaction
+   * values for the free and hosted symbionts, and (4) the 
+   * infection chances from the total population, free symbionts,
+   * and hosted symbionts. 
+   */
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename){
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode(); //count
@@ -751,12 +760,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<int>& that has the information representing
+   * the count of the uninfected hosts
    * 
-   * Purpose: 
-   */    
+   * Purpose: To collect data on the count of the uninfected hosts to be saved to the 
+   * data file that is tracking the count of the uninfected hosts.  
+   */     
   emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
     //keep track of host organisms that are uninfected
     if(!data_node_uninf_hosts) {
@@ -846,7 +857,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose:#
+   * Purpose: To move a symbiont into a new world position. 
    */  
   void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
@@ -962,12 +973,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double>& that has the information representing
+   *  the free symbiont's interaction value. 
    * 
-   * Purpose:
-   */ 
+   * Purpose: To collect data on the interaction value of the free symbionts to be saved to the 
+   * data file that is tracking the interaction value of the free symbionts. 
+   */   
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode() {
     if (!data_node_freesymintval) {
       data_node_freesymintval.New();
@@ -985,11 +998,12 @@ public:
  
  
   /**
-   * Input:#
+   * Input:None
    * 
    * Output: 
    * 
-   * Purpose:
+   * Purpose: To access the data node that is tracking
+   * the hosted symbiont interaction value
    */ 
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymIntValDataNode() {
     if (!data_node_hostedsymintval) {
@@ -1012,11 +1026,13 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the infection chance for each symbionts. 
    * 
-   * Purpose:
+   * Purpose: To acess the data node that is tracking the 
+   * symbiont infection chance 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
     if (!data_node_syminfectchance) {
@@ -1042,11 +1058,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the free symbionts' chance of infection
    * 
-   * Purpose:
+   * 
+   * Purpose: To access the data node that is tracking the 
+   * infection chance within the free symbionts. 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode() {
     if (!data_node_freesyminfectchance) {
@@ -1065,11 +1084,13 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the infection chance for the hosted symbionts 
    * 
-   * Purpose:
+   * Purpose: To retrive the data nodes that is tracking the 
+   * infection chance within the hosted symbionts. 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
     if (!data_node_hostedsyminfectchance) {
@@ -1183,7 +1204,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose: #
+   * Purpose: To move a symbiont, either into a host, or into a free workd position
    */  
   void MoveFreeSym(size_t i){
     //the sym can either move into a parallel sym or to some random position
@@ -1197,11 +1218,12 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The size_t representing the location of the symbiont to be 
+   * extracted from the world. 
    * 
-   * Output: 
+   * Output: The pointer to the organism that was removed from the world 
    * 
-   * Purpose:
+   * Purpose: To remove a symbiont from the world
    */  
   emp::Ptr<Organism> ExtractSym(size_t i){
     if(sym_pop[i]){
