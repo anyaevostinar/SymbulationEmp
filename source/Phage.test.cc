@@ -2,11 +2,11 @@
 #include "Symbiont.h"
 
 TEST_CASE("Phage constructor, GetIntVal") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(27);
     SymWorld w(*random);
     SymConfigBase config;
     SymWorld * world = &w;
-    
+   
     double int_val = -1;
     Phage * p = new Phage(random, world, &config, int_val);
     double expected_int_val = -1;
@@ -16,8 +16,35 @@ TEST_CASE("Phage constructor, GetIntVal") {
     Phage * p2 = new Phage(random, world, &config, int_val);
     expected_int_val = 0;
     REQUIRE(p2->GetIntVal() == expected_int_val);
+   
+    config.LYSIS_CHANCE(-1);
+    Phage * p3 = new Phage(random, world, &config, int_val);
+    double expected_lysis_chance = 0.0195624221;
+    REQUIRE(p3->GetLysisChance() == Approx(expected_lysis_chance));
+   
+    config.LYSIS_CHANCE(.5);
+    Phage * p4 = new Phage(random, world, &config, int_val);
+    expected_lysis_chance = 0.5;
+    REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+
+    config.CHANCE_OF_INDUCTION(-1);
+    Phage * p5 = new Phage(random, world, &config, int_val);
+    double expected_induction_chance =  0.0089024983;
+    REQUIRE(p5->GetInductionChance() == Approx(expected_induction_chance));
+
+    config.CHANCE_OF_INDUCTION(0.2);
+    Phage * p6 = new Phage(random, world, &config, int_val);
+    expected_induction_chance = 0.2;
+    REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+
     delete p;
     delete p2;
+    delete p3;
+    delete p4;
+    delete p5;
+    delete p6;
+
+
 }
 
 TEST_CASE("Phage reproduce") {

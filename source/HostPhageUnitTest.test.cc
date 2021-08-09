@@ -245,8 +245,10 @@ TEST_CASE("Phage Horizontal Transmission") {
 
     WHEN("The phage chooses to Horizontally Transmit"){
         config.LYSIS_CHANCE(1.0); //100% chance of lysis, 0% chance of lysogeny
-        config.SYM_LYSIS_RES(5);
-        config.BURST_TIME(10);
+        double burst_timer = 10;
+        double sym_repro_points = 5.0;
+        config.SYM_LYSIS_RES(sym_repro_points);
+        config.BURST_TIME(burst_timer);
 
         WHEN("It is time to burst"){
             double int_val = 0;
@@ -267,7 +269,7 @@ TEST_CASE("Phage Horizontal Transmission") {
  
             //call the process such that the phage bursts and we can check injection
             long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
-            p->SetBurstTimer(10.0);
+            p->SetBurstTimer(burst_timer);
             p->Process(location);
 
             THEN("The phage offspring are injected into new hosts and the current host dies"){
@@ -303,7 +305,7 @@ TEST_CASE("Phage Horizontal Transmission") {
 
             WHEN("The phage has enough resources to reproduce"){
                 double expected_repro_syms_size_post_process = size(h->GetReproSymbionts()) + 1; //one offspring created
-                double orig_points = 5.0;
+                double orig_points = sym_repro_points;//symbiont given enough resources to produce one offspring
                 double expected_points = 0.0;
                 p->SetPoints(orig_points);
                 p->Process(location);
