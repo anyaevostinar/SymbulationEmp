@@ -19,3 +19,7 @@ request.
  * An investigation into the dirty transmission hypothesis 
     * Symbulation: v0.1
     * Git: [https://github.com/anyaevostinar/Dirty-Transmission-Hypothesis-Paper](https://github.com/anyaevostinar/Dirty-Transmission-Hypothesis-Paper) 
+
+ * An investigation into the impacts of within-host ecology on host-symbiont mutualism vs. parasitism
+    * Symbulation: v0.1
+    * Git: [https://github.com/DolsonLab/2021-Symbiont-Ecology](https://github.com/DolsonLab/2021-Symbiont-Ecology)
