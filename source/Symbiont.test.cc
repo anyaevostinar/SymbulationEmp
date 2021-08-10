@@ -176,6 +176,48 @@ TEST_CASE("WantsToInfect"){
     }
 }
 
+TEST_CASE("InfectionFails"){
+    emp::Ptr<emp::Random> random = new emp::Random(17);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    double int_val = 0;
+
+    WHEN("sym infection failure rate is 0"){
+        config.SYM_INFECTION_FAILURE_RATE(0);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("infection never fails"){
+            REQUIRE(sym1->InfectionFails() == false);
+            REQUIRE(sym2->InfectionFails() == false);
+        }
+    }
+
+    WHEN("sym infection failure rate is between 0 and 1"){
+        config.SYM_INFECTION_FAILURE_RATE(0.6);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("infection sometimes fails, sometimes doesn't"){
+            REQUIRE(sym1->InfectionFails() == false);
+            REQUIRE(sym2->InfectionFails() == true);
+        }
+    }
+
+    WHEN("sym infection failure rate is 1"){
+        config.SYM_INFECTION_FAILURE_RATE(1);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("infection always fails"){
+            REQUIRE(sym1->InfectionFails() == true);
+            REQUIRE(sym2->InfectionFails() == true);
+        }
+    }
+}
+
+
 TEST_CASE("mutate") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);

@@ -619,17 +619,29 @@ TEST_CASE("MoveFreeSym"){
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
     w.AddOrgAt(sym, sym_index);
     WHEN("there is a parallel host and the sym wants to infect"){
-      sym->SetInfectionChance(1);
       emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
       w.AddOrgAt(host, sym_index);
       REQUIRE(w.GetNumOrgs() == 2);
       REQUIRE(host->HasSym() == false);
 
-      THEN("the sym moves into the host"){
-        w.MoveFreeSym(sym_index);
-        REQUIRE(w.GetNumOrgs() == 1);
-        REQUIRE(host->HasSym());
-        REQUIRE(host->GetSymbionts()[0] == sym);
+      WHEN("the infection fails"){
+        config.SYM_INFECTION_FAILURE_RATE(1);
+        emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+        w.AddOrgAt(sym, sym_index);
+        REQUIRE(w.GetNumOrgs() == 2);
+        THEN("the sym is deleted"){
+          w.MoveFreeSym(sym_index);
+          REQUIRE(w.GetNumOrgs() == 1);
+          REQUIRE(!host->HasSym());
+        }
+      }
+      WHEN("the infection does not fail"){
+        THEN("the sym moves into the host"){
+          w.MoveFreeSym(sym_index);
+          REQUIRE(w.GetNumOrgs() == 1);
+          REQUIRE(host->HasSym());
+          REQUIRE(host->GetSymbionts()[0] == sym);
+        }
       }
     }
     WHEN("the sym does not want to/can't infect a parallel host"){
