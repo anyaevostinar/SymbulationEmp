@@ -136,8 +136,10 @@ public:
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
-    infection_chance = my_config->SYM_INFECTION_CHANCE();
     infection_failure_rate = my_config->SYM_INFECTION_FAILURE_RATE();
+    infection_chance = my_config->SYM_INFECTION_CHANCE();
+    if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
+    if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = mut_rate;
     } else {

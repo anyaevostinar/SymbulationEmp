@@ -647,6 +647,18 @@ public:
     file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
     file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
+    node7.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddHistBin(node7, 0, "ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node7, 1, "ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node7, 2, "ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node7, 3, "ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node7, 4, "ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node7, 5, "ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node7, 6, "ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node7, 7, "ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node7, 8, "ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node7, 9, "ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
     file.PrintHeaderKeys();
 
     return file;
