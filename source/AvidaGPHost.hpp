@@ -1,6 +1,6 @@
 /* Made: June 23, 2021
-   Author: Originally created by Edwin Flores-Cardoso, built on by Tiffany-Ellen Vo
-   Purpose: 
+   Author: Edwin Flores-Cardoso, Tiffany-Ellen Vo
+   Purpose: Summer WAVES host header file; creates a host with various helper functions
 */
 
 #ifndef AVIDA_GP_HOST_H
@@ -48,14 +48,14 @@ public:
   GPHost(GPHost &&) = default;
 
   //Sets hosts' Symbionts
-  void SetSymbio(emp::vector<GPSymbiont> sym_in ){
-    for (GPSymbiont s : sym_in){
+  void SetSymbio(emp::vector<emp::Ptr<GPSymbiont>> sym_in ){
+    for (emp::Ptr<GPSymbiont> s : sym_in){
       syms.push_back(s);
     }
   }
 
   //returns hosts' symbionts
-  emp::vector<GPSymbiont> GetSymbio(){
+  emp::vector<emp::Ptr<GPSymbiont>> GetSymbio(){
     return syms;
   }
 
@@ -63,17 +63,15 @@ public:
   //virtual ~Host() { ; }
 
   //Add one symbiont into syms vector
-
-  emp::vector<GPSymbiont> AddSymbio(emp::vector<GPSymbiont> sym_in){
+  void AddSymbio(emp::vector<GPSymbiont> sym_in){
     //creating a symbiont, should this be a totally new symbiont, or taken from sym_in?
     emp::Ptr<GPSymbiont> s;
+    //cout << "New Symbiont s: " << s;
 
     // add symbiont in syms vector
     syms.push_back(s);
-
-    //not sure what this should return since we're adding symbio to count, so returning 1 since it would add only 1 symbio
-    int i = 1;
-    return i;
+    
+    //cout << "syms: " << syms;
   }
   
 };

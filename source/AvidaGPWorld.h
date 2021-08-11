@@ -33,7 +33,7 @@ emp::WorldPosition DoBirth(emp::Ptr<GPHost> mem, size_t parent_pos, size_t copy_
     emp::WorldPosition pos;                                        // Position of each offspring placed.
     for (size_t i = 0; i < copy_count; i++) {                 // Loop through offspring, adding each
       emp::Ptr<GPHost> new_org = emp::NewPtr<GPHost>(*mem);
-      emp::vector<GPSymbiont> new_symbiont = mem->GetSymbio();
+      emp::vector<emp::Ptr<GPSymbiont>> new_symbiont = mem->GetSymbio();
       
       /*//for loop here, should be iterating through mem
       for (size_t j = 0; j < new_symbiont.size(); j++){ // loop through mem symbionts, copy each one

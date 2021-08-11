@@ -34,7 +34,7 @@ int main()
     GPHost cpu;
     cpu.PushRandom(random, GENOME_SIZE);
     world.Inject(cpu.GetGenome(),1);
-    emp::vector<GPSymbiont> symbiont_vec;
+    emp::vector<emp::Ptr<GPSymbiont>> symbiont_vec;
     GPSymbiont sb;
     sb.PushRandom(random, GENOME_SIZE);
     symbiont_vec.push_back(sb);
@@ -50,7 +50,7 @@ int main()
         const uint32_t pos = random.GetUInt(GENOME_SIZE);
         org.RandomizeInst(pos, random);
         for (int i = 0; i < org.GetSymbio().size(); i++){
-          emp::vector<GPSymbiont> symbiont_vec = org.GetSymbio();
+          emp::vector<emp::Ptr<GPSymbiont>> symbiont_vec = org.GetSymbio();
           symbiont_vec[i].RandomizeInst(pos, random);
         }
       }
@@ -65,8 +65,12 @@ int main()
     int count = 0; 
   
     //add symbio to count
-    count += org.AddSymbio(org);
-    cout << "Count:" << count;
+    //addsymbio void function, but adds one symbiont to count
+    if (org.AddSymbio(org)){
+      count += 1;
+      cout << "Count: " << count;
+    };
+    
 
     for (int i = 0; i < 16; i++) {
       if (org.GetOutput(i) == (double) (i*i)) count++;
