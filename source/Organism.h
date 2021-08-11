@@ -170,6 +170,12 @@ class Organism {
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual double GetIncorporationValue() {
+    std::cout << "GetIncorporationValue called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetIncorporationValue(double _in){
+    std::cout << "SetIncorporationValue called from Organism" << std::endl;
+    throw "Organism method called!";}
 
   //Public goods game host functions 
   virtual void SetPool() {
