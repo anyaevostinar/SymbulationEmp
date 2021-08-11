@@ -373,7 +373,7 @@ TEST_CASE("Vertical Transmission of Symbiont") {
     SymConfigBase config;
 
 
-    WHEN("When vertical transmission is enabled"){
+    WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
         world->SetVertTrans(1);
         double host_int_val = .5;
         double sym_int_val = -.5;
@@ -396,6 +396,26 @@ TEST_CASE("Vertical Transmission of Symbiont") {
 
         emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
         emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
+
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+        s->VerticalTransmission(host_baby);
+
+        THEN("Symbiont offspring are not injected into host offspring") {
+            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+        }
+    }
+    WHEN("When the sym does not have enough resources to transmit"){
+        world->SetVertTrans(1);
+        double int_val = 0;
+        double points_required = 50;
+        double points_recieved = points_required - 1;
+        config.SYM_VERT_TRANS_RES(points_required);
+
+        emp::Ptr<Host> h = new Host(random, world, &config, int_val);
+        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, int_val);
+
+        s->AddPoints(points_recieved);
 
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
