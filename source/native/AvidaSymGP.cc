@@ -63,7 +63,7 @@ int main()
   std::function<double(const GPHost &)> fit_fun =
     [](const GPHost & org) {
     int count = 0; 
-  
+
     //add symbio to count
     //addsymbio void function, but adds one symbiont to count
     if (org.AddSymbio(org)){
