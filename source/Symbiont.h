@@ -38,14 +38,6 @@ protected:
 
   /**
     *
-    * Purpose: Represents the points threshold for vertical
-    * transmission to occur.
-    *
-  */
-  double sym_v_res = 100;
-
-  /**
-    *
     * Purpose: Represents if horizontal transmission is allowed
     * to occur.
     *
@@ -142,7 +134,6 @@ public:
    */
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), random(_random), my_world(_world), my_config(_config) {
     sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
-    sym_v_res = my_config->SYM_VERT_TRANS_RES();
     h_trans = my_config->HORIZ_TRANS();
     mut_rate = my_config->MUTATION_RATE();
     infection_failure_rate = my_config->SYM_INFECTION_FAILURE_RATE();
@@ -554,7 +545,7 @@ public:
    * Purpose: To allow for vertical transmission to occur
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    if((my_world->WillTransmit()) && (GetPoints() >= sym_v_res)){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
+    if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = reproduce();
       host_baby->AddSymbiont(sym_baby);
     }
