@@ -37,12 +37,24 @@ TEST_CASE("Phage constructor, GetIntVal") {
     expected_induction_chance = 0.2;
     REQUIRE(p6->GetInductionChance() == expected_induction_chance);
 
+    config.INCORPORATION_VAL(-1);
+    Phage * p7 = new Phage(random, world, &config, int_val);
+    double expected_incorporation_value =  0.84137536;
+    REQUIRE(p7->GetIncorporationValue() == Approx(expected_incorporation_value));
+
+    config.INCORPORATION_VAL(0.3);
+    Phage * p8 = new Phage(random, world, &config, int_val);
+    expected_incorporation_value = 0.3;
+    REQUIRE(p8->GetIncorporationValue() == expected_incorporation_value);
+
     delete p;
     delete p2;
     delete p3;
     delete p4;
     delete p5;
     delete p6;
+    delete p7;
+    delete p8;
 
 
 }
@@ -173,6 +185,22 @@ TEST_CASE("Phage SetInductionChance, GetInductionChance"){
     delete p;
 }
 
+TEST_CASE("Phage SetIncorporationValue, GetIncorporationValue"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+
+    double incorporation_val = 0.5;
+    p->SetIncorporationValue(incorporation_val);
+    double expected_incorporation_value = 0.5;
+    REQUIRE(p->GetIncorporationValue() == expected_incorporation_value);
+
+    delete p;
+}
+
 TEST_CASE("Phage uponInjection"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
@@ -205,21 +233,25 @@ TEST_CASE("phage_mutate"){
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
-    config.LYSIS_CHANCE(.5);
-    config.CHANCE_OF_INDUCTION(.5);
+    config.LYSIS_CHANCE(0.5);
+    config.CHANCE_OF_INDUCTION(0.5);
+    config.INCORPORATION_VAL(0.5);
 
-    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are enabled") {
+    WHEN("Mutation rate is not zero and chance of lysis/induction/incorporation mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
+        config.MUTATE_INCORPORATION(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.503078154;
         double induction_chance_post_mutation = 0.50265243380;
-        THEN("Mutation occurs and chance of lysis changes") {
+        double incorporation_val_post_mutation =  0.499105981;
+        THEN("Mutation occurs and chance of lysis/induction/incorporation mutations occur") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -229,13 +261,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
+        config.MUTATE_INCORPORATION(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -246,13 +281,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
+        config.MUTATE_INCORPORATION(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -263,13 +301,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
+        config.MUTATE_INCORPORATION(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
-             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }

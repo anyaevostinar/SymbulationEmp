@@ -246,26 +246,31 @@ TEST_CASE("Phage LysisBurst"){
     double int_val = 0;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
-    //create two hosts and add both to world as neighbors
-    Host * orig_h = new Host(random, &w, &config, int_val);
-    Host * new_h = new Host(random, &w, &config, int_val);
-    orig_h->AddSymbiont(p);
-    world->AddOrgAt(orig_h, 0);
-    world->AddOrgAt(new_h, 1);
+    WHEN("Two hosts are neighbors"){
+        Host * orig_h = new Host(random, &w, &config, int_val);
+        Host * new_h = new Host(random, &w, &config, int_val);
+        orig_h->AddSymbiont(p);
+        world->AddOrgAt(orig_h, 0);
+        world->AddOrgAt(new_h, 1);
 
-    //add phage offspring to the original host's repro syms
-    emp::Ptr<Organism> p_baby1 = p->reproduce();
-    emp::Ptr<Organism> p_baby2 = p->reproduce();
-    orig_h->AddReproSym(p_baby1);
-    orig_h->AddReproSym(p_baby2);
+        WHEN("Phage babies are placed in the original host"){
+            emp::Ptr<Organism> p_baby1 = p->reproduce();
+            emp::Ptr<Organism> p_baby2 = p->reproduce();
+            orig_h->AddReproSym(p_baby1);
+            orig_h->AddReproSym(p_baby2);
 
-    //call the burst method so we can check injection
-    long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
-    p->LysisBurst(location);
+            WHEN("Burst method is called to verify success"){
+                long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
+                p->LysisBurst(location);
 
-    REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
-    REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
-    REQUIRE(orig_h->GetDead() == true);
+                THEN("Original host is set to dead and expected syms are moved to the new host"){
+                    REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
+                    REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
+                    REQUIRE(orig_h->GetDead() == true);
+                }
+            }
+        }
+    }
 }
 
 TEST_CASE("Phage LysisStep"){
