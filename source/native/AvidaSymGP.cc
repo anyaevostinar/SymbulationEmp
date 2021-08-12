@@ -51,13 +51,13 @@ int main()
         org.RandomizeInst(pos, random);
         for (int i = 0; i < org.GetSymbio().size(); i++){
           emp::vector<emp::Ptr<GPSymbiont>> symbiont_vec = org.GetSymbio();
-          symbiont_vec[i].RandomizeInst(pos, random);
+          symbiont_vec[i]->RandomizeInst(pos, random);
         }
       }
       return num_muts;
     } );
 
-  world.GetOrg(0).GetSymbio()[0].PrintGenome();
+  world.GetOrg(0).GetSymbio()[0]->PrintGenome();
   // setting symbioint in affecting hosts' fitness!!!!!!!!!!!!!!!!!!!
   // Setup the fitness function.
   std::function<double(const GPHost &)> fit_fun =
@@ -112,7 +112,7 @@ int main()
   }
 
   std::cout << "next line is: print func: " << std::endl;
-  world.GetOrg(0).GetSymbio()[0].PrintGenome();
+  world.GetOrg(0).GetSymbio()[0]->PrintGenome();
   world.GetOrg(0).Process(200);
   std::cout << std::endl;
   for (int i = 0; i < 16; i++) {
