@@ -2,11 +2,11 @@
 #include "Symbiont.h"
 
 TEST_CASE("Phage constructor, GetIntVal") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(27);
     SymWorld w(*random);
     SymConfigBase config;
     SymWorld * world = &w;
-    
+   
     double int_val = -1;
     Phage * p = new Phage(random, world, &config, int_val);
     double expected_int_val = -1;
@@ -16,8 +16,35 @@ TEST_CASE("Phage constructor, GetIntVal") {
     Phage * p2 = new Phage(random, world, &config, int_val);
     expected_int_val = 0;
     REQUIRE(p2->GetIntVal() == expected_int_val);
+   
+    config.LYSIS_CHANCE(-1);
+    Phage * p3 = new Phage(random, world, &config, int_val);
+    double expected_lysis_chance = 0.0195624221;
+    REQUIRE(p3->GetLysisChance() == Approx(expected_lysis_chance));
+   
+    config.LYSIS_CHANCE(.5);
+    Phage * p4 = new Phage(random, world, &config, int_val);
+    expected_lysis_chance = 0.5;
+    REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+
+    config.CHANCE_OF_INDUCTION(-1);
+    Phage * p5 = new Phage(random, world, &config, int_val);
+    double expected_induction_chance =  0.0089024983;
+    REQUIRE(p5->GetInductionChance() == Approx(expected_induction_chance));
+
+    config.CHANCE_OF_INDUCTION(0.2);
+    Phage * p6 = new Phage(random, world, &config, int_val);
+    expected_induction_chance = 0.2;
+    REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+
     delete p;
     delete p2;
+    delete p3;
+    delete p4;
+    delete p5;
+    delete p6;
+
+
 }
 
 TEST_CASE("Phage reproduce") {
@@ -87,8 +114,7 @@ TEST_CASE("Phage reproduce") {
     }
 }
 
-TEST_CASE("SetBurstTimer, IncBurstTimer")
-{
+TEST_CASE("SetBurstTimer, IncBurstTimer"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -131,6 +157,22 @@ TEST_CASE("Phage SetLysisChance, GetLysisChance"){
     delete p;
 }
 
+TEST_CASE("Phage SetInductionChance, GetInductionChance"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+
+    double induction_chance = 0.5;
+    p->SetInductionChance(induction_chance);
+    double expected_induction_chance = 0.5;
+    REQUIRE(p->GetInductionChance() == expected_induction_chance);
+
+    delete p;
+}
+
 TEST_CASE("Phage uponInjection"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
@@ -164,57 +206,70 @@ TEST_CASE("phage_mutate"){
     SymWorld * world = &w;
     SymConfigBase config;
     config.LYSIS_CHANCE(.5);
+    config.CHANCE_OF_INDUCTION(.5);
 
-    WHEN("Mutation rate is not zero and chance of lysis mutations are enabled") {
+    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
+        config.MUTATE_INDUCTION_CHANCE(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.503078154;
+        double induction_chance_post_mutation = 0.50265243380;
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
 
-    WHEN("Mutation rate is not zero and chance of lysis mutations are not enabled"){
+    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are not enabled"){
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
+        config.MUTATE_INDUCTION_CHANCE(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
-        THEN("Mutation does not occur and chance of lysis does not change") {
+        double induction_chance_post_mutation = 0.5;
+        THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
 
-    WHEN("Mutation rate is zero and chance of lysis mutations are enabled"){
+    WHEN("Mutation rate is zero and chance of lysis/chance of induction mutations are enabled"){
         double int_val = 0;
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
+        config.MUTATE_INDUCTION_CHANCE(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
-        THEN("Mutation does not occur and chance of lysis does not change") {
+        double induction_chance_post_mutation = 0.5;
+        THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
 
-    WHEN("Mutation rate is zero and chance of lysis mutations are not enabled"){
+    WHEN("Mutation rate is zero and chance of lysis mutations are not enabled and chance of induction mutations are not enabled"){
         double int_val = 0;
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(0);
+        config.MUTATE_INDUCTION_CHANCE(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
-        THEN("Mutation does not occur and chance of lysis does not change") {
+        double induction_chance_post_mutation = 0.5;
+        THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
+             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
         }
         delete p;
     }
@@ -235,40 +290,8 @@ TEST_CASE("Phage process"){
     WHEN("The phage chooses lysogeny"){
         config.LYSIS_CHANCE(0.0); //0% chance of lysis, 100% chance of lysogeny
 
-        WHEN("The prophage loss rate is zero"){
-            config.PROPHAGE_LOSS_RATE(0);
-
-            double int_val = 0;
-            double expected_int_val = 0;
-            emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-            Host * h = new Host(random, &w, &config, int_val);
-            h->AddSymbiont(p);
-
-            double points = 0;
-            double expected_points = 0;
-            p->SetPoints(points);
-
-            double burst_timer = 0;
-            double expected_burst_timer = 0;
-            p->SetBurstTimer(burst_timer);
-
-            bool expected_dead = false;
-            long unsigned int expected_repro_syms_size = size(h->GetReproSymbionts());
-
-            p->Process(location);
-
-            THEN("The phage doesn't die and there is no change to the status of any objects - the phage is temperate"){
-                REQUIRE(p->GetIntVal() == expected_int_val);
-                REQUIRE(p->GetPoints() == expected_points);
-                REQUIRE(p->GetBurstTimer() == expected_burst_timer);
-                REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size);
-                REQUIRE(p->GetDead() == expected_dead);
-            }
-            delete h; //will also delete its syms, including p
-        }
-
-        WHEN("The prophage loss rate is 1"){
-            config.PROPHAGE_LOSS_RATE(1);
+        WHEN("The phage chooses to induce"){
+            config.CHANCE_OF_INDUCTION(1);
 
             double int_val = 0;
             emp::Ptr<Phage> p;
@@ -277,25 +300,112 @@ TEST_CASE("Phage process"){
             emp::Ptr<Host> h;
             h.New(random, &w, &config, int_val);
 
+            //verify that the phage chooses lysogeny first
+            bool expected_lysogeny = true;
             h->AddSymbiont(p);
-
-            bool expected_dead = true;
-
+            REQUIRE(p->GetLysogeny() == expected_lysogeny);
+            
+            expected_lysogeny = false;
             p->Process(location);
 
-            THEN("The phage is set to dead"){
-                REQUIRE(p->GetDead() == expected_dead);
+            THEN("The phage turns lytic"){
+                REQUIRE(p->GetLysogeny() == expected_lysogeny);
+            }
+        }
+
+        WHEN("The phage does not induce"){
+            config.CHANCE_OF_INDUCTION(0);
+
+            WHEN("The prophage loss rate is 1"){
+                config.PROPHAGE_LOSS_RATE(1);
+
+                double int_val = 0;
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                emp::Ptr<Host> h;
+                h.New(random, &w, &config, int_val);
+
+                h->AddSymbiont(p);
+
+                bool expected_dead = true;
+
+                p->Process(location);
+
+                THEN("The phage dies"){
+                    REQUIRE(p->GetDead() == expected_dead);
+                }
+                h.Delete();
             }
 
-            h.Delete();
+            WHEN("The prophage loss rate is 0"){
+                config.PROPHAGE_LOSS_RATE(0);
+                double int_val = 0;
+                double expected_int_val = 0;
+                emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+                Host * h = new Host(random, &w, &config, int_val);
+                h->AddSymbiont(p);
+
+                double points = 0;
+                double expected_points = 0;
+                p->SetPoints(points);
+
+                double burst_timer = 0;
+                double expected_burst_timer = 0;
+                p->SetBurstTimer(burst_timer);
+
+                bool expected_dead = false;
+                long unsigned int expected_repro_syms_size = size(h->GetReproSymbionts());
+
+                p->Process(location);
+
+                THEN("The phage does nothing; it is temperate and still alive"){
+                    REQUIRE(p->GetIntVal() == expected_int_val);
+                    REQUIRE(p->GetPoints() == expected_points);
+                    REQUIRE(p->GetBurstTimer() == expected_burst_timer);
+                    REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size);
+                    REQUIRE(p->GetDead() == expected_dead);
+                }
+                delete h;
+            }
         }
-        
     }
 
     WHEN("The phage chooses lysis"){
-        config.LYSIS_CHANCE(1.0); //100% chance of lysis, 0% chance of lysogeny
-        config.SYM_LYSIS_RES(5);
-        config.BURST_TIME(10);
+        config.LYSIS_CHANCE(1);
+        double burst_timer = 10;
+        double sym_repro_points = 5.0;
+        config.SYM_LYSIS_RES(sym_repro_points);
+        config.BURST_TIME(burst_timer);
+
+        WHEN("It is time to burst"){
+            double int_val = 0;
+            emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+            
+            //create two hosts and add both to world as neighbors
+            Host * orig_h = new Host(random, &w, &config, int_val);
+            Host * new_h = new Host(random, &w, &config, int_val);
+            orig_h->AddSymbiont(p);
+            world->AddOrgAt(orig_h, 0);
+            world->AddOrgAt(new_h, 1);
+
+            //add phage offspring to the original host's repro syms
+            emp::Ptr<Organism> p_baby1 = p->reproduce();
+            emp::Ptr<Organism> p_baby2 = p->reproduce();
+            orig_h->AddReproSym(p_baby1);
+            orig_h->AddReproSym(p_baby2);
+ 
+            //call the process such that the phage bursts and we can check injection
+            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
+            p->SetBurstTimer(burst_timer);
+            p->Process(location);
+
+            THEN("The phage offspring are injected into new hosts and the current host dies"){
+                REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
+                REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
+                REQUIRE(orig_h->GetDead() == true);
+            }
+        }
 
         WHEN("It is not time to burst"){
             double int_val = 0;
@@ -322,7 +432,7 @@ TEST_CASE("Phage process"){
 
             WHEN("The phage has enough resources to reproduce"){
                 double expected_repro_syms_size_post_process = size(h->GetReproSymbionts()) + 1; //one offspring created
-                double orig_points = 5.0;
+                double orig_points = sym_repro_points;//symbiont given enough resources to produce one offspring
                 double expected_points = 0.0;
                 p->SetPoints(orig_points);
                 p->Process(location);
@@ -334,41 +444,11 @@ TEST_CASE("Phage process"){
                     REQUIRE(p->GetPoints() == expected_points);
                 }
             }
-            delete h; //will also delete its syms, including p
+            delete h;
         }
 
-        WHEN("It is time to burst"){
-            double int_val = 0;
-            emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-            
-            //create two hosts and add both to world as neighbors
-            Host * orig_h = new Host(random, &w, &config, int_val);
-            Host * new_h = new Host(random, &w, &config, int_val);
-            orig_h->AddSymbiont(p);
-            world->AddOrgAt(orig_h, 0);
-            world->AddOrgAt(new_h, 1);
-
-            //add phage offspring to the original host's repro syms
-            emp::Ptr<Organism> p_baby1 = p->reproduce();
-            emp::Ptr<Organism> p_baby2 = p->reproduce();
-            orig_h->AddReproSym(p_baby1);
-            orig_h->AddReproSym(p_baby2);
- 
-            //call the process such that the phage bursts and we can check injection
-            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
-            p->SetBurstTimer(10.0);
-            p->Process(location);
-
-            THEN("The phage offspring are injected into new hosts and the current host dies"){
-                REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
-                REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
-                REQUIRE(orig_h->GetDead() == true);
-            }
-            //deleting hosts also deletes any symbiont pointers
-            // delete orig_h;
-            // delete new_h;
-        }
     }
+
 }
 
 TEST_CASE("Phage ProcessResources"){
