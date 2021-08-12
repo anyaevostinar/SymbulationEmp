@@ -149,11 +149,23 @@ class Organism {
   virtual double GetLysisChance() {
     std::cout << "GetLysisChance called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual double GetInductionChance() {
+    std::cout << "GetInductionChance called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void SetLysisChance(double _in){
     std::cout << "SetLysisChance called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetInductionChance(double _in){
+    std::cout << "SetInductionChance called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual void uponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void LysisBurst(size_t location) {
+    std::cout << "LysisBurst called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void LysisStep() {
+    std::cout << "LysisStep called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;

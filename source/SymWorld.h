@@ -66,6 +66,7 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -110,6 +111,7 @@ public:
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_lysischance) data_node_lysischance.Delete();
+    if (data_node_inductionchance) data_node_inductionchance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
@@ -290,7 +292,7 @@ public:
   /**
    * Input: The pointer to the new organism; 
    * the world position of the location to add
-   * the new organism to. 
+   * the new organism. 
    * 
    * Output: None
    * 
@@ -393,30 +395,7 @@ public:
       if(new_loc < sym_pop.size()) AddOrgAt(new_sym, new_loc);
     }
   }
- 
- 
-  /**
-   * Input: The address of the string representing the file to be 
-   * created's name 
-   * 
-   * Output: The address of the DataFile that has been created. 
-   * 
-   * Purpose: To set up the file that will be used to track mean_burstsize,
-   * and burst_count. 
-   */
-  emp::DataFile & SetupLysisFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node1 = GetBurstSizeDataNode();
-    auto & node = GetBurstCountDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node1, "mean_burstsize", "Average burst size", true);
-    file.AddTotal(node, "burst_count", "Average burst count", true);
-    file.PrintHeaderKeys();
- 
-    return file;
-  }
- 
- 
+  
   /**
    * Input: The address of the string representing the file to be 
    * created's name 
@@ -486,12 +465,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output: 
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose: 
-   */    
+   * Purpose: To set up the file that will be used to track 
+   * information about the PGG symbiont's interaction values
+   */   
   emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
@@ -589,10 +570,14 @@ public:
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetLysisChanceDataNode();
-    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    auto & node2 = GetBurstSizeDataNode();
+    auto & node3 = GetBurstCountDataNode();
     file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_lysischance", "Average chance of lysis");
     file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddMean(node2, "mean_burstsize", "Average burst size", true);
+    file.AddTotal(node3, "burst_count", "Average burst count", true);
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddMean(node, "mean_lysischance", "Average chance of lysis");
     file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
     file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
@@ -609,14 +594,54 @@ public:
     return file;
   }
  
+ /**
+   * Input: The address of the string representing the file to be 
+   * created's name 
+   * 
+   * Output: The address of the DataFile that has been created. 
+   * 
+   * Purpose: To set up the file that will be used to track mean 
+   * induction chance, the number of symbionts, and the histogram of
+   * the mean induction chance.
+   */
+    emp::DataFile & SetupInductionChanceFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node1 = GetSymCountDataNode();
+    auto & node = GetInductionChanceDataNode();
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_inductionchance", "Average chance of induction");
+    file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
  
+    file.PrintHeaderKeys();
+ 
+    return file;
+  }
+
   /**
-   * Input:#
+   * Input: The address of the string representing the file to be 
+   * created's name 
    * 
-   * Output: 
+   * Output: The address of the DataFile that has been created. 
    * 
-   * Purpose: 
-   */  
+   * Purpose: To set up the file that will be used to track mean 
+   * information about the free living symbionts in the world. 
+   *  This includes: (1) their total count, (2) the counts
+   * of the free and hosted symbionts, (3) the interaction
+   * values for the free and hosted symbionts, and (4) the 
+   * infection chances from the total population, free symbionts,
+   * and hosted symbionts. 
+   */
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename){
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode(); //count
@@ -661,7 +686,7 @@ public:
    * 
    * Purpose: To collect data on the host count to be saved to the 
    * data file that is tracking host count
-   */  
+   */
   emp::DataMonitor<int>& GetHostCountDataNode() {
     if(!data_node_hostcount) {
       data_node_hostcount.New();
@@ -751,12 +776,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<int>& that has the information representing
+   * the count of the uninfected hosts
    * 
-   * Purpose: 
-   */    
+   * Purpose: To collect data on the count of the uninfected hosts to be saved to the 
+   * data file that is tracking the count of the uninfected hosts.  
+   */     
   emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
     //keep track of host organisms that are uninfected
     if(!data_node_uninf_hosts) {
@@ -846,7 +873,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose:#
+   * Purpose: To move a symbiont into a new world position. 
    */  
   void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
     emp::WorldPosition newLoc = GetRandomNeighborPos(i);
@@ -856,7 +883,7 @@ public:
     } else sym.Delete();
   }
  
-
+ 
   /**
    * Input: None
    * 
@@ -962,12 +989,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double>& that has the information representing
+   *  the free symbiont's interaction value. 
    * 
-   * Purpose:
-   */ 
+   * Purpose: To collect data on the interaction value of the free symbionts to be saved to the 
+   * data file that is tracking the interaction value of the free symbionts. 
+   */   
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode() {
     if (!data_node_freesymintval) {
       data_node_freesymintval.New();
@@ -985,11 +1014,12 @@ public:
  
  
   /**
-   * Input:#
+   * Input:None
    * 
    * Output: 
    * 
-   * Purpose:
+   * Purpose: To access the data node that is tracking
+   * the hosted symbiont interaction value
    */ 
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymIntValDataNode() {
     if (!data_node_hostedsymintval) {
@@ -1012,11 +1042,13 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the infection chance for each symbionts. 
    * 
-   * Purpose:
+   * Purpose: To access the data node that is tracking the 
+   * symbiont infection chance 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
     if (!data_node_syminfectchance) {
@@ -1042,11 +1074,14 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the free symbionts' chance of infection
    * 
-   * Purpose:
+   * 
+   * Purpose: To access the data node that is tracking the 
+   * infection chance within the free symbionts. 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode() {
     if (!data_node_freesyminfectchance) {
@@ -1065,11 +1100,13 @@ public:
  
  
   /**
-   * Input:#
+   * Input: None
    * 
-   * Output: 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the infection chance for the hosted symbionts 
    * 
-   * Purpose:
+   * Purpose: To retrieve the data nodes that is tracking the 
+   * infection chance within the hosted symbionts. 
    */  
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
     if (!data_node_hostedsyminfectchance) {
@@ -1095,10 +1132,10 @@ public:
    * Input: None
    * 
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of lysis for each symbionts. 
+   * the chance of lysis for each symbiont. 
    * 
    * Purpose: To collect data on the chance of lysis for each symbiont to be saved to the 
-   * data file that is tracking chance of lysis for each symbiont. 
+   * data file that is tracking the chance of lysis for each symbiont. 
    */
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
     if (!data_node_lysischance) {
@@ -1122,7 +1159,37 @@ public:
     return *data_node_lysischance;
   }
  
- 
+ /**
+   * Input: None
+   * 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the chance of induction for each symbionts. 
+   * 
+   * Purpose: To collect data on the chance of induction for each symbiont to be saved to the 
+   * data file that is tracking chance of induction for each symbiont. 
+   */
+  emp::DataMonitor<double,emp::data::Histogram>& GetInductionChanceDataNode() {
+    if (!data_node_inductionchance) {
+      data_node_inductionchance.New();
+      OnUpdate([this](size_t){
+        data_node_inductionchance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            int sym_size = syms.size();
+            for(size_t j=0; j< sym_size; j++){
+              data_node_inductionchance->AddDatum(syms[j]->GetInductionChance());
+            }//close for
+          }//close if
+          if (sym_pop[i]){
+            data_node_inductionchance->AddDatum(sym_pop[i]->GetInductionChance());
+          }
+        }//close for
+      });
+    }
+    return *data_node_inductionchance;
+  }
+
   /**
    * Input: The double representing the number of resources each host gets in each update. 
    * 
@@ -1183,7 +1250,7 @@ public:
    * 
    * Output: None
    * 
-   * Purpose: #
+   * Purpose: To move a symbiont, either into a host, or into a free world position
    */  
   void MoveFreeSym(size_t i){
     //the sym can either move into a parallel sym or to some random position
@@ -1197,11 +1264,12 @@ public:
  
  
   /**
-   * Input:#
+   * Input: The size_t representing the location of the symbiont to be 
+   * extracted from the world. 
    * 
-   * Output: 
+   * Output: The pointer to the organism that was removed from the world 
    * 
-   * Purpose:
+   * Purpose: To remove a symbiont from the world
    */  
   emp::Ptr<Organism> ExtractSym(size_t i){
     if(sym_pop[i]){
