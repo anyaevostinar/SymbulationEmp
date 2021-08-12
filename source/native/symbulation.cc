@@ -49,19 +49,21 @@ int symbulation_main(int argc, char * argv[])
   //Set up files
   //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
 
+  std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
+
   if (config.LYSIS() == 1) {
-    world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
-    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }else if(config.PGG() == 1){
-    world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
-  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   if (config.EFFICIENT_SYM() == 1) {
-    world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
   if(config.FREE_LIVING_SYMS() == 1){
-    world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+".data").SetTimingRepeat(TIMING_REPEAT);
+    world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
 
   worldSetup(&world, &config);
