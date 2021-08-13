@@ -349,7 +349,7 @@ TEST_CASE( "InjectSymbiont" ){
         w.InjectSymbiont(sym);
         REQUIRE(w.GetNumOrgs() == 2);
 
-        REQUIRE(w.GetSymPop()[2] == sym);
+        REQUIRE(sym == w.GetSymPop().at(2));
       }
     }
   }
@@ -368,8 +368,7 @@ TEST_CASE( "DoBirth" ){
     WHEN( "born into an empty spot" ){
       THEN( "occupies that spot" ){
         w.DoBirth(host, 0);
-        emp::Ptr<Organism> new_host = &w.GetOrg(1);
-
+        emp::Ptr<Organism> new_host = w.GetPop().at(1);
         REQUIRE(w.GetNumOrgs() == 1);
         REQUIRE(new_host == host);
       }
