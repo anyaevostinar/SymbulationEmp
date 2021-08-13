@@ -1209,6 +1209,21 @@ public:
     }
   }
 
+  /**
+   * Input: The size_t location of the sym to be pointed to.
+   *
+   * Output: A pointer to the sym.
+   *
+   * Purpose: To allow access to syms at a specified location in the sym_pop.
+   */
+   emp::Ptr<Organism> GetSymAt(size_t location){
+     if (location >= 0 && location < sym_pop.size()){
+       return sym_pop[location];
+     } else {
+       throw "Attempted to get out of bounds sym.";
+     }
+   }
+
 
   /**
    * Input: The size_t location of a symbiont to be extracted.

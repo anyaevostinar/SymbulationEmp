@@ -249,20 +249,20 @@ TEST_CASE("Steal resources unit test"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;
-    SymConfigBase config; 
-        
+    SymConfigBase config;
+
 
     WHEN ("sym_int_val < host_int_val"){
         double sym_int_val = -0.6;
-        
+
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
             Host * h = new Host(random, &w, &config, host_int_val);
-            
+
             h->SetResInProcess(100);
             double expected_stolen = 60; // sym_int_val * res_in_process * -1
             double expected_res_in_process = 40; // res_in_process - expected_stolen
-            
+
             THEN("Amount stolen is dependent only on sym_int_val"){
                 REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
                 REQUIRE(h->GetResInProcess() == expected_res_in_process);
@@ -271,11 +271,11 @@ TEST_CASE("Steal resources unit test"){
         WHEN("host_int_val < 0"){
             double host_int_val = -0.2;
             Host * h = new Host(random, &w, &config, host_int_val);
-            
+
             h->SetResInProcess(100);
             double expected_stolen = 40; // (host_int_val - sym_int_val) * res_in_process
             double expected_res_in_process = 60; // res_in_process - expected_stolen
-            
+
             THEN("Amount stolen is dependent on both sym_int_val and host_int_val"){
                 REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
                 REQUIRE(h->GetResInProcess() == expected_res_in_process);
@@ -287,14 +287,88 @@ TEST_CASE("Steal resources unit test"){
         double sym_int_val = -0.3;
         double host_int_val = -0.5;
         Host * h = new Host(random, &w, &config, host_int_val);
-            
+
         h->SetResInProcess(100);
         double expected_stolen = 0;
-        double expected_res_in_process = 100; 
-            
+        double expected_res_in_process = 100;
+
             THEN("Symbiont fails to steal resources"){
                 REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
                 REQUIRE(h->GetResInProcess() == expected_res_in_process);
             }
         }
+}
+
+TEST_CASE("GetDoEctosymbiosis"){
+  GIVEN("A world"){
+    emp::Ptr<emp::Random> random = new emp::Random(17);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    w.Resize(2,2);
+    double int_val = 0.5;
+    size_t host_pos = 0;
+
+    WHEN("Ectosymbiosis is off but other conditions are met"){
+      config.ECTOSYMBIOSIS(0);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos);
+      THEN("Returns false"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
+      }
+    }
+    WHEN("There is no parallel sym but other conditions are met"){
+      config.ECTOSYMBIOSIS(1);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos + 1);
+      THEN("Returns false"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
+      }
+    }
+    WHEN("Ectosymbiotic immunity is on and the host has a sym, but other conditions are met"){
+      config.ECTOSYMBIOSIS(1);
+      config.ECTOSYMBIOTIC_IMMUNITY(1);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos);
+      host->AddSymbiont(hosted_sym);
+
+      THEN("Returns false"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
+      }
+    }
+    WHEN("Ectosymbiosis is on, there is a parallel sym, ectosymbiotic immunity is off, and the host has a sym"){
+      config.ECTOSYMBIOSIS(1);
+      config.ECTOSYMBIOTIC_IMMUNITY(0);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos);
+      host->AddSymbiont(hosted_sym);
+
+      THEN("Returns true"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == true);
+      }
+    }
+    WHEN("Ectosymbiosis is on, there is a parallel sym, ectosymbiotic immunity is on, and the host does not have a sym"){
+      config.ECTOSYMBIOSIS(1);
+      config.ECTOSYMBIOTIC_IMMUNITY(1);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos);
+
+      THEN("Returns true"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == true);
+      }
+    }
+  }
 }

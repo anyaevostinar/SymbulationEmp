@@ -5,9 +5,9 @@
 TEST_CASE( "Host-Symbiont interactions") {
   SymConfigBase config;
   config.SYM_LIMIT(3);
-  
+
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
-    emp::Random random; 
+    emp::Random random;
     SymWorld w(random);
     double host_interaction_val = 0.5;
     double host_points = 17;
@@ -19,7 +19,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetReproSymbionts().size() == 0 );
     REQUIRE( h.GetResTypes().size() == 0 );
     REQUIRE( h.GetPoints() == host_points );
-  
+
     WHEN( "resources are distributed" ) {
       h.DistribResources(host_resource);
 
@@ -106,7 +106,7 @@ TEST_CASE( "Host-Symbiont interactions") {
       emp::Ptr<Symbiont> s8;
       s8.New(&random, &w, &config, .12, 108);
       h.AddSymbiont(s8);
-      
+
 
       THEN( "the host gains as many symbionts as the limit" ) {
         REQUIRE( h.GetSymbionts().size() == 3 );
@@ -137,7 +137,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
   }
 
-  
+
 
   GIVEN( "an empty slightly defensive host" ) {
     emp::Random random(10);
@@ -149,7 +149,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetReproSymbionts().size() == 0 );
     REQUIRE( h.GetResTypes().size() == 0 );
     REQUIRE( h.GetPoints() == 0 );
-  
+
     WHEN( "resources are distributed" ) {
       h.DistribResources(1);
 
@@ -261,6 +261,124 @@ TEST_CASE( "Host-Symbiont interactions") {
       }
       THEN( "with the exception of resources spent on defense, resources are conserved" ) {
         REQUIRE( h.GetSymbionts()[0]->GetPoints() + h.GetSymbionts()[1]->GetPoints() + h.GetSymbionts()[2]->GetPoints() + h.GetPoints() == Approx(.8) );
+      }
+    }
+  }
+}
+
+TEST_CASE("Ectosymbiosis"){
+  emp::Random random(17);
+  SymConfigBase config;
+  SymWorld w(random);
+  w.Resize(1,1);
+
+  WHEN("Ectosymbiosis is off"){
+    config.ECTOSYMBIOSIS(0);
+    config.SYM_INFECTION_CHANCE(0.0);
+    w.SetMoveFreeSyms(0);
+    w.SetFreeLivingSyms(1);
+    double int_val = 0.5;
+
+    emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+    w.AddOrgAt(sym,0);
+    w.AddOrgAt(host,0);
+    REQUIRE(sym->GetPoints() == 0);
+    REQUIRE(host->GetPoints() == 0);
+
+    double res = 10;
+    double sym_res = 0;
+    double host_res = res * int_val;
+
+    res = host->HandleEctosymbiosis(res, 0);
+    host->DistribResources(res);
+
+    THEN("Parallel organisms don't distribute resources together"){
+      REQUIRE(sym->GetPoints() == sym_res);
+      REQUIRE(host->GetPoints() == host_res);
+    }
+  }
+  WHEN("Ectosymbiosis is on"){
+    config.ECTOSYMBIOSIS(1);
+    config.SYM_INFECTION_CHANCE(0.0);
+    w.SetMoveFreeSyms(0);
+    w.SetFreeLivingSyms(1);
+
+    WHEN("Parallel organisms are mutualistic"){
+      double int_val = 0.5;
+
+      config.ECTOSYMBIOSIS(1);
+      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+      w.AddOrgAt(sym,0);
+      w.AddOrgAt(host,0);
+
+      REQUIRE(sym->GetPoints() == 0);
+      REQUIRE(host->GetPoints() == 0);
+
+      double res = 10;
+      int synergy = 5;
+
+      double host_res = (res * int_val) + (res * int_val * int_val * synergy); //host portion + sym donation
+      double sym_res = res * int_val * int_val;
+
+      res = host->HandleEctosymbiosis(res, 0);
+      host->DistribResources(res);
+
+      THEN("Parallel organism interaction benefits both"){
+        REQUIRE(sym->GetPoints() == sym_res);
+        REQUIRE(host->GetPoints() == host_res);
+      }
+    }
+    WHEN("A hosted sym confers immunity to ectosymbiosis"){
+      double int_val = 0.5;
+
+      config.ECTOSYMBIOSIS(1);
+      config.ECTOSYMBIOTIC_IMMUNITY(1);
+
+      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Organism> parallel_sym = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = new Symbiont(&random, &w, &config, int_val);
+      w.AddOrgAt(parallel_sym,0);
+      w.AddOrgAt(host,0);
+      host->AddSymbiont(hosted_sym);
+
+      REQUIRE(parallel_sym->GetPoints() == 0);
+      REQUIRE(hosted_sym->GetPoints() == 0);
+      REQUIRE(host->GetPoints() == 0);
+
+      double res = 10;
+      int synergy = 5;
+
+      double host_res = (res * int_val) + (res * int_val * int_val * synergy); //host portion + sym donation
+      double hosted_sym_res = res * int_val * int_val;
+
+      res = host->HandleEctosymbiosis(res, 0);
+      host->DistribResources(res);
+
+      THEN("The parallel symbiont does not recieve resources"){
+        REQUIRE(hosted_sym->GetPoints() == hosted_sym_res);
+        REQUIRE(parallel_sym->GetPoints() == 0);
+        REQUIRE(host->GetPoints() == host_res);
+      }
+    }
+    WHEN("There is no parallel sym"){
+      double int_val = 0.5;
+
+      config.ECTOSYMBIOSIS(1);
+
+      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(host,0);
+      REQUIRE(host->GetPoints() == 0);
+
+      double res = 10;
+      double host_res = res * int_val;
+
+      res = host->HandleEctosymbiosis(res, 0);
+      host->DistribResources(res);
+
+      THEN("The host does not get a sym modifier on its resources"){
+        REQUIRE(host->GetPoints() == host_res);
       }
     }
   }

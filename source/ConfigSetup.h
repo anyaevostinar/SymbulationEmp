@@ -45,6 +45,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
     VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living syms move around in the world? 0 for no, 1 for yes"),
+    VALUE(ECTOSYMBIOSIS, bool, 0, "Do free-living syms and parallel hosts interact? (0 for no, 1 for yes)"),
+    VALUE(ECTOSYMBIOTIC_IMMUNITY, bool, 0, "Does a hosted sym confer immunity to ectosymbiosis? (0 for no, 1 for yes)"),
 
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),

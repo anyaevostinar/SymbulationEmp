@@ -781,3 +781,31 @@ TEST_CASE("AddOrgAt"){
     }
   }
 }
+
+TEST_CASE("GetSymAt"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+
+
+    WHEN("a request is made for an in-bounds sym"){
+      emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
+      w.AddOrgAt(sym1, 0);
+      w.AddOrgAt(sym2, 1);
+      THEN("the sym at that position is returned"){
+        REQUIRE(w.GetSymAt(0) == sym1);
+        REQUIRE(w.GetSymAt(1) == sym2);
+        REQUIRE(w.GetSymAt(2) == nullptr);
+      }
+    }
+    WHEN("a request is made for an out-of-bounds sym"){
+      THEN("an exception is thrown"){
+        REQUIRE_THROWS(w.GetSymAt(4));
+      }
+    }
+  }
+}

@@ -384,6 +384,7 @@ TEST_CASE("Phage ProcessResources"){
         double int_val=0;
         //emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         emp::Ptr<Phage> p;
+        emp::Ptr<Organism> h;
         p.New(random, world, &config, int_val);
         p->uponInjection();
 
@@ -391,7 +392,7 @@ TEST_CASE("Phage ProcessResources"){
         double expected_return = 0;
 
         THEN("Phage doesn't take or give resources to the host"){
-            REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+            REQUIRE(p->ProcessResources(h,sym_piece)==expected_return);
         }
 
         p.Delete();

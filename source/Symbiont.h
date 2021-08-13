@@ -416,14 +416,14 @@ public:
    *
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double hostDonation){
+  double ProcessResources(emp::Ptr<Organism> host, double hostDonation){
     double sym_int_val = GetIntVal();
     double sym_portion = 0;
     double host_portion = 0;
     double synergy = my_config->SYNERGY();
 
     if (sym_int_val<0){
-      double stolen = my_host->StealResources(sym_int_val);
+      double stolen = host->StealResources(sym_int_val);
       host_portion = 0;
       sym_portion = stolen + hostDonation;
     }
