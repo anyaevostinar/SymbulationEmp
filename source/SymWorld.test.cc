@@ -358,7 +358,7 @@ TEST_CASE( "InjectSymbiont" ){
     }
   }
 }
-/*
+
 TEST_CASE( "DoBirth" ){
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -407,7 +407,7 @@ TEST_CASE( "DoBirth" ){
     }
   }
 }
-*/
+
 TEST_CASE( "SymDoBirth" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
