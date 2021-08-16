@@ -38,9 +38,10 @@ TEST_CASE("Pggmutate") {
 
         s->mutate();
        
-        double int_val_post_mutation = 0.0092037339; 
-        THEN("Mutation occurs and interaction value changes") {
-            REQUIRE(s->GetDonation() == Approx(int_val_post_mutation));
+        THEN("Mutation occurs and donation value changes, but stays within bounds") {
+            REQUIRE(s->GetDonation() != donation);
+            REQUIRE(s->GetDonation() <= 1);
+            REQUIRE(s->GetDonation() >= 0);
         }
     }
     WHEN("Mutation rate is zero") {
@@ -77,9 +78,9 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     PggHost * h = new PggHost(random, &w, &config, host_int_val);
     h->AddSymbiont(s);
 
-    double piece = 40;
-        // double host_donation = 20; //sym_piece * host_int_val;  
-    double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
+    //double piece = 40;
+    // double host_donation = 20; //sym_piece * host_int_val;  
+    //double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     h->DistribResources(40);
     
     CHECK(s->GetPoints() == 40.4);

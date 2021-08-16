@@ -10,16 +10,17 @@ TEST_CASE("EfficientSymbiont mutate") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
-        double efficiency = 0.5;
+        double orig_efficiency = 0.5;
         double points = 0;
         config.MUTATION_SIZE(0.002);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
         
         s->mutate();
 
-        double efficiency_post_mutation = 0.5016575043;
-        THEN("Mutation occurs and efficiency value changes") {
-            REQUIRE(s->GetEfficiency() == Approx(efficiency_post_mutation));
+        THEN("Mutation occurs and efficiency value changes, but within bounds") {
+            REQUIRE(s->GetEfficiency() != orig_efficiency);
+            REQUIRE(s->GetEfficiency() <= 1);
+            REQUIRE(s->GetEfficiency() >= 0);
         }
     }
 
@@ -140,9 +141,9 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
-            double sym_baby_efficiency = 0.5139135536;
             REQUIRE( sym_baby->GetEfficiency() != parent_orig_efficiency);
-            REQUIRE( sym_baby->GetEfficiency() == Approx(sym_baby_efficiency));
+            REQUIRE(sym_baby->GetEfficiency() <= 1);
+            REQUIRE(sym_baby->GetEfficiency() >= 0);
         }
 
         THEN("Offspring's points are zero") {
