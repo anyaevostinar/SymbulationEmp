@@ -46,7 +46,16 @@ class Organism {
   }
   virtual void Process(size_t location)
    {std::cout << "Process called from Organism" << std::endl;
-     throw "Organism method called!";}
+     throw "Organism method called!";
+  }
+  virtual double GetIncVal() {
+    std::cout << "GetIncVal called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetIncVal(double _in){
+    std::cout << "SetIncVal called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
@@ -136,14 +145,6 @@ class Organism {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
 
-  //Bacterium functions
-  virtual double GetGenomeValue() {
-    std::cout << "GetGenomeValue called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual void SetGenomeValue(double _in){
-    std::cout << "SetGenomeValue called from Organism" << std::endl;
-    throw "Organism method called!";}
-
   //Phage functions
   virtual double GetBurstTimer() {
     std::cout << "GetBurstTimer called from Organism" << std::endl;
@@ -177,12 +178,6 @@ class Organism {
     throw "Organism method called!";}
   virtual bool GetLysogeny() {
     std::cout << "GetLysogeny called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual double GetIncorporationValue() {
-    std::cout << "GetIncorporationValue called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual void SetIncorporationValue(double _in){
-    std::cout << "SetIncorporationValue called from Organism" << std::endl;
     throw "Organism method called!";}
 
   //Public goods game host functions 

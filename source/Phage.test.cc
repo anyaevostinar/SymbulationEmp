@@ -7,56 +7,98 @@ TEST_CASE("Phage constructor, GetIntVal") {
     SymConfigBase config;
     SymWorld * world = &w;
    
-    double int_val = -1;
-    Phage * p = new Phage(random, world, &config, int_val);
-    double expected_int_val = -1;
-    REQUIRE(p->GetIntVal() == expected_int_val);
+    WHEN("Int val is passed in as negative"){
+        double int_val = -1;
+        Phage * p = new Phage(random, world, &config, int_val);
+        double expected_int_val = -1;
+        THEN("Int val is set to be negative"){
+            REQUIRE(p->GetIntVal() == expected_int_val);
+        }
+        delete p;
+    }
+    
+    WHEN("Int val is passed in as zero"){
+        double int_val = 0;
+        Phage * p2 = new Phage(random, world, &config, int_val);
+        double expected_int_val = 0;
 
-    int_val = 0;
-    Phage * p2 = new Phage(random, world, &config, int_val);
-    expected_int_val = 0;
-    REQUIRE(p2->GetIntVal() == expected_int_val);
-   
-    config.LYSIS_CHANCE(-1);
-    Phage * p3 = new Phage(random, world, &config, int_val);
-    REQUIRE(p3->GetLysisChance() >= 0);
-    REQUIRE(p3->GetLysisChance() <= 1);
-   
-    config.LYSIS_CHANCE(.5);
-    Phage * p4 = new Phage(random, world, &config, int_val);
-    double expected_lysis_chance = 0.5;
-    REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+        THEN("Int val is set to be zero"){
+            REQUIRE(p2->GetIntVal() == expected_int_val);
+        }
+        delete p2;
+    }
 
-    config.CHANCE_OF_INDUCTION(-1);
-    Phage * p5 = new Phage(random, world, &config, int_val);
-    REQUIRE(p5->GetInductionChance() >= 0);
-    REQUIRE(p5->GetInductionChance() <= 1);
+    WHEN("Lysis chance is random"){
+        double int_val = 0;
+        config.LYSIS_CHANCE(-1);
+        Phage * p3 = new Phage(random, world, &config, int_val);
 
-    config.CHANCE_OF_INDUCTION(0.2);
-    Phage * p6 = new Phage(random, world, &config, int_val);
-    double expected_induction_chance = 0.2;
-    REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+        THEN("Lysis chance is randomly between 0 and 1"){
+            REQUIRE(p3->GetLysisChance() >= 0);
+            REQUIRE(p3->GetLysisChance() <= 1);
+        }
+        delete p3;
+    }
 
-    config.INCORPORATION_VAL(-1);
-    Phage * p7 = new Phage(random, world, &config, int_val);
-    double expected_incorporation_value =  0.84137536;
-    REQUIRE(p7->GetIncorporationValue() == Approx(expected_incorporation_value));
+    WHEN("Lysis chance is not random"){
+        double int_val = 0;
+        config.LYSIS_CHANCE(.5);
+        Phage * p4 = new Phage(random, world, &config, int_val);
+        double expected_lysis_chance = 0.5;
 
-    config.INCORPORATION_VAL(0.3);
-    Phage * p8 = new Phage(random, world, &config, int_val);
-    expected_incorporation_value = 0.3;
-    REQUIRE(p8->GetIncorporationValue() == expected_incorporation_value);
+        THEN("Lysis chance is set to what was passed in"){
+            REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+        }
+        delete p4;
+    }
 
-    delete p;
-    delete p2;
-    delete p3;
-    delete p4;
-    delete p5;
-    delete p6;
-    delete p7;
-    delete p8;
+    WHEN("Chance of induction is random"){
+        double int_val = 0;
+        config.CHANCE_OF_INDUCTION(-1);
+        Phage * p5 = new Phage(random, world, &config, int_val);
 
+        THEN("Chance of induction is randomly between 0 and 1"){
+            REQUIRE(p5->GetInductionChance() >= 0);
+            REQUIRE(p5->GetInductionChance() <= 1);
+        }
+        delete p5;
+    }
 
+    WHEN("Chance of induction is not random"){
+        double int_val = 0;
+        config.CHANCE_OF_INDUCTION(0.2);
+        Phage * p6 = new Phage(random, world, &config, int_val);
+        double expected_induction_chance = 0.2;
+
+        THEN("Chance of induction is set to what was passed in"){
+            REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+        }
+        delete p6;
+    }
+    
+    WHEN("Incorporation val is random"){
+        double int_val = 0;
+        config.PHAGE_INC_VAL(-1);
+        Phage * p7 = new Phage(random, world, &config, int_val);
+
+        THEN("Incorporation val is randomly between 0 and 1"){
+            REQUIRE(p7->GetIncVal() >= 0);
+            REQUIRE(p7->GetIncVal() <= 1);
+        }
+        delete p7;
+    }
+
+    WHEN("Incorporation val is not random"){
+        double int_val = 0;
+        config.PHAGE_INC_VAL(0.3);
+        Phage * p8 = new Phage(random, world, &config, int_val);
+        double expected_incorporation_value = 0.3;
+
+        THEN("Incorporation val is set to what was passed in"){
+            REQUIRE(p8->GetIncVal() == expected_incorporation_value);
+        }
+        delete p8;
+    }
 }
 
 TEST_CASE("Phage reproduce") {
@@ -187,7 +229,7 @@ TEST_CASE("Phage SetInductionChance, GetInductionChance"){
     delete p;
 }
 
-TEST_CASE("Phage SetIncorporationValue, GetIncorporationValue"){
+TEST_CASE("Phage SetIncVal, GetIncVal"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
     SymWorld * world = &w;
@@ -196,9 +238,9 @@ TEST_CASE("Phage SetIncorporationValue, GetIncorporationValue"){
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
 
     double incorporation_val = 0.5;
-    p->SetIncorporationValue(incorporation_val);
+    p->SetIncVal(incorporation_val);
     double expected_incorporation_value = 0.5;
-    REQUIRE(p->GetIncorporationValue() == expected_incorporation_value);
+    REQUIRE(p->GetIncVal() == expected_incorporation_value);
 
     delete p;
 }
@@ -237,14 +279,15 @@ TEST_CASE("phage_mutate"){
     SymConfigBase config;
     config.LYSIS_CHANCE(0.5);
     config.CHANCE_OF_INDUCTION(0.5);
-    config.INCORPORATION_VAL(0.5);
+    config.PHAGE_INC_VAL(0.5);
 
     WHEN("Mutation rate is not zero and chance of lysis/induction/incorporation mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
-        config.MUTATE_INCORPORATION(1);
+        config.MUTATE_PHAGE_INC_VAL(1);
+
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         THEN("Mutation occurs and chance of lysis changes") {
@@ -254,6 +297,9 @@ TEST_CASE("phage_mutate"){
             REQUIRE(p->GetInductionChance() != 0.5);
             REQUIRE(p->GetInductionChance() >= 0.5 - 0.002*3);
             REQUIRE(p->GetInductionChance() <= 0.5 + 0.002*3);
+            REQUIRE(p->GetIncVal() != 0.5);
+            REQUIRE(p->GetIncVal() >= 0.5 - 0.002*3);
+            REQUIRE(p->GetIncVal() <= 0.5 + 0.002*3);
         }
         delete p;
     }
@@ -263,7 +309,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
-        config.MUTATE_INCORPORATION(0);
+        config.MUTATE_PHAGE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
@@ -272,7 +318,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
-            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -283,7 +329,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
-        config.MUTATE_INCORPORATION(1);
+        config.MUTATE_PHAGE_INC_VAL(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
@@ -292,7 +338,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
-            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -303,7 +349,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
-        config.MUTATE_INCORPORATION(0);
+        config.MUTATE_PHAGE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
@@ -312,7 +358,7 @@ TEST_CASE("phage_mutate"){
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
-            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }

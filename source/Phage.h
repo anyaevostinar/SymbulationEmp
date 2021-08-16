@@ -98,8 +98,8 @@ public:
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
-    incorporation_val = my_config->INCORPORATION_VAL();
-    mutate_incorporation_val = my_config->MUTATE_INCORPORATION();
+    incorporation_val = my_config->PHAGE_INC_VAL();
+    mutate_incorporation_val = my_config->MUTATE_PHAGE_INC_VAL();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
@@ -197,7 +197,7 @@ public:
    * 
    * Purpose: To determine a phage's incorporation value.
    */
-  double GetIncorporationValue() {return incorporation_val;}
+  double GetIncVal() {return incorporation_val;}
  
  
   /**
@@ -207,7 +207,7 @@ public:
    * 
    * Purpose: To set a phage's incorporation value.
    */
-  void SetIncorporationValue(double _in) {incorporation_val = _in;}
+  void SetIncVal(double _in) {incorporation_val = _in;}
 
   /**
    * Input: None
