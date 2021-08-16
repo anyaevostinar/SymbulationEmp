@@ -185,14 +185,17 @@ TEST_CASE("InfectionFails"){
 
     WHEN("sym infection failure rate is between 0 and 1"){
         config.SYM_INFECTION_FAILURE_RATE(0.5);
-        Symbiont * sym;
+        emp::Ptr<Organism> s1 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s2 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s3 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s4 = new Symbiont(random, world, &config, int_val);
         size_t failed_infection_count = 0;
-        size_t total_possible = 10;
+        size_t total_possible = 4;
 
-        for(size_t i; i < total_possible; i++){
-          sym = new Symbiont(random, world, &config, int_val);
-          if(sym->InfectionFails() == true) failed_infection_count++;
-        }
+        if(s1->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s2->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s3->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s4->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
 
         THEN("infection sometimes fails, sometimes doesn't"){
             REQUIRE(failed_infection_count < total_possible);
