@@ -8,6 +8,7 @@
 #include "../Pggsym.test.cc"
 #include "../EfficientSymbiont.test.cc"
 #include "../Host.test.cc"
+#include "../Bacterium.test.cc"
 #include "../Phage.test.cc"
 #include "../Symbiont.test.cc"
 #include "../Pgghost.test.cc"

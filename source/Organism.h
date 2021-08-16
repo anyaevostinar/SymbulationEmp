@@ -136,6 +136,14 @@ class Organism {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
 
+  //Bacterium functions
+  virtual double GetGenomeValue() {
+    std::cout << "GetGenomeValue called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetGenomeValue(double _in){
+    std::cout << "SetGenomeValue called from Organism" << std::endl;
+    throw "Organism method called!";}
+
   //Phage functions
   virtual double GetBurstTimer() {
     std::cout << "GetBurstTimer called from Organism" << std::endl;
