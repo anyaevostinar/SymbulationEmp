@@ -78,9 +78,9 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     PggHost * h = new PggHost(random, &w, &config, host_int_val);
     h->AddSymbiont(s);
 
-    double piece = 40;
-        // double host_donation = 20; //sym_piece * host_int_val;  
-    double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
+    //double piece = 40;
+    // double host_donation = 20; //sym_piece * host_int_val;  
+    //double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     h->DistribResources(40);
     
     CHECK(s->GetPoints() == 40.4);
