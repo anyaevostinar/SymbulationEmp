@@ -17,7 +17,7 @@ protected:
     * 
     * 
   */  
-  double genome = 0;
+  double host_incorporation_val = 0;
 
   /**
     * 
@@ -26,7 +26,7 @@ protected:
     * 
     * 
   */  
-  bool mutate_genome = false;
+  bool mutate_host_inc_val = false;
  
 public:
  
@@ -38,10 +38,10 @@ public:
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   std::set<int> _set = std::set<int>(),
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points)  { 
-    genome = my_config->GENOME_VAL();
-    mutate_genome = my_config->MUTATE_GENOME();
-    if(genome == -1){
-      genome = random->GetDouble(0.0, 1.0);
+    host_incorporation_val = my_config->HOST_INC_VAL();
+    mutate_host_inc_val = my_config->MUTATE_HOST_INC_VAL();
+    if(host_incorporation_val == -1){
+      host_incorporation_val = random->GetDouble(0.0, 1.0);
     }
   }
  
@@ -81,7 +81,7 @@ public:
    * 
    * Purpose: To determine a genome's value.
    */
-  double GetGenomeValue() {return genome;}
+  double GetIncVal() {return host_incorporation_val;}
  
  
   /**
@@ -91,7 +91,7 @@ public:
    * 
    * Purpose: To set a bacterium's genome value
    */
-  void SetGenomeValue(double _in) {genome = _in;}
+  void SetIncVal(double _in) {host_incorporation_val = _in;}
 
   /**
    * Input: None
@@ -108,12 +108,12 @@ public:
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
       
       //mutate host genome if enabled      
-      if(mutate_genome){
-        genome += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
+      if(mutate_host_inc_val){
+        host_incorporation_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
         
-        if(genome < 0) genome = 0;
+        if(host_incorporation_val < 0) host_incorporation_val = 0;
         
-        else if(genome > 1) genome = 1;
+        else if(host_incorporation_val > 1) host_incorporation_val = 1;
       }
     }
   }
