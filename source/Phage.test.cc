@@ -217,8 +217,6 @@ TEST_CASE("phage_mutate"){
         config.MUTATE_INDUCTION_CHANCE(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
-        double lysis_chance_post_mutation = 0.503078154;
-        double induction_chance_post_mutation = 0.50265243380;
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(p->GetLysisChance() != 0.5);
             REQUIRE(p->GetLysisChance() >= 0.5 - 0.002*3);
@@ -402,7 +400,6 @@ TEST_CASE("Phage process"){
             orig_h->AddReproSym(p_baby2);
  
             //call the process such that the phage bursts and we can check injection
-            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
             p->SetBurstTimer(burst_timer);
             p->Process(location);
 
@@ -429,7 +426,6 @@ TEST_CASE("Phage process"){
                 p->Process(location);
 
                 THEN("The burst timer is incremented but no offspring are created"){
-                    double expected_burst_timer = 1.5306015114;
                     REQUIRE(p->GetBurstTimer() <= 0 + 1*3);
                     REQUIRE(p->GetBurstTimer() >= 0 - 1*3);
                     REQUIRE(p->GetBurstTimer() != 0);
