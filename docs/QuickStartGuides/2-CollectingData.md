@@ -8,7 +8,7 @@ Then navigate to that directory from the terminal. Once you are inside of the da
 you can run simple repeats. For example,
 
 ```shell
-~/SymbulationEmp/<DATA_FOLDER_NAME>$ python3 ../stats_scripts/simple_repeat.pyt
+~/SymbulationEmp/<DATA_FOLDER_NAME>$ python3 ../stats_scripts/simple_repeat.py
 ```
 By default, this will use the random seeds 10-20 (inclusive). 
 You can specify the random seeds using command line arguments, which are optional. T

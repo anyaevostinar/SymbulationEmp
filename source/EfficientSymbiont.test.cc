@@ -10,16 +10,17 @@ TEST_CASE("EfficientSymbiont mutate") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
-        double efficiency = 0.5;
+        double orig_efficiency = 0.5;
         double points = 0;
         config.MUTATION_SIZE(0.002);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
         
         s->mutate();
 
-        double efficiency_post_mutation = 0.5016575043;
-        THEN("Mutation occurs and efficiency value changes") {
-            REQUIRE(s->GetEfficiency() == Approx(efficiency_post_mutation));
+        THEN("Mutation occurs and efficiency value changes, but within bounds") {
+            REQUIRE(s->GetEfficiency() != orig_efficiency);
+            REQUIRE(s->GetEfficiency() <= 1);
+            REQUIRE(s->GetEfficiency() >= 0);
         }
     }
 
@@ -140,9 +141,9 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
-            double sym_baby_efficiency = 0.5139135536;
             REQUIRE( sym_baby->GetEfficiency() != parent_orig_efficiency);
-            REQUIRE( sym_baby->GetEfficiency() == Approx(sym_baby_efficiency));
+            REQUIRE(sym_baby->GetEfficiency() <= 1);
+            REQUIRE(sym_baby->GetEfficiency() >= 0);
         }
 
         THEN("Offspring's points are zero") {
@@ -182,3 +183,38 @@ TEST_CASE("EfficientSymbiont HorizMutate") {
 
     }
 }
+
+TEST_CASE("EfficientSymbiont's Process called from Host") {
+    emp::Ptr<emp::Random> random = new emp::Random(10);
+    SymConfigBase config;
+    config.SYM_HORIZ_TRANS_RES(10);
+    config.EFFICIENT_SYM(1);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    w.Resize(2);
+    
+    config.MUTATION_SIZE(0);
+    config.MUTATION_RATE(0);
+
+    WHEN("An EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
+        double host_interaction_val = 1;
+        double host_points = 0;
+        Host * h = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        Host * h2 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        double points = 11;
+        double int_val = 0;
+        double efficiency = 1;
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        h->AddSymbiont(s);
+        w.AddOrgAt(h, 0);
+        w.AddOrgAt(h2, 1);
+
+        h->Process(0);
+
+        THEN("EfficientSymbiont reproduces and offspring goes into neighboring Host") {
+            REQUIRE(h2->GetSymbionts()[0]->GetEfficiency() == efficiency);
+        }
+
+    }
+}
+

@@ -1,10 +1,6 @@
 # Symbulation Development Practices
- 
- 
-```{contents}
-```
- 
-Although the Symbulation project is primarily maintained by Dr. Anya Vostinar and Symbulab’s undergraduate students at Carleton College.
+
+The Symbulation project is primarily maintained by Dr. Anya Vostinar and Symbulab’s undergraduate students at Carleton College.
  
 The scope of the project and the turnover of our developer base have necessitated investment in extensive social and technical tooling on our part.
  
@@ -25,6 +21,3 @@ In addition to automated quality checks, we enforce manual code reviews on all p
 To help onboard our continuous influx of new library users and new library developers, we maintain documentation [on ReadTheDocs](https://symbulation.readthedocs.io/en/latest/) as part of our continuous integration process.
 
 This documentation includes quick start guides, enumeration of our development practices, as well as an automatically-generated API tree with annotated signatures for all functions, classes, and structs.
-
-In order to make writing documentation easier --- especially for new developers --- we recently switched from using restructured text to using markdown with the help of the [MyST library](https://myst-parser.readthedocs.io/en/latest/).
-

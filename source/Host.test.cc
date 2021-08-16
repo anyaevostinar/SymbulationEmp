@@ -104,14 +104,16 @@ TEST_CASE("Host Mutate") {
 
     Host * h = new Host(random, &w, &config, int_val);
     h->mutate();
-    double expected_int_val = 0.0011560678;
-    REQUIRE(h->GetIntVal() == Approx(expected_int_val));
+    REQUIRE(h->GetIntVal() != int_val);
+    REQUIRE(h->GetIntVal() <= 1);
+    REQUIRE(h->GetIntVal() >= -1);
 
     int_val = -0.31;
     h->SetIntVal(int_val);
     h->mutate();
-    expected_int_val = -0.3072172893;
-    REQUIRE(h->GetIntVal() == Approx(expected_int_val));
+    REQUIRE(h->GetIntVal() != int_val);
+    REQUIRE(h->GetIntVal() <= 1);
+    REQUIRE(h->GetIntVal() >= -1);
 
 }
 
@@ -210,14 +212,14 @@ TEST_CASE("Phage Exclude") {
       config.PHAGE_EXCLUDE(phage_exclude);
 
       THEN("syms have a decreasing change of entering the host"){
-        int goal_num_syms[] = {3,3,2,2};
+        int goal_num_syms[] = {3,3,3,3};
 
         for(int i = 0; i < 4; i ++){
           emp::Ptr<emp::Random> random = new emp::Random(i+1);
           SymWorld w(*random);
 
           Host * h = new Host(random, &w, &config, int_val);
-          for(double i = 0; i < 6; i++){
+          for(double i = 0; i < 10; i++){
             h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
           }
           int host_num_syms = (h->GetSymbionts()).size();
@@ -248,7 +250,6 @@ TEST_CASE("Phage Exclude") {
 TEST_CASE("Steal resources unit test"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
-    SymWorld * world = &w;
     SymConfigBase config;
 
 

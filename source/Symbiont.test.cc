@@ -153,17 +153,6 @@ TEST_CASE("WantsToInfect"){
         }
     }
 
-    WHEN("sym infection chance is between 0 and 1"){
-        config.SYM_INFECTION_CHANCE(0.6);
-        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
-        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
-
-        THEN("syms sometimes want to infect, sometimes not"){
-            REQUIRE(sym1->WantsToInfect() == false);
-            REQUIRE(sym2->WantsToInfect() == true);
-        }
-    }
-
     WHEN("sym infection chance is 1"){
         config.SYM_INFECTION_CHANCE(1);
         Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
@@ -195,13 +184,18 @@ TEST_CASE("InfectionFails"){
     }
 
     WHEN("sym infection failure rate is between 0 and 1"){
-        config.SYM_INFECTION_FAILURE_RATE(0.6);
-        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
-        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+        config.SYM_INFECTION_FAILURE_RATE(0.5);
+        Symbiont * sym;
+        size_t failed_infection_count = 0;
+        size_t total_possible = 10;
+        for(size_t i; i < total_possible; i++){
+          sym = new Symbiont(random, world, &config, int_val);
+          if(sym->InfectionFails()) failed_infection_count++;
+        }
 
         THEN("infection sometimes fails, sometimes doesn't"){
-            REQUIRE(sym1->InfectionFails() == false);
-            REQUIRE(sym2->InfectionFails() == true);
+            REQUIRE(failed_infection_count < total_possible);
+            REQUIRE(failed_infection_count > 0);
         }
     }
 
@@ -227,18 +221,22 @@ TEST_CASE("mutate") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
+        double orig_infection_chance = 1;
         config.MUTATION_SIZE(0.002);
 
         WHEN("free living symbionts are allowed"){
             config.FREE_LIVING_SYMS(1);
+            config.SYM_INFECTION_CHANCE(orig_infection_chance);
             Symbiont * s = new Symbiont(random, world, &config, int_val);
             s->mutate();
 
-            double int_val_post_mutation = 0.0010984306;
-            double infection_chance_post_mutation = 0.9991229745;
             THEN("Mutation occurs and both interaction value and infection chance change"){
-                REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
-                REQUIRE(s->GetInfectionChance() == Approx(infection_chance_post_mutation));
+                REQUIRE(s->GetIntVal() != int_val);
+                REQUIRE(s->GetIntVal() <= 1);
+                REQUIRE(s->GetIntVal() >= -1);
+                REQUIRE(s->GetInfectionChance() != orig_infection_chance);
+                REQUIRE(s->GetInfectionChance() >= 0);
+                REQUIRE(s->GetInfectionChance() <= 1);
             }
         }
 
@@ -246,9 +244,10 @@ TEST_CASE("mutate") {
             Symbiont * s = new Symbiont(random, world, &config, int_val);
             s->mutate();
 
-            double int_val_post_mutation = 0.0010984306;
             THEN("Mutation occurs and only interaction value changes") {
-                REQUIRE(s->GetIntVal() == Approx(int_val_post_mutation));
+                REQUIRE(s->GetIntVal() != int_val);
+                REQUIRE(s->GetIntVal() <= 1);
+                REQUIRE(s->GetIntVal() >= -1);
             }
         }
     }
@@ -323,12 +322,9 @@ TEST_CASE("reproduce") {
 
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
-            double sym_baby_int_val = 0.0057803391;
-            //double parent_int_val = 0.0139135536;
             REQUIRE( sym_baby->GetIntVal() != parent_orig_int_val);
-            REQUIRE( sym_baby->GetIntVal() == Approx(sym_baby_int_val));
-            //REQUIRE( s2->GetIntVal() == Approx(parent_int_val));
-            //The above is for when parents mutate when they reproduce only
+            REQUIRE(sym_baby->GetIntVal() <= 1);
+            REQUIRE(sym_baby->GetIntVal() >= -1);
         }
 
         THEN("Offspring's points are zero") {

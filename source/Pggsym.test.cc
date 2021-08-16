@@ -8,7 +8,7 @@ TEST_CASE("PGGSymbiont Constructor") {
     SymWorld w(*random);
     SymWorld * world = &w;
 
-    
+
     double donation = 1;
 
     double int_val = 0.5;
@@ -37,10 +37,11 @@ TEST_CASE("Pggmutate") {
         PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
 
         s->mutate();
-       
-        double int_val_post_mutation = 0.0092037339; 
-        THEN("Mutation occurs and interaction value changes") {
-            REQUIRE(s->GetDonation() == Approx(int_val_post_mutation));
+
+        THEN("Mutation occurs and donation value changes, but stays within bounds") {
+            REQUIRE(s->GetDonation() != donation);
+            REQUIRE(s->GetDonation() <= 1);
+            REQUIRE(s->GetDonation() >= 0);
         }
     }
     WHEN("Mutation rate is zero") {
@@ -61,7 +62,7 @@ TEST_CASE("Pggmutate") {
         }
 
     }
-}   
+}
 
 TEST_CASE("PGGSymbiont ProcessPool"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -77,11 +78,11 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     PggHost * h = new PggHost(random, &w, &config, host_int_val);
     h->AddSymbiont(s);
 
-    double piece = 40;
-        // double host_donation = 20; //sym_piece * host_int_val;  
-    double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
+    //double piece = 40;
+    // double host_donation = 20; //sym_piece * host_int_val;
+    //double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     h->DistribResources(40);
-    
+
     CHECK(s->GetPoints() == 40.4);
     CHECK(h->GetPoints() == 0);
 }
@@ -185,7 +186,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
-    config.SYNERGY(5); 
+    config.SYNERGY(5);
 
 
     WHEN("sym_int_val < 0"){
