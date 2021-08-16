@@ -188,9 +188,10 @@ TEST_CASE("InfectionFails"){
         Symbiont * sym;
         size_t failed_infection_count = 0;
         size_t total_possible = 10;
+
         for(size_t i; i < total_possible; i++){
           sym = new Symbiont(random, world, &config, int_val);
-          if(sym->InfectionFails()) failed_infection_count++;
+          if(sym->InfectionFails() == true) failed_infection_count++;
         }
 
         THEN("infection sometimes fails, sometimes doesn't"){
