@@ -240,34 +240,33 @@ TEST_CASE("Phage LysisBurst"){
     config.LYSIS(1); 
     config.GRID_X(2); 
     config.GRID_Y(1);
-    config.SYM_LIMIT(2);
+    config.SYM_LIMIT(10);
     int location = 0;
 
     double int_val = 0;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
-    WHEN("Two hosts are neighbors"){
+    GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms"){
         Host * orig_h = new Host(random, &w, &config, int_val);
         Host * new_h = new Host(random, &w, &config, int_val);
         orig_h->AddSymbiont(p);
         world->AddOrgAt(orig_h, 0);
         world->AddOrgAt(new_h, 1);
 
-        WHEN("Phage babies are placed in the original host"){
-            emp::Ptr<Organism> p_baby1 = p->reproduce();
-            emp::Ptr<Organism> p_baby2 = p->reproduce();
-            orig_h->AddReproSym(p_baby1);
-            orig_h->AddReproSym(p_baby2);
+        emp::Ptr<Organism> p_baby1 = p->reproduce();
+        emp::Ptr<Organism> p_baby2 = p->reproduce();
+        orig_h->AddReproSym(p_baby1);
+        orig_h->AddReproSym(p_baby2);
 
-            WHEN("Burst method is called to verify success"){
-                long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
-                p->LysisBurst(location);
+        WHEN("call the burst method so we can check injection") {
+            int original_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
+            p->LysisBurst(location);
 
-                THEN("Original host is set to dead and expected syms are moved to the new host"){
-                    REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
-                    REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
-                    REQUIRE(orig_h->GetDead() == true);
-                }
+            THEN("the repro syms go into the other host as symbionts and the original host dies"){
+                int new_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
+                REQUIRE(new_sym_num == original_sym_num+2);
+                REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
+                REQUIRE(orig_h->GetDead() == true);
             }
         }
     }
@@ -293,12 +292,12 @@ TEST_CASE("Phage LysisStep"){
         double orig_points = 3.0;
         double expected_points = 3.0;
         p->SetPoints(orig_points);
-        p->SetBurstTimer(0.0);
+        double orig_burst_time = 0.0;
+        p->SetBurstTimer(orig_burst_time);
 
         p->LysisStep();
         THEN("The burst timer is incremented but no offspring are created"){
-            double expected_burst_timer = -0.0107036764;
-            REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
+            REQUIRE(p->GetBurstTimer() > orig_burst_time);
             REQUIRE(size(h->GetReproSymbionts()) == repro_syms_size_pre_process);
             REQUIRE(p->GetPoints() == expected_points);
         }
@@ -309,12 +308,12 @@ TEST_CASE("Phage LysisStep"){
         double orig_points = sym_repro_points;//symbiont given enough resources to produce one offspring
         double expected_points = 0.0;
         p->SetPoints(orig_points);
-        p->SetBurstTimer(0.0);
+        double orig_burst_time = 0.0;
+        p->SetBurstTimer(orig_burst_time);
 
         p->LysisStep();
         THEN("The burst timer is incremented and offspring are created"){
-            double expected_burst_timer = -0.0107036764;
-            REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
+            REQUIRE(p->GetBurstTimer() > orig_burst_time);
             REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size_post_process);
             REQUIRE(p->GetPoints() == expected_points);
         }

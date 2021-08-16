@@ -19,22 +19,22 @@ TEST_CASE("Phage constructor, GetIntVal") {
    
     config.LYSIS_CHANCE(-1);
     Phage * p3 = new Phage(random, world, &config, int_val);
-    double expected_lysis_chance = 0.0195624221;
-    REQUIRE(p3->GetLysisChance() == Approx(expected_lysis_chance));
+    REQUIRE(p3->GetLysisChance() >= 0);
+    REQUIRE(p3->GetLysisChance() <= 1);
    
     config.LYSIS_CHANCE(.5);
     Phage * p4 = new Phage(random, world, &config, int_val);
-    expected_lysis_chance = 0.5;
+    double expected_lysis_chance = 0.5;
     REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
 
     config.CHANCE_OF_INDUCTION(-1);
     Phage * p5 = new Phage(random, world, &config, int_val);
-    double expected_induction_chance =  0.0089024983;
-    REQUIRE(p5->GetInductionChance() == Approx(expected_induction_chance));
+    REQUIRE(p5->GetInductionChance() >= 0);
+    REQUIRE(p5->GetInductionChance() <= 1);
 
     config.CHANCE_OF_INDUCTION(0.2);
     Phage * p6 = new Phage(random, world, &config, int_val);
-    expected_induction_chance = 0.2;
+    double expected_induction_chance = 0.2;
     REQUIRE(p6->GetInductionChance() == expected_induction_chance);
 
     config.INCORPORATION_VAL(-1);
@@ -106,13 +106,13 @@ TEST_CASE("Phage reproduce") {
         emp::Ptr<Organism> phage_baby = p->reproduce();
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
-            double phage_baby_int_val = 0.0011560678;
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
-            REQUIRE( phage_baby->GetIntVal() == Approx(phage_baby_int_val));
+            REQUIRE( phage_baby->GetIntVal() <= parent_orig_int_val + 0.002*3);
+            REQUIRE( phage_baby->GetIntVal() >= parent_orig_int_val - 0.002*3);
 
-            double phage_baby_lysis_chance = 0.5027827107;
             REQUIRE( phage_baby->GetLysisChance() != parent_orig_lysis_chance);
-            REQUIRE( phage_baby->GetLysisChance() == Approx(phage_baby_lysis_chance));
+            REQUIRE( phage_baby->GetLysisChance() <= parent_orig_lysis_chance + 0.002*3);
+            REQUIRE( phage_baby->GetLysisChance() >= parent_orig_lysis_chance - 0.002*3);
         }
 
         THEN("Offspring's points and burst timer are zero") {
@@ -134,12 +134,13 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
-    // int default_burst_time = 0;
-    REQUIRE(p->GetBurstTimer() == 0);
+    int default_burst_time = 0;
+    REQUIRE(p->GetBurstTimer() == default_burst_time);
 
     p->IncBurstTimer();
-    double incremented_burst_time = 2.0760424677;
-    REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
+    REQUIRE(p->GetBurstTimer() != default_burst_time);
+    REQUIRE(p->GetBurstTimer() <= default_burst_time + 1*3);
+    REQUIRE(p->GetBurstTimer() >= default_burst_time - 1*3);
 
     int burst_time = 15;
     p->SetBurstTimer(burst_time);
@@ -148,8 +149,9 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
     REQUIRE(p->GetBurstTimer() == expected_burst_time);
 
     p->IncBurstTimer();
-    incremented_burst_time = 17.2344552608;
-    REQUIRE(p->GetBurstTimer() == Approx(incremented_burst_time));
+    REQUIRE(p->GetBurstTimer() <= expected_burst_time + 1*3);
+    REQUIRE(p->GetBurstTimer() >= expected_burst_time - 1*3);
+    REQUIRE(p->GetBurstTimer() != expected_burst_time);
 
 }
 
@@ -245,13 +247,13 @@ TEST_CASE("phage_mutate"){
         config.MUTATE_INCORPORATION(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
-        double lysis_chance_post_mutation = 0.503078154;
-        double induction_chance_post_mutation = 0.50265243380;
-        double incorporation_val_post_mutation =  0.499105981;
-        THEN("Mutation occurs and chance of lysis/induction/incorporation mutations occur") {
-            REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
-            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
-            REQUIRE(p->GetIncorporationValue() == Approx(incorporation_val_post_mutation));
+        THEN("Mutation occurs and chance of lysis changes") {
+            REQUIRE(p->GetLysisChance() != 0.5);
+            REQUIRE(p->GetLysisChance() >= 0.5 - 0.002*3);
+            REQUIRE(p->GetLysisChance() <= 0.5 + 0.002*3);
+            REQUIRE(p->GetInductionChance() != 0.5);
+            REQUIRE(p->GetInductionChance() >= 0.5 - 0.002*3);
+            REQUIRE(p->GetInductionChance() <= 0.5 + 0.002*3);
         }
         delete p;
     }
@@ -437,12 +439,11 @@ TEST_CASE("Phage process"){
             orig_h->AddReproSym(p_baby2);
  
             //call the process such that the phage bursts and we can check injection
-            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
             p->SetBurstTimer(burst_timer);
             p->Process(location);
 
             THEN("The phage offspring are injected into new hosts and the current host dies"){
-                REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
+                REQUIRE(size(new_h->GetSymbionts()) > 0);
                 REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
                 REQUIRE(orig_h->GetDead() == true);
             }
@@ -464,8 +465,9 @@ TEST_CASE("Phage process"){
                 p->Process(location);
 
                 THEN("The burst timer is incremented but no offspring are created"){
-                    double expected_burst_timer = 1.5306015114;
-                    REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
+                    REQUIRE(p->GetBurstTimer() <= 0 + 1*3);
+                    REQUIRE(p->GetBurstTimer() >= 0 - 1*3);
+                    REQUIRE(p->GetBurstTimer() != 0);
                     REQUIRE(size(h->GetReproSymbionts()) == repro_syms_size_pre_process);
                     REQUIRE(p->GetPoints() == expected_points);
                 }
@@ -479,8 +481,9 @@ TEST_CASE("Phage process"){
                 p->Process(location);
 
                 THEN("The burst timer is incremented and offspring are created"){
-                    double expected_burst_timer = 1.5306015114;
-                    REQUIRE(p->GetBurstTimer() == Approx(expected_burst_timer));
+                    REQUIRE(p->GetBurstTimer() <= 0 + 1*3);
+                    REQUIRE(p->GetBurstTimer() >= 0 - 1*3);
+                    REQUIRE(p->GetBurstTimer() != 0);
                     REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size_post_process);
                     REQUIRE(p->GetPoints() == expected_points);
                 }
