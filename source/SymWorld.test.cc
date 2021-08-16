@@ -10,13 +10,12 @@ TEST_CASE("PullResources") {
     emp::Random random(19);
     SymWorld world(random);
     int full_share = 100;
-    world.SetResPerUpdate(full_share);
 
     WHEN(" the resources are unlimited ") {
       world.SetLimitedRes(false);
 
-      THEN(" hosts get the full share of resources ") {
-        REQUIRE(world.PullResources() == full_share);
+      THEN(" organisms get as many resources as they request ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
       }
     }
 
@@ -25,11 +24,11 @@ TEST_CASE("PullResources") {
       int original_total = 150;
       world.SetTotalRes(original_total);
 
-      THEN(" first host gets full share of resources, next host gets a bit, everyone else gets nothing ") {
-        REQUIRE(world.PullResources() == full_share);
-        REQUIRE(world.PullResources() == (original_total-full_share));
-        REQUIRE(world.PullResources() == 0);
-        REQUIRE(world.PullResources() == 0);
+      THEN(" first organism gets full share of resources, next host gets a bit, everyone else gets nothing ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
+        REQUIRE(world.PullResources(full_share) == (original_total-full_share));
+        REQUIRE(world.PullResources(full_share) == 0);
+        REQUIRE(world.PullResources(full_share) == 0);
       }
     }
   }
@@ -516,7 +515,7 @@ TEST_CASE( "Update" ){
     SymWorld w(random);
     w.Resize(2,2);
     int resPerUpdate = 10;
-    w.SetResPerUpdate(resPerUpdate);
+    config.RES_DISTRIBUTE(resPerUpdate);
 
     emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
 
@@ -544,7 +543,8 @@ TEST_CASE( "Update" ){
 
     WHEN("free living syms are allowed"){
       int resPerUpdate = 80;
-      w.SetResPerUpdate(resPerUpdate);
+      config.RES_DISTRIBUTE(resPerUpdate);
+      config.FREE_SYM_RES_DISTRIBUTE(resPerUpdate);
       w.Resize(4,4);
       w.SetFreeLivingSyms(1);
       config.FREE_LIVING_SYMS(1);
@@ -552,6 +552,7 @@ TEST_CASE( "Update" ){
 
       WHEN("there are no syms in the world"){
         THEN("hosts process normally"){
+          host = new Host(&random, &w, &config, int_val);
           w.AddOrgAt(host, 0);
           int orig_points = host->GetPoints();
           w.Update();

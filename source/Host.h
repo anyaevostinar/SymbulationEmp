@@ -584,9 +584,10 @@ public:
    */
   void Process(size_t location) {
     //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
-    double leftover_resources = HandleEctosymbiosis(resources, location);
-    DistribResources(leftover_resources);
+    double desired_resources = my_config->RES_DISTRIBUTE();
+    double world_resources = my_world->PullResources(desired_resources); //recieve resources from the world
+    double resources = HandleEctosymbiosis(world_resources, location);
+    DistribResources(resources);
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values

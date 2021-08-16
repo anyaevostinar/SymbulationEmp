@@ -49,6 +49,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(MOVE_FREE_SYMS, bool, 0, "Should the free living syms move around in the world? 0 for no, 1 for yes"),
     VALUE(ECTOSYMBIOSIS, bool, 0, "Do free-living syms and parallel hosts interact? (0 for no, 1 for yes)"),
     VALUE(ECTOSYMBIOTIC_IMMUNITY, bool, 0, "Does a hosted sym confer immunity to ectosymbiosis? (0 for no, 1 for yes)"),
+    VALUE(FREE_SYM_RES_DISTRIBUTE, int, 100, "Number of resources to give to each free-living symbiont each update if they are available"),
 
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),

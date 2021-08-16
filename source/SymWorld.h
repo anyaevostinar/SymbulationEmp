@@ -229,22 +229,22 @@ public:
 
 
   /**
-   * Input: None
+   * Input: The amount of resourcces an organism wants from the world.
    *
-   * Output: If there are unlimited resources, this will return resources_per_host_per_update.
-   * Else, if the total resources is greater than the resources per host, the resources_per_host_per_update
-   * will be returned. If total_res is less than resources_per_host_per_update, but greater than 0,
+   * Output: If there are unlimited resources or the total resources are greater than those requested,
+   * returns the amount of desired resources.
+   * If total_res is less than the desired resources, but greater than 0,
    * then total_res will be returned. If none of these are true, then 0 will be returned.
    *
-   * Purpose: To determine how many resources to distribute to each host.
+   * Purpose: To determine how many resources to distribute to each organism.
    */
-  int PullResources() {
+  int PullResources(int desired_resources) {
     if(!limited_res) {
-      return resources_per_host_per_update;
+      return desired_resources;
     } else {
-      if (total_res>=resources_per_host_per_update) {
-        total_res = total_res - resources_per_host_per_update;
-        return resources_per_host_per_update;
+      if (total_res>=desired_resources) {
+        total_res = total_res - desired_resources;
+        return desired_resources;
       } else if (total_res>0) {
         int resources_to_return = total_res;
         total_res = 0;

@@ -8,10 +8,10 @@ class PGGSymbiont: public Symbiont {
 protected:
 
   /**
-    * 
+    *
     * Purpose: #
-    * 
-  */   
+    *
+  */
   double Pgg_donate = 0;
 
 
@@ -21,81 +21,81 @@ public:
 
     /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont(const PGGSymbiont &) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont(PGGSymbiont &&) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont() = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont & operator=(const PGGSymbiont &) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont & operator=(PGGSymbiont &&) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   double GetDonation() {return Pgg_donate;}
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void Setdonation(double _in) {Pgg_donate = _in;}
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void mutate(){
     // double pre_value = interaction_val;
     Symbiont::mutate();
@@ -112,11 +112,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void HorizMutate(){
     // double pre_value = interaction_val;
     Symbiont::HorizMutate();
@@ -130,11 +130,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   double ProcessPool(){
     double symdonation = GetDonation();
     double symPortion = GetPoints();
@@ -146,14 +146,14 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
-      double resources = my_world->PullResources();
+      double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE());
       AddPoints(resources);
     }
     if (h_trans) { //non-lytic horizontal transmission enabled
@@ -174,11 +174,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
@@ -190,11 +190,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   std::string PrintSym(emp::Ptr<PGGSymbiont>  org){
     if (org->GetPoints() < 0) return "-";
     double out_val = org->GetIntVal();
@@ -203,7 +203,7 @@ public:
     std::stringstream temp;
     temp << std::fixed << std::setprecision(2) << "Interaction value: " << out_val << " Donation value: " << donate_val;
     std::string formattedstring = temp.str();
-    return formattedstring;  
+    return formattedstring;
   }//Pggsym
 };
 #endif
