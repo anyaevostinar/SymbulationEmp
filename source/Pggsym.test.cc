@@ -38,9 +38,10 @@ TEST_CASE("Pggmutate") {
 
         s->mutate();
        
-        double int_val_post_mutation = 0.0092037339; 
-        THEN("Mutation occurs and interaction value changes") {
-            REQUIRE(s->GetDonation() == Approx(int_val_post_mutation));
+        THEN("Mutation occurs and donation value changes, but stays within bounds") {
+            REQUIRE(s->GetDonation() != donation);
+            REQUIRE(s->GetDonation() <= 1);
+            REQUIRE(s->GetDonation() >= 0);
         }
     }
     WHEN("Mutation rate is zero") {
