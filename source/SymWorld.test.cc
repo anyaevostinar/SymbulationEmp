@@ -4,7 +4,7 @@
 #include "Host.h"
 #include "Pgghost.h"
 #include "Pggsym.h"
-/*
+
 TEST_CASE("PullResources") {
   GIVEN(" a world ") {
     emp::Random random(19);
@@ -315,7 +315,7 @@ TEST_CASE( "Hosts injected correctly" ) {
     }
   }
 }
-*/
+
 TEST_CASE( "InjectSymbiont" ){
   GIVEN( "a world" ){
     emp::Random random(17);
