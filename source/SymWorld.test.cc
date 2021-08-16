@@ -358,7 +358,7 @@ TEST_CASE( "InjectSymbiont" ){
     }
   }
 }
-
+/*
 TEST_CASE( "DoBirth" ){
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -407,7 +407,7 @@ TEST_CASE( "DoBirth" ){
     }
   }
 }
-
+*/
 TEST_CASE( "SymDoBirth" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -482,7 +482,7 @@ TEST_CASE( "SymDoBirth" ) {
         }
         THEN("it might be insterted into a cell with a sym, killing and replacing it"){
           w.Resize(2,1);
-          w.SymDoBirth(sym1, 0);
+          w.Symrth(sym1, 0);
           w.SymDoBirth(sym2, 2);
           emp::Ptr<Organism> new_sym = new Symbiont(&random, &w, &config, int_val);
           w.SymDoBirth(new_sym, 0);
