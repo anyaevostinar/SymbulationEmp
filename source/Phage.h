@@ -389,7 +389,7 @@ public:
    */
   double ProcessResources(double hostDonation){
     if(lysogeny){
-      return 0;
+      return my_host->ProcessLysogenResources(incorporation_val);
     }
     else{
       return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources

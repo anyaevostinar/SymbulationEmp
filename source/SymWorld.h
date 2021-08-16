@@ -67,6 +67,8 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_phage_incorporation;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_bacterium_incorporation;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -112,6 +114,8 @@ public:
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_lysischance) data_node_lysischance.Delete();
     if (data_node_inductionchance) data_node_inductionchance.Delete();
+    if (data_node_phage_incorporation) data_node_phage_incorporation.Delete();
+    if (data_node_bacterium_incorporation) data_node_bacterium_incorporation.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
@@ -612,6 +616,74 @@ public:
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_inductionchance", "Average chance of induction");
     file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+ 
+    file.PrintHeaderKeys();
+ 
+    return file;
+  }
+
+  /**
+   * Input: The address of the string representing the file to be 
+   * created's name 
+   * 
+   * Output: The address of the DataFile that has been created. 
+   * 
+   * Purpose: To set up the file that will be used to track phage
+   * incorporation value, the number of symbionts, and the histogram of
+   * the incorporation vals.
+   */
+    emp::DataFile & SetupPhageIncorporationFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node1 = GetSymCountDataNode();
+    auto & node = GetPhageIncorporationDataNode();
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_phage_incval", "Average phage incorporation value");
+    file.AddTotal(node1, "count", "Total number of symbionts");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+ 
+    file.PrintHeaderKeys();
+ 
+    return file;
+  }
+
+  /**
+   * Input: The address of the string representing the file to be 
+   * created's name 
+   * 
+   * Output: The address of the DataFile that has been created. 
+   * 
+   * Purpose: To set up the file that will be used to track bacterium
+   * incorporation value, the number of bacteriums, and the histogram of
+   * the incorporation vals.
+   */
+    emp::DataFile & SetupBacteriumIncorporationFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node1 = GetHostCountDataNode();
+    auto & node = GetBacteriumIncorporationDataNode();
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_bacteria_incval", "Average bacteria incorporation value");
+    file.AddTotal(node1, "count", "Total number of bacteria");
     file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
     file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
@@ -1158,8 +1230,8 @@ public:
     }
     return *data_node_lysischance;
   }
- 
- /**
+
+  /**
    * Input: None
    * 
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
@@ -1188,6 +1260,61 @@ public:
       });
     }
     return *data_node_inductionchance;
+  }
+ 
+ /**
+   * Input: None
+   * 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the incorporation val for each phage. 
+   * 
+   * Purpose: To collect data on the incorporation val for each phage to be saved to the 
+   * data file that is tracking incorporation val for each phage. 
+   */
+  emp::DataMonitor<double,emp::data::Histogram>& GetPhageIncorporationDataNode() {
+    if (!data_node_phage_incorporation) {
+      data_node_phage_incorporation.New();
+      OnUpdate([this](size_t){
+        data_node_phage_incorporation->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            int sym_size = syms.size();
+            for(size_t j=0; j< sym_size; j++){
+              data_node_phage_incorporation->AddDatum(syms[j]->GetIncVal());
+            }//close for
+          }//close if
+          if (sym_pop[i]){
+            data_node_phage_incorporation->AddDatum(sym_pop[i]->GetIncVal());
+          }
+        }//close for
+      });
+    }
+    return *data_node_phage_incorporation;
+  }
+
+  /**
+   * Input: None
+   * 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the incorporation val for each bacteria. 
+   * 
+   * Purpose: To collect data on the incorporation val for each bacteria to be saved to the 
+   * data file that is tracking incorporation val for each bacteria. 
+   */
+  emp::DataMonitor<double,emp::data::Histogram>& GetBacteriumIncorporationDataNode() {
+    if (!data_node_bacterium_incorporation) {
+      data_node_bacterium_incorporation.New();
+      OnUpdate([this](size_t){
+        data_node_bacterium_incorporation->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            data_node_bacterium_incorporation->AddDatum(pop[i]->GetIncVal());
+          }//close if
+        }//close for
+      });
+    }
+    return *data_node_bacterium_incorporation;
   }
 
   /**

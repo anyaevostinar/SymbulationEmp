@@ -54,6 +54,8 @@ int symbulation_main(int argc, char * argv[])
   if (config.LYSIS() == 1) {
     world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
     world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupPhageIncorporationFile(config.FILE_PATH()+"PhageIncVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupBacteriumIncorporationFile(config.FILE_PATH()+"BacteriumIncVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }else if(config.PGG() == 1){
     world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }

@@ -555,6 +555,9 @@ TEST_CASE("Phage ProcessResources"){
         //emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         emp::Ptr<Phage> p;
         p.New(random, world, &config, int_val);
+        emp::Ptr<Bacterium> b;
+        b.New(random, world, &config, int_val);
+        b->AddSymbiont(p);
         p->uponInjection();
 
         double sym_piece = 40;
