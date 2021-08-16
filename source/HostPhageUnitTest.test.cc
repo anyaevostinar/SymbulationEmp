@@ -240,7 +240,7 @@ TEST_CASE("Phage LysisBurst"){
     config.LYSIS(1); 
     config.GRID_X(2); 
     config.GRID_Y(1);
-    config.SYM_LIMIT(2);
+    config.SYM_LIMIT(10);
     int location = 0;
 
     double int_val = 0;
@@ -259,11 +259,12 @@ TEST_CASE("Phage LysisBurst"){
         orig_h->AddReproSym(p_baby2);
 
         WHEN("call the burst method so we can check injection") {
-            long unsigned int expected_newh_syms = size(new_h->GetSymbionts()) + 2;
+            int original_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
             p->LysisBurst(location);
 
             THEN("the repro syms go into the other host as symbionts and the original host dies"){
-                REQUIRE(size(new_h->GetSymbionts()) == expected_newh_syms);
+                int new_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
+                REQUIRE(new_sym_num == original_sym_num+2);
                 REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
                 REQUIRE(orig_h->GetDead() == true);
             }
