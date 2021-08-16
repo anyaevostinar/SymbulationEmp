@@ -395,12 +395,13 @@ TEST_CASE( "DoBirth" ){
         bool host_isborn = false;
         bool otherhost_isdead = true;
         for(size_t i = 0; i < 4; i++){
-          if(&w.GetOrg(i) == host) {
+          if(w.GetPop()[i] == host) {
             host_isborn = true;
-          } else if (&w.GetOrg(i)){
+          } else if (w.GetPop()[i] != nullptr){
             otherhost_isdead = false;
           }
         }
+        REQUIRE(w.GetNumOrgs() == 1);
         REQUIRE(host_isborn == true);
         REQUIRE(otherhost_isdead == true);
       }
