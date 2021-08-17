@@ -672,17 +672,78 @@ public:
     file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
     file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
-    node7.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddHistBin(node7, 0, "ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node7, 1, "ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node7, 2, "ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node7, 3, "ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node7, 4, "ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node7, 5, "ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node7, 6, "ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node7, 7, "ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node7, 8, "ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node7, 9, "ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    //free sym infection chance histogram
+    node8.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddHistBin(node8, 0, "free_ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node8, 1, "free_ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node8, 2, "free_ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node8, 3, "free_ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node8, 4, "free_ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node8, 5, "free_ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node8, 6, "free_ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node8, 7, "free_ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node8, 8, "free_ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node8, 9, "free_ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    //hosted sym infection chance histogram
+    node9.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddHistBin(node9, 0, "hosted_ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node9, 1, "hosted_ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node9, 2, "hosted_ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node9, 3, "hosted_ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node9, 4, "hosted_ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node9, 5, "hosted_ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node9, 6, "hosted_ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node9, 7, "hosted_ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node9, 8, "hosted_ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node9, 9, "hosted_ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    //free sym interaction val histogram
+    node5.SetupBins(-1.0, 1.1, 21);
+    file.AddHistBin(node5, 0, "free_sv_Hist_-1", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node5, 1, "free_sv_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node5, 2, "free_sv_Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node5, 3, "free_sv_Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node5, 4, "free_sv_Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node5, 5, "free_sv_Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node5, 6, "free_sv_Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node5, 7, "free_sv_Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node5, 8, "free_sv_Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node5, 9, "free_sv_Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node5, 10, "free_sv_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node5, 11, "free_sv_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node5, 12, "free_sv_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node5, 13, "free_sv_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node5, 14, "free_sv_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node5, 15, "free_sv_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node5, 16, "free_sv_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node5, 17, "free_sv_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node5, 18, "free_sv_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node5, 19, "free_sv_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+    //hosted sym interaction val histogram
+    node6.SetupBins(-1.0, 1.1, 21);
+    file.AddHistBin(node6, 0, "hosted_sv_Hist_-1", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node6, 1, "hosted_sv_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node6, 2, "hosted_sv_Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node6, 3, "hosted_sv_Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node6, 4, "hosted_sv_Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node6, 5, "hosted_sv_Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node6, 6, "hosted_sv_Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node6, 7, "hosted_sv_Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node6, 8, "hosted_sv_Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node6, 9, "hosted_sv_Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node6, 10, "hosted_sv_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node6, 11, "hosted_sv_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node6, 12, "hosted_sv_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node6, 13, "hosted_sv_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node6, 14, "hosted_sv_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node6, 15, "hosted_sv_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node6, 16, "hosted_sv_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node6, 17, "hosted_sv_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node6, 18, "hosted_sv_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node6, 19, "hosted_sv_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
     file.PrintHeaderKeys();
 
