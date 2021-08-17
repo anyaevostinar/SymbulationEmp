@@ -69,6 +69,7 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_phage_incorporation;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_bacterium_incorporation;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -116,6 +117,7 @@ public:
     if (data_node_inductionchance) data_node_inductionchance.Delete();
     if (data_node_phage_incorporation) data_node_phage_incorporation.Delete();
     if (data_node_bacterium_incorporation) data_node_bacterium_incorporation.Delete();
+    if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
@@ -684,6 +686,38 @@ public:
     file.AddVar(update, "update", "Update");
     file.AddMean(node, "mean_bacteria_incval", "Average bacteria incorporation value");
     file.AddTotal(node1, "count", "Total number of bacteria");
+    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+ 
+    file.PrintHeaderKeys();
+ 
+    return file;
+  }
+
+  /**
+   * Input: The address of the string representing the file to be 
+   * created's name 
+   * 
+   * Output: The address of the DataFile that has been created. 
+   * 
+   * Purpose: To set up the file that will be used to track the difference between
+   * bacterium and phage incorporation values and the histogram of the difference between
+   * the incorporation vals.
+   */
+    emp::DataFile & SetupIncorporationDifferenceFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetIncorporationDifferenceDataNode();
+    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_incval_difference", "Average difference in incorporation value between bacteria and their phage");
     file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
     file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
@@ -1316,6 +1350,39 @@ public:
     }
     return *data_node_bacterium_incorporation;
   }
+
+  /**
+   * Input: None
+   * 
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
+   * the difference between incorporation vals for bacteriums and their phage 
+   * 
+   * Purpose: To collect data on the difference between incorporation vals for each bacteria and their phage
+   * to be saved to the data file that is tracking incorporation val differences. 
+   */
+  emp::DataMonitor<double,emp::data::Histogram>& GetIncorporationDifferenceDataNode() {
+    if (!data_node_incorporation_difference) {
+      data_node_incorporation_difference.New();
+      OnUpdate([this](size_t){
+        data_node_incorporation_difference->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            double host_inc_val = pop[i]->GetIncVal();
+
+            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            long unsigned int sym_size = syms.size();
+            for(size_t j=0; j< sym_size; j++){
+              double inc_val_difference = abs(host_inc_val - syms[j]->GetIncVal());
+              data_node_incorporation_difference->AddDatum(inc_val_difference);
+            }
+          }//close if
+        }//close for
+      });
+    }
+    return *data_node_incorporation_difference;
+  }
+
+  
 
   /**
    * Input: The double representing the number of resources each host gets in each update. 
