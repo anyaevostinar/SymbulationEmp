@@ -64,9 +64,10 @@ int main()
     [](const GPHost & org) {
     int count = 0; 
 
+    //points is inherited from the AvidaGPHost class, but this function didn't have a variable previously defined with the host class, so I used symbiont_vec but I also understand this is incorrect and is giving me an error 
     //add points to count
     count += symbiont_vec.points;
-    
+
     /*//add symbio to count
     //addsymbio void function, but adds one symbiont to count
     if (org.AddSymbio(org)){
