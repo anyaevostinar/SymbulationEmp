@@ -105,3 +105,49 @@ TEST_CASE("Bacterium mutate"){
     delete b;
     }  
 }
+
+TEST_CASE("ProcessLysogenResources"){
+    emp::Ptr<emp::Random> random = new emp::Random(12);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    config.HOST_INC_VAL(0);
+    config.SYNERGY(2);
+
+    double orig_host_resources = 10;
+    double int_val = 0;
+    emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+
+    WHEN("The incorporation values are similar"){
+        double phage_inc_val = 0;
+        b->SetResInProcess(orig_host_resources);
+        double expected_resources = 20; //synergy * b->GetResInProcess() * (1 - abs(host_inc_val - phage_inc_val))
+
+        THEN("The host resources increase"){
+            REQUIRE(b->ProcessLysogenResources(phage_inc_val) == expected_resources);
+            REQUIRE(b->GetResInProcess() == 0);
+        }
+    }
+
+    WHEN("The incorporation values are neutral"){
+        double phage_inc_val = 0.5;
+        b->SetResInProcess(orig_host_resources);
+        double expected_resources = 10; //synergy * b->GetResInProcess() * (1 - abs(host_inc_val - phage_inc_val))
+
+        THEN("The host resources stay the same"){
+            REQUIRE(b->ProcessLysogenResources(phage_inc_val) == expected_resources);
+            REQUIRE(b->GetResInProcess() == 0);
+        }
+    }  
+
+    WHEN("The incorporation values are far apart"){
+        double phage_inc_val = 1;
+        b->SetResInProcess(orig_host_resources);
+        double expected_resources = 0; //synergy * b->GetResInProcess() * (1 - abs(host_inc_val - phage_inc_val))
+
+        THEN("The host resources are diminished"){
+            REQUIRE(b->ProcessLysogenResources(phage_inc_val) == expected_resources);
+            REQUIRE(b->GetResInProcess() == 0);
+        }
+    }
+}

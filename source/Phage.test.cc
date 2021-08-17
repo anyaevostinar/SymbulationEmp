@@ -386,7 +386,7 @@ TEST_CASE("Phage process"){
             emp::Ptr<Phage> p;
             p.New(random, world, &config, int_val);
 
-            emp::Ptr<Host> h;
+            emp::Ptr<Bacterium> h;
             h.New(random, &w, &config, int_val);
 
             //verify that the phage chooses lysogeny first
@@ -412,7 +412,7 @@ TEST_CASE("Phage process"){
                 emp::Ptr<Phage> p;
                 p.New(random, world, &config, int_val);
 
-                emp::Ptr<Host> h;
+                emp::Ptr<Bacterium> h;
                 h.New(random, &w, &config, int_val);
 
                 h->AddSymbiont(p);
@@ -432,7 +432,7 @@ TEST_CASE("Phage process"){
                 double int_val = 0;
                 double expected_int_val = 0;
                 emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-                Host * h = new Host(random, &w, &config, int_val);
+                Bacterium * h = new Bacterium(random, &w, &config, int_val);
                 h->AddSymbiont(p);
 
                 double points = 0;
@@ -472,8 +472,8 @@ TEST_CASE("Phage process"){
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
             
             //create two hosts and add both to world as neighbors
-            Host * orig_h = new Host(random, &w, &config, int_val);
-            Host * new_h = new Host(random, &w, &config, int_val);
+            Bacterium * orig_h = new Bacterium(random, &w, &config, int_val);
+            Bacterium * new_h = new Bacterium(random, &w, &config, int_val);
             orig_h->AddSymbiont(p);
             world->AddOrgAt(orig_h, 0);
             world->AddOrgAt(new_h, 1);
@@ -498,7 +498,7 @@ TEST_CASE("Phage process"){
         WHEN("It is not time to burst"){
             double int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-            Host * h = new Host(random, &w, &config, int_val);
+            Bacterium * h = new Bacterium(random, &w, &config, int_val);
             h->AddSymbiont(p);
 
             p->SetBurstTimer(0.0);
@@ -547,26 +547,91 @@ TEST_CASE("Phage ProcessResources"){
     SymWorld * world = &w;
     SymConfigBase config;
 
-    WHEN("Phage is Lysogenic"){
-        config.LYSIS(1);
-        config.LYSIS_CHANCE(0);
+    GIVEN("Phage is Lysogenic"){
 
-        double int_val=0;
-        //emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-        emp::Ptr<Phage> p;
-        p.New(random, world, &config, int_val);
-        emp::Ptr<Bacterium> b;
-        b.New(random, world, &config, int_val);
-        b->AddSymbiont(p);
-        p->uponInjection();
+        WHEN("Benefits to the host are not enabled"){
+            config.LYSIS(1);
+            config.LYSIS_CHANCE(0);
+            config.BENEFIT_TO_HOST(0);
 
-        double sym_piece = 40;
-        double expected_return = 0;
+            double int_val=0;
+            emp::Ptr<Phage> p;
+            p.New(random, world, &config, int_val);
+            emp::Ptr<Bacterium> b;
+            b.New(random, world, &config, int_val);
+            b->AddSymbiont(p);
+            p->uponInjection();
 
-        THEN("Phage doesn't take or give resources to the host"){
-            REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+            double sym_piece = 40;
+            double expected_return = 0;
+
+            THEN("Phage doesn't take or give resources to the host"){
+                REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+            }
+
+            p.Delete();
         }
 
-        p.Delete();
+        WHEN("Benefits to the host are enabled"){
+            config.LYSIS(1);
+            config.LYSIS_CHANCE(0);
+            config.BENEFIT_TO_HOST(1);
+            config.HOST_INC_VAL(0);
+            config.SYNERGY(2);
+
+            double orig_host_resources = 10;
+            double sym_piece = 0;
+            double int_val=0;
+            emp::Ptr<Bacterium> b;
+            b.New(random, world, &config, int_val);
+
+            WHEN("The incorporation vals are similar"){
+                config.PHAGE_INC_VAL(0);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 20;
+
+                THEN("The host resources increase"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+
+            WHEN("The incorporation vals are neutral"){
+                config.PHAGE_INC_VAL(0.5);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 10;
+
+                THEN("The host resources stay the same"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+
+            WHEN("The incorporation vals are far apart"){
+                config.PHAGE_INC_VAL(1);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 0;
+
+                THEN("The host resources are diminished"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+        }
     }
 }

@@ -140,7 +140,6 @@ TEST_CASE("DistributeResources") {
         }
     }
 
-
     WHEN("There are no symbionts and interaction value is 0") {
 
         double int_val = 0;

@@ -1,5 +1,6 @@
 #include "Phage.h"
 #include "Host.h"
+#include "Bacterium.h"
 
 TEST_CASE("Phage Process") {
 
@@ -21,7 +22,7 @@ TEST_CASE("Phage Process") {
             emp::Ptr<Phage> p2;
             p2.New(random, world, &config, int_val);
 
-            emp::Ptr<Host> h;
+            emp::Ptr<Bacterium> h;
             h.New(random, &w, &config);
 
             p->SetHost(h); 
@@ -48,7 +49,7 @@ TEST_CASE("Phage Process") {
         }
 
         WHEN("Lysis is enabled and the Phage's burst timer < the burst time") {
-            emp::Ptr<Host> h;
+            emp::Ptr<Bacterium> h;
             h.New(random, &w, &config);
 
             double phage_points = 10;
@@ -105,11 +106,11 @@ TEST_CASE("Phage Vertical Transmission"){
             double host_int_val = .5;
             double sym_int_val = -.5;
             
-            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
             emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
             h->AddSymbiont(p);
 
-            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
             p->VerticalTransmission(host_baby);
 
@@ -122,11 +123,11 @@ TEST_CASE("Phage Vertical Transmission"){
             double host_int_val = .5;
             double sym_int_val = -.5;
             
-            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
             emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
             h->AddSymbiont(p);
 
-            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
             p->VerticalTransmission(host_baby);
 
@@ -145,11 +146,11 @@ TEST_CASE("Phage Vertical Transmission"){
             double host_int_val = .5;
             double sym_int_val = -.5;
             
-            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
             emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
             h->AddSymbiont(p);
 
-            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size() +1;
             p->VerticalTransmission(host_baby);
 
@@ -162,11 +163,11 @@ TEST_CASE("Phage Vertical Transmission"){
             double host_int_val = .5;
             double sym_int_val = -.5;
             
-            emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
             emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
             h->AddSymbiont(p);
         
-            emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size()+1;
             p->VerticalTransmission(host_baby);
 
@@ -191,7 +192,7 @@ TEST_CASE("Host phage death and removal from syms list"){
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
+        emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
         emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
        
         h->AddSymbiont(p);
@@ -210,7 +211,7 @@ TEST_CASE("Host phage death and removal from syms list"){
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        Host * h = new Host(random, world, &config, host_int_val);
+        Bacterium * h = new Bacterium(random, world, &config, host_int_val);
         Phage * p1 = new Phage(random, world, &config, sym_int_val);
         Phage * p2 = new Phage(random, world, &config, 0.0);
 
@@ -247,8 +248,8 @@ TEST_CASE("Phage LysisBurst"){
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
     
     GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms"){
-        Host * orig_h = new Host(random, &w, &config, int_val);
-        Host * new_h = new Host(random, &w, &config, int_val);
+        Bacterium * orig_h = new Bacterium(random, &w, &config, int_val);
+        Bacterium * new_h = new Bacterium(random, &w, &config, int_val);
         orig_h->AddSymbiont(p);
         world->AddOrgAt(orig_h, 0);
         world->AddOrgAt(new_h, 1);
@@ -284,7 +285,7 @@ TEST_CASE("Phage LysisStep"){
     
     double int_val = 0;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-    Host * h = new Host(random, &w, &config, int_val);
+    Bacterium * h = new Bacterium(random, &w, &config, int_val);
     h->AddSymbiont(p);
 
     WHEN("The phage doesn't have enough resources to reproduce"){
