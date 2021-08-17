@@ -37,7 +37,7 @@ int main()
     emp::vector<emp::Ptr<GPSymbiont>> symbiont_vec;
     GPSymbiont sb;
     sb.PushRandom(random, GENOME_SIZE);
-    symbiont_vec.push_back(sb);
+    symbiont_vec.push_back(&sb);
     world.GetOrg(i).SetSymbio(symbiont_vec);
   }
 
@@ -64,12 +64,15 @@ int main()
     [](const GPHost & org) {
     int count = 0; 
 
-    //add symbio to count
+    //add points to count
+    count += symbiont_vec.points;
+    
+    /*//add symbio to count
     //addsymbio void function, but adds one symbiont to count
     if (org.AddSymbio(org)){
       count += 1;
       cout << "Count: " << count;
-    };
+    };*/
     
 
     for (int i = 0; i < 16; i++) {

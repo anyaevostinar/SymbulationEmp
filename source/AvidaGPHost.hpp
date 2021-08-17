@@ -24,9 +24,7 @@ class GPHost : public emp::AvidaCPU_Base<GPHost>{
  private:
   // vector of pointers 
   emp::vector<emp::Ptr<GPSymbiont>> syms;
-
-  
-  int points;
+  //int points;
 
   /*
   bool HasSym() {
@@ -35,6 +33,7 @@ class GPHost : public emp::AvidaCPU_Base<GPHost>{
   */
 
 public:
+  int points;
   using base_t = AvidaCPU_Base<GPHost>;
   using typename base_t::genome_t;
   using typename base_t::inst_lib_t;
@@ -51,6 +50,9 @@ public:
   void SetSymbio(emp::vector<emp::Ptr<GPSymbiont>> sym_in ){
     for (emp::Ptr<GPSymbiont> s : sym_in){
       syms.push_back(s);
+
+      //whenever a symbiont is set, add a point
+      points += 1;
     }
   }
 
