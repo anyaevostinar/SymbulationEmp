@@ -1217,7 +1217,7 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            int sym_size = syms.size();
+            long unsigned int sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
               data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
             }//close for
@@ -1248,7 +1248,7 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            int sym_size = syms.size();
+            long unsigned int sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
               data_node_inductionchance->AddDatum(syms[j]->GetInductionChance());
             }//close for
@@ -1279,7 +1279,7 @@ public:
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            int sym_size = syms.size();
+            long unsigned int sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
               data_node_phage_incorporation->AddDatum(syms[j]->GetIncVal());
             }//close for
@@ -1399,12 +1399,13 @@ public:
    * Purpose: To remove a symbiont from the world
    */  
   emp::Ptr<Organism> ExtractSym(size_t i){
+    emp::Ptr<Organism> sym;
     if(sym_pop[i]){
-      emp::Ptr<Organism> sym = sym_pop[i];
+      sym = sym_pop[i];
       num_orgs--;
       sym_pop[i] = nullptr;
-      return sym;
     }
+    return sym;
   }
  
  

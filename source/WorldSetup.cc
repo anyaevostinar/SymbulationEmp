@@ -16,8 +16,12 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   emp::Random& random = world->GetRandom();
 
   double start_moi = my_config->START_MOI();
-  int POP_SIZE = my_config->POP_SIZE();
-  if (POP_SIZE == -1) POP_SIZE = my_config->GRID_X() * my_config->GRID_Y();
+  long unsigned int POP_SIZE;
+  if (my_config->POP_SIZE() == -1) {
+    POP_SIZE = my_config->GRID_X() * my_config->GRID_Y();
+  } else {
+    POP_SIZE = my_config->POP_SIZE();
+  }
   bool random_phen_host = false;
   bool random_phen_sym = false;
   if(my_config->HOST_INT() == -2 && !my_config->COMPETITION_MODE()) random_phen_host = true;
