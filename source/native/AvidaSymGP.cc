@@ -61,12 +61,12 @@ int main()
   // setting symbioint in affecting hosts' fitness!!!!!!!!!!!!!!!!!!!
   // Setup the fitness function.
   std::function<double(const GPHost &)> fit_fun =
-    [](const GPHost & org) {
+    [](const GPHost &org) {
     int count = 0; 
 
     //points is inherited from the AvidaGPHost class, but this function didn't have a variable previously defined with the host class, so I used symbiont_vec but I also understand this is incorrect and is giving me an error 
     //add points to count
-    count += symbiont_vec.points;
+    count += org.GetPoints();
 
     /*//add symbio to count
     //addsymbio void function, but adds one symbiont to count

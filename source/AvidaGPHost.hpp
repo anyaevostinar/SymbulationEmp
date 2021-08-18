@@ -75,7 +75,11 @@ public:
     
     //cout << "syms: " << syms;
   }
-  
+
+  //Would it be fine to declare the input as this, the same var as in AvidaSymGP we're working with?
+  int GetPoints(){
+    return points;
+  }
 };
 
 #endif
