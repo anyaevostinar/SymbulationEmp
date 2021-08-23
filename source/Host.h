@@ -523,9 +523,13 @@ public:
     }
   } //end DistribResources
 
-
-
-
+  /**
+   * Input: The total resources recieved by the host and its location in the world.
+   *
+   * Output: The resources remaining after the host maybe does ectosymbiosis.
+   *
+   * Purpose: To handle ectosymbiosis.
+   */
   double HandleEctosymbiosis(double resources, size_t location){
     double leftover_resources = resources;
     if(GetDoEctosymbiosis(location)){
@@ -535,9 +539,9 @@ public:
     }
     return leftover_resources;
   }
-  
+
   /**
-   * Input: None
+   * Input: The location of this host in the world.
    *
    * Output: A bool value representing whether this host should interact with a parallel sym
    *
@@ -546,8 +550,7 @@ public:
   bool GetDoEctosymbiosis(size_t location){
     //a host is immune to ectosymbiosis if immunity is on and it has a sym.
     bool is_immune = my_config->ECTOSYMBIOTIC_IMMUNITY() && HasSym();
-    bool exists_valid_sym = my_world->GetSymAt(location) != nullptr;
-    return my_config->ECTOSYMBIOSIS() && exists_valid_sym && !is_immune;
+    return my_config->ECTOSYMBIOSIS() && (my_world->GetSymAt(location) != nullptr) && (is_immune == false);
   }
 
   /**
@@ -589,7 +592,8 @@ public:
     double desired_resources = my_config->RES_DISTRIBUTE();
     double world_resources = my_world->PullResources(desired_resources); //recieve resources from the world
     double resources = HandleEctosymbiosis(world_resources, location);
-    DistribResources(resources);
+    if(resources > 0) DistribResources(resources); //if there are enough resources left, distribute them.
+
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
