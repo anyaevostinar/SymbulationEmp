@@ -151,3 +151,42 @@ TEST_CASE("ProcessLysogenResources"){
         }
     }
 }
+
+TEST_CASE("Bacterium Process"){
+    emp::Ptr<emp::Random> random = new emp::Random(12);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    size_t location = 0;
+
+    WHEN("The bacterium doesn't have a symbiont"){
+
+        WHEN("The bacterium doesn't have enough resources to reproduce"){
+            int res_distribute = 5;
+            config.HOST_REPRO_RES(10);
+            world->SetResPerUpdate(res_distribute);
+
+            double int_val = 0;
+            emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+            b->Process(location);
+
+            THEN("The bacterium's points increase by res distribute"){
+                REQUIRE(b->GetPoints() == res_distribute);
+            }
+        }
+
+        WHEN("The bacterium does have enough resources to reproduce"){
+            int res_distribute = 10;
+            config.HOST_REPRO_RES(10);
+            world->SetResPerUpdate(res_distribute);
+
+            double int_val = 0;
+            emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+            b->Process(location);
+
+            THEN("The bacterium will reproduce and its points will be set to zero"){
+                REQUIRE(b->GetPoints() == 0);
+            }
+        }
+    } 
+}
