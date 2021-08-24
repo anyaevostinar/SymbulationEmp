@@ -46,7 +46,16 @@ class Organism {
   }
   virtual void Process(size_t location)
    {std::cout << "Process called from Organism" << std::endl;
-     throw "Organism method called!";}
+     throw "Organism method called!";
+  }
+  virtual double GetIncVal() {
+    std::cout << "GetIncVal called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetIncVal(double _in){
+    std::cout << "SetIncVal called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
@@ -135,6 +144,12 @@ class Organism {
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
+
+  //Bacterium functions
+  virtual double ProcessLysogenResources(double phage_inc_val){
+    std::cout << "ProcessLysogenResources called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Phage functions
   virtual double GetBurstTimer() {

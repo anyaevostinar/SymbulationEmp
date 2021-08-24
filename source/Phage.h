@@ -27,6 +27,20 @@ protected:
     * 
   */     
   bool lysogeny = false;
+
+  /**
+    * 
+    * Purpose: Represents the compatibility of the prophage to it's placement within the host's genome. 
+    * 
+  */  
+  double incorporation_val = 0.0;
+
+  /**
+    * 
+    * Purpose: Represents whether the compatibility of the prophage to it's placement within the host's genome, mutates or not. 
+    * 
+  */  
+  bool mutate_incorporation_val = false;
  
   /**
     * 
@@ -84,11 +98,16 @@ public:
     mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
+    incorporation_val = my_config->PHAGE_INC_VAL();
+    mutate_incorporation_val = my_config->MUTATE_INC_VAL();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
     if(induction_chance == -1){
       induction_chance = random->GetDouble(0.0, 1.0);
+    }
+    if(incorporation_val == -1){
+      incorporation_val = random->GetDouble(0.0, 1.0);
     }
   }
  
@@ -171,6 +190,25 @@ public:
    */
   void SetLysisChance(double _in) {chance_of_lysis = _in;}
 
+   /**
+   * Input: None
+   * 
+   * Output: The double representing a phage's incorporation value.
+   * 
+   * Purpose: To determine a phage's incorporation value.
+   */
+  double GetIncVal() {return incorporation_val;}
+ 
+ 
+  /**
+   * Input: The double to be set as the phage's incorporation value. 
+   * 
+   * Output: None
+   * 
+   * Purpose: To set a phage's incorporation value.
+   */
+  void SetIncVal(double _in) {incorporation_val = _in;}
+
   /**
    * Input: None
    * 
@@ -252,7 +290,12 @@ public:
         induction_chance += random->GetRandNormal(0.0, mut_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
-    }
+      }
+      if(mutate_incorporation_val){
+        incorporation_val += random->GetRandNormal(0.0, mut_size);
+        if(incorporation_val < 0) incorporation_val = 0;
+        else if (incorporation_val > 1) incorporation_val = 1;
+      }
     }
   }
  
@@ -346,7 +389,11 @@ public:
    */
   double ProcessResources(double hostDonation){
     if(lysogeny){
-      return 0;
+      if(my_config->BENEFIT_TO_HOST()){
+        return my_host->ProcessLysogenResources(incorporation_val);
+      } else{
+        return 0;
+      } 
     }
     else{
       return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources

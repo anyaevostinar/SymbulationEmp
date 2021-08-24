@@ -7,44 +7,98 @@ TEST_CASE("Phage constructor, GetIntVal") {
     SymConfigBase config;
     SymWorld * world = &w;
    
-    double int_val = -1;
-    Phage * p = new Phage(random, world, &config, int_val);
-    double expected_int_val = -1;
-    REQUIRE(p->GetIntVal() == expected_int_val);
+    WHEN("Int val is passed in as negative"){
+        double int_val = -1;
+        Phage * p = new Phage(random, world, &config, int_val);
+        double expected_int_val = -1;
+        THEN("Int val is set to be negative"){
+            REQUIRE(p->GetIntVal() == expected_int_val);
+        }
+        delete p;
+    }
+    
+    WHEN("Int val is passed in as zero"){
+        double int_val = 0;
+        Phage * p2 = new Phage(random, world, &config, int_val);
+        double expected_int_val = 0;
 
-    int_val = 0;
-    Phage * p2 = new Phage(random, world, &config, int_val);
-    expected_int_val = 0;
-    REQUIRE(p2->GetIntVal() == expected_int_val);
-   
-    config.LYSIS_CHANCE(-1);
-    Phage * p3 = new Phage(random, world, &config, int_val);
-    REQUIRE(p3->GetLysisChance() >= 0);
-    REQUIRE(p3->GetLysisChance() <= 1);
-   
-    config.LYSIS_CHANCE(.5);
-    Phage * p4 = new Phage(random, world, &config, int_val);
-    double expected_lysis_chance = 0.5;
-    REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+        THEN("Int val is set to be zero"){
+            REQUIRE(p2->GetIntVal() == expected_int_val);
+        }
+        delete p2;
+    }
 
-    config.CHANCE_OF_INDUCTION(-1);
-    Phage * p5 = new Phage(random, world, &config, int_val);
-    REQUIRE(p5->GetInductionChance() >= 0);
-    REQUIRE(p5->GetInductionChance() <= 1);
+    WHEN("Lysis chance is random"){
+        double int_val = 0;
+        config.LYSIS_CHANCE(-1);
+        Phage * p3 = new Phage(random, world, &config, int_val);
 
-    config.CHANCE_OF_INDUCTION(0.2);
-    Phage * p6 = new Phage(random, world, &config, int_val);
-    double expected_induction_chance = 0.2;
-    REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+        THEN("Lysis chance is randomly between 0 and 1"){
+            REQUIRE(p3->GetLysisChance() >= 0);
+            REQUIRE(p3->GetLysisChance() <= 1);
+        }
+        delete p3;
+    }
 
-    delete p;
-    delete p2;
-    delete p3;
-    delete p4;
-    delete p5;
-    delete p6;
+    WHEN("Lysis chance is not random"){
+        double int_val = 0;
+        config.LYSIS_CHANCE(.5);
+        Phage * p4 = new Phage(random, world, &config, int_val);
+        double expected_lysis_chance = 0.5;
 
+        THEN("Lysis chance is set to what was passed in"){
+            REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+        }
+        delete p4;
+    }
 
+    WHEN("Chance of induction is random"){
+        double int_val = 0;
+        config.CHANCE_OF_INDUCTION(-1);
+        Phage * p5 = new Phage(random, world, &config, int_val);
+
+        THEN("Chance of induction is randomly between 0 and 1"){
+            REQUIRE(p5->GetInductionChance() >= 0);
+            REQUIRE(p5->GetInductionChance() <= 1);
+        }
+        delete p5;
+    }
+
+    WHEN("Chance of induction is not random"){
+        double int_val = 0;
+        config.CHANCE_OF_INDUCTION(0.2);
+        Phage * p6 = new Phage(random, world, &config, int_val);
+        double expected_induction_chance = 0.2;
+
+        THEN("Chance of induction is set to what was passed in"){
+            REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+        }
+        delete p6;
+    }
+    
+    WHEN("Incorporation val is random"){
+        double int_val = 0;
+        config.PHAGE_INC_VAL(-1);
+        Phage * p7 = new Phage(random, world, &config, int_val);
+
+        THEN("Incorporation val is randomly between 0 and 1"){
+            REQUIRE(p7->GetIncVal() >= 0);
+            REQUIRE(p7->GetIncVal() <= 1);
+        }
+        delete p7;
+    }
+
+    WHEN("Incorporation val is not random"){
+        double int_val = 0;
+        config.PHAGE_INC_VAL(0.3);
+        Phage * p8 = new Phage(random, world, &config, int_val);
+        double expected_incorporation_value = 0.3;
+
+        THEN("Incorporation val is set to what was passed in"){
+            REQUIRE(p8->GetIncVal() == expected_incorporation_value);
+        }
+        delete p8;
+    }
 }
 
 TEST_CASE("Phage reproduce") {
@@ -175,6 +229,22 @@ TEST_CASE("Phage SetInductionChance, GetInductionChance"){
     delete p;
 }
 
+TEST_CASE("Phage SetIncVal, GetIncVal"){
+    emp::Ptr<emp::Random> random = new emp::Random(5);
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+
+    double incorporation_val = 0.5;
+    p->SetIncVal(incorporation_val);
+    double expected_incorporation_value = 0.5;
+    REQUIRE(p->GetIncVal() == expected_incorporation_value);
+
+    delete p;
+}
+
 TEST_CASE("Phage uponInjection"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymWorld w(*random);
@@ -207,14 +277,17 @@ TEST_CASE("phage_mutate"){
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
-    config.LYSIS_CHANCE(.5);
-    config.CHANCE_OF_INDUCTION(.5);
+    config.LYSIS_CHANCE(0.5);
+    config.CHANCE_OF_INDUCTION(0.5);
+    config.PHAGE_INC_VAL(0.5);
 
-    WHEN("Mutation rate is not zero and chance of lysis/induction mutations are enabled") {
+    WHEN("Mutation rate is not zero and chance of lysis/induction/incorporation mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
+        config.MUTATE_INC_VAL(1);
+
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         THEN("Mutation occurs and chance of lysis changes") {
@@ -224,6 +297,9 @@ TEST_CASE("phage_mutate"){
             REQUIRE(p->GetInductionChance() != 0.5);
             REQUIRE(p->GetInductionChance() >= 0.5 - 0.002*3);
             REQUIRE(p->GetInductionChance() <= 0.5 + 0.002*3);
+            REQUIRE(p->GetIncVal() != 0.5);
+            REQUIRE(p->GetIncVal() >= 0.5 - 0.002*3);
+            REQUIRE(p->GetIncVal() <= 0.5 + 0.002*3);
         }
         delete p;
     }
@@ -233,13 +309,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -250,13 +329,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
+        config.MUTATE_INC_VAL(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -267,13 +349,16 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
+        double incorporation_val_post_mutation = 0.5;
         THEN("Mutation does not occur and chance of lysis/chance of induction does not change") {
             REQUIRE(p->GetLysisChance() == Approx(lysis_chance_post_mutation));
-             REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetInductionChance() == Approx(induction_chance_post_mutation));
+            REQUIRE(p->GetIncVal() == Approx(incorporation_val_post_mutation));
         }
         delete p;
     }
@@ -301,7 +386,7 @@ TEST_CASE("Phage process"){
             emp::Ptr<Phage> p;
             p.New(random, world, &config, int_val);
 
-            emp::Ptr<Host> h;
+            emp::Ptr<Bacterium> h;
             h.New(random, &w, &config, int_val);
 
             //verify that the phage chooses lysogeny first
@@ -327,7 +412,7 @@ TEST_CASE("Phage process"){
                 emp::Ptr<Phage> p;
                 p.New(random, world, &config, int_val);
 
-                emp::Ptr<Host> h;
+                emp::Ptr<Bacterium> h;
                 h.New(random, &w, &config, int_val);
 
                 h->AddSymbiont(p);
@@ -347,7 +432,7 @@ TEST_CASE("Phage process"){
                 double int_val = 0;
                 double expected_int_val = 0;
                 emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-                Host * h = new Host(random, &w, &config, int_val);
+                Bacterium * h = new Bacterium(random, &w, &config, int_val);
                 h->AddSymbiont(p);
 
                 double points = 0;
@@ -387,8 +472,8 @@ TEST_CASE("Phage process"){
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
             
             //create two hosts and add both to world as neighbors
-            Host * orig_h = new Host(random, &w, &config, int_val);
-            Host * new_h = new Host(random, &w, &config, int_val);
+            Bacterium * orig_h = new Bacterium(random, &w, &config, int_val);
+            Bacterium * new_h = new Bacterium(random, &w, &config, int_val);
             orig_h->AddSymbiont(p);
             world->AddOrgAt(orig_h, 0);
             world->AddOrgAt(new_h, 1);
@@ -413,7 +498,7 @@ TEST_CASE("Phage process"){
         WHEN("It is not time to burst"){
             double int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-            Host * h = new Host(random, &w, &config, int_val);
+            Bacterium * h = new Bacterium(random, &w, &config, int_val);
             h->AddSymbiont(p);
 
             p->SetBurstTimer(0.0);
@@ -462,23 +547,91 @@ TEST_CASE("Phage ProcessResources"){
     SymWorld * world = &w;
     SymConfigBase config;
 
-    WHEN("Phage is Lysogenic"){
-        config.LYSIS(1);
-        config.LYSIS_CHANCE(0);
+    GIVEN("Phage is Lysogenic"){
 
-        double int_val=0;
-        //emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-        emp::Ptr<Phage> p;
-        p.New(random, world, &config, int_val);
-        p->uponInjection();
+        WHEN("Benefits to the host are not enabled"){
+            config.LYSIS(1);
+            config.LYSIS_CHANCE(0);
+            config.BENEFIT_TO_HOST(0);
 
-        double sym_piece = 40;
-        double expected_return = 0;
+            double int_val=0;
+            emp::Ptr<Phage> p;
+            p.New(random, world, &config, int_val);
+            emp::Ptr<Bacterium> b;
+            b.New(random, world, &config, int_val);
+            b->AddSymbiont(p);
+            p->uponInjection();
 
-        THEN("Phage doesn't take or give resources to the host"){
-            REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+            double sym_piece = 40;
+            double expected_return = 0;
+
+            THEN("Phage doesn't take or give resources to the host"){
+                REQUIRE(p->ProcessResources(sym_piece)==expected_return);
+            }
+
+            p.Delete();
         }
 
-        p.Delete();
+        WHEN("Benefits to the host are enabled"){
+            config.LYSIS(1);
+            config.LYSIS_CHANCE(0);
+            config.BENEFIT_TO_HOST(1);
+            config.HOST_INC_VAL(0);
+            config.SYNERGY(2);
+
+            double orig_host_resources = 10;
+            double sym_piece = 0;
+            double int_val=0;
+            emp::Ptr<Bacterium> b;
+            b.New(random, world, &config, int_val);
+
+            WHEN("The incorporation vals are similar"){
+                config.PHAGE_INC_VAL(0);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 20;
+
+                THEN("The host resources increase"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+
+            WHEN("The incorporation vals are neutral"){
+                config.PHAGE_INC_VAL(0.5);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 10;
+
+                THEN("The host resources stay the same"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+
+            WHEN("The incorporation vals are far apart"){
+                config.PHAGE_INC_VAL(1);
+
+                emp::Ptr<Phage> p;
+                p.New(random, world, &config, int_val);
+
+                b->AddSymbiont(p);
+                b->SetResInProcess(orig_host_resources);
+
+                double expected_resources = 0;
+
+                THEN("The host resources are diminished"){
+                    REQUIRE(p->ProcessResources(sym_piece)==expected_resources);
+                }
+            }
+        }
     }
 }
