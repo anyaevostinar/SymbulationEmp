@@ -67,7 +67,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       //world.Inject(*new_org);
     }
   } else if(my_config->PGG()==0 && my_config->LYSIS()){ //a lytic world, use the bacterium class
-      std::cout << "Making bacteriums" << std::endl;
       for (size_t i = 0; i < POP_SIZE; i++){
         emp::Ptr<Bacterium> new_org;
         

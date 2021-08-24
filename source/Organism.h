@@ -147,7 +147,7 @@ class Organism {
 
   //Bacterium functions
   virtual double ProcessLysogenResources(double phage_inc_val){
-    std::cout << "ClearReproSyms called from Organism" << std::endl;
+    std::cout << "ProcessLysogenResources called from Organism" << std::endl;
     throw "Organism method called!";
   }
 

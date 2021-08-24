@@ -99,7 +99,7 @@ public:
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
     incorporation_val = my_config->PHAGE_INC_VAL();
-    mutate_incorporation_val = my_config->MUTATE_PHAGE_INC_VAL();
+    mutate_incorporation_val = my_config->MUTATE_INC_VAL();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }

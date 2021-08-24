@@ -50,7 +50,7 @@ TEST_CASE("Bacterium mutate"){
     WHEN("Mutation rate is not zero and host_inc_val mutations are enabled"){
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(1);
-        config.MUTATE_HOST_INC_VAL(1);
+        config.MUTATE_INC_VAL(1);
         emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
@@ -66,7 +66,7 @@ TEST_CASE("Bacterium mutate"){
     WHEN("Mutation rate is not zero and host_inc_val mutations are not enabled"){
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(1);
-        config.MUTATE_HOST_INC_VAL(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
         
@@ -80,7 +80,7 @@ TEST_CASE("Bacterium mutate"){
     WHEN("Mutation rate is 0 and host_inc_val mutations are enabled"){
         config.MUTATION_RATE(0.0);
         config.MUTATION_SIZE(0.0);
-        config.MUTATE_HOST_INC_VAL(1);
+        config.MUTATE_INC_VAL(1);
         emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
@@ -94,7 +94,7 @@ TEST_CASE("Bacterium mutate"){
     WHEN("Mutation rate is 0 and host_inc_val mutations are not enabled"){
         config.MUTATION_RATE(0.0);
         config.MUTATION_SIZE(0.0);
-        config.MUTATE_HOST_INC_VAL(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 

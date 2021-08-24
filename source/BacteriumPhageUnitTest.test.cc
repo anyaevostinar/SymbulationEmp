@@ -1,5 +1,4 @@
 #include "Phage.h"
-#include "Host.h"
 #include "Bacterium.h"
 
 TEST_CASE("Phage Process") {

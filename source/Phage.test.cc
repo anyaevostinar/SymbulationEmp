@@ -286,7 +286,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
-        config.MUTATE_PHAGE_INC_VAL(1);
+        config.MUTATE_INC_VAL(1);
 
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
@@ -309,7 +309,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
-        config.MUTATE_PHAGE_INC_VAL(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
@@ -329,7 +329,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
-        config.MUTATE_PHAGE_INC_VAL(1);
+        config.MUTATE_INC_VAL(1);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
@@ -349,7 +349,7 @@ TEST_CASE("phage_mutate"){
         config.MUTATION_SIZE(0);
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
-        config.MUTATE_PHAGE_INC_VAL(0);
+        config.MUTATE_INC_VAL(0);
         emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
