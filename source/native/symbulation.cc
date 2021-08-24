@@ -52,8 +52,9 @@ int symbulation_main(int argc, char * argv[])
   std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
 
   if (config.LYSIS() == 1) {
-    world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    world.SetupIncorporationDifferenceFile(config.FILE_PATH()+"IncValDifferences"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }else if(config.PGG() == 1){
     world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }

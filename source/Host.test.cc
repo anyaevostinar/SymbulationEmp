@@ -140,7 +140,6 @@ TEST_CASE("DistributeResources") {
         }
     }
 
-
     WHEN("There are no symbionts and interaction value is 0") {
 
         double int_val = 0;
@@ -304,7 +303,6 @@ TEST_CASE("GetDoEctosymbiosis"){
   GIVEN("A world"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
-    SymWorld * world = &w;
     SymConfigBase config;
     w.Resize(2,2);
     double int_val = 0.5;

@@ -435,6 +435,43 @@ public:
     return host_portion * synergy;
   }
 
+  /**
+   * Input: The double representing the resources to be distributed to the symbionts
+   *
+   * Output: The double representing the host's resources
+   *
+   * Purpose: To process and distribute resources.
+  */
+  double ProcessResources(double hostDonation){
+    return ProcessResources(hostDonation, my_host);
+  }
+
+  /**
+   * Input: The double representing the resources to be distributed to the symbionts and the host from whom it comes
+   *
+   * Output: The double representing the host's resources
+   *
+   * Purpose: To process and distribute resources.
+   */
+  double ProcessResources(double hostDonation, emp::Ptr<Organism> host){
+    double sym_int_val = GetIntVal();
+    double sym_portion = 0;
+    double host_portion = 0;
+    double synergy = my_config->SYNERGY();
+
+    if (sym_int_val<0){
+      double stolen = host->StealResources(sym_int_val);
+      host_portion = 0;
+      sym_portion = stolen + hostDonation;
+    }
+    else if (sym_int_val >= 0){
+      host_portion = hostDonation * sym_int_val;
+      sym_portion = hostDonation - host_portion;
+    }
+    AddPoints(sym_portion);
+    return host_portion * synergy;
+  }
+
 
   /**
    * Input: None
