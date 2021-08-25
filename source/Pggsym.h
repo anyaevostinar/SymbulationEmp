@@ -168,7 +168,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {my_world->FreeSymLocationHandler(location);}
   }
 
 

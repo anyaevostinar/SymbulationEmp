@@ -440,7 +440,7 @@ public:
     }
 
     else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
-      my_world->MoveFreeSym(location);
+      my_world->FreeSymLocationHandler(location);
     }
   }
 };

@@ -554,7 +554,7 @@ public:
       }
     }
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
-      my_world->MoveFreeSym(location);
+      my_world->FreeSymLocationHandler(location);
     }
   }
 

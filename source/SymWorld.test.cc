@@ -647,7 +647,7 @@ TEST_CASE( "Update" ){
   }
 }
 
-TEST_CASE("MoveFreeSym"){
+TEST_CASE("FreeSymLocationHandler"){
   GIVEN("free living syms are allowed"){
     emp::Random random(14);
     SymConfigBase config;
@@ -671,14 +671,14 @@ TEST_CASE("MoveFreeSym"){
         w.AddOrgAt(sym, sym_index);
         REQUIRE(w.GetNumOrgs() == 2);
         THEN("the sym is deleted"){
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
           REQUIRE(w.GetNumOrgs() == 1);
           REQUIRE(!host->HasSym());
         }
       }
       WHEN("the infection does not fail"){
         THEN("the sym moves into the host"){
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
           REQUIRE(w.GetNumOrgs() == 1);
           REQUIRE(host->HasSym());
           REQUIRE(host->GetSymbionts()[0] == sym);
@@ -691,7 +691,7 @@ TEST_CASE("MoveFreeSym"){
         sym->SetInfectionChance(0);
         THEN("the sym moves to a random spot in the free world"){
           REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
 
           size_t new_sym_index = 2;
           emp::Ptr<Organism> new_sym = w.GetSymPop()[new_sym_index];
@@ -703,7 +703,7 @@ TEST_CASE("MoveFreeSym"){
         w.SetMoveFreeSyms(0);
         THEN("the sym doesn't move"){
           REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
           emp::Ptr<Organism> new_sym = w.GetSymPop()[sym_index];
           REQUIRE(sym == new_sym);
         }

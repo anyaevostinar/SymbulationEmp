@@ -1392,7 +1392,7 @@ public:
    *
    * Purpose: To move a symbiont, either into a host, or into a free world position
    */
-  void MoveFreeSym(size_t i){
+  void FreeSymLocationHandler(size_t i){
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
