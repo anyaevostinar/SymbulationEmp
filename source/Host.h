@@ -533,9 +533,9 @@ public:
   double HandleEctosymbiosis(double resources, size_t location){
     double leftover_resources = resources;
     if(GetDoEctosymbiosis(location)){
-      double sym_piece = leftover_resources / (syms.size() + 1);
+      double sym_piece = leftover_resources / (syms.size() + 1); //if there are no endo syms, the ecto sym will handle all the resources
       DistribResToSym(my_world->GetSymAt(location), sym_piece);
-      if(!HasSym()) leftover_resources = 0; //if the host doesn't have syms, it doesn't do any more resources handling
+      leftover_resources = leftover_resources - sym_piece; //leave the leftover resources to be split by other syms
     }
     return leftover_resources;
   }
@@ -573,7 +573,7 @@ public:
       SetResInProcess(sym_piece - hostDonation);
     }
 
-    double sym_return = sym->ProcessResources(this, hostDonation);
+    double sym_return = sym->ProcessResources(hostDonation, this);
     this->AddPoints(sym_return + GetResInProcess());
     SetResInProcess(0);
   }

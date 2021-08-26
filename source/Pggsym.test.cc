@@ -208,7 +208,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
             h->SetResInProcess(80);
 
             THEN("sym receives a donation and stolen resources, host receives betrayal"){
-                REQUIRE(s->ProcessResources(h, 20) == expected_return);
+                REQUIRE(s->ProcessResources(20) == expected_return);
                 REQUIRE(s->GetPoints() == expected_sym_points);
 
             }
@@ -231,7 +231,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
 
                 h->SetResInProcess(20);
                 THEN("symbiont is unsuccessful at stealing"){
-                    REQUIRE(s->ProcessResources(h, 0) == expected_return);
+                    REQUIRE(s->ProcessResources(0) == expected_return);
                     REQUIRE(s->GetPoints() == expected_sym_points);
                 }
             }
@@ -252,7 +252,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
                 h->SetResInProcess(50);
 
                 THEN("Sym steals successfully"){
-                    REQUIRE(s->ProcessResources(h, 0) == expected_return);
+                    REQUIRE(s->ProcessResources(0) == expected_return);
                     REQUIRE(s->GetPoints() == Approx(expected_sym_points));
                 }
             }
@@ -278,7 +278,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
 
 
         THEN("Sym attempts to give benefit back"){
-            REQUIRE(s->ProcessResources(h, 50) == expected_return);
+            REQUIRE(s->ProcessResources(50) == expected_return);
             REQUIRE(s->GetPoints() == expected_sym_points);
         }
     }
