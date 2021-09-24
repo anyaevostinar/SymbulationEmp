@@ -6,7 +6,7 @@ Symbulation allows you to compile your C++ to target
 - running in the web browser (e.g., javascript assembly code).
 
 This how-to aims to walk you through all the nitty gritty required to
-successfully compile a simple "Default" for both targets.
+successfully compile a simple "Default" for running at the command line.
 
 ## Install: Native C++ Compiler
 
