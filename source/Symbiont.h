@@ -482,11 +482,10 @@ public:
    *
    * Output: None
    *
-   * Purpose: Free living syms should be encouraged to keep the interaction values close to 0;
-   unused cooperation/antagonism without a host is wasteful, and so is punished.
-   This function copies the begining portion of Host's DistribResources.
+   * Purpose:  Free living symbionts specialized to interact with hosts
+   * (extreme interaction value in either direction) lose some of the resources that they get from the world.
    */
-  void DistribResources(double resources){
+  void LoseResources(double resources){
     double int_val = interaction_val;
     if(my_host.IsNull()) { // this method should only be called on free-living syms, but double check!
 
@@ -511,8 +510,8 @@ public:
    */
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
-      double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //recieve resources from the world
-      DistribResources(resources); //penalize extreme sym vals if living outside a host
+      double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
+      LoseResources(resources);
     }
 
     if (h_trans) { //non-lytic horizontal transmission enabled

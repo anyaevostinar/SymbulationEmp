@@ -71,6 +71,9 @@ class Organism {
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual double ProcessResources(double sym_piece){
+    std::cout << "ProcessResources called from an Organism" << std::endl;
+    throw "Organism method called!";}
   virtual double ProcessResources(double sym_piece, emp::Ptr<Organism> host){
     std::cout << "ProcessResources called from an Organism" << std::endl;
     throw "Organism method called!";}
