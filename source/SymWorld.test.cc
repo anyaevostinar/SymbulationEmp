@@ -10,13 +10,12 @@ TEST_CASE("PullResources") {
     emp::Random random(19);
     SymWorld world(random);
     int full_share = 100;
-    world.SetResPerUpdate(full_share);
 
     WHEN(" the resources are unlimited ") {
       world.SetLimitedRes(false);
 
-      THEN(" hosts get the full share of resources ") {
-        REQUIRE(world.PullResources() == full_share);
+      THEN(" organisms get as many resources as they request ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
       }
     }
 
@@ -25,11 +24,11 @@ TEST_CASE("PullResources") {
       int original_total = 150;
       world.SetTotalRes(original_total);
 
-      THEN(" first host gets full share of resources, next host gets a bit, everyone else gets nothing ") {
-        REQUIRE(world.PullResources() == full_share);
-        REQUIRE(world.PullResources() == (original_total-full_share));
-        REQUIRE(world.PullResources() == 0);
-        REQUIRE(world.PullResources() == 0);
+      THEN(" first organism gets full share of resources, next host gets a bit, everyone else gets nothing ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
+        REQUIRE(world.PullResources(full_share) == (original_total-full_share));
+        REQUIRE(world.PullResources(full_share) == 0);
+        REQUIRE(world.PullResources(full_share) == 0);
       }
     }
   }
@@ -516,7 +515,7 @@ TEST_CASE( "Update" ){
     SymWorld w(random);
     w.Resize(2,2);
     int resPerUpdate = 10;
-    w.SetResPerUpdate(resPerUpdate);
+    config.RES_DISTRIBUTE(resPerUpdate);
 
     emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
 
@@ -544,7 +543,8 @@ TEST_CASE( "Update" ){
 
     WHEN("free living syms are allowed"){
       int resPerUpdate = 80;
-      w.SetResPerUpdate(resPerUpdate);
+      config.RES_DISTRIBUTE(resPerUpdate);
+      config.FREE_SYM_RES_DISTRIBUTE(resPerUpdate);
       w.Resize(4,4);
       w.SetFreeLivingSyms(1);
       config.FREE_LIVING_SYMS(1);
@@ -552,6 +552,7 @@ TEST_CASE( "Update" ){
 
       WHEN("there are no syms in the world"){
         THEN("hosts process normally"){
+          host = new Host(&random, &w, &config, int_val);
           w.AddOrgAt(host, 0);
           int orig_points = host->GetPoints();
           w.Update();
@@ -646,7 +647,7 @@ TEST_CASE( "Update" ){
   }
 }
 
-TEST_CASE("MoveFreeSym"){
+TEST_CASE("FreeSymLocationHandler"){
   GIVEN("free living syms are allowed"){
     emp::Random random(14);
     SymConfigBase config;
@@ -659,17 +660,29 @@ TEST_CASE("MoveFreeSym"){
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
     w.AddOrgAt(sym, sym_index);
     WHEN("there is a parallel host and the sym wants to infect"){
-      sym->SetInfectionChance(1);
       emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
       w.AddOrgAt(host, sym_index);
       REQUIRE(w.GetNumOrgs() == 2);
       REQUIRE(host->HasSym() == false);
 
-      THEN("the sym moves into the host"){
-        w.MoveFreeSym(sym_index);
-        REQUIRE(w.GetNumOrgs() == 1);
-        REQUIRE(host->HasSym());
-        REQUIRE(host->GetSymbionts()[0] == sym);
+      WHEN("the infection fails"){
+        config.SYM_INFECTION_FAILURE_RATE(1);
+        emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+        w.AddOrgAt(sym, sym_index);
+        REQUIRE(w.GetNumOrgs() == 2);
+        THEN("the sym is deleted"){
+          w.FreeSymLocationHandler(sym_index);
+          REQUIRE(w.GetNumOrgs() == 1);
+          REQUIRE(!host->HasSym());
+        }
+      }
+      WHEN("the infection does not fail"){
+        THEN("the sym moves into the host"){
+          w.FreeSymLocationHandler(sym_index);
+          REQUIRE(w.GetNumOrgs() == 1);
+          REQUIRE(host->HasSym());
+          REQUIRE(host->GetSymbionts()[0] == sym);
+        }
       }
     }
     WHEN("the sym does not want to/can't infect a parallel host"){
@@ -678,7 +691,7 @@ TEST_CASE("MoveFreeSym"){
         sym->SetInfectionChance(0);
         THEN("the sym moves to a random spot in the free world"){
           REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
 
           size_t new_sym_index = 2;
           emp::Ptr<Organism> new_sym = w.GetSymPop()[new_sym_index];
@@ -690,7 +703,7 @@ TEST_CASE("MoveFreeSym"){
         w.SetMoveFreeSyms(0);
         THEN("the sym doesn't move"){
           REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
+          w.FreeSymLocationHandler(sym_index);
           emp::Ptr<Organism> new_sym = w.GetSymPop()[sym_index];
           REQUIRE(sym == new_sym);
         }
@@ -804,6 +817,34 @@ TEST_CASE("AddOrgAt"){
         w.AddOrgAt(sym, 7);
         REQUIRE(w.GetSymPop().size() == w.GetPop().size());
         REQUIRE(w.GetSymPop().size() == 8);
+      }
+    }
+  }
+}
+
+TEST_CASE("GetSymAt"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(2,2);
+
+
+    WHEN("a request is made for an in-bounds sym"){
+      emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
+      w.AddOrgAt(sym1, 0);
+      w.AddOrgAt(sym2, 1);
+      THEN("the sym at that position is returned"){
+        REQUIRE(w.GetSymAt(0) == sym1);
+        REQUIRE(w.GetSymAt(1) == sym2);
+        REQUIRE(w.GetSymAt(2) == nullptr);
+      }
+    }
+    WHEN("a request is made for an out-of-bounds sym"){
+      THEN("an exception is thrown"){
+        REQUIRE_THROWS(w.GetSymAt(4));
       }
     }
   }

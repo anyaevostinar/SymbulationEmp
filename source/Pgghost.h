@@ -124,18 +124,18 @@ public:
     }
     this->SetPool(0);
   }
- 
- 
+
+
   /**
    * Input: #
-   * 
+   *
    * Output: None
-   * 
-   * Purpose: 
-   */ 
+   *
+   * Purpose:
+   */
   void Process(size_t location) {
     //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
+    double resources = my_world->PullResources(my_config->RES_DISTRIBUTE());
     DistribResources(resources);
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro

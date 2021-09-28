@@ -8,7 +8,7 @@ TEST_CASE("PGGSymbiont Constructor") {
     SymWorld w(*random);
     SymWorld * world = &w;
 
-    
+
     double donation = 1;
 
     double int_val = 0.5;
@@ -37,7 +37,7 @@ TEST_CASE("Pggmutate") {
         PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
 
         s->mutate();
-       
+
         THEN("Mutation occurs and donation value changes, but stays within bounds") {
             REQUIRE(s->GetDonation() != donation);
             REQUIRE(s->GetDonation() <= 1);
@@ -62,7 +62,7 @@ TEST_CASE("Pggmutate") {
         }
 
     }
-}   
+}
 
 TEST_CASE("PGGSymbiont ProcessPool"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -79,10 +79,10 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     h->AddSymbiont(s);
 
     //double piece = 40;
-    // double host_donation = 20; //sym_piece * host_int_val;  
+    // double host_donation = 20; //sym_piece * host_int_val;
     //double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     h->DistribResources(40);
-    
+
     CHECK(s->GetPoints() == 40.4);
     CHECK(h->GetPoints() == 0);
 }
@@ -186,7 +186,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
     SymWorld w(*random);
     SymWorld * world = &w;
     SymConfigBase config;
-    config.SYNERGY(5); 
+    config.SYNERGY(5);
 
 
     WHEN("sym_int_val < 0"){
@@ -253,7 +253,7 @@ TEST_CASE("PGGSymbiont ProcessResources"){
 
                 THEN("Sym steals successfully"){
                     REQUIRE(s->ProcessResources(0) == expected_return);
-                    REQUIRE(s->GetPoints() == Approx(expected_sym_points));             
+                    REQUIRE(s->GetPoints() == Approx(expected_sym_points));
                 }
             }
 
@@ -270,12 +270,12 @@ TEST_CASE("PGGSymbiont ProcessResources"){
 
         // double resources = 100;
         // double hostDonation = 50;
-        // double hostPortion = 10; hostDonation * sym_int_val        
+        // double hostPortion = 10; hostDonation * sym_int_val
         double expected_sym_points = 40; // hostDonation - hostPortion
         double expected_return = 50; // hostPortion * synergy
 
         h->SetResInProcess(50);
-        
+
 
         THEN("Sym attempts to give benefit back"){
             REQUIRE(s->ProcessResources(50) == expected_return);
@@ -285,4 +285,3 @@ TEST_CASE("PGGSymbiont ProcessResources"){
 
 
 }
-
