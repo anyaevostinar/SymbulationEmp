@@ -126,18 +126,19 @@ public:
   }
 
 
-  
+
   /**
-   * Input: The size_t value representing the location of the bacterium. 
-   * 
+   * Input: The size_t value representing the location of the bacterium.
+   *
    * Output: None
-   * 
+   *
    * Purpose: To process the bacterium, meaning determining eligibility for reproduction, checking for vertical
-   * transmission, removing dead syms, and processing alive syms. 
+   * transmission, removing dead syms, and processing alive syms.
    */
   void Process(size_t location) {
     //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
+    double desired_resources = my_config->RES_DISTRIBUTE();
+    double resources = my_world->PullResources(desired_resources); //recieve resources from the world
     DistribResources(resources);
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
