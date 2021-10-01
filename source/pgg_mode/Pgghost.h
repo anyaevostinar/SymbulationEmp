@@ -6,8 +6,8 @@
 // #include <set>
 // #include <iomanip> // setprecision
 // #include <sstream> // stringstream
-#include "Host.h"
-#include "SymWorld.h"
+#include "../default_mode/Host.h"
+#include "../SymWorld.h"
  
  
 class PggHost: public Host {

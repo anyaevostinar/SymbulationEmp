@@ -1,5 +1,5 @@
-#include "Host.h"
-#include "Symbiont.h"
+#include "default_mode/Host.h"
+#include "default_mode/Symbiont.h"
 #include <set>
 
 TEST_CASE("Host SetIntVal, GetIntVal") {

@@ -1,8 +1,8 @@
 #ifndef PHAGE_H
 #define PHAGE_H
  
-#include "Symbiont.h"
-#include "SymWorld.h"
+#include "../default_mode/Symbiont.h"
+#include "../SymWorld.h"
  
 class Phage: public Symbiont {
 protected:

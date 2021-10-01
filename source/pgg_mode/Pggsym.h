@@ -1,8 +1,8 @@
 #ifndef PGGSYM_H
 #define PGGSYM_H
 
-#include "Symbiont.h"
-#include "SymWorld.h"
+#include "../default_mode/Symbiont.h"
+#include "../SymWorld.h"
 
 class PGGSymbiont: public Symbiont {
 protected:

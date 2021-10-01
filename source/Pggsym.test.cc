@@ -1,5 +1,5 @@
-#include "Pgghost.h"
-#include "Pggsym.h"
+#include "pgg_mode/Pgghost.h"
+#include "pgg_mode/Pggsym.h"
 
 TEST_CASE("PGGSymbiont Constructor") {
 

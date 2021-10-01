@@ -1,5 +1,4 @@
-#include "Bacterium.h"
-#include "Host.h"
+#include "lysis_mode/Bacterium.h"
 
 TEST_CASE("Bacterium constructor, host_incorporation_val"){
     emp::Ptr<emp::Random> random = new emp::Random(5);

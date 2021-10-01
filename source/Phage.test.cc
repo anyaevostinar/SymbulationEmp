@@ -1,5 +1,4 @@
-#include "Phage.h"
-#include "Symbiont.h"
+#include "lysis_mode/Phage.h"
 
 TEST_CASE("Phage constructor, GetIntVal") {
     emp::Ptr<emp::Random> random = new emp::Random(27);

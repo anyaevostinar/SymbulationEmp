@@ -1,5 +1,5 @@
-#include "Host.h"
-#include "EfficientSymbiont.h"
+#include "default_mode/Host.h"
+#include "efficient_mode/EfficientSymbiont.h"
 
 TEST_CASE("EfficientSymbiont mutate") {
 

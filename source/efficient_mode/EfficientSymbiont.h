@@ -1,8 +1,8 @@
 #ifndef EFFSYM_H
 #define EFFSYM_H
  
-#include "Symbiont.h"
-#include "SymWorld.h"
+#include "../default_mode/Symbiont.h"
+#include "../SymWorld.h"
  
 class EfficientSymbiont: public Symbiont {
 protected:
