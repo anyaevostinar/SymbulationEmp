@@ -2,15 +2,15 @@
 #include <algorithm>
 #include <array>
 #include <string>
-#include "native/symbulation.cc"
+#include "../native/symbulation.cc"
 
 using namespace std;
 
-void Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002, 
-    double synergy = 5, double vertical_transmission = 1, double host_int = 0, 
-    double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1, 
-    int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10, 
-    int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1, 
+void Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002,
+    double synergy = 5, double vertical_transmission = 1, double host_int = 0,
+    double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1,
+    int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10,
+    int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1,
 	  double sym_horiz_trans_res = 100, int start_moi = 1, bool grid = 0) {
 
   SymConfigBase config;
@@ -39,27 +39,27 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
   config.FILE_NAME("_Test");       //Root output file name
 
   GIVEN( string("The configuration {") +
-          string(" seed = ") + to_string(seed) + 
+          string(" seed = ") + to_string(seed) +
 	 string(" data_int = ") + to_string(data_int) +
-          string(" mutation_rate = ") + to_string(mutation_rate) + 
-          string(" synergy = ") + to_string(synergy) + 
-          string(" vertical_transmission = ") + to_string(vertical_transmission) + 
-          string(" host_int = ") + to_string(host_int) + 
-          string(" sym_int = ") + to_string(sym_int) + 
-          string(" grid_x = ") + to_string(grid_x) + 
-          string(" grid_y = ") + to_string(grid_y) + 
-          string(" updates = ") + to_string(updates) + 
-          string(" sym_limit = ") + to_string(sym_limit) + 
-          string(" lysis = ") + to_string(lysis) + 
-          string(" horiz_trans = ") + to_string(horiz_trans) + 
-          string(" burst_size = ") + to_string(burst_size) + 
-          string(" burst_time = ") + to_string(burst_time) + 
-          string(" host_repro_res = ") + to_string(host_repro_res) + 
-          string(" sym_lysis_res = ") + to_string(sym_lysis_res) + 
+          string(" mutation_rate = ") + to_string(mutation_rate) +
+          string(" synergy = ") + to_string(synergy) +
+          string(" vertical_transmission = ") + to_string(vertical_transmission) +
+          string(" host_int = ") + to_string(host_int) +
+          string(" sym_int = ") + to_string(sym_int) +
+          string(" grid_x = ") + to_string(grid_x) +
+          string(" grid_y = ") + to_string(grid_y) +
+          string(" updates = ") + to_string(updates) +
+          string(" sym_limit = ") + to_string(sym_limit) +
+          string(" lysis = ") + to_string(lysis) +
+          string(" horiz_trans = ") + to_string(horiz_trans) +
+          string(" burst_size = ") + to_string(burst_size) +
+          string(" burst_time = ") + to_string(burst_time) +
+          string(" host_repro_res = ") + to_string(host_repro_res) +
+          string(" sym_lysis_res = ") + to_string(sym_lysis_res) +
           string(" sym_horiz_trans_res = ") + to_string(sym_horiz_trans_res) +
 	 string(" start_moi = ") + to_string(start_moi) +
           string(" grid = ") + to_string(grid) + " }") {
-    
+
     config.Write("SymSettings.cfg");
 
     THEN( "Symublation runs without error" ) {
@@ -81,7 +81,7 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
         expected.open(path, ios::in);
 	REQUIRE(actual.is_open());
         REQUIRE(expected.is_open());
-      
+
         //Is this a good length of text to display to the user?
         const int chunk_length = 1000;
 
@@ -113,11 +113,11 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
   }//GIVEN
 }//void Test(.........)
 
-/*Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002, 
-    double synergy = 5, double vertical_transmission = 1, double host_int = 0, 
-    double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1, 
-    int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10, 
-    int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1, 
+/*Test(std::string expected_result_file, int seed = 10, int data_int = 100, double mutation_rate = 0.002,
+    double synergy = 5, double vertical_transmission = 1, double host_int = 0,
+    double sym_int = 0,  int grid_x = 5, int grid_y = 5, int updates = 1,
+    int sym_limit = 1, bool lysis = 0, bool horiz_trans = 0, int burst_size = 10,
+    int burst_time = 10, double host_repro_res = 1000,double sym_lysis_res = 1,
 	  double sym_horiz_trans_res = 100, int start_moi = 1, bool grid = 0)
 */
 TEST_CASE( "End To End" ) {

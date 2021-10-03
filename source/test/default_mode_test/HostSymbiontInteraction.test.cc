@@ -1,13 +1,13 @@
-#include "default_mode/Host.h"
-#include "default_mode/Symbiont.h"
+#include "../../default_mode/Host.h"
+#include "../../default_mode/Symbiont.h"
 #include <set>
 
 TEST_CASE( "Host-Symbiont interactions") {
   SymConfigBase config;
   config.SYM_LIMIT(3);
-  
+
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
-    emp::Random random; 
+    emp::Random random;
     SymWorld w(random);
     double host_interaction_val = 0.5;
     double host_points = 17;
@@ -19,7 +19,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetReproSymbionts().size() == 0 );
     REQUIRE( h.GetResTypes().size() == 0 );
     REQUIRE( h.GetPoints() == host_points );
-  
+
     WHEN( "resources are distributed" ) {
       h.DistribResources(host_resource);
 
@@ -106,7 +106,7 @@ TEST_CASE( "Host-Symbiont interactions") {
       emp::Ptr<Symbiont> s8;
       s8.New(&random, &w, &config, .12, 108);
       h.AddSymbiont(s8);
-      
+
 
       THEN( "the host gains as many symbionts as the limit" ) {
         REQUIRE( h.GetSymbionts().size() == 3 );
@@ -137,7 +137,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     }
   }
 
-  
+
 
   GIVEN( "an empty slightly defensive host" ) {
     emp::Random random(10);
@@ -149,7 +149,7 @@ TEST_CASE( "Host-Symbiont interactions") {
     REQUIRE( h.GetReproSymbionts().size() == 0 );
     REQUIRE( h.GetResTypes().size() == 0 );
     REQUIRE( h.GetPoints() == 0 );
-  
+
     WHEN( "resources are distributed" ) {
       h.DistribResources(1);
 

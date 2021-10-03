@@ -1,11 +1,11 @@
-#include "lysis_mode/Phage.h"
+#include "../../lysis_mode/Phage.h"
 
 TEST_CASE("Phage constructor, GetIntVal") {
     emp::Ptr<emp::Random> random = new emp::Random(27);
     SymWorld w(*random);
     SymConfigBase config;
     SymWorld * world = &w;
-   
+
     WHEN("Int val is passed in as negative"){
         double int_val = -1;
         Phage * p = new Phage(random, world, &config, int_val);
@@ -15,7 +15,7 @@ TEST_CASE("Phage constructor, GetIntVal") {
         }
         delete p;
     }
-    
+
     WHEN("Int val is passed in as zero"){
         double int_val = 0;
         Phage * p2 = new Phage(random, world, &config, int_val);
@@ -74,7 +74,7 @@ TEST_CASE("Phage constructor, GetIntVal") {
         }
         delete p6;
     }
-    
+
     WHEN("Incorporation val is random"){
         double int_val = 0;
         config.PHAGE_INC_VAL(-1);
@@ -174,7 +174,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
     SymConfigBase config;
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-    
+
     int default_burst_time = 0;
     REQUIRE(p->GetBurstTimer() == default_burst_time);
 
@@ -185,7 +185,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
 
     int burst_time = 15;
     p->SetBurstTimer(burst_time);
-    
+
     int expected_burst_time = 15;
     REQUIRE(p->GetBurstTimer() == expected_burst_time);
 
@@ -251,7 +251,7 @@ TEST_CASE("Phage uponInjection"){
     SymConfigBase config;
     double int_val = -1;
     config.LYSIS_CHANCE(1);
-    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);  
+    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
 
     //initialization of phage sets lysogeny to false
     bool expected_lysogeny = false;
@@ -370,7 +370,7 @@ TEST_CASE("Phage process"){
     SymConfigBase config;
 
     config.LYSIS(1); //phage process only happens when lysis is enabled
-    config.GRID_X(2); 
+    config.GRID_X(2);
     config.GRID_Y(1);
     config.SYM_LIMIT(2);
     int location = 0;
@@ -392,7 +392,7 @@ TEST_CASE("Phage process"){
             bool expected_lysogeny = true;
             h->AddSymbiont(p);
             REQUIRE(p->GetLysogeny() == expected_lysogeny);
-            
+
             expected_lysogeny = false;
             p->Process(location);
 
@@ -469,7 +469,7 @@ TEST_CASE("Phage process"){
         WHEN("It is time to burst"){
             double int_val = 0;
             emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-            
+
             //create two hosts and add both to world as neighbors
             Bacterium * orig_h = new Bacterium(random, &w, &config, int_val);
             Bacterium * new_h = new Bacterium(random, &w, &config, int_val);
@@ -482,7 +482,7 @@ TEST_CASE("Phage process"){
             emp::Ptr<Organism> p_baby2 = p->reproduce();
             orig_h->AddReproSym(p_baby1);
             orig_h->AddReproSym(p_baby2);
- 
+
             //call the process such that the phage bursts and we can check injection
             p->SetBurstTimer(burst_timer);
             p->Process(location);

@@ -1,4 +1,4 @@
-#include "lysis_mode/Bacterium.h"
+#include "../../lysis_mode/Bacterium.h"
 
 TEST_CASE("Bacterium constructor, host_incorporation_val"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
@@ -44,7 +44,7 @@ TEST_CASE("Bacterium mutate"){
     double int_val = 0;
     double orig_host_inc_val = 0.5;
     config.HOST_INC_VAL(orig_host_inc_val);
-    
+
 
     WHEN("Mutation rate is not zero and host_inc_val mutations are enabled"){
         config.MUTATION_SIZE(0.002);
@@ -58,7 +58,7 @@ TEST_CASE("Bacterium mutate"){
             REQUIRE(b->GetIncVal() >= 0.0);
             REQUIRE(b->GetIncVal() <= 1.0);
         }
-        
+
     delete b;
     }
 
@@ -68,11 +68,11 @@ TEST_CASE("Bacterium mutate"){
         config.MUTATE_INC_VAL(0);
         emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
-        
+
         THEN("Then mutations occur but do not occur in the host_inc_val"){
             REQUIRE(b->GetIncVal() ==  orig_host_inc_val);
         }
-        
+
     delete b;
     }
 
@@ -102,7 +102,7 @@ TEST_CASE("Bacterium mutate"){
         }
 
     delete b;
-    }  
+    }
 }
 
 TEST_CASE("ProcessLysogenResources"){
@@ -137,7 +137,7 @@ TEST_CASE("ProcessLysogenResources"){
             REQUIRE(b->ProcessLysogenResources(phage_inc_val) == expected_resources);
             REQUIRE(b->GetResInProcess() == 0);
         }
-    }  
+    }
 
     WHEN("The incorporation values are far apart"){
         double phage_inc_val = 1;
@@ -187,5 +187,5 @@ TEST_CASE("Bacterium Process"){
                 REQUIRE(b->GetPoints() == 0);
             }
         }
-    } 
+    }
 }
