@@ -1,5 +1,5 @@
-#include "Phage.h"
-#include "Bacterium.h"
+#include "lysis_mode/Phage.h"
+#include "lysis_mode/Bacterium.h"
 
 TEST_CASE("Phage Process") {
 

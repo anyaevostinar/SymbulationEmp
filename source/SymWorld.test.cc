@@ -1,9 +1,9 @@
 #include "SymWorld.h"
-#include "Symbiont.h"
-#include "Phage.h"
-#include "Host.h"
-#include "Pgghost.h"
-#include "Pggsym.h"
+#include "default_mode/Symbiont.h"
+#include "lysis_mode/Phage.h"
+#include "default_mode/Host.h"
+#include "pgg_mode/Pgghost.h"
+#include "pgg_mode/Pggsym.h"
 
 TEST_CASE("PullResources") {
   GIVEN(" a world ") {

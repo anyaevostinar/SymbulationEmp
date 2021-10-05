@@ -1,8 +1,8 @@
 #ifndef BACTERIUM_H
 #define BACTERIUM_H
  
-#include "Host.h"
-#include "SymWorld.h"
+#include "../default_mode/Host.h"
+#include "../SymWorld.h"
  
  
 class Bacterium : public Host {
