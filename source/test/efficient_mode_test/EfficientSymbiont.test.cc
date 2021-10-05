@@ -1,5 +1,5 @@
-#include "default_mode/Host.h"
-#include "efficient_mode/EfficientSymbiont.h"
+#include "../../default_mode/Host.h"
+#include "../../efficient_mode/EfficientSymbiont.h"
 
 TEST_CASE("EfficientSymbiont mutate") {
 
@@ -14,7 +14,7 @@ TEST_CASE("EfficientSymbiont mutate") {
         double points = 0;
         config.MUTATION_SIZE(0.002);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
-        
+
         s->mutate();
 
         THEN("Mutation occurs and efficiency value changes, but within bounds") {
@@ -34,7 +34,7 @@ TEST_CASE("EfficientSymbiont mutate") {
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
-        
+
         s->mutate();
 
 
@@ -98,7 +98,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
     SymWorld * world = &w;
     double int_val = 0;
 
-    
+
     WHEN("Mutation rate is zero")  {
         // double efficiency = 0.5;
         double parent_orig_efficiency = 0.5;
@@ -107,7 +107,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, parent_orig_efficiency);
-        
+
         emp::Ptr<Organism> sym_baby = s->reproduce();
 
 
@@ -136,7 +136,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0.01);
         EfficientSymbiont * s2 = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
-        
+
         emp::Ptr<Organism> sym_baby = s2->reproduce();
 
 
@@ -155,7 +155,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
         sym_baby.Delete();
 
     }
- 
+
 }
 
 TEST_CASE("EfficientSymbiont HorizMutate") {
@@ -192,7 +192,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host") {
     SymWorld w(*random);
     SymWorld * world = &w;
     w.Resize(2);
-    
+
     config.MUTATION_SIZE(0);
     config.MUTATION_RATE(0);
 
@@ -217,4 +217,3 @@ TEST_CASE("EfficientSymbiont's Process called from Host") {
 
     }
 }
-
