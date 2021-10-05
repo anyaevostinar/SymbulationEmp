@@ -15,7 +15,7 @@
 #include "emp/config/ArgManager.hpp"
 #include "emp/prefab/ConfigPanel.hpp"
 #include "emp/web/UrlParams.hpp"
-#include "WorldSetup.cc"
+#include "default_mode/WorldSetup.cc"
 
 
 namespace UI = emp::web;
