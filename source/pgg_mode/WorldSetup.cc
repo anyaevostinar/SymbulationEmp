@@ -31,7 +31,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
-  const bool STAGGER_STARTING_BURST_TIMERS = true;
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;
 

@@ -1,5 +1,4 @@
 # Project-specific settings
-PROJECT := symbulation
 TEST_MAIN := source/catch/main
 EMP_DIR := ../Empirical/include
 
@@ -22,25 +21,36 @@ CFLAGS_web := $(CFLAGS_all) $(OFLAGS_web) $(OFLAGS_web_all)
 CFLAGS_web_debug := $(CFLAGS_all) $(OFLAGS_web_debug) $(OFLAGS_web_all)
 
 
-default: $(PROJECT)
-native: $(PROJECT)
-web: $(PROJECT).js
-all: $(PROJECT) $(PROJECT).js
+default: source/native/symbulation.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation.cc -o symbulation
+	@echo To build the web version use: make web
+
+native: symbulation
+web: symbulation.js
+all: default_mode efficient_mode lysis_mode pgg_mode symbulation.js
 
 debug:	CFLAGS_nat := $(CFLAGS_nat_debug)
-debug:	$(PROJECT)
+debug:	symbulation
 
 debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
-debug-web:	$(PROJECT).js
+debug-web:	symbulation.js
 
 web-debug:	debug-web
 
-$(PROJECT):	source/native/$(PROJECT).cc
-	$(CXX_nat) $(CFLAGS_nat) source/native/$(PROJECT).cc -o $(PROJECT)
-	@echo To build the web version use: make web
+default_mode:	source/native/symbulation_default.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
 
-$(PROJECT).js: source/web/$(PROJECT)-web.cc
-	$(CXX_web) $(CFLAGS_web) source/web/$(PROJECT)-web.cc -o web/$(PROJECT).js
+efficient_mode:	source/native/symbulation_efficient.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
+
+lysis_mode:	source/native/symbulation_lysis.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_lysis.cc -o symbulation_lysis
+
+pgg_mode:	source/native/symbulation_pgg.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
+
+symbulation.js: source/web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
 
 .PHONY: clean test serve
 
@@ -48,19 +58,19 @@ serve:
 	python3 -m http.server
 
 clean:
-	rm -f $(PROJECT) web/$(PROJECT).js web/*.js.map web/*.js.map *~ source/*.o
+	rm -f symbulation web/symbulation.js web/*.js.map web/*.js.map *~ source/*.o
 
 test:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o symbulation.test
+	./symbulation.test
 
 test-debug:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o symbulation.test
+	./symbulation.test
 
 coverage:
-	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
+	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o symbulation.test
+	./symbulation.test
 
 
 # Debugging information
