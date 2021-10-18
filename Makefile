@@ -20,46 +20,65 @@ OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
 CFLAGS_web := $(CFLAGS_all) $(OFLAGS_web) $(OFLAGS_web_all)
 CFLAGS_web_debug := $(CFLAGS_all) $(OFLAGS_web_debug) $(OFLAGS_web_all)
 
-
-default: source/native/symbulation.cc
-	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation.cc -o symbulation
+# Compiling different modes
+default: default-mode
+	@echo Built default version using 'make default-mode'. To use other modes, use the following:
+	@echo Efficient mode: make efficient-mode
+	@echo Lysis mode: make lysis-mode
+	@echo PGG mode: make pgg-mode
 	@echo To build the web version use: make web
 
-native: symbulation
+native: default-mode
 web: symbulation.js
-all: default_mode efficient_mode lysis_mode pgg_mode symbulation.js
+all: default-mode efficient-mode lysis-mode pgg-mode symbulation.js
 
-debug:	CFLAGS_nat := $(CFLAGS_nat_debug)
-debug:	symbulation
-
-debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
-debug-web:	symbulation.js
-
-web-debug:	debug-web
-
-default_mode:	source/native/symbulation_default.cc
+default-mode:	source/native/symbulation_default.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
 
-efficient_mode:	source/native/symbulation_efficient.cc
+efficient-mode:	source/native/symbulation_efficient.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
 
-lysis_mode:	source/native/symbulation_lysis.cc
+lysis-mode:	source/native/symbulation_lysis.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_lysis.cc -o symbulation_lysis
 
-pgg_mode:	source/native/symbulation_pgg.cc
+pgg-mode:	source/native/symbulation_pgg.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
 
 symbulation.js: source/web/symbulation-web.cc
 	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
 
-.PHONY: clean test serve
+# Debugging
+debug:
+	@echo Please specify the mode to debug using the following:
+	@echo Default mode: make debug-default
+	@echo Efficient mode: make debug-efficient
+	@echo Lysis mode: make debug-lysis
+	@echo PGG mode: make debug-pgg
 
-serve:
-	python3 -m http.server
+debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-default: default-mode 
+default-debug: debug-default
 
-clean:
-	rm -f symbulation web/symbulation.js web/*.js.map web/*.js.map *~ source/*.o
+debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-efficient: efficient-mode 
+efficient-debug: debug-efficient
 
+debug-lysis: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-lysis: lysis-mode 
+lysis-debug: debug-lysis
+
+debug-pgg: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-pgg: pgg-mode 
+pgg-debug: debug-pgg
+
+debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
+debug-web:	symbulation.js
+web-debug:	debug-web
+
+# Debugging information
+print-%: ; @echo '$(subst ','\'',$*=$($*))'
+
+# Testing
 test:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o symbulation.test
 	./symbulation.test
@@ -68,10 +87,15 @@ test-debug:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o symbulation.test
 	./symbulation.test
 
+# Extras
+.PHONY: clean test serve
+
+serve:
+	python3 -m http.server
+
+clean:
+	rm -f symbulation* web/symbulation.js web/*.js.map web/*.js.map *~ source/*.o
+
 coverage:
 	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o symbulation.test
 	./symbulation.test
-
-
-# Debugging information
-print-%: ; @echo '$(subst ','\'',$*=$($*))'
