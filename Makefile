@@ -1,5 +1,5 @@
 # Project-specific settings
-TEST_MAIN := source/catch/main
+TEST_DIR := source/catch
 EMP_DIR := ../Empirical/include
 
 # Flags to use regardless of compiler
@@ -80,12 +80,50 @@ print-%: ; @echo '$(subst ','\'',$*=$($*))'
 
 # Testing
 test:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o symbulation.test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test
+	@echo To run only the tests for each mode, use the following:
+	@echo Default mode testing: make test-default
+	@echo Efficient mode testing: make test-efficient
+	@echo Lysis mode testing: make test-lysis 
+	@echo PGG mode testing: make test-pgg
 
 test-debug:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o symbulation.test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test
+	@echo To debug and test for each mode, use the following:
+	@echo Default mode: make test-debug-default
+	@echo Efficient mode: make test-debug-efficient
+	@echo Lysis mode: make test-debug-lysis 
+	@echo PGG mode: make test-debug-pgg
+
+test-default:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/default_test.cc -o symbulation_default.test
+	./symbulation_default.test
+test-debug-default:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/default_test.cc -o symbulation_default.test
+	./symbulation_default.test
+
+test-efficient:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/efficient_test.cc -o symbulation_efficient.test
+	./symbulation_efficient.test
+test-debug-efficient:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/efficient_test.cc -o symbulation_efficient.test
+	./symbulation_efficient.test
+
+test-lysis:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/lysis_test.cc -o symbulation_lysis.test
+	./symbulation_lysis.test
+test-debug-lysis:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/lysis_test.cc -o symbulation_lysis.test
+	./symbulation_lysis.test
+
+test-pgg:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/pgg_test.cc -o symbulation_pgg.test
+	./symbulation_pgg.test
+test-debug-pgg:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/pgg_test.cc -o symbulation_pgg.test
+	./symbulation_pgg.test
 
 # Extras
 .PHONY: clean test serve
@@ -97,5 +135,5 @@ clean:
 	rm -f symbulation* web/symbulation.js web/*.js.map web/*.js.map *~ source/*.o
 
 coverage:
-	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o symbulation.test
+	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test
