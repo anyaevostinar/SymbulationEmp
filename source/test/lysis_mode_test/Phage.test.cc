@@ -2,9 +2,9 @@
 
 TEST_CASE("Phage constructor, GetIntVal") {
     emp::Ptr<emp::Random> random = new emp::Random(27);
-    SymWorld w(*random);
+    LysisWorld w(*random);
     SymConfigBase config;
-    SymWorld * world = &w;
+    LysisWorld * world = &w;
 
     WHEN("Int val is passed in as negative"){
         double int_val = -1;
@@ -102,8 +102,8 @@ TEST_CASE("Phage constructor, GetIntVal") {
 
 TEST_CASE("Phage reproduce") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     config.MUTATE_LYSIS_CHANCE(1);
     config.LYSIS_CHANCE(.5);
@@ -169,8 +169,8 @@ TEST_CASE("Phage reproduce") {
 
 TEST_CASE("SetBurstTimer, IncBurstTimer"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -198,8 +198,8 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
 
 TEST_CASE("Phage SetLysisChance, GetLysisChance"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -214,8 +214,8 @@ TEST_CASE("Phage SetLysisChance, GetLysisChance"){
 
 TEST_CASE("Phage SetInductionChance, GetInductionChance"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -230,8 +230,8 @@ TEST_CASE("Phage SetInductionChance, GetInductionChance"){
 
 TEST_CASE("Phage SetIncVal, GetIncVal"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     double int_val = -1;
     emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
@@ -246,8 +246,8 @@ TEST_CASE("Phage SetIncVal, GetIncVal"){
 
 TEST_CASE("Phage uponInjection"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     double int_val = -1;
     config.LYSIS_CHANCE(1);
@@ -273,8 +273,8 @@ TEST_CASE("Phage uponInjection"){
 
 TEST_CASE("phage_mutate"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     config.LYSIS_CHANCE(0.5);
     config.CHANCE_OF_INDUCTION(0.5);
@@ -365,8 +365,8 @@ TEST_CASE("phage_mutate"){
 
 TEST_CASE("Phage process"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
 
     config.LYSIS(1); //phage process only happens when lysis is enabled
@@ -542,8 +542,8 @@ TEST_CASE("Phage process"){
 
 TEST_CASE("Phage ProcessResources"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
 
     GIVEN("Phage is Lysogenic"){
