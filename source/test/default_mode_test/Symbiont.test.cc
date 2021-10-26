@@ -1,7 +1,7 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 
-TEST_CASE("Symbiont Constructor") {
+TEST_CASE("Symbiont Constructor", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -23,7 +23,7 @@ TEST_CASE("Symbiont Constructor") {
     REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) );
 }
 
-TEST_CASE("SetIntVal, GetIntVal") {
+TEST_CASE("SetIntVal, GetIntVal", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -62,7 +62,7 @@ TEST_CASE("SetIntVal, GetIntVal") {
 
 }
 
-TEST_CASE("SetInfectionChance, GetInfectionChance") {
+TEST_CASE("SetInfectionChance, GetInfectionChance", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -87,7 +87,7 @@ TEST_CASE("SetInfectionChance, GetInfectionChance") {
     REQUIRE_THROWS(sym->SetInfectionChance(infection_chance));
 }
 
-TEST_CASE("SetPoints, GetPoints") {
+TEST_CASE("SetPoints, GetPoints", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -116,7 +116,7 @@ TEST_CASE("SetPoints, GetPoints") {
     REQUIRE(s->GetPoints() == orig_points);
 }
 
-TEST_CASE("Symbiont SetDead, GetDead"){
+TEST_CASE("Symbiont SetDead, GetDead", "[default][efficient][lysis][pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -135,7 +135,7 @@ TEST_CASE("Symbiont SetDead, GetDead"){
     REQUIRE(s->GetDead() == expected_dead);
 }
 
-TEST_CASE("WantsToInfect"){
+TEST_CASE("WantsToInfect", "[default][efficient][lysis][pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymConfigBase config;
     SymWorld w(*random);
@@ -165,7 +165,7 @@ TEST_CASE("WantsToInfect"){
     }
 }
 
-TEST_CASE("mutate") {
+TEST_CASE("mutate", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
@@ -225,7 +225,7 @@ TEST_CASE("mutate") {
     }
 }
 
-TEST_CASE("reproduce") {
+TEST_CASE("reproduce", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
@@ -291,7 +291,7 @@ TEST_CASE("reproduce") {
 
 }
 
-TEST_CASE("Process") {
+TEST_CASE("Process", "[default][efficient][lysis][pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -385,7 +385,7 @@ TEST_CASE("Process") {
 
 }
 
-TEST_CASE("Symbiont ProcessResources"){
+TEST_CASE("Symbiont ProcessResources", "[default][efficient][lysis][pgg]"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;

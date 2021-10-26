@@ -1,7 +1,7 @@
 #include "../../pgg_mode/Pgghost.h"
 #include "../../pgg_mode/Pggsym.h"
 
-TEST_CASE("PGGSymbiont Constructor") {
+TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -23,7 +23,7 @@ TEST_CASE("PGGSymbiont Constructor") {
     REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
 
 }
-TEST_CASE("Pggmutate") {
+TEST_CASE("Pggmutate", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
@@ -64,7 +64,7 @@ TEST_CASE("Pggmutate") {
     }
 }
 
-TEST_CASE("PGGSymbiont ProcessPool"){
+TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -87,7 +87,7 @@ TEST_CASE("PGGSymbiont ProcessPool"){
     CHECK(h->GetPoints() == 0);
 }
 
-TEST_CASE("PGGProcess") {
+TEST_CASE("PGGProcess", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -181,7 +181,7 @@ TEST_CASE("PGGProcess") {
 
 }
 
-TEST_CASE("PGGSymbiont ProcessResources"){
+TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;
