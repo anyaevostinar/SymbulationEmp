@@ -1,7 +1,7 @@
-#include "../SymWorld.h"
+#include "../lysis_mode/LysisWorld.h"
 #include "../lysis_mode/Phage.h"
 #include "../lysis_mode/Bacterium.h"
-#include "../lysis_mode/WorldSetup.cc"
+#include "../lysis_mode/LysisWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
@@ -37,7 +37,7 @@ int symbulation_main(int argc, char * argv[])
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  SymWorld world(random);
+  LysisWorld world(random);
 
 
   int TIMING_REPEAT = config.DATA_INT();

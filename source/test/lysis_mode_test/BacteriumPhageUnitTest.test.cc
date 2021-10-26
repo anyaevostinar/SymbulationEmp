@@ -7,8 +7,8 @@ TEST_CASE("Phage Process", "[lysis]") {
 
         emp::Ptr<emp::Random> random;
         random.New(5);
-        SymWorld w(*random);
-        SymWorld * world = &w;
+        LysisWorld w(*random);
+        LysisWorld * world = &w;
         SymConfigBase config;
         config.LYSIS(1);
         double int_val = -1;
@@ -92,8 +92,8 @@ TEST_CASE("Phage Process", "[lysis]") {
 
 TEST_CASE("Phage Vertical Transmission", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
     config.LYSIS(1);
 
@@ -181,8 +181,8 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
 
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    SymWorld w(*random);
-    SymWorld *world = &w;
+    LysisWorld w(*random);
+    LysisWorld *world = &w;
     SymConfigBase config;
     config.SYM_LIMIT(2);
 
@@ -233,8 +233,8 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
 
 TEST_CASE("Phage LysisBurst", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
 
     config.LYSIS(1);
@@ -274,8 +274,8 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
 
 TEST_CASE("Phage LysisStep", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
     SymConfigBase config;
 
     double sym_repro_points = 5.0;

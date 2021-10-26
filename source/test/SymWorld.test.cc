@@ -1,6 +1,7 @@
 #include "../SymWorld.h"
 #include "../default_mode/Symbiont.h"
 #include "../lysis_mode/Phage.h"
+#include "../lysis_mode/LysisWorld.h"
 #include "../default_mode/Host.h"
 #include "../pgg_mode/Pgghost.h"
 #include "../pgg_mode/Pggsym.h"
@@ -417,7 +418,7 @@ TEST_CASE( "SymDoBirth" ) {
     SymWorld w(random);
     w.Resize(2,2);
 
-    WHEN( "free living phage are not allowed" ) {
+    WHEN( "free living symbionts are not allowed" ) {
       config.FREE_LIVING_SYMS(0);
       w.SetFreeLivingSyms(false);
 
@@ -449,7 +450,7 @@ TEST_CASE( "SymDoBirth" ) {
     }
 
 
-    WHEN( "free living phage are allowed"){
+    WHEN( "free living symbionts are allowed"){
       config.FREE_LIVING_SYMS(1);
       w.SetFreeLivingSyms(true);
       config.SYM_LIMIT(3);
@@ -561,24 +562,28 @@ TEST_CASE( "Update" ){
       }
 
       WHEN("lysis is permitted, and thus phage are used"){
+        LysisWorld lw(random);
+        lw.Resize(4,4);
+        lw.SetFreeLivingSyms(1);
+
         config.LYSIS(1);
         config.LYSIS_CHANCE(1);
         int burst_time = 2;
         config.BURST_TIME(burst_time);
-        emp::Ptr<Organism> p = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Organism> p = new Phage(&random, &lw, &config, int_val);
 
         WHEN("there are no hosts"){
           THEN("phage don't reproduce or get points on update"){
-            w.SymDoBirth(p, 0);
+            lw.SymDoBirth(p, 0);
 
-            int orig_num_orgs = w.GetNumOrgs();
+            int orig_num_orgs = lw.GetNumOrgs();
             int orig_points = p->GetPoints();
 
             for(int i = 0; i < 4; i ++){
-              w.Update();
+              lw.Update();
             }
 
-            int new_num_orgs = w.GetNumOrgs();
+            int new_num_orgs = lw.GetNumOrgs();
             int new_points = p->GetPoints();
 
             REQUIRE(new_num_orgs == orig_num_orgs);
@@ -588,14 +593,14 @@ TEST_CASE( "Update" ){
 
         WHEN("there are hosts"){
           THEN("phage and hosts mingle in the world"){
-            w.AddOrgAt(host, 0);
-            w.SymDoBirth(p, 1);
+            lw.AddOrgAt(host, 0);
+            lw.SymDoBirth(p, 1);
 
             for(int i = 0; i < 5; i++){
-              w.Update();
+              lw.Update();
             }
 
-            REQUIRE(w.GetNumOrgs() == 2);
+            REQUIRE(lw.GetNumOrgs() == 2);
           }
         }
       }
