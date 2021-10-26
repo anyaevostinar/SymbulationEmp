@@ -2,7 +2,7 @@
 #include "../../pgg_mode/Pggsym.h"
 #include <set>
 
-TEST_CASE("PggHost get pool") {
+TEST_CASE("PggHost get pool", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -20,7 +20,7 @@ TEST_CASE("PggHost get pool") {
 }
 
 
-TEST_CASE("Pgghost DistributeResources") {
+TEST_CASE("Pgghost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);

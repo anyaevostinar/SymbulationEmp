@@ -1,6 +1,6 @@
 #include "../../lysis_mode/Phage.h"
 
-TEST_CASE("Phage constructor, GetIntVal") {
+TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
     emp::Ptr<emp::Random> random = new emp::Random(27);
     LysisWorld w(*random);
     SymConfigBase config;
@@ -100,7 +100,7 @@ TEST_CASE("Phage constructor, GetIntVal") {
     }
 }
 
-TEST_CASE("Phage reproduce") {
+TEST_CASE("Phage reproduce", "[lysis]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -167,7 +167,7 @@ TEST_CASE("Phage reproduce") {
     }
 }
 
-TEST_CASE("SetBurstTimer, IncBurstTimer"){
+TEST_CASE("SetBurstTimer, IncBurstTimer", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -196,7 +196,7 @@ TEST_CASE("SetBurstTimer, IncBurstTimer"){
 
 }
 
-TEST_CASE("Phage SetLysisChance, GetLysisChance"){
+TEST_CASE("Phage SetLysisChance, GetLysisChance", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -212,7 +212,7 @@ TEST_CASE("Phage SetLysisChance, GetLysisChance"){
     delete p;
 }
 
-TEST_CASE("Phage SetInductionChance, GetInductionChance"){
+TEST_CASE("Phage SetInductionChance, GetInductionChance", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -228,7 +228,7 @@ TEST_CASE("Phage SetInductionChance, GetInductionChance"){
     delete p;
 }
 
-TEST_CASE("Phage SetIncVal, GetIncVal"){
+TEST_CASE("Phage SetIncVal, GetIncVal", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -244,7 +244,7 @@ TEST_CASE("Phage SetIncVal, GetIncVal"){
     delete p;
 }
 
-TEST_CASE("Phage uponInjection"){
+TEST_CASE("Phage uponInjection", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -271,7 +271,7 @@ TEST_CASE("Phage uponInjection"){
     delete p;
 }
 
-TEST_CASE("phage_mutate"){
+TEST_CASE("phage_mutate", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -363,7 +363,7 @@ TEST_CASE("phage_mutate"){
     }
 }
 
-TEST_CASE("Phage process"){
+TEST_CASE("Phage process", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -540,7 +540,7 @@ TEST_CASE("Phage process"){
 
 }
 
-TEST_CASE("Phage ProcessResources"){
+TEST_CASE("Phage ProcessResources", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
     LysisWorld w(*random);
     LysisWorld * world = &w;

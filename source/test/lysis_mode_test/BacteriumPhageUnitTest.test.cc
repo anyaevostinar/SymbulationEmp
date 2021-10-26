@@ -1,7 +1,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/Bacterium.h"
 
-TEST_CASE("Phage Process") {
+TEST_CASE("Phage Process", "[lysis]") {
 
     GIVEN("A world and some phage") {
 
@@ -90,7 +90,7 @@ TEST_CASE("Phage Process") {
     }
 }
 
-TEST_CASE("Phage Vertical Transmission"){
+TEST_CASE("Phage Vertical Transmission", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -179,7 +179,7 @@ TEST_CASE("Phage Vertical Transmission"){
 
 }
 
-TEST_CASE("Host phage death and removal from syms list"){
+TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
     LysisWorld w(*random);
     LysisWorld *world = &w;
@@ -231,7 +231,7 @@ TEST_CASE("Host phage death and removal from syms list"){
     }
 }
 
-TEST_CASE("Phage LysisBurst"){
+TEST_CASE("Phage LysisBurst", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
     LysisWorld w(*random);
     LysisWorld * world = &w;
@@ -272,7 +272,7 @@ TEST_CASE("Phage LysisBurst"){
     }
 }
 
-TEST_CASE("Phage LysisStep"){
+TEST_CASE("Phage LysisStep", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
     LysisWorld w(*random);
     LysisWorld * world = &w;

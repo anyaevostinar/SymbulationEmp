@@ -2,7 +2,7 @@
 #include "../../default_mode/Symbiont.h"
 #include <set>
 
-TEST_CASE( "Host-Symbiont interactions") {
+TEST_CASE( "Host-Symbiont interactions", "[default][efficient][lysis][pgg]") {
   SymConfigBase config;
   config.SYM_LIMIT(3);
 
