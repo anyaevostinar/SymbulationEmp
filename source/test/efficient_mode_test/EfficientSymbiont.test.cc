@@ -1,7 +1,7 @@
 #include "../../default_mode/Host.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
 
-TEST_CASE("EfficientSymbiont mutate") {
+TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
@@ -45,7 +45,7 @@ TEST_CASE("EfficientSymbiont mutate") {
     }
 }
 
-TEST_CASE("EfficientSymbiont AddPoints") {
+TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
     SymWorld w(*random);
@@ -90,7 +90,7 @@ TEST_CASE("EfficientSymbiont AddPoints") {
     }
 }
 
-TEST_CASE("EfficientSymbiont reproduce") {
+TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
@@ -158,7 +158,7 @@ TEST_CASE("EfficientSymbiont reproduce") {
 
 }
 
-TEST_CASE("EfficientSymbiont HorizMutate") {
+TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
     SymWorld w(*random);
@@ -184,7 +184,7 @@ TEST_CASE("EfficientSymbiont HorizMutate") {
     }
 }
 
-TEST_CASE("EfficientSymbiont's Process called from Host") {
+TEST_CASE("EfficientSymbiont's Process called from Host", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
     config.SYM_HORIZ_TRANS_RES(10);

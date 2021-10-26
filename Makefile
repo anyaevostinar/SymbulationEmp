@@ -98,32 +98,32 @@ test-debug:
 	@echo PGG mode: make test-debug-pgg
 
 test-default:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/default_test.cc -o symbulation_default.test
-	./symbulation_default.test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [default]
 test-debug-default:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/default_test.cc -o symbulation_default.test
-	./symbulation_default.test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [default]
 
 test-efficient:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/efficient_test.cc -o symbulation_efficient.test
-	./symbulation_efficient.test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [efficient]
 test-debug-efficient:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/efficient_test.cc -o symbulation_efficient.test
-	./symbulation_efficient.test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [efficient]
 
 test-lysis:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/lysis_test.cc -o symbulation_lysis.test
-	./symbulation_lysis.test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [lysis]
 test-debug-lysis:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/lysis_test.cc -o symbulation_lysis.test
-	./symbulation_lysis.test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [lysis]
 
 test-pgg:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/pgg_test.cc -o symbulation_pgg.test
-	./symbulation_pgg.test
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [pgg]
 test-debug-pgg:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/pgg_test.cc -o symbulation_pgg.test
-	./symbulation_pgg.test
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [pgg]
 
 # Extras
 .PHONY: clean test serve
