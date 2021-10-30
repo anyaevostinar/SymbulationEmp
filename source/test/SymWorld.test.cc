@@ -196,7 +196,7 @@ TEST_CASE( "Interaction Patterns" ) {
 
     GIVEN( "a PGGworld without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
-    SymWorld w(*random);
+    PggWorld w(*random);
     config.VERTICAL_TRANSMISSION(0);
     w.SetVertTrans(0);
     config.MUTATION_SIZE(0);
@@ -237,7 +237,7 @@ TEST_CASE( "Interaction Patterns" ) {
 
   GIVEN( "a PGGworld" ) {
     emp::Random random(17);
-    SymWorld w(random);
+    PggWorld w(random);
     w.SetPopStruct_Mixed();
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);

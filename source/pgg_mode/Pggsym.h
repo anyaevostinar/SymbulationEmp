@@ -2,100 +2,106 @@
 #define PGGSYM_H
 
 #include "../default_mode/Symbiont.h"
-#include "../SymWorld.h"
+#include "PggWorld.h"
 
 class PGGSymbiont: public Symbiont {
 protected:
 
   /**
-    * 
+    *
     * Purpose: #
-    * 
-  */   
+    *
+  */
   double Pgg_donate = 0;
 
+  /**
+    *
+    * Purpose: Represents the world that the pgg symbionts are living in.
+    *
+  */
+  emp::Ptr<PggWorld> my_world = NULL;
 
 public:
-  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),Pgg_donate(_donation)
-  {}
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PggWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),Pgg_donate(_donation)
+  {my_world = _world;}
 
     /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont(const PGGSymbiont &) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont(PGGSymbiont &&) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont() = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont & operator=(const PGGSymbiont &) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   PGGSymbiont & operator=(PGGSymbiont &&) = default;
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   double GetDonation() {return Pgg_donate;}
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */     
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void Setdonation(double _in) {Pgg_donate = _in;}
 
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void mutate(){
     // double pre_value = interaction_val;
     Symbiont::mutate();
@@ -112,11 +118,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void HorizMutate(){
     // double pre_value = interaction_val;
     Symbiont::HorizMutate();
@@ -130,11 +136,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   double ProcessPool(){
     double symdonation = GetDonation();
     double symPortion = GetPoints();
@@ -146,11 +152,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
       double resources = my_world->PullResources();
@@ -174,11 +180,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
@@ -190,11 +196,11 @@ public:
 
   /**
    * Input: #
-   * 
-   * Output: 
-   * 
-   * Purpose: 
-   */   
+   *
+   * Output:
+   *
+   * Purpose:
+   */
   std::string PrintSym(emp::Ptr<PGGSymbiont>  org){
     if (org->GetPoints() < 0) return "-";
     double out_val = org->GetIntVal();
@@ -203,7 +209,7 @@ public:
     std::stringstream temp;
     temp << std::fixed << std::setprecision(2) << "Interaction value: " << out_val << " Donation value: " << donate_val;
     std::string formattedstring = temp.str();
-    return formattedstring;  
+    return formattedstring;
   }//Pggsym
 };
 #endif

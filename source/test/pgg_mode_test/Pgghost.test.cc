@@ -5,7 +5,7 @@
 TEST_CASE("PggHost get pool", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    PggWorld w(*random);
     double pool = 1;
 
     PggHost * h1 = new PggHost(random, &w, &config);
@@ -23,7 +23,7 @@ TEST_CASE("PggHost get pool", "[pgg]") {
 TEST_CASE("Pgghost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    PggWorld w(*random);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
 

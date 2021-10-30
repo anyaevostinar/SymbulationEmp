@@ -5,8 +5,8 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
 
 
     double donation = 1;
@@ -27,8 +27,8 @@ TEST_CASE("Pggmutate", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
@@ -67,7 +67,7 @@ TEST_CASE("Pggmutate", "[pgg]") {
 TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    PggWorld w(*random);
     config.SYNERGY(5);
     config.PGG_SYNERGY(1.1);
     double host_int_val = 1;
@@ -91,8 +91,8 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
 
     //add new test for free living sym not moving when it shouldnt
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
@@ -183,8 +183,8 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
 TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
     SymConfigBase config;
     config.SYNERGY(5);
 
