@@ -1,7 +1,7 @@
-#include "../SymWorld.h"
+#include "../pgg_mode/PggWorld.h"
 #include"../pgg_mode/Pggsym.h"
 #include"../pgg_mode/Pgghost.h"
-#include "../pgg_mode/WorldSetup.cc"
+#include "../pgg_mode/PggWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
@@ -48,18 +48,9 @@ int symbulation_main(int argc, char * argv[])
 
   std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
 
-  if (config.LYSIS() == 1) {
-    world.SetupLysisChanceFile(config.FILE_PATH()+"LysisChance"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-    world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-    world.SetupIncorporationDifferenceFile(config.FILE_PATH()+"IncValDifferences"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }else if(config.PGG() == 1){
-    world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }
+  world.SetupPGGSymIntValFile(config.FILE_PATH()+"PGGSymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  if (config.EFFICIENT_SYM() == 1) {
-    world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }
   if(config.FREE_LIVING_SYMS() == 1){
     world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }

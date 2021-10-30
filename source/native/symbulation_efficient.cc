@@ -1,6 +1,6 @@
-#include "../SymWorld.h"
+#include "../efficient_mode/EfficientWorld.h"
 #include "../efficient_mode/EfficientSymbiont.h"
-#include "../efficient_mode/WorldSetup.cc"
+#include "../efficient_mode/EfficientWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
@@ -45,9 +45,7 @@ int symbulation_main(int argc, char * argv[])
 
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  if (config.EFFICIENT_SYM() == 1) {
-    world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }
+  world.SetupEfficiencyFile(config.FILE_PATH()+"Efficiency"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   if(config.FREE_LIVING_SYMS() == 1){
     world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
