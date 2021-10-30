@@ -5,8 +5,8 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
@@ -48,8 +48,8 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
 TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
     double int_val = 0;
     double points = 0;
     double points_in = 10;
@@ -94,8 +94,8 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
     double int_val = 0;
 
 
@@ -161,8 +161,8 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
     double points = 0;
@@ -189,8 +189,8 @@ TEST_CASE("EfficientSymbiont's Process called from Host", "[efficient]") {
     SymConfigBase config;
     config.SYM_HORIZ_TRANS_RES(10);
     config.EFFICIENT_SYM(1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
     w.Resize(2);
 
     config.MUTATION_SIZE(0);

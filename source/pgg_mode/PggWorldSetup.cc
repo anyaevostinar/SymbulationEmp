@@ -1,5 +1,5 @@
-#ifndef WORLD_SETUP_C
-#define WORLD_SETUP_C
+#ifndef PGG_WORLD_SETUP_C
+#define PGG_WORLD_SETUP_C
 
 #include "PggWorld.h"
 #include "../ConfigSetup.h"
