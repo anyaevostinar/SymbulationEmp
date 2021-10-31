@@ -5,7 +5,7 @@ TEST_CASE("PggSymbiont SetHost, GetHost", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    PggWorld w(*random);
     double int_val = 1;
 
     emp::Ptr<Organism> h = new PggHost(random, &w, &config);
@@ -20,7 +20,7 @@ TEST_CASE("PggSymbiont SetHost, GetHost", "[pgg]") {
 
 TEST_CASE("PGGHost DistribResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
+    PggWorld w(*random);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     config.SYNERGY(5);
@@ -248,8 +248,8 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
 
 TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
     SymConfigBase config;
 
 
@@ -292,7 +292,7 @@ TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
 
 TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
+    PggWorld w(*random);
     SymConfigBase config;
     config.SYM_LIMIT(3);
     config.SYNERGY(5);
@@ -329,8 +329,8 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
 
 TEST_CASE("PGGSYM Dead and Removal", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    PggWorld w(*random);
+    PggWorld * world = &w;
     SymConfigBase config;
     config.SYM_LIMIT(2);
 

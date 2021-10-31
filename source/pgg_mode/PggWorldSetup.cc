@@ -1,12 +1,12 @@
-#ifndef WORLD_SETUP_C
-#define WORLD_SETUP_C
+#ifndef PGG_WORLD_SETUP_C
+#define PGG_WORLD_SETUP_C
 
-#include "../SymWorld.h"
+#include "PggWorld.h"
 #include "../ConfigSetup.h"
 #include "Pgghost.h"
 #include "Pggsym.h"
 
-void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
+void worldSetup(emp::Ptr<PggWorld> world, emp::Ptr<SymConfigBase> my_config) {
 // params
   emp::Random& random = world->GetRandom();
 
@@ -37,7 +37,7 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   //inject pgg hosts
   for (size_t i = 0; i < POP_SIZE; i++){
     emp::Ptr<PggHost> new_org;
-    
+
     if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
     } else if (my_config->COMPETITION_MODE() && i%2==0) {
         new_org.New(&random, world, my_config, comp_host_1);

@@ -1,5 +1,5 @@
-#ifndef WORLD_SETUP_C
-#define WORLD_SETUP_C
+#ifndef LYSIS_WORLD_SETUP_C
+#define LYSIS_WORLD_SETUP_C
 
 #include "LysisWorld.h"
 #include "../ConfigSetup.h"
