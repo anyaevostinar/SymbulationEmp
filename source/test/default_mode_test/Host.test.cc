@@ -2,7 +2,7 @@
 #include "../../default_mode/Symbiont.h"
 #include <set>
 
-TEST_CASE("Host SetIntVal, GetIntVal", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -30,7 +30,7 @@ TEST_CASE("Host SetIntVal, GetIntVal", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("SetPoints, AddPoints, GetPoints", "[default][efficient][lysis][pgg]") {
+TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -50,7 +50,7 @@ TEST_CASE("SetPoints, AddPoints, GetPoints", "[default][efficient][lysis][pgg]")
 
 }
 
-TEST_CASE("SetResTypes, GetResTypes", "[default][efficient][lysis][pgg]") {
+TEST_CASE("SetResTypes, GetResTypes", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -79,7 +79,7 @@ TEST_CASE("SetResTypes, GetResTypes", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("HasSym", "[default][efficient][lysis][pgg]") {
+TEST_CASE("HasSym", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -95,7 +95,7 @@ TEST_CASE("HasSym", "[default][efficient][lysis][pgg]") {
     }
 }
 
-TEST_CASE("Host Mutate", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host Mutate", "[default]") {
     //TODO: put in tests for mutation size and mutation rate separately
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
@@ -117,7 +117,7 @@ TEST_CASE("Host Mutate", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("DistributeResources", "[default][efficient][lysis][pgg]") {
+TEST_CASE("DistributeResources", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -179,7 +179,7 @@ TEST_CASE("DistributeResources", "[default][efficient][lysis][pgg]") {
     }
 }
 
-TEST_CASE("Phage Exclude", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Phage Exclude", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymWorld w(*random);
 
@@ -246,7 +246,7 @@ TEST_CASE("Phage Exclude", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("Steal resources unit test", "[default][efficient][lysis][pgg]"){
+TEST_CASE("Steal resources unit test", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
