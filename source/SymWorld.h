@@ -1437,6 +1437,22 @@ public:
     return sym;
   }
 
+  /**
+   * Input: The size_t representing the location of the symbiont to be
+   * deleted from the world.
+   *
+   * Output: None
+   *
+   * Purpose: To delete a symbiont from the world.
+   */
+  void DoSymDeath(size_t i){
+    if(sym_pop[i]){
+      sym_pop[i].Delete();
+      sym_pop[i] = nullptr;
+      num_orgs--;
+    }
+  }
+
 
   /**
    * Input: None
@@ -1454,7 +1470,6 @@ public:
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
-
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and place offspring as necessary?
       if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
@@ -1463,8 +1478,9 @@ public:
           DoDeath(i);
         }
       }
-      if(sym_pop[i]){
-        sym_pop[i]->Process(i);
+      if(sym_pop[i]){ //for sym movement reasons, sums are deleted the update after they are set to dead
+        if (sym_pop[i]->GetDead()) DoSymDeath(i);
+        else sym_pop[i]->Process(i);
       }
     } // for each cell in schedule
   } // Update()

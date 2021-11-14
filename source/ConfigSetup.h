@@ -54,6 +54,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(ECTOSYMBIOSIS, bool, 0, "Do free-living syms and parallel hosts interact? (0 for no, 1 for yes)"),
     VALUE(ECTOSYMBIOTIC_IMMUNITY, bool, 0, "Does a hosted sym confer immunity to ectosymbiosis? (0 for no, 1 for yes)"),
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 100, "Number of resources to give to each free-living symbiont each update if they are available"),
+    VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),
+    VALUE(SYM_AGE_MAX, int, -1, "The maximum updates symbionts are allowed to live, -1 for infinite"),
 
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),

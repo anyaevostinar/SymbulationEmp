@@ -371,3 +371,22 @@ TEST_CASE("GetDoEctosymbiosis"){
     }
   }
 }
+
+TEST_CASE("Host growOlder"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+    config.HOST_AGE_MAX(2);
+
+    WHEN ("A host reaches its maximum age"){
+      Host * h = new Host(random, &w, &config, 1);
+      w.AddOrgAt(h, 1);
+      THEN("The host dies and is removed from the world"){
+        REQUIRE(h->GetDead() == false);
+        REQUIRE(w.GetNumOrgs() == 1);
+        w.Update();
+        w.Update();
+        REQUIRE(w.GetNumOrgs() == 0);
+      }
+    }
+}

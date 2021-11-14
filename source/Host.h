@@ -26,6 +26,14 @@ protected:
 
   /**
     *
+    * Purpose: Represents the number of updates the host
+    * has lived through; at birth is set to 1.
+    *
+  */
+  int age = 1;
+
+  /**
+    *
     * Purpose: Represents the set of symbionts belonging to a host.
     * This can be set with SetSymbionts(), and symbionts can be
     * added with AddSymbiont(). This can be cleared with ClearSyms()
@@ -366,6 +374,19 @@ public:
    */
   bool GetDead() {return dead;}
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Increments age by one and kills it if too old.
+   */
+  void growOlder(){
+    age = age + 1;
+    if(age > my_config->HOST_AGE_MAX() && my_config->HOST_AGE_MAX() > 0){
+      SetDead();
+    }
+  }
 
   /**
    * Input: The interaction value of the symbiont that
@@ -632,6 +653,7 @@ public:
           }
         } //for each sym in syms
       } //if org has syms
+    growOlder();
   }
 };//Host
 #endif
