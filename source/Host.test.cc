@@ -101,19 +101,61 @@ TEST_CASE("Host Mutate") {
     SymConfigBase config;
     SymWorld w(*random);
     double int_val = 0;
-
-    Host * h = new Host(random, &w, &config, int_val);
-    h->mutate();
-    REQUIRE(h->GetIntVal() != int_val);
-    REQUIRE(h->GetIntVal() <= 1);
-    REQUIRE(h->GetIntVal() >= -1);
-
     int_val = -0.31;
-    h->SetIntVal(int_val);
-    h->mutate();
-    REQUIRE(h->GetIntVal() != int_val);
-    REQUIRE(h->GetIntVal() <= 1);
-    REQUIRE(h->GetIntVal() >= -1);
+
+    //MUTATION RATE
+    WHEN("Host mutation rate is -1"){
+      THEN("Normal mutation rate is used"){
+        config.HOST_MUTATION_RATE(-1);
+        config.MUTATION_RATE(1);
+        Host * h = new Host(random, &w, &config, int_val);
+
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+    WHEN("Host mutation rate is not -1"){
+      THEN("Host mutation rate is used"){
+        config.HOST_MUTATION_RATE(1);
+        config.MUTATION_RATE(0);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+
+    //MUTATION SIZE
+    WHEN("Host mutation size is -1"){
+      THEN("Normal mutation size is used"){
+        config.HOST_MUTATION_SIZE(-1);
+        config.MUTATION_RATE(1);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+    WHEN("Host mutation size is not -1"){
+      THEN("Host mutation size is used"){
+        config.HOST_MUTATION_SIZE(1);
+        config.MUTATION_SIZE(0);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+
 
 }
 
