@@ -370,6 +370,17 @@ TEST_CASE("GetDoEctosymbiosis"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
       }
     }
+    WHEN("There is a parallel sym but it is dead, and other conditions are met"){
+      config.ECTOSYMBIOSIS(1);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      sym->SetDead();
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos + 1);
+      THEN("Returns false"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
+      }
+    }
     WHEN("Ectosymbiotic immunity is on and the host has a sym, but other conditions are met"){
       config.ECTOSYMBIOSIS(1);
       config.ECTOSYMBIOTIC_IMMUNITY(1);

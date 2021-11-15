@@ -542,6 +542,7 @@ TEST_CASE("Symbiont ProcessResources"){
 TEST_CASE("Symbiont growOlder"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
+    w.Resize(2,2);
     SymConfigBase config;
     config.SYM_AGE_MAX(2);
 

@@ -576,7 +576,8 @@ public:
   bool GetDoEctosymbiosis(size_t location){
     //a host is immune to ectosymbiosis if immunity is on and it has a sym.
     bool is_immune = my_config->ECTOSYMBIOTIC_IMMUNITY() && HasSym();
-    return my_config->ECTOSYMBIOSIS() && (my_world->GetSymAt(location) != nullptr) && (is_immune == false);
+    bool valid_sym = my_world->GetSymAt(location) != nullptr && !my_world->GetSymAt(location)->GetDead();
+    return my_config->ECTOSYMBIOSIS() && (valid_sym == true) && (is_immune == false);
   }
 
   /**
