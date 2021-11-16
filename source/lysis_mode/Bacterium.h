@@ -102,6 +102,17 @@ public:
   void SetIncVal(double _in) {host_incorporation_val = _in;}
 
   /**
+   * Input: None.
+   *
+   * Output: A new bacterium with same properties as this bacterium.
+   *
+   * Purpose: To avoid creating an organism via constructor in other methods.
+   */
+  emp::Ptr<Organism> makeNew(){
+    return emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
+  }
+
+  /**
    * Input: None
    *
    * Output: None
@@ -131,60 +142,6 @@ public:
     double processed_resources = GetResInProcess() * incorporation_success * my_config->SYNERGY();
     SetResInProcess(0);
     return processed_resources;
-  }
-
-
-
-  /**
-   * Input: The size_t value representing the location of the bacterium.
-   *
-   * Output: None
-   *
-   * Purpose: To process the bacterium, meaning determining eligibility for reproduction, checking for vertical
-   * transmission, removing dead syms, and processing alive syms.
-   */
-  void Process(size_t location) {
-    //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
-    DistribResources(resources);
-    // Check reproduction
-    if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
-        // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero
-        emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
-        host_baby->mutate();
-        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
-        SetPoints(0);
-
-        //Now check if symbionts get to vertically transmit
-        for(size_t j = 0; j< (GetSymbionts()).size(); j++){
-          emp::Ptr<Organism> parent = GetSymbionts()[j];
-          parent->VerticalTransmission(host_baby);
-        }
-
-        //Will need to change this to AddOrgAt and write my own position grabber
-        //when I want ecto-symbionts
-        my_world->DoBirth(host_baby, location); //Automatically deals with grid
-      }
-    if (GetDead()){
-        return; //If host is dead, return
-      }
-    if (HasSym()) { //let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
-        for(size_t j = 0; j < syms.size(); j++){
-          emp::Ptr<Organism> curSym = syms[j];
-          if (GetDead()){
-            return; //If previous symbiont killed host, we're done
-          }
-          if(!curSym->GetDead()){
-            curSym->Process(location);
-          }
-          if(curSym->GetDead()){
-            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
-            curSym.Delete();
-          }
-        } //for each sym in syms
-      } //if org has syms
   }
 
 };//Bacterium

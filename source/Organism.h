@@ -56,6 +56,10 @@ class Organism {
     std::cout << "SetIncVal called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual emp::Ptr<Organism> makeNew(){
+    std::cout << "makeNew called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
@@ -186,23 +190,23 @@ class Organism {
     std::cout << "GetLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
 
-  //Public goods game host functions 
+  //Public goods game host functions
   virtual void SetPool() {
     std::cout << "SetPool called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual void AddPool() {
     std::cout << "AddPool called from Organism" << std::endl;
-    throw "Organism method called!";} 
+    throw "Organism method called!";}
   virtual void DistribPool() {
     std::cout << "DistribPool called from Organism" << std::endl;
-    throw "Organism method called!";} 
+    throw "Organism method called!";}
   //Public goods game sym functions
   virtual double GetDonation() {
     std::cout << "GetDonation called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual void Setdonation() {
     std::cout << "Setdonation called from Organism" << std::endl;
-    throw "Organism method called!";}  
+    throw "Organism method called!";}
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}

@@ -298,3 +298,32 @@ TEST_CASE("Steal resources unit test", "[default][efficient][lysis][pgg]"){
             }
         }
 }
+
+TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    Organism * h1 = new Host(random, &w, &config, host_int_val);
+    Organism * h2 = h1->makeNew();
+    THEN("The new host has properties of the original host"){
+      REQUIRE(h1->GetIntVal() == h2->GetIntVal());
+    }
+}
+
+TEST_CASE("Host reproduce", "[default][efficient][lysis][pgg]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    Organism * h1 = new Host(random, &w, &config, host_int_val);
+    Organism * h2 = h1->reproduce();
+    THEN("The host baby has mutated interaction value"){
+      REQUIRE(h1->GetIntVal() != h2->GetIntVal());
+    }
+    THEN("The host parent's points are set to 0"){
+      REQUIRE(h1->GetPoints() == 0);
+    }
+}
