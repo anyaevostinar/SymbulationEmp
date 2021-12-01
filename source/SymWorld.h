@@ -2,6 +2,8 @@
 #define SYM_WORLD_H
 
 #include "../../Empirical/include/emp/Evolve/World.hpp"
+#include "../../Empirical/include/emp/Evolve/Systematics.hpp"
+#include "../../Empirical/include/emp/Evolve/SystematicsAnalysis.hpp"
 #include "../../Empirical/include/emp/data/DataFile.hpp"
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
@@ -9,11 +11,13 @@
 #include <set>
 #include <math.h>
 
-// #include <typeinfo>
-// string s = typeid(p).name()
 
 class SymWorld : public emp::World<Organism>{
 private:
+  // takes an organism (to classify), and returns an int (the org's taxon)
+  using fun_calc_info_t = std::function<int(emp::Ptr<Organism> &)>;
+
+
   /**
     *
     * Purpose: Represents the vertical transmission rate. This can be set with SetVertTrans()
@@ -56,7 +60,26 @@ private:
   */
   bool move_free_syms = false;
 
-  pop_t sym_pop; //free living sym pop
+  /**
+    *
+    * Purpose: Represents the free living sym environment, parallel to "pop" for hosts
+    *
+  */
+  pop_t sym_pop;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
+    *
+  */
+  fun_calc_info_t calc_info_fun;
+
+  /**
+    *
+    * Purpose: Represents the systematics object tracking hosts.
+    *
+  */
+  emp::Ptr<emp::Systematics<emp::Ptr<Organism>, int>> host_sys = new emp::Systematics(GetCalcInfoFun());
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -231,6 +254,45 @@ public:
 
 
   /**
+   * Input: None
+   *
+   * Output: The systematic object tracking hosts
+   *
+   * Purpose: To retrieve the host systematic
+   */
+  emp::Ptr<emp::Systematics<emp::Ptr<Organism>,int>> GetHostSys(){
+    return host_sys;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin organisms
+   * should belong to depending on their interaction value
+   *
+   * Purpose: To classify organsims based on their interaction value.
+   */
+  fun_calc_info_t GetCalcInfoFun() {
+    if (!calc_info_fun) {
+      calc_info_fun = [ /* other variables inside local scope that you want to use here */ ](emp::Ptr<Organism> & org){
+        //classify orgs into bins base on interaction values,
+        //same arrangement as histograms (bin 0 = ic -1 to -0.9)
+        //inclusive of lower bound, exclusive of upper
+        double int_val = org->GetIntVal();
+        double bin = 0;
+        while (int_val >= (-1 + (bin/10))){
+          bin++;
+          if(bin > 19) break;
+        }
+        return bin-1;
+      };
+    }
+    return calc_info_fun;
+  }
+
+
+  /**
    * Input: The amount of resourcces an organism wants from the world.
    *
    * Output: If there are unlimited resources or the total resources are greater than those requested,
@@ -311,16 +373,17 @@ public:
     }
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
-      emp::World<Organism>::AddOrgAt(new_org, pos,p_pos);
+      emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+
     } else { //if it is not a host, then add it to the sym population
       size_t pos_index = pos.GetIndex();
 
-      //if it is adding a sym to the pop, add to the num_org count
-      //otherwise, delete the sym currently occupying the spot
+      //if it is adding a sym to an empty cell, increment the num_org count
+      //otherwise, delete the sym currently occupying the cell
       if(!sym_pop[pos_index]) ++num_orgs;
       else sym_pop[pos_index].Delete();
 
-      //set the pointer to NULL
+      //set the cell to point to the new sym
       sym_pop[pos_index] = nullptr;
       sym_pop[pos_index] = new_org;
     }
@@ -335,11 +398,7 @@ public:
    *
    * Output: The WorldPosition of the position of the new organism.
    *
-   * Purpose: To introduce new organisms to the world. If the new organism is a host,
-   * and the position generated for its location is occupied by a symbiont, then the
-   * symbiont will be added to the host's symbionts. If the new organism is a host,
-   * and the position generated for its location is unoccupied or occupied by a host,
-   * then the new organism will be added regularly.
+   * Purpose: To introduce new organisms to the world.
    */
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
     before_repro_sig.Trigger(parent_pos);

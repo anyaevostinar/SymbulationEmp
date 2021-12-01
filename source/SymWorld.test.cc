@@ -849,3 +849,46 @@ TEST_CASE("GetSymAt"){
     }
   }
 }
+
+TEST_CASE("Phylogeny"){
+  emp::Random random(17);
+  SymConfigBase config;
+  int int_val = 0;
+  SymWorld w(random);
+  w.Resize(2,2);
+
+  emp::Ptr<emp::Systematics<emp::Ptr<Organism>,int>> sys = w.GetHostSys();
+
+  WHEN("an organism is added to the world"){
+    emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+    WHEN("the cell it's added to is occupied"){
+      size_t pos = 0;
+      emp::Ptr<Organism> occupying_host = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(occupying_host, pos);
+      REQUIRE(w.GetNumOrgs() == 1);
+      THEN("the occupying organism is removed from the systematic"){
+        REQUIRE(1 == 1);
+      }
+    }
+    THEN("the organism is added to the systematic"){
+      REQUIRE(1 == 1);
+    }
+  }
+
+  WHEN("an organism dies during its Process()"){
+    THEN("it is removed from the systematic"){
+      REQUIRE(1 == 1);
+    }
+  }
+}
+
+TEST_CASE("GetCalcInfoFun"){
+  emp::Random random(17);
+  SymConfigBase config;
+  SymWorld w(random);
+  w.Resize(2,2);
+  GIVEN("a world"){
+    REQUIRE(1 == 1);
+    //require that
+  }
+}
