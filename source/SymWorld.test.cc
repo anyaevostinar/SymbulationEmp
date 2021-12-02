@@ -609,9 +609,11 @@ TEST_CASE( "Update" ){
         THEN("if only syms in the world they can get resources and reproduce"){
           emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
           w.SymDoBirth(sym, 0);
+          REQUIRE(w.GetNumOrgs() == 1);
 
-          for(int i = 0; i <= 4; i++){ w.Update();}
-
+          for(int i = 0; i <= 4; i++){
+            w.Update();
+          }
           //the sym has reproduced at least once
           REQUIRE(w.GetNumOrgs() > 1);
 
@@ -845,6 +847,34 @@ TEST_CASE("GetSymAt"){
     WHEN("a request is made for an out-of-bounds sym"){
       THEN("an exception is thrown"){
         REQUIRE_THROWS(w.GetSymAt(4));
+      }
+    }
+  }
+}
+
+TEST_CASE("DoSymDeath"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld w(random);
+    w.Resize(2,2);
+    emp::Ptr<Organism> s = new Symbiont(&random, &w, &config, 1);
+    size_t sym_position = 1;
+    w.AddOrgAt(s, sym_position);
+
+    WHEN("A sym is deleted from a position"){
+      THEN("It is no longer included in the count of organisms in the world"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        w.DoSymDeath(sym_position);
+        REQUIRE(w.GetNumOrgs() == 0);
+      }
+      THEN("It no longer occupies a spot in the world"){
+        emp::Ptr<Organism> world_sym = w.GetSymAt(sym_position);
+        REQUIRE(world_sym == s);
+        w.DoSymDeath(sym_position);
+
+        emp::Ptr<Organism> world_sym_deleted = w.GetSymAt(sym_position);
+        REQUIRE(world_sym_deleted == nullptr);
       }
     }
   }

@@ -100,20 +100,61 @@ TEST_CASE("Host Mutate") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
     SymWorld w(*random);
-    double int_val = 0;
+    double int_val = -0.31;
 
-    Host * h = new Host(random, &w, &config, int_val);
-    h->mutate();
-    REQUIRE(h->GetIntVal() != int_val);
-    REQUIRE(h->GetIntVal() <= 1);
-    REQUIRE(h->GetIntVal() >= -1);
+    //MUTATION RATE
+    WHEN("Host mutation rate is -1"){
+      THEN("Normal mutation rate is used"){
+        config.HOST_MUTATION_RATE(-1);
+        config.MUTATION_RATE(1);
+        Host * h = new Host(random, &w, &config, int_val);
 
-    int_val = -0.31;
-    h->SetIntVal(int_val);
-    h->mutate();
-    REQUIRE(h->GetIntVal() != int_val);
-    REQUIRE(h->GetIntVal() <= 1);
-    REQUIRE(h->GetIntVal() >= -1);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+    WHEN("Host mutation rate is not -1"){
+      THEN("Host mutation rate is used"){
+        config.HOST_MUTATION_RATE(1);
+        config.MUTATION_RATE(0);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+
+    //MUTATION SIZE
+    WHEN("Host mutation size is -1"){
+      THEN("Normal mutation size is used"){
+        config.HOST_MUTATION_SIZE(-1);
+        config.MUTATION_RATE(1);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+    WHEN("Host mutation size is not -1"){
+      THEN("Host mutation size is used"){
+        config.HOST_MUTATION_SIZE(1);
+        config.MUTATION_SIZE(0);
+        Host * h = new Host(random, &w, &config, int_val);
+        REQUIRE(h->GetIntVal() == int_val);
+        h->mutate();
+        REQUIRE(h->GetIntVal() != int_val);
+        REQUIRE(h->GetIntVal() <= 1);
+        REQUIRE(h->GetIntVal() >= -1);
+      }
+    }
+
 
 }
 
@@ -328,6 +369,17 @@ TEST_CASE("GetDoEctosymbiosis"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
       }
     }
+    WHEN("There is a parallel sym but it is dead, and other conditions are met"){
+      config.ECTOSYMBIOSIS(1);
+      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      sym->SetDead();
+      w.AddOrgAt(host, host_pos);
+      w.AddOrgAt(sym, host_pos + 1);
+      THEN("Returns false"){
+        REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
+      }
+    }
     WHEN("Ectosymbiotic immunity is on and the host has a sym, but other conditions are met"){
       config.ECTOSYMBIOSIS(1);
       config.ECTOSYMBIOTIC_IMMUNITY(1);
@@ -370,4 +422,27 @@ TEST_CASE("GetDoEctosymbiosis"){
       }
     }
   }
+}
+
+TEST_CASE("Host growOlder"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+    config.HOST_AGE_MAX(2);
+
+    WHEN ("A host reaches its maximum age"){
+      Host * h = new Host(random, &w, &config, 1);
+      w.AddOrgAt(h, 1);
+      THEN("The host dies and is removed from the world"){
+        REQUIRE(h->GetDead() == false);
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(h->GetAge() == 0);
+        w.Update();
+        REQUIRE(h->GetAge() == 1);
+        w.Update();
+        REQUIRE(h->GetAge() == 2);
+        w.Update();
+        REQUIRE(w.GetNumOrgs() == 0);
+      }
+    }
 }

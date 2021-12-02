@@ -538,3 +538,43 @@ TEST_CASE("Symbiont ProcessResources"){
     }
 
 }
+
+TEST_CASE("Symbiont growOlder"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    w.Resize(2,2);
+    SymConfigBase config;
+    config.SYM_AGE_MAX(2);
+
+    WHEN ("A free-living symbiont reaches its maximum age"){
+      config.FREE_LIVING_SYMS(1);
+      Symbiont * s = new Symbiont(random, &w, &config, 1);
+      w.AddOrgAt(s, 1);
+      THEN("The symbiont dies and gets removed from the world"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(s->GetDead() == false);
+        REQUIRE(s->GetAge() == 0);
+        w.Update(); //sym goes from age 1->2
+        REQUIRE(s->GetAge() == 1);
+        w.Update();
+        REQUIRE(s->GetAge() == 2);
+        w.Update(); //sym goes from age 2->3, gets set to dead
+        w.Update(); //sym is deleted (before it can process)
+        REQUIRE(w.GetNumOrgs() == 0);
+      }
+    }
+    WHEN ("A hosted symbiont reaches its maximum age"){
+      Symbiont * s = new Symbiont(random, &w, &config, 1);
+      Host * h = new Host(random, &w, &config, 1);
+      h->AddSymbiont(s);
+      THEN("It dies and gets removed from its host")
+        REQUIRE(h->HasSym() == true);
+        REQUIRE(s->GetAge() == 0);
+        h->Process(1);
+        REQUIRE(s->GetAge() == 1);
+        h->Process(1);
+        REQUIRE(s->GetAge() == 2);
+        h->Process(1); //should now be dead and removed
+        REQUIRE(h->HasSym() == false);
+    }
+}
