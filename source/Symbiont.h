@@ -103,10 +103,10 @@ protected:
   /**
     *
     * Purpose: Represents the number of updates the symbiont
-    * has lived through; at birth is set to 1.
+    * has lived through; at birth is set to 0.
     *
   */
-  int age = 1;
+  int age = 0;
 
   /**
     *
@@ -335,6 +335,14 @@ public:
    */
   void AddPoints(double _in) { points += _in;}
 
+  /**
+   * Input: None
+   *
+   * Output: an int representing the current age of the Symbiont
+   *
+   * Purpose: To get the Symbiont's age.
+   */
+  int GetAge() {return age;}
 
   /**
    * Input: The pointer to an organism that will be set as the symbinot's host

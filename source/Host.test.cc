@@ -100,8 +100,7 @@ TEST_CASE("Host Mutate") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
     SymWorld w(*random);
-    double int_val = 0;
-    int_val = -0.31;
+    double int_val = -0.31;
 
     //MUTATION RATE
     WHEN("Host mutation rate is -1"){
@@ -437,7 +436,11 @@ TEST_CASE("Host growOlder"){
       THEN("The host dies and is removed from the world"){
         REQUIRE(h->GetDead() == false);
         REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(h->GetAge() == 0);
         w.Update();
+        REQUIRE(h->GetAge() == 1);
+        w.Update();
+        REQUIRE(h->GetAge() == 2);
         w.Update();
         REQUIRE(w.GetNumOrgs() == 0);
       }

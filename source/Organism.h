@@ -56,6 +56,10 @@ class Organism {
     std::cout << "SetIncVal called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual int GetAge() {
+    std::cout << "GetAge called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 

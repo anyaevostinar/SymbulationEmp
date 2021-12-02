@@ -1478,9 +1478,11 @@ public:
           DoDeath(i);
         }
       }
-      if(sym_pop[i]){ //for sym movement reasons, sums are deleted the update after they are set to dead
-        if (sym_pop[i]->GetDead()) DoSymDeath(i);
+      if(sym_pop[i]){ //for sym movement reasons, syms are deleted the update after they are set to dead
+        if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
         else sym_pop[i]->Process(i);
+        //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
+        //TODO: fix the reason why the corpse can't be immediately cleaned up
       }
     } // for each cell in schedule
   } // Update()

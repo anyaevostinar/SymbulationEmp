@@ -553,7 +553,11 @@ TEST_CASE("Symbiont growOlder"){
       THEN("The symbiont dies and gets removed from the world"){
         REQUIRE(w.GetNumOrgs() == 1);
         REQUIRE(s->GetDead() == false);
+        REQUIRE(s->GetAge() == 0);
         w.Update(); //sym goes from age 1->2
+        REQUIRE(s->GetAge() == 1);
+        w.Update();
+        REQUIRE(s->GetAge() == 2);
         w.Update(); //sym goes from age 2->3, gets set to dead
         w.Update(); //sym is deleted (before it can process)
         REQUIRE(w.GetNumOrgs() == 0);
@@ -565,10 +569,14 @@ TEST_CASE("Symbiont growOlder"){
       h->AddSymbiont(s);
       THEN("It dies and gets removed from its host")
         REQUIRE(h->HasSym() == true);
+        REQUIRE(s->GetAge() == 0);
         h->Process(1);
-        h->Process(1); //sym reaches age 2 and is set to dead
-        //REQUIRE(h->HasSym() == true);
-        h->Process(1); //dead sym gets removed from host
+        REQUIRE(s->GetAge() == 1);
+        h->Process(1);
+        REQUIRE(s->GetAge() == 2);
+        h->Process(1); 
+        REQUIRE(s->GetAge() == 3);
+        REQUIRE(s->GetDead());
         REQUIRE(h->HasSym() == false);
     }
 }

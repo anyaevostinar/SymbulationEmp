@@ -27,10 +27,10 @@ protected:
   /**
     *
     * Purpose: Represents the number of updates the host
-    * has lived through; at birth is set to 1.
+    * has lived through; at birth is set to 0.
     *
   */
-  int age = 1;
+  int age = 0;
 
   /**
     *
@@ -368,11 +368,20 @@ public:
   /**
    * Input: None
    *
-   * Output: None
+   * Output: boolean
    *
    * Purpose: To determine if a host is dead.
    */
   bool GetDead() {return dead;}
+
+  /**
+   * Input: None
+   *
+   * Output: an int representing the current age of the Host
+   *
+   * Purpose: To get the Host's age.
+   */
+  int GetAge() {return age;}
 
   /**
    * Input: None
@@ -485,7 +494,7 @@ public:
    *
    * Output: A bool representing if a host has any symbionts.
    *
-   * Purpose: To determine if a host has any symbionts.
+   * Purpose: To determine if a host has any symbionts, though they might be corpses that haven't been removed yet.
    */
   bool HasSym() {
     return syms.size() != 0;
