@@ -303,24 +303,6 @@ TEST_CASE("phage_mutate", "[lysis]"){
         delete p;
     }
 
-    WHEN("Mutation size is not zero, but horizontal mutation size is, and chance of lysis/induction/incorporation mutations are enabled") {
-        double int_val = 0;
-        config.MUTATION_SIZE(0.002);
-        config.HORIZ_MUTATION_SIZE(0);
-        config.MUTATE_LYSIS_CHANCE(1);
-        config.MUTATE_INDUCTION_CHANCE(1);
-        config.MUTATE_INC_VAL(1);
-
-        emp::Ptr<Organism> p = new Phage(random, world, &config, int_val);
-        p->mutate("horizontal");
-        THEN("Mutation does not occur in horizontal mode") {
-            REQUIRE(p->GetLysisChance() == 0.5);
-            REQUIRE(p->GetInductionChance() == 0.5);
-            REQUIRE(p->GetIncVal() == 0.5);
-        }
-        delete p;
-    }
-
     WHEN("Mutation rate is not zero and chance of lysis/induction mutations are not enabled"){
         double int_val = 0;
         config.MUTATION_SIZE(0.002);

@@ -67,17 +67,17 @@ class Organism {
 
   //Symbiont functions
 
-  virtual void HorizMutate() {
-    std::cout << "HorizMutate called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual void mutate(std::string mode = "vertical") {
+  virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    std::cout << "reproduce called from Organism" << std::endl;
+    std::cout << "VerticalTransmission called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void HorizontalTransmission(size_t location) {
+    std::cout << "HorizontalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessResources(double sym_piece){
     std::cout << "ProcessResources called from an Organism" << std::endl;
@@ -107,8 +107,13 @@ class Organism {
   //EfficientSymbiont functions
   virtual double GetEfficiency() {
     std::cout << "GetEfficiency called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
+    throw "Organism method called!";}
+  virtual emp::Ptr<Organism> reproduce(std::string mode) {
+    std::cout << "EfficientSymbiont's reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void mutate(std::string mode) {
+    std::cout << "EfficientSymbiont's mutate called from Organism" << std::endl;
+    throw "Organism method called!";}
 
   //Host functions
 

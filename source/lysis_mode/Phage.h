@@ -284,17 +284,10 @@ public:
    * deviation that is equal to the mutation size. Phage mutation can be
    * on or off.
    */
-  void mutate(std::string mode = "vertical") {
-   Symbiont::mutate(mode);
-   double local_rate;
-   double local_size;
-   if(mode == "vertical") {
-     local_rate = mut_rate;
-     local_size = mut_size;
-   } else if (mode == "horizontal"){
-     local_rate = my_config->HORIZ_MUTATION_RATE();
-     local_size = my_config->HORIZ_MUTATION_SIZE();
-   }
+  void mutate() {
+    Symbiont::mutate();
+    double local_rate = mut_rate;
+    double local_size = mut_size;
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
       if(mutate_chance_of_lysis){
@@ -325,11 +318,11 @@ public:
    * 0 points, a burst timer equal to 0, and have a mutated genome
    * from their parent organism.
    */
-  emp::Ptr<Organism> reproduce(std::string mode = "vertical") {
+  emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
-    sym_baby->mutate(mode);
+    sym_baby->mutate();
     return sym_baby;
   }
 
@@ -382,7 +375,7 @@ public:
       std::exit(1);
     }
     while(GetPoints() >= sym_lysis_res) {
-      emp::Ptr<Organism> sym_baby = reproduce("horizontal");
+      emp::Ptr<Organism> sym_baby = reproduce();
       my_host->AddReproSym(sym_baby);
       SetPoints(GetPoints() - sym_lysis_res);
     }
@@ -400,7 +393,7 @@ public:
   void VerticalTransmission(emp::Ptr<Organism> host_baby){
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
-      emp::Ptr<Organism> phage_baby = reproduce("vertical");
+      emp::Ptr<Organism> phage_baby = reproduce();
       host_baby->AddSymbiont(phage_baby);
     }
   }

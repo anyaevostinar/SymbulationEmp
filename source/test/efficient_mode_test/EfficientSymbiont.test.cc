@@ -15,7 +15,7 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
         config.MUTATION_SIZE(0.002);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate();
+        s->mutate("vertical");
 
         THEN("Mutation occurs and efficiency value changes, but within bounds") {
             REQUIRE(s->GetEfficiency() != orig_efficiency);
@@ -35,7 +35,7 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
         config.MUTATION_SIZE(0);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate();
+        s->mutate("vertical");
 
 
         THEN("Mutation does not occur and efficiency value does not change") {
@@ -108,7 +108,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         config.MUTATION_SIZE(0);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, parent_orig_efficiency);
 
-        emp::Ptr<Organism> sym_baby = s->reproduce();
+        emp::Ptr<Organism> sym_baby = s->reproduce("vertical");
 
 
         THEN("Offspring's efficiency equals parent's efficiency") {
@@ -137,7 +137,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         config.MUTATION_SIZE(0.01);
         EfficientSymbiont * s2 = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
 
-        emp::Ptr<Organism> sym_baby = s2->reproduce();
+        emp::Ptr<Organism> sym_baby = s2->reproduce("vertical");
 
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
@@ -174,7 +174,7 @@ TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
         config.EFFICIENCY_MUT_RATE(1);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
 
-        s->HorizMutate();
+        s->mutate("horizontal");
 
         THEN("Efficiency changes during horizontal mutation, int val stays the same") {
             REQUIRE(s->GetEfficiency() != efficiency);
