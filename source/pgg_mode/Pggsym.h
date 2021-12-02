@@ -159,7 +159,7 @@ public:
    */
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
-      double resources = my_world->PullResources();
+      double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE());
       AddPoints(resources);
     }
     if (h_trans) { //non-lytic horizontal transmission enabled

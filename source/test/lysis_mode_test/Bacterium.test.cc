@@ -163,7 +163,7 @@ TEST_CASE("Bacterium Process", "[lysis]"){
         WHEN("The bacterium doesn't have enough resources to reproduce"){
             int res_distribute = 5;
             config.HOST_REPRO_RES(10);
-            world->SetResPerUpdate(res_distribute);
+            config.RES_DISTRIBUTE(5);
 
             double int_val = 0;
             emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);

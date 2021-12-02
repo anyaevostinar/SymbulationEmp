@@ -145,7 +145,8 @@ public:
    */
   void Process(size_t location) {
     //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
+    double desired_resources = my_config->RES_DISTRIBUTE();
+    double resources = my_world->PullResources(desired_resources); //receive resources from the world
     DistribResources(resources);
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
@@ -155,15 +156,11 @@ public:
         host_baby->mutate();
         //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
         SetPoints(0);
-
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
           emp::Ptr<Organism> parent = GetSymbionts()[j];
           parent->VerticalTransmission(host_baby);
         }
-
-        //Will need to change this to AddOrgAt and write my own position grabber
-        //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
     if (GetDead()){
