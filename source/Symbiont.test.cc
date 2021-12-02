@@ -574,9 +574,7 @@ TEST_CASE("Symbiont growOlder"){
         REQUIRE(s->GetAge() == 1);
         h->Process(1);
         REQUIRE(s->GetAge() == 2);
-        h->Process(1); 
-        REQUIRE(s->GetAge() == 3);
-        REQUIRE(s->GetDead());
+        h->Process(1); //should now be dead and removed
         REQUIRE(h->HasSym() == false);
     }
 }
