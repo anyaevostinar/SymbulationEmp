@@ -54,27 +54,10 @@ protected:
 
   /**
     *
-    * Purpose: Represents the standard deviation of the values
-    * chosen as mutations of a symbiont's interaction value when
-    * horizontal transmission is occuring. .
-    *
-  */
-  double ht_mut_size = 0.002;
-
-  /**
-    *
     * Purpose: Represents the probability (0-1) of mutation occurring.
     *
   */
   double mut_rate = 0;
-
-  /**
-    *
-    * Purpose: Represents the probability (0-1) of mutation occurring
-    * during horizontal transmission.
-    *
-  */
-  double ht_mut_rate = 0;
 
   /**
     *
@@ -148,17 +131,8 @@ public:
     infection_chance = my_config->SYM_INFECTION_CHANCE();
     if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
     if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
-    if(my_config->HORIZ_MUTATION_RATE() < 0){
-      ht_mut_rate = mut_rate;
-    } else {
-      ht_mut_rate = my_config->HORIZ_MUTATION_RATE();
-    }
+    
     mut_size = my_config->MUTATION_SIZE();
-    if(my_config->HORIZ_MUTATION_SIZE() < 0) {
-      ht_mut_size = mut_size;
-    } else {
-      ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
-    }
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
