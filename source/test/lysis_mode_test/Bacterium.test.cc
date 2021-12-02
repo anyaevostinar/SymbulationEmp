@@ -50,7 +50,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(1);
         config.MUTATE_INC_VAL(1);
-        emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+        emp::Ptr<Organism> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
         THEN("Then mutation occurs and the bacterium's host_inc_val mutates"){
@@ -66,7 +66,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(1);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+        emp::Ptr<Organism> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
         THEN("Then mutations occur but do not occur in the host_inc_val"){
@@ -80,7 +80,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_RATE(0.0);
         config.MUTATION_SIZE(0.0);
         config.MUTATE_INC_VAL(1);
-        emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+        emp::Ptr<Organism> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
         THEN("Mutations do not occur"){
@@ -94,7 +94,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_RATE(0.0);
         config.MUTATION_SIZE(0.0);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Bacterium> b = new Bacterium(random, world, &config, int_val);
+        emp::Ptr<Organism> b = new Bacterium(random, world, &config, int_val);
         b->mutate();
 
         THEN("Mutations do not occur"){

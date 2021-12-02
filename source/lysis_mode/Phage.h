@@ -284,7 +284,7 @@ public:
    * deviation that is equal to the mutation size. Phage mutation can be
    * on or off.
    */
-  void mutate() {
+  void mutate(std::string mode = "vertical") {
    Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
       //mutate chance of lysis/lysogeny, if enabled

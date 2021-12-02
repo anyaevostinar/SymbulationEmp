@@ -91,7 +91,7 @@ public:
    * Purpose: Mutating the efficiency of an efficient symbiont based upon the config
    * setting for mutation size.
    */
-  void mutate(){
+  void mutate(std::string mode = "vertical"){
     Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
       efficiency += random->GetRandNormal(0.0, mut_size);

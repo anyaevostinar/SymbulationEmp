@@ -102,7 +102,7 @@ public:
    *
    * Purpose:
    */
-  void mutate(){
+  void mutate(std::string mode = "vertical"){
     // double pre_value = interaction_val;
     Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {

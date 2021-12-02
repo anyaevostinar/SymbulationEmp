@@ -378,7 +378,7 @@ public:
    *
    * Purpose: Increments age by one and kills it if too old.
    */
-  void growOlder(){
+  void GrowOlder(){
     age = age + 1;
     if(age > my_config->SYM_AGE_MAX() && my_config->SYM_AGE_MAX() > 0){
       SetDead();
@@ -560,7 +560,7 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    growOlder();
+    GrowOlder();
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
       //if the symbiont should move, and hasn't been killed
       my_world->MoveFreeSym(location);

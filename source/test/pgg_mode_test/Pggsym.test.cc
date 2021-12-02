@@ -34,7 +34,7 @@ TEST_CASE("Pggmutate", "[pgg]") {
         double int_val = 0;
         double donation =0.01;
         config.MUTATION_SIZE(0.002);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
+        Organism * s = new PGGSymbiont(random, world, &config, int_val,donation);
 
         s->mutate();
 
@@ -52,7 +52,7 @@ TEST_CASE("Pggmutate", "[pgg]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, points);
+        Organism * s = new PGGSymbiont(random, world, &config, int_val, points);
 
         s->mutate();
 
