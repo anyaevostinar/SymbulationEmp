@@ -149,50 +149,16 @@ public:
     return hostreturn;
   }
 
-
   /**
-   * Input: #
+   * Input: None
    *
-   * Output:
+   * Output: The pointer to the newly created organism
    *
-   * Purpose:
+   * Purpose: To produce a new phage, identical to the original
    */
-  void Process(size_t location) {
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
-      double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE());
-      AddPoints(resources);
-    }
-    if (h_trans) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= sym_h_res) {
-        // symbiont reproduces independently (horizontal transmission) if it has enough resources
-        // new symbiont in this host with mutated value
-        SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this);
-        sym_baby->SetPoints(0);
-        sym_baby->HorizMutate();
-        //HorizMutate();
-        my_world->SymDoBirth(sym_baby, location);
-      }
-    }
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {my_world->MoveFreeSym(location);}
+  emp::Ptr<Organism> makeNew() {
+    return emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
   }
-
-
-  /**
-   * Input: #
-   *
-   * Output:
-   *
-   * Purpose:
-   */
-  emp::Ptr<Organism> reproduce() {
-    emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
-    sym_baby->SetPoints(0);
-    sym_baby->mutate();
-    //mutate(); //mutate parent symbiont
-    return sym_baby;
-  }
-
 
   /**
    * Input: #

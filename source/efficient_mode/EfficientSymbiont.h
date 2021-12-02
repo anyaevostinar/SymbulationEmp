@@ -120,43 +120,14 @@ public:
 
 
   /**
-   * Input: None
+   * Input: None.
    *
-   * Output: An Empirical pointer to a newly created organism
+   * Output: A new bacterium with same properties as this bacterium.
    *
-   * Purpose: Producing a new efficient organism.
+   * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> reproduce() {
-    //TODO: pull out creation of new offspring into separate method so the repeat code between here and Symbiont.h can be removed
-    emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(*this); //constructor that takes parent values
-    sym_baby->SetPoints(0);
-    sym_baby->mutate();
-    //mutate(); //mutate parent symbiont
-    return sym_baby;
-  }
-
-
-  /**
-   * Input: The world location that corresponds to the organism being processed.
-   *
-   * Output: None
-   *
-   * Purpose: Mutating the efficiency of an efficient symbiont based upon the config setting
-   * for horizontal mutation size.
-   */
-  void Process(size_t location) {
-    if (h_trans) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= sym_h_res) {
-        // symbiont reproduces independently (horizontal transmission) if it has enough resources
-        // new symbiont in this host with mutated value
-        SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(*this);
-        sym_baby->SetPoints(0);
-        sym_baby->HorizMutate();
-        //HorizMutate();
-        my_world->SymDoBirth(sym_baby, location);
-      }
-    }
+  emp::Ptr<Organism> makeNew(){
+    return emp::NewPtr<EfficientSymbiont>(*this); //constructor that takes parent values
   }
 };
 #endif

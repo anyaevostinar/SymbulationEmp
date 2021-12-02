@@ -64,5 +64,15 @@ public:
    */
   EfficientHost() = default;
 
+  /**
+   * Input: None.
+   *
+   * Output: A new host with same properties as this host.
+   *
+   * Purpose: To avoid creating an organism via constructor in other methods.
+   */
+  emp::Ptr<Organism> makeNew(){
+    return emp::NewPtr<EfficientHost>(random, my_world, my_config, GetIntVal());
+  }
 };
 #endif

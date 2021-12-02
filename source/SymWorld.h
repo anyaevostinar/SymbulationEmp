@@ -65,18 +65,11 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
-  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
-  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -111,18 +104,12 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
-    if (data_node_lysischance) data_node_lysischance.Delete();
-    if (data_node_inductionchance) data_node_inductionchance.Delete();
-    if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
-    if (data_node_burst_size) data_node_burst_size.Delete();
-    if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
-    if (data_node_Pgg) data_node_Pgg.Delete();
   }
 
 

@@ -4,9 +4,26 @@
 #include "../SymWorld.h"
 
 class EfficientWorld : public SymWorld {
+private:
+  /**
+    *
+    * Purpose: Data node tracking the average efficiency of efficient symbionts.
+    *
+  */
+  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
 public:
   using SymWorld::SymWorld;
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To destruct the data nodes belonging to EfficientWorld to conserve memory.
+   */
+  ~EfficientWorld(){
+      if (data_node_efficiency) data_node_efficiency.Delete();
+  }
   /**
    * Input: The address of the string representing the file to be
    * created's name

@@ -4,8 +4,35 @@
 #include "../SymWorld.h"
 
 class LysisWorld : public SymWorld {
+private:
+  /**
+    *
+    * Purpose: Data nodes tracking lysis chance, induction chance, incorporation difference, lytic burst size, and lytic burst count.
+    *
+  */
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
+  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
+  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
+  
 public:
   using SymWorld::SymWorld;
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To destruct the data nodes belonging to LysisWorld to conserve memory.
+   */
+  ~LysisWorld(){
+    if (data_node_lysischance) data_node_lysischance.Delete();
+    if (data_node_inductionchance) data_node_inductionchance.Delete();
+    if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
+    if (data_node_burst_size) data_node_burst_size.Delete();
+    if (data_node_burst_count) data_node_burst_count.Delete();
+  }
 
   /**
    * Input: The address of the string representing the file to be

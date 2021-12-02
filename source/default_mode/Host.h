@@ -500,6 +500,30 @@ public:
     return syms.size() != 0;
   }
 
+  /**
+   * Input: None.
+   *
+   * Output: A new host with same properties as this host.
+   *
+   * Purpose: To avoid creating an organism via constructor in other methods.
+   */
+  emp::Ptr<Organism> makeNew(){
+    return emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+  }
+
+  /**
+   * Input: None.
+   *
+   * Output: A new host baby of the current host, mutated.
+   *
+   * Purpose: To create a new baby host and reset this host's points to 0.
+   */
+  emp::Ptr<Organism> reproduce(){
+    emp::Ptr<Organism> host_baby = makeNew();
+    host_baby->mutate();
+    SetPoints(0);
+    return host_baby;
+  }
 
   /**
    * Input: None
@@ -634,10 +658,7 @@ public:
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
-        host_baby->mutate();
-        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
-        SetPoints(0);
+       emp::Ptr<Organism> host_baby = reproduce();
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
@@ -645,8 +666,6 @@ public:
           parent->VerticalTransmission(host_baby);
         }
 
-        //Will need to change this to AddOrgAt and write my own position grabber
-        //when I want ecto-symbionts
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
     if (GetDead()){

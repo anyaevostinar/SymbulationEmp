@@ -325,6 +325,17 @@ public:
   }
 
   /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new symbiont, identical to the original
+   */
+  emp::Ptr<Organism> makeNew() {
+    return emp::NewPtr<Phage>(*this); //constructor that takes parent values
+  }
+
+  /**
    * Input: location of the phage attempting to horizontally transmit
    *
    * Output: None
