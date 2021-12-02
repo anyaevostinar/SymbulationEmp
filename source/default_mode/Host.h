@@ -533,7 +533,7 @@ public:
    * Purpose: To mutate a host's interaction value. This is called on newly generated
    * hosts to allow for evolution to occur.
    */
-  void mutate(std::string mode = "vertical"){
+  void mutate(std::string mode = "none"){
     double mutation_size = my_config->HOST_MUTATION_SIZE();
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();

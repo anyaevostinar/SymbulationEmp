@@ -103,16 +103,15 @@ public:
    * Purpose:
    */
   void mutate(std::string mode = "vertical"){
-    // double pre_value = interaction_val;
-    Symbiont::mutate();
+    if(mode != "vertical" && my_config->HORIZ_MUTATION_RATE() != -1 && my_config->HORIZ_MUTATION_SIZE() != -1) {
+      throw "PGG Symbionts do not support different mutation rates/sizes for horizontal transmission currently.";
+    }
+    Symbiont::mutate(mode);
     if (random->GetDouble(0.0, 1.0) <= mut_rate) {
       Pgg_donate += random->GetRandNormal(0.0, mut_size);
       if(Pgg_donate < 0) Pgg_donate = 0;
       else if (Pgg_donate > 1) Pgg_donate = 1;
     }
-    //if((pre_value*interaction_val) < 0) {
-    //  std::cout << "switched2!" << std::endl;
-    //}
   }
 
 
@@ -124,13 +123,7 @@ public:
    * Purpose:
    */
   void HorizMutate(){
-    // double pre_value = interaction_val;
-    Symbiont::HorizMutate();
-    if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      Pgg_donate += random->GetRandNormal(0.0, ht_mut_size);
-      if(Pgg_donate < 0) Pgg_donate = 0;
-      else if (Pgg_donate > 1) Pgg_donate = 1;
-    }
+    mutate("horizontal");
   }
 
 

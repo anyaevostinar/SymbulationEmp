@@ -84,7 +84,7 @@ public:
 
 
   /**
-   * Input: None
+   * Input: Optional string indicating mode, either "vertical" or "horizontal"
    *
    * Output: None
    *
@@ -92,9 +92,23 @@ public:
    * setting for mutation size.
    */
   void mutate(std::string mode = "vertical"){
-    Symbiont::mutate();
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      efficiency += random->GetRandNormal(0.0, mut_size);
+    Symbiont::mutate(mode);
+    double local_size;
+    double local_rate;
+    if(mode == "vertical"){
+      local_rate = mut_rate;
+      local_size = mut_size;
+    } else if(mode == "horizontal") {
+      local_rate = my_config->EFFICIENCY_MUT_RATE();
+      if(local_rate == -1) {
+        local_rate = my_config->HORIZ_MUTATION_RATE();
+      }
+      local_size = ht_mut_size;
+    } else {
+      throw "Illegal argument passed to mutate in EfficientSymbiont";
+    }
+    if (random->GetDouble(0.0, 1.0) <= local_rate) {
+      efficiency += random->GetRandNormal(0.0, local_size);
       if(efficiency < 0) efficiency = 0;
       else if (efficiency > 1) efficiency = 1;
     }
@@ -108,14 +122,10 @@ public:
    *
    * Purpose: Mutating the efficiency of an efficient symbiont based upon the config
    * setting for horizontal mutation size.
+   * DEPRECATED! Use mutate("horizontal") instead!
    */
   void HorizMutate() {
-      Symbiont::HorizMutate();
-      if (random->GetDouble(0.0, 1.0) <= my_config->EFFICIENCY_MUT_RATE()) {
-        efficiency += random->GetRandNormal(0.0, ht_mut_size);
-        if(efficiency < 0) efficiency = 0;
-        else if (efficiency > 1) efficiency = 1;
-      }
+      mutate("horizontal");
     }
 
 
