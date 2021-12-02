@@ -8,7 +8,6 @@
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
 #include "default_mode/Host.h"
-#include "lysis_mode/Phage.h"
 #include "emp/web/Document.hpp"
 #include "emp/web/Canvas.hpp"
 #include "emp/web/web.hpp"
@@ -20,7 +19,7 @@
 
 namespace UI = emp::web;
 SymConfigBase config; // load the default configuration
-emp::prefab::ConfigPanel config_panel(config);
+
 
 
 class SymAnimate : public UI::Animate {
@@ -57,7 +56,7 @@ public:
     config.GRID_X(50);
     config.GRID_Y(50);
     config.UPDATES(30000);
-
+    emp::prefab::ConfigPanel config_panel(config);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
     config_panel.ExcludeConfig("SYM_LIMIT");
@@ -99,8 +98,8 @@ public:
     if (am.HasUnused()) std::exit(EXIT_FAILURE);
 
     // setup configuration panel
-    config_panel.Setup();
-    config_panel_ex.AddBodyContent(config_panel.GetConfigPanelDiv());
+    //config_panel.Setup();
+    config_panel_ex << config_panel.GetConfigPanelDiv();
 
 
     // Add explanation for organism color:
@@ -244,7 +243,7 @@ public:
 
 
   /**
-   * Input: The double representing bacteria and phage's interaction value 
+   * Input: The double representing symbiont or host's interaction value 
    * 
    * Output: The string representing the hex value for the color of the organism. 
    * 
