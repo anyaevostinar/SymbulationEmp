@@ -121,8 +121,8 @@ public:
    * chosen from a normal distribution centered at 0, with a standard deviation that
    * is equal to the mutation size. Bacterium mutation can be turned on or off.
    */
-  void mutate() {
-    Host::mutate();
+  void mutate(std::string mode = "none") {
+    Host::mutate(mode);
 
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
 

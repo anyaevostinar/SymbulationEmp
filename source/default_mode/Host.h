@@ -1,6 +1,6 @@
 #ifndef HOST_H
 #define HOST_H
- 
+
 #include "../../../Empirical/include/emp/math/Random.hpp"
 #include "../../../Empirical/include/emp/tools/string_utils.hpp"
 #include <set>
@@ -390,7 +390,7 @@ public:
    *
    * Purpose: Increments age by one and kills it if too old.
    */
-  void growOlder(){
+  void GrowOlder(){
     age = age + 1;
     if(age > my_config->HOST_AGE_MAX() && my_config->HOST_AGE_MAX() > 0){
       SetDead();
@@ -533,7 +533,7 @@ public:
    * Purpose: To mutate a host's interaction value. This is called on newly generated
    * hosts to allow for evolution to occur.
    */
-  void mutate(){
+  void mutate(std::string mode = "none"){
     double mutation_size = my_config->HOST_MUTATION_SIZE();
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
@@ -608,9 +608,12 @@ public:
    */
   bool GetDoEctosymbiosis(size_t location){
     //a host is immune to ectosymbiosis if immunity is on and it has a sym.
-    bool is_immune = my_config->ECTOSYMBIOTIC_IMMUNITY() && HasSym();
-    bool valid_sym = my_world->GetSymAt(location) != nullptr && !my_world->GetSymAt(location)->GetDead();
-    return my_config->ECTOSYMBIOSIS() && (valid_sym == true) && (is_immune == false);
+    if (!my_config->ECTOSYMBIOSIS()) return false; //if the config setting is off, we immediately know that ectosymbiosis won't happen
+    else{
+      bool is_immune = my_config->ECTOSYMBIOTIC_IMMUNITY() && HasSym();
+      bool valid_sym = my_world->GetSymAt(location) != nullptr && !my_world->GetSymAt(location)->GetDead();
+      return (valid_sym == true) && (is_immune == false);
+    }
   }
 
   /**
@@ -687,7 +690,7 @@ public:
           }
         } //for each sym in syms
       } //if org has syms
-    growOlder();
+    GrowOlder();
   }
 };//Host
 #endif

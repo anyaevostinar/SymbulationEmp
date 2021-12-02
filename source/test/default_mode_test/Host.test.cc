@@ -424,7 +424,7 @@ TEST_CASE("GetDoEctosymbiosis"){
   }
 }
 
-TEST_CASE("Host growOlder"){
+TEST_CASE("Host GrowOlder"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;

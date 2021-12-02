@@ -275,7 +275,7 @@ public:
 
 
   /**
-   * Input: None
+   * Input: Optional string that indicates mode of reproduction and therefore which mutation rate and size should be used. Options are vertical (for prophage) or horizontal (for lytic phage)
    *
    * Output: None
    *
@@ -284,22 +284,31 @@ public:
    * deviation that is equal to the mutation size. Phage mutation can be
    * on or off.
    */
-  void mutate() {
-   Symbiont::mutate();
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
+  void mutate(std::string mode = "vertical") {
+   Symbiont::mutate(mode);
+   double local_rate;
+   double local_size;
+   if(mode == "vertical") {
+     local_rate = mut_rate;
+     local_size = mut_size;
+   } else if (mode == "horizontal"){
+     local_rate = my_config->HORIZ_MUTATION_RATE();
+     local_size = my_config->HORIZ_MUTATION_SIZE();
+   }
+    if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
       if(mutate_chance_of_lysis){
-        chance_of_lysis += random->GetRandNormal(0.0, mut_size);
+        chance_of_lysis += random->GetRandNormal(0.0, local_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
       if(mutate_chance_of_induction){
-        induction_chance += random->GetRandNormal(0.0, mut_size);
+        induction_chance += random->GetRandNormal(0.0, local_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
       if(mutate_incorporation_val){
-        incorporation_val += random->GetRandNormal(0.0, mut_size);
+        incorporation_val += random->GetRandNormal(0.0, local_size);
         if(incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
       }
@@ -308,7 +317,7 @@ public:
 
 
   /**
-   * Input: None
+   * Input: Optional string parameter to indicate mode of reproduction, either vertical (for prophage) or horizontal (for lytic phage)
    *
    * Output: The pointer to the new phage that has been produced.
    *
@@ -316,11 +325,11 @@ public:
    * 0 points, a burst timer equal to 0, and have a mutated genome
    * from their parent organism.
    */
-  emp::Ptr<Organism> reproduce() {
+  emp::Ptr<Organism> reproduce(std::string mode = "vertical") {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
     sym_baby->SetBurstTimer(0);
-    sym_baby->mutate();
+    sym_baby->mutate(mode);
     return sym_baby;
   }
 
@@ -373,7 +382,7 @@ public:
       std::exit(1);
     }
     while(GetPoints() >= sym_lysis_res) {
-      emp::Ptr<Organism> sym_baby = reproduce();
+      emp::Ptr<Organism> sym_baby = reproduce("horizontal");
       my_host->AddReproSym(sym_baby);
       SetPoints(GetPoints() - sym_lysis_res);
     }
@@ -391,7 +400,7 @@ public:
   void VerticalTransmission(emp::Ptr<Organism> host_baby){
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
-      emp::Ptr<Organism> phage_baby = reproduce();
+      emp::Ptr<Organism> phage_baby = reproduce("vertical");
       host_baby->AddSymbiont(phage_baby);
     }
   }
