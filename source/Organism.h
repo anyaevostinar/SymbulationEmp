@@ -60,13 +60,17 @@ class Organism {
     std::cout << "GetAge called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual emp::Ptr<Organism> makeNew(){
+    std::cout << "makeNew called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
   virtual void HorizMutate() {
     std::cout << "HorizMutate called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void mutate() {
+  virtual void mutate(std::string mode = "vertical") {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce() {

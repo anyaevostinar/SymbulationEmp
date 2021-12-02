@@ -395,23 +395,30 @@ public:
    * from a normal distribution centered on 0 with the mutation size as the standard
    * deviation.
    */
-  void mutate(){
-    // double pre_value = interaction_val;
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, mut_size);
+  void mutate(std::string mode = "vertical"){
+    double local_rate;
+    double local_size;
+    if(mode=="vertical"){
+      local_rate = mut_rate;
+      local_size = mut_size;
+    } else if (mode=="horizontal") {
+      local_rate = ht_mut_rate;
+      local_size = ht_mut_size;
+    } else {
+      throw "Illegal argument passed to mutate in Symbiont";
+    }
+    if (random->GetDouble(0.0, 1.0) <= local_rate) {
+      interaction_val += random->GetRandNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
       if(my_config->FREE_LIVING_SYMS()){
-        infection_chance += random->GetRandNormal(0.0, mut_size);
+        infection_chance += random->GetRandNormal(0.0, local_size);
         if (infection_chance < 0) infection_chance = 0;
         else if (infection_chance > 1) infection_chance = 1;
       }
     }
-    //if((pre_value*interaction_val) < 0) {
-    //  std::cout << "switched2!" << std::endl;
-    //}
   }
 
 
@@ -424,18 +431,18 @@ public:
    * This is a function to be called during horizontal transmission.
    */
   void HorizMutate(){
-    // double pre_value = interaction_val;
-    if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
-      interaction_val += random->GetRandNormal(0.0, ht_mut_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
+    mutate("horizontal");
+    // if (random->GetDouble(0.0, 1.0) <= ht_mut_rate) {
+    //   interaction_val += random->GetRandNormal(0.0, ht_mut_size);
+    //   if(interaction_val < -1) interaction_val = -1;
+    //   else if (interaction_val > 1) interaction_val = 1;
 
-      if(my_config->FREE_LIVING_SYMS()){
-        infection_chance += random->GetRandNormal(0.0, ht_mut_size);
-        if (infection_chance < 0) infection_chance = 0;
-        else if (infection_chance > 1) infection_chance = 1;
-      }
-    }
+    //   if(my_config->FREE_LIVING_SYMS()){
+    //     infection_chance += random->GetRandNormal(0.0, ht_mut_size);
+    //     if (infection_chance < 0) infection_chance = 0;
+    //     else if (infection_chance > 1) infection_chance = 1;
+    //   }
+    // }
   }
 
 
@@ -549,10 +556,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this);
-        sym_baby->SetPoints(0);
-        sym_baby->HorizMutate();
-        //HorizMutate();
+        emp::Ptr<Organism> sym_baby = reproduce("horizontal");
         my_world->SymDoBirth(sym_baby, location);
       }
     }
@@ -563,6 +567,16 @@ public:
     }
   }
 
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new symbiont, identical to the original
+   */
+  emp::Ptr<Organism> makeNew() {
+    return emp::NewPtr<Symbiont>(*this); //constructor that takes parent values
+  }
 
   /**
    * Input: None
@@ -571,11 +585,10 @@ public:
    *
    * Purpose: To produce a new symbiont
    */
-  emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Symbiont> sym_baby = emp::NewPtr<Symbiont>(*this); //constructor that takes parent values
+  emp::Ptr<Organism> reproduce(std::string mode = "vertical") {
+    emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
-    sym_baby->mutate();
-    //mutate(); //mutate parent symbiont
+    sym_baby->mutate(mode);
     return sym_baby;
   }
 
