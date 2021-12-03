@@ -384,6 +384,15 @@ public:
   int GetAge() {return age;}
 
   /**
+   * Input: An int of what age the Host should be set to
+   *
+   * Output: None
+   *
+   * Purpose: To set the Host's age for testing purposes.
+   */
+  void SetAge(int _in) {age = _in;}
+
+  /**
    * Input: None
    *
    * Output: None
@@ -521,6 +530,8 @@ public:
   emp::Ptr<Organism> reproduce(){
     emp::Ptr<Organism> host_baby = makeNew();
     host_baby->mutate();
+    host_baby->SetPoints(0);
+    host_baby->SetAge(0);
     SetPoints(0);
     return host_baby;
   }

@@ -292,6 +292,7 @@ TEST_CASE("reproduce", "[default][efficient][lysis][pgg]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
+        s->SetAge(10);
 
         emp::Ptr<Organism> sym_baby = s->reproduce();
 
@@ -307,6 +308,10 @@ TEST_CASE("reproduce", "[default][efficient][lysis][pgg]") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
+        }
+
+        THEN("Offspring's age is 0") {
+            REQUIRE(sym_baby->GetAge() == 0);
         }
 
         sym_baby.Delete();

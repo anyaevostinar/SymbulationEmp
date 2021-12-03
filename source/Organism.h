@@ -60,6 +60,10 @@ class Organism {
     std::cout << "GetAge called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void SetAge(int _in) {
+    std::cout << "SetAge called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual emp::Ptr<Organism> makeNew(){
     std::cout << "makeNew called from Organism" << std::endl;
     throw "Organism method called!";

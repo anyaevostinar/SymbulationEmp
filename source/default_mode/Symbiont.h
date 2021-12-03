@@ -319,6 +319,15 @@ public:
   int GetAge() {return age;}
 
   /**
+   * Input: An int of what age the Symbiont should be set to
+   *
+   * Output: None
+   *
+   * Purpose: To set the Symbiont's age for testing purposes.
+   */
+  void SetAge(int _in) {age = _in;}
+
+  /**
    * Input: The pointer to an organism that will be set as the symbinot's host
    *
    * Output: None
@@ -520,11 +529,12 @@ public:
    *
    * Output: The pointer to the newly created organism
    *
-   * Purpose: To produce a new symbiont
+   * Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function
    */
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->mutate();
     return sym_baby;
   }
@@ -539,6 +549,7 @@ public:
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = reproduce();
+      points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
     }
   }
@@ -554,8 +565,9 @@ public:
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
-        // new symbiont in this host with mutated value
-        SetPoints(0); //TODO: test just subtracting points instead of setting to 0
+        //TODO: try just subtracting points to be consistent with vertical transmission
+        //points = points - my_config->SYM_HORIZ_TRANS_RES();
+        SetPoints(0);
         emp::Ptr<Organism> sym_baby = reproduce();
         my_world->SymDoBirth(sym_baby, location);
       }

@@ -375,11 +375,15 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default][efficient][lysis][pgg]
 
     WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
         world->SetVertTrans(1);
+        double points_required = 50;
+        double points_recieved = points_required;
+        config.SYM_VERT_TRANS_RES(points_required);
         double host_int_val = .5;
         double sym_int_val = -.5;
 
         emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
         emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
+        s->AddPoints(points_recieved);
 
         emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
@@ -387,6 +391,10 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default][efficient][lysis][pgg]
 
         THEN("Symbiont offspring are injected into host offspring") {
             REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+        }
+
+        THEN("Symbiont parent has lost the points needed for reproduction and is down to 0") {
+            REQUIRE(s->GetPoints() == 0);
         }
     }
     WHEN("When vertical transmission is disabled"){
