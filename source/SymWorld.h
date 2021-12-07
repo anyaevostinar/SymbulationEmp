@@ -13,7 +13,7 @@
 
 
 class SymWorld : public emp::World<Organism>{
-private:
+protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
   using fun_calc_info_t = std::function<int(emp::Ptr<Organism> &)>;
 
@@ -88,18 +88,11 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
-  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
-  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -134,18 +127,12 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
-    if (data_node_lysischance) data_node_lysischance.Delete();
-    if (data_node_inductionchance) data_node_inductionchance.Delete();
-    if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
-    if (data_node_burst_size) data_node_burst_size.Delete();
-    if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
-    if (data_node_Pgg) data_node_Pgg.Delete();
   }
 
 
@@ -457,23 +444,6 @@ public:
     }
   }
 
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track mean efficiency
-   */
-  emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetEfficiencyDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_efficiency", "Average efficiency", true);
-    file.PrintHeaderKeys();
-
-    return file;
-  }
 
 
   /**
@@ -525,44 +495,7 @@ public:
   }
 
 
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track
-   * information about the PGG symbiont's interaction values
-   */
-  emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node1 = GetSymCountDataNode();
-    auto & node2 = GetCountFreeSymsDataNode();
-    auto & node3 = GetCountHostedSymsDataNode();
-    auto & node4 = GetPGGDataNode();
-    node4.SetupBins(0, 1.1, 11); //Necessary because range exclusive
-    file.AddVar(update, "update", "Update");
-    file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "free_syms", "Total number of free syms");
-    file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
-    file.AddMean(node4, "Pgg_donationrate","Average donation rate");
-    file.AddHistBin(node4, 0, "Hist_0", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node4, 3, "Hist_0.3", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node4, 4, "Hist_0.4", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node4, 5, "Hist_0.5", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node4, 6, "Hist_0.6", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node4, 7, "Hist_0.7", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node4, 8, "Hist_0.8", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node4, 9, "Hist_0.9", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node4, 10, "Hist_1.0", "Count for histogram bin 0.9 to 1.0");
 
-
-    file.PrintHeaderKeys();
-
-    return file;
-  }
 
 
   /**
@@ -610,116 +543,17 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
     file.PrintHeaderKeys();
 
     return file;
   }
 
 
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track mean
-   * lysis chance, the number of symbionts, and the histogram of
-   * the mean lysis chance.
-   */
-    emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node1 = GetSymCountDataNode();
-    auto & node = GetLysisChanceDataNode();
-    auto & node2 = GetBurstSizeDataNode();
-    auto & node3 = GetBurstCountDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddMean(node2, "mean_burstsize", "Average burst size", true);
-    file.AddTotal(node3, "burst_count", "Average burst count", true);
-    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddMean(node, "mean_lysischance", "Average chance of lysis");
-    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
-    file.PrintHeaderKeys();
 
-    return file;
-  }
 
- /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track mean
-   * induction chance, the number of symbionts, and the histogram of
-   * the mean induction chance.
-   */
-    emp::DataFile & SetupInductionChanceFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node1 = GetSymCountDataNode();
-    auto & node = GetInductionChanceDataNode();
-    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_inductionchance", "Average chance of induction");
-    file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
-    file.PrintHeaderKeys();
 
-    return file;
-  }
-
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track the difference between
-   * bacterium and phage incorporation values and the histogram of the difference between
-   * the incorporation vals.
-   */
-    emp::DataFile & SetupIncorporationDifferenceFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetIncorporationDifferenceDataNode();
-    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_incval_difference", "Average difference in incorporation value between bacteria and their phage");
-    file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    file.PrintHeaderKeys();
-
-    return file;
-  }
 
   /**
    * Input: The address of the string representing the file to be
@@ -764,79 +598,6 @@ public:
     file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
     file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
     file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
-
-
-    //free sym infection chance histogram
-    node8.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddHistBin(node8, 0, "free_ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node8, 1, "free_ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node8, 2, "free_ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node8, 3, "free_ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node8, 4, "free_ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node8, 5, "free_ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node8, 6, "free_ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node8, 7, "free_ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node8, 8, "free_ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node8, 9, "free_ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    //hosted sym infection chance histogram
-    node9.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
-    file.AddHistBin(node9, 0, "hosted_ic_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node9, 1, "hosted_ic_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node9, 2, "hosted_ic_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node9, 3, "hosted_ic_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node9, 4, "hosted_ic_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node9, 5, "hosted_ic_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node9, 6, "hosted_ic_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node9, 7, "hosted_ic_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node9, 8, "hosted_ic_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node9, 9, "hosted_ic_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    //free sym interaction val histogram
-    node5.SetupBins(-1.0, 1.1, 21);
-    file.AddHistBin(node5, 0, "free_sv_Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node5, 1, "free_sv_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node5, 2, "free_sv_Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node5, 3, "free_sv_Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node5, 4, "free_sv_Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node5, 5, "free_sv_Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node5, 6, "free_sv_Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node5, 7, "free_sv_Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node5, 8, "free_sv_Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node5, 9, "free_sv_Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node5, 10, "free_sv_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node5, 11, "free_sv_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node5, 12, "free_sv_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node5, 13, "free_sv_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node5, 14, "free_sv_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node5, 15, "free_sv_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node5, 16, "free_sv_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node5, 17, "free_sv_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node5, 18, "free_sv_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node5, 19, "free_sv_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    //hosted sym interaction val histogram
-    node6.SetupBins(-1.0, 1.1, 21);
-    file.AddHistBin(node6, 0, "hosted_sv_Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node6, 1, "hosted_sv_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node6, 2, "hosted_sv_Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node6, 3, "hosted_sv_Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node6, 4, "hosted_sv_Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node6, 5, "hosted_sv_Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node6, 6, "hosted_sv_Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node6, 7, "hosted_sv_Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node6, 8, "hosted_sv_Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node6, 9, "hosted_sv_Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node6, 10, "hosted_sv_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node6, 11, "hosted_sv_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node6, 12, "hosted_sv_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node6, 13, "hosted_sv_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node6, 14, "hosted_sv_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node6, 15, "hosted_sv_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node6, 16, "hosted_sv_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node6, 17, "hosted_sv_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node6, 18, "hosted_sv_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node6, 19, "hosted_sv_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
     file.PrintHeaderKeys();
 
@@ -1017,23 +778,6 @@ public:
 
 
   /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   * the lysis burst size.
-   *
-   * Purpose: To collect data on the lysis burst size to be saved to the
-   * data file that is tracking lysis burst size.
-   */
-  emp::DataMonitor<double>& GetBurstSizeDataNode() {
-    if (!data_node_burst_size) {
-      data_node_burst_size.New();
-    }
-    return *data_node_burst_size;
-  }
-
-
-  /**
    * Input: The pointer to the symbiont that is moving, the size_t to its
    * location.
    *
@@ -1047,55 +791,6 @@ public:
       sym->SetHost(nullptr);
       AddOrgAt(sym, newLoc, i);
     } else sym.Delete();
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<int>& that has the information representing
-   * the lysis burst count.
-   *
-   * Purpose: To collect data on the lysis burst count to be saved to the
-   * data file that is tracking lysis burst count.
-   */
-  emp::DataMonitor<int>& GetBurstCountDataNode() {
-    if (!data_node_burst_count) {
-      data_node_burst_count.New();
-    }
-    return *data_node_burst_count;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   * the symbiont's efficiency.
-   *
-   * Purpose: To collect data on the lysis burst size to be saved to the
-   * data file that is tracking lysis burst size.
-   */
-  emp::DataMonitor<double>& GetEfficiencyDataNode() {
-    if (!data_node_efficiency) {
-      data_node_efficiency.New();
-      OnUpdate([this](size_t){
-        data_node_efficiency->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
-            }//close for
-          }//close if
-          if(sym_pop[i]) {
-            data_node_efficiency->AddDatum(sym_pop[i]->GetEfficiency());
-          }//close if
-      }//close for
-      });
-    }
-    return *data_node_efficiency;
   }
 
 
@@ -1295,131 +990,6 @@ public:
 
 
   /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of lysis for each symbiont.
-   *
-   * Purpose: To collect data on the chance of lysis for each symbiont to be saved to the
-   * data file that is tracking the chance of lysis for each symbiont.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
-    if (!data_node_lysischance) {
-      data_node_lysischance.New();
-      OnUpdate([this](size_t){
-        data_node_lysischance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
-            }//close for
-          }//close if
-          if (sym_pop[i]){
-            data_node_lysischance->AddDatum(sym_pop[i]->GetLysisChance());
-          }
-        }//close for
-      });
-    }
-    return *data_node_lysischance;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of induction for each symbionts.
-   *
-   * Purpose: To collect data on the chance of induction for each symbiont to be saved to the
-   * data file that is tracking chance of induction for each symbiont.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetInductionChanceDataNode() {
-    if (!data_node_inductionchance) {
-      data_node_inductionchance.New();
-      OnUpdate([this](size_t){
-        data_node_inductionchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_inductionchance->AddDatum(syms[j]->GetInductionChance());
-            }//close for
-          }//close if
-          if (sym_pop[i]){
-            data_node_inductionchance->AddDatum(sym_pop[i]->GetInductionChance());
-          }
-        }//close for
-      });
-    }
-    return *data_node_inductionchance;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the difference between incorporation vals for bacteriums and their phage
-   *
-   * Purpose: To collect data on the difference between incorporation vals for each bacteria and their phage
-   * to be saved to the data file that is tracking incorporation val differences.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetIncorporationDifferenceDataNode() {
-    if (!data_node_incorporation_difference) {
-      data_node_incorporation_difference.New();
-      OnUpdate([this](size_t){
-        data_node_incorporation_difference->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            double host_inc_val = pop[i]->GetIncVal();
-
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              double inc_val_difference = abs(host_inc_val - syms[j]->GetIncVal());
-              data_node_incorporation_difference->AddDatum(inc_val_difference);
-            }
-          }//close if
-        }//close for
-      });
-    }
-    return *data_node_incorporation_difference;
-  }
-
-
-
-  /**
-   * Input: The double representing the number of resources each host gets in each update.
-   *
-   * Output: None
-   *
-   * Purpose: To set the resources that each host gets per update.
-   */
-  emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
-    if (!data_node_Pgg) {
-      data_node_Pgg.New();
-      OnUpdate([this](size_t){
-        data_node_Pgg->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) { //track hosted syms
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_Pgg->AddDatum(syms[j]->GetDonation());
-            }//close for
-          }//close if
-          if(sym_pop[i]){ //track free-living syms
-            data_node_Pgg->AddDatum(sym_pop[i]->GetDonation());
-          }//close if
-        }//close for
-      });
-    }
-    return *data_node_Pgg;
-  }
-
-
-  /**
    * Input: The pointer to the organism that is being birthed, and the size_t location
    * of the parent symbiont.
    *
@@ -1451,7 +1021,7 @@ public:
    *
    * Purpose: To move a symbiont, either into a host, or into a free world position
    */
-  void FreeSymLocationHandler(size_t i){
+  void MoveFreeSym(size_t i){
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
@@ -1496,6 +1066,22 @@ public:
     return sym;
   }
 
+  /**
+   * Input: The size_t representing the location of the symbiont to be
+   * deleted from the world.
+   *
+   * Output: None
+   *
+   * Purpose: To delete a symbiont from the world.
+   */
+  void DoSymDeath(size_t i){
+    if(sym_pop[i]){
+      sym_pop[i].Delete();
+      sym_pop[i] = nullptr;
+      num_orgs--;
+    }
+  }
+
 
   /**
    * Input: None
@@ -1513,7 +1099,6 @@ public:
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
-
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and place offspring as necessary?
       if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
@@ -1522,8 +1107,11 @@ public:
           DoDeath(i);
         }
       }
-      if(sym_pop[i]){
-        sym_pop[i]->Process(i);
+      if(sym_pop[i]){ //for sym movement reasons, syms are deleted the update after they are set to dead
+        if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
+        else sym_pop[i]->Process(i);
+        //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
+        //TODO: fix the reason why the corpse can't be immediately cleaned up
       }
     } // for each cell in schedule
   } // Update()
