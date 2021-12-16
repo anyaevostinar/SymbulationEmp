@@ -131,7 +131,7 @@ public:
     infection_chance = my_config->SYM_INFECTION_CHANCE();
     if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
     if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
-    
+
     mut_size = my_config->MUTATION_SIZE();
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
@@ -381,7 +381,7 @@ public:
   void mutate(){
     double local_rate = mut_rate;
     double local_size = mut_size;
-    
+
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
@@ -489,19 +489,21 @@ public:
   }
 
   /**
-   * Input: The size_t representing the location of the symbiont.
+   * Input: The size_t representing the location of the symbiont, and the size_t
+   * representation of the symbiont's position in the host (default -1 if it doesn't have a host)
    *
    * Output: None
    *
    * Purpose: To process a symbiont, meaning to check for reproduction, distribute resources,
    * and to allow for movement
    */
+   //size_t rank=-1
   void Process(size_t location) {
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
     }
-
+    //emp::WorldPosition
     //Check if horizontal transmission can occur and do it
     HorizontalTransmission(location);
     //Age the organism
@@ -569,9 +571,28 @@ public:
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
         emp::Ptr<Organism> sym_baby = reproduce();
-        my_world->SymDoBirth(sym_baby, location);
+
+        //for systematic puposes, pass locaciton as WorldPosition
+        emp::WorldPosition pos = GetWorldPosition(location);
+        my_world->SymDoBirth(sym_baby, pos);
       }
     }
+  }
+
+  /**
+   * Input: The location of the organism (and it's Host) as a size_t
+   *
+   * Output: A WorldPosition object describing the symbiont's position and population ID.
+   *
+   * Purpose: To classify this symbiont depending on whether it has
+   */
+  emp::WorldPosition GetWorldPosition(size_t location){
+    emp::WorldPosition pos;
+    //ID is the position of a symbiont's host (or, for fls, it's position in sym_pop)
+    //index is the sym's position within that cell- 0 (free living), 1 (in the first position in the host's symbiont list)...
+    pos.SetIndex(location);
+    pos.SetPopID(0);
+    return pos;
   }
 };
 #endif

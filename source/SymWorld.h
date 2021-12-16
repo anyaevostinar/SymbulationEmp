@@ -15,7 +15,7 @@
 class SymWorld : public emp::World<Organism>{
 protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
-  using fun_calc_info_t = std::function<int(emp::Ptr<Organism> &)>;
+  using fun_calc_info_t = std::function<int(Organism &)>;
 
 
   /**
@@ -79,7 +79,14 @@ protected:
     * Purpose: Represents the systematics object tracking hosts.
     *
   */
-  emp::Ptr<emp::Systematics<emp::Ptr<Organism>, int>> host_sys = new emp::Systematics(GetCalcInfoFun());
+  emp::Ptr<emp::Systematics<Organism, int>> host_sys = new emp::Systematics(GetCalcInfoFun());
+
+  /**
+    *
+    * Purpose: Represents the systematics object tracking symbionts.
+    *
+  */
+  emp::Ptr<emp::Systematics<Organism, int>> sym_sys = new emp::Systematics(GetCalcInfoFun());
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -109,6 +116,7 @@ public:
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
+    AddSystematics(host_sys);
   }
 
 
@@ -247,8 +255,20 @@ public:
    *
    * Purpose: To retrieve the host systematic
    */
-  emp::Ptr<emp::Systematics<emp::Ptr<Organism>,int>> GetHostSys(){
+  emp::Ptr<emp::Systematics<Organism,int>> GetHostSys(){
     return host_sys;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The systematic object tracking hosts
+   *
+   * Purpose: To retrieve the symbiont systematic
+   */
+  emp::Ptr<emp::Systematics<Organism,int>> GetSymSys(){
+    return sym_sys;
   }
 
 
@@ -262,17 +282,14 @@ public:
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
-      calc_info_fun = [ /* other variables inside local scope that you want to use here */ ](emp::Ptr<Organism> & org){
+      calc_info_fun = [ /* other variables inside local scope that you want to use here */ ](Organism & org){
         //classify orgs into bins base on interaction values,
         //same arrangement as histograms (bin 0 = ic -1 to -0.9)
         //inclusive of lower bound, exclusive of upper
-        double int_val = org->GetIntVal();
-        double bin = 0;
-        while (int_val >= (-1 + (bin/10))){
-          bin++;
-          if(bin > 19) break;
-        }
-        return bin-1;
+        double int_val = org.GetIntVal();
+        int bin = (int_val + 1)*10 + (0.0000000000001);
+        if (bin > 19) bin = 19;
+        return bin;
       };
     }
     return calc_info_fun;
@@ -317,9 +334,7 @@ public:
    */
   void Resize(size_t new_width, size_t new_height) {
     size_t new_size = new_width * new_height;
-    pop.resize(new_size);
-    sym_pop.resize(new_size);
-    pop_sizes.resize(2);
+    Resize(new_size);
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
 
@@ -363,13 +378,30 @@ public:
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
 
     } else { //if it is not a host, then add it to the sym population
+      //for symbionts, their place in their host's world is indicated by their ID,
+      //and their position in the host indicated by index
       size_t pos_index = pos.GetIndex();
 
-      //if it is adding a sym to an empty cell, increment the num_org count
-      //otherwise, delete the sym currently occupying the cell
       if(!sym_pop[pos_index]) ++num_orgs;
-      else sym_pop[pos_index].Delete();
+      else {
+        sym_pop[pos_index].Delete();
+        sym_sys->RemoveOrgAfterRepro(pos);
+      }
 
+      //add sym to systematic
+      //if the parent pos is free living and empty, this is a swap, not a birth
+      //so don't add the sym to sym_sys, instead swap in
+
+      sym_sys->AddOrg(*new_org, pos);
+      sym_sys->SetNextParent(p_pos);
+
+  /*    size_t p_pos_index = p_pos.GetIndex();
+      if(p_pos_index < sym_pop.size() && sym_pop[p_pos_index] != nullptr){
+        sym_sys->SwapPositions(pos, p_pos);
+      } else {
+        sym_sys->AddOrg(*new_org, pos);
+        sym_sys->SetNextParent(p_pos);
+      }*/
       //set the cell to point to the new sym
       sym_pop[pos_index] = nullptr;
       sym_pop[pos_index] = new_org;
@@ -436,7 +468,10 @@ public:
     if(!do_free_living_syms){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
-      if(IsOccupied(new_loc)) pop[new_loc]->AddSymbiont(new_sym);
+      if(IsOccupied(new_loc)) {
+        pop[new_loc]->AddSymbiont(new_sym);
+        //std::cout << "adding sym to host" << std::endl;
+      }
     } else {
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
@@ -785,11 +820,12 @@ public:
    *
    * Purpose: To move a symbiont into a new world position.
    */
-  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
-    emp::WorldPosition newLoc = GetRandomNeighborPos(i);
-    if(newLoc.IsValid()){
+  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
+    size_t i = parent_pos.GetIndex();
+    emp::WorldPosition new_pos = GetRandomNeighborPos(i);
+    if(new_pos.IsValid()){
       sym->SetHost(nullptr);
-      AddOrgAt(sym, newLoc, i);
+      AddOrgAt(sym, new_pos, parent_pos);
     } else sym.Delete();
   }
 
@@ -1000,16 +1036,19 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-  void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
+  void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+    size_t i = parent_pos.GetIndex();
     if(!do_free_living_syms){
-      int newLoc = GetNeighborHost(i);
-      if (newLoc > -1) { //-1 means no living neighbors
-        pop[newLoc]->AddSymbiont(sym_baby);
+      int new_pos = GetNeighborHost(i);
+      if (new_pos > -1) { //-1 means no living neighbors
+        pop[new_pos]->AddSymbiont(sym_baby);
+        //std::cout << "sym added to host" << std::endl;
       } else {
         sym_baby.Delete();
+        //std::cout << "sym baby deleted" << std::endl;
       }
     } else {
-      MoveIntoNewFreeWorldPos(sym_baby, i);
+      MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
     }
   }
 
@@ -1092,6 +1131,7 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
+    sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
 
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());

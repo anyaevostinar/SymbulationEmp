@@ -6,6 +6,7 @@
 #include "../pgg_mode/Pgghost.h"
 #include "../pgg_mode/Pggsym.h"
 
+
 TEST_CASE("PullResources") {
   GIVEN(" a world ") {
     emp::Random random(19);
@@ -327,11 +328,10 @@ TEST_CASE( "InjectSymbiont" ){
     emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
     w.AddOrgAt(host, 0);
 
-    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
-
     WHEN( "free living syms are not allowed" ){
       config.FREE_LIVING_SYMS(0);
       w.SetFreeLivingSyms(false);
+      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
       THEN( "syms are injected into a random host" ){
         w.InjectSymbiont(sym);
@@ -344,6 +344,7 @@ TEST_CASE( "InjectSymbiont" ){
     WHEN( "free living syms are allowed" ){
       config.FREE_LIVING_SYMS(1);
       w.SetFreeLivingSyms(true);
+      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
       THEN( "syms can be injected into a random empty cell" ){
         w.InjectSymbiont(sym);
@@ -367,13 +368,15 @@ TEST_CASE( "DoBirth" ){
     SymWorld w(random);
     w.Resize(2,2);
     w.SetFreeLivingSyms(true);
+    emp::Ptr<Organism> h2 = new Host(&random, &w, &config, int_val);
+    w.AddOrgAt(h2, 3);
     emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
 
     WHEN( "born into an empty spot" ){
       THEN( "occupies that spot" ){
         w.DoBirth(host, 2);
 
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
         bool host_isborn = false;
         for(size_t i = 0; i < 4; i++){
           if(&w.GetOrg(i) == host) {
@@ -390,18 +393,18 @@ TEST_CASE( "DoBirth" ){
         w.AddOrgAt(other_host, 0);
         w.DoBirth(host, 2);
 
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
 
         bool host_isborn = false;
         bool otherhost_isdead = true;
         for(size_t i = 0; i < 4; i++){
           if(w.GetPop()[i] == host) {
             host_isborn = true;
-          } else if (w.GetPop()[i] != nullptr){
+          } else if (w.GetPop()[i] != nullptr && w.GetPop()[i] != h2){
             otherhost_isdead = false;
           }
         }
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
         REQUIRE(host_isborn == true);
         REQUIRE(otherhost_isdead == true);
       }
@@ -461,8 +464,10 @@ TEST_CASE( "SymDoBirth" ) {
 
       WHEN("sym is inserted into an empty world"){
         THEN("it occupies some empty cell"){
-          w.SymDoBirth(sym1, 0);
-          REQUIRE(w.GetNumOrgs() == 1);
+          emp::WorldPosition parent_pos = emp::WorldPosition(3, 3);
+          w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), parent_pos);
+          w.SymDoBirth(sym1, parent_pos);
+          REQUIRE(w.GetNumOrgs() == 2);
         }
       }
       WHEN("sym is inserted into a not-empty world"){
@@ -483,9 +488,11 @@ TEST_CASE( "SymDoBirth" ) {
         }
         THEN("it might be insterted into a cell with a sym, killing and replacing it"){
           w.Resize(2,1);
-          w.SymDoBirth(sym1, 0);
-          w.SymDoBirth(sym2, 2);
+          w.AddOrgAt(sym1, 0);
+          w.AddOrgAt(sym2, 1);
+
           emp::Ptr<Organism> new_sym = new Symbiont(&random, &w, &config, int_val);
+
           w.SymDoBirth(new_sym, 0);
 
           REQUIRE(w.GetNumOrgs() == 2);
@@ -882,5 +889,210 @@ TEST_CASE("DoSymDeath"){
         REQUIRE(world_sym_deleted == nullptr);
       }
     }
+  }
+}
+
+TEST_CASE("Host Phylogeny"){
+  emp::Random random(17);
+  SymConfigBase config;
+  config.MUTATION_SIZE(0.09);
+  config.MUTATION_RATE(1);
+  int int_val = 0;
+  SymWorld w(random);
+  w.Resize(2,2);
+
+  emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+  emp::Ptr<emp::Systematics<Organism,int>> host_sys = w.GetHostSys();
+
+  //ORGANISMS ADDED TO SYSTEMATICS
+  WHEN("an organism is added to the world"){
+    WHEN("the cell it's added to is occupied"){
+      size_t pos = 0;
+
+      emp::Ptr<Organism> occupying_host = new Host(&random, &w, &config, -1);
+      w.AddOrgAt(occupying_host, pos);
+      size_t expected_occupying_taxon_info = 0;
+      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+
+      REQUIRE(w.GetNumOrgs() == 1);
+      REQUIRE(host_sys->GetNumActive() == 1);
+      REQUIRE(expected_occupying_taxon_info == taxon_info);
+
+      w.AddOrgAt(host, pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      size_t expected_taxon_info = 10;
+
+      THEN("the occupying organism is removed from the systematic"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_sys->GetNumActive() == 1);
+        REQUIRE(expected_taxon_info == taxon_info);
+      }
+    }
+    WHEN("the cell it's added to is empty"){
+      size_t pos = 0;
+
+      REQUIRE(w.GetNumOrgs() == 0);
+      REQUIRE(host_sys->GetNumActive() == 0);
+
+      w.AddOrgAt(host, pos);
+      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      size_t expected_taxon_info = 10;
+
+      THEN("the occupying organism is removed from the systematic"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_sys->GetNumActive() == 1);
+        REQUIRE(expected_taxon_info == taxon_info);
+      }
+    }
+
+    //ORGANISMS ADDED TO TAXA
+    THEN("the organsim is added to the correct taxon"){
+      size_t pos = 0;
+
+      //taxon info 0
+      double int_val = -1;
+      int expected_taxon_info = 0;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 0
+      int_val = -0.98;
+      expected_taxon_info = 0;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 1
+      int_val = -0.9;
+      expected_taxon_info = 1;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 2
+      int_val = -0.8;
+      expected_taxon_info = 2;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 16
+      int_val = 0.65 ;
+      expected_taxon_info = 16;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 19
+      int_val = 0.9;
+      expected_taxon_info = 19;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 19
+      int_val = 1;
+      expected_taxon_info = 19;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+    }
+  }
+
+  //ORGANISMS REMOVED FROM PHYLOGENIES/TAXA
+  WHEN("an organism dies during its Process()"){
+    THEN("it is no longer tracked"){
+      size_t pos = 0;
+      w.AddOrgAt(host, pos);
+    }
+  }
+
+  //ORGANISMS AND RELATIONSHIPS TRACKED
+  WHEN("Several generations pass"){
+    THEN("The phylogenetic relationships are tracked and accurate"){
+      w.Resize(10);
+      int num_descendants = 4;
+      //add the first host
+      w.AddOrgAt(new Host(&random, &w, &config, 0), 0);
+
+      //populate the world with descendents with various interaction values
+      double int_vals[num_descendants] = {0.1, -0.05, -0.2, 0.14};
+      //bins: parent org in 10, then in int_vals order: 11, 9, 8, 11
+      size_t parents[num_descendants] = {0, 1, 1, 3};
+      for(int i = 0; i < num_descendants; i++){
+        //std::cout << i << " intval " << int_vals[i] << " parents " << parents[i] << std::endl;
+        w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), (i+1), parents[i]);
+      }
+
+      char lineages[][30] = {"Lineage:\n10\n",
+                             "Lineage:\n11\n10\n",
+                             "Lineage:\n9\n11\n10\n",
+                             "Lineage:\n8\n11\n10\n",
+                             "Lineage:\n11\n8\n11\n10\n",
+                            };
+
+
+      for(int i = 0; i < (num_descendants+1); i++){
+        std::stringstream result;
+        host_sys->PrintLineage(host_sys->GetTaxonAt(i), result);
+        REQUIRE(result.str() == lineages[i]);
+      }
+    }
+  }
+}
+
+TEST_CASE("Symbiont Phylogeny"){
+  emp::Random random(17);
+  SymConfigBase config;
+  config.MUTATION_SIZE(0.09);
+  config.MUTATION_RATE(1);
+  config.FREE_LIVING_SYMS(1);
+  int int_val = 0;
+  SymWorld w(random);
+  w.Resize(2,2);
+
+  emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = w.GetSymSys();
+  WHEN("symbionts are added to the world"){
+    WHEN("they are free living"){
+      size_t pos = 0;
+      REQUIRE(w.GetNumOrgs() == 0);
+      REQUIRE(sym_sys->GetNumActive() == 0);
+      w.AddOrgAt(sym, pos);
+      THEN("they are tracked by the sym systematic"){
+        REQUIRE(w.GetNumOrgs() == 1);
+      //  REQUIRE(sym_sys->GetTaxonAt(pos) != nullptr);
+      //  REQUIRE(sym_sys->GetTaxonAt(pos)->GetInfo() == 10);
+        REQUIRE(sym_sys->GetNumActive() == 1);
+      }
+    }
+    WHEN("they are hosted"){
+      THEN("they are tracked by the sym systematic"){}
+    }
+    THEN("they are classified correctly"){}
+  }
+  WHEN("symbionts are removed from the world"){
+    WHEN("they were free living"){
+      THEN("they are no longer tracked by the sym systematic"){}
+    }
+    WHEN("they were hosted"){
+      THEN("they are no longer tracked by the sym systematic"){}
+    }
+  }
+  WHEN("symbionts move"){
+    WHEN("they move between free world cells"){
+
+    }
+    WHEN("they move across the world boundary"){
+      WHEN("they move from a host to the free sym world"){}
+      WHEN("they move from a free sym position into a host"){}
+    }
+    WHEN("they move from one host to another"){
+      //only happens when free living is off
+    }
+  }
+  WHEN("generations pass"){
+
   }
 }
