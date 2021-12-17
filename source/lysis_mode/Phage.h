@@ -321,6 +321,7 @@ public:
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
     return sym_baby;

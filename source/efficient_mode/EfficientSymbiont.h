@@ -185,6 +185,7 @@ public:
   emp::Ptr<Organism> reproduce(std::string mode) {
     emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->mutate(mode);
     return sym_baby;
   }
@@ -218,7 +219,7 @@ public:
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Organism> sym_baby = reproduce("horizontal");
         my_world->SymDoBirth(sym_baby, location);
-      }
+      } 
     }
   }
 };
