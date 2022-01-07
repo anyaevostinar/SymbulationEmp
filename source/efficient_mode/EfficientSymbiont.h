@@ -204,13 +204,13 @@ public:
   }
 
   /**
-   * Input: The location of the organism (and it's Host) as a size_t
+   * Input: The location of the organism as a WorldPosition
    *
    * Output: None
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(size_t location) {
+  void HorizontalTransmission(emp::WorldPosition location) {
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources

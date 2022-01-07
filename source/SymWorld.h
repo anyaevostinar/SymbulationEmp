@@ -62,6 +62,13 @@ protected:
 
   /**
     *
+    * Purpose: Represents if phylogeneis should be tracked. This can be set with SetTrackPhylogeny()
+    *
+  */
+  bool track_phylogeny = false;
+
+  /**
+    *
     * Purpose: Represents the free living sym environment, parallel to "pop" for hosts
     *
   */
@@ -116,7 +123,6 @@ public:
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
-    AddSystematics(host_sys);
   }
 
 
@@ -194,6 +200,22 @@ public:
    * permitted to move around.
    */
   void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
+
+  /**
+   * Input: The bool representing whether phylogenies should be tracked.
+   *
+   * Output: None
+   *
+   * Purpose: To set the value representing whether phylogenies
+   * should be tracked.
+   */
+  void SetTrackPhylogeny(bool _in) {
+    track_phylogeny = _in;
+    if (track_phylogeny == true){
+      AddSystematics(host_sys);
+      sym_sys->SetStorePosition(false);
+    }
+  }
 
 
   /**
@@ -282,7 +304,7 @@ public:
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
-      calc_info_fun = [ /* other variables inside local scope that you want to use here */ ](Organism & org){
+      calc_info_fun = [](Organism & org){
         //classify orgs into bins base on interaction values,
         //same arrangement as histograms (bin 0 = ic -1 to -0.9)
         //inclusive of lower bound, exclusive of upper
@@ -293,6 +315,19 @@ public:
       };
     }
     return calc_info_fun;
+  }
+
+  /**
+   * Input: The symbiont to be added to the systematic
+   *
+   * Output: the taxon the symbiont is added to.
+   *
+   * Purpose: To add a symbiont to the systematic and to set it to track its taxon
+   */
+  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, parent_taxon);
+    sym->SetTaxon(taxon);
+    return taxon;
   }
 
 
@@ -369,42 +404,27 @@ public:
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
 
+    //SYMBIONTS have position in the overall world as their ID
+    //HOSTS have position in the overall world as their index
+
     //if the pos it out of bounds, expand the worlds so that they can fit it.
-    if(pos.GetIndex() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
-      Resize(pos.GetIndex() + 1);
+    if(pos.GetPopID() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
+      if(pos.GetPopID() > pos.GetIndex()) Resize(pos.GetPopID() + 1);
+      else Resize(pos.GetIndex() + 1);
     }
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
 
     } else { //if it is not a host, then add it to the sym population
-      //for symbionts, their place in their host's world is indicated by their ID,
-      //and their position in the host indicated by index
-      size_t pos_index = pos.GetIndex();
+      //for symbionts, their place in their host's world is indicated by their ID
+      size_t pos_id = pos.GetPopID();
+      if(!sym_pop[pos_id]) ++num_orgs;
+      else sym_pop[pos_id].Delete();
 
-      if(!sym_pop[pos_index]) ++num_orgs;
-      else {
-        sym_pop[pos_index].Delete();
-        sym_sys->RemoveOrgAfterRepro(pos);
-      }
-
-      //add sym to systematic
-      //if the parent pos is free living and empty, this is a swap, not a birth
-      //so don't add the sym to sym_sys, instead swap in
-
-      sym_sys->AddOrg(*new_org, pos);
-      sym_sys->SetNextParent(p_pos);
-
-  /*    size_t p_pos_index = p_pos.GetIndex();
-      if(p_pos_index < sym_pop.size() && sym_pop[p_pos_index] != nullptr){
-        sym_sys->SwapPositions(pos, p_pos);
-      } else {
-        sym_sys->AddOrg(*new_org, pos);
-        sym_sys->SetNextParent(p_pos);
-      }*/
       //set the cell to point to the new sym
-      sym_pop[pos_index] = nullptr;
-      sym_pop[pos_index] = new_org;
+      sym_pop[pos_id] = nullptr;
+      sym_pop[pos_id] = new_org;
     }
   }
 
@@ -419,13 +439,14 @@ public:
    *
    * Purpose: To introduce new organisms to the world.
    */
-  emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
+  emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, emp::WorldPosition p_pos) {
+    size_t parent_pos = p_pos.GetIndex();
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos; // Position of each offspring placed.
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
-    if (pos.IsValid() && pos.GetIndex() != parent_pos) {
+    if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
     }
@@ -465,21 +486,21 @@ public:
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
+    if (track_phylogeny) AddSymToSystematic(new_sym);
     if(!do_free_living_syms){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
         pop[new_loc]->AddSymbiont(new_sym);
-        //std::cout << "adding sym to host" << std::endl;
-      }
+      } else new_sym.Delete();
     } else {
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
-      if(new_loc < sym_pop.size()) AddOrgAt(new_sym, new_loc);
+      if(new_loc < sym_pop.size()) {
+        AddOrgAt(new_sym, new_loc);
+      } else new_sym.Delete();
     }
   }
-
-
 
   /**
    * Input: The address of the string representing the file to be
@@ -528,9 +549,6 @@ public:
 
     return file;
   }
-
-
-
 
 
   /**
@@ -582,12 +600,6 @@ public:
 
     return file;
   }
-
-
-
-
-
-
 
 
   /**
@@ -813,16 +825,17 @@ public:
 
 
   /**
-   * Input: The pointer to the symbiont that is moving, the size_t to its
-   * location.
+   * Input: The pointer to the symbiont that is moving, the WorldPosition of its
+   * current location.
    *
    * Output: None
    *
    * Purpose: To move a symbiont into a new world position.
    */
   void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
-    size_t i = parent_pos.GetIndex();
-    emp::WorldPosition new_pos = GetRandomNeighborPos(i);
+    size_t i = parent_pos.GetPopID();
+    emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
+    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
     if(new_pos.IsValid()){
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
@@ -1026,7 +1039,7 @@ public:
 
 
   /**
-   * Input: The pointer to the organism that is being birthed, and the size_t location
+   * Input: The pointer to the organism that is being birthed, and the WorldPosition location
    * of the parent symbiont.
    *
    * Output: None
@@ -1037,15 +1050,13 @@ public:
    * no eligible near-by hosts.
    */
   void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
-    size_t i = parent_pos.GetIndex();
+    size_t i = parent_pos.GetPopID();
     if(!do_free_living_syms){
       int new_pos = GetNeighborHost(i);
       if (new_pos > -1) { //-1 means no living neighbors
         pop[new_pos]->AddSymbiont(sym_baby);
-        //std::cout << "sym added to host" << std::endl;
       } else {
         sym_baby.Delete();
-        //std::cout << "sym baby deleted" << std::endl;
       }
     } else {
       MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
@@ -1054,13 +1065,14 @@ public:
 
 
   /**
-   * Input: The size_t location of the symbiont to be moved.
+   * Input: The WorldPosition location of the symbiont to be moved.
    *
    * Output: None
    *
    * Purpose: To move a symbiont, either into a host, or into a free world position
    */
-  void MoveFreeSym(size_t i){
+  void MoveFreeSym(emp::WorldPosition pos){
+    size_t i = pos.GetPopID();
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
@@ -1068,7 +1080,7 @@ public:
       else pop[i]->AddSymbiont(sym);
     }
     else if(move_free_syms) {
-      MoveIntoNewFreeWorldPos(ExtractSym(i), i);
+      MoveIntoNewFreeWorldPos(ExtractSym(i), pos);
     }
   }
 
@@ -1131,11 +1143,9 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
-    sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
-
+    if(track_phylogeny) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
@@ -1148,8 +1158,9 @@ public:
         }
       }
       if(sym_pop[i]){ //for sym movement reasons, syms are deleted the update after they are set to dead
+        emp::WorldPosition sym_pos = emp::WorldPosition(0,i);
         if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
-        else sym_pop[i]->Process(i);
+        else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
         //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
         //TODO: fix the reason why the corpse can't be immediately cleaned up
       }

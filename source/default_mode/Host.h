@@ -646,7 +646,6 @@ public:
       hostDonation = hostIntVal * sym_piece;
       SetResInProcess(sym_piece - hostDonation);
     }
-
     double sym_return = sym->ProcessResources(hostDonation, this);
     this->AddPoints(sym_return + GetResInProcess());
     SetResInProcess(0);
@@ -661,7 +660,8 @@ public:
    * Purpose: To process the host, meaning determining eligibility for reproduction, checking for vertical
    * transmission, removing dead syms, and processing alive syms.
    */
-  void Process(size_t location) {
+  void Process(emp::WorldPosition pos) {
+    size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function
     double desired_resources = my_config->RES_DISTRIBUTE();
     double world_resources = my_world->PullResources(desired_resources); //recieve resources from the world
@@ -679,7 +679,6 @@ public:
           emp::Ptr<Organism> parent = GetSymbionts()[j];
           parent->VerticalTransmission(host_baby);
         }
-
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
       }
     if (GetDead()){
@@ -692,8 +691,11 @@ public:
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
+          //sym position should have host index as id and
+          //position in syms list + 1 as index (0 as fls index)
+          emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
           if(!curSym->GetDead()){
-            curSym->Process(location);
+            curSym->Process(sym_pos);
           }
           if(curSym->GetDead()){
             syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list

@@ -586,7 +586,3 @@ TEST_CASE("Symbiont GrowOlder"){
       }
     }
 }
-
-TEST_CASE("GetWorldPosition"){
-    REQUIRE( 1 == 1);
-}

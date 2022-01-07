@@ -119,6 +119,13 @@ protected:
   */
   emp::Ptr<SymConfigBase> my_config = NULL;
 
+  /**
+    *
+    * Purpose: Tracks the taxon of this organism.
+    *
+  */
+  emp::Ptr<emp::Taxon<int>> my_taxon = NULL;
+
 public:
   /**
    * The constructor for symbiont
@@ -188,6 +195,17 @@ public:
    */
   Symbiont & operator=(Symbiont &&) = default;
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To destruct the symbiont and remove the symbiont from the systematic.
+   */
+  ~Symbiont() {
+    if(my_config->PHYLOGENY() == 1) my_world->GetSymSys()->RemoveOrg(my_taxon);
+  }
+
 
   /**
    * Input: None
@@ -249,6 +267,24 @@ public:
    */
   emp::Ptr<Organism> GetHost() {return my_host;}
 
+
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the symbiont's taxon
+   *
+   * Purpose: To retrieve the symbiont's taxon
+   */
+   emp::Ptr<emp::Taxon<int>> GetTaxon() {return my_taxon;}
+
+   /**
+    * Input: A pointer to the taxon that this organism should belong to.
+    *
+    * Output: None
+    *
+    * Purpose: To set the symbiont's taxon
+    */
+   void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {my_taxon = _in;}
 
   //  std::set<int> GetResTypes() const {return res_types;}
 
@@ -498,12 +534,12 @@ public:
    * and to allow for movement
    */
    //size_t rank=-1
-  void Process(size_t location) {
+  void Process(emp::WorldPosition location) {
+    //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
     }
-    //emp::WorldPosition
     //Check if horizontal transmission can occur and do it
     HorizontalTransmission(location);
     //Age the organism
@@ -538,6 +574,10 @@ public:
     sym_baby->SetPoints(0);
     sym_baby->SetAge(0);
     sym_baby->mutate();
+
+    if(my_config->PHYLOGENY() == 1){
+      emp::Ptr<emp::Taxon<int>> baby_taxon = my_world->AddSymToSystematic(sym_baby, my_taxon);
+    }
     return sym_baby;
   }
 
@@ -563,7 +603,7 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(size_t location) {
+  void HorizontalTransmission(emp::WorldPosition location) {
     if (h_trans) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= sym_h_res) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -571,28 +611,9 @@ public:
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
         emp::Ptr<Organism> sym_baby = reproduce();
-
-        //for systematic puposes, pass locaciton as WorldPosition
-        emp::WorldPosition pos = GetWorldPosition(location);
-        my_world->SymDoBirth(sym_baby, pos);
+        my_world->SymDoBirth(sym_baby, location);
       }
     }
-  }
-
-  /**
-   * Input: The location of the organism (and it's Host) as a size_t
-   *
-   * Output: A WorldPosition object describing the symbiont's position and population ID.
-   *
-   * Purpose: To classify this symbiont depending on whether it has
-   */
-  emp::WorldPosition GetWorldPosition(size_t location){
-    emp::WorldPosition pos;
-    //ID is the position of a symbiont's host (or, for fls, it's position in sym_pop)
-    //index is the sym's position within that cell- 0 (free living), 1 (in the first position in the host's symbiont list)...
-    pos.SetIndex(location);
-    pos.SetPopID(0);
-    return pos;
   }
 };
 #endif
