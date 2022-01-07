@@ -65,18 +65,11 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_lysischance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_inductionchance;
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-  emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
-  emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
-  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
-  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -111,18 +104,12 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
-    if (data_node_lysischance) data_node_lysischance.Delete();
-    if (data_node_inductionchance) data_node_inductionchance.Delete();
-    if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
-    if (data_node_burst_size) data_node_burst_size.Delete();
-    if (data_node_burst_count) data_node_burst_count.Delete();
     if (data_node_cfu) data_node_cfu.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
-    if (data_node_Pgg) data_node_Pgg.Delete();
   }
 
 
@@ -231,22 +218,22 @@ public:
 
 
   /**
-   * Input: None
+   * Input: The amount of resourcces an organism wants from the world.
    *
-   * Output: If there are unlimited resources, this will return resources_per_host_per_update.
-   * Else, if the total resources is greater than the resources per host, the resources_per_host_per_update
-   * will be returned. If total_res is less than resources_per_host_per_update, but greater than 0,
+   * Output: If there are unlimited resources or the total resources are greater than those requested,
+   * returns the amount of desired resources.
+   * If total_res is less than the desired resources, but greater than 0,
    * then total_res will be returned. If none of these are true, then 0 will be returned.
    *
-   * Purpose: To determine how many resources to distribute to each host.
+   * Purpose: To determine how many resources to distribute to each organism.
    */
-  int PullResources() {
+  int PullResources(int desired_resources) {
     if(!limited_res) {
-      return resources_per_host_per_update;
+      return desired_resources;
     } else {
-      if (total_res>=resources_per_host_per_update) {
-        total_res = total_res - resources_per_host_per_update;
-        return resources_per_host_per_update;
+      if (total_res>=desired_resources) {
+        total_res = total_res - desired_resources;
+        return desired_resources;
       } else if (total_res>0) {
         int resources_to_return = total_res;
         total_res = 0;
@@ -400,7 +387,6 @@ public:
 
 
 
-
   /**
    * Input: The address of the string representing the file to be
    * created's name
@@ -498,7 +484,6 @@ public:
     file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
     file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
     file.PrintHeaderKeys();
 
     return file;
@@ -980,13 +965,29 @@ public:
   void MoveFreeSym(size_t i){
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
-      pop[i]->AddSymbiont(ExtractSym(i));
+      emp::Ptr<Organism> sym = ExtractSym(i);
+      if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies
+      else pop[i]->AddSymbiont(sym);
     }
     else if(move_free_syms) {
       MoveIntoNewFreeWorldPos(ExtractSym(i), i);
     }
   }
 
+  /*
+  * Input: The size_t location of the sym to be pointed to.
+  *
+  * Output: A pointer to the sym.
+  *
+  * Purpose: To allow access to syms at a specified location in the sym_pop.
+  */
+  emp::Ptr<Organism> GetSymAt(size_t location){
+    if (location >= 0 && location < sym_pop.size()){
+      return sym_pop[location];
+    } else {
+      throw "Attempted to get out of bounds sym.";
+    }
+  }
 
   /**
    * Input: The size_t representing the location of the symbiont to be
@@ -1006,6 +1007,22 @@ public:
     return sym;
   }
 
+  /**
+   * Input: The size_t representing the location of the symbiont to be
+   * deleted from the world.
+   *
+   * Output: None
+   *
+   * Purpose: To delete a symbiont from the world.
+   */
+  void DoSymDeath(size_t i){
+    if(sym_pop[i]){
+      sym_pop[i].Delete();
+      sym_pop[i] = nullptr;
+      num_orgs--;
+    }
+  }
+
 
   /**
    * Input: None
@@ -1023,7 +1040,6 @@ public:
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
-
       //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
       //Could put repro in Host process and population calls Symbiont process and place offspring as necessary?
       if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
@@ -1032,8 +1048,11 @@ public:
           DoDeath(i);
         }
       }
-      if(sym_pop[i]){
-        sym_pop[i]->Process(i);
+      if(sym_pop[i]){ //for sym movement reasons, syms are deleted the update after they are set to dead
+        if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
+        else sym_pop[i]->Process(i);
+        //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
+        //TODO: fix the reason why the corpse can't be immediately cleaned up
       }
     } // for each cell in schedule
   } // Update()

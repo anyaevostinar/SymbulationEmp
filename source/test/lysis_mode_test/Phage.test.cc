@@ -280,14 +280,14 @@ TEST_CASE("phage_mutate", "[lysis]"){
     config.CHANCE_OF_INDUCTION(0.5);
     config.PHAGE_INC_VAL(0.5);
 
-    WHEN("Mutation rate is not zero and chance of lysis/induction/incorporation mutations are enabled") {
+    WHEN("Mutation size is not zero and chance of lysis/induction/incorporation mutations are enabled") {
         double int_val = 0;
         config.MUTATION_SIZE(0.002);
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
         config.MUTATE_INC_VAL(1);
 
-        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        emp::Ptr<Organism> p = new Phage(random, world, &config, int_val);
         p->mutate();
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(p->GetLysisChance() != 0.5);
@@ -309,7 +309,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        emp::Ptr<Organism> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
@@ -329,7 +329,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
         config.MUTATE_INC_VAL(1);
-        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        emp::Ptr<Organism> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
@@ -349,7 +349,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+        emp::Ptr<Organism> p = new Phage(random, world, &config, int_val);
         p->mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;

@@ -275,7 +275,7 @@ public:
 
 
   /**
-   * Input: None
+   * Input: Optional string that indicates mode of reproduction and therefore which mutation rate and size should be used. Options are vertical (for prophage) or horizontal (for lytic phage)
    *
    * Output: None
    *
@@ -285,21 +285,23 @@ public:
    * on or off.
    */
   void mutate() {
-   Symbiont::mutate();
-    if (random->GetDouble(0.0, 1.0) <= mut_rate) {
+    Symbiont::mutate();
+    double local_rate = mut_rate;
+    double local_size = mut_size;
+    if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
       if(mutate_chance_of_lysis){
-        chance_of_lysis += random->GetRandNormal(0.0, mut_size);
+        chance_of_lysis += random->GetRandNormal(0.0, local_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
       if(mutate_chance_of_induction){
-        induction_chance += random->GetRandNormal(0.0, mut_size);
+        induction_chance += random->GetRandNormal(0.0, local_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
       if(mutate_incorporation_val){
-        incorporation_val += random->GetRandNormal(0.0, mut_size);
+        incorporation_val += random->GetRandNormal(0.0, local_size);
         if(incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
       }
@@ -308,7 +310,7 @@ public:
 
 
   /**
-   * Input: None
+   * Input: Optional string parameter to indicate mode of reproduction, either vertical (for prophage) or horizontal (for lytic phage)
    *
    * Output: The pointer to the new phage that has been produced.
    *
@@ -319,9 +321,21 @@ public:
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
     return sym_baby;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new symbiont, identical to the original
+   */
+  emp::Ptr<Organism> makeNew() {
+    return emp::NewPtr<Phage>(*this); //constructor that takes parent values
   }
 
   /**

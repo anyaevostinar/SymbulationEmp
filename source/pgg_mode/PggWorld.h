@@ -4,8 +4,26 @@
 #include "../SymWorld.h"
 
 class PggWorld : public SymWorld {
+private:
+  /**
+    *
+    * Purpose: Data node tracking the pgg donation rate.
+    *
+  */
+  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
 public:
   using SymWorld::SymWorld;
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To destruct the data nodes belonging to PggWorld to conserve memory.
+   */
+  ~PggWorld(){
+      if (data_node_Pgg) data_node_Pgg.Delete();
+  }
 
   /**
    * Input: The address of the string representing the file to be

@@ -131,57 +131,17 @@ public:
     this->SetPool(0);
   }
 
-
   /**
-   * Input: #
+   * Input: None.
    *
-   * Output: None
+   * Output: A new pgghost with same properties as this pgghost.
    *
-   * Purpose:
+   * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  void Process(size_t location) {
-    //Currently just wrapping to use the existing function
-    double resources = my_world->PullResources();
-    DistribResources(resources);
-    // Check reproduction
-    if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
-        // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero
-        emp::Ptr<PggHost> host_baby = emp::NewPtr<PggHost>(random, my_world, my_config, GetIntVal());
-        host_baby->mutate();
-        //mutate(); //parent mutates and loses current resources, ie new organism but same symbiont
-        SetPoints(0);
-
-        //Now check if symbionts get to vertically transmit
-        for(size_t j = 0; j< (GetSymbionts()).size(); j++){
-          emp::Ptr<Organism> parent = GetSymbionts()[j];
-          parent->VerticalTransmission(host_baby);
-        }
-
-        //Will need to change this to AddOrgAt and write my own position grabber
-        //when I want ecto-symbionts
-        my_world->DoBirth(host_baby, location); //Automatically deals with grid
-      }
-    if (GetDead()){
-        return; //If host is dead, return
-      }
-    if (HasSym()) { //let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
-        for(size_t j = 0; j < syms.size(); j++){
-          emp::Ptr<Organism> curSym = syms[j];
-          if (GetDead()){
-            return; //If previous symbiont killed host, we're done
-          }
-          if(!curSym->GetDead()){
-            curSym->Process(location);
-          }
-          if(curSym->GetDead()){
-            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
-            curSym.Delete();
-          }
-        } //for each sym in syms
-      } //if org has syms
+  emp::Ptr<Organism> makeNew(){
+    return emp::NewPtr<PggHost>(random, my_world, my_config, GetIntVal());
   }
+
 };//Host
 
 #endif

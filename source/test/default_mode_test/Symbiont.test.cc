@@ -165,6 +165,56 @@ TEST_CASE("WantsToInfect", "[default]"){
     }
 }
 
+TEST_CASE("InfectionFails", "[default]"){
+    emp::Ptr<emp::Random> random = new emp::Random(17);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+    double int_val = 0;
+
+    WHEN("sym infection failure rate is 0"){
+        config.SYM_INFECTION_FAILURE_RATE(0);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("infection never fails"){
+            REQUIRE(sym1->InfectionFails() == false);
+            REQUIRE(sym2->InfectionFails() == false);
+        }
+    }
+
+    WHEN("sym infection failure rate is between 0 and 1"){
+        config.SYM_INFECTION_FAILURE_RATE(0.5);
+        emp::Ptr<Organism> s1 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s2 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s3 = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Organism> s4 = new Symbiont(random, world, &config, int_val);
+        size_t failed_infection_count = 0;
+        size_t total_possible = 4;
+
+        if(s1->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s2->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s3->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+        if(s4->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+
+        THEN("infection sometimes fails, sometimes doesn't"){
+            REQUIRE(failed_infection_count < total_possible);
+            REQUIRE(failed_infection_count > 0);
+        }
+    }
+
+    WHEN("sym infection failure rate is 1"){
+        config.SYM_INFECTION_FAILURE_RATE(1);
+        Symbiont * sym1 = new Symbiont(random, world, &config, int_val);
+        Symbiont * sym2 = new Symbiont(random, world, &config, int_val);
+
+        THEN("infection always fails"){
+            REQUIRE(sym1->InfectionFails() == true);
+            REQUIRE(sym2->InfectionFails() == true);
+        }
+    }
+}
+
 TEST_CASE("mutate", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
@@ -241,6 +291,7 @@ TEST_CASE("reproduce", "[default]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
+        s->SetAge(10);
 
         emp::Ptr<Organism> sym_baby = s->reproduce();
 
@@ -256,6 +307,10 @@ TEST_CASE("reproduce", "[default]") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
+        }
+
+        THEN("Offspring's age is 0") {
+            REQUIRE(sym_baby->GetAge() == 0);
         }
 
         sym_baby.Delete();
@@ -486,4 +541,44 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
         }
     }
 
+}
+
+TEST_CASE("Symbiont GrowOlder", "[default]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    w.Resize(2,2);
+    SymConfigBase config;
+    config.SYM_AGE_MAX(2);
+
+    WHEN ("A free-living symbiont reaches its maximum age"){
+      config.FREE_LIVING_SYMS(1);
+      Symbiont * s = new Symbiont(random, &w, &config, 1);
+      w.AddOrgAt(s, 1);
+      THEN("The symbiont dies and gets removed from the world"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(s->GetDead() == false);
+        REQUIRE(s->GetAge() == 0);
+        w.Update(); //sym goes from age 1->2
+        REQUIRE(s->GetAge() == 1);
+        w.Update();
+        REQUIRE(s->GetAge() == 2);
+        w.Update(); //sym goes from age 2->3, gets set to dead
+        w.Update(); //sym is deleted (before it can process)
+        REQUIRE(w.GetNumOrgs() == 0);
+      }
+    }
+    WHEN ("A hosted symbiont reaches its maximum age"){
+      Symbiont * s = new Symbiont(random, &w, &config, 1);
+      Host * h = new Host(random, &w, &config, 1);
+      h->AddSymbiont(s);
+      THEN("It dies and gets removed from its host")
+        REQUIRE(h->HasSym() == true);
+        REQUIRE(s->GetAge() == 0);
+        h->Process(1);
+        REQUIRE(s->GetAge() == 1);
+        h->Process(1);
+        REQUIRE(s->GetAge() == 2);
+        h->Process(1); //should now be dead and removed
+        REQUIRE(h->HasSym() == false);
+    }
 }
