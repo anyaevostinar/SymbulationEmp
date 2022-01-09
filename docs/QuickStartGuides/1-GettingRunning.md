@@ -2,8 +2,8 @@
 
 Symbulation allows you to compile your C++ to target
 
-- running at the command line (e.g., native machine code) and
-- running in the web browser (e.g., javascript assembly code).
+* running at the command line (e.g., native machine code) and
+* running in the web browser (e.g., javascript assembly code).
 
 This how-to aims to walk you through all the nitty gritty required to
 successfully compile a simple "Default" for running at the command line.
@@ -54,7 +54,7 @@ make
 ```
 
 ```shell
-./symbulation
+./symbulation_default
 ```
 
 ## Web

@@ -8,6 +8,7 @@ Contents:
 0-Overview
 1-GettingRunning
 2-CollectingData
+3-CreatingAMode
 ```
 
 - {ref}`genindex`

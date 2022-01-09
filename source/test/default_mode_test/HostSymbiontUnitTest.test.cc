@@ -1,7 +1,7 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 
-TEST_CASE("Symbiont SetHost, GetHost", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -17,7 +17,7 @@ TEST_CASE("Symbiont SetHost, GetHost", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("Host SetSymbionts", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host SetSymbionts", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -49,7 +49,7 @@ TEST_CASE("Host SetSymbionts", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("Host SymLimit", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host SymLimit", "[default]") {
     emp::Ptr<emp::Random> random;
     random.New(-1);
     SymConfigBase config;
@@ -83,7 +83,7 @@ TEST_CASE("Host SymLimit", "[default][efficient][lysis][pgg]") {
 
 }
 
-TEST_CASE("Host AddSymbiont", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host AddSymbiont", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
@@ -109,7 +109,7 @@ TEST_CASE("Host AddSymbiont", "[default][efficient][lysis][pgg]") {
     REQUIRE(h->GetSymbionts() == syms);
 }
 
-TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
@@ -138,7 +138,7 @@ TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default][effic
     REQUIRE(h->GetReproSymbionts() == repro_syms);
 }
 
-TEST_CASE("Host DistribResources", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Host DistribResources", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
@@ -366,7 +366,7 @@ TEST_CASE("Host DistribResources", "[default][efficient][lysis][pgg]") {
     }
 }
 
-TEST_CASE("Vertical Transmission of Symbiont", "[default][efficient][lysis][pgg]") {
+TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymWorld * world = &w;
