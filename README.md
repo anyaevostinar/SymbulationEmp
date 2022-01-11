@@ -12,6 +12,8 @@ Go to [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](http
 
 Documentation at [https://symbulation.readthedocs.io](https://symbulation.readthedocs.io).
 
+
+We have a cookiecutter template here: [https://github.com/anyaevostinar/SymbulationProjectTemplate](https://github.com/anyaevostinar/SymbulationProjectTemplate).
 To build, you must first download Empirical (https://github.com/devosoft/Empirical) and place the two repositories on the same level. Then within SymbulationEmp, run 'make' and then './symbulation'. The script 'stats_scripts/simple_repeat.py' can be used to run many replicates and treatments.
 
 The current settings can be configured in SymSettings.cfg. 
