@@ -4,6 +4,7 @@
 [![codecov](https://codecov.io/gh/anyaevostinar/SymbulationEmp/branch/main/graph/badge.svg?token=BVQUX9SK5S)](https://codecov.io/gh/anyaevostinar/SymbulationEmp)
 [![DOI](https://zenodo.org/badge/92536524.svg)](https://zenodo.org/badge/latestdoi/92536524)
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
+[<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
 
 
 This is a software model of symbiosis which allows for evolution of parasitism and mutualism. 
