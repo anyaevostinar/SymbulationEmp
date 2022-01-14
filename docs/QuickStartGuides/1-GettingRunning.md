@@ -38,35 +38,35 @@ get your working environment all set.
 ### Using Cookiecutter
 The easiest thing to do is use our Cookiecutter template.
 
-1. Install the latest Cookiecutter:
+- Install the latest Cookiecutter:
 
-```shell
-pip install -U cookiecutter
-```
+    ```shell
+    pip install -U cookiecutter
+    ```
 
-2. Generate a Symbulation project:
-```shell
-cookiecutter https://github.com/anyaevostinar/SymbulationProjectTemplate.git
-```
+- Generate a Symbulation project:
+    ```shell
+    cookiecutter https://github.com/anyaevostinar/SymbulationProjectTemplate.git
+    ```
 
-3. Change directory into your newly created project:
-```
-cd SymbulationProject
-```
+- Change directory into your newly created project:
+    ```
+    cd SymbulationProject
+    ```
 
 ### Without Cookiecutter
 If you have something against delicious cookies and want to do without Cookiecutter, here are the steps. (Note that these steps don't include making Data and Analysis files, which is assumed for the rest of the guide. If you are doing it this way, we assume you have your own preference for organizing things.)
 
 1. Clone Symbulation:
-```shell
-git clone https://github.com/anyaevostinar/SymbulationEmp
-```
+    ```shell
+    git clone https://github.com/anyaevostinar/SymbulationEmp
+    ```
 
 2. In the same level as `SymbulationEmp`, you will need a recursive copy of Empirical: 
 
-```shell
-git clone --recursive https://github.com/devosoft/Empirical.git 
-```
+    ```shell
+    git clone --recursive https://github.com/devosoft/Empirical.git 
+    ```
 
 ### Compiling
 
