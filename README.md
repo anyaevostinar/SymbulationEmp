@@ -8,11 +8,10 @@ Symbulation is an artificial life software tool for agent-based modeling of the 
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
 [<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
 
-Try out our [browser-based GUI](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html).
-
-Documentation at [https://symbulation.readthedocs.io](https://symbulation.readthedocs.io).
+Try out our [browser-based GUI](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html). See our documentation at [https://symbulation.readthedocs.io](https://symbulation.readthedocs.io).
 
 Interested in starting a new project with Symbulation? We have a cookiecutter template here: [https://github.com/anyaevostinar/SymbulationProjectTemplate](https://github.com/anyaevostinar/SymbulationProjectTemplate).
+
 Symbulation is built with the [Empirical platform](https://github.com/devosoft/Empirical) and the cookiecutter includes our recommended directory layout and example analysis files. 
 
 ## Usage
