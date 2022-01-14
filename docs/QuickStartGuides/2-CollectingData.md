@@ -6,10 +6,10 @@ We've provided a [short script](https://github.com/anyaevostinar/SymbulationProj
 
 We recommend (and have provided) a workflow where you have a `Data` folder that contains subfolders for each experiment and within each of those subfolders are:
 
-* `simple_repeat.py`
-* `SymSettings.cfg`
-* Your executable file
-* A `README.md` containing the date and the purpose of the experiment
+- `simple_repeat.py`
+- `SymSettings.cfg`
+- Your executable file
+- A `README.md` containing the date and the purpose of the experiment
 
 Assuming that you are in the `SymbulationEmp` directory and have already compiled your `symbulation` or `symbulation_default` executable, copy your executable to your `Data` folder and change to that directory:
 
