@@ -1,4 +1,4 @@
-# Default
+# Default Mode
 
 Symbulation allows you to compile your C++ to either:
 
@@ -40,12 +40,12 @@ The easiest thing to do is use our Cookiecutter template.
 
 1. Install the latest Cookiecutter:
 
-```
+```shell
 pip install -U cookiecutter
 ```
 
 2. Generate a Symbulation project:
-```
+```shell
 cookiecutter https://github.com/anyaevostinar/SymbulationProjectTemplate.git
 ```
 
@@ -101,7 +101,7 @@ For example:
 
 To see how to use our workflow and scripts to collect and analyze data, please proceed to the [Collecting Data](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/2-CollectingData.html) quickstart guide!
 
-## Web
+## Install: Web GUI
 
 These instructions are for if you want to make *changes* to the web GUI and run it locally. You don't need to do this to be able to use Symbulation's web browser; you can instead access it here: [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html).
 
