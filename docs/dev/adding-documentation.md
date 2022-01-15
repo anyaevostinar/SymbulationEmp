@@ -8,6 +8,85 @@ that Doxygen will automatically build documentation for anything written
 in a C++ source file and Sphinx will be used to organize how that
 documentation is displayed.
 
+## Dependencies
+You'll need to install some additional things to build the documentation locally.
+If you make additions to the documentation, please build it locally to make sure that it is formatted well before making a pull request.
+
+You need to install
+- Doxygen
+- Sphinx
+- pip/pip3
+
+For Homebrew users, that looks like this:
+```
+brew install sphinx
+brew install doxygen
+brew install pip3
+```
+
+You can then use `pip3` to install the rest of the requirements:
+```
+cd SymbulationEmp/docs
+pip3 install -r requirements.txt
+```
+
+<!-- Old content, not sure what we need from it:
+    Unix users
+ 
+    a.  Install the python virtualenv, pip, gcc, and g++, cmake, bison,
+        flex
+ 
+        On recent Debian and Ubuntu this can be done with:
+ 
+            sudo apt-get install python-virtualenv python-pip gcc g++ git gcovr cmake bison flex
+ 
+        OS X users and others may need to download virtualenv first:
+ 
+        curl -O <https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.6.tar.gz>
+        tar xzf virtualenv* cd virtualenv-*; python2.7 virtualenv.py
+        ../env; cd ..
+ 
+    > [Mac ports](https://www.macports.org/) users on the OS X platform can
+    >
+    > :   install pip by execution from the command line:
+    >
+    >         sudo port install py27-pip
+    >
+    > [Homebrew](http://brew.sh/) users on the OS X platform will have
+    > pip already installed
+
+
+b.  Run the install-dependencies maketarget:
+ 
+        make install-dependencies
+ 
+    This will create a virtual python environment to use for Symbulation
+    development. In this environment it will install:
+    [Sphinx](http://sphinx-doc.org/),
+    [Breathe](https://breathe.readthedocs.org/en/latest/), and
+    [doxygen](http://www.stack.nl/~dimitri/doxygen/), packages we use to
+    generate the documentation for Symbulation
+ 
+
+## Building Documentation
+Activate (or re-activate) the virtualenv:
+ 
+        source third-party/env/bin/activate
+ 
+    You can run this many times without any ill effects.
+ 
+    (This puts you in the development environment.)
+-->
+
+## Building Documentation Locally
+
+You are then ready to make your local documentation and run it:
+```
+make html
+cd _build/html/
+python3 -m http.server
+```
+
 ## How to Comment for Doxygen Autodoc
 
 Doxygen has an entire [documentation

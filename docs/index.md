@@ -12,15 +12,13 @@ parasitism and mutualism.
 Click [here](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html) to
 try it out in your web browser!
 
-To build, you must first download Empirical
-([https://github.com/devosoft/Empirical](https://github.com/devosoft/Empirical)) and place the two repositories
-on the same level. 
-
-Checkout our quick start guides for more information on getting started! 
+Checkout our quick start guides for more information on getting started.
 
 Search for any function, class or variable using the search feature in the 
 top left! 
 
+
+## Table of Contents
 ```{toctree}
 :caption: Using Symbulation
 :maxdepth: 2

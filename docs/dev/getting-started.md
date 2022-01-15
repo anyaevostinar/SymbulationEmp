@@ -1,8 +1,5 @@
 # Getting started with Symbulation development
  
-```{contents}
-```
- 
 This document is intended to help those just getting started with
 Symbulation development. It details the initial one-time dependency
 installs and any similar routines necessary to get started with
@@ -36,12 +33,12 @@ the [git-scm book](http://git-scm.com/book/en/Git-Branching).
  
     Your clone URLs should look something like this:
  
-        https://github.com/piperwelch/SymbulationEmp.git
+        https://github.com/yourusername/SymbulationEmp.git
         https://github.com/devosoft/Empirical.git
  
     and the UNIX shell command should be:
  
-        git clone https://github.com/piperwelch/SymbulationEmp.git
+        git clone https://github.com/yourusername/SymbulationEmp.git
         git clone https://github.com/devosoft/Empirical.git
  
     (This makes a local copy of Symbulation on your development machine.)
@@ -54,60 +51,11 @@ the [git-scm book](http://git-scm.com/book/en/Git-Branching).
  
     (This makes it easy for you to pull down the latest changes in the
     main repository.)
- 
-5.  Install the development dependencies.
- 
-    Unix users
- 
-    a.  Install the python virtualenv, pip, gcc, and g++, cmake, bison,
-        flex
- 
-        On recent Debian and Ubuntu this can be done with:
- 
-            sudo apt-get install python-virtualenv python-pip gcc g++ git gcovr cmake bison flex
- 
-        OS X users and others may need to download virtualenv first:
- 
-        curl -O
-        <https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.11.6.tar.gz>
-        tar xzf virtualenv* cd virtualenv-*; python2.7 virtualenv.py
-        ../env; cd ..
- 
-    > [Mac ports](https://www.macports.org/) users on the OS X platform can
-    >
-    > :   install pip by execution from the command line:
-    >
-    >         sudo port install py27-pip
-    >
-    > [Homebrew](http://brew.sh/) users on the OS X platform will have
-    > pip already installed
- 
-```html
-<!-- -->
-```
-b.  Run the install-dependencies maketarget:
- 
-        make install-dependencies
- 
-    This will create a virtual python environment to use for Symbulation
-    development. In this environment it will install:
-    [Sphinx](http://sphinx-doc.org/),
-    [Breathe](https://breathe.readthedocs.org/en/latest/), and
-    [doxygen](http://www.stack.nl/~dimitri/doxygen/), packages we use to
-    generate the documentation for Symbulation
+
  
 ### Building Symbulation and running the tests
  
-1.  Activate (or re-activate) the virtualenv (necessary only for
-    building documentation):
- 
-        source third-party/env/bin/activate
- 
-    You can run this many times without any ill effects.
- 
-    (This puts you in the development environment.)
- 
-2.  Run the tests:
+To run the tests:
  
         make test
  
@@ -241,7 +189,7 @@ Congratulations! You're ready to develop!
  
     In a Web browser, go to your GitHub fork of Symbulation, e.g.:
  
-        https://github.com/piperwelch/SymbulationEmp
+        https://github.com/yourusername/SymbulationEmp
  
     and you will see a list of "recently pushed branches" just above
     the source code listing. On the right side of that should be a
