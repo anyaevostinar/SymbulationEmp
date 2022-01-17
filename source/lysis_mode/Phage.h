@@ -270,10 +270,16 @@ public:
    * from their parent organism.
    */
   emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
+    emp::Ptr<Organism> sym_baby = makeNew();
+    // reset values for a new organism
     sym_baby->SetPoints(0);
     sym_baby->SetAge(0);
     sym_baby->SetBurstTimer(0);
+    // pass down parent's genome
+    sym_baby->SetIncVal(GetIncVal());
+    sym_baby->SetLysisChance(GetLysisChance());
+    sym_baby->SetInductionChance(GetInductionChance());
+    // mutate the offspring genome
     sym_baby->mutate();
     return sym_baby;
   }
@@ -286,7 +292,7 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> makeNew() {
-    return emp::NewPtr<Phage>(*this); //constructor that takes parent values
+    return emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
   }
 
   /**

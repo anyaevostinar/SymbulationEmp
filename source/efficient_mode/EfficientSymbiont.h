@@ -101,6 +101,17 @@ public:
    */
   EfficientSymbiont() = default;
 
+  /**
+   * Input: Efficiency value
+   *
+   * Output: None
+   *
+   * Purpose: Setting an efficient symbiont's efficiency value.
+   */
+  void SetEfficiency(double _in) {
+    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
+    efficiency = _in;
+  }
 
   /**
    * Input: None
@@ -172,7 +183,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> makeNew(){
-    return emp::NewPtr<EfficientSymbiont>(*this); //constructor that takes parent values
+    return emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
   }
 
   /**
@@ -186,6 +197,8 @@ public:
     emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
     sym_baby->SetAge(0);
+    sym_baby->SetInfectionChance(GetInfectionChance());
+    sym_baby->SetEfficiency(GetEfficiency());
     sym_baby->mutate(mode);
     return sym_baby;
   }

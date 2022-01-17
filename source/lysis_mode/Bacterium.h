@@ -103,6 +103,23 @@ public:
   }
 
   /**
+   * Input: None.
+   *
+   * Output: A new host baby of the current host, mutated.
+   *
+   * Purpose: To create a new baby host and reset this host's points to 0.
+   */
+  emp::Ptr<Organism> reproduce(){
+    emp::Ptr<Organism> host_baby = makeNew();
+    host_baby->SetIncVal(GetIncVal());
+    host_baby->mutate();
+    host_baby->SetPoints(0);
+    host_baby->SetAge(0);
+    SetPoints(0);
+    return host_baby;
+  }
+
+  /**
    * Input: None
    *
    * Output: None

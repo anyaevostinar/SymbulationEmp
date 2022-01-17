@@ -477,7 +477,7 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> makeNew() {
-    return emp::NewPtr<Symbiont>(*this); //constructor that takes parent values
+    return emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
   }
 
   /**
@@ -491,6 +491,7 @@ public:
     emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
     sym_baby->SetAge(0);
+    sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->mutate();
     return sym_baby;
   }
