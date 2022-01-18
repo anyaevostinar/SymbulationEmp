@@ -135,6 +135,7 @@ public:
    * Purpose: To produce a new phage, identical to the original
    */
   emp::Ptr<Organism> makeNew() {
+    //return emp::NewPtr<PGGSymbiont>(random, my_world, my_config, GetIntVal(), GetDonation());
     return emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
   }
 
