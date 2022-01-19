@@ -21,15 +21,6 @@ protected:
 
   /**
     *
-    * Purpose: Represents whether the host's genome mutates or not. A boolean value. 0 for false, 1 for true.
-    * The host's genome gets compared against the phage's incorporation value.
-    *
-    *
-  */
-  bool mutate_host_inc_val = false;
-
-  /**
-    *
     * Purpose: Represents the world that the hosts are living in.
     *
   */
@@ -46,7 +37,6 @@ public:
   std::set<int> _set = std::set<int>(),
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points)  {
     host_incorporation_val = my_config->HOST_INC_VAL();
-    mutate_host_inc_val = my_config->MUTATE_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);
     }
@@ -127,7 +117,7 @@ public:
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
 
       //mutate host genome if enabled
-      if(mutate_host_inc_val){
+      if(my_config->MUTATE_INC_VAL()){
         host_incorporation_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
 
         if(host_incorporation_val < 0) host_incorporation_val = 0;

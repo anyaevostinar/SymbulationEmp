@@ -107,6 +107,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, parent_orig_efficiency);
+        s->SetAge(10);
 
         emp::Ptr<Organism> sym_baby = s->reproduce("vertical");
 
@@ -122,6 +123,10 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
+        }
+
+        THEN("Offspring's age is 0") {
+            REQUIRE(sym_baby->GetAge() == 0);
         }
 
         sym_baby.Delete();
@@ -287,6 +292,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             REQUIRE(new_infected != nullptr);
             REQUIRE(new_infected->HasSym()); 
             REQUIRE(new_infected->GetSymbionts()[0]->GetEfficiency() != efficiency);
+            REQUIRE(new_infected->GetSymbionts()[0]->GetIntVal() != int_val);
         }
 
     }

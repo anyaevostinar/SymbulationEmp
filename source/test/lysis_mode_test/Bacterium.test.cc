@@ -189,3 +189,53 @@ TEST_CASE("Bacterium Process", "[lysis]"){
         }
     }
 }
+
+TEST_CASE("Phage Exclude", "[lysis]") {
+    emp::Ptr<emp::Random> random = new emp::Random(3);
+    SymWorld w(*random);
+
+    SymConfigBase config;
+    int sym_limit = 4;
+    config.SYM_LIMIT(sym_limit);
+
+    double int_val = 0;
+
+    WHEN("Phage exclude is set to false"){
+      bool phage_exclude = 0;
+      config.PHAGE_EXCLUDE(phage_exclude);
+      Host * h = new Host(random, &w, &config, int_val);
+
+      THEN("syms are added without issue"){
+        for(int i = 0; i < sym_limit; i++){
+          h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
+        }
+        int num_syms = (h->GetSymbionts()).size();
+
+        REQUIRE(num_syms==sym_limit);
+        //with random seed 3 and phage exclusion on,
+        //num_syms not reach the sym_limit (would be 2 not 4)
+      }
+    }
+
+    WHEN("Phage exclude is set to true"){
+      bool phage_exclude = 1;
+      config.PHAGE_EXCLUDE(phage_exclude);
+
+      THEN("syms have a decreasing change of entering the host"){
+        int goal_num_syms[] = {3,3,3,3};
+
+        for(int i = 0; i < 4; i ++){
+          emp::Ptr<emp::Random> random = new emp::Random(i+1);
+          SymWorld w(*random);
+
+          Host * h = new Host(random, &w, &config, int_val);
+          for(double i = 0; i < 10; i++){
+            h->AddSymbiont(new Symbiont(random, &w, &config, int_val));
+          }
+          int host_num_syms = (h->GetSymbionts()).size();
+
+          REQUIRE(goal_num_syms[i] == host_num_syms);
+        }
+      }
+    }
+}

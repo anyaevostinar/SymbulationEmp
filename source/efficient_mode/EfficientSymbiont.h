@@ -55,12 +55,12 @@ public:
     efficiency = _efficient;
     my_world = _world;
     if(my_config->HORIZ_MUTATION_RATE() < 0){
-      ht_mut_rate = mut_rate;
+      ht_mut_rate = my_config->MUTATION_RATE();
     } else {
       ht_mut_rate = my_config->HORIZ_MUTATION_RATE();
     }
     if(my_config->HORIZ_MUTATION_SIZE() < 0) {
-      ht_mut_size = mut_size;
+      ht_mut_size = my_config->MUTATION_SIZE();
     } else {
       ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
     }
@@ -135,8 +135,8 @@ public:
     double local_size;
     double local_rate;
     if(mode == "vertical"){
-      local_rate = mut_rate;
-      local_size = mut_size;
+      local_rate = my_config->MUTATION_RATE();
+      local_size = my_config->MUTATION_SIZE();
     } else if(mode == "horizontal") {
       local_rate = ht_mut_rate;
       local_size = ht_mut_size;
@@ -185,6 +185,7 @@ public:
   emp::Ptr<Organism> reproduce(std::string mode) {
     emp::Ptr<Organism> sym_baby = makeNew();
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->mutate(mode);
     return sym_baby;
   }
@@ -210,9 +211,9 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
-    if (h_trans) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= sym_h_res) {
+  void HorizontalTransmission(size_t location) {
+    if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
+      if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0

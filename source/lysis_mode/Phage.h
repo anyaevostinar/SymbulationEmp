@@ -15,13 +15,6 @@ protected:
 
   /**
     *
-    * Purpose: Represents if lysis is permitted.
-    *
-  */
-  bool lysis_enabled = true;
-
-  /**
-    *
     * Purpose: Represents if lysogeny is on.
     *
   */
@@ -36,46 +29,10 @@ protected:
 
   /**
     *
-    * Purpose: Represents whether the compatibility of the prophage to it's placement within the host's genome, mutates or not.
-    *
-  */
-  bool mutate_incorporation_val = false;
-
-  /**
-    *
-    * Purpose: Represents how long a lysis burst takes to occur.
-    *
-  */
-  double burst_time = 60;
-
-  /**
-    *
-    * Purpose: Represents resources required for symbiont to create offspring
-    *
-  */
-  double sym_lysis_res = 15;
-
-  /**
-    *
     * Purpose: Represents the chance of lysis
     *
   */
   double chance_of_lysis = 1;
-
-  /**
-    *
-    * Purpose: Represents if lysis mutation is permitted
-    *
-  */
-  bool mutate_chance_of_lysis = false;
-
-  /**
-    *
-    * Purpose: Represents if induction rate mutation is permitted
-    *
-  */
-  bool mutate_chance_of_induction = false;
-
 
   /**
     *
@@ -97,15 +54,9 @@ public:
    * The constructor for phage
    */
   Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
-    burst_time = my_config->BURST_TIME();
-    sym_lysis_res = my_config->SYM_LYSIS_RES();
-    lysis_enabled = my_config->LYSIS();
-    mutate_chance_of_induction = my_config->MUTATE_INDUCTION_CHANCE();
-    mutate_chance_of_lysis = my_config->MUTATE_LYSIS_CHANCE();
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
     incorporation_val = my_config->PHAGE_INC_VAL();
-    mutate_incorporation_val = my_config->MUTATE_INC_VAL();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
@@ -286,21 +237,21 @@ public:
    */
   void mutate() {
     Symbiont::mutate();
-    double local_rate = mut_rate;
-    double local_size = mut_size;
+    double local_rate = my_config->MUTATION_RATE();
+    double local_size = my_config->MUTATION_SIZE();
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
-      if(mutate_chance_of_lysis){
+      if(my_config->MUTATE_LYSIS_CHANCE()){
         chance_of_lysis += random->GetRandNormal(0.0, local_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
-      if(mutate_chance_of_induction){
+      if(my_config->MUTATE_INDUCTION_CHANCE()){
         induction_chance += random->GetRandNormal(0.0, local_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
-      if(mutate_incorporation_val){
+      if(my_config->MUTATE_INC_VAL()){
         incorporation_val += random->GetRandNormal(0.0, local_size);
         if(incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
@@ -321,6 +272,7 @@ public:
   emp::Ptr<Organism> reproduce() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(*this); //constructor that takes parent values
     sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
     sym_baby->SetBurstTimer(0);
     sym_baby->mutate();
     return sym_baby;
@@ -369,15 +321,15 @@ public:
    */
   void LysisStep(){
     IncBurstTimer();
-    if(sym_lysis_res == 0) {
+    if(my_config->SYM_LYSIS_RES() == 0) {
       std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
       infinite loop, please change" << std::endl;
       std::exit(1);
     }
-    while(GetPoints() >= sym_lysis_res) {
+    while(GetPoints() >= my_config->SYM_LYSIS_RES()) {
       emp::Ptr<Organism> sym_baby = reproduce();
       my_host->AddReproSym(sym_baby);
-      SetPoints(GetPoints() - sym_lysis_res);
+      SetPoints(GetPoints() - my_config->SYM_LYSIS_RES());
     }
   }
 
@@ -427,10 +379,10 @@ public:
    *
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
-  void Process(emp::WorldPosition location) {
-    if(lysis_enabled && !GetHost().IsNull()) { //lysis enabled and phage is in a host
+  void Process(size_t location) {
+    if(my_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
-        if(GetBurstTimer() >= burst_time ) { //time to lyse!
+        if(GetBurstTimer() >= my_config->BURST_TIME() ) { //time to lyse!
           LysisBurst(location);
         }
         else { //not time to lyse

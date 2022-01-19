@@ -30,37 +30,6 @@ protected:
 
   /**
     *
-    * Purpose: Represents the points threshold for horizontal
-    * transmission to occur.
-    *
-  */
-  double sym_h_res = 100;
-
-  /**
-    *
-    * Purpose: Represents if horizontal transmission is allowed
-    * to occur.
-    *
-  */
-  bool h_trans = true;
-
-  /**
-    *
-    * Purpose: Represents the standard deviation of the values
-    * chosen as mutations of a symbiont's interaction value.
-    *
-  */
-  double mut_size = 0.002;
-
-  /**
-    *
-    * Purpose: Represents the probability (0-1) of mutation occurring.
-    *
-  */
-  double mut_rate = 0;
-
-  /**
-    *
     * Purpose: Represents if a symbiont is alive.
     * This is set to true when a symbiont is killed.
     *
@@ -74,14 +43,6 @@ protected:
     *
   */
   double infection_chance = 0.0;
-
-  /**
-    *
-    * Purpose: Represents the chance (between 0 and 1) that
-    * a free-living sym die trying to infect a host.
-    *
-  */
-  double infection_failure_rate = 0.0;
 
   /**
     *
@@ -131,15 +92,10 @@ public:
    * The constructor for symbiont
    */
   Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), random(_random), my_world(_world), my_config(_config) {
-    sym_h_res = my_config->SYM_HORIZ_TRANS_RES();
-    h_trans = my_config->HORIZ_TRANS();
-    mut_rate = my_config->MUTATION_RATE();
-    infection_failure_rate = my_config->SYM_INFECTION_FAILURE_RATE();
     infection_chance = my_config->SYM_INFECTION_CHANCE();
     if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
     if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
 
-    mut_size = my_config->MUTATION_SIZE();
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
@@ -415,8 +371,8 @@ public:
    * deviation.
    */
   void mutate(){
-    double local_rate = mut_rate;
-    double local_size = mut_size;
+    double local_rate = my_config->MUTATION_RATE();
+    double local_size = my_config->MUTATION_SIZE();
 
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);
@@ -497,7 +453,7 @@ public:
    */
   bool InfectionFails(){
     //note: this can be returned true, and an infecting sym can then be killed by a host that is already infected.
-    bool sym_dies = random->GetDouble(0.0, 1.0) < infection_failure_rate;
+    bool sym_dies = random->GetDouble(0.0, 1.0) < my_config->SYM_INFECTION_FAILURE_RATE();
     return sym_dies;
   }
 
@@ -603,9 +559,9 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
-    if (h_trans) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= sym_h_res) {
+  void HorizontalTransmission(size_t location) {
+    if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
+      if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
