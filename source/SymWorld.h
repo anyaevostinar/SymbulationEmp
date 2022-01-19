@@ -214,6 +214,8 @@ public:
     if (track_phylogeny == true){
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
     }
   }
 
@@ -650,6 +652,15 @@ public:
 
     return file;
   }
+
+  void WritePhylogenyFile(const std::string & filename) {
+    WriteDominantPhylogenyFiles("Dominant"+filename);
+    sym_sys->Snapshot("SymSnapshot_"+filename);
+    host_sys->Snapshot("HostSnapshot_"+filename);
+
+    //return file;
+  }
+
   /**
    * Input: The address of the string representing the file to be
    * created's name
@@ -659,7 +670,7 @@ public:
    * Purpose: To setup and write to the file that tracks the lineages of
    * the dominant (most highly populated) taxons for both symbionts and hosts.
    */
-  void WritePhylogenyFile(const std::string & filename){
+  void WriteDominantPhylogenyFiles(const std::string & filename){
     std::ofstream phylo_file;
     phylo_file.open(filename);
     phylo_file << "phylogeny_name,dom_tax_info,dom_tax_orgcount,dom_tax_lineage\n";
@@ -676,6 +687,7 @@ public:
     }
 
     for(size_t i = 0; i < dom_taxons.size(); i++){
+      phylo_file << names[i];
       if(dom_taxons[i] != nullptr){
         std::stringstream result;
         sym_sys->PrintLineage(dom_taxons[i], result);
@@ -684,10 +696,10 @@ public:
         lineage.erase(lineage.end() - 1);
         std::replace( lineage.begin(), lineage.end(), '\n', '<');
 
-        phylo_file << names[i] << "," << dom_taxons[i]->GetInfo()
+        phylo_file << "," << dom_taxons[i]->GetInfo()
           << "," <<  dom_taxons[i]->GetNumOrgs()
           << "," <<   lineage << "\n";
-      }
+      } else phylo_file << ",-nan,-nan,-nan\n";
     }
     phylo_file.close();
   }
