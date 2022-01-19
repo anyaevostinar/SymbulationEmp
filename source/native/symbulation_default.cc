@@ -46,7 +46,7 @@ int symbulation_main(int argc, char * argv[])
 
   world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  
+
   if(config.FREE_LIVING_SYMS() == 1){
     world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
@@ -63,6 +63,10 @@ int symbulation_main(int argc, char * argv[])
     world.Update();
   }
 
+  //retrieve the dominant taxons for each organism and write them to a file
+  if(config.PHYLOGENY() == 1){
+    world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
+  }
   return 0;
 }
 
