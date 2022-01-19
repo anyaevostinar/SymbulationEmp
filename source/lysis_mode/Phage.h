@@ -379,7 +379,7 @@ public:
    *
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
-  void Process(size_t location) {
+  void Process(emp::WorldPosition location) {
     if(my_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= my_config->BURST_TIME() ) { //time to lyse!

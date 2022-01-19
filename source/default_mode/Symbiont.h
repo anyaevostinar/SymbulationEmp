@@ -559,7 +559,7 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(size_t location) {
+  void HorizontalTransmission(emp::WorldPosition location) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
