@@ -259,6 +259,17 @@ public:
     }
   }
 
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new symbiont, identical to the original
+   */
+  emp::Ptr<Organism> makeNew() {
+    return emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
+  }
+
 
   /**
    * Input: Optional string parameter to indicate mode of reproduction, either vertical (for prophage) or horizontal (for lytic phage)
@@ -289,17 +300,6 @@ public:
     // mutate the offspring genome
     sym_baby->mutate();
     return sym_baby;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: The pointer to the newly created organism
-   *
-   * Purpose: To produce a new symbiont, identical to the original
-   */
-  emp::Ptr<Organism> makeNew() {
-    return emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
   }
 
   /**
