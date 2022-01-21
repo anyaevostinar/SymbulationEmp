@@ -26,6 +26,14 @@ protected:
 
   /**
     *
+    * Purpose: Represents the number of updates the host
+    * has lived through; at birth is set to 0.
+    *
+  */
+  int age = 0;
+
+  /**
+    *
     * Purpose: Represents the set of symbionts belonging to a host.
     * This can be set with SetSymbionts(), and symbionts can be
     * added with AddSymbiont(). This can be cleared with ClearSyms()
@@ -360,12 +368,34 @@ public:
   /**
    * Input: None
    *
-   * Output: None
+   * Output: boolean
    *
    * Purpose: To determine if a host is dead.
    */
   bool GetDead() {return dead;}
 
+  /**
+   * Input: None
+   *
+   * Output: an int representing the current age of the Host
+   *
+   * Purpose: To get the Host's age.
+   */
+  int GetAge() {return age;}
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Increments age by one and kills it if too old.
+   */
+  void growOlder(){
+    age = age + 1;
+    if(age > my_config->HOST_AGE_MAX() && my_config->HOST_AGE_MAX() > 0){
+      SetDead();
+    }
+  }
 
   /**
    * Input: The interaction value of the symbiont that
@@ -464,7 +494,7 @@ public:
    *
    * Output: A bool representing if a host has any symbionts.
    *
-   * Purpose: To determine if a host has any symbionts.
+   * Purpose: To determine if a host has any symbionts, though they might be corpses that haven't been removed yet.
    */
   bool HasSym() {
     return syms.size() != 0;
@@ -480,8 +510,13 @@ public:
    * hosts to allow for evolution to occur.
    */
   void mutate(){
-    if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
-      interaction_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
+    double mutation_size = my_config->HOST_MUTATION_SIZE();
+    if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
+    double mutation_rate = my_config->HOST_MUTATION_RATE();
+    if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
+
+    if(random->GetDouble(0.0, 1.0) <= mutation_rate){
+      interaction_val += random->GetRandNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
@@ -550,7 +585,8 @@ public:
   bool GetDoEctosymbiosis(size_t location){
     //a host is immune to ectosymbiosis if immunity is on and it has a sym.
     bool is_immune = my_config->ECTOSYMBIOTIC_IMMUNITY() && HasSym();
-    return my_config->ECTOSYMBIOSIS() && (my_world->GetSymAt(location) != nullptr) && (is_immune == false);
+    bool valid_sym = my_world->GetSymAt(location) != nullptr && !my_world->GetSymAt(location)->GetDead();
+    return my_config->ECTOSYMBIOSIS() && (valid_sym == true) && (is_immune == false);
   }
 
   /**
@@ -632,6 +668,7 @@ public:
           }
         } //for each sym in syms
       } //if org has syms
+    growOlder();
   }
 };//Host
 #endif

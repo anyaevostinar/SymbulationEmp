@@ -102,6 +102,14 @@ protected:
 
   /**
     *
+    * Purpose: Represents the number of updates the symbiont
+    * has lived through; at birth is set to 0.
+    *
+  */
+  int age = 0;
+
+  /**
+    *
     * Purpose: Represents an instance of random.
     *
   */
@@ -327,6 +335,14 @@ public:
    */
   void AddPoints(double _in) { points += _in;}
 
+  /**
+   * Input: None
+   *
+   * Output: an int representing the current age of the Symbiont
+   *
+   * Purpose: To get the Symbiont's age.
+   */
+  int GetAge() {return age;}
 
   /**
    * Input: The pointer to an organism that will be set as the symbinot's host
@@ -353,6 +369,20 @@ public:
    */
   void uponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Increments age by one and kills it if too old.
+   */
+  void growOlder(){
+    age = age + 1;
+    if(age > my_config->SYM_AGE_MAX() && my_config->SYM_AGE_MAX() > 0){
+      SetDead();
+    }
   }
 
 
@@ -526,7 +556,9 @@ public:
         my_world->SymDoBirth(sym_baby, location);
       }
     }
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) {
+    growOlder();
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
+      //if the symbiont should move, and hasn't been killed
       my_world->FreeSymLocationHandler(location);
     }
   }
