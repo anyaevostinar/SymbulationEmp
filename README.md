@@ -8,7 +8,6 @@ Symbulation is an artificial life software tool for agent-based modeling of the 
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
 [<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
 [![GitHub contributors](https://img.shields.io/github/contributors/anyaevostinar/SymbulationEmp.svg?style=flat-square)](https://github.com/anyaevostinar/SymbulationEmp/graphs/contributors)
-[![GitHub license](https://img.shields.io/github/license/algorithm-visualizer/algorithm-visualizer.svg?style=flat-square)](https://github.com/algorithm-visualizer/algorithm-visualizer/blob/master/LICENSE)
 
 Try out our [browser-based GUI](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html). See our documentation at [https://symbulation.readthedocs.io](https://symbulation.readthedocs.io).
 
