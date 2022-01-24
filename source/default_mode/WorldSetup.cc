@@ -1,7 +1,7 @@
 #ifndef WORLD_SETUP_C
 #define WORLD_SETUP_C
 
-#include "../SymWorld.h"
+#include "SymWorld.h"
 #include "../ConfigSetup.h"
 #include "Host.h"
 #include "Symbiont.h"

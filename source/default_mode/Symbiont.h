@@ -3,7 +3,7 @@
 
 #include "../../../Empirical/include/emp/math/Random.hpp"
 #include "../../../Empirical/include/emp/tools/string_utils.hpp"
-#include "../SymWorld.h"
+#include "SymWorld.h"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream

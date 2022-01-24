@@ -7,7 +7,7 @@
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 #include "../Organism.h"
-#include "../SymWorld.h"
+#include "SymWorld.h"
 
 
 class Host: public Organism {
