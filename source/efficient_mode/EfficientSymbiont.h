@@ -183,7 +183,12 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> makeNew(){
-    return emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
+    sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
+    sym_baby->SetInfectionChance(GetInfectionChance());
+    sym_baby->SetEfficiency(GetEfficiency());
+    return sym_baby;
   }
 
   /**
@@ -195,10 +200,6 @@ public:
    */
   emp::Ptr<Organism> reproduce(std::string mode) {
     emp::Ptr<Organism> sym_baby = makeNew();
-    sym_baby->SetPoints(0);
-    sym_baby->SetAge(0);
-    sym_baby->SetInfectionChance(GetInfectionChance());
-    sym_baby->SetEfficiency(GetEfficiency());
     sym_baby->mutate(mode);
     return sym_baby;
   }

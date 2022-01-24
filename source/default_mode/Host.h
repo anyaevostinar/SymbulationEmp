@@ -517,7 +517,10 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> makeNew(){
-    return emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+    new_host->SetPoints(0);
+    new_host->SetAge(0);
+    return new_host;
   }
 
   /**
@@ -530,8 +533,6 @@ public:
   emp::Ptr<Organism> reproduce(){
     emp::Ptr<Organism> host_baby = makeNew();
     host_baby->mutate();
-    host_baby->SetPoints(0);
-    host_baby->SetAge(0);
     SetPoints(0);
     return host_baby;
   }

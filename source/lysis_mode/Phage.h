@@ -267,29 +267,8 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> makeNew() {
-    return emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
-  }
-
-
-  /**
-   * Input: Optional string parameter to indicate mode of reproduction, either vertical (for prophage) or horizontal (for lytic phage)
-   *
-   * Output: The pointer to the new phage that has been produced.
-   *
-   * Purpose: To reproduce phage. The newly generated phage will have
-   * 0 points, a burst timer equal to 0, and have a mutated genome
-   * from their parent organism.
-   */
-  emp::Ptr<Organism> reproduce() {
-    //can't figure out why using the same template as symbiont reproduction is causing errors
-    //tried the following combinations and each produced their own problem:
-    //emp::Ptr<Organism> sym_baby = makeNew(); //throws organism method called error
-    //emp::Ptr<Phage> sym_baby = makeNew(); //conversion error between Phage and Organism
-    //emp::Ptr<Organism> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal()); //organism method called
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal()); //only one that works
-
-
-    // reset values for a new organism
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
+    // reset values for a new phage
     sym_baby->SetPoints(0);
     sym_baby->SetAge(0);
     sym_baby->SetBurstTimer(0);
@@ -297,8 +276,7 @@ public:
     sym_baby->SetIncVal(GetIncVal());
     sym_baby->SetLysisChance(GetLysisChance());
     sym_baby->SetInductionChance(GetInductionChance());
-    // mutate the offspring genome
-    sym_baby->mutate();
+    sym_baby->SetInfectionChance(GetInfectionChance());
     return sym_baby;
   }
 
