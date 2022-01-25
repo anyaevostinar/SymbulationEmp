@@ -141,7 +141,6 @@ public:
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->Setdonation(GetDonation());
     return sym_baby;
-    //return emp::NewPtr<PGGSymbiont>(*this); //constructor that takes parent values
   }
 
   /**
