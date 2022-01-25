@@ -653,12 +653,18 @@ public:
     return file;
   }
 
+  /**
+   * Input: The address of the string representing the suffixes for the files to be created.
+   *
+   * Output: None.
+   *
+   * Purpose: To setup and write to the files that track the symbiont systematic information,
+   * the host systematic information, and the basics about the dominant lineage of each species.
+   */
   void WritePhylogenyFile(const std::string & filename) {
     WriteDominantPhylogenyFiles("Dominant"+filename);
     sym_sys->Snapshot("SymSnapshot_"+filename);
     host_sys->Snapshot("HostSnapshot_"+filename);
-
-    //return file;
   }
 
   /**
