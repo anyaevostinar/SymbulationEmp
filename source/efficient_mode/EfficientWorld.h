@@ -1,7 +1,7 @@
 #ifndef EFFWORLD_H
 #define EFFWORLD_H
 
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 
 class EfficientWorld : public SymWorld {
 private:

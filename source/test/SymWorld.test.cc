@@ -1,4 +1,4 @@
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 #include "../default_mode/Symbiont.h"
 #include "../lysis_mode/Phage.h"
 #include "../lysis_mode/LysisWorld.h"

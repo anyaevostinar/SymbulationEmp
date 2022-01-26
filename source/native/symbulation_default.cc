@@ -1,4 +1,4 @@
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 #include "../default_mode/Symbiont.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/WorldSetup.cc"
