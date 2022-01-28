@@ -3,7 +3,7 @@
 #define SYM_ANIMATE_H
 
 #include <iostream>
-#include "SymWorld.h"
+#include "default_mode/SymWorld.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
@@ -59,17 +59,17 @@ public:
     emp::prefab::ConfigPanel config_panel(config);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
-    config_panel.ExcludeConfig("SYM_LIMIT");
-    config_panel.ExcludeConfig("DATA_INT");
-    config_panel.ExcludeConfig("POP_SIZE");
-    config_panel.ExcludeConfig("LYSIS");
-    config_panel.ExcludeConfig("BURST_SIZE");
-    config_panel.ExcludeConfig("BURST_TIME");
-    config_panel.ExcludeConfig("SYM_LYSIS_RES");
-    config_panel.ExcludeConfig("START_MOI");
-    config_panel.ExcludeConfig("FILE_PATH");
-    config_panel.ExcludeConfig("FILE_NAME");
-    config_panel.ExcludeConfig("COMPETITION_MODE");
+    config_panel.ExcludeSetting("SYM_LIMIT");
+    config_panel.ExcludeSetting("DATA_INT");
+    config_panel.ExcludeSetting("POP_SIZE");
+    config_panel.ExcludeSetting("LYSIS");
+    config_panel.ExcludeSetting("BURST_SIZE");
+    config_panel.ExcludeSetting("BURST_TIME");
+    config_panel.ExcludeSetting("SYM_LYSIS_RES");
+    config_panel.ExcludeSetting("START_MOI");
+    config_panel.ExcludeSetting("FILE_PATH");
+    config_panel.ExcludeSetting("FILE_NAME");
+    config_panel.ExcludeSetting("COMPETITION_MODE");
 
 
 
