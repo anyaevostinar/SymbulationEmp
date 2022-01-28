@@ -3,7 +3,7 @@
 #define SYM_ANIMATE_H
 
 #include <iostream>
-#include "SymWorld.h"
+#include "default_mode/SymWorld.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
