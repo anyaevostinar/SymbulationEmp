@@ -86,14 +86,14 @@ protected:
     * Purpose: Represents the systematics object tracking hosts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> host_sys = new emp::Systematics(GetCalcInfoFun());
+  emp::Ptr<emp::Systematics<Organism, int>> host_sys;
 
   /**
     *
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> sym_sys = new emp::Systematics(GetCalcInfoFun());
+  emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -212,8 +212,12 @@ public:
   void SetTrackPhylogeny(bool _in) {
     track_phylogeny = _in;
     if (track_phylogeny == true){
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
+
       sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
       host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
     }
@@ -327,7 +331,7 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, parent_taxon);
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -679,7 +683,7 @@ public:
   void WriteDominantPhylogenyFiles(const std::string & filename){
     std::ofstream phylo_file;
     phylo_file.open(filename);
-    phylo_file << "phylogeny_name,dom_tax_info,dom_tax_orgcount,dom_tax_lineage\n";
+    phylo_file << "phylogeny_name, dom_tax_info, dom_tax_orgcount, dom_tax_lineage\n";
 
     emp::vector<emp::Ptr<emp::Taxon<int>>> dom_taxons = {GetDominantSymTaxon(), GetDominantHostTaxon()};
     emp::vector<std::string> names = {"all_syms", "host"};
