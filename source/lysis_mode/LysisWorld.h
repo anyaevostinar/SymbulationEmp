@@ -1,7 +1,7 @@
 #ifndef LYSIS_WORLD_H
 #define LYSIS_WORLD_H
 
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 
 class LysisWorld : public SymWorld {
 private:

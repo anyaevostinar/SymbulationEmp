@@ -1,7 +1,7 @@
 #ifndef PGG_WORLD_H
 #define PGG_WORLD_H
 
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 
 class PggWorld : public SymWorld {
 private:

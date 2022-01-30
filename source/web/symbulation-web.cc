@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../SymWorld.h"
+#include "../default_mode/SymWorld.h"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include "../SymAnimate.h"
 //#include "../SymConfig.h"
