@@ -220,7 +220,7 @@ TEST_CASE("DistributeResources", "[default]") {
     }
 }
 
-  TEST_CASE("SetResInProcess, GetResInProcess") {
+  TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld w(*random);
@@ -290,7 +290,7 @@ TEST_CASE("Steal resources unit test", "[default]"){
         }
 }
 
-TEST_CASE("GetDoEctosymbiosis"){
+TEST_CASE("GetDoEctosymbiosis", "[default]"){
   GIVEN("A world"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
@@ -374,7 +374,7 @@ TEST_CASE("GetDoEctosymbiosis"){
   }
 }
 
-TEST_CASE("Host GrowOlder"){
+TEST_CASE("Host GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
@@ -397,7 +397,7 @@ TEST_CASE("Host GrowOlder"){
     }
 }
 
-TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
+TEST_CASE("Host makeNew", "[default][efficient][lysis][pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;

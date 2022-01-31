@@ -1,4 +1,4 @@
-#include "../../default_mode/Host.h"
+#include "../../efficient_mode/EfficientHost.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
 
 TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
@@ -157,6 +157,10 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 
         }
 
+        THEN("Offspring's age is 0") {
+            REQUIRE(sym_baby->GetAge() == 0);
+        }
+
         sym_baby.Delete();
 
     }
@@ -234,10 +238,10 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
 
     WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
 
-        Host * h = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h2 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h3 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h4 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h2 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h3 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h4 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
         h->AddSymbiont(s);
         w.AddOrgAt(h, 0);
@@ -248,7 +252,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
         h->Process(0);
 
         THEN("EfficientSymbiont reproduces and offspring goes into neighboring Host and offspring has identical efficiency value") {
-            Host * new_infected = nullptr;
+            EfficientHost * new_infected = nullptr;
             if(h2->HasSym()) {
                 new_infected = h2;
             } else if (h3->HasSym()) {
@@ -266,10 +270,10 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     WHEN("The horizontal mutation rate and size are not zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
         config.HORIZ_MUTATION_SIZE(0.002);
         config.HORIZ_MUTATION_RATE(1.0);
-        Host * h = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h2 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h3 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        Host * h4 = new Host(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h2 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h3 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        EfficientHost * h4 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
 
         EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
         h->AddSymbiont(s);
@@ -281,7 +285,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
         h->Process(0);
 
         THEN("EfficientSymbiont reproduces and offspring with a different efficiency value goes into neighboring Host") {
-            Host * new_infected = nullptr;
+            EfficientHost * new_infected = nullptr;
             if(h2->HasSym()) {
                 new_infected = h2;
             } else if (h3->HasSym()) {
@@ -295,5 +299,23 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             REQUIRE(new_infected->GetSymbionts()[0]->GetIntVal() != int_val);
         }
 
+    }
+}
+
+TEST_CASE("EfficientSymbiont makeNew", "[efficient]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    EfficientWorld w(*random);
+    SymConfigBase config;
+
+    double sym_int_val = 0.2;
+    Organism * s1 = new EfficientSymbiont(random, &w, &config, sym_int_val);
+    Organism * s2 = s1->makeNew();
+
+    THEN("The new efficient symbiont has the same genome as its parent, but age and points 0"){
+        REQUIRE(s2->GetIntVal() == s1->GetIntVal());
+        REQUIRE(s2->GetInfectionChance() == s1->GetInfectionChance());
+        REQUIRE(s2->GetEfficiency() == s1->GetEfficiency());
+        REQUIRE(s2->GetAge() == 0);
+        REQUIRE(s2->GetPoints() == 0);
     }
 }

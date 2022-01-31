@@ -184,8 +184,6 @@ public:
    */
   emp::Ptr<Organism> makeNew(){
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
-    sym_baby->SetPoints(0);
-    sym_baby->SetAge(0);
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
     return sym_baby;
