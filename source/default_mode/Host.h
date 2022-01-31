@@ -518,8 +518,6 @@ public:
    */
   emp::Ptr<Organism> makeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
-    new_host->SetPoints(0);
-    new_host->SetAge(0);
     return new_host;
   }
 

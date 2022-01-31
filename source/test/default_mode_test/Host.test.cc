@@ -396,6 +396,7 @@ TEST_CASE("Host GrowOlder"){
       }
     }
 }
+
 TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
@@ -404,8 +405,10 @@ TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
     double host_int_val = 0.2;
     Organism * h1 = new Host(random, &w, &config, host_int_val);
     Organism * h2 = h1->makeNew();
-    THEN("The new host has properties of the original host"){
+    THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(h1->GetIntVal() == h2->GetIntVal());
+      REQUIRE(h2->GetPoints() == 0);
+      REQUIRE(h2->GetAge() == 0);
     }
 }
 
