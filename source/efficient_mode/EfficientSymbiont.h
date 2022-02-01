@@ -64,11 +64,6 @@ public:
     } else {
       ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
     }
-    if(my_config->EFFICIENCY_MUT_RATE() < 0) {
-      eff_mut_rate = ht_mut_rate;
-    } else {
-      eff_mut_rate = my_config->EFFICIENCY_MUT_RATE();
-    }
   }
 
 
@@ -145,6 +140,7 @@ public:
   void mutate(std::string mode){
     double local_size;
     double local_rate;
+
     if(mode == "vertical"){
       local_rate = my_config->MUTATION_RATE();
       local_size = my_config->MUTATION_SIZE();
@@ -154,6 +150,13 @@ public:
     } else {
       throw "Illegal argument passed to mutate in EfficientSymbiont";
     }
+
+    if(my_config->EFFICIENCY_MUT_RATE() >= 0) {
+      eff_mut_rate = my_config->EFFICIENCY_MUT_RATE();
+    } else {
+      eff_mut_rate = local_rate;
+    }
+
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
