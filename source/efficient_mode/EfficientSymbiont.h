@@ -64,11 +64,6 @@ public:
     } else {
       ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
     }
-    if(my_config->EFFICIENCY_MUT_RATE() < 0) {
-      eff_mut_rate = ht_mut_rate;
-    } else {
-      eff_mut_rate = my_config->EFFICIENCY_MUT_RATE();
-    }
   }
 
 
@@ -101,6 +96,17 @@ public:
    */
   EfficientSymbiont() = default;
 
+  /**
+   * Input: Efficiency value
+   *
+   * Output: None
+   *
+   * Purpose: Setting an efficient symbiont's efficiency value.
+   */
+  void SetEfficiency(double _in) {
+    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
+    efficiency = _in;
+  }
 
   /**
    * Input: None
@@ -134,6 +140,7 @@ public:
   void mutate(std::string mode){
     double local_size;
     double local_rate;
+
     if(mode == "vertical"){
       local_rate = my_config->MUTATION_RATE();
       local_size = my_config->MUTATION_SIZE();
@@ -143,6 +150,13 @@ public:
     } else {
       throw "Illegal argument passed to mutate in EfficientSymbiont";
     }
+
+    if(my_config->EFFICIENCY_MUT_RATE() >= 0) {
+      eff_mut_rate = my_config->EFFICIENCY_MUT_RATE();
+    } else {
+      eff_mut_rate = local_rate;
+    }
+
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
@@ -172,7 +186,12 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> makeNew(){
-    return emp::NewPtr<EfficientSymbiont>(*this); //constructor that takes parent values
+    emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
+    sym_baby->SetPoints(0);
+    sym_baby->SetAge(0);
+    sym_baby->SetInfectionChance(GetInfectionChance());
+    sym_baby->SetEfficiency(GetEfficiency());
+    return sym_baby;
   }
 
   /**
@@ -184,8 +203,6 @@ public:
    */
   emp::Ptr<Organism> reproduce(std::string mode) {
     emp::Ptr<Organism> sym_baby = makeNew();
-    sym_baby->SetPoints(0);
-    sym_baby->SetAge(0);
     sym_baby->mutate(mode);
     return sym_baby;
   }

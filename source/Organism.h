@@ -118,6 +118,9 @@ class Organism {
   virtual double GetEfficiency() {
     std::cout << "GetEfficiency called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetEfficiency(double _in) {
+    std::cout << "SetEfficiency called from Organism" << std::endl;
+    throw "Organism method called!";}
   virtual emp::Ptr<Organism> reproduce(std::string mode) {
     std::cout << "EfficientSymbiont's reproduce called from Organism" << std::endl;
     throw "Organism method called!";}

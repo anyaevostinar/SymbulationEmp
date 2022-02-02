@@ -1,7 +1,7 @@
 #ifndef WORLD_SETUP_C
 #define WORLD_SETUP_C
 
-#include "../SymWorld.h"
+#include "SymWorld.h"
 #include "../ConfigSetup.h"
 #include "Host.h"
 #include "Symbiont.h"
@@ -29,7 +29,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
   world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
   world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
-  world->SetTrackPhylogeny(my_config->PHYLOGENY());
 
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   double comp_host_1 = 0;
@@ -37,10 +36,10 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 
 
 
-  //inject hosts  
+  //inject hosts
   for (size_t i = 0; i < POP_SIZE; i++){
     emp::Ptr<Host> new_org;
-    
+
     if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
     } else if (my_config->COMPETITION_MODE() && i%2==0) {
         new_org.New(&random, world, my_config, comp_host_1);
@@ -55,8 +54,8 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
       world->AddOrgAt(new_org, world->size());
     }
     //world.Inject(*new_org);
-  } 
-  
+  }
+
   //sets up the world size
   world->Resize(my_config->GRID_X(), my_config->GRID_Y());
 
