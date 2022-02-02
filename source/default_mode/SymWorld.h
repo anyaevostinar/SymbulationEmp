@@ -3,6 +3,7 @@
 
 #include "../../../Empirical/include/emp/Evolve/World.hpp"
 #include "../../../Empirical/include/emp/data/DataFile.hpp"
+#include "../../Empirical/include/emp/Evolve/Systematics.hpp"
 #include "../../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../../Empirical/include/emp/math/Random.hpp"
 #include "../Organism.h"
