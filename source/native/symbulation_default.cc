@@ -5,6 +5,7 @@
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
+#include "../DataNodes.h"
 
 using namespace std;
 
