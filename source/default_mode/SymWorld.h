@@ -511,6 +511,11 @@ public:
   /**
    * Definitions of data node functions, expanded in DataNodes.h
    */
+  void WritePhylogenyFile(const std::string & filename);
+  void WriteDominantPhylogenyFiles(const std::string & filename);
+  emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
+  emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
+  emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
