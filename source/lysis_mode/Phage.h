@@ -287,7 +287,7 @@ public:
    *
    * Purpose: To burst host and release offspring
    */
-  void LysisBurst(size_t location){
+  void LysisBurst(emp::WorldPosition location){
     emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
     //Record the burst size and count
     emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
@@ -364,13 +364,13 @@ public:
   }
 
   /**
-   * Input: The size_t representing the location of the phage being processed.
+   * Input: The worldposition representing the location of the phage being processed.
    *
    * Output: None
    *
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
-  void Process(size_t location) {
+  void Process(emp::WorldPosition location) {
     if(my_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= my_config->BURST_TIME() ) { //time to lyse!
