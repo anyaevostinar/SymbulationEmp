@@ -428,7 +428,6 @@ public:
       else sym_pop[pos_id].Delete();
 
       //set the cell to point to the new sym
-      sym_pop[pos_id] = nullptr;
       sym_pop[pos_id] = new_org;
     }
   }
