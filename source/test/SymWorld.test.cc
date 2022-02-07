@@ -323,12 +323,12 @@ TEST_CASE( "InjectSymbiont" ){
     SymWorld w(random);
     w.Resize(2,2);
 
-    emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
-    w.AddOrgAt(host, 0);
-
     WHEN( "free living syms are not allowed" ){
       config.FREE_LIVING_SYMS(0);
       w.SetFreeLivingSyms(false);
+
+      emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(host, 0);
       emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
       THEN( "syms are injected into a random host" ){
@@ -340,19 +340,24 @@ TEST_CASE( "InjectSymbiont" ){
       }
     }
     WHEN( "free living syms are allowed" ){
+      w.Resize(1000);
       config.FREE_LIVING_SYMS(1);
       w.SetFreeLivingSyms(true);
-      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+
 
       THEN( "syms can be injected into a random empty cell" ){
-        w.InjectSymbiont(sym);
-        REQUIRE(w.GetNumOrgs() == 2);
 
-        size_t sym_count = 0;
-        for(size_t i = 0; i < 4; i++){
-          if(w.GetSymPop()[i]) sym_count++;
+        REQUIRE(w.GetNumOrgs() == 0);
+
+        size_t sym_count = 100;
+
+        for(size_t i = 0; i < sym_count; i++){
+          w.InjectSymbiont(new Symbiont(&random, &w, &config, int_val));
         }
-        REQUIRE(sym_count == 1);
+        //since spot of injection is random, a few symbionts
+        //will get overwritten, and thus # injected != # remaining in world
+        REQUIRE(w.GetNumOrgs() < (sym_count + 1));
+        REQUIRE(w.GetNumOrgs() > (sym_count - 10));
       }
     }
   }
@@ -1075,9 +1080,9 @@ TEST_CASE("Symbiont Phylogeny"){
     REQUIRE(sym_sys->GetNumActive() == 0);
     size_t count = 8;
     double int_vals[count] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
-    size_t taxon_infos[count] = {0, 1, 1, 10, 15, 16, 19, 19};
+    int taxon_infos[count] = {0, 1, 1, 10, 15, 16, 19, 19};
     emp::Ptr<Organism> syms[count];
-    for(int i = 0; i < count; i++){
+    for(size_t i = 0; i < count; i++){
       emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_vals[i]);
       w.InjectSymbiont(sym);
       REQUIRE(sym->GetTaxon()->GetInfo() == taxon_infos[i]);

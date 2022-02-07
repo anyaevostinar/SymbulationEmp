@@ -501,7 +501,7 @@ public:
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
       if(new_loc < sym_pop.size()) {
-        AddOrgAt(new_sym, new_loc);
+        AddOrgAt(new_sym, emp::WorldPosition(0, new_loc));
       } else new_sym.Delete();
     }
   }
