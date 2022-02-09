@@ -355,3 +355,19 @@ TEST_CASE("EfficientSymbiont makeNew", "[efficient]"){
         REQUIRE(typeid(*s2).name() == typeid(*s1).name());
     }
 }
+
+TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<EfficientSymbiont> s = new EfficientSymbiont(random, world, &config, int_val);
+
+    double efficiency = 0.5;
+    s->SetEfficiency(efficiency);
+    double expected_efficieny = 0.5;
+    REQUIRE(s->GetEfficiency() == expected_efficieny);
+
+    delete s;
+}

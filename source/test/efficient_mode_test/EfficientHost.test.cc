@@ -58,3 +58,19 @@ TEST_CASE("EfficientHost makeNew", "[efficient]"){
         REQUIRE(typeid(*h2).name() == typeid(*h1).name());
     }
 }
+
+TEST_CASE("EfficientHost SetEfficiency and GetEfficiency", "[efficient]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
+    SymConfigBase config;
+    double int_val = -1;
+    emp::Ptr<EfficientHost> h = new EfficientHost(random, world, &config, int_val);
+
+    double efficiency = 0.5;
+    h->SetEfficiency(efficiency);
+    double expected_efficieny = 0.5;
+    REQUIRE(h->GetEfficiency() == expected_efficieny);
+
+    delete h;
+}
