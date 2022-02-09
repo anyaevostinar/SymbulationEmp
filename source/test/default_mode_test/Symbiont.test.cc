@@ -635,5 +635,7 @@ TEST_CASE("Symbiont makeNew", "[default]"){
         REQUIRE(s2->GetInfectionChance() == s1->GetInfectionChance());
         REQUIRE(s2->GetAge() == 0);
         REQUIRE(s2->GetPoints() == 0);
+        //check that the offspring is the correct class
+        REQUIRE(typeid(*s2).name() == typeid(*s1).name());
     }
 }

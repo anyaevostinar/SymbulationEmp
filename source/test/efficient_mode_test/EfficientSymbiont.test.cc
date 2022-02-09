@@ -1,6 +1,40 @@
 #include "../../efficient_mode/EfficientHost.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
 
+TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
+
+    double int_val = -2;
+    REQUIRE_THROWS( new EfficientSymbiont(random, world, &config, int_val) );
+
+    int_val = -1;
+    EfficientSymbiont * s1 = new EfficientSymbiont(random, world, &config, int_val);
+    CHECK(s1->GetIntVal() == int_val);
+    CHECK(s1->GetAge() == 0); 
+    CHECK(s1->GetPoints() == 0);
+
+    int_val = -1;
+    double points = 10;
+    double efficiency = 0.5;
+    EfficientSymbiont * s2 = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+    CHECK(s2->GetIntVal() == int_val);
+    CHECK(s2->GetEfficiency() == efficiency);
+    CHECK(s2->GetAge() == 0);
+    CHECK(s2->GetPoints() == points);
+
+    int_val = 1;
+    EfficientSymbiont * s3 = new EfficientSymbiont(random, world, &config, int_val);
+    CHECK(s3->GetIntVal() == int_val);
+    CHECK(s3->GetAge() == 0);
+    CHECK(s3->GetPoints() == 0);
+
+    int_val = 2;
+    REQUIRE_THROWS(new EfficientSymbiont(random, world, &config, int_val) );
+}
+
 TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
@@ -317,5 +351,7 @@ TEST_CASE("EfficientSymbiont makeNew", "[efficient]"){
         REQUIRE(s2->GetEfficiency() == s1->GetEfficiency());
         REQUIRE(s2->GetAge() == 0);
         REQUIRE(s2->GetPoints() == 0);
+        //check that the offspring is the correct class
+        REQUIRE(typeid(*s2).name() == typeid(*s1).name());
     }
 }
