@@ -339,7 +339,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       THEN("Returns false"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
       }
@@ -349,7 +349,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos + 1);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos + 1));
       THEN("Returns false"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
       }
@@ -360,7 +360,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       sym->SetDead();
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos + 1);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos + 1));
       THEN("Returns false"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == false);
       }
@@ -372,7 +372,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
 
       THEN("Returns false"){
@@ -386,7 +386,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
 
       THEN("Returns true"){
@@ -400,7 +400,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
       emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
-      w.AddOrgAt(sym, host_pos);
+      w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
 
       THEN("Returns true"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == true);

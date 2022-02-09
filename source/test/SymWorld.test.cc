@@ -6,6 +6,7 @@
 #include "../pgg_mode/Pgghost.h"
 #include "../pgg_mode/Pggsym.h"
 
+
 TEST_CASE("PullResources") {
   GIVEN(" a world ") {
     emp::Random random(19);
@@ -131,12 +132,10 @@ TEST_CASE( "Interaction Patterns" ) {
       }
 
       w.Resize(10, 1);
-
       for (size_t i = 0; i< 10; i++){
         emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, &w, &config, 0.1);
         w.InjectSymbiont(new_sym);
       }
-
       //Simulate
       for(int i = 0; i < 100; i++) {
         w.Update();
@@ -324,14 +323,13 @@ TEST_CASE( "InjectSymbiont" ){
     SymWorld w(random);
     w.Resize(2,2);
 
-    emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
-    w.AddOrgAt(host, 0);
-
-    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
-
     WHEN( "free living syms are not allowed" ){
       config.FREE_LIVING_SYMS(0);
       w.SetFreeLivingSyms(false);
+
+      emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(host, 0);
+      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
       THEN( "syms are injected into a random host" ){
         w.InjectSymbiont(sym);
@@ -342,18 +340,24 @@ TEST_CASE( "InjectSymbiont" ){
       }
     }
     WHEN( "free living syms are allowed" ){
+      w.Resize(1000);
       config.FREE_LIVING_SYMS(1);
       w.SetFreeLivingSyms(true);
 
-      THEN( "syms can be injected into a random empty cell" ){
-        w.InjectSymbiont(sym);
-        REQUIRE(w.GetNumOrgs() == 2);
 
-        size_t sym_count = 0;
-        for(size_t i = 0; i < 4; i++){
-          if(w.GetSymPop()[i]) sym_count++;
+      THEN( "syms can be injected into a random empty cell" ){
+
+        REQUIRE(w.GetNumOrgs() == 0);
+
+        size_t sym_count = 100;
+
+        for(size_t i = 0; i < sym_count; i++){
+          w.InjectSymbiont(new Symbiont(&random, &w, &config, int_val));
         }
-        REQUIRE(sym_count == 1);
+        //since spot of injection is random, a few symbionts
+        //will get overwritten, and thus # injected != # remaining in world
+        REQUIRE(w.GetNumOrgs() < (sym_count + 1));
+        REQUIRE(w.GetNumOrgs() > (sym_count - 10));
       }
     }
   }
@@ -367,13 +371,15 @@ TEST_CASE( "DoBirth" ){
     SymWorld w(random);
     w.Resize(2,2);
     w.SetFreeLivingSyms(true);
+    emp::Ptr<Organism> h2 = new Host(&random, &w, &config, int_val);
+    w.AddOrgAt(h2, 3);
     emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
 
     WHEN( "born into an empty spot" ){
       THEN( "occupies that spot" ){
         w.DoBirth(host, 2);
 
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
         bool host_isborn = false;
         for(size_t i = 0; i < 4; i++){
           if(&w.GetOrg(i) == host) {
@@ -390,18 +396,18 @@ TEST_CASE( "DoBirth" ){
         w.AddOrgAt(other_host, 0);
         w.DoBirth(host, 2);
 
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
 
         bool host_isborn = false;
         bool otherhost_isdead = true;
         for(size_t i = 0; i < 4; i++){
           if(w.GetPop()[i] == host) {
             host_isborn = true;
-          } else if (w.GetPop()[i] != nullptr){
+          } else if (w.GetPop()[i] != nullptr && w.GetPop()[i] != h2){
             otherhost_isdead = false;
           }
         }
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(w.GetNumOrgs() == 2);
         REQUIRE(host_isborn == true);
         REQUIRE(otherhost_isdead == true);
       }
@@ -461,8 +467,10 @@ TEST_CASE( "SymDoBirth" ) {
 
       WHEN("sym is inserted into an empty world"){
         THEN("it occupies some empty cell"){
-          w.SymDoBirth(sym1, 0);
-          REQUIRE(w.GetNumOrgs() == 1);
+          emp::WorldPosition parent_pos = emp::WorldPosition(3, 3);
+          w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), parent_pos);
+          w.SymDoBirth(sym1, parent_pos);
+          REQUIRE(w.GetNumOrgs() == 2);
         }
       }
       WHEN("sym is inserted into a not-empty world"){
@@ -483,9 +491,11 @@ TEST_CASE( "SymDoBirth" ) {
         }
         THEN("it might be insterted into a cell with a sym, killing and replacing it"){
           w.Resize(2,1);
-          w.SymDoBirth(sym1, 0);
-          w.SymDoBirth(sym2, 2);
+          w.AddOrgAt(sym1, 0);
+          w.AddOrgAt(sym2, emp::WorldPosition(0, 1));
+
           emp::Ptr<Organism> new_sym = new Symbiont(&random, &w, &config, int_val);
+
           w.SymDoBirth(new_sym, 0);
 
           REQUIRE(w.GetNumOrgs() == 2);
@@ -575,7 +585,7 @@ TEST_CASE( "Update" ){
 
         WHEN("there are no hosts"){
           THEN("phage don't reproduce or get points on update"){
-            lw.SymDoBirth(p, 0);
+            lw.AddOrgAt(p, 0);
 
             int orig_num_orgs = lw.GetNumOrgs();
             int orig_points = p->GetPoints();
@@ -595,7 +605,7 @@ TEST_CASE( "Update" ){
         WHEN("there are hosts"){
           THEN("phage and hosts mingle in the world"){
             lw.AddOrgAt(host, 0);
-            lw.SymDoBirth(p, 1);
+            lw.AddOrgAt(p, emp::WorldPosition(0,1));
 
             for(int i = 0; i < 5; i++){
               lw.Update();
@@ -628,7 +638,7 @@ TEST_CASE( "Update" ){
         }
         THEN("hosts and syms can mingle in the environment"){
           w.AddOrgAt(host, 0);
-          w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), 1);
+          w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), emp::WorldPosition(0,1));
           for(int i = 0; i <= 4; i++){ w.Update(); }
 
           //the organisms have done something
@@ -662,30 +672,31 @@ TEST_CASE("MoveFreeSym"){
     w.SetFreeLivingSyms(true);
     int int_val = 0;
     w.Resize(2,2);
-    size_t sym_index = 0;
+    size_t host_pos = 0;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
 
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
-    w.AddOrgAt(sym, sym_index);
+    w.AddOrgAt(sym, sym_pos);
     WHEN("there is a parallel host and the sym wants to infect"){
       emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
-      w.AddOrgAt(host, sym_index);
+      w.AddOrgAt(host, host_pos);
       REQUIRE(w.GetNumOrgs() == 2);
       REQUIRE(host->HasSym() == false);
 
       WHEN("the infection fails"){
         config.SYM_INFECTION_FAILURE_RATE(1);
         emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
-        w.AddOrgAt(sym, sym_index);
+        w.AddOrgAt(sym, sym_pos);
         REQUIRE(w.GetNumOrgs() == 2);
         THEN("the sym is deleted"){
-          w.MoveFreeSym(sym_index);
+          w.MoveFreeSym(sym_pos);
           REQUIRE(w.GetNumOrgs() == 1);
           REQUIRE(!host->HasSym());
         }
       }
       WHEN("the infection does not fail"){
         THEN("the sym moves into the host"){
-          w.MoveFreeSym(sym_index);
+          w.MoveFreeSym(sym_pos);
           REQUIRE(w.GetNumOrgs() == 1);
           REQUIRE(host->HasSym());
           REQUIRE(host->GetSymbionts()[0] == sym);
@@ -693,25 +704,26 @@ TEST_CASE("MoveFreeSym"){
       }
     }
     WHEN("the sym does not want to/can't infect a parallel host"){
+      size_t sym_id = 0;
       WHEN("moving is turned on"){
         w.SetMoveFreeSyms(1);
         sym->SetInfectionChance(0);
         THEN("the sym moves to a random spot in the free world"){
-          REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
+          REQUIRE(w.GetSymPop()[sym_id] == sym); //there should be a sym at pos 0
+          w.MoveFreeSym(sym_pos);
 
-          size_t new_sym_index = 2;
-          emp::Ptr<Organism> new_sym = w.GetSymPop()[new_sym_index];
+          size_t new_sym_id = 2;
+          emp::Ptr<Organism> new_sym = w.GetSymPop()[new_sym_id];
           REQUIRE(sym == new_sym);
-          REQUIRE(w.GetSymPop()[sym_index] == nullptr);
+          REQUIRE(w.GetSymPop()[sym_id] == nullptr);
         }
       }
       WHEN("moving is turned off"){
         w.SetMoveFreeSyms(0);
         THEN("the sym doesn't move"){
-          REQUIRE(w.GetSymPop()[sym_index] == sym);
-          w.MoveFreeSym(sym_index);
-          emp::Ptr<Organism> new_sym = w.GetSymPop()[sym_index];
+          REQUIRE(w.GetSymPop()[sym_id] == sym);
+          w.MoveFreeSym(sym_pos);
+          emp::Ptr<Organism> new_sym = w.GetSymPop()[sym_id];
           REQUIRE(sym == new_sym);
         }
       }
@@ -727,9 +739,10 @@ TEST_CASE("ExtractSym"){
     SymWorld w(random);
     w.Resize(2,2);
     size_t sym_index = 1;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, sym_index);
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
 
-    w.AddOrgAt(sym, sym_index);
+    w.AddOrgAt(sym, sym_pos);
     REQUIRE(w.GetSymPop()[sym_index] == sym);
     REQUIRE(w.GetNumOrgs() == 1);
 
@@ -748,16 +761,28 @@ TEST_CASE("MoveIntoNewFreeWorldPos"){
     SymWorld w(random);
     w.Resize(2,2);
 
+    emp::Ptr<Organism> parent_sym = new Symbiont(&random, &w, &config, int_val);
     emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
-    sym->SetHost(new Host(&random, &w, &config, int_val));
-    size_t orig_pos = 2;
-    REQUIRE(w.GetNumOrgs() == 0);
-    REQUIRE(sym->GetHost() != nullptr);
 
-    w.MoveIntoNewFreeWorldPos(sym, orig_pos);
+    size_t orig_pos = 3;
+    emp::WorldPosition orig_sym_pos = emp::WorldPosition(0, orig_pos);
+    w.AddOrgAt(parent_sym, orig_sym_pos);
+
     REQUIRE(w.GetNumOrgs() == 1);
-    REQUIRE(sym->GetHost() == nullptr);
-    REQUIRE(w.GetSymPop()[orig_pos] == nullptr );
+
+    w.MoveIntoNewFreeWorldPos(sym, orig_sym_pos);
+    REQUIRE(w.GetNumOrgs() == 2);
+    REQUIRE(w.GetSymPop()[orig_pos] == parent_sym);
+
+    bool sym_exists = false;
+    for(int i = 0; i < 2; i++) {
+      if (w.GetSymPop()[i] == sym) {
+        sym_exists = true;
+        break;
+      }
+    }
+    REQUIRE(sym_exists == true);
+    //TODO: CHECK MOVING OUT OF HOST
   }
 }
 
@@ -821,7 +846,7 @@ TEST_CASE("AddOrgAt"){
       THEN("pop and sym_pop are expanded to fit it"){
         emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
         REQUIRE(w.GetSymPop().size() == 4);
-        w.AddOrgAt(sym, 7);
+        w.AddOrgAt(sym, emp::WorldPosition(0,7));
         REQUIRE(w.GetSymPop().size() == w.GetPop().size());
         REQUIRE(w.GetSymPop().size() == 8);
       }
@@ -842,7 +867,7 @@ TEST_CASE("GetSymAt"){
       emp::Ptr<Organism> sym1 = new Symbiont(&random, &w, &config, int_val);
       emp::Ptr<Organism> sym2 = new Symbiont(&random, &w, &config, int_val);
       w.AddOrgAt(sym1, 0);
-      w.AddOrgAt(sym2, 1);
+      w.AddOrgAt(sym2, emp::WorldPosition(0,1));
       THEN("the sym at that position is returned"){
         REQUIRE(w.GetSymAt(0) == sym1);
         REQUIRE(w.GetSymAt(1) == sym2);
@@ -865,7 +890,7 @@ TEST_CASE("DoSymDeath"){
     w.Resize(2,2);
     emp::Ptr<Organism> s = new Symbiont(&random, &w, &config, 1);
     size_t sym_position = 1;
-    w.AddOrgAt(s, sym_position);
+    w.AddOrgAt(s, emp::WorldPosition(0, sym_position));
 
     WHEN("A sym is deleted from a position"){
       THEN("It is no longer included in the count of organisms in the world"){
@@ -881,6 +906,222 @@ TEST_CASE("DoSymDeath"){
         emp::Ptr<Organism> world_sym_deleted = w.GetSymAt(sym_position);
         REQUIRE(world_sym_deleted == nullptr);
       }
+    }
+  }
+}
+
+TEST_CASE("Host Phylogeny"){
+  emp::Random random(17);
+  SymConfigBase config;
+  config.MUTATION_SIZE(0.09);
+  config.MUTATION_RATE(1);
+  config.PHYLOGENY(1);
+  int int_val = 0;
+  SymWorld w(random);
+  w.Resize(2,2);
+  w.SetTrackPhylogeny(1);
+
+
+  emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
+  emp::Ptr<emp::Systematics<Organism,int>> host_sys = w.GetHostSys();
+
+  //ORGANISMS ADDED TO SYSTEMATICS
+  WHEN("an organism is added to the world"){
+    WHEN("the cell it's added to is occupied"){
+      size_t pos = 0;
+
+      emp::Ptr<Organism> occupying_host = new Host(&random, &w, &config, -1);
+      w.AddOrgAt(occupying_host, pos);
+      size_t expected_occupying_taxon_info = 0;
+      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+
+      REQUIRE(w.GetNumOrgs() == 1);
+      REQUIRE(host_sys->GetNumActive() == 1);
+      REQUIRE(expected_occupying_taxon_info == taxon_info);
+
+      w.AddOrgAt(host, pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      size_t expected_taxon_info = 10;
+
+      THEN("the occupying organism is removed from the systematic"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_sys->GetNumActive() == 1);
+        REQUIRE(expected_taxon_info == taxon_info);
+      }
+    }
+    WHEN("the cell it's added to is empty"){
+      size_t pos = 0;
+
+      REQUIRE(w.GetNumOrgs() == 0);
+      REQUIRE(host_sys->GetNumActive() == 0);
+
+      w.AddOrgAt(host, pos);
+      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      size_t expected_taxon_info = 10;
+
+      THEN("the occupying organism is removed from the systematic"){
+        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(host_sys->GetNumActive() == 1);
+        REQUIRE(expected_taxon_info == taxon_info);
+      }
+    }
+
+    //ORGANISMS ADDED TO TAXA
+    THEN("the organsim is added to the correct taxon"){
+      size_t pos = 0;
+
+      //taxon info 0
+      double int_val = -1;
+      int expected_taxon_info = 0;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 0
+      int_val = -0.98;
+      expected_taxon_info = 0;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 1
+      int_val = -0.9;
+      expected_taxon_info = 1;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 2
+      int_val = -0.8;
+      expected_taxon_info = 2;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 16
+      int_val = 0.65 ;
+      expected_taxon_info = 16;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 19
+      int_val = 0.9;
+      expected_taxon_info = 19;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 19
+      int_val = 1;
+      expected_taxon_info = 19;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+    }
+  }
+
+  //ORGANISMS REMOVED FROM PHYLOGENIES/TAXA
+  WHEN("an organism dies during its Process()"){
+    THEN("it is no longer tracked"){
+      size_t pos = 0;
+      w.AddOrgAt(host, pos);
+    }
+  }
+
+  //ORGANISMS AND RELATIONSHIPS TRACKED
+  WHEN("Several generations pass"){
+    THEN("The phylogenetic relationships are tracked and accurate"){
+      w.Resize(10);
+      int num_descendants = 4;
+      //add the first host
+      w.AddOrgAt(new Host(&random, &w, &config, 0), 0);
+
+      //populate the world with descendents with various interaction values
+      double int_vals[num_descendants] = {0.1, -0.05, -0.2, 0.14};
+      //bins: parent org in 10, then in int_vals order: 11, 9, 8, 11
+      size_t parents[num_descendants] = {0, 1, 1, 3};
+      for(int i = 0; i < num_descendants; i++){
+        w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), (i+1), parents[i]);
+      }
+
+      char lineages[][30] = {"Lineage:\n10\n",
+                             "Lineage:\n11\n10\n",
+                             "Lineage:\n9\n11\n10\n",
+                             "Lineage:\n8\n11\n10\n",
+                             "Lineage:\n11\n8\n11\n10\n",
+                            };
+
+
+      for(int i = 0; i < (num_descendants+1); i++){
+        std::stringstream result;
+        host_sys->PrintLineage(host_sys->GetTaxonAt(i), result);
+        REQUIRE(result.str() == lineages[i]);
+      }
+    }
+  }
+}
+
+TEST_CASE("Symbiont Phylogeny"){
+  emp::Random random(17);
+  SymConfigBase config;
+  config.MUTATION_SIZE(0.09);
+  config.MUTATION_RATE(1);
+  config.FREE_LIVING_SYMS(1);
+  config.PHYLOGENY(1);
+  int int_val = 0;
+  SymWorld w(random);
+  w.Resize(20);
+  w.SetTrackPhylogeny(1);
+  w.SetFreeLivingSyms(1);
+
+  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = w.GetSymSys();
+  WHEN("symbionts are added to the world"){
+    REQUIRE(sym_sys->GetNumActive() == 0);
+    size_t count = 8;
+    double int_vals[count] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
+    int taxon_infos[count] = {0, 1, 1, 10, 15, 16, 19, 19};
+    emp::Ptr<Organism> syms[count];
+    for(size_t i = 0; i < count; i++){
+      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_vals[i]);
+      w.InjectSymbiont(sym);
+      REQUIRE(sym->GetTaxon()->GetInfo() == taxon_infos[i]);
+    }
+  }
+  WHEN("symbionts are deleted"){
+    THEN("they are no longer tracked by the sym systematic"){
+      REQUIRE(sym_sys->GetNumActive() == 0);
+      emp::Ptr<Organism> s1 = new Symbiont(&random, &w, &config, int_val);
+      w.InjectSymbiont(s1);
+      REQUIRE(sym_sys->GetNumActive() == 1);
+      s1.Delete();
+      REQUIRE(sym_sys->GetNumActive() == 0);
+    }
+  }
+  WHEN("generations pass"){
+    config.MUTATION_SIZE(1);
+    config.MUTATION_RATE(1);
+    config.PHYLOGENY(1);
+    size_t num_syms = 4;
+
+    emp::Ptr<Organism> syms[num_syms];
+    syms[0] = new Symbiont(&random, &w, &config, 0);
+    w.AddSymToSystematic(syms[0]);
+
+    for(size_t i = 1; i < num_syms; i++){
+      syms[i] = syms[i-1]->reproduce();
+    }
+
+    char lineages[][30] = {"Lineage:\n10\n",
+                           "Lineage:\n16\n10\n",
+                           "Lineage:\n19\n16\n10\n",
+                           "Lineage:\n16\n19\n16\n10\n",
+                          };
+
+    for(size_t i = 0; i < num_syms; i++){
+      std::stringstream result;
+      sym_sys->PrintLineage(syms[i]->GetTaxon(), result);
+      REQUIRE(result.str() == lineages[i]);
     }
   }
 }

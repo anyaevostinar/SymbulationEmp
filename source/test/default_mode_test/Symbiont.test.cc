@@ -608,16 +608,19 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
     WHEN ("A hosted symbiont reaches its maximum age"){
       Symbiont * s = new Symbiont(random, &w, &config, 1);
       Host * h = new Host(random, &w, &config, 1);
+      w.AddOrgAt(h, 1);
       h->AddSymbiont(s);
-      THEN("It dies and gets removed from its host")
+      THEN("It dies and gets removed from its host"){
         REQUIRE(h->HasSym() == true);
         REQUIRE(s->GetAge() == 0);
         h->Process(1);
         REQUIRE(s->GetAge() == 1);
         h->Process(1);
+        REQUIRE(h->HasSym() == true);
         REQUIRE(s->GetAge() == 2);
         h->Process(1); //should now be dead and removed
         REQUIRE(h->HasSym() == false);
+      }
     }
 }
 
