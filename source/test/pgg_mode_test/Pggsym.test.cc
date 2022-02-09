@@ -27,6 +27,7 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
     REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
 
 }
+
 TEST_CASE("Pggmutate", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
