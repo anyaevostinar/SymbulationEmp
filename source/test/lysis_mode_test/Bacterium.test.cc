@@ -263,3 +263,29 @@ TEST_CASE("Bacterium makeNew", "[lysis]"){
       REQUIRE(typeid(*h2).name() == typeid(*h1).name());
     }
 }
+
+TEST_CASE("Bacterium reproduce", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
+    config.MUTATION_SIZE(0.002);
+    config.MUTATION_RATE(1);
+    config.MUTATE_INC_VAL(1);
+
+    double host_int_val = -0.2;
+    double host_inc_val = 0.3;
+    Organism * h1 = new Bacterium(random, &w, &config, host_int_val);
+    h1->SetIncVal(host_inc_val);
+    Organism * h2 = h1->reproduce();
+
+    THEN("The host baby has a mutated genome and has age and points of 0"){
+        REQUIRE(h2->GetIntVal() != h1->GetIntVal());
+        REQUIRE(h2->GetIncVal() != h1->GetIncVal());
+        REQUIRE(h2->GetAge() == 0);
+        REQUIRE(h2->GetPoints() == 0);
+    }
+
+    THEN("The host parent's points are set to 0"){
+        REQUIRE(h1->GetPoints() == 0);
+    }
+}
