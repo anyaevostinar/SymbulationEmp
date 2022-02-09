@@ -9,13 +9,17 @@ TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
 
     config.HOST_INC_VAL(-1);
     Bacterium * b = new Bacterium(random, world, &config, int_val);
-    REQUIRE(b->GetIncVal() >= 0.0);
-    REQUIRE(b->GetIncVal() <= 1.0);
+    CHECK(b->GetIncVal() >= 0.0);
+    CHECK(b->GetIncVal() <= 1.0);
+    CHECK(b->GetAge() == 0); 
+    CHECK(b->GetPoints() == 0);
 
     config.HOST_INC_VAL(0.8);
     Bacterium * b2 = new Bacterium(random, world, &config, int_val);
     double expected_inc_val = 0.8;
-    REQUIRE(b2->GetIncVal()==expected_inc_val);
+    CHECK(b2->GetIncVal()==expected_inc_val);
+    CHECK(b2->GetAge() == 0); 
+    CHECK(b2->GetPoints() == 0);
 
     delete b;
     delete b2;

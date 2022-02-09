@@ -14,10 +14,14 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
     double int_val = 0.5;
     PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s->GetDonation() == donation);
+    CHECK(s->GetAge() == 0); 
+    CHECK(s->GetPoints() == 0);
 
     donation = 2;
     PGGSymbiont * s2 = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s2->GetDonation() == 2);
+    CHECK(s2->GetAge() == 0); 
+    CHECK(s2->GetPoints() == 0);
 
     int_val = 2;
     REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
