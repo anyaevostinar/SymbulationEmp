@@ -659,4 +659,26 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
     }
 }
 
+TEST_CASE("Phage makeNew", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
 
+    double phage_int_val = 0.2;
+    Organism * p1 = new Phage(random, &w, &config, phage_int_val);
+    Organism * p2 = p1->makeNew();
+
+    THEN("The new phage has the same genome as its parent, but age and points 0"){
+        REQUIRE(p2->GetIntVal() == p1->GetIntVal());
+        REQUIRE(p2->GetIncVal() == p1->GetIncVal());
+        REQUIRE(p2->GetLysisChance() == p1->GetLysisChance());
+        REQUIRE(p2->GetInductionChance() == p1->GetInductionChance());
+        REQUIRE(p2->GetInfectionChance() == p1->GetInfectionChance());
+        REQUIRE(p2->GetAge() == 0);
+        REQUIRE(p2->GetPoints() == 0);
+        REQUIRE(p2->GetBurstTimer() == 0);
+
+        //check that the offspring is the correct class
+        REQUIRE(typeid(*p2).name() == typeid(*p1).name());
+    }
+}

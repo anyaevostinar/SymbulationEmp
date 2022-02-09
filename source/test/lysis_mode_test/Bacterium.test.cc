@@ -243,3 +243,23 @@ TEST_CASE("Phage Exclude", "[lysis]") {
       }
     }
 }
+
+TEST_CASE("Bacterium makeNew", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    double host_inc_val = 0.5;
+    Organism * h1 = new Bacterium(random, &w, &config, host_int_val);
+    h1->SetIncVal(host_inc_val);
+    Organism * h2 = h1->makeNew();
+    THEN("The new host has properties of the original host and has 0 points and 0 age"){
+      REQUIRE(h2->GetIntVal() == h1->GetIntVal());
+      REQUIRE(h2->GetIncVal() == h1->GetIncVal());
+      REQUIRE(h2->GetPoints() == 0);
+      REQUIRE(h2->GetAge() == 0);
+      //check that the offspring is the correct class
+      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
+    }
+}

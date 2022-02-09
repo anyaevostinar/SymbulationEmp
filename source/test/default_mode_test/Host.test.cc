@@ -432,7 +432,7 @@ TEST_CASE("Host GrowOlder", "[default]"){
     }
 }
 
-TEST_CASE("Host makeNew", "[default][efficient][lysis][pgg]"){
+TEST_CASE("Host makeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
