@@ -27,10 +27,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
     VALUE(SYM_VERT_TRANS_RES, double, 0, "How many resources required for symbiont vertical transmission"),
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
-    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
-    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
-    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
     VALUE(SYM_INFECTION_CHANCE, double, 1, "The chance (between 0 and 1) that a sym will infect a parallel host on process"),
     VALUE(SYM_INFECTION_FAILURE_RATE, double, 0, "The chance (between 0 and 1) that a sym will be killed by the world while trying to infect a host"),
 
@@ -65,7 +61,14 @@ EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(PGG,"Public Goods Game Settings"),
     VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to Pgg pool that experiment should start with"),
     VALUE(PGG, int, 0, "whether have social goods game among syms" ),
-    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG")
+    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG"),
+
+    GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
+    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
+    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The overall mutation rate of the efficiency trait in symbionts, -1 makes it same as mutation rate as determined by transmission mode"),
+    VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
+    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
+    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
 
 )
 #endif
