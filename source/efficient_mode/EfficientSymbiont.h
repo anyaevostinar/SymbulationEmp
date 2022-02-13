@@ -229,13 +229,13 @@ public:
   }
 
   /**
-   * Input: The location of the organism (and it's Host) as a size_t
+   * Input: The location of the organism as a WorldPosition
    *
    * Output: None
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(size_t location) {
+  void HorizontalTransmission(emp::WorldPosition location) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
@@ -243,7 +243,7 @@ public:
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Organism> sym_baby = reproduce("horizontal");
         my_world->SymDoBirth(sym_baby, location);
-      } 
+      }
     }
   }
 };

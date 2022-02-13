@@ -3,17 +3,20 @@
 
 #include "../../../Empirical/include/emp/Evolve/World.hpp"
 #include "../../../Empirical/include/emp/data/DataFile.hpp"
+#include "../../Empirical/include/emp/Evolve/Systematics.hpp"
 #include "../../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../../Empirical/include/emp/math/Random.hpp"
 #include "../Organism.h"
 #include <set>
 #include <math.h>
 
-// #include <typeinfo>
-// string s = typeid(p).name()
 
 class SymWorld : public emp::World<Organism>{
 protected:
+  // takes an organism (to classify), and returns an int (the org's taxon)
+  using fun_calc_info_t = std::function<int(Organism &)>;
+
+
   /**
     *
     * Purpose: Represents the vertical transmission rate. This can be set with SetVertTrans()
@@ -56,7 +59,40 @@ protected:
   */
   bool move_free_syms = false;
 
-  pop_t sym_pop; //free living sym pop
+  /**
+    *
+    * Purpose: Represents if phylogeneis should be tracked. This can be set with SetTrackPhylogeny()
+    *
+  */
+  bool track_phylogeny = false;
+
+  /**
+    *
+    * Purpose: Represents the free living sym environment, parallel to "pop" for hosts
+    *
+  */
+  pop_t sym_pop;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
+    *
+  */
+  fun_calc_info_t calc_info_fun;
+
+  /**
+    *
+    * Purpose: Represents the systematics object tracking hosts.
+    *
+  */
+  emp::Ptr<emp::Systematics<Organism, int>> host_sys;
+
+  /**
+    *
+    * Purpose: Represents the systematics object tracking symbionts.
+    *
+  */
+  emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -164,6 +200,28 @@ public:
    */
   void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
 
+  /**
+   * Input: The bool representing whether phylogenies should be tracked.
+   *
+   * Output: None
+   *
+   * Purpose: To set the value representing whether phylogenies
+   * should be tracked.
+   */
+  void SetTrackPhylogeny(bool _in) {
+    track_phylogeny = _in;
+    if (track_phylogeny == true){
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+
+      AddSystematics(host_sys);
+      sym_sys->SetStorePosition(false);
+
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+    }
+  }
+
 
   /**
    * Input: The int representing the total number of resources for the world.
@@ -218,6 +276,67 @@ public:
 
 
   /**
+   * Input: None
+   *
+   * Output: The systematic object tracking hosts
+   *
+   * Purpose: To retrieve the host systematic
+   */
+  emp::Ptr<emp::Systematics<Organism,int>> GetHostSys(){
+    return host_sys;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The systematic object tracking hosts
+   *
+   * Purpose: To retrieve the symbiont systematic
+   */
+  emp::Ptr<emp::Systematics<Organism,int>> GetSymSys(){
+    return sym_sys;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin organisms
+   * should belong to depending on their interaction value
+   *
+   * Purpose: To classify organsims based on their interaction value.
+   */
+  fun_calc_info_t GetCalcInfoFun() {
+    if (!calc_info_fun) {
+      calc_info_fun = [](Organism & org){
+        //classify orgs into bins base on interaction values,
+        //same arrangement as histograms (bin 0 = ic -1 to -0.9)
+        //inclusive of lower bound, exclusive of upper
+        double int_val = org.GetIntVal();
+        int bin = (int_val + 1)*10 + (0.0000000000001);
+        if (bin > 19) bin = 19;
+        return bin;
+      };
+    }
+    return calc_info_fun;
+  }
+
+  /**
+   * Input: The symbiont to be added to the systematic
+   *
+   * Output: the taxon the symbiont is added to.
+   *
+   * Purpose: To add a symbiont to the systematic and to set it to track its taxon
+   */
+  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
+    sym->SetTaxon(taxon);
+    return taxon;
+  }
+
+
+  /**
    * Input: The amount of resourcces an organism wants from the world.
    *
    * Output: If there are unlimited resources or the total resources are greater than those requested,
@@ -255,9 +374,7 @@ public:
    */
   void Resize(size_t new_width, size_t new_height) {
     size_t new_size = new_width * new_height;
-    pop.resize(new_size);
-    sym_pop.resize(new_size);
-    pop_sizes.resize(2);
+    Resize(new_size);
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
 
@@ -292,24 +409,26 @@ public:
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
 
+    //SYMBIONTS have position in the overall world as their ID
+    //HOSTS have position in the overall world as their index
+
     //if the pos it out of bounds, expand the worlds so that they can fit it.
-    if(pos.GetIndex() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
-      Resize(pos.GetIndex() + 1);
+    if(pos.GetPopID() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
+      if(pos.GetPopID() > pos.GetIndex()) Resize(pos.GetPopID() + 1);
+      else Resize(pos.GetIndex() + 1);
     }
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
-      emp::World<Organism>::AddOrgAt(new_org, pos,p_pos);
+      emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+
     } else { //if it is not a host, then add it to the sym population
-      size_t pos_index = pos.GetIndex();
+      //for symbionts, their place in their host's world is indicated by their ID
+      size_t pos_id = pos.GetPopID();
+      if(!sym_pop[pos_id]) ++num_orgs;
+      else sym_pop[pos_id].Delete();
 
-      //if it is adding a sym to the pop, add to the num_org count
-      //otherwise, delete the sym currently occupying the spot
-      if(!sym_pop[pos_index]) ++num_orgs;
-      else sym_pop[pos_index].Delete();
-
-      //set the pointer to NULL
-      sym_pop[pos_index] = nullptr;
-      sym_pop[pos_index] = new_org;
+      //set the cell to point to the new sym
+      sym_pop[pos_id] = new_org;
     }
   }
 
@@ -322,19 +441,16 @@ public:
    *
    * Output: The WorldPosition of the position of the new organism.
    *
-   * Purpose: To introduce new organisms to the world. If the new organism is a host,
-   * and the position generated for its location is occupied by a symbiont, then the
-   * symbiont will be added to the host's symbionts. If the new organism is a host,
-   * and the position generated for its location is unoccupied or occupied by a host,
-   * then the new organism will be added regularly.
+   * Purpose: To introduce new organisms to the world.
    */
-  emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, size_t parent_pos) {
+  emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, emp::WorldPosition p_pos) {
+    size_t parent_pos = p_pos.GetIndex();
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos; // Position of each offspring placed.
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
     pos = fun_find_birth_pos(new_org, parent_pos);
-    if (pos.IsValid() && pos.GetIndex() != parent_pos) {
+    if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
     }
@@ -374,564 +490,68 @@ public:
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
+    if (track_phylogeny) AddSymToSystematic(new_sym);
     if(!do_free_living_syms){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
-      if(IsOccupied(new_loc)) pop[new_loc]->AddSymbiont(new_sym);
+      if(IsOccupied(new_loc)) {
+        pop[new_loc]->AddSymbiont(new_sym);
+      } else new_sym.Delete();
     } else {
       new_loc = GetRandomCellID();
       //if the position is within bounds, add the sym to it
-      if(new_loc < sym_pop.size()) AddOrgAt(new_sym, new_loc);
+      if(new_loc < sym_pop.size()) {
+        AddOrgAt(new_sym, emp::WorldPosition(0, new_loc));
+      } else new_sym.Delete();
     }
   }
 
 
-
   /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track the average symbiont
-   * interaction value, the total number of symbionts, the total number of symbionts
-   * in a host, the total number of free syms and set up a histogram of the
-   * symbiont's interaction values.
+   * Definitions of data node functions, expanded in DataNodes.h
    */
-  emp::DataFile & SetupSymIntValFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetSymIntValDataNode();
-    auto & node1 = GetSymCountDataNode();
-
-    node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_intval", "Average symbiont interaction value");
-    file.AddTotal(node1, "count", "Total number of symbionts");
-
-    //interaction val histogram
-    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-
-    file.PrintHeaderKeys();
-
-    return file;
-  }
-
-
-
-
+  void WritePhylogenyFile(const std::string & filename);
+  void WriteDominantPhylogenyFiles(const std::string & filename);
+  emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
+  emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
+  emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
+  emp::DataFile & SetupSymIntValFile(const std::string & filename);
+  emp::DataFile & SetupHostIntValFile(const std::string & filename);
+  emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
+  emp::DataMonitor<int>& GetHostCountDataNode();
+  emp::DataMonitor<int>& GetSymCountDataNode();
+  emp::DataMonitor<int>& GetCountHostedSymsDataNode();
+  emp::DataMonitor<int>& GetCountFreeSymsDataNode();
+  emp::DataMonitor<int>& GetUninfectedHostsDataNode();
+  emp::DataMonitor<int>& GetCFUDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymIntValDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
 
   /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track host's
-   * interaction values, the total number of hosts, the total
-   * number of colony forming units, and the histogram of the
-   * host's interaction values
-   */
-  emp::DataFile & SetupHostIntValFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetHostIntValDataNode();
-    auto & node1 = GetHostCountDataNode();
-    auto & cfu_node = GetCFUDataNode();
-    auto & uninf_hosts_node = GetUninfectedHostsDataNode();
-    node.SetupBins(-1.0, 1.1, 21);
-
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_intval", "Average host interaction value");
-    file.AddTotal(node1, "count", "Total number of hosts");
-    file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
-    //either aren't infected at all or only with lysogenic phage if lysis is enabled
-    file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
-    file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-    file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-    file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-    file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-    file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-    file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-    file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-    file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-    file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-    file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-    file.PrintHeaderKeys();
-
-    return file;
-  }
-
-
-
-
-
-
-
-
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track mean
-   * information about the free living symbionts in the world.
-   *  This includes: (1) their total count, (2) the counts
-   * of the free and hosted symbionts, (3) the interaction
-   * values for the free and hosted symbionts, and (4) the
-   * infection chances from the total population, free symbionts,
-   * and hosted symbionts.
-   */
-  emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename){
-    auto & file = SetupFile(filename);
-    auto & node1 = GetSymCountDataNode(); //count
-    auto & node2 = GetCountFreeSymsDataNode();
-    auto & node3 = GetCountHostedSymsDataNode();
-    auto & node4 = GetSymIntValDataNode(); //interaction_val
-    auto & node5 = GetFreeSymIntValDataNode();
-    auto & node6 = GetHostedSymIntValDataNode();
-    auto & node7 = GetSymInfectChanceDataNode(); //infect chance
-    auto & node8 = GetFreeSymInfectChanceDataNode();
-    auto & node9 = GetHostedSymInfectChanceDataNode();
-
-    file.AddVar(update, "update", "Update");
-
-    //count
-    file.AddTotal(node1, "count", "Total number of symbionts");
-    file.AddTotal(node2, "free_syms", "Total number of free syms");
-    file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
-
-
-    //interaction val
-    file.AddMean(node4, "mean_intval", "Average symbiont interaction value");
-    file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
-    file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
-
-    //infection chance
-    file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
-    file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
-    file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
-
-    file.PrintHeaderKeys();
-
-    return file;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<int>& that has the information representing
-   * the host count.
-   *
-   * Purpose: To collect data on the host count to be saved to the
-   * data file that is tracking host count
-   */
-  emp::DataMonitor<int>& GetHostCountDataNode() {
-    if(!data_node_hostcount) {
-      data_node_hostcount.New();
-      OnUpdate([this](size_t){
-        data_node_hostcount -> Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if(IsOccupied(i))
-            data_node_hostcount->AddDatum(1);
-      });
-    }
-    return *data_node_hostcount;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<int>& that has the information representing
-   * the symbiont count.
-   *
-   * Purpose: To collect data on the symbiont count to be saved to the
-   * data file that is tracking symbiont count
-   */
-  emp::DataMonitor<int>& GetSymCountDataNode() {
-    if(!data_node_symcount) {
-      data_node_symcount.New();
-      OnUpdate([this](size_t){
-        data_node_symcount -> Reset();
-        for (size_t i = 0; i < pop.size(); i++){
-          if(IsOccupied(i)){
-            data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
-          }
-          if(sym_pop[i]){
-            data_node_symcount->AddDatum(1);
-          }
-        }
-      });
-    }
-    return *data_node_symcount;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   * the count of the hosted symbionts.
-   *
-   * Purpose: To collect data on the count of the hosted symbionts to be saved to the
-   * data file that is tracking the count of the hosted symbionts.
-   */
-  emp::DataMonitor<int>& GetCountHostedSymsDataNode(){
-    if (!data_node_hostedsymcount) {
-      data_node_hostedsymcount.New();
-      OnUpdate([this](size_t){
-        data_node_hostedsymcount->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i))
-            data_node_hostedsymcount->AddDatum(pop[i]->GetSymbionts().size());
-      });
-    }
-    return *data_node_hostedsymcount;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   * the count of the free symbionts.
-   *
-   * Purpose: To collect data on the count of the free symbionts to be saved to the
-   * data file that is tracking the count of the free symbionts.
-   */
-    emp::DataMonitor<int>& GetCountFreeSymsDataNode(){
-    if (!data_node_freesymcount) {
-      data_node_freesymcount.New();
-      OnUpdate([this](size_t){
-        data_node_freesymcount->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (sym_pop[i])
-            data_node_freesymcount->AddDatum(1);
-      });
-    }
-    return *data_node_freesymcount;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<int>& that has the information representing
-   * the count of the uninfected hosts
-   *
-   * Purpose: To collect data on the count of the uninfected hosts to be saved to the
-   * data file that is tracking the count of the uninfected hosts.
-   */
-  emp::DataMonitor<int>& GetUninfectedHostsDataNode() {
-    //keep track of host organisms that are uninfected
-    if(!data_node_uninf_hosts) {
-      data_node_uninf_hosts.New();
-      OnUpdate([this](size_t){
-    data_node_uninf_hosts -> Reset();
-
-    for (size_t i = 0; i < pop.size(); i++) {
-      if(IsOccupied(i)) {
-        if((pop[i]->GetSymbionts()).empty()) {
-          data_node_uninf_hosts->AddDatum(1);
-        }
-      } //endif
-    } //end for
-  }); //end OnUpdate
-    } //end if
-    return *data_node_uninf_hosts;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<int>& that has the information representing
-   * the number of colony forming units.
-   *
-   * Purpose: To collect data on the CFU count to be saved to the
-   * data file that is tracking CFU
-   */
-  emp::DataMonitor<int>& GetCFUDataNode() {
-    //keep track of host organisms that are uninfected or infected with only lysogenic phage
-    if(!data_node_cfu) {
-      data_node_cfu.New();
-      OnUpdate([this](size_t){
-        data_node_cfu -> Reset();
-
-        for (size_t i = 0; i < pop.size(); i++) {
-          if(IsOccupied(i)) {
-            //uninfected hosts
-            if((pop[i]->GetSymbionts()).empty()) {
-              data_node_cfu->AddDatum(1);
-            }
-
-            //infected hosts, check if all symbionts are lysogenic
-            if(pop[i]->HasSym()) {
-              emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-              bool all_lysogenic = true;
-              for(long unsigned int j = 0; j < syms.size(); j++){
-                if(syms[j]->IsPhage()){
-                  if(syms[j]->GetLysogeny() == false){
-                    all_lysogenic = false;
-                  }
-                }
-              }
-              if(all_lysogenic){
-                data_node_cfu->AddDatum(1);
-              }
-            }
-          } //endif
-        } //end for
-    }); //end OnUpdate
-  } //end if
-    return *data_node_cfu;
-  }
-
-
-  /**
-   * Input: The pointer to the symbiont that is moving, the size_t to its
-   * location.
+   * Input: The pointer to the symbiont that is moving, the WorldPosition of its
+   * current location.
    *
    * Output: None
    *
    * Purpose: To move a symbiont into a new world position.
    */
-  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, size_t i){
-    emp::WorldPosition newLoc = GetRandomNeighborPos(i);
-    if(newLoc.IsValid()){
+  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
+    size_t i = parent_pos.GetPopID();
+    emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
+    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
+    if(new_pos.IsValid()){
       sym->SetHost(nullptr);
-      AddOrgAt(sym, newLoc, i);
+      AddOrgAt(sym, new_pos, parent_pos);
     } else sym.Delete();
   }
 
-
   /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the host interaction value.
-   *
-   * Purpose: To collect data on the host interaction value to be saved to the
-   * data file that is tracking host interaction value.
-   */
-  emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode() {
-    if (!data_node_hostintval) {
-      data_node_hostintval.New();
-      OnUpdate([this](size_t){
-        data_node_hostintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++)
-          if (IsOccupied(i))
-            data_node_hostintval->AddDatum(pop[i]->GetIntVal());
-      });
-    }
-    return *data_node_hostintval;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the symbiont interaction value.
-   *
-   * Purpose: To collect data on the symbiont interaction value to be saved to the
-   * data file that is tracking symbionts interaction value.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode() {
-    if (!data_node_symintval) {
-      data_node_symintval.New();
-      OnUpdate([this](size_t){
-        data_node_symintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_symintval->AddDatum(syms[j]->GetIntVal());
-            }//close for
-          }
-          if (sym_pop[i]) {
-            data_node_symintval->AddDatum(sym_pop[i]->GetIntVal());
-          } //close if
-        }//close for
-      });
-    }
-    return *data_node_symintval;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   *  the free symbiont's interaction value.
-   *
-   * Purpose: To collect data on the interaction value of the free symbionts to be saved to the
-   * data file that is tracking the interaction value of the free symbionts.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode() {
-    if (!data_node_freesymintval) {
-      data_node_freesymintval.New();
-      OnUpdate([this](size_t){
-        data_node_freesymintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (sym_pop[i]) {
-            data_node_freesymintval->AddDatum(sym_pop[i]->GetIntVal());
-          } //close if
-        }//close for
-      });
-    }
-    return *data_node_freesymintval;
-  }
-
-
-  /**
-   * Input:None
-   *
-   * Output:
-   *
-   * Purpose: To access the data node that is tracking
-   * the hosted symbiont interaction value
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymIntValDataNode() {
-    if (!data_node_hostedsymintval) {
-      data_node_hostedsymintval.New();
-      OnUpdate([this](size_t){
-        data_node_hostedsymintval->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_hostedsymintval->AddDatum(syms[j]->GetIntVal());
-            }//close for
-          }//close if
-        }//close for
-      });
-    }
-    return *data_node_hostedsymintval;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the infection chance for each symbionts.
-   *
-   * Purpose: To access the data node that is tracking the
-   * symbiont infection chance
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode() {
-    if (!data_node_syminfectchance) {
-      data_node_syminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_syminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_syminfectchance->AddDatum(syms[j]->GetInfectionChance());
-            }//close for
-          }
-          if (sym_pop[i]) {
-            data_node_syminfectchance->AddDatum(sym_pop[i]->GetInfectionChance());
-          } //close if
-        }//close for
-      });
-    }
-    return *data_node_syminfectchance;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the free symbionts' chance of infection
-   *
-   *
-   * Purpose: To access the data node that is tracking the
-   * infection chance within the free symbionts.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode() {
-    if (!data_node_freesyminfectchance) {
-      data_node_freesyminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_freesyminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (sym_pop[i]) {
-            data_node_freesyminfectchance->AddDatum(sym_pop[i]->GetInfectionChance());
-          } //close if
-        }//close for
-      });
-    }
-    return *data_node_freesyminfectchance;
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the infection chance for the hosted symbionts
-   *
-   * Purpose: To retrieve the data nodes that is tracking the
-   * infection chance within the hosted symbionts.
-   */
-  emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode() {
-    if (!data_node_hostedsyminfectchance) {
-      data_node_hostedsyminfectchance.New();
-      OnUpdate([this](size_t){
-        data_node_hostedsyminfectchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectionChance());
-            }//close for
-          }
-        }//close for
-      });
-    }
-    return *data_node_hostedsyminfectchance;
-  }
-
-
-  /**
-   * Input: The pointer to the organism that is being birthed, and the size_t location
+   * Input: The pointer to the organism that is being birthed, and the WorldPosition location
    * of the parent symbiont.
    *
    * Output: None
@@ -941,28 +561,30 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-  void SymDoBirth(emp::Ptr<Organism> sym_baby, size_t i) {
+  void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+    size_t i = parent_pos.GetPopID();
     if(!do_free_living_syms){
-      int newLoc = GetNeighborHost(i);
-      if (newLoc > -1) { //-1 means no living neighbors
-        pop[newLoc]->AddSymbiont(sym_baby);
+      int new_pos = GetNeighborHost(i);
+      if (new_pos > -1) { //-1 means no living neighbors
+        pop[new_pos]->AddSymbiont(sym_baby);
       } else {
         sym_baby.Delete();
       }
     } else {
-      MoveIntoNewFreeWorldPos(sym_baby, i);
+      MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
     }
   }
 
 
   /**
-   * Input: The size_t location of the symbiont to be moved.
+   * Input: The WorldPosition location of the symbiont to be moved.
    *
    * Output: None
    *
    * Purpose: To move a symbiont, either into a host, or into a free world position
    */
-  void MoveFreeSym(size_t i){
+  void MoveFreeSym(emp::WorldPosition pos){
+    size_t i = pos.GetPopID();
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
@@ -970,7 +592,7 @@ public:
       else pop[i]->AddSymbiont(sym);
     }
     else if(move_free_syms) {
-      MoveIntoNewFreeWorldPos(ExtractSym(i), i);
+      MoveIntoNewFreeWorldPos(ExtractSym(i), pos);
     }
   }
 
@@ -1033,10 +655,9 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
-
+    if(track_phylogeny) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
@@ -1049,8 +670,9 @@ public:
         }
       }
       if(sym_pop[i]){ //for sym movement reasons, syms are deleted the update after they are set to dead
+        emp::WorldPosition sym_pos = emp::WorldPosition(0,i);
         if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
-        else sym_pop[i]->Process(i);
+        else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
         //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
         //TODO: fix the reason why the corpse can't be immediately cleaned up
       }

@@ -44,7 +44,7 @@ class Organism {
     std::cout << "GetDead called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void Process(size_t location)
+  virtual void Process(emp::WorldPosition location)
    {std::cout << "Process called from Organism" << std::endl;
      throw "Organism method called!";
   }
@@ -80,7 +80,7 @@ class Organism {
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void HorizontalTransmission(size_t location) {
+  virtual void HorizontalTransmission(emp::WorldPosition location) {
     std::cout << "HorizontalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessResources(double sym_piece){
@@ -106,6 +106,12 @@ class Organism {
     throw "Organism method called!";}
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
+    std::cout << "GetTaxon called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
+    std::cout << "SetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
 
   //EfficientSymbiont functions
@@ -201,7 +207,7 @@ class Organism {
   virtual void uponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void LysisBurst(size_t location) {
+  virtual void LysisBurst(emp::WorldPosition location) {
     std::cout << "LysisBurst called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void LysisStep() {
