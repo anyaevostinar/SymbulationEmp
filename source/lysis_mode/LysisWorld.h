@@ -2,6 +2,7 @@
 #define LYSIS_WORLD_H
 
 #include "../default_mode/SymWorld.h"
+#include "../default_mode/DataNodes.h"
 
 class LysisWorld : public SymWorld {
 private:

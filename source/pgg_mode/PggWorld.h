@@ -2,6 +2,7 @@
 #define PGG_WORLD_H
 
 #include "../default_mode/SymWorld.h"
+#include "../default_mode/DataNodes.h"
 
 class PggWorld : public SymWorld {
 private:
