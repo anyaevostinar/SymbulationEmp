@@ -941,7 +941,7 @@ TEST_CASE("Host Phylogeny"){
 
       w.AddOrgAt(host, pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 10;
+      size_t expected_taxon_info = 2;//10;
 
       THEN("the occupying organism is removed from the systematic"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -957,7 +957,7 @@ TEST_CASE("Host Phylogeny"){
 
       w.AddOrgAt(host, pos);
       size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 10;
+      size_t expected_taxon_info = 2;//10;
 
       THEN("the occupying organism is removed from the systematic"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -986,46 +986,38 @@ TEST_CASE("Host Phylogeny"){
 
       //taxon info 1
       int_val = -0.9;
-      expected_taxon_info = 1;
+      expected_taxon_info = 0;//1;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 2
       int_val = -0.8;
-      expected_taxon_info = 2;
+      expected_taxon_info = 0;//2;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 16
       int_val = 0.65 ;
-      expected_taxon_info = 16;
+      expected_taxon_info = 4;//16;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 19
       int_val = 0.9;
-      expected_taxon_info = 19;
+      expected_taxon_info = 4;//19;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 19
       int_val = 1;
-      expected_taxon_info = 19;
+      expected_taxon_info = 4;//19;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
-    }
-  }
-
-  //ORGANISMS REMOVED FROM PHYLOGENIES/TAXA
-  WHEN("an organism dies during its Process()"){
-    THEN("it is no longer tracked"){
-      size_t pos = 0;
-      w.AddOrgAt(host, pos);
     }
   }
 
@@ -1046,12 +1038,18 @@ TEST_CASE("Host Phylogeny"){
       for(int i = 0; i < num_descendants; i++){
         w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), (i+1), parents[i]);
       }
-
+      /*
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n11\n10\n",
                              "Lineage:\n9\n11\n10\n",
                              "Lineage:\n8\n11\n10\n",
                              "Lineage:\n11\n8\n11\n10\n",
+                           };*/
+       char lineages[][30] = {"Lineage:\n2\n",
+                              "Lineage:\n2\n",
+                              "Lineage:\n2\n",
+                              "Lineage:\n2\n",
+                              "Lineage:\n2\n",
                             };
 
 
@@ -1084,7 +1082,8 @@ TEST_CASE("Symbiont Phylogeny"){
     //Can't use count for the following array sizes because some
     //compilers don't allow it
     double int_vals[8] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
-    int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
+    //int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
+    int taxon_infos[8] = {0, 0, 0, 2, 3, 4, 4, 4};
     emp::Ptr<Organism> syms[count];
     for(size_t i = 0; i < count; i++){
       emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_vals[i]);
@@ -1117,11 +1116,16 @@ TEST_CASE("Symbiont Phylogeny"){
     }
 
     THEN("Their lineages are tracked"){
-      char lineages[][30] = {"Lineage:\n10\n",
+    /*  char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
                              "Lineage:\n19\n16\n10\n",
                              "Lineage:\n16\n19\n16\n10\n",
-                            };
+                           };*/
+     char lineages[][30] = {"Lineage:\n2\n",
+                            "Lineage:\n4\n2\n",
+                            "Lineage:\n4\n2\n",
+                            "Lineage:\n4\n2\n",
+                           };
 
       for(size_t i = 0; i < num_syms; i++){
         std::stringstream result;

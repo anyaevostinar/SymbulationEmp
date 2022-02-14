@@ -313,9 +313,14 @@ public:
         //classify orgs into bins base on interaction values,
         //same arrangement as histograms (bin 0 = ic -1 to -0.9)
         //inclusive of lower bound, exclusive of upper
+        size_t num_bins = 5;
+        float size_of_bin = 2.0 / num_bins;
         double int_val = org.GetIntVal();
-        int bin = (int_val + 1)*10 + (0.0000000000001);
-        if (bin > 19) bin = 19;
+        float prog = (int_val + 1);
+        prog = (prog/size_of_bin) + (0.0000000000001);
+        //int bin = (int_val + 1)*10 + (0.0000000000001);
+        int bin = (int) prog;
+        if (bin >= num_bins) bin = num_bins - 1;
         return bin;
       };
     }
