@@ -268,10 +268,6 @@ public:
    */
   emp::Ptr<Organism> makeNew() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
-    // reset values for a new phage
-    sym_baby->SetPoints(0);
-    sym_baby->SetAge(0);
-    sym_baby->SetBurstTimer(0);
     // pass down parent's genome
     sym_baby->SetIncVal(GetIncVal());
     sym_baby->SetLysisChance(GetLysisChance());
