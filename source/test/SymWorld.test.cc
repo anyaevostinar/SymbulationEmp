@@ -1038,7 +1038,7 @@ TEST_CASE("Host Phylogeny"){
       w.AddOrgAt(new Host(&random, &w, &config, 0), 0);
 
       //populate the world with descendents with various interaction values
-      //Can't use num_descendants for the following array sizes because some 
+      //Can't use num_descendants for the following array sizes because some
       //compilers don't allow it
       double int_vals[4] = {0.1, -0.05, -0.2, 0.14};
       //bins: parent org in 10, then in int_vals order: 11, 9, 8, 11
@@ -1081,7 +1081,7 @@ TEST_CASE("Symbiont Phylogeny"){
   WHEN("symbionts are added to the world"){
     REQUIRE(sym_sys->GetNumActive() == 0);
     size_t count = 8;
-    //Can't use count for the following array sizes because some 
+    //Can't use count for the following array sizes because some
     //compilers don't allow it
     double int_vals[8] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
     int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
@@ -1116,16 +1116,39 @@ TEST_CASE("Symbiont Phylogeny"){
       syms[i] = syms[i-1]->reproduce();
     }
 
-    char lineages[][30] = {"Lineage:\n10\n",
-                           "Lineage:\n16\n10\n",
-                           "Lineage:\n19\n16\n10\n",
-                           "Lineage:\n16\n19\n16\n10\n",
-                          };
+    THEN("Their lineages are tracked"){
+      char lineages[][30] = {"Lineage:\n10\n",
+                             "Lineage:\n16\n10\n",
+                             "Lineage:\n19\n16\n10\n",
+                             "Lineage:\n16\n19\n16\n10\n",
+                            };
 
-    for(size_t i = 0; i < num_syms; i++){
-      std::stringstream result;
-      sym_sys->PrintLineage(syms[i]->GetTaxon(), result);
-      REQUIRE(result.str() == lineages[i]);
+      for(size_t i = 0; i < num_syms; i++){
+        std::stringstream result;
+        sym_sys->PrintLineage(syms[i]->GetTaxon(), result);
+        REQUIRE(result.str() == lineages[i]);
+      }
+    }
+    THEN("Their birth and destruction dates are tracked"){
+      //all curr syms should have orig times of 0
+      for(size_t i = 0; i < num_syms; i++) REQUIRE(syms[i]->GetTaxon()->GetOriginationTime() == 0);
+
+
+      w.Update();
+
+      //after update, times should now be 1
+      emp::Ptr<emp::Taxon<int>> dest_tax = syms[0]->GetTaxon();
+      syms[0].Delete();
+      REQUIRE(dest_tax->GetDestructionTime() == 1);
+
+      syms[0] = syms[1]->reproduce();
+      REQUIRE(syms[0]->GetTaxon()->GetOriginationTime() == 1);
+
+      //another update, times 2
+      w.Update();
+      dest_tax = syms[0]->GetTaxon();
+      syms[0].Delete();
+      REQUIRE(dest_tax->GetDestructionTime() == 2);
     }
   }
 }
