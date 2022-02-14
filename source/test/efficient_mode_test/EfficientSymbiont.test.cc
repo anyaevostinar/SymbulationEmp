@@ -124,6 +124,97 @@ TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
     }
 }
 
+TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
+    emp::Ptr<emp::Random> random = new emp::Random(11);
+    SymConfigBase config;
+    EfficientWorld w(*random);
+    EfficientWorld * world = &w;
+
+    WHEN("Mutation rate is not zero, but interaction value mut rate is 0 and vertical transmission occurs") {
+        double int_val = 0;
+        double orig_efficiency = 0.5;
+        double points = 0;
+        config.MUTATION_SIZE(0.002);
+        config.INT_VAL_MUT_RATE(0);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+
+        s->mutate("vertical");
+
+        THEN("Efficiency mutates but interaction value does not") {
+            
+            REQUIRE(s->GetEfficiency() != orig_efficiency);
+            REQUIRE(s->GetEfficiency() <= 1);
+            REQUIRE(s->GetEfficiency() >= 0);
+            REQUIRE(s->GetIntVal() == int_val);
+        }
+
+    }
+    WHEN("Mutation rate is not zero, but interaction value mut rate is 0 and horizontal transmission occurs") {
+        double int_val = 0;
+        double orig_efficiency = 0.5;
+        double points = 0;
+        config.MUTATION_SIZE(0.002);
+        config.INT_VAL_MUT_RATE(0);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+
+        s->mutate("horizontal");
+
+        THEN("Efficiency mutates but interaction value does not") {
+            
+            REQUIRE(s->GetEfficiency() != orig_efficiency);
+            REQUIRE(s->GetEfficiency() <= 1);
+            REQUIRE(s->GetEfficiency() >= 0);
+            REQUIRE(s->GetIntVal() == int_val);
+        }
+
+        
+    }
+
+    WHEN("Mutation rate is zero, but interaction value mut rate is not zero and vertical transmission occurs") {
+        double int_val = 0;
+        double orig_efficiency = 0.5;
+        double points = 0;
+        config.MUTATION_SIZE(0.002);
+        config.MUTATION_RATE(0);
+        config.INT_VAL_MUT_RATE(1);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+
+        s->mutate("vertical");
+
+        THEN("Efficiency does not mutate but interaction value does") {
+            
+            REQUIRE(s->GetEfficiency() == orig_efficiency);
+            REQUIRE(s->GetIntVal() <= 1);
+            REQUIRE(s->GetIntVal() >= -1);
+            REQUIRE(s->GetIntVal() != int_val);
+        }
+
+    }
+    WHEN("Mutation rate is zero, but interaction value mut rate is not zero and horizontal transmission occurs") {
+        double int_val = 0;
+        double orig_efficiency = 0.5;
+        double points = 0;
+        config.MUTATION_SIZE(0.002);
+        config.MUTATION_RATE(0);
+        config.INT_VAL_MUT_RATE(1);
+        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+
+        s->mutate("horizontal");
+
+        THEN("Efficiency does not mutate but interaction value does") {
+            
+            REQUIRE(s->GetEfficiency() == orig_efficiency);
+            REQUIRE(s->GetIntVal() <= 1);
+            REQUIRE(s->GetIntVal() >= -1);
+            REQUIRE(s->GetIntVal() != int_val);
+        }
+
+        
+    }
+
+
+}
+
 TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);

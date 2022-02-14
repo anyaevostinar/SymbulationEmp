@@ -140,6 +140,7 @@ public:
   void mutate(std::string mode){
     double local_size;
     double local_rate;
+    double int_rate;
 
     if(mode == "vertical"){
       local_rate = my_config->MUTATION_RATE();
@@ -157,7 +158,13 @@ public:
       eff_mut_rate = local_rate;
     }
 
-    if (random->GetDouble(0.0, 1.0) <= local_rate) {
+    if(my_config->INT_VAL_MUT_RATE() >= 0) {
+      int_rate = my_config->INT_VAL_MUT_RATE();
+    } else {
+      int_rate = local_rate;
+    }
+
+    if (random->GetDouble(0.0, 1.0) <= int_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;

@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include "SymWorld.h"
 
 
@@ -651,3 +654,4 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
   }
   return *data_node_hostedsyminfectchance;
 }
+#endif

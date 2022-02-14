@@ -1038,9 +1038,11 @@ TEST_CASE("Host Phylogeny"){
       w.AddOrgAt(new Host(&random, &w, &config, 0), 0);
 
       //populate the world with descendents with various interaction values
-      double int_vals[num_descendants] = {0.1, -0.05, -0.2, 0.14};
+      //Can't use num_descendants for the following array sizes because some 
+      //compilers don't allow it
+      double int_vals[4] = {0.1, -0.05, -0.2, 0.14};
       //bins: parent org in 10, then in int_vals order: 11, 9, 8, 11
-      size_t parents[num_descendants] = {0, 1, 1, 3};
+      size_t parents[4] = {0, 1, 1, 3};
       for(int i = 0; i < num_descendants; i++){
         w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), (i+1), parents[i]);
       }
@@ -1079,8 +1081,10 @@ TEST_CASE("Symbiont Phylogeny"){
   WHEN("symbionts are added to the world"){
     REQUIRE(sym_sys->GetNumActive() == 0);
     size_t count = 8;
-    double int_vals[count] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
-    int taxon_infos[count] = {0, 1, 1, 10, 15, 16, 19, 19};
+    //Can't use count for the following array sizes because some 
+    //compilers don't allow it
+    double int_vals[8] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
+    int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
     emp::Ptr<Organism> syms[count];
     for(size_t i = 0; i < count; i++){
       emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_vals[i]);
