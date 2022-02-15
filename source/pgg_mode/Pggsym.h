@@ -136,8 +136,6 @@ public:
    */
   emp::Ptr<Organism> makeNew() {
     emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(random, my_world, my_config, GetIntVal());
-    sym_baby->SetPoints(0);
-    sym_baby->SetAge(0);
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->Setdonation(GetDonation());
     return sym_baby;

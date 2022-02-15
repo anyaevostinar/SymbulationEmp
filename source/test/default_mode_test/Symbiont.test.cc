@@ -12,12 +12,23 @@ TEST_CASE("Symbiont Constructor", "[default]") {
     REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) );
 
     int_val = -1;
-    Symbiont * s = new Symbiont(random, world, &config, int_val);
-    CHECK(s->GetIntVal() == int_val);
+    Symbiont * s1 = new Symbiont(random, world, &config, int_val);
+    CHECK(s1->GetIntVal() == int_val);
+    CHECK(s1->GetAge() == 0); 
+    CHECK(s1->GetPoints() == 0);
+
+    int_val = -1;
+    double points = 10;
+    Symbiont * s2 = new Symbiont(random, world, &config, int_val, points);
+    CHECK(s2->GetIntVal() == int_val);
+    CHECK(s2->GetAge() == 0);
+    CHECK(s2->GetPoints() == points);
 
     int_val = 1;
-    Symbiont * s2 = new Symbiont(random, world, &config, int_val);
-    CHECK(s2->GetIntVal() == int_val);
+    Symbiont * s3 = new Symbiont(random, world, &config, int_val);
+    CHECK(s3->GetIntVal() == int_val);
+    CHECK(s3->GetAge() == 0);
+    CHECK(s3->GetPoints() == 0);
 
     int_val = 2;
     REQUIRE_THROWS(new Symbiont(random, world, &config, int_val) );
@@ -285,11 +296,15 @@ TEST_CASE("reproduce", "[default]") {
 
     WHEN("Mutation rate is zero")  {
         double int_val = 0;
+        double inf_chance = 0.5;
+        double parent_orig_inf_chance = 0.5;
         double parent_orig_int_val = 0;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
+        config.FREE_LIVING_SYMS(1);
+        config.SYM_INFECTION_CHANCE(inf_chance);
         Symbiont * s = new Symbiont(random, world, &config, int_val, points);
         s->SetAge(10);
 
@@ -297,10 +312,17 @@ TEST_CASE("reproduce", "[default]") {
 
 
         THEN("Offspring's interaction value equals parent's interaction value") {
-            int sym_baby_int_val = 0;
+            double sym_baby_int_val = 0;
             REQUIRE( sym_baby->GetIntVal() == sym_baby_int_val);
             REQUIRE( sym_baby->GetIntVal() == parent_orig_int_val);
             REQUIRE( s->GetIntVal() == parent_orig_int_val);
+        }
+
+        THEN("Offspring's infection chance equals parent's infection chance") {
+            double sym_baby_inf_chance = 0.5;
+            REQUIRE( sym_baby->GetInfectionChance() == sym_baby_inf_chance);
+            REQUIRE( sym_baby->GetInfectionChance() == parent_orig_inf_chance);
+            REQUIRE( s->GetInfectionChance() == parent_orig_inf_chance);
         }
 
         THEN("Offspring's points are zero") {
@@ -319,26 +341,42 @@ TEST_CASE("reproduce", "[default]") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
+        double inf_chance = 0.5;
+        double parent_orig_inf_chance = 0.5;
         double parent_orig_int_val = 0;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0.01);
+        config.FREE_LIVING_SYMS(1);
+        config.SYM_INFECTION_CHANCE(inf_chance);
         Symbiont * s2 = new Symbiont(random, world, &config, int_val, points);
 
         emp::Ptr<Organism> sym_baby = s2->reproduce();
 
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
-            REQUIRE( sym_baby->GetIntVal() != parent_orig_int_val);
+            REQUIRE(sym_baby->GetIntVal() != parent_orig_int_val);
             REQUIRE(sym_baby->GetIntVal() <= 1);
             REQUIRE(sym_baby->GetIntVal() >= -1);
+            REQUIRE(s2->GetIntVal() == parent_orig_int_val);
+        }
+
+        THEN("Offspring's infection chance does not equal parent's infection chance") {
+            REQUIRE( sym_baby->GetInfectionChance() != parent_orig_inf_chance);
+            REQUIRE( sym_baby->GetInfectionChance() <= 1);
+            REQUIRE( sym_baby->GetInfectionChance() >= -1);
+            REQUIRE( s2->GetInfectionChance() == parent_orig_inf_chance);
         }
 
         THEN("Offspring's points are zero") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
+        }
+
+        THEN("Offspring's age is 0") {
+            REQUIRE(sym_baby->GetAge() == 0);
         }
 
         sym_baby.Delete();
@@ -583,5 +621,24 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
         h->Process(1); //should now be dead and removed
         REQUIRE(h->HasSym() == false);
       }
+    }
+}
+
+TEST_CASE("Symbiont makeNew", "[default]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymWorld w(*random);
+    SymConfigBase config;
+
+    double sym_int_val = 0.2;
+    Organism * s1 = new Symbiont(random, &w, &config, sym_int_val);
+    Organism * s2 = s1->makeNew();
+
+    THEN("The new symbiont has the same genome as its parent, but age and points 0"){
+        REQUIRE(s2->GetIntVal() == s1->GetIntVal());
+        REQUIRE(s2->GetInfectionChance() == s1->GetInfectionChance());
+        REQUIRE(s2->GetAge() == 0);
+        REQUIRE(s2->GetPoints() == 0);
+        //check that the offspring is the correct class
+        REQUIRE(typeid(*s2).name() == typeid(*s1).name());
     }
 }

@@ -100,8 +100,6 @@ public:
    */
   emp::Ptr<Organism> makeNew(){
     emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
-    host_baby->SetPoints(0);
-    host_baby->SetAge(0);
     host_baby->SetIncVal(GetIncVal());
     return host_baby;
   }

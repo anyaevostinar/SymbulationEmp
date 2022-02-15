@@ -140,8 +140,6 @@ public:
    */
   emp::Ptr<Organism> makeNew(){
     emp::Ptr<PggHost> host_baby = emp::NewPtr<PggHost>(random, my_world, my_config, GetIntVal());
-    host_baby->SetPoints(0);
-    host_baby->SetAge(0);
     return host_baby;
   }
 
