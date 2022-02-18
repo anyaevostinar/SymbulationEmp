@@ -30,7 +30,7 @@ void worldSetup(emp::Ptr<LysisWorld> world, emp::Ptr<SymConfigBase> my_config) {
   world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
   world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
   world->SetTrackPhylogeny(my_config->PHYLOGENY());
-
+  world->SetNumPhyloBins(my_config->NUM_PHYLO_BINS());
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
   double comp_host_1 = 0;

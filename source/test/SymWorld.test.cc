@@ -920,6 +920,7 @@ TEST_CASE("Host Phylogeny"){
   SymWorld w(random);
   w.Resize(2,2);
   w.SetTrackPhylogeny(1);
+  w.SetNumPhyloBins(20);
 
 
   emp::Ptr<Organism> host = new Host(&random, &w, &config, int_val);
@@ -941,7 +942,7 @@ TEST_CASE("Host Phylogeny"){
 
       w.AddOrgAt(host, pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 2;//10;
+      size_t expected_taxon_info = 10;
 
       THEN("the occupying organism is removed from the systematic"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -957,7 +958,7 @@ TEST_CASE("Host Phylogeny"){
 
       w.AddOrgAt(host, pos);
       size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 2;//10;
+      size_t expected_taxon_info = 10;
 
       THEN("the occupying organism is removed from the systematic"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -986,35 +987,58 @@ TEST_CASE("Host Phylogeny"){
 
       //taxon info 1
       int_val = -0.9;
-      expected_taxon_info = 0;//1;
+      expected_taxon_info = 1;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 2
       int_val = -0.8;
-      expected_taxon_info = 0;//2;
+      expected_taxon_info = 2;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 16
       int_val = 0.65 ;
-      expected_taxon_info = 4;//16;
+      expected_taxon_info = 16;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 19
       int_val = 0.9;
-      expected_taxon_info = 4;//19;
+      expected_taxon_info = 19;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
 
       //taxon info 19
       int_val = 1;
-      expected_taxon_info = 4;//19;
+      expected_taxon_info = 19;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //true even if the number of bins changes!
+      w.SetNumPhyloBins(2);
+      //taxon info 1
+      int_val = 1;
+      expected_taxon_info = 1;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 1
+      int_val = 0;
+      expected_taxon_info = 1;
+      w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
+      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+      REQUIRE(expected_taxon_info == taxon_info);
+
+      //taxon info 1
+      int_val = -0.001;
+      expected_taxon_info = 0;
       w.AddOrgAt(new Host(&random, &w, &config, int_val), pos);
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       REQUIRE(expected_taxon_info == taxon_info);
@@ -1038,19 +1062,13 @@ TEST_CASE("Host Phylogeny"){
       for(int i = 0; i < num_descendants; i++){
         w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), (i+1), parents[i]);
       }
-      /*
+
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n11\n10\n",
                              "Lineage:\n9\n11\n10\n",
                              "Lineage:\n8\n11\n10\n",
                              "Lineage:\n11\n8\n11\n10\n",
-                           };*/
-       char lineages[][30] = {"Lineage:\n2\n",
-                              "Lineage:\n2\n",
-                              "Lineage:\n2\n",
-                              "Lineage:\n2\n",
-                              "Lineage:\n2\n",
-                            };
+                           };
 
 
       for(int i = 0; i < (num_descendants+1); i++){
@@ -1074,6 +1092,7 @@ TEST_CASE("Symbiont Phylogeny"){
   w.Resize(20);
   w.SetTrackPhylogeny(1);
   w.SetFreeLivingSyms(1);
+  w.SetNumPhyloBins(20);
 
   emp::Ptr<emp::Systematics<Organism,int>> sym_sys = w.GetSymSys();
   WHEN("symbionts are added to the world"){
@@ -1082,8 +1101,8 @@ TEST_CASE("Symbiont Phylogeny"){
     //Can't use count for the following array sizes because some
     //compilers don't allow it
     double int_vals[8] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
-    //int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
-    int taxon_infos[8] = {0, 0, 0, 2, 3, 4, 4, 4};
+    int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
+    //int taxon_infos[8] = {0, 0, 0, 2, 3, 4, 4, 4};
     emp::Ptr<Organism> syms[count];
     for(size_t i = 0; i < count; i++){
       emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_vals[i]);
@@ -1116,15 +1135,10 @@ TEST_CASE("Symbiont Phylogeny"){
     }
 
     THEN("Their lineages are tracked"){
-    /*  char lineages[][30] = {"Lineage:\n10\n",
+      char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
                              "Lineage:\n19\n16\n10\n",
                              "Lineage:\n16\n19\n16\n10\n",
-                           };*/
-     char lineages[][30] = {"Lineage:\n2\n",
-                            "Lineage:\n4\n2\n",
-                            "Lineage:\n4\n2\n",
-                            "Lineage:\n4\n2\n",
                            };
 
       for(size_t i = 0; i < num_syms; i++){

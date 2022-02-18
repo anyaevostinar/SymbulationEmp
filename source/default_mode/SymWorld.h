@@ -68,6 +68,13 @@ protected:
 
   /**
     *
+    * Purpose: Represents how many bins to place organisms into when tracking phylogenies.
+    *
+  */
+  size_t num_phylo_bins;
+
+  /**
+    *
     * Purpose: Represents the free living sym environment, parallel to "pop" for hosts
     *
   */
@@ -201,6 +208,18 @@ public:
   void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
 
   /**
+   * Input: The size_t number of bins that organisms should be
+   * placed into when phylogeny tracking is on.
+   *
+   * Output: None
+   *
+   * Purpose: To set the number of bins used by phylogenies.
+   */
+  void SetNumPhyloBins(size_t _in) {num_phylo_bins = _in;}
+
+
+
+  /**
    * Input: The bool representing whether phylogenies should be tracked.
    *
    * Output: None
@@ -309,18 +328,15 @@ public:
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
-      calc_info_fun = [](Organism & org){
+      calc_info_fun = [&](Organism & org){
         //classify orgs into bins base on interaction values,
-        //same arrangement as histograms (bin 0 = ic -1 to -0.9)
         //inclusive of lower bound, exclusive of upper
-        size_t num_bins = 5;
-        float size_of_bin = 2.0 / num_bins;
+        float size_of_bin = 2.0 / num_phylo_bins;
         double int_val = org.GetIntVal();
         float prog = (int_val + 1);
         prog = (prog/size_of_bin) + (0.0000000000001);
-        //int bin = (int_val + 1)*10 + (0.0000000000001);
-        int bin = (int) prog;
-        if (bin >= num_bins) bin = num_bins - 1;
+        size_t bin = (size_t) prog;
+        if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
         return bin;
       };
     }
