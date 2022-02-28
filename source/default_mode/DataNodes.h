@@ -1,3 +1,6 @@
+#ifndef DATA_H
+#define DATA_H
+
 #include "SymWorld.h"
 
 
@@ -156,133 +159,12 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
  *
  * Output: None.
  *
- * Purpose: To setup and write to the files that track the symbiont systematic information,
- * the host systematic information, and the basics about the dominant lineage of each species.
+ * Purpose: To setup and write to the files that track the symbiont systematic information and
+ * the host systematic information
  */
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
-  WriteDominantPhylogenyFiles("Dominant"+filename);
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
-}
-
-
-/**
- * Input: The address of the string representing the file to be
- * created's name
- *
- * Output: None.
- *
- * Purpose: To setup and write to the file that tracks the lineages of
- * the dominant (most highly populated) taxons for both symbionts and hosts.
- */
-void SymWorld::WriteDominantPhylogenyFiles(const std::string & filename){
-  std::ofstream phylo_file;
-  phylo_file.open(filename);
-  phylo_file << "phylogeny_name, dom_tax_info, dom_tax_orgcount, dom_tax_lineage\n";
-
-  emp::vector<emp::Ptr<emp::Taxon<int>>> dom_taxons = {GetDominantSymTaxon(), GetDominantHostTaxon()};
-  emp::vector<std::string> names = {"all_syms", "host"};
-
-  if(do_free_living_syms){ //also track hosted & free symbionts
-    emp::vector<emp::Ptr<emp::Taxon<int>>> dom_free_hosted = GetDominantFreeHostedSymTaxon();
-    dom_taxons.push_back(dom_free_hosted[0]);
-    dom_taxons.push_back(dom_free_hosted[1]);
-    names.push_back("free_syms");
-    names.push_back("hosted_syms");
-  }
-
-  for(size_t i = 0; i < dom_taxons.size(); i++){
-    phylo_file << names[i];
-    if(dom_taxons[i] != nullptr){
-      std::stringstream result;
-      sym_sys->PrintLineage(dom_taxons[i], result);
-      std::string lineage = result.str();
-      lineage.erase(0,9); //strip lineage string
-      lineage.erase(lineage.end() - 1);
-      std::replace( lineage.begin(), lineage.end(), '\n', '<');
-
-      phylo_file << "," << dom_taxons[i]->GetInfo()
-        << "," <<  dom_taxons[i]->GetNumOrgs()
-        << "," <<   lineage << "\n";
-    } else phylo_file << ",-nan,-nan,-nan\n";
-  }
-  phylo_file.close();
-}
-
-
-/**
- * Input: None
- *
- * Output: The most populated taxon amongst all symbionts
- *
- * Purpose: To determine the dominant symbiont taxon
- */
-emp::Ptr<emp::Taxon<int>> SymWorld::GetDominantSymTaxon(){
-  emp::Ptr<emp::Taxon<int>> dominant_taxon = nullptr;
-  for (size_t i = 0; i < pop.size(); i++){
-    if(sym_pop[i]){
-      if((dominant_taxon == nullptr) || (sym_pop[i]->GetTaxon()->GetNumOrgs() > dominant_taxon->GetNumOrgs())){
-        dominant_taxon = sym_pop[i]->GetTaxon();
-      }
-    }
-    if(IsOccupied(i) && pop[i]->HasSym()){
-      for(size_t j = 0; j < pop[i]->GetSymbionts().size(); j++){
-        if((dominant_taxon == nullptr) || (pop[i]->GetSymbionts()[j]->GetTaxon()->GetNumOrgs() > dominant_taxon->GetNumOrgs())){
-          dominant_taxon = pop[i]->GetSymbionts()[j]->GetTaxon();
-        } //end if
-      } //end for
-    } //end if
-  } //end for
-  return dominant_taxon;
-}
-
-
-/**
- * Input: None
- *
- * Output: The most populated taxon amongst free symbionts and the most
- * populated taxon amongst hosted symbionts
- *
- * Purpose: To determine the dominant hosted and free symbiont taxons
- */
-emp::vector<emp::Ptr<emp::Taxon<int>>> SymWorld::GetDominantFreeHostedSymTaxon(){
-  emp::Ptr<emp::Taxon<int>> dominant_free_taxon = nullptr;
-  emp::Ptr<emp::Taxon<int>> dominant_hosted_taxon = nullptr;
-  for (size_t i = 0; i < pop.size(); i++){
-    if(sym_pop[i]){ //free symbionts
-      if((dominant_free_taxon == nullptr) || (sym_pop[i]->GetTaxon()->GetNumOrgs() > dominant_free_taxon->GetNumOrgs())){
-        dominant_free_taxon = sym_pop[i]->GetTaxon();
-      }
-    }
-    if(IsOccupied(i) && pop[i]->HasSym()){ //hosted symbionts
-      for(size_t j = 0; j < pop[i]->GetSymbionts().size(); j++){
-        if((dominant_hosted_taxon == nullptr) || (pop[i]->GetSymbionts()[j]->GetTaxon()->GetNumOrgs() > dominant_hosted_taxon->GetNumOrgs())){
-          dominant_hosted_taxon = pop[i]->GetSymbionts()[j]->GetTaxon();
-        } //end if
-      } //end for
-    } //end if
-  } //end for
-  return {dominant_free_taxon, dominant_hosted_taxon};
-}
-
-
-/**
- * Input: None
- *
- * Output: The most populated taxon amongst all hosts
- *
- * Purpose: To determine the dominant host taxon
- */
-emp::Ptr<emp::Taxon<int>> SymWorld::GetDominantHostTaxon(){
-  emp::Ptr<emp::Taxon<int>> dominant_taxon = nullptr;
-  for (size_t i = 0; i < pop.size(); i++){
-    if(IsOccupied(i)){
-      if((dominant_taxon == nullptr) || (host_sys->GetTaxonAt(i)->GetNumOrgs() > dominant_taxon->GetNumOrgs())){
-        dominant_taxon = host_sys->GetTaxonAt(i);
-      }
-    }
-  }
-  return dominant_taxon;
 }
 
 
@@ -651,3 +533,4 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
   }
   return *data_node_hostedsyminfectchance;
 }
+#endif

@@ -2,6 +2,41 @@
 #include "../../pgg_mode/Pggsym.h"
 #include <set>
 
+TEST_CASE("PggHost constructor", "[pgg]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    PggWorld w(*random);
+    PggWorld * world = &w;
+
+    double int_val = -2;
+    REQUIRE_THROWS(new PggHost(random, world, &config, int_val) );
+
+    int_val = -1;
+    PggHost * h1 = new PggHost(random, world, &config, int_val);
+    CHECK(h1->GetIntVal() == int_val);
+    CHECK(h1->GetAge() == 0); 
+    CHECK(h1->GetPoints() == 0);
+
+    int_val = -1;
+    emp::vector<emp::Ptr<Organism>> syms = {};
+    emp::vector<emp::Ptr<Organism>> repro_syms = {};
+    std::set<int> set = std::set<int>();
+    double points = 10;
+    PggHost * h2 = new PggHost(random, world, &config, int_val, syms, repro_syms, set, points);
+    CHECK(h2->GetIntVal() == int_val);
+    CHECK(h2->GetAge() == 0);
+    CHECK(h2->GetPoints() == points);
+
+    int_val = 1;
+    PggHost * h3 = new PggHost(random, world, &config, int_val);
+    CHECK(h3->GetIntVal() == int_val);
+    CHECK(h3->GetAge() == 0);
+    CHECK(h3->GetPoints() == 0);
+
+    int_val = 2;
+    REQUIRE_THROWS(new PggHost(random, world, &config, int_val) );
+}
+
 TEST_CASE("PggHost get pool", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -18,7 +53,6 @@ TEST_CASE("PggHost get pool", "[pgg]") {
     REQUIRE(h2->GetPool() == expected_pool);
 
 }
-
 
 TEST_CASE("Pgghost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -80,5 +114,22 @@ TEST_CASE("Pgghost DistributeResources", "[pgg]") {
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);
         }
+    }
+}
+
+TEST_CASE("PggHost makeNew", "[pgg]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    PggWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    Organism * h1 = new PggHost(random, &w, &config, host_int_val);
+    Organism * h2 = h1->makeNew();
+    THEN("The new host has properties of the original host and has 0 points and 0 age"){
+      REQUIRE(h1->GetIntVal() == h2->GetIntVal());
+      REQUIRE(h2->GetPoints() == 0);
+      REQUIRE(h2->GetAge() == 0);
+      //check that the offspring is the correct class
+      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
     }
 }

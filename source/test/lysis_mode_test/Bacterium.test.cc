@@ -9,13 +9,17 @@ TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
 
     config.HOST_INC_VAL(-1);
     Bacterium * b = new Bacterium(random, world, &config, int_val);
-    REQUIRE(b->GetIncVal() >= 0.0);
-    REQUIRE(b->GetIncVal() <= 1.0);
+    CHECK(b->GetIncVal() >= 0.0);
+    CHECK(b->GetIncVal() <= 1.0);
+    CHECK(b->GetAge() == 0); 
+    CHECK(b->GetPoints() == 0);
 
     config.HOST_INC_VAL(0.8);
     Bacterium * b2 = new Bacterium(random, world, &config, int_val);
     double expected_inc_val = 0.8;
-    REQUIRE(b2->GetIncVal()==expected_inc_val);
+    CHECK(b2->GetIncVal()==expected_inc_val);
+    CHECK(b2->GetAge() == 0); 
+    CHECK(b2->GetPoints() == 0);
 
     delete b;
     delete b2;
@@ -237,5 +241,51 @@ TEST_CASE("Phage Exclude", "[lysis]") {
           REQUIRE(goal_num_syms[i] == host_num_syms);
         }
       }
+    }
+}
+
+TEST_CASE("Bacterium makeNew", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    double host_inc_val = 0.5;
+    Organism * h1 = new Bacterium(random, &w, &config, host_int_val);
+    h1->SetIncVal(host_inc_val);
+    Organism * h2 = h1->makeNew();
+    THEN("The new host has properties of the original host and has 0 points and 0 age"){
+      REQUIRE(h2->GetIntVal() == h1->GetIntVal());
+      REQUIRE(h2->GetIncVal() == h1->GetIncVal());
+      REQUIRE(h2->GetPoints() == 0);
+      REQUIRE(h2->GetAge() == 0);
+      //check that the offspring is the correct class
+      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
+    }
+}
+
+TEST_CASE("Bacterium reproduce", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
+    config.MUTATION_SIZE(0.002);
+    config.MUTATION_RATE(1);
+    config.MUTATE_INC_VAL(1);
+
+    double host_int_val = -0.2;
+    double host_inc_val = 0.3;
+    Organism * h1 = new Bacterium(random, &w, &config, host_int_val);
+    h1->SetIncVal(host_inc_val);
+    Organism * h2 = h1->reproduce();
+
+    THEN("The host baby has a mutated genome and has age and points of 0"){
+        REQUIRE(h2->GetIntVal() != h1->GetIntVal());
+        REQUIRE(h2->GetIncVal() != h1->GetIncVal());
+        REQUIRE(h2->GetAge() == 0);
+        REQUIRE(h2->GetPoints() == 0);
+    }
+
+    THEN("The host parent's points are set to 0"){
+        REQUIRE(h1->GetPoints() == 0);
     }
 }

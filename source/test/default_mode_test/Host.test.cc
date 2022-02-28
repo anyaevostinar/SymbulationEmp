@@ -2,6 +2,42 @@
 #include "../../default_mode/Symbiont.h"
 #include <set>
 
+TEST_CASE("Host Constructor", "[default]") {
+
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
+    SymWorld w(*random);
+    SymWorld * world = &w;
+
+    double int_val = -2;
+    REQUIRE_THROWS(new Host(random, world, &config, int_val) );
+
+    int_val = -1;
+    Host * h1 = new Host(random, world, &config, int_val);
+    CHECK(h1->GetIntVal() == int_val);
+    CHECK(h1->GetAge() == 0); 
+    CHECK(h1->GetPoints() == 0);
+
+    int_val = -1;
+    emp::vector<emp::Ptr<Organism>> syms = {};
+    emp::vector<emp::Ptr<Organism>> repro_syms = {};
+    std::set<int> set = std::set<int>();
+    double points = 10;
+    Host * h2 = new Host(random, world, &config, int_val, syms, repro_syms, set, points);
+    CHECK(h2->GetIntVal() == int_val);
+    CHECK(h2->GetAge() == 0);
+    CHECK(h2->GetPoints() == points);
+
+    int_val = 1;
+    Host * h3 = new Host(random, world, &config, int_val);
+    CHECK(h3->GetIntVal() == int_val);
+    CHECK(h3->GetAge() == 0);
+    CHECK(h3->GetPoints() == 0);
+
+    int_val = 2;
+    REQUIRE_THROWS(new Host(random, world, &config, int_val) );
+}
+
 TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
@@ -220,21 +256,20 @@ TEST_CASE("DistributeResources", "[default]") {
     }
 }
 
-  TEST_CASE("SetResInProcess, GetResInProcess") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
-    SymWorld w(*random);
-    double int_val = 1;
+TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
+  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  SymConfigBase config;
+  SymWorld w(*random);
+  double int_val = 1;
 
-    Host * h = new Host(random, &w, &config, int_val);
+  Host * h = new Host(random, &w, &config, int_val);
 
-    double expected_res_in_process = 0;
-    REQUIRE(h->GetResInProcess() == expected_res_in_process);
+  double expected_res_in_process = 0;
+  REQUIRE(h->GetResInProcess() == expected_res_in_process);
 
-    h->SetResInProcess(126);
-    expected_res_in_process = 126;
-    REQUIRE(h->GetResInProcess() == expected_res_in_process);
-
+  h->SetResInProcess(126);
+  expected_res_in_process = 126;
+  REQUIRE(h->GetResInProcess() == expected_res_in_process);
 }
 
 TEST_CASE("Steal resources unit test", "[default]"){
@@ -290,7 +325,7 @@ TEST_CASE("Steal resources unit test", "[default]"){
         }
 }
 
-TEST_CASE("GetDoEctosymbiosis"){
+TEST_CASE("GetDoEctosymbiosis", "[default]"){
   GIVEN("A world"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymWorld w(*random);
@@ -374,7 +409,7 @@ TEST_CASE("GetDoEctosymbiosis"){
   }
 }
 
-TEST_CASE("Host GrowOlder"){
+TEST_CASE("Host GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
@@ -396,7 +431,8 @@ TEST_CASE("Host GrowOlder"){
       }
     }
 }
-TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
+
+TEST_CASE("Host makeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
@@ -404,8 +440,12 @@ TEST_CASE("makeNew", "[default][efficient][lysis][pgg]"){
     double host_int_val = 0.2;
     Organism * h1 = new Host(random, &w, &config, host_int_val);
     Organism * h2 = h1->makeNew();
-    THEN("The new host has properties of the original host"){
+    THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(h1->GetIntVal() == h2->GetIntVal());
+      REQUIRE(h2->GetPoints() == 0);
+      REQUIRE(h2->GetAge() == 0);
+      //check that the offspring is the correct class
+      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
     }
 }
 

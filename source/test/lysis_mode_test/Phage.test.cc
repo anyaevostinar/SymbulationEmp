@@ -12,6 +12,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
         double expected_int_val = -1;
         THEN("Int val is set to be negative"){
             REQUIRE(p->GetIntVal() == expected_int_val);
+            REQUIRE(p->GetAge() == 0); 
+            REQUIRE(p->GetPoints() == 0);
+            REQUIRE(p->GetBurstTimer() == 0);
         }
         delete p;
     }
@@ -23,6 +26,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
 
         THEN("Int val is set to be zero"){
             REQUIRE(p2->GetIntVal() == expected_int_val);
+            REQUIRE(p2->GetAge() == 0); 
+            REQUIRE(p2->GetPoints() == 0);
+            REQUIRE(p2->GetBurstTimer() == 0);
         }
         delete p2;
     }
@@ -35,6 +41,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
         THEN("Lysis chance is randomly between 0 and 1"){
             REQUIRE(p3->GetLysisChance() >= 0);
             REQUIRE(p3->GetLysisChance() <= 1);
+            REQUIRE(p3->GetAge() == 0); 
+            REQUIRE(p3->GetPoints() == 0);
+            REQUIRE(p3->GetBurstTimer() == 0);
         }
         delete p3;
     }
@@ -47,6 +56,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
 
         THEN("Lysis chance is set to what was passed in"){
             REQUIRE(p4->GetLysisChance() == expected_lysis_chance);
+            REQUIRE(p4->GetAge() == 0); 
+            REQUIRE(p4->GetPoints() == 0);
+            REQUIRE(p4->GetBurstTimer() == 0);
         }
         delete p4;
     }
@@ -59,6 +71,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
         THEN("Chance of induction is randomly between 0 and 1"){
             REQUIRE(p5->GetInductionChance() >= 0);
             REQUIRE(p5->GetInductionChance() <= 1);
+            REQUIRE(p5->GetAge() == 0); 
+            REQUIRE(p5->GetPoints() == 0);
+            REQUIRE(p5->GetBurstTimer() == 0);
         }
         delete p5;
     }
@@ -71,6 +86,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
 
         THEN("Chance of induction is set to what was passed in"){
             REQUIRE(p6->GetInductionChance() == expected_induction_chance);
+            REQUIRE(p6->GetAge() == 0); 
+            REQUIRE(p6->GetPoints() == 0);
+            REQUIRE(p6->GetBurstTimer() == 0);
         }
         delete p6;
     }
@@ -83,6 +101,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
         THEN("Incorporation val is randomly between 0 and 1"){
             REQUIRE(p7->GetIncVal() >= 0);
             REQUIRE(p7->GetIncVal() <= 1);
+            REQUIRE(p7->GetAge() == 0); 
+            REQUIRE(p7->GetPoints() == 0);
+            REQUIRE(p7->GetBurstTimer() == 0);
         }
         delete p7;
     }
@@ -95,6 +116,9 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
 
         THEN("Incorporation val is set to what was passed in"){
             REQUIRE(p8->GetIncVal() == expected_incorporation_value);
+            REQUIRE(p8->GetAge() == 0); 
+            REQUIRE(p8->GetPoints() == 0);
+            REQUIRE(p8->GetBurstTimer() == 0);
         }
         delete p8;
     }
@@ -632,5 +656,29 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
                 }
             }
         }
+    }
+}
+
+TEST_CASE("Phage makeNew", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    LysisWorld w(*random);
+    SymConfigBase config;
+
+    double phage_int_val = 0.2;
+    Organism * p1 = new Phage(random, &w, &config, phage_int_val);
+    Organism * p2 = p1->makeNew();
+
+    THEN("The new phage has the same genome as its parent, but age and points 0"){
+        REQUIRE(p2->GetIntVal() == p1->GetIntVal());
+        REQUIRE(p2->GetIncVal() == p1->GetIncVal());
+        REQUIRE(p2->GetLysisChance() == p1->GetLysisChance());
+        REQUIRE(p2->GetInductionChance() == p1->GetInductionChance());
+        REQUIRE(p2->GetInfectionChance() == p1->GetInfectionChance());
+        REQUIRE(p2->GetAge() == 0);
+        REQUIRE(p2->GetPoints() == 0);
+        REQUIRE(p2->GetBurstTimer() == 0);
+
+        //check that the offspring is the correct class
+        REQUIRE(typeid(*p2).name() == typeid(*p1).name());
     }
 }

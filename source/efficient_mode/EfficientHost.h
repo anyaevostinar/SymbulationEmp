@@ -95,8 +95,6 @@ public:
   emp::Ptr<Organism> makeNew(){
     emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, my_config, GetIntVal());
     host_baby->SetEfficiency(GetEfficiency());
-    host_baby->SetPoints(0);
-    host_baby->SetAge(0);
     return host_baby;
   }
 };

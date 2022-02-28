@@ -14,15 +14,20 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
     double int_val = 0.5;
     PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s->GetDonation() == donation);
+    CHECK(s->GetAge() == 0); 
+    CHECK(s->GetPoints() == 0);
 
     donation = 2;
     PGGSymbiont * s2 = new PGGSymbiont(random, world, &config, int_val,donation);
     CHECK(s2->GetDonation() == 2);
+    CHECK(s2->GetAge() == 0); 
+    CHECK(s2->GetPoints() == 0);
 
     int_val = 2;
     REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
 
 }
+
 TEST_CASE("Pggmutate", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
@@ -32,7 +37,7 @@ TEST_CASE("Pggmutate", "[pgg]") {
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
-        double donation =0.01;
+        double donation = 0.01;
         config.MUTATION_SIZE(0.002);
         Organism * s = new PGGSymbiont(random, world, &config, int_val,donation);
 
@@ -46,19 +51,18 @@ TEST_CASE("Pggmutate", "[pgg]") {
     }
     WHEN("Mutation rate is zero") {
         double int_val = 1;
-        int orig_int_val = 1;
-        double points = 0.0;
+        double donation = 0.1;
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        Organism * s = new PGGSymbiont(random, world, &config, int_val, points);
+        Organism * s = new PGGSymbiont(random, world, &config, int_val, donation);
 
         s->mutate();
 
 
-        THEN("Mutation does not occur and interaction value does not change") {
-            REQUIRE(s->GetIntVal() == orig_int_val);
+        THEN("Mutation does not occur and donation value does not change") {
+            REQUIRE(s->GetDonation() == donation);
         }
 
     }
@@ -284,4 +288,23 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
     }
 
 
+}
+
+TEST_CASE("PggSymbiont makeNew", "[pgg]"){
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    PggWorld w(*random);
+    SymConfigBase config;
+
+    double host_int_val = 0.2;
+    Organism * s1 = new PGGSymbiont(random, &w, &config, host_int_val);
+    Organism * s2 = s1->makeNew();
+    THEN("The new symbiont has properties of the original symbiont and has 0 points and 0 age"){
+      REQUIRE(s1->GetIntVal() == s2->GetIntVal());
+      REQUIRE(s1->GetInfectionChance() == s2->GetInfectionChance());
+      REQUIRE(s1->GetDonation() == s2->GetDonation());
+      REQUIRE(s2->GetPoints() == 0);
+      REQUIRE(s2->GetAge() == 0);
+      //check that the offspring is the correct class
+      REQUIRE(typeid(*s2).name() == typeid(*s1).name());
+    }
 }

@@ -32,7 +32,7 @@ void worldSetup(emp::Ptr<EfficientWorld> world, emp::Ptr<SymConfigBase> my_confi
   world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
   world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
   world->SetTrackPhylogeny(my_config->PHYLOGENY());
-
+  world->SetNumPhyloBins(my_config->NUM_PHYLO_BINS());
   world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;

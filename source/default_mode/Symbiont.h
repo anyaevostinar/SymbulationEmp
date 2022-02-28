@@ -159,7 +159,7 @@ public:
    * Purpose: To destruct the symbiont and remove the symbiont from the systematic.
    */
   ~Symbiont() {
-    if(my_config->PHYLOGENY() == 1) my_world->GetSymSys()->RemoveOrg(my_taxon);
+    if(my_config->PHYLOGENY() == 1) {my_world->GetSymSys()->RemoveOrg(my_taxon, my_world->GetUpdate());}
   }
 
 
@@ -516,8 +516,6 @@ public:
    */
   emp::Ptr<Organism> makeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
-    new_sym->SetPoints(0);
-    new_sym->SetAge(0);
     new_sym->SetInfectionChance(GetInfectionChance());
     return new_sym;
   }
@@ -534,7 +532,8 @@ public:
     sym_baby->mutate();
 
     if(my_config->PHYLOGENY() == 1){
-      emp::Ptr<emp::Taxon<int>> baby_taxon = my_world->AddSymToSystematic(sym_baby, my_taxon);
+      my_world->AddSymToSystematic(sym_baby, my_taxon);
+      //baby's taxon will be set in AddSymToSystematic
     }
     return sym_baby;
   }
