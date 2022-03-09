@@ -4,9 +4,9 @@
 #include "catch.hpp"
 
 #include "sanity_check.test.cc"
-#include "../test/SymWorld.test.cc"
-#include "../test/DataNodes.test.cc"
 
+#include "../test/default_mode_test/SymWorld.test.cc"
+#include "../test/default_mode_test/DataNodes.test.cc"
 #include "../test/default_mode_test/Host.test.cc"
 #include "../test/default_mode_test/Symbiont.test.cc"
 #include "../test/default_mode_test/HostSymbiontInteraction.test.cc"

@@ -1,13 +1,13 @@
-#include "../default_mode/SymWorld.h"
-#include "../default_mode/Symbiont.h"
-#include "../lysis_mode/Phage.h"
-#include "../lysis_mode/LysisWorld.h"
-#include "../default_mode/Host.h"
-#include "../pgg_mode/Pgghost.h"
-#include "../pgg_mode/Pggsym.h"
+#include "../../default_mode/SymWorld.h"
+#include "../../default_mode/Symbiont.h"
+#include "../../lysis_mode/Phage.h"
+#include "../../lysis_mode/LysisWorld.h"
+#include "../../default_mode/Host.h"
+#include "../../pgg_mode/Pgghost.h"
+#include "../../pgg_mode/Pggsym.h"
 
 
-TEST_CASE("PullResources") {
+TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
     emp::Random random(19);
     SymWorld world(random);
@@ -36,7 +36,7 @@ TEST_CASE("PullResources") {
   }
 }
 
-TEST_CASE( "Vertical Transmission" ) {
+TEST_CASE( "Vertical Transmission", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymWorld w(random);
@@ -83,7 +83,7 @@ TEST_CASE( "Vertical Transmission" ) {
   }
 }
 
-TEST_CASE( "World Capacity" ) {
+TEST_CASE( "World Capacity", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -107,7 +107,7 @@ TEST_CASE( "World Capacity" ) {
   }
 }
 
-TEST_CASE( "Interaction Patterns" ) {
+TEST_CASE( "Interaction Patterns", "[default]" ) {
   SymConfigBase config;
 
   GIVEN( "a world without vertical transmission" ) {
@@ -276,7 +276,7 @@ TEST_CASE( "Interaction Patterns" ) {
 }
 }
 
-TEST_CASE( "Hosts injected correctly" ) {
+TEST_CASE( "Hosts injected correctly", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -315,7 +315,7 @@ TEST_CASE( "Hosts injected correctly" ) {
   }
 }
 
-TEST_CASE( "InjectSymbiont" ){
+TEST_CASE( "InjectSymbiont", "[default]" ){
   GIVEN( "a world" ){
     emp::Random random(17);
     SymConfigBase config;
@@ -363,7 +363,7 @@ TEST_CASE( "InjectSymbiont" ){
   }
 }
 
-TEST_CASE( "DoBirth" ){
+TEST_CASE( "DoBirth", "[default]" ){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -415,7 +415,7 @@ TEST_CASE( "DoBirth" ){
   }
 }
 
-TEST_CASE( "SymDoBirth" ) {
+TEST_CASE( "SymDoBirth", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -518,7 +518,7 @@ TEST_CASE( "SymDoBirth" ) {
   }
 }
 
-TEST_CASE( "Update" ){
+TEST_CASE( "Update", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
@@ -664,7 +664,7 @@ TEST_CASE( "Update" ){
   }
 }
 
-TEST_CASE("MoveFreeSym"){
+TEST_CASE( "MoveFreeSym", "[default]" ){
   GIVEN("free living syms are allowed"){
     emp::Random random(14);
     SymConfigBase config;
@@ -731,7 +731,7 @@ TEST_CASE("MoveFreeSym"){
   }
 }
 
-TEST_CASE("ExtractSym"){
+TEST_CASE( "ExtractSym", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
@@ -753,7 +753,7 @@ TEST_CASE("ExtractSym"){
   }
 }
 
-TEST_CASE("MoveIntoNewFreeWorldPos"){
+TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ){
   GIVEN("free living syms are allowed"){
     emp::Random random(17);
     SymConfigBase config;
@@ -786,7 +786,7 @@ TEST_CASE("MoveIntoNewFreeWorldPos"){
   }
 }
 
-TEST_CASE("Resize"){
+TEST_CASE( "Resize", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymWorld w(random);
@@ -810,7 +810,7 @@ TEST_CASE("Resize"){
   }
 }
 
-TEST_CASE("AddOrgAt"){
+TEST_CASE( "AddOrgAt", "[default]" ){
   //adding hosts to the world should be covered by Empirical tests,
   //so here we'll test adding a sym
   GIVEN("a world"){
@@ -854,7 +854,7 @@ TEST_CASE("AddOrgAt"){
   }
 }
 
-TEST_CASE("GetSymAt"){
+TEST_CASE( "GetSymAt", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
@@ -882,7 +882,7 @@ TEST_CASE("GetSymAt"){
   }
 }
 
-TEST_CASE("DoSymDeath"){
+TEST_CASE( "DoSymDeath", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
@@ -910,7 +910,7 @@ TEST_CASE("DoSymDeath"){
   }
 }
 
-TEST_CASE("Host Phylogeny"){
+TEST_CASE( "Host Phylogeny", "[default]" ){
   emp::Random random(17);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
@@ -1080,7 +1080,7 @@ TEST_CASE("Host Phylogeny"){
   }
 }
 
-TEST_CASE("Symbiont Phylogeny"){
+TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   emp::Random random(17);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
