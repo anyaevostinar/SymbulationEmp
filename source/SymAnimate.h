@@ -3,24 +3,23 @@
 #define SYM_ANIMATE_H
 
 #include <iostream>
-#include "SymWorld.h"
+#include "default_mode/SymWorld.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
-#include "Symbiont.h"
-#include "Host.h"
-#include "Phage.h"
+#include "default_mode/Symbiont.h"
+#include "default_mode/Host.h"
 #include "emp/web/Document.hpp"
 #include "emp/web/Canvas.hpp"
 #include "emp/web/web.hpp"
 #include "emp/config/ArgManager.hpp"
 #include "emp/prefab/ConfigPanel.hpp"
 #include "emp/web/UrlParams.hpp"
-#include "WorldSetup.cc"
+#include "default_mode/WorldSetup.cc"
 
 
 namespace UI = emp::web;
 SymConfigBase config; // load the default configuration
-emp::prefab::ConfigPanel config_panel(config);
+
 
 
 class SymAnimate : public UI::Animate {
@@ -57,27 +56,30 @@ public:
     config.GRID_X(50);
     config.GRID_Y(50);
     config.UPDATES(30000);
-
+    emp::prefab::ConfigPanel config_panel(config);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
-    config_panel.ExcludeConfig("SYM_LIMIT");
-    config_panel.ExcludeConfig("DATA_INT");
-    config_panel.ExcludeConfig("POP_SIZE");
-    config_panel.ExcludeConfig("LYSIS");
-    config_panel.ExcludeConfig("BURST_SIZE");
-    config_panel.ExcludeConfig("BURST_TIME");
-    config_panel.ExcludeConfig("SYM_LYSIS_RES");
-    config_panel.ExcludeConfig("START_MOI");
-    config_panel.ExcludeConfig("FILE_PATH");
-    config_panel.ExcludeConfig("FILE_NAME");
-    config_panel.ExcludeConfig("COMPETITION_MODE");
+    config_panel.ExcludeSetting("SYM_LIMIT");
+    config_panel.ExcludeSetting("DATA_INT");
+    config_panel.ExcludeSetting("POP_SIZE");
+    config_panel.ExcludeSetting("FILE_PATH");
+    config_panel.ExcludeSetting("FILE_NAME");
+    config_panel.ExcludeSetting("COMPETITION_MODE");
+    config_panel.ExcludeSetting("SYM_INFECTION_CHANCE");
+    config_panel.ExcludeSetting("SYM_INFECTION_FAILURE_RATE");
 
+    config_panel.ExcludeGroup("LYSIS");
+    config_panel.ExcludeGroup("DTH");
+    config_panel.ExcludeGroup("PGG");
+
+    config_panel.SetRange("HOST_INT", "-2", "1");
+    config_panel.SetRange("SYM_INT", "-2", "1");
 
 
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
     settings.SetCSS("flex-grow", "1");
-    settings.SetCSS("max-width", "600px");
+    settings.SetCSS("max-width", "700px");
     explanation.SetCSS("flex-grow", "1");
     explanation.SetCSS("max-width", "600px");
     learnmore.SetCSS("flex-grow", "1");
@@ -99,8 +101,8 @@ public:
     if (am.HasUnused()) std::exit(EXIT_FAILURE);
 
     // setup configuration panel
-    config_panel.Setup();
-    config_panel_ex.AddBodyContent(config_panel.GetConfigPanelDiv());
+    //config_panel.Setup();
+    config_panel_ex << config_panel;
 
 
     // Add explanation for organism color:
@@ -244,7 +246,7 @@ public:
 
 
   /**
-   * Input: The double representing bacteria and phage's interaction value 
+   * Input: The double representing symbiont or host's interaction value 
    * 
    * Output: The string representing the hex value for the color of the organism. 
    * 
