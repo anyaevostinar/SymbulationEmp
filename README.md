@@ -36,14 +36,14 @@ make
 
 Make any changes that you wish to the file `SymSettings.cfg` and then run:
 ```
-./symbulation
+./symbulation_default
 ```
 
 By default, your data will be output to the files `HostVals_data__SEED10.data` and `SymVals_data__SEED10.data`.
 
 We recommend that you copy your `symbulation` executable to your `Data` folders:
 ```
-cp symbulation ../Data/sample_treatment
+cp symbulation_default ../Data/sample_treatment
 cd ../Data/sample_treatment
 ```
 
