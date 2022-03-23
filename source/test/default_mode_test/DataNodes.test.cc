@@ -1,9 +1,7 @@
 #include "../../default_mode/DataNodes.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
-#include "../../lysis_mode/Phage.h"
-#include "../../lysis_mode/Bacterium.h"
-#include "../../lysis_mode/LysisWorld.h"
+
 
 TEST_CASE("GetHostCountDataNode", "[default]"){
   GIVEN( "a world" ) {
@@ -190,64 +188,6 @@ TEST_CASE("GetUninfectedHostsDataNode", "[default]"){
   }
 }
 
-TEST_CASE("GetCFUDataNode", "[default]"){
-  GIVEN( "a world" ) {
-    emp::Random random(17);
-    SymConfigBase config;
-    int int_val = 0;
-    LysisWorld w(random);
-    config.SYM_LIMIT(4);
-    w.Resize(10);
-
-    //keep track of host organisms that are uninfected or infected with only lysogenic phage
-    emp::DataMonitor<int>& cfu_data_node = w.GetCFUDataNode();
-    REQUIRE(cfu_data_node.GetTotal() == 0);
-    REQUIRE(w.GetNumOrgs() == 0);
-
-    WHEN("uninfected hosts are added"){
-      size_t num_hosts = 10;
-
-      for(size_t i = 0; i < num_hosts; i++){
-        w.AddOrgAt(new Bacterium(&random, &w, &config, int_val), i);
-      }
-
-      w.Update();
-      THEN("they are tracked by the data node"){
-        REQUIRE(w.GetNumOrgs() == num_hosts);
-        REQUIRE(cfu_data_node.GetTotal() == num_hosts);
-      }
-
-      WHEN("some hosts are infected with lytic phage"){
-        size_t num_infections = 2;
-        for(size_t i = 0; i < num_infections; i++){
-          Phage *p = new Phage(&random, &w, &config, int_val);
-          p->SetLysisChance(1.0);
-          w.GetOrg(i).AddSymbiont(p);
-        }
-        w.Update();
-        THEN("infected hosts are excluded from the cfu count"){
-          REQUIRE(w.GetNumOrgs() == num_hosts);
-          REQUIRE(cfu_data_node.GetTotal() == (num_hosts - num_infections));
-        }
-      }
-
-      WHEN("hosts are infected with lysogenic phage"){
-        size_t num_infections = 2;
-        for(size_t i = 0; i < num_infections; i++){
-          Phage *p = new Phage(&random, &w, &config, int_val);
-          p->SetLysisChance(0.0);
-          w.GetOrg(i).AddSymbiont(p);
-        }
-        w.Update();
-        THEN("infected hosts are excluded from the cfu count"){
-          REQUIRE(w.GetNumOrgs() == num_hosts);
-          REQUIRE(cfu_data_node.GetTotal() == num_hosts);
-        }
-      }
-    }
-  }
-}
-
 
 TEST_CASE("GetSymIntValDataNode", "[default]"){
   GIVEN( "a world" ) {
@@ -272,7 +212,10 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
     WHEN("free and hosted syms are added"){
       //setup
       size_t num_syms = 6;
-      double int_vals[num_syms] = {-1.0, -0.43, 0, 0.71, 0.75, 1.0};
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double int_vals[6] = {-1.0, -0.43, 0, 0.71, 0.75, 1.0};
       double expected_av = 0;
       for(size_t i = 0; i < num_syms; i++){
         expected_av += int_vals[i];
@@ -313,7 +256,10 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
 
     WHEN("free and hosted syms are added"){
       size_t num_syms = 6;
-      double int_vals[num_syms] = {-0.5, -0.4, 0, 0.7, 0.75, 0.78};
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double int_vals[6] = {-0.5, -0.4, 0, 0.7, 0.75, 0.78};
       double expected_av = 0;
       for(size_t i = 0; i < (num_syms/2); i++){
         expected_av += int_vals[i];
@@ -355,7 +301,10 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
     WHEN("free and hosted syms are added"){
       //setup
       size_t num_syms = 6;
-      double int_vals[num_syms] = {-0.5, -0.4, 0, 0.7, 0.75, 0.78};
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double int_vals[6] = {-0.5, -0.4, 0, 0.7, 0.75, 0.78};
       double expected_av = 0;
       for(size_t i = (num_syms/2); i < num_syms; i++){ //hosted syms are later
         expected_av += int_vals[i];
