@@ -74,6 +74,8 @@ public:
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");
+    config_panel.SetRange("SYM_AGE_MAX", "-1", "1000");
+    config_panel.SetRange("HOST_AGE_MAX", "-1", "1000");
 
 
     animation.SetCSS("flex-grow", "1");
