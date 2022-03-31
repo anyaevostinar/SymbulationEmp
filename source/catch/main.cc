@@ -20,7 +20,7 @@
 #include "../test/lysis_mode_test/Bacterium.test.cc"
 #include "../test/lysis_mode_test/Phage.test.cc"
 #include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
-#include "../test/lysis_mode_test/DataNodes.test.cc"
+#include "../test/lysis_mode_test/LysisDataNodes.test.cc"
 
 #include "../test/pgg_mode_test/Pggsym.test.cc"
 #include "../test/pgg_mode_test/Pgghost.test.cc"
