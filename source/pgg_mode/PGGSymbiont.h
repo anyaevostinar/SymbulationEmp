@@ -2,7 +2,7 @@
 #define PGGSYM_H
 
 #include "../default_mode/Symbiont.h"
-#include "PggWorld.h"
+#include "PGGWorld.h"
 
 class PGGSymbiont: public Symbiont {
 protected:
@@ -12,17 +12,17 @@ protected:
     * Purpose: #
     *
   */
-  double Pgg_donate = 0;
+  double PGG_donate = 0;
 
   /**
     *
     * Purpose: Represents the world that the pgg symbionts are living in.
     *
   */
-  emp::Ptr<PggWorld> my_world = NULL;
+  emp::Ptr<PGGWorld> my_world = NULL;
 
 public:
-  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PggWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),Pgg_donate(_donation)
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),PGG_donate(_donation)
   {my_world = _world;}
 
     /**
@@ -82,7 +82,7 @@ public:
    *
    * Purpose:
    */
-  double GetDonation() {return Pgg_donate;}
+  double GetDonation() {return PGG_donate;}
 
 
   /**
@@ -92,7 +92,7 @@ public:
    *
    * Purpose:
    */
-  void Setdonation(double _in) {Pgg_donate = _in;}
+  void Setdonation(double _in) {PGG_donate = _in;}
 
 
   /**
@@ -105,9 +105,9 @@ public:
   void mutate(){
     Symbiont::mutate();
     if (random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()) {
-      Pgg_donate += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
-      if(Pgg_donate < 0) Pgg_donate = 0;
-      else if (Pgg_donate > 1) Pgg_donate = 1;
+      PGG_donate += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
+      if(PGG_donate < 0) PGG_donate = 0;
+      else if (PGG_donate > 1) PGG_donate = 1;
     }
   }
 
@@ -157,6 +157,6 @@ public:
     temp << std::fixed << std::setprecision(2) << "Interaction value: " << out_val << " Donation value: " << donate_val;
     std::string formattedstring = temp.str();
     return formattedstring;
-  }//Pggsym
+  }//PGGSymbiont
 };
 #endif

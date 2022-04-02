@@ -4,14 +4,14 @@
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
 
-class PggWorld : public SymWorld {
+class PGGWorld : public SymWorld {
 private:
   /**
     *
     * Purpose: Data node tracking the pgg donation rate.
     *
   */
-  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_Pgg;
+  emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_PGG;
 public:
   using SymWorld::SymWorld;
 
@@ -20,10 +20,10 @@ public:
    *
    * Output: None
    *
-   * Purpose: To destruct the data nodes belonging to PggWorld to conserve memory.
+   * Purpose: To destruct the data nodes belonging to PGGWorld to conserve memory.
    */
-  ~PggWorld(){
-      if (data_node_Pgg) data_node_Pgg.Delete();
+  ~PGGWorld(){
+      if (data_node_PGG) data_node_PGG.Delete();
   }
 
   /**
@@ -46,7 +46,7 @@ public:
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddTotal(node2, "free_syms", "Total number of free syms");
     file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
-    file.AddMean(node4, "Pgg_donationrate","Average donation rate");
+    file.AddMean(node4, "PGG_donationrate","Average donation rate");
     file.AddHistBin(node4, 0, "Hist_0", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.1 to <0.2");
@@ -73,26 +73,26 @@ public:
    * Purpose: To set the resources that each host gets per update.
    */
   emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
-    if (!data_node_Pgg) {
-      data_node_Pgg.New();
+    if (!data_node_PGG) {
+      data_node_PGG.New();
       OnUpdate([this](size_t){
-        data_node_Pgg->Reset();
+        data_node_PGG->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) { //track hosted syms
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
-              data_node_Pgg->AddDatum(syms[j]->GetDonation());
+              data_node_PGG->AddDatum(syms[j]->GetDonation());
             }//close for
           }//close if
           if(sym_pop[i]){ //track free-living syms
-            data_node_Pgg->AddDatum(sym_pop[i]->GetDonation());
+            data_node_PGG->AddDatum(sym_pop[i]->GetDonation());
           }//close if
         }//close for
       });
     }
-    return *data_node_Pgg;
+    return *data_node_PGG;
   }
 
-}; //end of PggWorld class
+}; //end of PGGWorld class
 #endif
