@@ -2,7 +2,6 @@
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
 
-
 TEST_CASE("GetHostCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -188,7 +187,6 @@ TEST_CASE("GetUninfectedHostsDataNode", "[default]"){
   }
 }
 
-
 TEST_CASE("GetSymIntValDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
@@ -324,6 +322,196 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
       THEN("only free sym average interaction values are tracked"){
         REQUIRE(hosted_sym_intval_node.GetMean() < (expected_av + 0.01));
         REQUIRE(hosted_sym_intval_node.GetMean() > (expected_av - 0.01));
+      }
+    }
+  }
+}
+
+TEST_CASE("GetHostIntValDataNode", "[default]"){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld w(random);
+    w.Resize(4);
+    w.SetFreeLivingSyms(1);
+    config.SYM_LIMIT(3);
+
+    size_t max_bin = 20;
+
+    emp::DataMonitor<double,emp::data::Histogram>& host_intval_node = w.GetHostIntValDataNode();
+    host_intval_node.SetupBins(-1.0, 1.0, max_bin);
+    REQUIRE(std::isnan(host_intval_node.GetMean()));
+    for(size_t i = 0; i < max_bin; i++){
+      REQUIRE(host_intval_node.GetHistCounts()[i] == 0);
+    }
+    REQUIRE(w.GetNumOrgs() == 0);
+
+    WHEN("hosts are added"){
+      //setup
+      size_t num_hosts = 4;
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double int_vals[4] = {-1.0, -0.5, 0.38, 1.0};
+      double expected_av = -0.03;
+      for(size_t i = 0; i < num_hosts; i++){
+        w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), i);
+      }
+      w.Update();
+      //check they were tracked correctly
+      THEN("their average interaction values are tracked"){
+        REQUIRE(host_intval_node.GetMean() < (expected_av + 0.0001));
+        REQUIRE(host_intval_node.GetMean() > (expected_av - 0.0001));
+      }
+    }
+  }
+}
+
+TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
+  GIVEN( "a world" ) {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(4);
+    w.SetFreeLivingSyms(1);
+    config.SYM_LIMIT(3);
+
+    size_t max_bin = 20;
+
+    emp::DataMonitor<double,emp::data::Histogram>& sym_infectionchance_node = w.GetSymInfectChanceDataNode();
+    sym_infectionchance_node.SetupBins(-1.0, 1.0, max_bin);
+    REQUIRE(std::isnan(sym_infectionchance_node.GetMean()));
+    for(size_t i = 0; i < max_bin; i++){
+      REQUIRE(sym_infectionchance_node.GetHistCounts()[i] == 0);
+    }
+    REQUIRE(w.GetNumOrgs() == 0);
+
+    WHEN("free and hosted syms are added"){
+      //setup
+      size_t num_syms = 6;
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double infection_chances[6] = {0, 0.2, 0.34, 0.77, 0.33, 1.0};
+      double expected_av = 0.44;
+
+      //insert organisms
+      Host *h = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(h, 0);
+
+      for(size_t i = 0; i < (num_syms / 2); i++){
+        Symbiont *s1 = new Symbiont(&random, &w, &config, int_val);
+        Symbiont *s2 = new Symbiont(&random, &w, &config, int_val);
+
+        s1->SetInfectionChance(infection_chances[i]);
+        s2->SetInfectionChance(infection_chances[i+3]);
+
+        w.AddOrgAt(s1, emp::WorldPosition(0,i));
+        h->AddSymbiont(s2);
+      }
+
+      w.Update();
+      //check they were tracked correctly
+      THEN("their average interaction values are tracked"){
+        REQUIRE(sym_infectionchance_node.GetMean() < (expected_av + 0.01));
+        REQUIRE(sym_infectionchance_node.GetMean() > (expected_av - 0.01));
+      }
+    }
+  }
+}
+
+TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
+  GIVEN( "a world" ) {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(4);
+    w.SetFreeLivingSyms(1);
+    config.SYM_LIMIT(3);
+
+    emp::DataMonitor<double,emp::data::Histogram>& free_sym_infectionchance_node = w.GetFreeSymInfectChanceDataNode();
+    REQUIRE(std::isnan(free_sym_infectionchance_node.GetMean()));
+    REQUIRE(w.GetNumOrgs() == 0);
+
+    WHEN("free and hosted syms are added"){
+      size_t num_syms = 6;
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double infection_chances[6] = {0, 0.2, 0.34, 0.77, 0.33, 1.0};
+      double expected_av = 0.18;
+
+      //insert organisms
+      Host *h = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(h, 0);
+
+      for(size_t i = 0; i < (num_syms / 2); i++){
+        Symbiont *s1 = new Symbiont(&random, &w, &config, int_val);
+        Symbiont *s2 = new Symbiont(&random, &w, &config, int_val);
+
+        s1->SetInfectionChance(infection_chances[i]);
+        s2->SetInfectionChance(infection_chances[i+3]);
+
+        w.AddOrgAt(s1, emp::WorldPosition(0,i));
+        h->AddSymbiont(s2);
+      }
+
+      w.Update();
+
+      //check they were tracked correctly
+      THEN("only free sym average interaction values are tracked"){
+        REQUIRE(free_sym_infectionchance_node.GetMean() < (expected_av + 0.01));
+        REQUIRE(free_sym_infectionchance_node.GetMean() > (expected_av - 0.01));
+      }
+    }
+  }
+}
+
+TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
+  GIVEN( "a world" ) {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld w(random);
+    w.Resize(4);
+    w.SetFreeLivingSyms(1);
+    config.SYM_LIMIT(3);
+
+    emp::DataMonitor<double,emp::data::Histogram>& hosted_sym_infectionchance_node = w.GetHostedSymInfectChanceDataNode();
+    REQUIRE(std::isnan(hosted_sym_infectionchance_node.GetMean()));
+    REQUIRE(w.GetNumOrgs() == 0);
+
+    WHEN("free and hosted syms are added"){
+      //setup
+      size_t num_syms = 6;
+
+      //note: can't use variable in array initialization because some
+      //compilers don't allow variable-sized arrays
+      double infection_chances[6] = {0, 0.2, 0.34, 0.77, 0.33, 1.0};
+      double expected_av = 0.7;
+
+      //insert organisms
+      Host *h = new Host(&random, &w, &config, int_val);
+      w.AddOrgAt(h, 0);
+
+      for(size_t i = 0; i < (num_syms / 2); i++){
+        Symbiont *s1 = new Symbiont(&random, &w, &config, int_val);
+        Symbiont *s2 = new Symbiont(&random, &w, &config, int_val);
+
+        s1->SetInfectionChance(infection_chances[i]);
+        s2->SetInfectionChance(infection_chances[i+3]);
+
+        w.AddOrgAt(s1, emp::WorldPosition(0,i));
+        h->AddSymbiont(s2);
+      }
+
+      w.Update();
+      //check they were tracked correctly
+      THEN("only free sym average interaction values are tracked"){
+        REQUIRE(hosted_sym_infectionchance_node.GetMean() < (expected_av + 0.01));
+        REQUIRE(hosted_sym_infectionchance_node.GetMean() > (expected_av - 0.01));
       }
     }
   }
