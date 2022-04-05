@@ -63,9 +63,9 @@ public:
   /**
    * Input: None
    *
-   * Output: the double representation of the
+   * Output: The double representing the resource pool.
    *
-   * Purpose:
+   * Purpose: To return the double representing the resource pool.
    */
   double GetPool() {return sourcepool;}
 
@@ -131,7 +131,7 @@ public:
   /**
    * Input: None
    *
-   * Output: A new PGGHost with same properties as this pgghost.
+   * Output: A new PGGHost with same properties as this PGGHost.
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
