@@ -3,7 +3,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-#include "../../pgg_mode/PGGhost.h"
+#include "../../pgg_mode/PGGHost.h"
 #include "../../pgg_mode/PGGSymbiont.h"
 
 
