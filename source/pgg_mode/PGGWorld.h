@@ -26,38 +26,43 @@ public:
       if (data_node_PGG) data_node_PGG.Delete();
   }
 
-  /**
-   * Input: The address of the string representing the file to be
-   * created's name
-   *
-   * Output: The address of the DataFile that has been created.
-   *
-   * Purpose: To set up the file that will be used to track
-   * information about the PGG symbiont's interaction values
-   */
+   /**
+    * Input: The address of the string representing the file to be
+    * created's name
+    *
+    * Output: The address of the DataFile that has been created.
+    *
+    * Purpose: To set up the file that will be used to track mean
+    * information about the PGG symbionts in the world.
+    * This includes: (1) their total count, (2) the counts
+    * of the free and hosted symbionts, (3) the average donation values
+    * for all symbionts, and (4) the histogram data for the distribution of
+    * symbionts at various donation values.
+    */
   emp::DataFile & SetupPGGSymIntValFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node2 = GetCountFreeSymsDataNode();
     auto & node3 = GetCountHostedSymsDataNode();
     auto & node4 = GetPGGDataNode();
-    node4.SetupBins(0, 1.1, 11); //Necessary because range exclusive
+    node4.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
+
     file.AddVar(update, "update", "Update");
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddTotal(node2, "free_syms", "Total number of free syms");
     file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
     file.AddMean(node4, "PGG_donationrate","Average donation rate");
-    file.AddHistBin(node4, 0, "Hist_0", "Count for histogram bin -1 to <-0.9");
-    file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.0 to <0.1");
-    file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.1 to <0.2");
-    file.AddHistBin(node4, 3, "Hist_0.3", "Count for histogram bin 0.2 to <0.3");
-    file.AddHistBin(node4, 4, "Hist_0.4", "Count for histogram bin 0.3 to <0.4");
-    file.AddHistBin(node4, 5, "Hist_0.5", "Count for histogram bin 0.4 to <0.5");
-    file.AddHistBin(node4, 6, "Hist_0.6", "Count for histogram bin 0.5 to <0.6");
-    file.AddHistBin(node4, 7, "Hist_0.7", "Count for histogram bin 0.6 to <0.7");
-    file.AddHistBin(node4, 8, "Hist_0.8", "Count for histogram bin 0.7 to <0.8");
-    file.AddHistBin(node4, 9, "Hist_0.9", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node4, 10, "Hist_1.0", "Count for histogram bin 0.9 to 1.0");
+
+    file.AddHistBin(node4, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node4, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node4, 2, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node4, 3, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node4, 4, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node4, 5, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node4, 6, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node4, 7, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node4, 8, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+    file.AddHistBin(node4, 9, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
 
     file.PrintHeaderKeys();
@@ -66,11 +71,14 @@ public:
   }
 
   /**
-   * Input: The double representing the number of resources each host gets in each update.
+   * Input: None
    *
-   * Output: None
+   * Output: The DataMonitor<double, emp::data::Histogram>& that has
+   * information representing the average donation value for all symbionts
+   * in the system.
    *
-   * Purpose: To set the resources that each host gets per update.
+   * Purpose: To collect data on the average donation value to be saved to the
+   * data file that is tracking PGG data.
    */
   emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
     if (!data_node_PGG) {

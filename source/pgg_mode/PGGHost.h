@@ -1,11 +1,6 @@
 #ifndef PGGHOST_H
 #define PGGHOST_H
 
-// #include "../../Empirical/include/emp/math/Random.hpp"
-// #include "../../Empirical/include/emp/tools/string_utils.hpp"
-// #include <set>
-// #include <iomanip> // setprecision
-// #include <sstream> // stringstream
 #include "../default_mode/Host.h"
 #include "PGGWorld.h"
 
@@ -15,14 +10,14 @@ protected:
 
   /**
     *
-    * Purpose:#
+    * Purpose: Represents the collective resource pool held by the host.
     *
   */
   double sourcepool = 0;
 
   /**
     *
-    * Purpose: Represents the world that the pgg hosts are living in.
+    * Purpose: Represents the world that the PGGHosts are living in.
     *
   */
   emp::Ptr<PGGWorld> my_world = NULL;
@@ -68,7 +63,7 @@ public:
   /**
    * Input: None
    *
-   * Output: #
+   * Output: the double representation of the
    *
    * Purpose:
    */
@@ -76,31 +71,32 @@ public:
 
 
   /**
-   * Input: #
+   * Input: A double to be set as the resource pool.
    *
    * Output: None
    *
-   * Purpose:
+   * Purpose: To set the number of resources in the resource pool.
    */
   void SetPool(double _in) {sourcepool= _in;}
 
 
   /**
-   * Input: #
+   * Input: A double to be added to the resource pool.
    *
    * Output: None
    *
-   * Purpose:
+   * Purpose: To add resources into the host's resource pool.
    */
   void AddPool(double _in) {sourcepool += _in;}
 
 
   /**
-   * Input: #
+   * Input: A double quantity of resources to be distributed.
    *
    * Output: None
    *
-   * Purpose:
+   * Purpose: To distribute resources to symbionts and collect resource
+   * donations from them.
    */
   void DistribResources(double resources) {
     Host::DistribResources(resources);
@@ -116,9 +112,10 @@ public:
   /**
    * Input: None
    *
-   * Output: #
+   * Output: None
    *
-   * Purpose:
+   * Purpose: To distribute the resource pool across the hosted symbionts, each donation
+   * multiplied by PGG synergy, and then set the resource pool to 0.
    */
   void DistribPool(){
     //to do: marginal return
@@ -132,9 +129,9 @@ public:
   }
 
   /**
-   * Input: None.
+   * Input: None
    *
-   * Output: A new pgghost with same properties as this pgghost.
+   * Output: A new PGGHost with same properties as this pgghost.
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
@@ -143,6 +140,6 @@ public:
     return host_baby;
   }
 
-};//Host
+};//PGGHost
 
 #endif
