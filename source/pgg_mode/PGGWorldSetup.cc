@@ -3,7 +3,7 @@
 
 #include "PGGWorld.h"
 #include "../ConfigSetup.h"
-#include "PGGhost.h"
+#include "PGGHost.h"
 #include "PGGSymbiont.h"
 
 void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {

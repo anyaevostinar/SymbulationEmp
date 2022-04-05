@@ -1,4 +1,4 @@
-#include "../../pgg_mode/PGGhost.h"
+#include "../../pgg_mode/PGGHost.h"
 #include "../../pgg_mode/PGGSymbiont.h"
 
 TEST_CASE("PGGSymbiont Constructor", "[pgg]") {

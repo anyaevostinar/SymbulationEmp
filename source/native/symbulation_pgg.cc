@@ -1,6 +1,6 @@
 #include "../pgg_mode/PGGWorld.h"
 #include"../pgg_mode/PGGSymbiont.h"
-#include"../pgg_mode/PGGhost.h"
+#include"../pgg_mode/PGGHost.h"
 #include "../pgg_mode/PGGWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>

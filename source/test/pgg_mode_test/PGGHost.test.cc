@@ -1,4 +1,4 @@
-#include "../../pgg_mode/PGGhost.h"
+#include "../../pgg_mode/PGGHost.h"
 #include "../../pgg_mode/PGGSymbiont.h"
 #include <set>
 
@@ -54,7 +54,7 @@ TEST_CASE("PGGHost get pool", "[pgg]") {
 
 }
 
-TEST_CASE("PGGhost DistributeResources", "[pgg]") {
+TEST_CASE("PGGHost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     PGGWorld w(*random);
