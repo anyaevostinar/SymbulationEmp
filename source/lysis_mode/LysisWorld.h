@@ -231,7 +231,7 @@ public:
    * Input: None
    *
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of induction for each symbionts.
+   * the chance of induction for each symbiont.
    *
    * Purpose: To collect data on the chance of induction for each symbiont to be saved to the
    * data file that is tracking chance of induction for each symbiont.
