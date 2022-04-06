@@ -1,8 +1,8 @@
 #ifndef HOST_H
 #define HOST_H
 
-#include "../../../Empirical/include/emp/math/Random.hpp"
-#include "../../../Empirical/include/emp/tools/string_utils.hpp"
+#include "../../Empirical/include/emp/math/Random.hpp"
+#include "../../Empirical/include/emp/tools/string_utils.hpp"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream

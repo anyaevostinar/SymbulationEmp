@@ -1,0 +1,6 @@
+[submodule "Empirical"]
+	path = Empirical
+	url = https://github.com/devosoft/Empirical
+[submodule "emsdk"]
+	path = emsdk
+	url = https://github.com/emscripten-core/emsdk
