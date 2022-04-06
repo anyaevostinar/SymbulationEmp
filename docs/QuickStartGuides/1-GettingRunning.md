@@ -111,8 +111,8 @@ We recommend putting it in the same directory that you have SymbulationEmp and E
 ```
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
-./emsdk install 2.0.5
-./emsdk activate 2.0.5
+./emsdk install 3.1.2
+./emsdk activate 3.1.2
 ```
 
 Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):

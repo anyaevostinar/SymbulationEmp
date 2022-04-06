@@ -62,21 +62,26 @@ public:
     config_panel.ExcludeSetting("SYM_LIMIT");
     config_panel.ExcludeSetting("DATA_INT");
     config_panel.ExcludeSetting("POP_SIZE");
-    config_panel.ExcludeSetting("LYSIS");
-    config_panel.ExcludeSetting("BURST_SIZE");
-    config_panel.ExcludeSetting("BURST_TIME");
-    config_panel.ExcludeSetting("SYM_LYSIS_RES");
-    config_panel.ExcludeSetting("START_MOI");
     config_panel.ExcludeSetting("FILE_PATH");
     config_panel.ExcludeSetting("FILE_NAME");
     config_panel.ExcludeSetting("COMPETITION_MODE");
+    config_panel.ExcludeSetting("SYM_INFECTION_CHANCE");
+    config_panel.ExcludeSetting("SYM_INFECTION_FAILURE_RATE");
 
+    config_panel.ExcludeGroup("LYSIS");
+    config_panel.ExcludeGroup("DTH");
+    config_panel.ExcludeGroup("PGG");
+
+    config_panel.SetRange("HOST_INT", "-2", "1");
+    config_panel.SetRange("SYM_INT", "-2", "1");
+    config_panel.SetRange("SYM_AGE_MAX", "-1", "1000");
+    config_panel.SetRange("HOST_AGE_MAX", "-1", "1000");
 
 
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
     settings.SetCSS("flex-grow", "1");
-    settings.SetCSS("max-width", "600px");
+    settings.SetCSS("max-width", "700px");
     explanation.SetCSS("flex-grow", "1");
     explanation.SetCSS("max-width", "600px");
     learnmore.SetCSS("flex-grow", "1");
@@ -99,7 +104,7 @@ public:
 
     // setup configuration panel
     //config_panel.Setup();
-    config_panel_ex << config_panel.GetConfigPanelDiv();
+    config_panel_ex << config_panel;
 
 
     // Add explanation for organism color:

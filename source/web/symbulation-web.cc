@@ -10,7 +10,7 @@ namespace UI = emp::web;
 SymAnimate anim;
 
 int symbulation_main(int argc, char * argv[]){
-    
+    return 0;
 }
 
 #ifndef CATCH_CONFIG_MAIN
