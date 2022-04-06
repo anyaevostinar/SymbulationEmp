@@ -68,15 +68,12 @@ emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
   auto & file = SetupFile(filename);
   auto & node = GetHostIntValDataNode();
   auto & node1 = GetHostCountDataNode();
-  auto & cfu_node = GetCFUDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();
   node.SetupBins(-1.0, 1.1, 21);
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average host interaction value");
   file.AddTotal(node1, "count", "Total number of hosts");
-  file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
-  //either aren't infected at all or only with lysogenic phage if lysis is enabled
   file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
   file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
@@ -294,50 +291,6 @@ emp::DataMonitor<int>& SymWorld::GetUninfectedHostsDataNode() {
 }
 
 
-/**
- * Input: None
- *
- * Output: The DataMonitor<int>& that has the information representing
- * the number of colony forming units.
- *
- * Purpose: To collect data on the CFU count to be saved to the
- * data file that is tracking CFU
- */
-emp::DataMonitor<int>& SymWorld::GetCFUDataNode() {
-  //keep track of host organisms that are uninfected or infected with only lysogenic phage
-  if(!data_node_cfu) {
-    data_node_cfu.New();
-    OnUpdate([this](size_t){
-      data_node_cfu -> Reset();
-
-      for (size_t i = 0; i < pop.size(); i++) {
-        if(IsOccupied(i)) {
-          //uninfected hosts
-          if((pop[i]->GetSymbionts()).empty()) {
-            data_node_cfu->AddDatum(1);
-          }
-
-          //infected hosts, check if all symbionts are lysogenic
-          if(pop[i]->HasSym()) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            bool all_lysogenic = true;
-            for(long unsigned int j = 0; j < syms.size(); j++){
-              if(syms[j]->IsPhage()){
-                if(syms[j]->GetLysogeny() == false){
-                  all_lysogenic = false;
-                }
-              }
-            }
-            if(all_lysogenic){
-              data_node_cfu->AddDatum(1);
-            }
-          }
-        } //endif
-      } //end for
-  }); //end OnUpdate
-} //end if
-  return *data_node_cfu;
-}
 
 
 /**

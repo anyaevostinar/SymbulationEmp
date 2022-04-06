@@ -52,9 +52,9 @@ int symbulation_main(int argc, char * argv[])
   world.SetupInductionChanceFile(config.FILE_PATH()+"InductionChance"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupIncorporationDifferenceFile(config.FILE_PATH()+"IncValDifferences"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
 
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  world.SetupBacteriumFile(config.FILE_PATH()+"BacteriumVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  
+
   if(config.FREE_LIVING_SYMS() == 1){
     world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
