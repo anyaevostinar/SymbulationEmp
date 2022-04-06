@@ -1,7 +1,7 @@
-#include "../pgg_mode/PggWorld.h"
-#include"../pgg_mode/Pggsym.h"
-#include"../pgg_mode/Pgghost.h"
-#include "../pgg_mode/PggWorldSetup.cc"
+#include "../pgg_mode/PGGWorld.h"
+#include"../pgg_mode/PGGSymbiont.h"
+#include"../pgg_mode/PGGHost.h"
+#include "../pgg_mode/PGGWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
@@ -37,7 +37,7 @@ int symbulation_main(int argc, char * argv[])
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  PggWorld world(random);
+  PGGWorld world(random);
 
 
   int TIMING_REPEAT = config.DATA_INT();

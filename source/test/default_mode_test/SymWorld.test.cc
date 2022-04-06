@@ -3,8 +3,8 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-#include "../../pgg_mode/Pgghost.h"
-#include "../../pgg_mode/Pggsym.h"
+#include "../../pgg_mode/PGGHost.h"
+#include "../../pgg_mode/PGGSymbiont.h"
 
 
 TEST_CASE("PullResources", "[default]") {
@@ -194,7 +194,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
     GIVEN( "a PGGworld without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
-    PggWorld w(*random);
+    PGGWorld w(*random);
     config.VERTICAL_TRANSMISSION(0);
     w.SetVertTrans(0);
     config.MUTATION_SIZE(0);
@@ -210,7 +210,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
       //inject organisms
       for (size_t i = 0; i < 10; i++){
-        emp::Ptr<PggHost> new_org = emp::NewPtr<PggHost>(random, &w, &config, -0.1);
+        emp::Ptr<PGGHost> new_org = emp::NewPtr<PGGHost>(random, &w, &config, -0.1);
         w.AddOrgAt(new_org, w.size());
       }
       for (size_t i = 0; i< 10; i++){
@@ -235,7 +235,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
   GIVEN( "a PGGworld" ) {
     emp::Random random(17);
-    PggWorld w(random);
+    PGGWorld w(random);
     w.SetPopStruct_Mixed();
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);
@@ -254,7 +254,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
       //inject organisms
       for (size_t i = 0; i < 200; i++){
-        emp::Ptr<PggHost> new_org;
+        emp::Ptr<PGGHost> new_org;
         new_org.New(&random, &w, &config, 1);
         w.AddOrgAt(new_org, w.size());
       }

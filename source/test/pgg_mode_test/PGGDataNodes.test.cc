@@ -1,13 +1,13 @@
-#include "../../pgg_mode/Pgghost.h"
-#include "../../pgg_mode/Pggsym.h"
-#include "../../pgg_mode/PggWorld.h"
+#include "../../pgg_mode/PGGHost.h"
+#include "../../pgg_mode/PGGSymbiont.h"
+#include "../../pgg_mode/PGGWorld.h"
 
 TEST_CASE("GetPGGDataNode", "[pgg]"){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    PggWorld w(random);
+    PGGWorld w(random);
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -20,7 +20,7 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
       double donation_vals[6] = {0, 0.3, 0.45, 0.6, 0.77, 1.0};
       double expected_av = 0.52;
 
-      Host *h = new PggHost(&random, &w, &config, int_val);
+      Host *h = new PGGHost(&random, &w, &config, int_val);
       w.AddOrgAt(h, 0);
 
       for(size_t i = 0; i < (num_syms/2); i++){

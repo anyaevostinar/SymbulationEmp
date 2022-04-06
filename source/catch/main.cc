@@ -22,10 +22,10 @@
 #include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
 #include "../test/lysis_mode_test/LysisDataNodes.test.cc"
 
-#include "../test/pgg_mode_test/Pggsym.test.cc"
-#include "../test/pgg_mode_test/Pgghost.test.cc"
-#include "../test/pgg_mode_test/PggHostPggSymUnitTest.test.cc"
-#include "../test/pgg_mode_test/PggDataNodes.test.cc"
+#include "../test/pgg_mode_test/PGGSymbiont.test.cc"
+#include "../test/pgg_mode_test/PGGHost.test.cc"
+#include "../test/pgg_mode_test/PGGHostPGGSymbiontUnitTest.test.cc"
+#include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 
-//#include "../Pggendtoend.test.cc"
+//#include "../PGGendtoend.test.cc"
 //#include "../test/end_to_end.test.cc"
