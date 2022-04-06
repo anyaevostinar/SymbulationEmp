@@ -2,7 +2,7 @@
 #include"../pgg_mode/Pggsym.h"
 #include"../pgg_mode/Pgghost.h"
 #include "../pgg_mode/PggWorldSetup.cc"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 

@@ -1,6 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#include "../../Empirical/include/emp/config/config.hpp"
+#include "../Empirical/include/emp/config/config.hpp"
 
 //TODO: use GROUPs
 EMP_BUILD_CONFIG(SymConfigBase,

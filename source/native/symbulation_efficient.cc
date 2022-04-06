@@ -1,7 +1,7 @@
 #include "../efficient_mode/EfficientWorld.h"
 #include "../efficient_mode/EfficientSymbiont.h"
 #include "../efficient_mode/EfficientWorldSetup.cc"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 
