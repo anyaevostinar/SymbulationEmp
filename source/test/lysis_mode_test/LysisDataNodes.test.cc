@@ -180,7 +180,10 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
         //each of which has a different burst size
         Bacterium *h = new Bacterium(&random, &w, &config, int_val);
         Phage *p = new Phage(&random, &w, &config, int_val);
-        for(size_t j = 0; j < burst_sizes[i]; j++) h->AddReproSym(p->reproduce());
+        for(size_t j = 0; j < burst_sizes[i]; j++) {
+          Organism *new_repro_phage = p->reproduce();
+          h->AddReproSym(new_repro_phage);
+        }
         p->SetBurstTimer(burst_time);
         h->AddSymbiont(p);
         w.AddOrgAt(h, i);
@@ -217,10 +220,13 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
         //2 of which will lyse and the others won't
         Bacterium *h = new Bacterium(&random, &w, &config, int_val);
         Phage *p = new Phage(&random, &w, &config, int_val);
-        for(size_t j = 0; j < 1; j++) h->AddReproSym(p->reproduce());
-        h->AddSymbiont(p);
-        w.AddOrgAt(h, i);
         if(i < 2) p->SetBurstTimer(burst_time);
+        h->AddSymbiont(p);
+
+        Organism *new_repro_phage = p->reproduce();
+        h->AddReproSym(new_repro_phage);
+
+        w.AddOrgAt(h, i);
       }
       w.Update();
 
