@@ -66,6 +66,20 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
  */
 emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
   auto & file = SetupFile(filename);
+  AddHeadersToHostFile(file);
+  file.PrintHeaderKeys();
+  return file;
+}
+
+
+/**
+ * Input: The Empirical DataFile object tracking data nodes.
+ *
+ * Output: None.
+ *
+ * Purpose: To add host data nodes to be tracked to the host data file.
+ */
+void SymWorld::AddHeadersToHostFile(emp::DataFile & file){
   auto & node = GetHostIntValDataNode();
   auto & node1 = GetHostCountDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();
@@ -95,9 +109,6 @@ emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
   file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
   file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
   file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
-  file.PrintHeaderKeys();
-
-  return file;
 }
 
 

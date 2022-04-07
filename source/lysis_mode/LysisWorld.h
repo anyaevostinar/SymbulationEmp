@@ -38,24 +38,17 @@ public:
   }
 
   /**
-   * Input: The address of the string representing the file to be
-   * created's name
+   * Input: The Empirical DataFile object tracking data nodes.
    *
-   * Output: The address of the DataFile that has been created.
+   * Output: None.
    *
-   * Purpose: To set up the file that will be used to track Bacterium
-   * data, which is the same as Host data but with the addition of
-   * CFU
+   * Purpose: To add bacterium data nodes to be tracked to the bacterium data file.
    */
-  emp::DataFile & SetupBacteriumFile(const std::string & filename) {
-    auto & file = SetupHostIntValFile(filename);
+  void AddHeadersToHostFile(emp::DataFile & file){
+    SymWorld::AddHeadersToHostFile(file);
     auto & cfu_node = GetCFUDataNode();
     file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
-    //either aren't infected at all or only with lysogenic phage if lysis is enabled
 
-    file.PrintHeaderKeys();
-
-    return file;
   }
 
   /**
