@@ -231,8 +231,8 @@ class Organism {
   virtual double GetDonation() {
     std::cout << "GetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void Setdonation() {
-    std::cout << "Setdonation called from Organism" << std::endl;
+  virtual void SetDonation() {
+    std::cout << "SetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;

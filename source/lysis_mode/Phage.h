@@ -226,7 +226,7 @@ public:
 
 
   /**
-   * Input: Optional string that indicates mode of reproduction and therefore which mutation rate and size should be used. Options are vertical (for prophage) or horizontal (for lytic phage)
+   * Input: None
    *
    * Output: None
    *
