@@ -538,7 +538,7 @@ public:
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
-  virtual void AddHeadersToHostFile(emp::DataFile & file);
+  virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();

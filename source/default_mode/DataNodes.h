@@ -62,11 +62,11 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
  * Purpose: To set up the file that will be used to track host's
  * interaction values, the total number of hosts, the total
  * number of colony forming units, and the histogram of the
- * host's interaction values
+ * host's interaction values. Prints header keys to the file.
  */
 emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
   auto & file = SetupFile(filename);
-  AddHeadersToHostFile(file);
+  SetupHostFileColumns(file);
   file.PrintHeaderKeys();
   return file;
 }
@@ -77,9 +77,10 @@ emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
  *
  * Output: None.
  *
- * Purpose: To add host data nodes to be tracked to the host data file.
+ * Purpose: To define which data nodes should be tracked by this data file. Defines
+ * what columns should be called.
  */
-void SymWorld::AddHeadersToHostFile(emp::DataFile & file){
+void SymWorld::SetupHostFileColumns(emp::DataFile & file){
   auto & node = GetHostIntValDataNode();
   auto & node1 = GetHostCountDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();

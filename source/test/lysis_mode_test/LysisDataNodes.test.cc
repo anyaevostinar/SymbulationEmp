@@ -217,16 +217,17 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
     WHEN("bacteria lyse"){
       int expected_total = 2;
       for(int i = 0; i < 4; i++){ // populate world with 4 bacteria
-        //2 of which will lyse and the others won't
-        Bacterium *h = new Bacterium(&random, &w, &config, int_val);
-        Phage *p = new Phage(&random, &w, &config, int_val);
-        if(i < 2) p->SetBurstTimer(burst_time);
-        h->AddSymbiont(p);
+        Bacterium *bacterium = new Bacterium(&random, &w, &config, int_val);
+        Phage *phage = new Phage(&random, &w, &config, int_val);
+        if(i < 2){ //ensure two of the bacteria will lyse
+          phage->SetBurstTimer(burst_time);
+        }
+        bacterium->AddSymbiont(phage);
 
-        Organism *new_repro_phage = p->reproduce();
-        h->AddReproSym(new_repro_phage);
+        Organism *new_repro_phage = phage->reproduce();
+        bacterium->AddReproSym(new_repro_phage);
 
-        w.AddOrgAt(h, i);
+        w.AddOrgAt(bacterium, i);
       }
       w.Update();
 

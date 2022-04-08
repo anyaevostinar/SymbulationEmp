@@ -44,11 +44,10 @@ public:
    *
    * Purpose: To add bacterium data nodes to be tracked to the bacterium data file.
    */
-  void AddHeadersToHostFile(emp::DataFile & file){
-    SymWorld::AddHeadersToHostFile(file);
+  void SetupHostFileColumns(emp::DataFile & file){
+    SymWorld::SetupHostFileColumns(file);
     auto & cfu_node = GetCFUDataNode();
     file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
-
   }
 
   /**
