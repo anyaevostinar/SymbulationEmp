@@ -19,12 +19,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: SymbulationEmp
-
-      - name: Checkout Empirical
-        uses: actions/checkout@v2
-        with:
-          repository: devosoft/Empirical
-          path: Empirical
           submodules: "recursive"
 
       - name: run symbulation
