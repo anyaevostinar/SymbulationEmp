@@ -1,6 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#include "../../Empirical/include/emp/config/config.hpp"
+#include "../Empirical/include/emp/config/config.hpp"
 
 //TODO: use GROUPs
 EMP_BUILD_CONFIG(SymConfigBase,
@@ -9,10 +9,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)"),
     VALUE(DATA_INT, int, 100, "How frequently, in updates, should data print?"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
-    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
     VALUE(HOST_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for hosts, if -1 MUTATION_SIZE used"),
     VALUE(MUTATION_RATE, double, 1, "Value 0 to 1 of probability of mutation"),
-    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
     VALUE(HOST_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for hosts, if -1 MUTATION_RATE used"),
     VALUE(SYNERGY, double, 5, "Amount symbiont's returned resources should be multiplied by"),
     VALUE(VERTICAL_TRANSMISSION, double, 0.7, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
@@ -29,10 +27,10 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
     VALUE(SYM_VERT_TRANS_RES, double, 0, "How many resources required for symbiont vertical transmission"),
     VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
-    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The horizontal transmission mutation rate of the efficiency trait in symbionts, -1 if same as HORIZ_MUT_RATE"),
     VALUE(SYM_INFECTION_CHANCE, double, 1, "The chance (between 0 and 1) that a sym will infect a parallel host on process"),
     VALUE(SYM_INFECTION_FAILURE_RATE, double, 0, "The chance (between 0 and 1) that a sym will be killed by the world while trying to infect a host"),
+    VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),
+    VALUE(SYM_AGE_MAX, int, -1, "The maximum updates symbionts are allowed to live, -1 for infinite"),
 
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),
@@ -56,16 +54,23 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(ECTOSYMBIOSIS, bool, 0, "Do free-living syms and parallel hosts interact? (0 for no, 1 for yes)"),
     VALUE(ECTOSYMBIOTIC_IMMUNITY, bool, 0, "Does a hosted sym confer immunity to ectosymbiosis? (0 for no, 1 for yes)"),
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 100, "Number of resources to give to each free-living symbiont each update if they are available"),
-    VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),
-    VALUE(SYM_AGE_MAX, int, -1, "The maximum updates symbionts are allowed to live, -1 for infinite"),
+    VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
+    VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be sepeated into if phylogeny is on?"),
 
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data_", "Root output file name"),
 
     GROUP(PGG,"Public Goods Game Settings"),
-    VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to Pgg pool that experiment should start with"),
+    VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to PGG pool that experiment should start with"),
     VALUE(PGG, int, 0, "whether have social goods game among syms" ),
-    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG")
+    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG"),
+
+    GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
+    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
+    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The overall mutation rate of the efficiency trait in symbionts, -1 makes it same as mutation rate as determined by transmission mode"),
+    VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
+    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
+    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
 
 )
 #endif

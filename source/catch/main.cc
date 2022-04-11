@@ -4,17 +4,28 @@
 #include "catch.hpp"
 
 #include "sanity_check.test.cc"
-#include "../SymWorld.test.cc"
-#include "../Pggsym.test.cc"
-#include "../EfficientSymbiont.test.cc"
-#include "../Host.test.cc"
-#include "../Bacterium.test.cc"
-#include "../Phage.test.cc"
-#include "../Symbiont.test.cc"
-#include "../Pgghost.test.cc"
-#include "../HostSymbiontInteraction.test.cc"
-#include "../HostSymbiontUnitTest.test.cc"
-#include "../PggHostPggSymUnitTest.test.cc"
-#include "../BacteriumPhageUnitTest.test.cc"
-//#include "../Pggendtoend.test.cc"
-//#include "../end_to_end.test.cc"
+
+#include "../test/default_mode_test/SymWorld.test.cc"
+#include "../test/default_mode_test/DataNodes.test.cc"
+
+#include "../test/default_mode_test/Host.test.cc"
+#include "../test/default_mode_test/Symbiont.test.cc"
+#include "../test/default_mode_test/HostSymbiontInteraction.test.cc"
+#include "../test/default_mode_test/HostSymbiontUnitTest.test.cc"
+
+#include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
+#include "../test/efficient_mode_test/EfficientHost.test.cc"
+#include "../test/efficient_mode_test/EfficientDataNodes.test.cc"
+
+#include "../test/lysis_mode_test/Bacterium.test.cc"
+#include "../test/lysis_mode_test/Phage.test.cc"
+#include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
+#include "../test/lysis_mode_test/LysisDataNodes.test.cc"
+
+#include "../test/pgg_mode_test/PGGSymbiont.test.cc"
+#include "../test/pgg_mode_test/PGGHost.test.cc"
+#include "../test/pgg_mode_test/PGGHostPGGSymbiontUnitTest.test.cc"
+#include "../test/pgg_mode_test/PGGDataNodes.test.cc"
+
+//#include "../PGGendtoend.test.cc"
+//#include "../test/end_to_end.test.cc"

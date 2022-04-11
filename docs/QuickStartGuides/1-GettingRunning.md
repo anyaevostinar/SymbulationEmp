@@ -2,8 +2,8 @@
 
 Symbulation allows you to compile your C++ to either:
 
-- run at the command line (e.g., native machine code) and
-- run in the web browser (e.g., javascript assembly code).
+* running at the command line (e.g., native machine code) and
+* running in the web browser (e.g., javascript assembly code).
 
 This how-to aims to walk you through all the nitty gritty required to
 successfully compile a simple "default" executable for running at the command line.
@@ -107,6 +107,39 @@ These instructions are for if you want to make *changes* to the web GUI and run 
 
 First, you'll need Emscripten. 
 We recommend putting it in the same directory that you have SymbulationEmp and Empirical:
+
+```
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+./emsdk install 3.1.2
+./emsdk activate 3.1.2
+```
+
+Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):
+
+```
+cd emsdk
+source ./emsdk_env.sh
+```
+
+Then navigate back to SymbulationEmp and build the web version:
+
+```
+cd SymbulationEmp
+make web
+```
+
+```shell
+./symbulation_default
+```
+
+## Web
+
+You don't need to do this to be able to use Symbulation's web browser since it is hosted here: [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html).
+
+However, if you want to make changes to the web GUI and run it locally, this is how you do that.
+
+First, you'll need Emscripten, we recommend putting it in the same directory that you have SymbulationEmp and Empirical:
 
 ```
 git clone https://github.com/emscripten-core/emsdk.git

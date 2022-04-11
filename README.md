@@ -7,6 +7,7 @@ Symbulation is an artificial life software tool for agent-based modeling of the 
 [![DOI](https://zenodo.org/badge/92536524.svg)](https://zenodo.org/badge/latestdoi/92536524)
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
 [<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
+[![GitHub contributors](https://img.shields.io/github/contributors/anyaevostinar/SymbulationEmp.svg?style=flat-square)](https://github.com/anyaevostinar/SymbulationEmp/graphs/contributors)
 
 Try out our [browser-based GUI](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html). See our documentation at [https://symbulation.readthedocs.io](https://symbulation.readthedocs.io).
 
@@ -35,14 +36,14 @@ make
 
 Make any changes that you wish to the file `SymSettings.cfg` and then run:
 ```
-./symbulation
+./symbulation_default
 ```
 
 By default, your data will be output to the files `HostVals_data__SEED10.data` and `SymVals_data__SEED10.data`.
 
 We recommend that you copy your `symbulation` executable to your `Data` folders:
 ```
-cp symbulation ../Data/sample_treatment
+cp symbulation_default ../Data/sample_treatment
 cd ../Data/sample_treatment
 ```
 

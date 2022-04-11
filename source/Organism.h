@@ -44,7 +44,7 @@ class Organism {
     std::cout << "GetDead called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void Process(size_t location)
+  virtual void Process(emp::WorldPosition location)
    {std::cout << "Process called from Organism" << std::endl;
      throw "Organism method called!";
   }
@@ -60,12 +60,17 @@ class Organism {
     std::cout << "GetAge called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void SetAge(int _in) {
+    std::cout << "SetAge called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual emp::Ptr<Organism> makeNew(){
+    std::cout << "makeNew called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 
-  virtual void HorizMutate() {
-    std::cout << "HorizMutate called from Organism" << std::endl;
-    throw "Organism method called!";}
   virtual void mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -73,7 +78,10 @@ class Organism {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    std::cout << "reproduce called from Organism" << std::endl;
+    std::cout << "VerticalTransmission called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void HorizontalTransmission(emp::WorldPosition location) {
+    std::cout << "HorizontalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessResources(double sym_piece){
     std::cout << "ProcessResources called from an Organism" << std::endl;
@@ -99,12 +107,26 @@ class Organism {
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
+    std::cout << "GetTaxon called from an Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
+    std::cout << "SetTaxon called from an Organism" << std::endl;
+    throw "Organism method called!";}
 
   //EfficientSymbiont functions
   virtual double GetEfficiency() {
     std::cout << "GetEfficiency called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
+    throw "Organism method called!";}
+  virtual void SetEfficiency(double _in) {
+    std::cout << "SetEfficiency called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual emp::Ptr<Organism> reproduce(std::string mode) {
+    std::cout << "EfficientSymbiont's reproduce called from Organism" << std::endl;
+    throw "Organism method called!";}
+  virtual void mutate(std::string mode) {
+    std::cout << "EfficientSymbiont's mutate called from Organism" << std::endl;
+    throw "Organism method called!";}
 
   //Host functions
 
@@ -185,7 +207,7 @@ class Organism {
   virtual void uponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void LysisBurst(size_t location) {
+  virtual void LysisBurst(emp::WorldPosition location) {
     std::cout << "LysisBurst called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void LysisStep() {
@@ -209,8 +231,8 @@ class Organism {
   virtual double GetDonation() {
     std::cout << "GetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void Setdonation() {
-    std::cout << "Setdonation called from Organism" << std::endl;
+  virtual void SetDonation() {
+    std::cout << "SetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;

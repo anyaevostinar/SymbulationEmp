@@ -1,7 +1,6 @@
 # Project-specific settings
-PROJECT := symbulation
-TEST_MAIN := source/catch/main
-EMP_DIR := ../Empirical/include
+TEST_DIR := source/catch
+EMP_DIR := Empirical/include
 
 # Flags to use regardless of compiler
 CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/
@@ -21,47 +20,120 @@ OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
 CFLAGS_web := $(CFLAGS_all) $(OFLAGS_web) $(OFLAGS_web_all)
 CFLAGS_web_debug := $(CFLAGS_all) $(OFLAGS_web_debug) $(OFLAGS_web_all)
 
-
-default: $(PROJECT)
-native: $(PROJECT)
-web: $(PROJECT).js
-all: $(PROJECT) $(PROJECT).js
-
-debug:	CFLAGS_nat := $(CFLAGS_nat_debug)
-debug:	$(PROJECT)
-
-debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
-debug-web:	$(PROJECT).js
-
-web-debug:	debug-web
-
-$(PROJECT):	source/native/$(PROJECT).cc
-	$(CXX_nat) $(CFLAGS_nat) source/native/$(PROJECT).cc -o $(PROJECT)
+# Compiling different modes
+default: default-mode
+	@echo Built default version using 'make default-mode'. To use other modes, use the following:
+	@echo Efficient mode: make efficient-mode
+	@echo Lysis mode: make lysis-mode
+	@echo PGG mode: make pgg-mode
 	@echo To build the web version use: make web
 
-$(PROJECT).js: source/web/$(PROJECT)-web.cc
-	$(CXX_web) $(CFLAGS_web) source/web/$(PROJECT)-web.cc -o web/$(PROJECT).js
+native: default-mode
+web: symbulation.js
+all: default-mode efficient-mode lysis-mode pgg-mode symbulation.js
 
+default-mode:	source/native/symbulation_default.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
+
+efficient-mode:	source/native/symbulation_efficient.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
+
+lysis-mode:	source/native/symbulation_lysis.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_lysis.cc -o symbulation_lysis
+
+pgg-mode:	source/native/symbulation_pgg.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
+
+symbulation.js: source/web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
+
+# Debugging
+debug:
+	@echo Please specify the mode to debug using the following:
+	@echo Default mode: make debug-default
+	@echo Efficient mode: make debug-efficient
+	@echo Lysis mode: make debug-lysis
+	@echo PGG mode: make debug-pgg
+
+debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-default: default-mode 
+default-debug: debug-default
+
+debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-efficient: efficient-mode 
+efficient-debug: debug-efficient
+
+debug-lysis: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-lysis: lysis-mode 
+lysis-debug: debug-lysis
+
+debug-pgg: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-pgg: pgg-mode 
+pgg-debug: debug-pgg
+
+debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
+debug-web:	symbulation.js
+web-debug:	debug-web
+
+# Debugging information
+print-%: ; @echo '$(subst ','\'',$*=$($*))'
+
+# Testing
+test:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test
+	@echo To run only the tests for each mode, use the following:
+	@echo Default mode testing: make test-default
+	@echo Efficient mode testing: make test-efficient
+	@echo Lysis mode testing: make test-lysis 
+	@echo PGG mode testing: make test-pgg
+
+test-debug:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test
+	@echo To debug and test for each mode, use the following:
+	@echo Default mode: make test-debug-default
+	@echo Efficient mode: make test-debug-efficient
+	@echo Lysis mode: make test-debug-lysis 
+	@echo PGG mode: make test-debug-pgg
+
+test-default:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [default]
+test-debug-default:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [default]
+
+test-efficient:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [efficient]
+test-debug-efficient:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [efficient]
+
+test-lysis:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [lysis]
+test-debug-lysis:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [lysis]
+
+test-pgg:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [pgg]
+test-debug-pgg:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [pgg]
+
+# Extras
 .PHONY: clean test serve
 
 serve:
 	python3 -m http.server
 
 clean:
-	rm -f $(PROJECT) web/$(PROJECT).js web/*.js.map web/*.js.map *~ source/*.o
-
-test:
-	$(CXX_nat) $(CFLAGS_nat) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
-
-test-debug:
-	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
+	rm -f symbulation* web/symbulation.js web/*.js.map web/*.js.map *~ source/*.o
 
 coverage:
-	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_MAIN).cc -o $(PROJECT).test
-	./$(PROJECT).test
-
-
-# Debugging information
-print-%: ; @echo '$(subst ','\'',$*=$($*))'
+	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test
