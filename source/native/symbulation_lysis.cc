@@ -2,7 +2,7 @@
 #include "../lysis_mode/Phage.h"
 #include "../lysis_mode/Bacterium.h"
 #include "../lysis_mode/LysisWorldSetup.cc"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 
