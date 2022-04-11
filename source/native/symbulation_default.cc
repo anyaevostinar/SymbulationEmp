@@ -2,7 +2,7 @@
 #include "../default_mode/Symbiont.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/WorldSetup.cc"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
