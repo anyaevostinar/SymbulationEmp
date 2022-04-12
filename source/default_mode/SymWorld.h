@@ -112,7 +112,7 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-  emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
+
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -151,7 +151,6 @@ public:
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
-    if (data_node_cfu) data_node_cfu.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
   }
 
@@ -539,12 +538,12 @@ public:
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
+  virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
-  emp::DataMonitor<int>& GetCFUDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
