@@ -6,8 +6,6 @@
 #include <iostream>
 #include "../ConfigSetup.h"
 
-using namespace std;
-
 // This is the main function for the NATIVE version of this project.
 
 int symbulation_main(int argc, char * argv[])
@@ -22,15 +20,15 @@ int symbulation_main(int argc, char * argv[])
 
   auto args = emp::cl::ArgManager(argc, argv);
   if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
-    cerr << "There was a problem in processing the options file." << endl;
+    std::cerr << "There was a problem in processing the options file." << std::endl;
     exit(1);
   }
   if (args.TestUnknown() == false) {
-    cerr << "Leftover args no good." << endl;
+    std::cerr << "Leftover args no good." << std::endl;
     exit(1);
   }
   if (config.BURST_SIZE()%config.BURST_TIME() != 0 && config.BURST_SIZE() < 999999999) {
-  	cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << endl;
+  	std::cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << std::endl;
   	exit(1);
   }
 
@@ -65,8 +63,8 @@ int symbulation_main(int argc, char * argv[])
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
     if((i%TIMING_REPEAT)==0) {
-      cout <<"Update: "<< i << endl;
-      cout.flush();
+      std::cout <<"Update: "<< i << std::endl;
+      std::cout.flush();
     }
     world.Update();
   }
