@@ -58,3 +58,5 @@ python3 munge_data.py
 These commands will output a file `munged_basic.dat` that contains the average *interaction value* of hosts and symbionts over time in each of your replicates and treatments.
 
 You can then open the R script `SampleAnalysis.R`, set your working directory to the `Analysis` folder and run all of the lines to see a plot of the effect of vertical transmission on the evolved interaction value for hosts and symbionts.
+
+Keep in mind that the above workflow assumes that the treatments being executed are related to experimenting with only vertical transmission. When executing an experiment with different configuration settings being changed, you will need to change `simple_repeats.py`, `munged_basic.dat`, and `SampleAnalysis.R` to reflect those settings.
