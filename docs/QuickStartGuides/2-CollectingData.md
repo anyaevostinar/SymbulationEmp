@@ -1,6 +1,6 @@
 # Collecting Data with Symbulation 
-You are able to run Symbulation with whatever workflow you prefer to run many replicates. 
-The following assumes that you used the [Symbulation Cookiecutter](https://github.com/anyaevostinar/SymbulationProjectTemplate) to get setup.
+You are able to run Symbulation with whatever workflow you prefer to run many replicates, however, we recommend collecting data with the following process. 
+We assume that you used the [Symbulation Cookiecutter](https://github.com/anyaevostinar/SymbulationProjectTemplate) to get setup.
 
 We've provided a [short script](https://github.com/anyaevostinar/SymbulationProjectTemplate/blob/main/%7B%7Bcookiecutter.project_name%7D%7D/Data/sample_treatment/simple_repeat.py) that can be used with `screen` to run several replicates and treatments.
 
@@ -11,10 +11,10 @@ We recommend (and have provided) a workflow where you have a `Data` folder that 
 - Your executable file
 - A `README.md` containing the date and the purpose of the experiment
 
-Assuming that you are in the `SymbulationEmp` directory and have already compiled your `symbulation` or `symbulation_default` executable, copy your executable to your `Data` folder and change to that directory:
+Assuming that you are in the `SymbulationEmp` directory and have already compiled your `symbulation_default` (or alternative mode) executable, copy your executable to your `Data` folder and change to that directory:
 
 ```
-cp symbulation ../Data/sample_treatment
+cp symbulation_default ../Data/sample_treatment
 cd ../Data/sample_treatment
 ```
 
@@ -24,15 +24,23 @@ Within that directory, you can run `simple_repeat.py`:
 python3 simple_repeat.py
 ```
 
-By default, this will run 5 replicates of each treatment specified in `simple_repeat.py` and use the random seeds 21-25 (inclusive). 
+By default, this will run 10 replicates of each treatment specified in `simple_repeat.py` and use the random seeds 10-19 (inclusive). 
 You can specify the random seeds (and therefore also the number of replicates) using command line arguments, which are optional. 
-The first command line argument is the start of the range of seeds (inclusive), and the second command line argument is the end of the range of seeds (exclusive). 
+The first command line argument is the start of the range of seeds (inclusive), and the second command line argument is the end of the range of seeds (inclusive). 
 
 For example, the input
-```shell
+```
 python3 simple_repeat.py 10 15
 ```
-will use seeds 10, 11, 12, 13, and 14. 
+will use seeds 10, 11, 12, 13, 14, and 15.
+
+The first command line argument can also be used without entering a second command line argument. In this case, the script will only run one replicate using the specified seed in the first argument.
+
+For example, running
+```
+python3 simple_repeat.py 10
+```
+will produce one replicate with random seed 10.
 
 # Analyzing Data
 We've also provided a basic analysis pipeline for visualizing your data.
