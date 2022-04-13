@@ -16,7 +16,8 @@ private:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_incorporation_difference;
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
   emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
-  
+  emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
+
 public:
   using SymWorld::SymWorld;
 
@@ -33,6 +34,20 @@ public:
     if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
     if (data_node_burst_size) data_node_burst_size.Delete();
     if (data_node_burst_count) data_node_burst_count.Delete();
+    if (data_node_cfu) data_node_cfu.Delete();
+  }
+
+  /**
+   * Input: The Empirical DataFile object tracking data nodes.
+   *
+   * Output: None.
+   *
+   * Purpose: To add bacterium data nodes to be tracked to the bacterium data file.
+   */
+  void SetupHostFileColumns(emp::DataFile & file){
+    SymWorld::SetupHostFileColumns(file);
+    auto & cfu_node = GetCFUDataNode();
+    file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
   }
 
   /**
@@ -45,7 +60,7 @@ public:
    * lysis chance, the number of symbionts, and the histogram of
    * the mean lysis chance.
    */
-    emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
+  emp::DataFile & SetupLysisChanceFile(const std::string & filename) {
     auto & file = SetupFile(filename);
     auto & node1 = GetSymCountDataNode();
     auto & node = GetLysisChanceDataNode();
@@ -83,7 +98,7 @@ public:
     * induction chance, the number of symbionts, and the histogram of
     * the mean induction chance.
     */
-     emp::DataFile & SetupInductionChanceFile(const std::string & filename) {
+  emp::DataFile & SetupInductionChanceFile(const std::string & filename) {
      auto & file = SetupFile(filename);
      auto & node1 = GetSymCountDataNode();
      auto & node = GetInductionChanceDataNode();
@@ -208,7 +223,7 @@ public:
    * Input: None
    *
    * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
-   * the chance of induction for each symbionts.
+   * the chance of induction for each symbiont.
    *
    * Purpose: To collect data on the chance of induction for each symbiont to be saved to the
    * data file that is tracking chance of induction for each symbiont.
@@ -265,6 +280,50 @@ public:
     }
     return *data_node_incorporation_difference;
   }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of colony forming units.
+   *
+   * Purpose: To collect data on the CFU count to be saved to the
+   * data file that is tracking CFU
+   */
+  emp::DataMonitor<int>& GetCFUDataNode() {
+    //keep track of host organisms that are uninfected or infected with only lysogenic phage
+    if(!data_node_cfu) {
+      data_node_cfu.New();
+      OnUpdate([this](size_t){
+        data_node_cfu -> Reset();
+
+        for (size_t i = 0; i < pop.size(); i++) {
+          if(IsOccupied(i)) {
+            //uninfected hosts
+            if((pop[i]->GetSymbionts()).empty()) {
+              data_node_cfu->AddDatum(1);
+            }
+
+            //infected hosts, check if all symbionts are lysogenic
+            if(pop[i]->HasSym()) {
+              emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+              bool all_lysogenic = true;
+              for(long unsigned int j = 0; j < syms.size(); j++){
+                if(syms[j]->IsPhage() && syms[j]->GetLysogeny() == false){
+                  all_lysogenic = false;
+                }
+              }
+              if(all_lysogenic){
+                data_node_cfu->AddDatum(1);
+              }
+            }
+          } //endif
+        } //end for
+      }); //end OnUpdate
+    } //end if
+    return *data_node_cfu;
+  }
+
 
 }; //end of LysisWorld class
 #endif
