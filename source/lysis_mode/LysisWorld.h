@@ -70,7 +70,6 @@ public:
     file.AddTotal(node1, "count", "Total number of symbionts");
     file.AddMean(node2, "mean_burstsize", "Average burst size", true);
     file.AddTotal(node3, "burst_count", "Average burst count", true);
-    node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
     file.AddMean(node, "mean_lysischance", "Average chance of lysis");
     file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
     file.AddHistBin(node, 1, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
@@ -102,7 +101,6 @@ public:
      auto & file = SetupFile(filename);
      auto & node1 = GetSymCountDataNode();
      auto & node = GetInductionChanceDataNode();
-     node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
      file.AddVar(update, "update", "Update");
      file.AddMean(node, "mean_inductionchance", "Average chance of induction");
      file.AddTotal(node1, "count", "Total number of symbionts");
@@ -135,7 +133,6 @@ public:
      emp::DataFile & SetupIncorporationDifferenceFile(const std::string & filename) {
      auto & file = SetupFile(filename);
      auto & node = GetIncorporationDifferenceDataNode();
-     node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
      file.AddVar(update, "update", "Update");
      file.AddMean(node, "mean_incval_difference", "Average difference in incorporation value between bacteria and their phage");
      file.AddHistBin(node, 0, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
@@ -183,6 +180,7 @@ public:
         }//close for
       });
     }
+    data_node_lysischance->SetupBins(0, 1.1, 11);
     return *data_node_lysischance;
   }
 
@@ -247,6 +245,7 @@ public:
         }//close for
       });
     }
+    data_node_inductionchance->SetupBins(0, 1.1, 11);
     return *data_node_inductionchance;
   }
 
@@ -278,6 +277,7 @@ public:
         }//close for
       });
     }
+    data_node_incorporation_difference->SetupBins(0, 1.1, 11);
     return *data_node_incorporation_difference;
   }
 

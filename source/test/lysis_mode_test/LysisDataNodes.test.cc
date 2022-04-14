@@ -74,7 +74,6 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
     size_t max_bin = 10;
 
     emp::DataMonitor<double,emp::data::Histogram>& lysis_chance_data_node = w.GetLysisChanceDataNode();
-    lysis_chance_data_node.SetupBins(0, 1.0, max_bin);
     REQUIRE(std::isnan(lysis_chance_data_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(lysis_chance_data_node.GetHistCounts()[i] == 0);
@@ -122,7 +121,6 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
     size_t max_bin = 10;
 
     emp::DataMonitor<double,emp::data::Histogram>& induction_chance_data_node = w.GetInductionChanceDataNode();
-    induction_chance_data_node.SetupBins(0, 1.0, max_bin);
     REQUIRE(std::isnan(induction_chance_data_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(induction_chance_data_node.GetHistCounts()[i] == 0);
@@ -249,7 +247,6 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
     w.Resize(4);
 
     emp::DataMonitor<double,emp::data::Histogram>& inc_dif_data_node = w.GetIncorporationDifferenceDataNode();
-    inc_dif_data_node.SetupBins(0, 1.0, max_bin);
     REQUIRE(std::isnan(inc_dif_data_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(inc_dif_data_node.GetHistCounts()[i] == 0);

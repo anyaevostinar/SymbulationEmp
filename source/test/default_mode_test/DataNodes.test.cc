@@ -200,7 +200,6 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
     size_t max_bin = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& sym_intval_node = w.GetSymIntValDataNode();
-    sym_intval_node.SetupBins(-1.0, 1.1, max_bin);
     REQUIRE(std::isnan(sym_intval_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(sym_intval_node.GetHistCounts()[i] == 0);
@@ -260,7 +259,6 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
     size_t max_bin = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& free_sym_intval_node = w.GetFreeSymIntValDataNode();
-    free_sym_intval_node.SetupBins(-1.0, 1.1, max_bin);
 
     //initial checks for emptiness
     REQUIRE(std::isnan(free_sym_intval_node.GetMean()));
@@ -316,7 +314,6 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
     size_t max_bin = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& hosted_sym_intval_node = w.GetHostedSymIntValDataNode();
-    hosted_sym_intval_node.SetupBins(-1.0, 1.1, max_bin);
     REQUIRE(std::isnan(hosted_sym_intval_node.GetMean()));
     REQUIRE(w.GetNumOrgs() == 0);
     for(size_t i = 0; i < max_bin; i++){
@@ -372,7 +369,6 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
     size_t max_bin = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& host_intval_node = w.GetHostIntValDataNode();
-    host_intval_node.SetupBins(-1.0, 1.1, max_bin);
     REQUIRE(std::isnan(host_intval_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(host_intval_node.GetHistCounts()[i] == 0);
@@ -418,7 +414,6 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
     size_t max_bin = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& sym_infectionchance_node = w.GetSymInfectChanceDataNode();
-    sym_infectionchance_node.SetupBins(0, 1.1, max_bin);
     REQUIRE(std::isnan(sym_infectionchance_node.GetMean()));
     for(size_t i = 0; i < max_bin; i++){
       REQUIRE(sym_infectionchance_node.GetHistCounts()[i] == 0);
@@ -475,7 +470,6 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
     size_t max_bin = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& free_sym_infectionchance_node = w.GetFreeSymInfectChanceDataNode();
-    free_sym_infectionchance_node.SetupBins(0, 1.1, max_bin);
     REQUIRE(std::isnan(free_sym_infectionchance_node.GetMean()));
     REQUIRE(w.GetNumOrgs() == 0);
 
@@ -532,7 +526,6 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
     size_t max_bin = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& hosted_sym_infectionchance_node = w.GetHostedSymInfectChanceDataNode();
-    hosted_sym_infectionchance_node.SetupBins(0, 1.1, max_bin);
     REQUIRE(std::isnan(hosted_sym_infectionchance_node.GetMean()));
     REQUIRE(w.GetNumOrgs() == 0);
 
