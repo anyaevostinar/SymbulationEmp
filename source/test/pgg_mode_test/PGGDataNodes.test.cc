@@ -11,11 +11,11 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double, emp::data::Histogram>& sym_donation_node = w.GetPGGDataNode();
     REQUIRE(std::isnan(sym_donation_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(sym_donation_node.GetHistCounts()[i] == 0);
     }
 
@@ -47,7 +47,7 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
         REQUIRE(sym_donation_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they are sorted into histrogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(sym_donation_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }

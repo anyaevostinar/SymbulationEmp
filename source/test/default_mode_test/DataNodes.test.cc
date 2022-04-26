@@ -196,11 +196,11 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 21;
+    size_t num_bins = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& sym_intval_node = w.GetSymIntValDataNode();
     REQUIRE(std::isnan(sym_intval_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(sym_intval_node.GetHistCounts()[i] == 0);
     }
     REQUIRE(w.GetNumOrgs() == 0);
@@ -231,7 +231,7 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
         REQUIRE(sym_intval_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they were split into histogram bins correctly"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(sym_intval_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -248,14 +248,14 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 21;
+    size_t num_bins = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& free_sym_intval_node = w.GetFreeSymIntValDataNode();
 
     //initial checks for emptiness
     REQUIRE(std::isnan(free_sym_intval_node.GetMean()));
     REQUIRE(w.GetNumOrgs() == 0);
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(free_sym_intval_node.GetHistCounts()[i] == 0);
     }
 
@@ -283,7 +283,7 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
         REQUIRE(free_sym_intval_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("only free symbionts were split into histogram bins correctly"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(free_sym_intval_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -300,12 +300,12 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 21;
+    size_t num_bins = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& hosted_sym_intval_node = w.GetHostedSymIntValDataNode();
     REQUIRE(std::isnan(hosted_sym_intval_node.GetMean()));
     REQUIRE(w.GetNumOrgs() == 0);
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(hosted_sym_intval_node.GetHistCounts()[i] == 0);
     }
 
@@ -332,7 +332,7 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
         REQUIRE(hosted_sym_intval_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("only hosted symbionts were split into histogram bins correctly"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(hosted_sym_intval_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -348,11 +348,11 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 21;
+    size_t num_bins = 21;
 
     emp::DataMonitor<double,emp::data::Histogram>& host_intval_node = w.GetHostIntValDataNode();
     REQUIRE(std::isnan(host_intval_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(host_intval_node.GetHistCounts()[i] == 0);
     }
     REQUIRE(w.GetNumOrgs() == 0);
@@ -377,7 +377,7 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
         REQUIRE(host_intval_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they were split into histogram bins correctly"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(host_intval_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -394,11 +394,11 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& sym_infectionchance_node = w.GetSymInfectChanceDataNode();
     REQUIRE(std::isnan(sym_infectionchance_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(sym_infectionchance_node.GetHistCounts()[i] == 0);
     }
     REQUIRE(w.GetNumOrgs() == 0);
@@ -436,7 +436,7 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
         REQUIRE(sym_infectionchance_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they're split into histogram bins correctly"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(sym_infectionchance_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -453,11 +453,11 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& free_sym_infectionchance_node = w.GetFreeSymInfectChanceDataNode();
     REQUIRE(std::isnan(free_sym_infectionchance_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(free_sym_infectionchance_node.GetHistCounts()[i] == 0);
     }
     REQUIRE(w.GetNumOrgs() == 0);
@@ -493,7 +493,7 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
         REQUIRE(free_sym_infectionchance_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("only free symbionts are split into histogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(free_sym_infectionchance_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -510,7 +510,7 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& hosted_sym_infectionchance_node = w.GetHostedSymInfectChanceDataNode();
     REQUIRE(std::isnan(hosted_sym_infectionchance_node.GetMean()));
@@ -547,7 +547,7 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
         REQUIRE(hosted_sym_infectionchance_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("only hosted symbionts are split into histogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(hosted_sym_infectionchance_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }

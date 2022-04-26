@@ -70,11 +70,11 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& lysis_chance_data_node = w.GetLysisChanceDataNode();
     REQUIRE(std::isnan(lysis_chance_data_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(lysis_chance_data_node.GetHistCounts()[i] == 0);
     }
 
@@ -109,7 +109,7 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
         REQUIRE(lysis_chance_data_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they were sorted into the correct histogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(lysis_chance_data_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -126,11 +126,11 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
     w.Resize(4);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
-    size_t max_bin = 11;
+    size_t num_bins = 11;
 
     emp::DataMonitor<double,emp::data::Histogram>& induction_chance_data_node = w.GetInductionChanceDataNode();
     REQUIRE(std::isnan(induction_chance_data_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(induction_chance_data_node.GetHistCounts()[i] == 0);
     }
 
@@ -165,7 +165,7 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
         REQUIRE(induction_chance_data_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("they were sorted into the correct histogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(induction_chance_data_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
@@ -260,13 +260,13 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
     SymConfigBase config;
     config.SYM_LIMIT(4);
     int int_val = 0;
-    size_t max_bin = 11;
+    size_t num_bins = 11;
     LysisWorld w(random);
     w.Resize(4);
 
     emp::DataMonitor<double,emp::data::Histogram>& inc_dif_data_node = w.GetIncorporationDifferenceDataNode();
     REQUIRE(std::isnan(inc_dif_data_node.GetMean()));
-    for(size_t i = 0; i < max_bin; i++){
+    for(size_t i = 0; i < num_bins; i++){
       REQUIRE(inc_dif_data_node.GetHistCounts()[i] == 0);
     }
 
@@ -306,7 +306,7 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
         REQUIRE(inc_dif_data_node.GetMean() > (expected_av - 0.0001));
       }
       THEN("incorporation difference values are sorted into histogram bins"){
-        for(size_t i = 0; i < max_bin; i++){
+        for(size_t i = 0; i < num_bins; i++){
           REQUIRE(inc_dif_data_node.GetHistCounts()[i] == expected_hist_counts[i]);
         }
       }
