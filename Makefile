@@ -125,6 +125,9 @@ test-debug-pgg:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [pgg]
 
+test-executable:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+
 # Extras
 .PHONY: clean test serve
 
