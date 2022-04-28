@@ -41,6 +41,7 @@ extensions = [
     'breathe',
     'exhale',
     'myst_parser',
+    'sphinx_search.extension'
 ]
 
 # Setup the breathe extension
