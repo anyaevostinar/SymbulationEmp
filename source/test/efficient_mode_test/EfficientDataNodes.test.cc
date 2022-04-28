@@ -18,15 +18,17 @@ TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
 
     WHEN("efficient symbionts are added to the world"){
       size_t num_syms = 6;
-      double efficiencies[6] = {0, 0.3, 0.45, 0.6, 0.77, 1.0};
-      double expected_av = 0.52;
+      double free_sym_efficiencies[3] = {0, 0.31, 0.45};
+      double hosted_sym_efficiencies[3] = {0.71, 0.77, 1.0};
 
-      Host *h = new EfficientHost(&random, &w, &config, int_val);
-      w.AddOrgAt(h, 0);
+      double expected_av = 0.54;
+
+      Host *host = new EfficientHost(&random, &w, &config, int_val);
+      w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < (num_syms/2); i++){
-        w.AddOrgAt(new EfficientSymbiont(&random, &w, &config, int_val, points, efficiencies[i]), emp::WorldPosition(0, i));
-        h->AddSymbiont(new EfficientSymbiont(&random, &w, &config, int_val, points, efficiencies[i+3]));
+        w.AddOrgAt(new EfficientSymbiont(&random, &w, &config, int_val, points, free_sym_efficiencies[i]), emp::WorldPosition(0, i));
+        host->AddSymbiont(new EfficientSymbiont(&random, &w, &config, int_val, points, hosted_sym_efficiencies[i]));
       }
 
       w.Update();

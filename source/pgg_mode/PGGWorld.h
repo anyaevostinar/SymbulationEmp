@@ -45,7 +45,6 @@ public:
     auto & node2 = GetCountFreeSymsDataNode();
     auto & node3 = GetCountHostedSymsDataNode();
     auto & node4 = GetPGGDataNode();
-    node4.SetupBins(0.0, 1.1, 11); //Necessary because range exclusive
 
     file.AddVar(update, "update", "Update");
     file.AddTotal(node1, "count", "Total number of symbionts");
@@ -99,6 +98,7 @@ public:
         }//close for
       });
     }
+    data_node_PGG->SetupBins(0, 1.1, 11);
     return *data_node_PGG;
   }
 
