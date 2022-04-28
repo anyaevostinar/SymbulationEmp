@@ -30,7 +30,7 @@ In this work, we present an agent-based model of bacteriophage/bacterial co-evol
 We demonstrate that a viral population with beneficial lysogenic phage can select against lytic strategies. 
 This result has implications for bottom-up control of vital ecosystems.
 
-## [endosymbiosis](https://github.com/anyaevostinar/SymbulationEmp/tree/main/source/test/integration_test/endosymbiosis)
+## [endosymbiosis](/endosymbiosis)
 
 [Endosymbiosis or Bust: Influence of Ectosymbiosis on Evolution of Obligate Endosymbiosis](https://doi.org/10.32942/osf.io/yzce3):
 Endosymbiosis, symbiosis in which one symbiont lives inside another, is woven throughout the history of life and the story of its evolution. 
@@ -41,7 +41,7 @@ We investigated the viability of these pathways under different environmental co
 Specifically, we considered the impact of ectosymbiosis on de novo evolution of obligate mutualistic endosymbiosis. 
 We found that introducing a facultative ectosymbiotic state allows endosymbiosis to evolve in a more diverse set of environmental conditions, while also decreasing the evolution of endosymbiosis in conditions where it can evolve independently.
 
-## [dirty_transmission](https://github.com/anyaevostinar/SymbulationEmp/tree/main/source/test/integration_test/dirty_transmission)
+## [dirty_transmission](/dirty_transmission)
 
 [Dirty Transmission Hypothesis: Increased Mutations During Horizontal Transmission Can Select for Increased Levels of Mutualism in Endosymbionts](https://doi.org/10.32942/osf.io/7yskd):
 A mutualistic symbiosis occurs when organisms of different species cooperate closely for a net benefit over time. 
@@ -50,8 +50,3 @@ However, they can evolve to parasitism or breakdown all together and the conditi
 Vertical and horizontal transmission of mutualistic endosymbionts are two factors that can influence the evolution of mutualism. 
 Using the artificial life system, Symbulation, we studied the effects of different rates of mutation during horizontal transmission on mutualistic symbiosis at different levels of vertical transmission.
 We propose and provide evidence for the "Dirty Transmission Hypothesis", which states that higher rates of mutation during horizontal transmission can select for increased mutualism to avoid deleterious mutation accumulation.
-
-## [moi](https://github.com/anyaevostinar/SymbulationEmp/tree/main/source/test/integration_test/moi)
-
-[MOI paper title](google.com):
-Abstract here

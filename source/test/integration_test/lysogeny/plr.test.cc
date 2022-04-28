@@ -34,18 +34,12 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
         config.PROPHAGE_LOSS_RATE(0.05);
 
         auto & node = world->GetLysisChanceDataNode();
-        node.SetupBins(0.0, 1.1, 10); //Necessary because range exclusive
 
-        worldSetup(&world, &config);
+        worldSetup(world, &config);
         int numupdates = 10;
-        int TIMING_REPEAT = 1;
 
         //Loop through updates
         for (int i = 0; i < numupdates; i++) {
-            if((i%TIMING_REPEAT)==0) {
-            std::cout <<"Update: "<< i << std::endl;
-            std::cout.flush();
-            }
             world->Update();
         }
 
