@@ -20,7 +20,6 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
   auto & node = GetSymIntValDataNode();
   auto & node1 = GetSymCountDataNode();
 
-  node.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
@@ -84,7 +83,6 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
   auto & node = GetHostIntValDataNode();
   auto & node1 = GetHostCountDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();
-  node.SetupBins(-1.0, 1.1, 21);
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average host interaction value");
@@ -324,6 +322,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHostIntValDataNode(
           data_node_hostintval->AddDatum(pop[i]->GetIntVal());
     });
   }
+  data_node_hostintval->SetupBins(-1.0, 1.1, 21);
   return *data_node_hostintval;
 }
 
@@ -356,6 +355,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymIntValDataNode() 
       }//close for
     });
   }
+  data_node_symintval->SetupBins(-1.0, 1.1, 21);
   return *data_node_symintval;
 }
 
@@ -381,6 +381,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymIntValDataNod
       }//close for
     });
   }
+  data_node_freesymintval->SetupBins(-1.0, 1.1, 21);
   return *data_node_freesymintval;
 }
 
@@ -409,6 +410,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymIntValDataN
       }//close for
     });
   }
+  data_node_hostedsymintval->SetupBins(-1.0, 1.1, 21);
   return *data_node_hostedsymintval;
 }
 
@@ -441,6 +443,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymInfectChanceDataN
       }//close for
     });
   }
+  data_node_syminfectchance->SetupBins(0, 1.1, 11);
   return *data_node_syminfectchance;
 }
 
@@ -467,6 +470,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymInfectChanceD
       }//close for
     });
   }
+  data_node_freesyminfectchance->SetupBins(0, 1.1, 11);
   return *data_node_freesyminfectchance;
 }
 
@@ -496,6 +500,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
       }//close for
     });
   }
+  data_node_hostedsyminfectchance->SetupBins(0, 1.1, 11);
   return *data_node_hostedsyminfectchance;
 }
 #endif
