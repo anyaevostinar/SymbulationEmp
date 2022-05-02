@@ -36,9 +36,9 @@ Assuming you haven't already pulled down a clone of Symbulation, let's
 get your working environment all set. 
 
 ### Using Cookiecutter
-The easiest thing to do is use our Cookiecutter template.
+The easiest thing to do is use our Cookiecutter template. Cookiecutter will attempt to push your new directory to a git repo; establish a git repo with the appropriate project name if you would like to use this functionality. 
 
-- Install the latest Cookiecutter:
+- Install the latest Cookiecutter. Depending on your Python, you may need to use pip3 in place of pip:
 
     ```shell
     pip install -U cookiecutter
@@ -111,8 +111,8 @@ We recommend putting it in the same directory that you have SymbulationEmp and E
 ```
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
-./emsdk install 3.1.2
-./emsdk activate 3.1.2
+./emsdk install 1.38.48
+./emsdk activate 1.38.48
 ```
 
 Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):
@@ -144,8 +144,8 @@ First, you'll need Emscripten, we recommend putting it in the same directory tha
 ```
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
-./emsdk install 2.0.5
-./emsdk activate 2.0.5
+./emsdk install 1.38.48
+./emsdk activate 1.38.48
 ```
 
 Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):
@@ -162,12 +162,10 @@ cd SymbulationEmp
 make web
 ```
 
-Now you have the website all built and in the `web` folder, so just navigate into that and run a website from it using Python's handy local webserver (you need Python 3.5 or above for this):
+Now you have the website all built and in the `web` folder, so just run:
 
 ```
-cd web
-python3 -m http.server
+make serve
 ```
 
 You should then be able to go to [http://localhost:8000/](http://localhost:8000/) to see you custom run Symbulation GUI!
-
