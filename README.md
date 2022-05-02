@@ -1,4 +1,4 @@
-![Symbulation Logo](https://github.com/anyaevostinar/SymbulationEmp/blob/main/SymbulationLogo.png "Symbulation")
+![Symbulation Logo](https://raw.githubusercontent.com/anyaevostinar/SymbulationEmp/main/SymbulationLogo.png "Symbulation")
 
 Symbulation is an artificial life software tool for agent-based modeling of the evolution of biological symbiosis, which can occur along the spectrum between parasitism and mutualism. 
 
