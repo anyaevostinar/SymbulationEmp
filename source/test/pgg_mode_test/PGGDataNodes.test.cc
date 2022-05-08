@@ -32,12 +32,12 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
       expected_hist_counts[7] = 2;
       expected_hist_counts[9] = 1;
 
-      Host *host = new PGGHost(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<PGGHost>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < 3; i++){
-        w.AddOrgAt(new PGGSymbiont(&random, &w, &config, int_val, free_sym_donation_vals[i]), emp::WorldPosition(0, i));
-        host->AddSymbiont(new PGGSymbiont(&random, &w, &config, int_val, hosted_sym_donation_vals[i]));
+        w.AddOrgAt(emp::NewPtr<PGGSymbiont>(&random, &w, &config, int_val, free_sym_donation_vals[i]), emp::WorldPosition(0, i));
+        host->AddSymbiont(emp::NewPtr<PGGSymbiont>(&random, &w, &config, int_val, hosted_sym_donation_vals[i]));
       }
 
       w.Update();

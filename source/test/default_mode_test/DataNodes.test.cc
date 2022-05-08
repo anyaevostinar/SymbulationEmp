@@ -17,7 +17,7 @@ TEST_CASE("GetHostCountDataNode", "[default]"){
     WHEN("a host is added"){
       size_t num_hosts = 4;
       for(size_t i = 0; i < num_hosts; i++){
-        w.AddOrgAt(new Host(&random, &w, &config, int_val), i);
+        w.AddOrgAt(emp::NewPtr<Host>(&random, &w, &config, int_val), i);
       }
       w.Update();
       host_count_node = w.GetHostCountDataNode();
@@ -34,8 +34,9 @@ TEST_CASE("GetSymCountDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
+    int world_size = 4;
     SymWorld w(random);
-    w.Resize(4);
+    w.Resize(world_size);
     w.SetFreeLivingSyms(1);
     config.SYM_LIMIT(2);
 
@@ -46,17 +47,17 @@ TEST_CASE("GetSymCountDataNode", "[default]"){
     WHEN("free and hosted syms are added"){
       size_t num_free_syms = 4;
       size_t num_hosted_syms = 2;
-      Host *h = new Host(&random, &w, &config, int_val);
-      w.AddOrgAt(h, 0);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+      w.AddOrgAt(host, 0);
       for(size_t i = 0; i < num_free_syms; i++){
-        w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), emp::WorldPosition(0,i));
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, int_val), emp::WorldPosition(0,i));
       }
       for(size_t i = 0; i < num_hosted_syms; i++){
-        h->AddSymbiont(new Symbiont(&random, &w, &config, int_val));
+        host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, int_val));
       }
 
       w.Update();
-      sym_count_node = w.GetSymCountDataNode();
+
       THEN("they are tracked by the data node"){
         REQUIRE(w.GetNumOrgs() == num_free_syms + 1); // and the host
         REQUIRE(sym_count_node.GetTotal() == num_free_syms + num_hosted_syms);
@@ -82,10 +83,10 @@ TEST_CASE("GetCountHostedSymsDataNode", "[default]"){
       size_t num_syms_per_host = 4;
       size_t num_hosts = 2;
       for(size_t i = 0; i < num_hosts; i++){
-        Host *h = new Host(&random, &w, &config, int_val);
-        w.AddOrgAt(h, i);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+        w.AddOrgAt(host, i);
         for(size_t j = 0; j < num_syms_per_host; j++){
-          h->AddSymbiont(new Symbiont(&random, &w, &config, int_val));
+          host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, int_val));
         }
       }
       w.Update();
@@ -95,7 +96,7 @@ TEST_CASE("GetCountHostedSymsDataNode", "[default]"){
       }
     }
     WHEN("a free sym is added"){
-      w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), emp::WorldPosition(0,0));
+      w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, int_val), emp::WorldPosition(0,0));
       w.Update();
       THEN("the hosted sym data node doesn't track it"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -122,7 +123,7 @@ TEST_CASE("GetCountFreeSymsDataNode", "[default]"){
       size_t num_free_syms = 4;
 
       for(size_t i = 0; i < num_free_syms; i++){
-        w.AddOrgAt(new Symbiont(&random, &w, &config, int_val), emp::WorldPosition(0, i));
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, int_val), emp::WorldPosition(0, i));
       }
 
       w.Update();
@@ -133,9 +134,9 @@ TEST_CASE("GetCountFreeSymsDataNode", "[default]"){
     }
 
     WHEN("a hosted sym is added"){
-      Host *h = new Host(&random, &w, &config, int_val);
-      w.AddOrgAt(h, 0);
-      h->AddSymbiont(new Symbiont(&random, &w, &config, int_val));
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+      w.AddOrgAt(host, 0);
+      host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, int_val));
       w.Update();
       THEN("it isn't tracked by the free sym data node"){
         REQUIRE(w.GetNumOrgs() == 1);
@@ -163,7 +164,7 @@ TEST_CASE("GetUninfectedHostsDataNode", "[default]"){
       size_t num_hosts = 10;
 
       for(size_t i = 0; i < num_hosts; i++){
-        w.AddOrgAt(new Host(&random, &w, &config, int_val), i);
+        w.AddOrgAt(emp::NewPtr<Host>(&random, &w, &config, int_val), i);
       }
 
       w.Update();
@@ -175,7 +176,7 @@ TEST_CASE("GetUninfectedHostsDataNode", "[default]"){
       WHEN("some hosts are infected "){
         size_t num_infections = 2;
         for(size_t i = 0; i < num_infections; i++){
-          w.GetOrg(i).AddSymbiont(new Symbiont(&random, &w, &config, int_val));
+          w.GetOrg(i).AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, int_val));
         }
         w.Update();
         THEN("infected hosts are excluded from the uninfected host count"){
@@ -218,11 +219,11 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
       expected_hist_counts[17] = 2;
       expected_hist_counts[19] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
       for(size_t i = 0; i < 3; i++){
-        w.AddOrgAt(new Symbiont(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
-        host->AddSymbiont(new Symbiont(&random, &w, &config, hosted_sym_int_vals[i]));
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
+        host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, hosted_sym_int_vals[i]));
       }
       w.Update();
 
@@ -270,11 +271,11 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
       expected_hist_counts[5] = 1;
       expected_hist_counts[10] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
       for(size_t i = 0; i < 3; i++){
-        w.AddOrgAt(new Symbiont(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
-        host->AddSymbiont(new Symbiont(&random, &w, &config, hosted_sym_int_vals[i]));
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
+        host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, hosted_sym_int_vals[i]));
       }
       w.Update();
 
@@ -319,11 +320,11 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
       expected_hist_counts[17] = 2;
       expected_hist_counts[19] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
       for(size_t i = 0; i < 3; i++){
-        w.AddOrgAt(new Symbiont(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
-        host->AddSymbiont(new Symbiont(&random, &w, &config, hosted_sym_int_vals[i]));
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, free_sym_int_vals[i]), emp::WorldPosition(0,i));
+        host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &w, &config, hosted_sym_int_vals[i]));
       }
       w.Update();
 
@@ -368,7 +369,7 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
       expected_hist_counts[19] = 1;
 
       for(size_t i = 0; i < 4; i++){
-        w.AddOrgAt(new Host(&random, &w, &config, int_vals[i]), i);
+        w.AddOrgAt(emp::NewPtr<Host>(&random, &w, &config, int_vals[i]), i);
       }
       w.Update();
 
@@ -416,12 +417,12 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
       expected_hist_counts[7] = 1;
       expected_hist_counts[9] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < 3; i++){
-        Symbiont *sym1 = new Symbiont(&random, &w, &config, int_val);
-        Symbiont *sym2 = new Symbiont(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
         sym1->SetInfectionChance(free_sym_infection_chances[i]);
         sym2->SetInfectionChance(hosted_sym_infection_chances[i]);
@@ -473,12 +474,12 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
       expected_hist_counts[2] = 1;
       expected_hist_counts[7] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < 3; i++){
-        Symbiont *sym1 = new Symbiont(&random, &w, &config, int_val);
-        Symbiont *sym2 = new Symbiont(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
         sym1->SetInfectionChance(free_sym_infection_chances[i]);
         sym2->SetInfectionChance(hosted_sym_infection_chances[i]);
@@ -526,12 +527,12 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
       expected_hist_counts[3] = 2;
       expected_hist_counts[9] = 1;
 
-      Host *host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < 3; i++){
-        Symbiont *sym1 = new Symbiont(&random, &w, &config, int_val);
-        Symbiont *sym2 = new Symbiont(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
         sym1->SetInfectionChance(free_sym_infection_chances[i]);
         sym2->SetInfectionChance(hosted_sym_infection_chances[i]);

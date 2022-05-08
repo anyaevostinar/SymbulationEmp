@@ -10,32 +10,36 @@ TEST_CASE("Host Constructor", "[default]") {
     SymWorld * world = &w;
 
     double int_val = -2;
-    REQUIRE_THROWS(new Host(random, world, &config, int_val) );
+    REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val) );
 
     int_val = -1;
-    Host * h1 = new Host(random, world, &config, int_val);
-    CHECK(h1->GetIntVal() == int_val);
-    CHECK(h1->GetAge() == 0); 
-    CHECK(h1->GetPoints() == 0);
+    emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, world, &config, int_val);
+    CHECK(host1->GetIntVal() == int_val);
+    CHECK(host1->GetAge() == 0);
+    CHECK(host1->GetPoints() == 0);
 
     int_val = -1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
     std::set<int> set = std::set<int>();
     double points = 10;
-    Host * h2 = new Host(random, world, &config, int_val, syms, repro_syms, set, points);
-    CHECK(h2->GetIntVal() == int_val);
-    CHECK(h2->GetAge() == 0);
-    CHECK(h2->GetPoints() == points);
+    emp::Ptr<Host> host2 = emp::NewPtr<Host>(random, world, &config, int_val, syms, repro_syms, set, points);
+    CHECK(host2->GetIntVal() == int_val);
+    CHECK(host2->GetAge() == 0);
+    CHECK(host2->GetPoints() == points);
 
     int_val = 1;
-    Host * h3 = new Host(random, world, &config, int_val);
-    CHECK(h3->GetIntVal() == int_val);
-    CHECK(h3->GetAge() == 0);
-    CHECK(h3->GetPoints() == 0);
+    emp::Ptr<Host> host3 = emp::NewPtr<Host>(random, world, &config, int_val);
+    CHECK(host3->GetIntVal() == int_val);
+    CHECK(host3->GetAge() == 0);
+    CHECK(host3->GetPoints() == 0);
 
     int_val = 2;
-    REQUIRE_THROWS(new Host(random, world, &config, int_val) );
+    REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val) );
+
+    host1.Delete();
+    host2.Delete();
+    host3.Delete();
 }
 
 TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
@@ -44,26 +48,28 @@ TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    Host * h1 = new Host(random, &w, &config);
+    emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, &w, &config);
     double default_int_val = 0.0;
-    REQUIRE(h1->GetIntVal() == default_int_val);
+    REQUIRE(host1->GetIntVal() == default_int_val);
 
-    Host * h2 = new Host(random, &w, &config, int_val);
+    emp::Ptr<Host> host2 = emp::NewPtr<Host>(random, &w, &config, int_val);
 
     double expected_int_val = 1;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
+    REQUIRE(host2->GetIntVal() == expected_int_val);
 
     int_val = -0.7;
-    h2->SetIntVal(int_val);
+    host2->SetIntVal(int_val);
     expected_int_val = -0.7;
-    REQUIRE(h2->GetIntVal() == expected_int_val);
+    REQUIRE(host2->GetIntVal() == expected_int_val);
 
     int_val = -1.3;
-    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+    REQUIRE_THROWS(emp::NewPtr<Host>(random, &w, &config, int_val));
 
     int_val = 1.8;
-    REQUIRE_THROWS(new Host(random, &w, &config, int_val));
+    REQUIRE_THROWS(emp::NewPtr<Host>(random, &w, &config, int_val));
 
+    host1.Delete();
+    host2.Delete();
 }
 
 TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
@@ -72,18 +78,19 @@ TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, &w, &config, int_val);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
 
     double points = 50;
-    h->SetPoints(points);
+    host->SetPoints(points);
     double expected_points = 50;
-    REQUIRE(h->GetPoints() == expected_points);
+    REQUIRE(host->GetPoints() == expected_points);
 
     points = 76;
-    h->AddPoints(points);
+    host->AddPoints(points);
     expected_points = 126;
-    REQUIRE(h->GetPoints() == expected_points);
+    REQUIRE(host->GetPoints() == expected_points);
 
+    host.Delete();
 }
 
 TEST_CASE("SetResTypes, GetResTypes", "[default]") {
@@ -95,9 +102,9 @@ TEST_CASE("SetResTypes, GetResTypes", "[default]") {
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
     std::set<int> res_types {1,3,5,9,2};
 
-    Host * h = new Host(random, &w, &config, int_val, syms, repro_syms, res_types);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val, syms, repro_syms, res_types);
 
-    std::set<int> expected_res_types = h->GetResTypes();
+    std::set<int> expected_res_types = host->GetResTypes();
     for (int number : res_types)
     {
         // Tests if each integer from res_types is in expected_res_types
@@ -105,14 +112,15 @@ TEST_CASE("SetResTypes, GetResTypes", "[default]") {
     }
 
     res_types = {0,1};
-    h->SetResTypes(res_types);
-    expected_res_types = h->GetResTypes();
+    host->SetResTypes(res_types);
+    expected_res_types = host->GetResTypes();
     for (int number : res_types)
     {
         // Tests if each integer from res_types is in expected_res_types
         REQUIRE(expected_res_types.find(number) != expected_res_types.end());
     }
 
+    host.Delete();
 }
 
 TEST_CASE("HasSym", "[default]") {
@@ -121,14 +129,22 @@ TEST_CASE("HasSym", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
     WHEN("Host has no symbionts") {
-        Host * h = new Host(random, &w, &config, int_val);
-
         THEN("HasSym is false") {
             bool expected = false;
-            REQUIRE(h->HasSym() == expected);
+            REQUIRE(host->HasSym() == expected);
         }
     }
+
+    WHEN("Host has symbionts") {
+        host->AddSymbiont(emp::NewPtr<Symbiont>(random, &w, &config, int_val));
+        THEN("HasSym is true") {
+            bool expected = true;
+            REQUIRE(host->HasSym() == expected);
+        }
+    }
+    host.Delete();
 }
 
 TEST_CASE("Host Mutate", "[default]") {
@@ -143,25 +159,29 @@ TEST_CASE("Host Mutate", "[default]") {
       THEN("Normal mutation rate is used"){
         config.HOST_MUTATION_RATE(-1);
         config.MUTATION_RATE(1);
-        Host * h = new Host(random, &w, &config, int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
 
-        REQUIRE(h->GetIntVal() == int_val);
-        h->mutate();
-        REQUIRE(h->GetIntVal() != int_val);
-        REQUIRE(h->GetIntVal() <= 1);
-        REQUIRE(h->GetIntVal() >= -1);
+        REQUIRE(host->GetIntVal() == int_val);
+        host->mutate();
+        REQUIRE(host->GetIntVal() != int_val);
+        REQUIRE(host->GetIntVal() <= 1);
+        REQUIRE(host->GetIntVal() >= -1);
+
+        host.Delete();
       }
     }
     WHEN("Host mutation rate is not -1"){
       THEN("Host mutation rate is used"){
         config.HOST_MUTATION_RATE(1);
         config.MUTATION_RATE(0);
-        Host * h = new Host(random, &w, &config, int_val);
-        REQUIRE(h->GetIntVal() == int_val);
-        h->mutate();
-        REQUIRE(h->GetIntVal() != int_val);
-        REQUIRE(h->GetIntVal() <= 1);
-        REQUIRE(h->GetIntVal() >= -1);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        REQUIRE(host->GetIntVal() == int_val);
+        host->mutate();
+        REQUIRE(host->GetIntVal() != int_val);
+        REQUIRE(host->GetIntVal() <= 1);
+        REQUIRE(host->GetIntVal() >= -1);
+
+        host.Delete();
       }
     }
 
@@ -170,28 +190,30 @@ TEST_CASE("Host Mutate", "[default]") {
       THEN("Normal mutation size is used"){
         config.HOST_MUTATION_SIZE(-1);
         config.MUTATION_RATE(1);
-        Host * h = new Host(random, &w, &config, int_val);
-        REQUIRE(h->GetIntVal() == int_val);
-        h->mutate();
-        REQUIRE(h->GetIntVal() != int_val);
-        REQUIRE(h->GetIntVal() <= 1);
-        REQUIRE(h->GetIntVal() >= -1);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        REQUIRE(host->GetIntVal() == int_val);
+        host->mutate();
+        REQUIRE(host->GetIntVal() != int_val);
+        REQUIRE(host->GetIntVal() <= 1);
+        REQUIRE(host->GetIntVal() >= -1);
+
+        host.Delete();
       }
     }
     WHEN("Host mutation size is not -1"){
       THEN("Host mutation size is used"){
         config.HOST_MUTATION_SIZE(1);
         config.MUTATION_SIZE(0);
-        Host * h = new Host(random, &w, &config, int_val);
-        REQUIRE(h->GetIntVal() == int_val);
-        h->mutate();
-        REQUIRE(h->GetIntVal() != int_val);
-        REQUIRE(h->GetIntVal() <= 1);
-        REQUIRE(h->GetIntVal() >= -1);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        REQUIRE(host->GetIntVal() == int_val);
+        host->mutate();
+        REQUIRE(host->GetIntVal() != int_val);
+        REQUIRE(host->GetIntVal() <= 1);
+        REQUIRE(host->GetIntVal() >= -1);
+
+        host.Delete();
       }
     }
-
-
 }
 
 TEST_CASE("DistributeResources", "[default]") {
@@ -206,15 +228,17 @@ TEST_CASE("DistributeResources", "[default]") {
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
         config.SYNERGY(5);
 
-        Host * h = new Host(random, &w, &config, int_val);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        host->DistribResources(resources);
 
         THEN("Points increase") {
             double expected_points = resources - (resources * int_val); // 48
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);
         }
+
+        host.Delete();
     }
 
     WHEN("There are no symbionts and interaction value is 0") {
@@ -224,14 +248,16 @@ TEST_CASE("DistributeResources", "[default]") {
         double orig_points = 0;
         config.SYNERGY(5);
 
-        Host * h = new Host(random, &w, &config, int_val);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        host->DistribResources(resources);
 
         THEN("Resources are added to points") {
             double expected_points = orig_points + resources; // 0
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
         }
+
+        host.Delete();
     }
 
     WHEN("There are no symbionts and interaction value is between -1 and 0") {
@@ -241,18 +267,20 @@ TEST_CASE("DistributeResources", "[default]") {
         double orig_points = 27;
         config.SYNERGY(5);
 
-        Host * h = new Host(random, &w, &config, int_val);
-        h->AddPoints(orig_points);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+        host->AddPoints(orig_points);
+        host->DistribResources(resources);
 
         THEN("Points increase") {
             double host_defense =  -1.0 * int_val * resources; // the resources spent on defense
             double add_points  = resources - host_defense;
             double expected_points = orig_points + add_points;
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);
         }
+
+        host.Delete();
     }
 }
 
@@ -262,14 +290,16 @@ TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
   SymWorld w(*random);
   double int_val = 1;
 
-  Host * h = new Host(random, &w, &config, int_val);
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
 
   double expected_res_in_process = 0;
-  REQUIRE(h->GetResInProcess() == expected_res_in_process);
+  REQUIRE(host->GetResInProcess() == expected_res_in_process);
 
-  h->SetResInProcess(126);
+  host->SetResInProcess(126);
   expected_res_in_process = 126;
-  REQUIRE(h->GetResInProcess() == expected_res_in_process);
+  REQUIRE(host->GetResInProcess() == expected_res_in_process);
+
+  host.Delete();
 }
 
 TEST_CASE("Steal resources unit test", "[default]"){
@@ -283,46 +313,49 @@ TEST_CASE("Steal resources unit test", "[default]"){
 
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
-            Host * h = new Host(random, &w, &config, host_int_val);
+            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
-            h->SetResInProcess(100);
+            host->SetResInProcess(100);
             double expected_stolen = 60; // sym_int_val * res_in_process * -1
             double expected_res_in_process = 40; // res_in_process - expected_stolen
 
             THEN("Amount stolen is dependent only on sym_int_val"){
-                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
-                REQUIRE(h->GetResInProcess() == expected_res_in_process);
+                REQUIRE(host->StealResources(sym_int_val) == expected_stolen);
+                REQUIRE(host->GetResInProcess() == expected_res_in_process);
             }
+            host.Delete();
         }
         WHEN("host_int_val < 0"){
             double host_int_val = -0.2;
-            Host * h = new Host(random, &w, &config, host_int_val);
+            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
-            h->SetResInProcess(100);
+            host->SetResInProcess(100);
             double expected_stolen = 40; // (host_int_val - sym_int_val) * res_in_process
             double expected_res_in_process = 60; // res_in_process - expected_stolen
 
             THEN("Amount stolen is dependent on both sym_int_val and host_int_val"){
-                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
-                REQUIRE(h->GetResInProcess() == expected_res_in_process);
+                REQUIRE(host->StealResources(sym_int_val) == expected_stolen);
+                REQUIRE(host->GetResInProcess() == expected_res_in_process);
             }
+            host.Delete();
         }
     }
 
     WHEN("host_int_val > sym_int_val"){
         double sym_int_val = -0.3;
         double host_int_val = -0.5;
-        Host * h = new Host(random, &w, &config, host_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
-        h->SetResInProcess(100);
+        host->SetResInProcess(100);
         double expected_stolen = 0;
         double expected_res_in_process = 100;
 
-            THEN("Symbiont fails to steal resources"){
-                REQUIRE(h->StealResources(sym_int_val) == expected_stolen);
-                REQUIRE(h->GetResInProcess() == expected_res_in_process);
-            }
+        THEN("Symbiont fails to steal resources"){
+            REQUIRE(host->StealResources(sym_int_val) == expected_stolen);
+            REQUIRE(host->GetResInProcess() == expected_res_in_process);
         }
+        host.Delete();
+    }
 }
 
 TEST_CASE("GetDoEctosymbiosis", "[default]"){
@@ -336,8 +369,8 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
 
     WHEN("Ectosymbiosis is off but other conditions are met"){
       config.ECTOSYMBIOSIS(0);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       THEN("Returns false"){
@@ -346,8 +379,8 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
     }
     WHEN("There is no parallel sym but other conditions are met"){
       config.ECTOSYMBIOSIS(1);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos + 1));
       THEN("Returns false"){
@@ -356,8 +389,8 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
     }
     WHEN("There is a parallel sym but it is dead, and other conditions are met"){
       config.ECTOSYMBIOSIS(1);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
       sym->SetDead();
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos + 1));
@@ -368,9 +401,9 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
     WHEN("Ectosymbiotic immunity is on and the host has a sym, but other conditions are met"){
       config.ECTOSYMBIOSIS(1);
       config.ECTOSYMBIOTIC_IMMUNITY(1);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
@@ -382,9 +415,9 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
     WHEN("Ectosymbiosis is on, there is a parallel sym, ectosymbiotic immunity is off, and the host has a sym"){
       config.ECTOSYMBIOSIS(1);
       config.ECTOSYMBIOTIC_IMMUNITY(0);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
@@ -396,9 +429,9 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
     WHEN("Ectosymbiosis is on, there is a parallel sym, ectosymbiotic immunity is on, and the host does not have a sym"){
       config.ECTOSYMBIOSIS(1);
       config.ECTOSYMBIOTIC_IMMUNITY(1);
-      emp::Ptr<Host> host = new Host(random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(random, &w, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = new Symbiont(random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+      
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
 
@@ -416,16 +449,16 @@ TEST_CASE("Host GrowOlder", "[default]"){
     config.HOST_AGE_MAX(2);
 
     WHEN ("A host reaches its maximum age"){
-      Host * h = new Host(random, &w, &config, 1);
-      w.AddOrgAt(h, 1);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, 1);
+      w.AddOrgAt(host, 1);
       THEN("The host dies and is removed from the world"){
-        REQUIRE(h->GetDead() == false);
+        REQUIRE(host->GetDead() == false);
         REQUIRE(w.GetNumOrgs() == 1);
-        REQUIRE(h->GetAge() == 0);
+        REQUIRE(host->GetAge() == 0);
         w.Update();
-        REQUIRE(h->GetAge() == 1);
+        REQUIRE(host->GetAge() == 1);
         w.Update();
-        REQUIRE(h->GetAge() == 2);
+        REQUIRE(host->GetAge() == 2);
         w.Update();
         REQUIRE(w.GetNumOrgs() == 0);
       }
@@ -438,15 +471,18 @@ TEST_CASE("Host makeNew", "[default]"){
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    Organism * h1 = new Host(random, &w, &config, host_int_val);
-    Organism * h2 = h1->makeNew();
+    emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> host2 = host1->makeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
-      REQUIRE(h1->GetIntVal() == h2->GetIntVal());
-      REQUIRE(h2->GetPoints() == 0);
-      REQUIRE(h2->GetAge() == 0);
+      REQUIRE(host1->GetIntVal() == host2->GetIntVal());
+      REQUIRE(host2->GetPoints() == 0);
+      REQUIRE(host2->GetAge() == 0);
       //check that the offspring is the correct class
-      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
+      REQUIRE(typeid(*host2).name() == typeid(*host1).name());
     }
+
+    host1.Delete();
+    host2.Delete();
 }
 
 TEST_CASE("Host reproduce", "[default][efficient][lysis][pgg]"){
@@ -455,12 +491,15 @@ TEST_CASE("Host reproduce", "[default][efficient][lysis][pgg]"){
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    Organism * h1 = new Host(random, &w, &config, host_int_val);
-    Organism * h2 = h1->reproduce();
+    emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> host2 = host1->reproduce();
     THEN("The host baby has mutated interaction value"){
-      REQUIRE(h1->GetIntVal() != h2->GetIntVal());
+      REQUIRE(host1->GetIntVal() != host2->GetIntVal());
     }
     THEN("The host parent's points are set to 0"){
-      REQUIRE(h1->GetPoints() == 0);
+      REQUIRE(host1->GetPoints() == 0);
     }
+
+    host1.Delete();
+    host2.Delete();
 }

@@ -21,7 +21,7 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
       size_t num_hosts = 10;
 
       for(size_t i = 0; i < num_hosts; i++){
-        w.AddOrgAt(new Bacterium(&random, &w, &config, int_val), i);
+        w.AddOrgAt(emp::NewPtr<Bacterium>(&random, &w, &config, int_val), i);
       }
 
       w.Update();
@@ -33,9 +33,9 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
       WHEN("some hosts are infected with lytic phage"){
         size_t num_infections = 2;
         for(size_t i = 0; i < num_infections; i++){
-          Phage *p = new Phage(&random, &w, &config, int_val);
-          p->SetLysisChance(1.0);
-          w.GetOrg(i).AddSymbiont(p);
+          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+          phage->SetLysisChance(1.0);
+          w.GetOrg(i).AddSymbiont(phage);
         }
         w.Update();
         THEN("infected hosts are excluded from the cfu count"){
@@ -47,9 +47,9 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
       WHEN("hosts are infected with lysogenic phage"){
         size_t num_infections = 2;
         for(size_t i = 0; i < num_infections; i++){
-          Phage *p = new Phage(&random, &w, &config, int_val);
-          p->SetLysisChance(0.0);
-          w.GetOrg(i).AddSymbiont(p);
+          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+          phage->SetLysisChance(0.0);
+          w.GetOrg(i).AddSymbiont(phage);
         }
         w.Update();
         THEN("infected hosts are excluded from the cfu count"){
@@ -90,14 +90,14 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
       expected_hist_counts[8] = 1;
       expected_hist_counts[9] = 1;
 
-      Bacterium *bacterium = new Bacterium(&random, &w, &config, int_val);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
       w.AddOrgAt(bacterium, 0);
       for(size_t i = 0; i < 3; i++){
-        Phage *free_phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         free_phage->SetLysisChance(free_phage_lysis_chances[i]);
         w.AddOrgAt(free_phage, emp::WorldPosition(0,i));
 
-        Phage *hosted_phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         hosted_phage->SetLysisChance(hosted_phage_lysis_chances[i]);
         bacterium->AddSymbiont(hosted_phage);
       }
@@ -146,14 +146,14 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
       expected_hist_counts[8] = 1;
       expected_hist_counts[9] = 1;
 
-      Bacterium *bacterium = new Bacterium(&random, &w, &config, int_val);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
       w.AddOrgAt(bacterium, 0);
       for(size_t i = 0; i < 3; i++){
-        Phage *free_phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         free_phage->SetInductionChance(free_phage_induction_chances[i]);
         w.AddOrgAt(free_phage, emp::WorldPosition(0,i));
 
-        Phage *hosted_phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         hosted_phage->SetInductionChance(hosted_phage_induction_chances[i]);
         bacterium->AddSymbiont(hosted_phage);
       }
@@ -194,15 +194,15 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
       double expected_av = 5.5;
       for(int i = 0; i < 4; i++){ // populate world with 4 bacteria
         //each of which has a different burst size
-        Bacterium *h = new Bacterium(&random, &w, &config, int_val);
-        Phage *p = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         for(size_t j = 0; j < burst_sizes[i]; j++) {
-          Organism *new_repro_phage = p->reproduce();
-          h->AddReproSym(new_repro_phage);
+          emp::Ptr<Organism> new_repro_phage = phage->reproduce();
+          bacterium->AddReproSym(new_repro_phage);
         }
-        p->SetBurstTimer(burst_time);
-        h->AddSymbiont(p);
-        w.AddOrgAt(h, i);
+        phage->SetBurstTimer(burst_time);
+        bacterium->AddSymbiont(phage);
+        w.AddOrgAt(bacterium, i);
       }
       w.Update();
 
@@ -233,14 +233,14 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
     WHEN("bacteria lyse"){
       int expected_total = 2;
       for(int i = 0; i < 4; i++){ // populate world with 4 bacteria
-        Bacterium *bacterium = new Bacterium(&random, &w, &config, int_val);
-        Phage *phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         if(i < 2){ //ensure two of the bacteria will lyse
           phage->SetBurstTimer(burst_time);
         }
         bacterium->AddSymbiont(phage);
 
-        Organism *new_repro_phage = phage->reproduce();
+        emp::Ptr<Organism> new_repro_phage = phage->reproduce();
         bacterium->AddReproSym(new_repro_phage);
 
         w.AddOrgAt(bacterium, i);
@@ -279,22 +279,22 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
 
     WHEN("hosted symbionts exist"){
       // no inc val difference
-      Bacterium *bacterium = new Bacterium(&random, &w, &config, int_val);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
       bacterium->SetIncVal(0);
       w.AddOrgAt(bacterium, 0);
       for(size_t j = 0; j < 3; j++){
-        Phage *phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         phage->SetIncVal(0);
         bacterium->AddSymbiont(phage);
       }
 
       // inc val differences of 0.36, 0.15, 0.15
       double sym_inc_vals[3] = {0.14, 0.35, 0.65};
-      bacterium = new Bacterium(&random, &w, &config, int_val);
+      bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
       bacterium->SetIncVal(0.5);
       w.AddOrgAt(bacterium, 1);
       for(size_t j = 0; j < 3; j++){
-        Phage *phage = new Phage(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         phage->SetIncVal(sym_inc_vals[j]);
         bacterium->AddSymbiont(phage);
       }

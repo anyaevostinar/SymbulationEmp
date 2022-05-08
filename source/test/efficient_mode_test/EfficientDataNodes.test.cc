@@ -23,12 +23,12 @@ TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
 
       double expected_av = 0.54;
 
-      Host *host = new EfficientHost(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<EfficientHost>(&random, &w, &config, int_val);
       w.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < (num_syms/2); i++){
-        w.AddOrgAt(new EfficientSymbiont(&random, &w, &config, int_val, points, free_sym_efficiencies[i]), emp::WorldPosition(0, i));
-        host->AddSymbiont(new EfficientSymbiont(&random, &w, &config, int_val, points, hosted_sym_efficiencies[i]));
+        w.AddOrgAt(emp::NewPtr<EfficientSymbiont>(&random, &w, &config, int_val, points, free_sym_efficiencies[i]), emp::WorldPosition(0, i));
+        host->AddSymbiont(emp::NewPtr<EfficientSymbiont>(&random, &w, &config, int_val, points, hosted_sym_efficiencies[i]));
       }
 
       w.Update();

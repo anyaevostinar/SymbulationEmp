@@ -1093,7 +1093,6 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   }
 }
 
-
 TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   emp::Random random(17);
   SymConfigBase config;

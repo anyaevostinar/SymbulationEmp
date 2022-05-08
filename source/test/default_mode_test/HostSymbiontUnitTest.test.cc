@@ -8,13 +8,15 @@ TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    emp::Ptr<Organism> h = new Host(random, &w, &config);
-    Symbiont * s = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &w, &config);
+    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
 
-    s->SetHost(h);
+    symbiont->SetHost(host);
 
-    REQUIRE(s->GetHost() == h);
+    REQUIRE(symbiont->GetHost() == host);
 
+    symbiont.Delete();
+    host.Delete();
 }
 
 TEST_CASE("Host SetSymbionts", "[default]") {
@@ -24,29 +26,30 @@ TEST_CASE("Host SetSymbionts", "[default]") {
     double int_val = 1;
     config.SYM_LIMIT(2);
 
-    Host * h = new Host(random, &w, &config);
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &w, &config);
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
 
     emp::vector<emp::Ptr<Organism>> syms;
-    syms.push_back(s1);
-    syms.push_back(s2);
+    syms.push_back(sym1);
+    syms.push_back(sym2);
 
-    h->SetSymbionts(syms);
+    host->SetSymbionts(syms);
 
-    REQUIRE(h->GetSymbionts().size() == syms.size());
+    REQUIRE(host->GetSymbionts().size() == syms.size());
 
     for(size_t i = 0; i < syms.size(); i++){
-        emp::vector<emp::Ptr<Organism>> host_syms = h->GetSymbionts();
-        Organism * curSym = host_syms[i];
-        Organism * curHost = curSym->GetHost();
-        REQUIRE(curSym == (Organism *) syms[i]);
-        REQUIRE(curHost == h);
+        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+        emp::Ptr<Organism> curSym = host_syms[i];
+        emp::Ptr<Organism> curHost = curSym->GetHost();
+        REQUIRE(curSym == (emp::Ptr<Organism>) syms[i]);
+        REQUIRE(curHost == host);
     }
 
     bool has_sym = true;
-    REQUIRE(h->HasSym() == has_sym);
+    REQUIRE(host->HasSym() == has_sym);
 
+    host.Delete();
 }
 
 TEST_CASE("Host SymLimit", "[default]") {
@@ -56,31 +59,30 @@ TEST_CASE("Host SymLimit", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, &w, &config);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config);
 
-    emp::Ptr<Symbiont> s1;
-    s1.New(random, &w, &config, int_val);
-    emp::Ptr<Symbiont> s2;
-    s2.New(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym1;
+    sym1.New(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym2;
+    sym2.New(random, &w, &config, int_val);
 
     emp::vector<emp::Ptr<Organism>> syms;
 
-    syms.push_back(s1);
-    h->AddSymbiont(s1);
-    REQUIRE(h->GetSymbionts() == syms);
+    syms.push_back(sym1);
+    host->AddSymbiont(sym1);
+    REQUIRE(host->GetSymbionts() == syms);
 
     WHEN("A symbiont is added once the SymLimit has been reached ") {
-        h->AddSymbiont(s2);
+        host->AddSymbiont(sym2);
 
         THEN("The symbiont is not added to the host's syms") {
-            REQUIRE(h->GetSymbionts() == syms); // s2 is not added, sym limit was reached
+            REQUIRE(host->GetSymbionts() == syms); // sym2 is not added, sym limit was reached
 
         }
 
     }
     random.Delete();
-    s1.Delete();
-
+    host.Delete();
 }
 
 TEST_CASE("Host AddSymbiont", "[default]") {
@@ -90,23 +92,25 @@ TEST_CASE("Host AddSymbiont", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, &w, &config);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config);
 
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
 
     emp::vector<emp::Ptr<Organism>> syms;
 
-    syms.push_back(s1);
-    h->AddSymbiont(s1);
+    syms.push_back(sym1);
+    host->AddSymbiont(sym1);
 
-    REQUIRE(h->GetSymbionts() == syms);
+    REQUIRE(host->GetSymbionts() == syms);
     bool has_sym = true;
-    REQUIRE(h->HasSym() == has_sym);
+    REQUIRE(host->HasSym() == has_sym);
 
-    h->AddSymbiont(s2);
-    syms.push_back(s2);
-    REQUIRE(h->GetSymbionts() == syms);
+    host->AddSymbiont(sym2);
+    syms.push_back(sym2);
+    REQUIRE(host->GetSymbionts() == syms);
+
+    host.Delete();
 }
 
 TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
@@ -116,26 +120,30 @@ TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
     SymWorld w(*random);
     double int_val = 1;
 
-    Host * h = new Host(random, &w, &config);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config);
 
-    Symbiont * s1 = new Symbiont(random, &w, &config, int_val);
-    Symbiont * s2 = new Symbiont(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
 
     emp::vector<emp::Ptr<Organism>> repro_syms;
 
-    repro_syms.push_back(s1);
-    h->AddReproSym(s1);
+    repro_syms.push_back(sym1);
+    host->AddReproSym(sym1);
 
-    REQUIRE(h->GetReproSymbionts() == repro_syms);
+    REQUIRE(host->GetReproSymbionts() == repro_syms);
 
-    repro_syms.push_back(s2);
-    h->AddReproSym(s2);
+    repro_syms.push_back(sym2);
+    host->AddReproSym(sym2);
 
-    REQUIRE(h->GetReproSymbionts() == repro_syms);
+    REQUIRE(host->GetReproSymbionts() == repro_syms);
 
-    h->ClearReproSyms();
+    host->ClearReproSyms();
     repro_syms.clear();
-    REQUIRE(h->GetReproSymbionts() == repro_syms);
+    REQUIRE(host->GetReproSymbionts() == repro_syms);
+
+    host.Delete();
+    sym1.Delete();
+    sym2.Delete();
 }
 
 TEST_CASE("Host DistribResources", "[default]") {
@@ -150,17 +158,17 @@ TEST_CASE("Host DistribResources", "[default]") {
         double host_int_val = 0.5;
         double sym_int_val = 1;
 
-        Host * h = new Host(random, &w, &config, host_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
 
-        Symbiont * s1 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s2 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s3 = new Symbiont(random, &w, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
-        h->SetSymbionts(syms);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+        host->SetSymbionts(syms);
 
         double resources = 120;
-        h->DistribResources(resources);
+        host->DistribResources(resources);
 
 
         int num_syms = 3;
@@ -180,29 +188,31 @@ TEST_CASE("Host DistribResources", "[default]") {
             for( emp::Ptr<Organism> symbiont : syms) {
                 REQUIRE(symbiont->GetPoints() == sym_points);
             }
-            REQUIRE(h->GetPoints() == host_points);
+            REQUIRE(host->GetPoints() == host_points);
         }
+        host.Delete();
     }
 
 
     WHEN("Host interaction value <= 0 and Symbiont interaction value < 0") {
-        double host_int_val = -0.5;
-        double sym_int_val = -0.1;
-        double host_orig_points = 0;
-        double sym_orig_points = 0;
-
-        Host * h = new Host(random, &w, &config, host_int_val);
-
-
-        Symbiont * s1 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s2 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s3 = new Symbiont(random, &w, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
-        h->SetSymbionts(syms);
 
         WHEN("Host interaction value < Symbionts' interaction value") {
+            double host_int_val = -0.5;
+            double sym_int_val = -0.1;
+            double host_orig_points = 0;
+            double sym_orig_points = 0;
+
+            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+
+
+            emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+            host->SetSymbionts(syms);
+
             double resources = 120;
-            h->DistribResources(resources);
+            host->DistribResources(resources);
 
             int num_syms = 3;
             double sym_piece = resources / num_syms; // how much resource each sym gets
@@ -214,11 +224,11 @@ TEST_CASE("Host DistribResources", "[default]") {
                 for( emp::Ptr<Organism> symbiont : syms) {
                     REQUIRE(symbiont->GetPoints() == sym_orig_points);
                 }
-                REQUIRE(h->GetPoints() == host_points);
-                REQUIRE(h->GetPoints() > host_orig_points);
+                REQUIRE(host->GetPoints() == host_points);
+                REQUIRE(host->GetPoints() > host_orig_points);
             }
+            host.Delete();
         }
-
 
         WHEN("Host interaction value > Symbionts' interaction value") {
             double host_int_val = -0.2;
@@ -226,17 +236,17 @@ TEST_CASE("Host DistribResources", "[default]") {
             double host_orig_points = 0;
             double sym_orig_points = 0;
 
-            Host * h = new Host(random, &w, &config, host_int_val);
+            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
 
-            Symbiont * s1 = new Symbiont(random, &w, &config, sym_int_val);
-            Symbiont * s2 = new Symbiont(random, &w, &config, sym_int_val);
-            Symbiont * s3 = new Symbiont(random, &w, &config, sym_int_val);
-            emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
-            h->SetSymbionts(syms);
+            emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+            emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+            host->SetSymbionts(syms);
 
             double resources = 120;
-            h->DistribResources(resources);
+            host->DistribResources(resources);
 
             int num_syms = 3;
             double sym_piece = resources / num_syms; // how much resource each sym gets
@@ -251,9 +261,10 @@ TEST_CASE("Host DistribResources", "[default]") {
                     REQUIRE(symbiont->GetPoints() == sym_points);
                     REQUIRE(symbiont->GetPoints() > sym_orig_points);
                 }
-                REQUIRE(h->GetPoints() == host_points);
-                REQUIRE(h->GetPoints() > host_orig_points);
+                REQUIRE(host->GetPoints() == host_points);
+                REQUIRE(host->GetPoints() > host_orig_points);
             }
+            host.Delete();
         }
     }
     WHEN("Host interaction value > 0 and Symbiont interaction value < 0, single symbiont") {
@@ -262,12 +273,12 @@ TEST_CASE("Host DistribResources", "[default]") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        Host * h = new Host(random, &w, &config, host_int_val);
-        Symbiont * s = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        h->AddSymbiont(s);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        host->AddSymbiont(symbiont);
 
         int resources = 100;
-        h->DistribResources(resources);
+        host->DistribResources(resources);
 
         // int host_donation = 10; //host_int_val * resources
         int host_portion = 90;  //remaining amount
@@ -276,10 +287,10 @@ TEST_CASE("Host DistribResources", "[default]") {
         host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
 
         THEN("Symbionts points and Host points increase the correct amounts") {
-            REQUIRE(s->GetPoints() == sym_orig_points+sym_portion);
-            REQUIRE(h->GetPoints() == host_orig_points+host_portion);
+            REQUIRE(symbiont->GetPoints() == sym_orig_points+sym_portion);
+            REQUIRE(host->GetPoints() == host_orig_points+host_portion);
         }
-
+        host.Delete();
     }
     WHEN("Host interaction value > 0 and Symbiont interaction value < 0, multiple symbionts") {
         double host_int_val = 0.1;
@@ -287,17 +298,17 @@ TEST_CASE("Host DistribResources", "[default]") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        Host * h = new Host(random, &w, &config, host_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
 
-        Symbiont * s1 = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        Symbiont * s2 = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        Symbiont * s3 = new Symbiont(random, &w, &config, sym_int_val, sym_orig_points);
-        emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
-        h->SetSymbionts(syms);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+        host->SetSymbionts(syms);
 
         double resources = 120;
-        h->DistribResources(resources);
+        host->DistribResources(resources);
 
 
         int num_syms = 3;
@@ -320,10 +331,10 @@ TEST_CASE("Host DistribResources", "[default]") {
                REQUIRE(symbiont->GetPoints() > sym_orig_points);
             }
 
-            REQUIRE(h->GetPoints() == host_final_portion);
-            REQUIRE(h->GetPoints() > host_orig_points);
+            REQUIRE(host->GetPoints() == host_final_portion);
+            REQUIRE(host->GetPoints() > host_orig_points);
         }
-
+        host.Delete();
     }
 
 
@@ -333,17 +344,17 @@ TEST_CASE("Host DistribResources", "[default]") {
         double host_orig_points = 0;
         double symbiont_orig_points = 0;
 
-        Host * h = new Host(random, &w, &config, host_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
 
 
-        Symbiont * s1 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s2 = new Symbiont(random, &w, &config, sym_int_val);
-        Symbiont * s3 = new Symbiont(random, &w, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {s1, s2, s3};
-        h->SetSymbionts(syms);
+        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+        host->SetSymbionts(syms);
 
         double resources = 120;
-        h->DistribResources(resources);
+        host->DistribResources(resources);
 
         int num_syms = 3;
         double sym_piece = resources / num_syms;
@@ -359,10 +370,11 @@ TEST_CASE("Host DistribResources", "[default]") {
                 REQUIRE(symbiont->GetPoints() == sym_points);
                 REQUIRE(symbiont->GetPoints() == symbiont_orig_points);
             }
-            REQUIRE(h->GetPoints() == host_points);
-            REQUIRE(h->GetPoints() > host_orig_points);
+            REQUIRE(host->GetPoints() == host_points);
+            REQUIRE(host->GetPoints() > host_orig_points);
 
         }
+        host.Delete();
     }
 }
 
@@ -381,37 +393,43 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
-        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
-        s->AddPoints(points_recieved);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
+        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
+        symbiont->AddPoints(points_recieved);
 
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
-        s->VerticalTransmission(host_baby);
+        symbiont->VerticalTransmission(host_baby);
 
         THEN("Symbiont offspring are injected into host offspring") {
             REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
         }
 
         THEN("Symbiont parent has lost the points needed for reproduction and is down to 0") {
-            REQUIRE(s->GetPoints() == 0);
+            REQUIRE(symbiont->GetPoints() == 0);
         }
+        symbiont.Delete();
+        host.Delete();
+        host_baby.Delete();
     }
     WHEN("When vertical transmission is disabled"){
         world->SetVertTrans(0);
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        emp::Ptr<Host> h = new Host(random, world, &config, host_int_val);
-        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, sym_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
+        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
 
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-        s->VerticalTransmission(host_baby);
+        symbiont->VerticalTransmission(host_baby);
 
         THEN("Symbiont offspring are not injected into host offspring") {
             REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
         }
+        symbiont.Delete();
+        host.Delete();
+        host_baby.Delete();
     }
     WHEN("When the sym does not have enough resources to transmit"){
         world->SetVertTrans(1);
@@ -420,18 +438,22 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
         double points_recieved = points_required - 1;
         config.SYM_VERT_TRANS_RES(points_required);
 
-        emp::Ptr<Host> h = new Host(random, world, &config, int_val);
-        emp::Ptr<Symbiont> s = new Symbiont(random, world, &config, int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, int_val);
+        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, int_val);
 
-        s->AddPoints(points_recieved);
+        symbiont->AddPoints(points_recieved);
 
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, h->GetIntVal());
+        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
         long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-        s->VerticalTransmission(host_baby);
+        symbiont->VerticalTransmission(host_baby);
 
         THEN("Symbiont offspring are not injected into host offspring") {
             REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
         }
+
+        symbiont.Delete();
+        host.Delete();
+        host_baby.Delete();
     }
 }
 
@@ -448,8 +470,8 @@ TEST_CASE("HandleEctosymbiosis"){
   WHEN("Ectosymbiosis is off"){
     config.ECTOSYMBIOSIS(0);
 
-    emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
-    emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+    emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
     w.AddOrgAt(sym,0);
     w.AddOrgAt(host,0);
     REQUIRE(sym->GetPoints() == 0);
@@ -472,8 +494,8 @@ TEST_CASE("HandleEctosymbiosis"){
     config.ECTOSYMBIOSIS(1);
 
     WHEN("There is no endosymbiont, only ectosymbiont"){
-      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
-      emp::Ptr<Organism> sym = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
       w.AddOrgAt(sym,0);
       w.AddOrgAt(host,0);
@@ -501,9 +523,9 @@ TEST_CASE("HandleEctosymbiosis"){
       config.ECTOSYMBIOTIC_IMMUNITY(0);
       config.SYNERGY(synergy);
 
-      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
-      emp::Ptr<Organism> parallel_sym = new Symbiont(&random, &w, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+      emp::Ptr<Organism> parallel_sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
       w.AddOrgAt(parallel_sym,0);
       w.AddOrgAt(host,0);
@@ -534,9 +556,9 @@ TEST_CASE("HandleEctosymbiosis"){
     WHEN("A hosted sym confers immunity to ectosymbiosis"){
       config.ECTOSYMBIOTIC_IMMUNITY(1);
 
-      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
-      emp::Ptr<Organism> parallel_sym = new Symbiont(&random, &w, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = new Symbiont(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
+      emp::Ptr<Organism> parallel_sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
 
       w.AddOrgAt(parallel_sym,0);
       w.AddOrgAt(host,0);
@@ -567,7 +589,7 @@ TEST_CASE("HandleEctosymbiosis"){
 
       config.ECTOSYMBIOSIS(1);
 
-      emp::Ptr<Host> host = new Host(&random, &w, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &w, &config, int_val);
       w.AddOrgAt(host,0);
       REQUIRE(host->GetPoints() == 0);
 
