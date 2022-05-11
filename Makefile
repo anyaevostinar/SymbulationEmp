@@ -1,7 +1,7 @@
 # Project-specific settings
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
-SGP_DIR := ../signalgp-lite/include
+SGP_DIR := signalgp-lite/include
 
 # Flags to use regardless of compiler
 CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/ -I$(SGP_DIR)/
