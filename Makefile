@@ -1,9 +1,10 @@
 # Project-specific settings
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
+SGP_DIR := ../signalgp-lite/include
 
 # Flags to use regardless of compiler
-CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/
+CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/ -I$(SGP_DIR)/
 
 # Native compiler information
 CXX_nat := g++
@@ -43,6 +44,9 @@ lysis-mode:	source/native/symbulation_lysis.cc
 
 pgg-mode:	source/native/symbulation_pgg.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
+
+sgp-mode:	source/native/symbulation_sgp.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp
 
 symbulation.js: source/web/symbulation-web.cc
 	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
