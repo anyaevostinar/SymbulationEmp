@@ -140,7 +140,7 @@ TEST_CASE("Phage reproduce", "[lysis]") {
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        emp::Ptr<Organism> phage_baby = phage->reproduce();
+        emp::Ptr<Organism> phage_baby = phage->Reproduce();
 
         THEN("Offspring's interaction value and lysis chance equals parent's interaction value and lysis chance") {
             int phage_baby_int_val = 0;
@@ -169,7 +169,7 @@ TEST_CASE("Phage reproduce", "[lysis]") {
         config.MUTATION_RATE(1);
         config.MUTATION_SIZE(0.002);
         emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        emp::Ptr<Organism> phage_baby = phage->reproduce();
+        emp::Ptr<Organism> phage_baby = phage->Reproduce();
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
@@ -284,13 +284,13 @@ TEST_CASE("Phage uponInjection", "[lysis]"){
     REQUIRE(phage->GetLysogeny() == expected_lysogeny);
 
     //phage should choose lysis by default
-    phage->uponInjection();
+    phage->UponInjection();
     expected_lysogeny = false;
     REQUIRE(phage->GetLysogeny() == expected_lysogeny);
 
     //if chance of lysis is 0, phage should choose lysogeny
     phage->SetLysisChance(0.0);
-    phage->uponInjection();
+    phage->UponInjection();
     expected_lysogeny = true;
     REQUIRE(phage->GetLysogeny() == expected_lysogeny);
 
@@ -314,7 +314,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_INC_VAL(1);
 
         emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        phage->mutate();
+        phage->Mutate();
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(phage->GetLysisChance() != 0.5);
             REQUIRE(phage->GetLysisChance() >= 0.5 - 0.002*3);
@@ -336,7 +336,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
         emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        phage->mutate();
+        phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
         double incorporation_val_post_mutation = 0.5;
@@ -356,7 +356,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_INDUCTION_CHANCE(1);
         config.MUTATE_INC_VAL(1);
         emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        phage->mutate();
+        phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
         double incorporation_val_post_mutation = 0.5;
@@ -376,7 +376,7 @@ TEST_CASE("phage_mutate", "[lysis]"){
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
         emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        phage->mutate();
+        phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
         double incorporation_val_post_mutation = 0.5;
@@ -505,8 +505,8 @@ TEST_CASE("Phage process", "[lysis]"){
             world->AddOrgAt(new_bacterium, 1);
 
             //add phage offspring to the original host's repro syms
-            emp::Ptr<Organism> p_baby1 = phage->reproduce();
-            emp::Ptr<Organism> p_baby2 = phage->reproduce();
+            emp::Ptr<Organism> p_baby1 = phage->Reproduce();
+            emp::Ptr<Organism> p_baby2 = phage->Reproduce();
             orig_bacterium->AddReproSym(p_baby1);
             orig_bacterium->AddReproSym(p_baby2);
 
@@ -586,7 +586,7 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
             emp::Ptr<Bacterium> bacterium;
             bacterium.New(random, world, &config, int_val);
             bacterium->AddSymbiont(phage);
-            phage->uponInjection();
+            phage->UponInjection();
 
             double sym_piece = 40;
             double expected_return = 0;
@@ -664,14 +664,14 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
     }
 }
 
-TEST_CASE("Phage makeNew", "[lysis]"){
+TEST_CASE("Phage MakeNew", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     LysisWorld w(*random);
     SymConfigBase config;
 
     double phage_int_val = 0.2;
     emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, &w, &config, phage_int_val);
-    emp::Ptr<Organism> new_phage = phage->makeNew();
+    emp::Ptr<Organism> new_phage = phage->MakeNew();
 
     THEN("The new phage has the same genome as its parent, but age and points 0"){
         REQUIRE(new_phage->GetIntVal() == phage->GetIntVal());

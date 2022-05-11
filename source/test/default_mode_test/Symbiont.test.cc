@@ -273,7 +273,7 @@ TEST_CASE("mutate", "[default]") {
             config.FREE_LIVING_SYMS(1);
             config.SYM_INFECTION_CHANCE(orig_infection_chance);
             emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-            sym->mutate();
+            sym->Mutate();
 
             THEN("Mutation occurs and both interaction value and infection chance change"){
                 REQUIRE(sym->GetIntVal() != int_val);
@@ -289,7 +289,7 @@ TEST_CASE("mutate", "[default]") {
 
         WHEN("free living symbionts are not allowed"){
             emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-            sym->mutate();
+            sym->Mutate();
 
             THEN("Mutation occurs and only interaction value changes") {
                 REQUIRE(sym->GetIntVal() != int_val);
@@ -312,7 +312,7 @@ TEST_CASE("mutate", "[default]") {
         config.MUTATION_SIZE(0);
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
 
-        sym->mutate();
+        sym->Mutate();
 
 
         THEN("Mutation does not occur and interaction value does not change") {
@@ -345,7 +345,7 @@ TEST_CASE("reproduce", "[default]") {
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
         sym->SetAge(10);
 
-        emp::Ptr<Organism> sym_baby = sym->reproduce();
+        emp::Ptr<Organism> sym_baby = sym->Reproduce();
 
 
         THEN("Offspring's interaction value equals parent's interaction value") {
@@ -390,7 +390,7 @@ TEST_CASE("reproduce", "[default]") {
         config.SYM_INFECTION_CHANCE(inf_chance);
         emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
 
-        emp::Ptr<Organism> sym_baby = sym2->reproduce();
+        emp::Ptr<Organism> sym_baby = sym2->Reproduce();
 
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
@@ -678,14 +678,14 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
     }
 }
 
-TEST_CASE("Symbiont makeNew", "[default]"){
+TEST_CASE("Symbiont MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
 
     double sym_int_val = 0.2;
     emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
-    emp::Ptr<Organism> sym2 = sym1->makeNew();
+    emp::Ptr<Organism> sym2 = sym1->MakeNew();
 
     THEN("The new symbiont has the same genome as its parent, but age and points 0"){
         REQUIRE(sym2->GetIntVal() == sym1->GetIntVal());

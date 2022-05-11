@@ -105,8 +105,8 @@ public:
    * value chosen from a normal distribution centered at 0, with a standard
    * deviation that is equal to the mutation size.
    */
-  void mutate(){
-    Symbiont::mutate();
+  void Mutate(){
+    Symbiont::Mutate();
     if (random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()) {
       PGG_donate += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
       if(PGG_donate < 0) PGG_donate = 0;
@@ -139,7 +139,7 @@ public:
    *
    * Purpose: To produce a new PGGSymbiont, identical to the original
    */
-  emp::Ptr<Organism> makeNew() {
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetDonation(GetDonation());

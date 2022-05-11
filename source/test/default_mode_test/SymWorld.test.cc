@@ -1154,7 +1154,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     w.AddSymToSystematic(syms[0]);
 
     for(size_t i = 1; i < num_syms; i++){
-      syms[i] = syms[i-1]->reproduce();
+      syms[i] = syms[i-1]->Reproduce();
     }
 
     THEN("Their lineages are tracked"){

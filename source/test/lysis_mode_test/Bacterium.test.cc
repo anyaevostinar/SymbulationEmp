@@ -58,7 +58,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
       //  emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
         //working version:
         emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-        bacterium->mutate();
+        bacterium->Mutate();
 
         THEN("Then mutation occurs and the bacterium's host_inc_val mutates"){
             REQUIRE(bacterium->GetIncVal() != orig_host_inc_val);
@@ -74,7 +74,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_RATE(1);
         config.MUTATE_INC_VAL(0);
         emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-        bacterium->mutate();
+        bacterium->Mutate();
 
         THEN("Then mutations occur but do not occur in the host_inc_val"){
             REQUIRE(bacterium->GetIncVal() ==  orig_host_inc_val);
@@ -88,7 +88,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_SIZE(0.0);
         config.MUTATE_INC_VAL(1);
         emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-        bacterium->mutate();
+        bacterium->Mutate();
 
         THEN("Mutations do not occur"){
             REQUIRE(bacterium->GetIncVal() ==  orig_host_inc_val);
@@ -102,7 +102,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_SIZE(0.0);
         config.MUTATE_INC_VAL(0);
         emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-        bacterium->mutate();
+        bacterium->Mutate();
 
         THEN("Mutations do not occur"){
             REQUIRE(bacterium->GetIncVal() ==  orig_host_inc_val);
@@ -251,7 +251,7 @@ TEST_CASE("Phage Exclude", "[lysis]") {
     }
 }
 
-TEST_CASE("Bacterium makeNew", "[lysis]"){
+TEST_CASE("Bacterium MakeNew", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     LysisWorld w(*random);
     SymConfigBase config;
@@ -260,7 +260,7 @@ TEST_CASE("Bacterium makeNew", "[lysis]"){
     double host_inc_val = 0.5;
     emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, &w, &config, host_int_val);
     bacterium->SetIncVal(host_inc_val);
-    emp::Ptr<Organism> new_bacterium = bacterium->makeNew();
+    emp::Ptr<Organism> new_bacterium = bacterium->MakeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(new_bacterium->GetIntVal() == bacterium->GetIntVal());
       REQUIRE(new_bacterium->GetIncVal() == bacterium->GetIncVal());
@@ -286,7 +286,7 @@ TEST_CASE("Bacterium reproduce", "[lysis]"){
     double host_inc_val = 0.3;
     emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, &w, &config, host_int_val);
     bacterium->SetIncVal(host_inc_val);
-    emp::Ptr<Organism> bacterium_baby = bacterium->reproduce();
+    emp::Ptr<Organism> bacterium_baby = bacterium->Reproduce();
 
     THEN("The host baby has a mutated genome and has age and points of 0"){
         REQUIRE(bacterium_baby->GetIntVal() != bacterium->GetIntVal());

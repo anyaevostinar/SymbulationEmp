@@ -126,14 +126,14 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
     }
 }
 
-TEST_CASE("PGGHost makeNew", "[pgg]"){
+TEST_CASE("PGGHost MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     PGGWorld w(*random);
     SymConfigBase config;
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> h1 = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
-    emp::Ptr<Organism> h2 = h1->makeNew();
+    emp::Ptr<Organism> h2 = h1->MakeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(h1->GetIntVal() == h2->GetIntVal());
       REQUIRE(h2->GetPoints() == 0);

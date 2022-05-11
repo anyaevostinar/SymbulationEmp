@@ -197,7 +197,7 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
         emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
         emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
         for(size_t j = 0; j < burst_sizes[i]; j++) {
-          emp::Ptr<Organism> new_repro_phage = phage->reproduce();
+          emp::Ptr<Organism> new_repro_phage = phage->Reproduce();
           bacterium->AddReproSym(new_repro_phage);
         }
         phage->SetBurstTimer(burst_time);
@@ -240,7 +240,7 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
         }
         bacterium->AddSymbiont(phage);
 
-        emp::Ptr<Organism> new_repro_phage = phage->reproduce();
+        emp::Ptr<Organism> new_repro_phage = phage->Reproduce();
         bacterium->AddReproSym(new_repro_phage);
 
         w.AddOrgAt(bacterium, i);

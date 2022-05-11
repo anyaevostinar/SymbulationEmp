@@ -64,17 +64,17 @@ class Organism {
     std::cout << "SetAge called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual emp::Ptr<Organism> makeNew(){
-    std::cout << "makeNew called from Organism" << std::endl;
+  virtual emp::Ptr<Organism> MakeNew(){
+    std::cout << "MakeNew called from Organism" << std::endl;
     throw "Organism method called!";
   }
 
   //Symbiont functions
 
-  virtual void mutate() {
+  virtual void Mutate() {
     std::cout << "mutate called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<Organism> reproduce() {
+  virtual emp::Ptr<Organism> Reproduce() {
     std::cout << "reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
@@ -121,10 +121,10 @@ class Organism {
   virtual void SetEfficiency(double _in) {
     std::cout << "SetEfficiency called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<Organism> reproduce(std::string mode) {
+  virtual emp::Ptr<Organism> Reproduce(std::string mode) {
     std::cout << "EfficientSymbiont's reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void mutate(std::string mode) {
+  virtual void Mutate(std::string mode) {
     std::cout << "EfficientSymbiont's mutate called from Organism" << std::endl;
     throw "Organism method called!";}
 
@@ -204,7 +204,7 @@ class Organism {
   virtual void SetInductionChance(double _in){
     std::cout << "SetInductionChance called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void uponInjection() {
+  virtual void UponInjection() {
     std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void LysisBurst(emp::WorldPosition location) {

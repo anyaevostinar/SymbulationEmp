@@ -259,8 +259,8 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
         world->AddOrgAt(orig_bacterium, 0);
         world->AddOrgAt(new_bacterium, 1);
 
-        emp::Ptr<Organism> p_baby1 = phage->reproduce();
-        emp::Ptr<Organism> p_baby2 = phage->reproduce();
+        emp::Ptr<Organism> p_baby1 = phage->Reproduce();
+        emp::Ptr<Organism> p_baby2 = phage->Reproduce();
         orig_bacterium->AddReproSym(p_baby1);
         orig_bacterium->AddReproSym(p_baby2);
 

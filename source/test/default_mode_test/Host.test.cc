@@ -162,7 +162,7 @@ TEST_CASE("Host Mutate", "[default]") {
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
 
         REQUIRE(host->GetIntVal() == int_val);
-        host->mutate();
+        host->Mutate();
         REQUIRE(host->GetIntVal() != int_val);
         REQUIRE(host->GetIntVal() <= 1);
         REQUIRE(host->GetIntVal() >= -1);
@@ -176,7 +176,7 @@ TEST_CASE("Host Mutate", "[default]") {
         config.MUTATION_RATE(0);
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
         REQUIRE(host->GetIntVal() == int_val);
-        host->mutate();
+        host->Mutate();
         REQUIRE(host->GetIntVal() != int_val);
         REQUIRE(host->GetIntVal() <= 1);
         REQUIRE(host->GetIntVal() >= -1);
@@ -192,7 +192,7 @@ TEST_CASE("Host Mutate", "[default]") {
         config.MUTATION_RATE(1);
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
         REQUIRE(host->GetIntVal() == int_val);
-        host->mutate();
+        host->Mutate();
         REQUIRE(host->GetIntVal() != int_val);
         REQUIRE(host->GetIntVal() <= 1);
         REQUIRE(host->GetIntVal() >= -1);
@@ -206,7 +206,7 @@ TEST_CASE("Host Mutate", "[default]") {
         config.MUTATION_SIZE(0);
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
         REQUIRE(host->GetIntVal() == int_val);
-        host->mutate();
+        host->Mutate();
         REQUIRE(host->GetIntVal() != int_val);
         REQUIRE(host->GetIntVal() <= 1);
         REQUIRE(host->GetIntVal() >= -1);
@@ -465,14 +465,14 @@ TEST_CASE("Host GrowOlder", "[default]"){
     }
 }
 
-TEST_CASE("Host makeNew", "[default]"){
+TEST_CASE("Host MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &w, &config, host_int_val);
-    emp::Ptr<Organism> host2 = host1->makeNew();
+    emp::Ptr<Organism> host2 = host1->MakeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(host1->GetIntVal() == host2->GetIntVal());
       REQUIRE(host2->GetPoints() == 0);
@@ -492,7 +492,7 @@ TEST_CASE("Host reproduce", "[default][efficient][lysis][pgg]"){
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &w, &config, host_int_val);
-    emp::Ptr<Organism> host2 = host1->reproduce();
+    emp::Ptr<Organism> host2 = host1->Reproduce();
     THEN("The host baby has mutated interaction value"){
       REQUIRE(host1->GetIntVal() != host2->GetIntVal());
     }

@@ -43,7 +43,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         config.MUTATION_SIZE(0.002);
         emp::Ptr<Organism> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
 
-        s->mutate();
+        s->Mutate();
 
         THEN("Mutation occurs and donation value changes, but stays within bounds") {
             REQUIRE(s->GetDonation() != donation);
@@ -61,7 +61,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         config.MUTATION_SIZE(0);
         emp::Ptr<Organism> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, donation);
 
-        s->mutate();
+        s->Mutate();
 
 
         THEN("Mutation does not occur and donation value does not change") {
@@ -301,14 +301,14 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
     }
 }
 
-TEST_CASE("PGGSymbiont makeNew", "[pgg]"){
+TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     PGGWorld w(*random);
     SymConfigBase config;
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> s1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, host_int_val);
-    emp::Ptr<Organism> s2 = s1->makeNew();
+    emp::Ptr<Organism> s2 = s1->MakeNew();
     THEN("The new symbiont has properties of the original symbiont and has 0 points and 0 age"){
       REQUIRE(s1->GetIntVal() == s2->GetIntVal());
       REQUIRE(s1->GetInfectionChance() == s2->GetInfectionChance());

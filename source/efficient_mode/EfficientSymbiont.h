@@ -137,7 +137,7 @@ public:
    * Purpose: Mutating the efficiency of an efficient symbiont based upon the config
    * setting for mutation size.
    */
-  void mutate(std::string mode){
+  void Mutate(std::string mode){
     double local_size;
     double local_rate;
     double int_rate;
@@ -192,7 +192,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> makeNew(){
+  emp::Ptr<Organism> MakeNew(){
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
@@ -206,9 +206,9 @@ public:
    *
    * Purpose: To produce a new symbiont
    */
-  emp::Ptr<Organism> reproduce(std::string mode) {
-    emp::Ptr<Organism> sym_baby = makeNew();
-    sym_baby->mutate(mode);
+  emp::Ptr<Organism> Reproduce(std::string mode) {
+    emp::Ptr<Organism> sym_baby = MakeNew();
+    sym_baby->Mutate(mode);
     return sym_baby;
   }
 
@@ -221,7 +221,7 @@ public:
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = reproduce("vertical");
+      emp::Ptr<Organism> sym_baby = Reproduce("vertical");
       host_baby->AddSymbiont(sym_baby);
     }
   }
@@ -239,7 +239,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Organism> sym_baby = reproduce("horizontal");
+        emp::Ptr<Organism> sym_baby = Reproduce("horizontal");
         my_world->SymDoBirth(sym_baby, location);
       }
     }
