@@ -12,20 +12,22 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
     double donation = 1;
 
     double int_val = 0.5;
-    PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val,donation);
+    emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
     CHECK(s->GetDonation() == donation);
     CHECK(s->GetAge() == 0);
     CHECK(s->GetPoints() == 0);
 
     donation = 2;
-    PGGSymbiont * s2 = new PGGSymbiont(random, world, &config, int_val,donation);
+    emp::Ptr<PGGSymbiont> s2 = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
     CHECK(s2->GetDonation() == 2);
     CHECK(s2->GetAge() == 0);
     CHECK(s2->GetPoints() == 0);
 
     int_val = 2;
-    REQUIRE_THROWS(new PGGSymbiont(random, world, &config, int_val) );
+    REQUIRE_THROWS(emp::NewPtr<PGGSymbiont>(random, world, &config, int_val) );
 
+    s.Delete();
+    s2.Delete();
 }
 
 TEST_CASE("PGGmutate", "[pgg]") {
@@ -39,7 +41,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         double int_val = 0;
         double donation = 0.01;
         config.MUTATION_SIZE(0.002);
-        Organism * s = new PGGSymbiont(random, world, &config, int_val,donation);
+        emp::Ptr<Organism> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
 
         s->mutate();
 
@@ -48,6 +50,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
             REQUIRE(s->GetDonation() <= 1);
             REQUIRE(s->GetDonation() >= 0);
         }
+        s.Delete();
     }
     WHEN("Mutation rate is zero") {
         double int_val = 1;
@@ -56,7 +59,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        Organism * s = new PGGSymbiont(random, world, &config, int_val, donation);
+        emp::Ptr<Organism> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, donation);
 
         s->mutate();
 
@@ -64,7 +67,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         THEN("Mutation does not occur and donation value does not change") {
             REQUIRE(s->GetDonation() == donation);
         }
-
+        s.Delete();
     }
 }
 
@@ -78,8 +81,8 @@ TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     double sym_int_val = 0;
     double donation = 0.1;
 
-    PGGSymbiont * s = new PGGSymbiont(random, &w, &config, sym_int_val,donation);
-    PGGHost * h = new PGGHost(random, &w, &config, host_int_val);
+    emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val,donation);
+    emp::Ptr<PGGHost> h = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
     h->AddSymbiont(s);
 
     //double piece = 40;
@@ -89,6 +92,8 @@ TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
 
     CHECK(s->GetPoints() == 40.4);
     CHECK(h->GetPoints() == 0);
+
+    h.Delete();
 }
 
 TEST_CASE("PGGProcess", "[pgg]") {
@@ -106,7 +111,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
         config.SYM_HORIZ_TRANS_RES(140.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
+        emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, 0,points);
 
         int add_points = 200;
         s->AddPoints(add_points);
@@ -119,6 +124,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
             int points_post_reproduction = 0;
             REQUIRE(s->GetPoints() == points_post_reproduction);
         }
+        s.Delete();
     }
 
 
@@ -129,7 +135,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
         config.SYM_HORIZ_TRANS_RES(200.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0.0);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
+        emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, 0,points);
 
         int add_points = 50;
         s->AddPoints(add_points);
@@ -142,6 +148,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
             int points_post_reproduction = 50;
             REQUIRE(s->GetPoints() == points_post_reproduction);
         }
+        s.Delete();
     }
 
 
@@ -152,7 +159,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
         config.MUTATION_SIZE(0.0);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
+        emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, 0,points);
 
         int location = 10;
         s->Process(location);
@@ -162,6 +169,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
             int points_post_reproduction = 100;
             REQUIRE(s->GetPoints() == points_post_reproduction);
         }
+        s.Delete();
     }
 
     WHEN("Horizontal transmission is false and points and points is less then sym_h_res") {
@@ -171,7 +179,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
         config.MUTATION_SIZE(0.0);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, int_val, 0,points);
+        emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, 0,points);
 
         int location = 10;
         s->Process(location);
@@ -181,6 +189,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
             int points_post_reproduction = 40;
             REQUIRE(s->GetPoints() == points_post_reproduction);
         }
+        s.Delete();
     }
 
 }
@@ -199,8 +208,8 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
-            PGGHost * h = new PGGHost(random, &w, &config, host_int_val);
-            PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
+            emp::Ptr<PGGHost> h = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+            emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
             h->AddSymbiont(s);
 
             // double resources = 100;
@@ -216,14 +225,15 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
                 REQUIRE(s->GetPoints() == expected_sym_points);
 
             }
+            h.Delete();
         }
 
         WHEN("host_int_val < 0 and resources are placed into defense"){
 
             WHEN("host successfully defends from symsteal"){
                 double host_int_val = -0.8;
-                PGGHost * h = new PGGHost(random, &w, &config, host_int_val);
-                PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
+                emp::Ptr<PGGHost> h = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+                emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 h->AddSymbiont(s);
 
                 // double resources = 100;
@@ -238,12 +248,13 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
                     REQUIRE(s->ProcessResources(0) == expected_return);
                     REQUIRE(s->GetPoints() == expected_sym_points);
                 }
+                h.Delete();
             }
 
             WHEN("host fails at defense"){
                 double host_int_val = -0.5;
-                PGGHost * h = new PGGHost(random, &w, &config, host_int_val);
-                PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
+                emp::Ptr<PGGHost> h = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+                emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 h->AddSymbiont(s);
 
                 // double resources = 100;
@@ -259,6 +270,7 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
                     REQUIRE(s->ProcessResources(0) == expected_return);
                     REQUIRE(s->GetPoints() == Approx(expected_sym_points));
                 }
+                h.Delete();
             }
 
         }
@@ -268,8 +280,8 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
     WHEN("sym_int_val > 0") {
         double sym_int_val = 0.2;
         double host_int_val = 0.5;
-        PGGHost * h = new PGGHost(random, &w, &config, host_int_val);
-        PGGSymbiont * s = new PGGSymbiont(random, world, &config, sym_int_val);
+        emp::Ptr<PGGHost> h = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+        emp::Ptr<PGGSymbiont> s = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
         h->AddSymbiont(s);
 
         // double resources = 100;
@@ -285,9 +297,8 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
             REQUIRE(s->ProcessResources(50) == expected_return);
             REQUIRE(s->GetPoints() == expected_sym_points);
         }
+        h.Delete();
     }
-
-
 }
 
 TEST_CASE("PGGSymbiont makeNew", "[pgg]"){
@@ -296,8 +307,8 @@ TEST_CASE("PGGSymbiont makeNew", "[pgg]"){
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    Organism * s1 = new PGGSymbiont(random, &w, &config, host_int_val);
-    Organism * s2 = s1->makeNew();
+    emp::Ptr<Organism> s1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> s2 = s1->makeNew();
     THEN("The new symbiont has properties of the original symbiont and has 0 points and 0 age"){
       REQUIRE(s1->GetIntVal() == s2->GetIntVal());
       REQUIRE(s1->GetInfectionChance() == s2->GetInfectionChance());
@@ -307,4 +318,6 @@ TEST_CASE("PGGSymbiont makeNew", "[pgg]"){
       //check that the offspring is the correct class
       REQUIRE(typeid(*s2).name() == typeid(*s1).name());
     }
+    s1.Delete();
+    s2.Delete();
 }
