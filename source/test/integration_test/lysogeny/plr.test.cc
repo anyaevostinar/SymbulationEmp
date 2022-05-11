@@ -8,8 +8,8 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     SymConfigBase config;
 
     //smaller world than actual experiment, starting with full population
-    config.GRID_X(40);
-    config.GRID_Y(40);
+    config.GRID_X(100);
+    config.GRID_Y(100);
 
     //PLR settings that are different than defaults
     config.MUTATION_SIZE(0.02);
@@ -27,6 +27,8 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     config.START_MOI(0.5);
     config.FREE_LIVING_SYMS(1);
 
+    int numupdates = 3000;
+
     WHEN("Prophage Loss Rate is 0.05"){
         LysisWorld w(*random);
         LysisWorld * world = &w;
@@ -36,7 +38,6 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
         auto & node = world->GetLysisChanceDataNode();
 
         worldSetup(world, &config);
-        int numupdates = 10;
 
         //Loop through updates
         for (int i = 0; i < numupdates; i++) {
@@ -44,7 +45,51 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
         }
 
         THEN("Phage evolve to be lytic"){
-            
+            double avg = node.GetMean();
+            REQUIRE(avg >= 0.75);
+        }
+    }
+
+    WHEN("Prophage Loss Rate is 0.025"){
+        LysisWorld w(*random);
+        LysisWorld * world = &w;
+
+        config.PROPHAGE_LOSS_RATE(0.025);
+
+        auto & node = world->GetLysisChanceDataNode();
+
+        worldSetup(world, &config);
+
+        //Loop through updates
+        for (int i = 0; i < numupdates; i++) {
+            world->Update();
+        }
+
+        THEN("Phage evolve to be temperate"){
+            double avg = node.GetMean();
+            REQUIRE(avg >= 0.30);
+            REQUIRE(avg <= 0.50);
+        }
+    }
+
+    WHEN("Prophage Loss Rate is 0"){
+        LysisWorld w(*random);
+        LysisWorld * world = &w;
+
+        config.PROPHAGE_LOSS_RATE(0);
+
+        auto & node = world->GetLysisChanceDataNode();
+
+        worldSetup(world, &config);
+
+        //Loop through updates
+        for (int i = 0; i < numupdates; i++) {
+            world->Update();
+        }
+
+        THEN("Phage evolve to be lysogenic"){
+            double avg = node.GetMean();
+            REQUIRE(avg <= 0.10);
         }
     }
 }
