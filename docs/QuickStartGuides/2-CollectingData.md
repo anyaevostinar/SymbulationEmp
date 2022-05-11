@@ -26,7 +26,7 @@ python3 simple_repeat.py
 
 By default, this will run 5 replicates of each treatment specified in `simple_repeat.py` and use the random seeds 21-25 (inclusive). 
 You can specify the random seeds (and therefore also the number of replicates) using command line arguments, which are optional. 
-The first command line argument is the start of the range of seeds (inclusive), and the second command line argument is the end of the range of seeds (exclusive). 
+The first command line argument is the start of the range of seeds (exclusive), and the second command line argument is the end of the range of seeds (exclusive). 
 
 For example, the input
 ```shell
@@ -49,4 +49,4 @@ python3 munge_data.py
 
 These commands will output a file `munged_basic.dat` that contains the average *interaction value* of hosts and symbionts over time in each of your replicates and treatments.
 
-You can then open the R script `SampleAnalysis.R`, set your working directory to the `Analysis` folder and run all of the lines to see a plot of the effect of vertical transmission on the evolved interaction value for hosts and symbionts. We reccomend using RStudio for running R scripts. You can find the documentation and information on how to download RStudion [here](https://docs.rstudio.com/). 
+You can then open the R script `SampleAnalysis.R`, set your working directory to the `Analysis` folder and run all of the lines to see a plot of the effect of vertical transmission on the evolved interaction value for hosts and symbionts. We recommend using RStudio for running R scripts. You can find the documentation and information on how to [download RStudio here](https://docs.rstudio.com/). 
