@@ -105,8 +105,8 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> bacterium = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> phage = new Phage(random, world, &config, sym_int_val);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
             bacterium->AddSymbiont(phage);
 
             emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
@@ -116,6 +116,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             THEN ("Phage does not vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
             host_baby.Delete();
         }
         WHEN("Vertical Transmission is disabled"){
@@ -123,8 +124,8 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> bacterium = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> phage = new Phage(random, world, &config, sym_int_val);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
             bacterium->AddSymbiont(phage);
 
             emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
@@ -134,6 +135,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             THEN ("Phage does not vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
             host_baby.Delete();
         }
 
@@ -147,8 +149,8 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> bacterium = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> phage = new Phage(random, world, &config, sym_int_val);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
             bacterium->AddSymbiont(phage);
 
             emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
@@ -158,6 +160,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             THEN ("Phage does vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
             host_baby.Delete();
         }
          WHEN("Vertical Transmission is disabled"){
@@ -165,8 +168,8 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> bacterium = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> phage = new Phage(random, world, &config, sym_int_val);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
             bacterium->AddSymbiont(phage);
 
             emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
@@ -176,13 +179,14 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             THEN ("Phage does vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
             host_baby.Delete();
         }
 
     }
 
 }
-/*
+
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
     LysisWorld w(*random);
@@ -327,4 +331,3 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
 
     bacterium.Delete();
 }
-*/

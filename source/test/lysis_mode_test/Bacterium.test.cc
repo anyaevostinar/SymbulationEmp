@@ -55,8 +55,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(1);
         config.MUTATE_INC_VAL(1);
-      //  emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-        //working version:
+        
         emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
         bacterium->Mutate();
 

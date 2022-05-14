@@ -393,7 +393,6 @@ TEST_CASE("EfficientSymbiont'symbiont Process called from Host when mutation rat
     double int_val = 0;
     double efficiency = 0.9;
     double host_interaction_val = 1;
-    double host_points = 0;
 
     WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host'symbiont Process is called") {
         emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);

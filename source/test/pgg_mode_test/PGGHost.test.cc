@@ -12,33 +12,33 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     REQUIRE_THROWS(emp::NewPtr<PGGHost>(random, world, &config, int_val) );
 
     int_val = -1;
-    emp::Ptr<PGGHost> h1 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
-    CHECK(h1->GetIntVal() == int_val);
-    CHECK(h1->GetAge() == 0);
-    CHECK(h1->GetPoints() == 0);
+    emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
+    CHECK(host1->GetIntVal() == int_val);
+    CHECK(host1->GetAge() == 0);
+    CHECK(host1->GetPoints() == 0);
 
     int_val = -1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
     std::set<int> set = std::set<int>();
     double points = 10;
-    emp::Ptr<PGGHost> h2 = emp::NewPtr<PGGHost>(random, world, &config, int_val, syms, repro_syms, set, points);
-    CHECK(h2->GetIntVal() == int_val);
-    CHECK(h2->GetAge() == 0);
-    CHECK(h2->GetPoints() == points);
+    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, world, &config, int_val, syms, repro_syms, set, points);
+    CHECK(host2->GetIntVal() == int_val);
+    CHECK(host2->GetAge() == 0);
+    CHECK(host2->GetPoints() == points);
 
     int_val = 1;
-    emp::Ptr<PGGHost> h3 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
-    CHECK(h3->GetIntVal() == int_val);
-    CHECK(h3->GetAge() == 0);
-    CHECK(h3->GetPoints() == 0);
+    emp::Ptr<PGGHost> host3 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
+    CHECK(host3->GetIntVal() == int_val);
+    CHECK(host3->GetAge() == 0);
+    CHECK(host3->GetPoints() == 0);
 
     int_val = 2;
     REQUIRE_THROWS(emp::NewPtr<PGGHost>(random, world, &config, int_val) );
 
-    h1.Delete();
-    h2.Delete();
-    h3.Delete();
+    host1.Delete();
+    host2.Delete();
+    host3.Delete();
 }
 
 TEST_CASE("PGGHost get pool", "[pgg]") {
@@ -47,17 +47,17 @@ TEST_CASE("PGGHost get pool", "[pgg]") {
     PGGWorld w(*random);
     double pool = 1;
 
-    emp::Ptr<PGGHost> h1 = emp::NewPtr<PGGHost>(random, &w, &config);
+    emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, &w, &config);
     double default_pool = 0.0;
-    REQUIRE(h1->GetPool() == default_pool);
+    REQUIRE(host1->GetPool() == default_pool);
 
-    emp::Ptr<PGGHost> h2 = emp::NewPtr<PGGHost>(random, &w, &config);
-    h2->SetPool(pool);
+    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, &w, &config);
+    host2->SetPool(pool);
     double expected_pool = 1;
-    REQUIRE(h2->GetPool() == expected_pool);
+    REQUIRE(host2->GetPool() == expected_pool);
 
-    h1.Delete();
-    h2.Delete();
+    host1.Delete();
+    host2.Delete();
 }
 
 TEST_CASE("PGGHost DistributeResources", "[pgg]") {
@@ -72,16 +72,16 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
         config.SYNERGY(5);
 
-        emp::Ptr<Host> h = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        host->DistribResources(resources);
 
         THEN("Points increase") {
             double expected_points = resources - (resources * int_val); // 48
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);
         }
-        h.Delete();
+        host.Delete();
     }
 
 
@@ -92,15 +92,15 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 0;
         config.SYNERGY(5);
 
-        emp::Ptr<Host> h = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        host->DistribResources(resources);
 
         THEN("Resources are added to points") {
             double expected_points = orig_points + resources; // 0
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
         }
-        h.Delete();
+        host.Delete();
     }
 
     WHEN("There are no symbionts and interaction value is between -1 and 0") {
@@ -110,19 +110,19 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 27;
         config.SYNERGY(5);
 
-        emp::Ptr<Host> h = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
-        h->AddPoints(orig_points);
-        h->DistribResources(resources);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        host->AddPoints(orig_points);
+        host->DistribResources(resources);
 
         THEN("Points increase") {
             double host_defense =  -1.0 * int_val * resources; // the resources spent on defense
             double add_points  = resources - host_defense;
             double expected_points = orig_points + add_points;
-            double points = h->GetPoints();
+            double points = host->GetPoints();
             REQUIRE(points == expected_points);
             REQUIRE(points > orig_points);
         }
-        h.Delete();
+        host.Delete();
     }
 }
 
@@ -132,15 +132,15 @@ TEST_CASE("PGGHost MakeNew", "[pgg]"){
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> h1 = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
-    emp::Ptr<Organism> h2 = h1->MakeNew();
+    emp::Ptr<Organism> host1 = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> host2 = host1->MakeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
-      REQUIRE(h1->GetIntVal() == h2->GetIntVal());
-      REQUIRE(h2->GetPoints() == 0);
-      REQUIRE(h2->GetAge() == 0);
+      REQUIRE(host1->GetIntVal() == host2->GetIntVal());
+      REQUIRE(host2->GetPoints() == 0);
+      REQUIRE(host2->GetAge() == 0);
       //check that the offspring is the correct class
-      REQUIRE(typeid(*h2).name() == typeid(*h1).name());
+      REQUIRE(typeid(*host2).name() == typeid(*host1).name());
     }
-    h1.Delete();
-    h2.Delete();
+    host1.Delete();
+    host2.Delete();
 }
