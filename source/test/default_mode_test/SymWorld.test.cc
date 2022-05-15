@@ -3,8 +3,6 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-#include "../../pgg_mode/PGGHost.h"
-#include "../../pgg_mode/PGGSymbiont.h"
 
 
 TEST_CASE("PullResources", "[default]") {
@@ -195,90 +193,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
           REQUIRE( w.GetNumOrgs() == 200 );
       }
     }
-
-    GIVEN( "a PGGworld without vertical transmission" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(17);
-    PGGWorld w(*random);
-    config.VERTICAL_TRANSMISSION(0);
-    w.SetVertTrans(0);
-    config.MUTATION_SIZE(0);
-    config.SYM_LIMIT(500);
-    config.HORIZ_TRANS(true);
-    config.HOST_REPRO_RES(400);
-    config.RES_DISTRIBUTE(100);
-    w.SetResPerUpdate(100);
-    config.SYNERGY(5);
-    config.PGG(1);
-
-    WHEN( "hostile hosts meet generous symbionts" ) {
-
-      //inject organisms
-      for (size_t i = 0; i < 10; i++){
-        emp::Ptr<PGGHost> new_org = emp::NewPtr<PGGHost>(random, &w, &config, -0.1);
-        w.AddOrgAt(new_org, w.size());
-      }
-      for (size_t i = 0; i< 10; i++){
-        emp::Ptr<PGGSymbiont> new_sym = emp::NewPtr<PGGSymbiont>(random, &w, &config, 0.1);
-        w.InjectSymbiont(new_sym);
-      }
-
-      //Simulate
-      for(int i = 0; i < 100; i++) {
-        w.Update();
-      }
-
-      THEN( "the symbionts all die" ) {
-        for(size_t i = 0; i < w.GetPop().size(); i++)
-          REQUIRE( !(w.GetPop()[i] && w.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
-      }
-    }
   }
-
-
-
-
-  GIVEN( "a PGGworld" ) {
-    emp::Random random(17);
-    PGGWorld w(random);
-    w.SetPopStruct_Mixed();
-    config.GRID(0);
-    config.VERTICAL_TRANSMISSION(0.7);
-    w.SetVertTrans(0.7);
-    config.MUTATION_SIZE(0.002);
-    config.SYM_LIMIT(500);
-    config.HORIZ_TRANS(true);
-    config.HOST_REPRO_RES(10);
-    config.RES_DISTRIBUTE(100);
-    config.SYNERGY(5);
-    config.PGG(1);
-    int world_size = 20000;
-    w.Resize(world_size);
-
-
-    WHEN( "very generous hosts meet many very hostile symbionts" ) {
-
-      //inject organisms
-      for (size_t i = 0; i < 200; i++){
-        emp::Ptr<PGGHost> new_org;
-        new_org.New(&random, &w, &config, 1);
-        w.AddOrgAt(new_org, w.size());
-      }
-      for (size_t i = 0; i < 10000; i++){
-        emp::Ptr<PGGSymbiont> new_sym;
-        new_sym.New(&random, &w, &config, -1);
-        w.InjectSymbiont(new_sym);
-      }
-
-      //Simulate
-      for(int i = 0; i < 100; i++)
-        w.Update();
-
-      THEN( "the hosts cannot reproduce" ) {
-          REQUIRE( w.GetNumOrgs() == 200 );
-      }
-    }
-  }
-}
 }
 
 TEST_CASE( "Hosts injected correctly", "[default]" ) {
@@ -556,105 +471,58 @@ TEST_CASE( "Update", "[default]" ){
         }
       }
 
-      WHEN("lysis is permitted, and thus phage are used"){
-        LysisWorld lw(random);
-        lw.Resize(world_size);
-        lw.SetFreeLivingSyms(1);
-        config.LYSIS(1);
-        config.LYSIS_CHANCE(1);
-        int burst_time = 2;
-        config.BURST_TIME(burst_time);
+      config.LYSIS(0);
+      config.HORIZ_TRANS(1);
+      world_size = 9;
+      w.Resize(world_size);
 
-        emp::Ptr<Organism> phage = emp::NewPtr<Phage>(&random, &lw, &config, int_val);
+      THEN("if only syms in the world they can get resources and reproduce"){
+        emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
+        w.SymDoBirth(sym, 0);
+        REQUIRE(w.GetNumOrgs() == 1);
 
-        WHEN("there are no hosts"){
-          THEN("phage don't reproduce or get points on update"){
-            lw.AddOrgAt(phage, emp::WorldPosition(0, 0));
-
-            int orig_num_orgs = lw.GetNumOrgs();
-            int orig_points = phage->GetPoints();
-
-            for(int i = 0; i < num_updates; i ++){
-              lw.Update();
-            }
-
-            int new_num_orgs = lw.GetNumOrgs();
-            int new_points = phage->GetPoints();
-
-            REQUIRE(new_num_orgs == orig_num_orgs);
-            REQUIRE(new_points == orig_points);
-          }
-          host.Delete(); //because it wasn't added to the world, it has to be deleted manually
+        for(int i = 0; i < num_updates; i++){
+          w.Update();
         }
+        //the sym has reproduced at least once
+        REQUIRE(w.GetNumOrgs() > 1);
 
-        WHEN("there are hosts"){
-          THEN("phage and hosts mingle in the world"){
-            lw.AddOrgAt(host, 0);
-            lw.AddOrgAt(phage, emp::WorldPosition(0,1));
-
-            for(int i = 0; i < num_updates; i++){
-              lw.Update();
-            }
-
-            REQUIRE(lw.GetNumOrgs() == 2);
+        int num_pop_elements = 0;
+        for(int i = 0; i < world_size; i++){
+          if(w.GetPop()[i]){
+            num_pop_elements++;
           }
         }
+        REQUIRE(num_pop_elements == 0);
+
+        host.Delete(); //since it wasn't added to the world, have to delete it manually
       }
-
-      WHEN("lysis is not permitted, and symbionts are used"){
-        config.LYSIS(0);
-        config.HORIZ_TRANS(1);
-        world_size = 9;
-        w.Resize(world_size);
-
-        THEN("if only syms in the world they can get resources and reproduce"){
-          emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &w, &config, int_val);
-          w.SymDoBirth(sym, 0);
-          REQUIRE(w.GetNumOrgs() == 1);
-
-          for(int i = 0; i < num_updates; i++){
-            w.Update();
-          }
-          //the sym has reproduced at least once
-          REQUIRE(w.GetNumOrgs() > 1);
-
-          int num_pop_elements = 0;
-          for(int i = 0; i < world_size; i++){
-            if(w.GetPop()[i]){
-              num_pop_elements++;
-            }
-          }
-          REQUIRE(num_pop_elements == 0);
-
-          host.Delete(); //since it wasn't added to the world, have to delete it manually
+      THEN("hosts and syms can mingle in the environment"){
+        w.AddOrgAt(host, 0);
+        w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, int_val), emp::WorldPosition(0,1));
+        for(int i = 0; i < num_updates; i++){
+          w.Update();
         }
-        THEN("hosts and syms can mingle in the environment"){
-          w.AddOrgAt(host, 0);
-          w.AddOrgAt(emp::NewPtr<Symbiont>(&random, &w, &config, int_val), emp::WorldPosition(0,1));
-          for(int i = 0; i < num_updates; i++){
-            w.Update();
-          }
 
-          //the organisms have done something
-          REQUIRE(w.GetNumOrgs() > 2);
+        //the organisms have done something
+        REQUIRE(w.GetNumOrgs() > 2);
 
-          int free_sym_count = 0;
-          int hosted_sym_count = 0;
-          int host_count = 0;
-          for(int i = 0; i < world_size; i++){
-            if(w.GetPop()[i]){
-              host_count++;
-              hosted_sym_count += w.GetOrg(i).GetSymbionts().size();
-            }
-            if(w.GetSymPop()[i]){
-              free_sym_count++;
-            }
+        int free_sym_count = 0;
+        int hosted_sym_count = 0;
+        int host_count = 0;
+        for(int i = 0; i < world_size; i++){
+          if(w.GetPop()[i]){
+            host_count++;
+            hosted_sym_count += w.GetOrg(i).GetSymbionts().size();
           }
-          //there should be at least one free sym, hosted sym, and host
-          REQUIRE(free_sym_count > 0);
-          REQUIRE(hosted_sym_count > 0);
-          REQUIRE(host_count > 0);
+          if(w.GetSymPop()[i]){
+            free_sym_count++;
+          }
         }
+        //there should be at least one free sym, hosted sym, and host
+        REQUIRE(free_sym_count > 0);
+        REQUIRE(hosted_sym_count > 0);
+        REQUIRE(host_count > 0);
       }
     }
   }

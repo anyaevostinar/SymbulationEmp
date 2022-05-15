@@ -21,11 +21,13 @@
 #include "../test/lysis_mode_test/Phage.test.cc"
 #include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
 #include "../test/lysis_mode_test/LysisDataNodes.test.cc"
+#include "../test/lysis_mode_test/LysisWorld.test.cc"
 
 #include "../test/pgg_mode_test/PGGSymbiont.test.cc"
 #include "../test/pgg_mode_test/PGGHost.test.cc"
 #include "../test/pgg_mode_test/PGGHostPGGSymbiontUnitTest.test.cc"
 #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
+#include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //#include "../PGGendtoend.test.cc"
 //#include "../test/end_to_end.test.cc"
