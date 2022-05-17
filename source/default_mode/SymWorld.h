@@ -649,7 +649,7 @@ public:
    * Input: The size_t representing the location of the symbiont to be
    * extracted from the world.
    *
-   * Output: The pointer to the organism that was exgtracted from the world.
+   * Output: The pointer to the organism that was extracted from the world.
    *
    * Purpose: To extract a symbiont from the world without deleting it.
    */
