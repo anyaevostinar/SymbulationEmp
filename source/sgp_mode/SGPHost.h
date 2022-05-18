@@ -6,7 +6,11 @@
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
-#include "sgpl/library/prefab/CompleteOpLibrary.hpp"
+#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
+#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
+#include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/operations/unary/Increment.hpp"
+#include "sgpl/operations/unary/Terminal.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
@@ -42,8 +46,14 @@ struct PrintVal {
   }
 };
 
-// extends prefab ControlFlowOpLibrary with SayHello operation
-using library_t = sgpl::OpLibraryCoupler<sgpl::CompleteOpLibrary, PrintVal>;
+// Library which doesn't include Terminal, the instruction to create a constant
+// That way the organism must evolve a mechanism for counting to three
+using library_t = sgpl::internal::LibraryInstantiator<decltype(std::tuple_cat(
+  // std::declval<sgpl::ControlFlowOpLibrary::parent_t>(),
+  std::declval<sgpl::ArithmeticOpLibrary::parent_t>(),
+  std::declval<std::tuple<PrintVal, sgpl::Increment, sgpl::global::Anchor>>()
+))>::type;
+// sgpl::OpLibraryCoupler<sgpl::ControlFlowOpLibrary, sgpl::ArithmeticOpLibrary, PrintVal>;
 
 // custom compile-time configurator type
 using spec_t = sgpl::Spec<library_t, Peripheral>;
@@ -94,7 +104,7 @@ public:
       numEncountered++;
     }
     totalRuns++;
-    if ((totalRuns % 200000) == 0) {
+    if (totalRuns == 200000) {
       std::cout
         << "Found: "
         << (int) (100 * ((double) numEncountered / (double) totalRuns))
@@ -102,6 +112,9 @@ public:
         << (int) (100 * ((double) numPassed / (double) numEncountered))
         << "%"
         << std::endl;
+      totalRuns = 0;
+      numEncountered = 0;
+      numPassed = 0;
     }
 
     // Instead of calling Host::Process, do the important stuff here
@@ -148,7 +161,7 @@ public:
       for (auto a : i.args) {
         std::cout << (int)a << " ";
       }
-      std::cout << ")" << std::endl;
+      std::cout << "): " << sgpl::Terminal::map_tag<spec_t>(i.GetTag()) << std::endl;
     }
   }
 };
@@ -158,10 +171,12 @@ void PrintVal::run(sgpl::Core<Spec> &core, const sgpl::Instruction<Spec> &inst,
                    const sgpl::Program<Spec> &,
                    typename Spec::peripheral_t &peripheral) {
   float val = core.registers[inst.args[0]];
-  float dist = abs(val);
-  if (dist < 1.0 && !peripheral.self->passed) {
-    peripheral.self->passed = true;
-    peripheral.self->maybeReproduce(0.2 * (1.0 - dist));
+  float dist = abs(3.0-val);
+  if (dist <= 3.2 && !peripheral.self->passed) {
+    if (dist < 3.0) {
+      peripheral.self->passed = true;
+    }
+    peripheral.self->maybeReproduce(pow(0.3 * (3.2 - dist), 4));
   }
   peripheral.self->encountered = true;
 }
