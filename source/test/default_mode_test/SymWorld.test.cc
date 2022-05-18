@@ -415,7 +415,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
   }
 }
 
-TEST_CASE( "Update", "[default]" ){
+TEST_CASE( "Update without free living symbionts", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
@@ -429,53 +429,63 @@ TEST_CASE( "Update", "[default]" ){
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
-    WHEN("free living syms are not allowed"){
-      world.AddOrgAt(host, 0);
+    world.AddOrgAt(host, 0);
 
-      WHEN("a host is dead"){
-        THEN("it is removed from the world"){
-          host->SetDead();
-          REQUIRE(world.GetNumOrgs() == 1);
+    WHEN("a host is dead"){
+      THEN("it is removed from the world"){
+        host->SetDead();
+        REQUIRE(world.GetNumOrgs() == 1);
 
-          world.Update();
-          REQUIRE(world.GetNumOrgs() == 0);
-        }
-      }
-      THEN("hosts process normally"){
-        int res_before_update = host->GetPoints();
         world.Update();
-        int res_after_update = host->GetPoints();
-        int res_change = res_after_update - res_before_update;
-        REQUIRE(res_per_update == res_change);
+        REQUIRE(world.GetNumOrgs() == 0);
+      }
+    }
+    THEN("hosts process normally"){
+      int res_before_update = host->GetPoints();
+      world.Update();
+      int res_after_update = host->GetPoints();
+      int res_change = res_after_update - res_before_update;
+      REQUIRE(res_per_update == res_change);
+    }
+  }
+}
+
+TEST_CASE( "Update with free living symbionts", "[default]" ){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld world(random);
+    int world_size = 4;
+    world.Resize(world_size);
+    int res_per_update = 10;
+    config.RES_DISTRIBUTE(res_per_update);
+    int num_updates = 5;
+
+    emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+    res_per_update = 80;
+    config.RES_DISTRIBUTE(res_per_update);
+    config.FREE_SYM_RES_DISTRIBUTE(res_per_update);
+    world_size = 16;
+    world.Resize(world_size);
+    world.SetFreeLivingSyms(1);
+    config.FREE_LIVING_SYMS(1);
+    config.MOVE_FREE_SYMS(1);
+
+    WHEN("there are no syms in the world"){
+      THEN("hosts process normally"){
+        world.AddOrgAt(host, 0);
+        int orig_points = host->GetPoints();
+        world.Update();
+
+        REQUIRE(host->GetPoints() - orig_points == res_per_update);
       }
     }
 
-
-    WHEN("free living syms are allowed"){
-      res_per_update = 80;
-      config.RES_DISTRIBUTE(res_per_update);
-      config.FREE_SYM_RES_DISTRIBUTE(res_per_update);
-      world_size = 16;
-      world.Resize(world_size);
-      world.SetFreeLivingSyms(1);
-      config.FREE_LIVING_SYMS(1);
-      config.MOVE_FREE_SYMS(1);
-
-      WHEN("there are no syms in the world"){
-        THEN("hosts process normally"){
-          world.AddOrgAt(host, 0);
-          int orig_points = host->GetPoints();
-          world.Update();
-
-          REQUIRE(host->GetPoints() - orig_points == res_per_update);
-        }
-      }
-
-      config.LYSIS(0);
-      config.HORIZ_TRANS(1);
+    WHEN("there are only syms (no hosts) in the world"){
       world_size = 9;
       world.Resize(world_size);
-
       THEN("if only syms in the world they can get resources and reproduce"){
         emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         world.SymDoBirth(sym, 0);
@@ -493,10 +503,14 @@ TEST_CASE( "Update", "[default]" ){
             num_pop_elements++;
           }
         }
-        REQUIRE(num_pop_elements == 0);
 
         host.Delete(); //since it wasn't added to the world, have to delete it manually
       }
+    }
+
+    WHEN("there are both hosts and syms in the world"){
+      world_size = 9;
+      world.Resize(world_size);
       THEN("hosts and syms can mingle in the environment"){
         world.AddOrgAt(host, 0);
         world.AddOrgAt(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0,1));
@@ -844,83 +858,41 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       }
     }
 
+    WHEN("there are 19 taxonomic bins"){
+      world.SetNumPhyloBins(20);
 
-    //ORGANISMS ADDED TO TAXA
-    THEN("the organsim is added to the correct taxon"){
+      size_t count = 7;
       size_t pos = 0;
 
-      //taxon info 0
-      double int_val = -1;
-      int expected_taxon_info = 0;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
+      double int_vals[7] = {-1, -0.98, -0.9, -0.8, 0.65, 0.9, 1};
+      int expected_taxon_infos[7] = {0, 0, 1, 2, 16, 19, 19};
 
-      //taxon info 0
-      int_val = -0.98;
-      expected_taxon_info = 0;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
+      THEN("it will be placed in the correct bin"){
+        for(size_t i = 0; i < count; i++){
+          world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
+          int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+          REQUIRE(taxon_info == expected_taxon_infos[i]);
+        }
+      }
+      host.Delete();
+    }
 
-      //taxon info 1
-      int_val = -0.9;
-      expected_taxon_info = 1;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
-
-      //taxon info 2
-      int_val = -0.8;
-      expected_taxon_info = 2;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
-
-      //taxon info 16
-      int_val = 0.65 ;
-      expected_taxon_info = 16;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
-
-      //taxon info 19
-      int_val = 0.9;
-      expected_taxon_info = 19;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
-
-      //taxon info 19
-      int_val = 1;
-      expected_taxon_info = 19;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
-
-      //true even if the number of bins changes!
+    WHEN("there are 2 taxonomic bins"){
       world.SetNumPhyloBins(2);
-      //taxon info 1
-      int_val = 1;
-      expected_taxon_info = 1;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
 
-      //taxon info 1
-      int_val = 0;
-      expected_taxon_info = 1;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
+      size_t count = 3;
+      size_t pos = 0;
 
-      //taxon info 1
-      int_val = -0.001;
-      expected_taxon_info = 0;
-      world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_val), pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      REQUIRE(expected_taxon_info == taxon_info);
+      double int_vals[3] = {1, 0, -0.001};
+      int expected_taxon_infos[3] = {1, 1, 0};
 
+      THEN("it will be placed in the correct bin"){
+        for(size_t i = 0; i < count; i++){
+          world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
+          int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
+          REQUIRE(taxon_info == expected_taxon_infos[i]);
+        }
+      }
       host.Delete();
     }
   }
@@ -938,7 +910,6 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       //Can't use num_descendants for the following array sizes because some
       //compilers don't allow it
       double int_vals[4] = {0.1, -0.05, -0.2, 0.14};
-      //bins: parent org in 10, then in int_vals order: 11, 9, 8, 11
       size_t parents[4] = {0, 1, 1, 3};
       for(int i = 0; i < num_descendants; i++){
         world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), (i+1), parents[i]);
