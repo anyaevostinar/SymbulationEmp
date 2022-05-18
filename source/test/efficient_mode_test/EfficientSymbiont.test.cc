@@ -40,7 +40,7 @@ TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     symbiont3.Delete();
 }
 
-TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
@@ -223,7 +223,7 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
 
 }
 
-TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
+TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
@@ -326,7 +326,7 @@ TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
     }
 }
 
-TEST_CASE("EfficientSymbiont mutate with horizontal transmission", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
     EfficientWorld w(*random);
@@ -352,7 +352,7 @@ TEST_CASE("EfficientSymbiont mutate with horizontal transmission", "[efficient]"
     }
 }
 
-TEST_CASE("EfficientSymbiont mutate with vertical transmission", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate with vertical transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
     EfficientWorld w(*random);
@@ -384,9 +384,8 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     SymConfigBase config;
     config.SYM_HORIZ_TRANS_RES(10);
     config.EFFICIENT_SYM(1);
-    EfficientWorld w(*random);
-    EfficientWorld * world = &w;
-    w.Resize(4);
+    EfficientWorld world(*random);
+    world.Resize(4);
     config.MUTATION_SIZE(0);
     config.MUTATION_RATE(0);
     double points = 11;
@@ -395,17 +394,17 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     double host_interaction_val = 1;
 
     WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
-        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
 
-        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val, points, efficiency);
         host->AddSymbiont(symbiont);
-        w.AddOrgAt(host, 0);
-        w.AddOrgAt(host2, 1);
-        w.AddOrgAt(host3, 2);
-        w.AddOrgAt(host4, 3);
+        world.AddOrgAt(host, 0);
+        world.AddOrgAt(host2, 1);
+        world.AddOrgAt(host3, 2);
+        world.AddOrgAt(host4, 3);
 
         host->Process(0);
 
@@ -427,17 +426,17 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     WHEN("The horizontal mutation rate and size are not zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
         config.HORIZ_MUTATION_SIZE(0.002);
         config.HORIZ_MUTATION_RATE(1.0);
-        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
-        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
 
-        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val, points, efficiency);
         host->AddSymbiont(symbiont);
-        w.AddOrgAt(host, 0);
-        w.AddOrgAt(host2, 1);
-        w.AddOrgAt(host3, 2);
-        w.AddOrgAt(host4, 3);
+        world.AddOrgAt(host, 0);
+        world.AddOrgAt(host2, 1);
+        world.AddOrgAt(host3, 2);
+        world.AddOrgAt(host4, 3);
 
         host->Process(0);
 
@@ -461,11 +460,11 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
 
 TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld w(*random);
+    EfficientWorld world(*random);
     SymConfigBase config;
 
     double sym_int_val = 0.2;
-    emp::Ptr<Organism> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &w, &config, sym_int_val);
+    emp::Ptr<Organism> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
     emp::Ptr<Organism> symbiont2 = symbiont1->MakeNew();
 
     THEN("The new efficient symbiont has the same genome as its parent, but age and points 0"){

@@ -44,14 +44,14 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
 TEST_CASE("PGGHost get pool", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     double pool = 1;
 
-    emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, &w, &config);
+    emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, &world, &config);
     double default_pool = 0.0;
     REQUIRE(host1->GetPool() == default_pool);
 
-    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, &w, &config);
+    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, &world, &config);
     host2->SetPool(pool);
     double expected_pool = 1;
     REQUIRE(host2->GetPool() == expected_pool);
@@ -63,7 +63,7 @@ TEST_CASE("PGGHost get pool", "[pgg]") {
 TEST_CASE("PGGHost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld world(*random);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
 
@@ -72,7 +72,7 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 0; // call this default_points instead? (i'm not setting this val)
         config.SYNERGY(5);
 
-        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &world, &config, int_val);
         host->DistribResources(resources);
 
         THEN("Points increase") {
@@ -92,7 +92,7 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 0;
         config.SYNERGY(5);
 
-        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &world, &config, int_val);
         host->DistribResources(resources);
 
         THEN("Resources are added to points") {
@@ -110,7 +110,7 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         double orig_points = 27;
         config.SYNERGY(5);
 
-        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &w, &config, int_val);
+        emp::Ptr<Host> host = emp::NewPtr<PGGHost>(random, &world, &config, int_val);
         host->AddPoints(orig_points);
         host->DistribResources(resources);
 
@@ -128,11 +128,11 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
 
 TEST_CASE("PGGHost MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> host1 = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> host1 = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
     emp::Ptr<Organism> host2 = host1->MakeNew();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(host1->GetIntVal() == host2->GetIntVal());

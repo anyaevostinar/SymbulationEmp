@@ -537,13 +537,10 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
-            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+            emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
             emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
             host->AddSymbiont(sym);
 
-            // double resources = 100;
-            // double hostDonation = 20;
-            // double stolen = 48;
             double expected_sym_points = 68; // hostDonation + stolen
             double expected_return = 0; // hostportion * synergy
 
@@ -562,14 +559,10 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
             WHEN("host successfully defends from symsteal"){
                 double host_int_val = -0.8;
-                emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+                emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
                 emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(sym);
 
-                // double resources = 100;
-                // double hostDonation = 0;
-                // double stolen = 0;
-                // double hostDefense = 80;
                 double expected_sym_points = 0; // hostDonation + stolen
                 double expected_return = 0; // hostportion * synergy
 
@@ -584,14 +577,10 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
             WHEN("host fails at defense"){
                 double host_int_val = -0.5;
-                emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+                emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
                 emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(sym);
 
-                // double resources = 100;
-                // double hostDonation = 0;
-                // double stolen = 5;
-                // double hostDefense = 50;
                 double expected_sym_points = 5; // hostDonation + stolen
                 double expected_return = 0; // hostportion * synergy
 
@@ -612,13 +601,10 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
     WHEN("sym_int_val > 0") {
         double sym_int_val = 0.2;
         double host_int_val = 0.5;
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, host_int_val);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
         host->AddSymbiont(sym);
 
-        // double resources = 100;
-        // double hostDonation = 50;
-        // double hostPortion = 10; hostDonation * sym_int_val
         double expected_sym_points = 40; // hostDonation - hostPortion
         double expected_return = 50; // hostPortion * synergy
 
@@ -637,32 +623,32 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
 TEST_CASE("Symbiont GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    w.Resize(2,2);
+    SymWorld world(*random);
+    world.Resize(2,2);
     SymConfigBase config;
     config.SYM_AGE_MAX(2);
 
     WHEN ("A free-living symbiont reaches its maximum age"){
       config.FREE_LIVING_SYMS(1);
-      emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &w, &config, 1);
-      w.AddOrgAt(sym, emp::WorldPosition(0,1));
+      emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &world, &config, 1);
+      world.AddOrgAt(sym, emp::WorldPosition(0,1));
       THEN("The symbiont dies and gets removed from the world"){
-        REQUIRE(w.GetNumOrgs() == 1);
+        REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(sym->GetDead() == false);
         REQUIRE(sym->GetAge() == 0);
-        w.Update(); //sym goes from age 1->2
+        world.Update(); //sym goes from age 1->2
         REQUIRE(sym->GetAge() == 1);
-        w.Update();
+        world.Update();
         REQUIRE(sym->GetAge() == 2);
-        w.Update(); //sym goes from age 2->3, gets set to dead
-        w.Update(); //sym is deleted (before it can process)
-        REQUIRE(w.GetNumOrgs() == 0);
+        world.Update(); //sym goes from age 2->3, gets set to dead
+        world.Update(); //sym is deleted (before it can process)
+        REQUIRE(world.GetNumOrgs() == 0);
       }
     }
     WHEN ("A hosted symbiont reaches its maximum age"){
-      emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &w, &config, 1);
-      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, 1);
-      w.AddOrgAt(host, 1);
+      emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &world, &config, 1);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, 1);
+      world.AddOrgAt(host, 1);
       host->AddSymbiont(sym);
       THEN("It dies and gets removed from its host"){
         REQUIRE(host->HasSym() == true);
@@ -680,11 +666,11 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
 
 TEST_CASE("Symbiont MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
+    SymWorld world(*random);
     SymConfigBase config;
 
     double sym_int_val = 0.2;
-    emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &w, &config, sym_int_val);
+    emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
     emp::Ptr<Organism> sym2 = sym1->MakeNew();
 
     THEN("The new symbiont has the same genome as its parent, but age and points 0"){

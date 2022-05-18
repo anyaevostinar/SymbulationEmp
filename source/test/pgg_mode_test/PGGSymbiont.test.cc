@@ -74,15 +74,15 @@ TEST_CASE("PGGmutate", "[pgg]") {
 TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     config.SYNERGY(5);
     config.PGG_SYNERGY(1.1);
     double host_int_val = 1;
     double sym_int_val = 0;
     double donation = 0.1;
 
-    emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val,donation);
-    emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+    emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val,donation);
+    emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
     host->AddSymbiont(symbiont);
 
     host->DistribResources(40);
@@ -201,7 +201,7 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
         WHEN("host_int_val > 0"){
             double host_int_val = 0.2;
-            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, world, &config, host_int_val);
             emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
             host->AddSymbiont(symbiont);
 
@@ -222,7 +222,7 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
             WHEN("host successfully defends from symsteal"){
                 double host_int_val = -0.8;
-                emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+                emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, world, &config, host_int_val);
                 emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(symbiont);
 
@@ -239,7 +239,7 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
             WHEN("host fails at defense"){
                 double host_int_val = -0.5;
-                emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+                emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, world, &config, host_int_val);
                 emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(symbiont);
 
@@ -262,7 +262,7 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
     WHEN("sym_int_val > 0") {
         double sym_int_val = 0.2;
         double host_int_val = 0.5;
-        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, world, &config, host_int_val);
         emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
         host->AddSymbiont(symbiont);
 
@@ -282,11 +282,11 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
 TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     SymConfigBase config;
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, host_int_val);
+    emp::Ptr<Organism> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, host_int_val);
     emp::Ptr<Organism> symbiont2 = symbiont1->MakeNew();
     THEN("The new symbiont has properties of the original symbiont and has 0 points and 0 age"){
       REQUIRE(symbiont1->GetIntVal() == symbiont2->GetIntVal());

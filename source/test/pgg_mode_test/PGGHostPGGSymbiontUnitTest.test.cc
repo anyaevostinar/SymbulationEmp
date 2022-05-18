@@ -5,11 +5,11 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     double int_val = 1;
 
-    emp::Ptr<Organism> host = emp::NewPtr<PGGHost>(random, &w, &config);
-    emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &w, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<PGGHost>(random, &world, &config);
+    emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &world, &config, int_val);
 
     symbiont->SetHost(host);
 
@@ -21,7 +21,7 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
 TEST_CASE("PGGHost DistribResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     config.SYNERGY(5);
@@ -31,12 +31,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double host_int_val = 0.5;
         double sym_int_val = 1;
 
-        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
@@ -74,12 +74,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             double host_orig_points = 0;
             double sym_orig_points = 0;
 
-            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-            emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-            emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-            emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
             host->SetSymbionts(syms);
 
@@ -108,12 +108,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             double host_orig_points = 0;
             double sym_orig_points = 0;
 
-            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+            emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-            emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-            emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-            emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+            emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
             host->SetSymbionts(syms);
 
@@ -145,8 +145,8 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
-        emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
+        emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
         host->AddSymbiont(symbiont);
 
         int resources = 100;
@@ -170,12 +170,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double host_orig_points = 0;
         double sym_orig_points = 0;
 
-        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val, sym_orig_points);
-        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val, sym_orig_points);
-        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
         emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
@@ -216,12 +216,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double host_orig_points = 0;
         double symbiont_orig_points = 0;
 
-        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+        emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
-        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
+        emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
@@ -300,7 +300,7 @@ TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
 
 TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
+    PGGWorld world(*random);
     SymConfigBase config;
     config.SYM_LIMIT(3);
     config.SYNERGY(5);
@@ -311,11 +311,11 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
     double donation = 0.1;
     double donation2 = 0.2;
 
-    emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
+    emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
 
 
-    emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val,donation);
-    emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &w, &config, sym_int_val,donation2);
+    emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val,donation);
+    emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val,donation2);
     emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2};
     host->SetSymbionts(syms);
     double resources = 120;

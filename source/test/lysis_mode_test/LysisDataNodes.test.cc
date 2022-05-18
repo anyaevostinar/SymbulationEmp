@@ -8,38 +8,38 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld w(random);
+    LysisWorld world(random);
     config.SYM_LIMIT(4);
-    w.Resize(10);
+    world.Resize(10);
 
     //keep track of host organisms that are uninfected or infected with only lysogenic phage
-    emp::DataMonitor<int>& cfu_data_node = w.GetCFUDataNode();
+    emp::DataMonitor<int>& cfu_data_node = world.GetCFUDataNode();
     REQUIRE(cfu_data_node.GetTotal() == 0);
-    REQUIRE(w.GetNumOrgs() == 0);
+    REQUIRE(world.GetNumOrgs() == 0);
 
     WHEN("uninfected hosts are added"){
       size_t num_hosts = 10;
 
       for(size_t i = 0; i < num_hosts; i++){
-        w.AddOrgAt(emp::NewPtr<Bacterium>(&random, &w, &config, int_val), i);
+        world.AddOrgAt(emp::NewPtr<Bacterium>(&random, &world, &config, int_val), i);
       }
 
-      w.Update();
+      world.Update();
       THEN("they are tracked by the data node"){
-        REQUIRE(w.GetNumOrgs() == num_hosts);
+        REQUIRE(world.GetNumOrgs() == num_hosts);
         REQUIRE(cfu_data_node.GetTotal() == num_hosts);
       }
 
       WHEN("some hosts are infected with lytic phage"){
         size_t num_infections = 2;
         for(size_t i = 0; i < num_infections; i++){
-          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
           phage->SetLysisChance(1.0);
-          w.GetOrg(i).AddSymbiont(phage);
+          world.GetOrg(i).AddSymbiont(phage);
         }
-        w.Update();
+        world.Update();
         THEN("infected hosts are excluded from the cfu count"){
-          REQUIRE(w.GetNumOrgs() == num_hosts);
+          REQUIRE(world.GetNumOrgs() == num_hosts);
           REQUIRE(cfu_data_node.GetTotal() == (num_hosts - num_infections));
         }
       }
@@ -47,13 +47,13 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
       WHEN("hosts are infected with lysogenic phage"){
         size_t num_infections = 2;
         for(size_t i = 0; i < num_infections; i++){
-          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+          emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
           phage->SetLysisChance(0.0);
-          w.GetOrg(i).AddSymbiont(phage);
+          world.GetOrg(i).AddSymbiont(phage);
         }
-        w.Update();
+        world.Update();
         THEN("infected hosts are excluded from the cfu count"){
-          REQUIRE(w.GetNumOrgs() == num_hosts);
+          REQUIRE(world.GetNumOrgs() == num_hosts);
           REQUIRE(cfu_data_node.GetTotal() == num_hosts);
         }
       }
@@ -66,13 +66,13 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld w(random);
-    w.Resize(4);
-    w.SetFreeLivingSyms(1);
+    LysisWorld world(random);
+    world.Resize(4);
+    world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
-    emp::DataMonitor<double,emp::data::Histogram>& lysis_chance_data_node = w.GetLysisChanceDataNode();
+    emp::DataMonitor<double,emp::data::Histogram>& lysis_chance_data_node = world.GetLysisChanceDataNode();
     REQUIRE(std::isnan(lysis_chance_data_node.GetMean()));
     for(size_t i = 0; i < num_bins; i++){
       REQUIRE(lysis_chance_data_node.GetHistCounts()[i] == 0);
@@ -90,19 +90,19 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
       expected_hist_counts[8] = 1;
       expected_hist_counts[9] = 1;
 
-      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
-      w.AddOrgAt(bacterium, 0);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
+      world.AddOrgAt(bacterium, 0);
       for(size_t i = 0; i < 3; i++){
-        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         free_phage->SetLysisChance(free_phage_lysis_chances[i]);
-        w.AddOrgAt(free_phage, emp::WorldPosition(0,i));
+        world.AddOrgAt(free_phage, emp::WorldPosition(0,i));
 
-        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         hosted_phage->SetLysisChance(hosted_phage_lysis_chances[i]);
         bacterium->AddSymbiont(hosted_phage);
       }
 
-      w.Update();
+      world.Update();
       //check they were tracked correctly
       THEN("their average lysis chances are tracked"){
         REQUIRE(lysis_chance_data_node.GetMean() < (expected_av + 0.0001));
@@ -122,13 +122,13 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld w(random);
-    w.Resize(4);
-    w.SetFreeLivingSyms(1);
+    LysisWorld world(random);
+    world.Resize(4);
+    world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
-    emp::DataMonitor<double,emp::data::Histogram>& induction_chance_data_node = w.GetInductionChanceDataNode();
+    emp::DataMonitor<double,emp::data::Histogram>& induction_chance_data_node = world.GetInductionChanceDataNode();
     REQUIRE(std::isnan(induction_chance_data_node.GetMean()));
     for(size_t i = 0; i < num_bins; i++){
       REQUIRE(induction_chance_data_node.GetHistCounts()[i] == 0);
@@ -146,19 +146,19 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
       expected_hist_counts[8] = 1;
       expected_hist_counts[9] = 1;
 
-      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
-      w.AddOrgAt(bacterium, 0);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
+      world.AddOrgAt(bacterium, 0);
       for(size_t i = 0; i < 3; i++){
-        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> free_phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         free_phage->SetInductionChance(free_phage_induction_chances[i]);
-        w.AddOrgAt(free_phage, emp::WorldPosition(0,i));
+        world.AddOrgAt(free_phage, emp::WorldPosition(0,i));
 
-        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> hosted_phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         hosted_phage->SetInductionChance(hosted_phage_induction_chances[i]);
         bacterium->AddSymbiont(hosted_phage);
       }
 
-      w.Update();
+      world.Update();
       //check they were tracked correctly
       THEN("their average induction chances are tracked"){
         REQUIRE(induction_chance_data_node.GetMean() < (expected_av + 0.0001));
@@ -179,14 +179,14 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
     SymConfigBase config;
     int int_val = 0;
     size_t burst_time = 3;
-    LysisWorld w(random);
-    w.Resize(4);
-    w.SetFreeLivingSyms(1);
+    LysisWorld world(random);
+    world.Resize(4);
+    world.SetFreeLivingSyms(1);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
 
-    emp::DataMonitor<double>& burst_size_data_node = w.GetBurstSizeDataNode();
+    emp::DataMonitor<double>& burst_size_data_node = world.GetBurstSizeDataNode();
     REQUIRE(std::isnan(burst_size_data_node.GetMean()));
 
     WHEN("bacteria lyse"){
@@ -194,17 +194,17 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
       double expected_av = 5.5;
       for(int i = 0; i < 4; i++){ // populate world with 4 bacteria
         //each of which has a different burst size
-        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
-        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         for(size_t j = 0; j < burst_sizes[i]; j++) {
           emp::Ptr<Organism> new_repro_phage = phage->Reproduce();
           bacterium->AddReproSym(new_repro_phage);
         }
         phage->SetBurstTimer(burst_time);
         bacterium->AddSymbiont(phage);
-        w.AddOrgAt(bacterium, i);
+        world.AddOrgAt(bacterium, i);
       }
-      w.Update();
+      world.Update();
 
       THEN("the average burst size is tracked"){
         REQUIRE(burst_size_data_node.GetMean() < (expected_av + 0.0001));
@@ -220,21 +220,21 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
     SymConfigBase config;
     int int_val = 0;
     size_t burst_time = 3;
-    LysisWorld w(random);
-    w.Resize(4);
-    w.SetFreeLivingSyms(1);
+    LysisWorld world(random);
+    world.Resize(4);
+    world.SetFreeLivingSyms(1);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
 
-    emp::DataMonitor<int>& burst_count_data_node = w.GetBurstCountDataNode();
+    emp::DataMonitor<int>& burst_count_data_node = world.GetBurstCountDataNode();
     REQUIRE(burst_count_data_node.GetTotal() == 0);
 
     WHEN("bacteria lyse"){
       int expected_total = 2;
       for(int i = 0; i < 4; i++){ // populate world with 4 bacteria
-        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
-        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         if(i < 2){ //ensure two of the bacteria will lyse
           phage->SetBurstTimer(burst_time);
         }
@@ -243,9 +243,9 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
         emp::Ptr<Organism> new_repro_phage = phage->Reproduce();
         bacterium->AddReproSym(new_repro_phage);
 
-        w.AddOrgAt(bacterium, i);
+        world.AddOrgAt(bacterium, i);
       }
-      w.Update();
+      world.Update();
 
       THEN("the burst count is tracked"){
         REQUIRE(burst_count_data_node.GetTotal() == expected_total);
@@ -261,10 +261,10 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
     config.SYM_LIMIT(4);
     int int_val = 0;
     size_t num_bins = 11;
-    LysisWorld w(random);
-    w.Resize(4);
+    LysisWorld world(random);
+    world.Resize(4);
 
-    emp::DataMonitor<double,emp::data::Histogram>& inc_dif_data_node = w.GetIncorporationDifferenceDataNode();
+    emp::DataMonitor<double,emp::data::Histogram>& inc_dif_data_node = world.GetIncorporationDifferenceDataNode();
     REQUIRE(std::isnan(inc_dif_data_node.GetMean()));
     for(size_t i = 0; i < num_bins; i++){
       REQUIRE(inc_dif_data_node.GetHistCounts()[i] == 0);
@@ -279,27 +279,27 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
 
     WHEN("hosted symbionts exist"){
       // no inc val difference
-      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
       bacterium->SetIncVal(0);
-      w.AddOrgAt(bacterium, 0);
+      world.AddOrgAt(bacterium, 0);
       for(size_t j = 0; j < 3; j++){
-        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         phage->SetIncVal(0);
         bacterium->AddSymbiont(phage);
       }
 
       // inc val differences of 0.36, 0.15, 0.15
       double sym_inc_vals[3] = {0.14, 0.35, 0.65};
-      bacterium = emp::NewPtr<Bacterium>(&random, &w, &config, int_val);
+      bacterium = emp::NewPtr<Bacterium>(&random, &world, &config, int_val);
       bacterium->SetIncVal(0.5);
-      w.AddOrgAt(bacterium, 1);
+      world.AddOrgAt(bacterium, 1);
       for(size_t j = 0; j < 3; j++){
-        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &w, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(&random, &world, &config, int_val);
         phage->SetIncVal(sym_inc_vals[j]);
         bacterium->AddSymbiont(phage);
       }
 
-      w.Update();
+      world.Update();
 
       THEN("the diffence in incorporation value between hosts and their symbionts is tracked"){
         REQUIRE(inc_dif_data_node.GetMean() < (expected_av + 0.0001));

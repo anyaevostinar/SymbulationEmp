@@ -391,8 +391,8 @@ TEST_CASE("phage_mutate", "[lysis]"){
 
 TEST_CASE("Phage process", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
+    LysisWorld world(*random);
+  //  LysisWorld * world = &w;
     SymConfigBase config;
 
     config.LYSIS(1); //phage process only happens when lysis is enabled
@@ -409,10 +409,10 @@ TEST_CASE("Phage process", "[lysis]"){
 
             double int_val = 0;
             emp::Ptr<Phage> phage;
-            phage.New(random, world, &config, int_val);
+            phage.New(random, &world, &config, int_val);
 
             emp::Ptr<Bacterium> bacterium;
-            bacterium.New(random, &w, &config, int_val);
+            bacterium.New(random, &world, &config, int_val);
 
             //verify that the phage chooses lysogeny first
             bool expected_lysogeny = true;
@@ -436,10 +436,10 @@ TEST_CASE("Phage process", "[lysis]"){
 
                 double int_val = 0;
                 emp::Ptr<Phage> phage;
-                phage.New(random, world, &config, int_val);
+                phage.New(random, &world, &config, int_val);
 
                 emp::Ptr<Bacterium> bacterium;
-                bacterium.New(random, &w, &config, int_val);
+                bacterium.New(random, &world, &config, int_val);
 
                 bacterium->AddSymbiont(phage);
 
@@ -457,8 +457,8 @@ TEST_CASE("Phage process", "[lysis]"){
                 config.PROPHAGE_LOSS_RATE(0);
                 double int_val = 0;
                 double expected_int_val = 0;
-                emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-                emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
+                emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, int_val);
+                emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
                 bacterium->AddSymbiont(phage);
 
                 double points = 0;
@@ -495,14 +495,14 @@ TEST_CASE("Phage process", "[lysis]"){
 
         WHEN("It is time to burst"){
             double int_val = 0;
-            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, int_val);
 
             //create two hosts and add both to world as neighbors
-            emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
-            emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
+            emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
+            emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
             orig_bacterium->AddSymbiont(phage);
-            world->AddOrgAt(orig_bacterium, 0);
-            world->AddOrgAt(new_bacterium, 1);
+            world.AddOrgAt(orig_bacterium, 0);
+            world.AddOrgAt(new_bacterium, 1);
 
             //add phage offspring to the original host's repro syms
             emp::Ptr<Organism> p_baby1 = phage->Reproduce();
@@ -523,8 +523,8 @@ TEST_CASE("Phage process", "[lysis]"){
 
         WHEN("It is not time to burst"){
             double int_val = 0;
-            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, int_val);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
             bacterium->AddSymbiont(phage);
 
             phage->SetBurstTimer(0.0);
@@ -666,11 +666,11 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
 
 TEST_CASE("Phage MakeNew", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    LysisWorld w(*random);
+    LysisWorld world(*random);
     SymConfigBase config;
 
     double phage_int_val = 0.2;
-    emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, &w, &config, phage_int_val);
+    emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, &world, &config, phage_int_val);
     emp::Ptr<Organism> new_phage = phage->MakeNew();
 
     THEN("The new phage has the same genome as its parent, but age and points 0"){

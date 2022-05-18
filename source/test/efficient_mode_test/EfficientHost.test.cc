@@ -44,12 +44,12 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
 
 TEST_CASE("EfficientHost MakeNew", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld w(*random);
+    EfficientWorld world(*random);
     SymConfigBase config;
 
     double parent_int_val = 0.2;
     double parent_efficiency = 0.5;
-    emp::Ptr<Organism> host1 = emp::NewPtr<EfficientHost>(random, &w, &config, parent_int_val);
+    emp::Ptr<Organism> host1 = emp::NewPtr<EfficientHost>(random, &world, &config, parent_int_val);
     host1->SetEfficiency(parent_efficiency);
     emp::Ptr<Organism> host2 = host1->MakeNew();
 

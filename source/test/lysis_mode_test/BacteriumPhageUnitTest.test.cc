@@ -22,7 +22,7 @@ TEST_CASE("Phage Process", "[lysis]") {
             phage2.New(random, world, &config, int_val);
 
             emp::Ptr<Bacterium> bacterium;
-            bacterium.New(random, &w, &config);
+            bacterium.New(random, world, &config);
 
             phage->SetHost(bacterium);
             int time = 15;
@@ -49,7 +49,7 @@ TEST_CASE("Phage Process", "[lysis]") {
 
         WHEN("Lysis is enabled and the Phage's burst timer < the burst time") {
             emp::Ptr<Bacterium> bacterium;
-            bacterium.New(random, &w, &config);
+            bacterium.New(random, world, &config);
 
             double phage_points = 10;
             emp::Ptr<Phage> phage3;
@@ -257,8 +257,8 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
     emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
 
     GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms"){
-        emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
-        emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
+        emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+        emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
         orig_bacterium->AddSymbiont(phage);
         world->AddOrgAt(orig_bacterium, 0);
         world->AddOrgAt(new_bacterium, 1);
@@ -294,7 +294,7 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
 
     double int_val = 0;
     emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-    emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &w, &config, int_val);
+    emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
     bacterium->AddSymbiont(phage);
 
     WHEN("The phage doesn't have enough resources to reproduce"){
