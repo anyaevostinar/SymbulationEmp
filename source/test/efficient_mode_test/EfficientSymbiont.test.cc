@@ -245,20 +245,20 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         emp::Ptr<Organism> sym_baby = symbiont->Reproduce("vertical");
 
 
-        THEN("Offspring'symbiont efficiency equals parent'symbiont efficiency") {
+        THEN("Offspring's efficiency equals parent's efficiency") {
             double sym_baby_efficiency = 0.5;
             REQUIRE( sym_baby->GetEfficiency() == sym_baby_efficiency);
             REQUIRE( sym_baby->GetEfficiency() == parent_orig_efficiency);
             REQUIRE( symbiont->GetEfficiency() == parent_orig_efficiency);
         }
 
-        THEN("Offspring'symbiont points are zero") {
+        THEN("Offspring's points are zero") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
 
-        THEN("Offspring'symbiont age is 0") {
+        THEN("Offspring's age is 0") {
             REQUIRE(sym_baby->GetAge() == 0);
         }
         symbiont.Delete();
@@ -278,19 +278,19 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         emp::Ptr<Organism> sym_baby = symbiont2->Reproduce("vertical");
 
 
-        THEN("Offspring'symbiont efficiency value does not equal parent'symbiont efficiency value") {
+        THEN("Offspring's efficiency value does not equal parent's efficiency value") {
             REQUIRE(sym_baby->GetEfficiency() != parent_orig_efficiency);
             REQUIRE(sym_baby->GetEfficiency() <= 1);
             REQUIRE(sym_baby->GetEfficiency() >= 0);
         }
 
-        THEN("Offspring'symbiont points are zero") {
+        THEN("Offspring's points are zero") {
             int sym_baby_points = 0;
             REQUIRE( sym_baby->GetPoints() == sym_baby_points);
 
         }
 
-        THEN("Offspring'symbiont age is 0") {
+        THEN("Offspring's age is 0") {
             REQUIRE(sym_baby->GetAge() == 0);
         }
         symbiont2.Delete();
@@ -378,7 +378,7 @@ TEST_CASE("EfficientSymbiont mutate with vertical transmission", "[efficient]") 
     }
 }
 
-TEST_CASE("EfficientSymbiont'symbiont Process called from Host when mutation rate and size are zero", "[efficient]") {
+TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and size are zero", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(25);
     random->GetUInt(0, 1); //issue with random number generator led to location 0 being picked for most random seeds on the first random number
     SymConfigBase config;
@@ -394,7 +394,7 @@ TEST_CASE("EfficientSymbiont'symbiont Process called from Host when mutation rat
     double efficiency = 0.9;
     double host_interaction_val = 1;
 
-    WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host'symbiont Process is called") {
+    WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
         emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
 
         emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);
@@ -424,7 +424,7 @@ TEST_CASE("EfficientSymbiont'symbiont Process called from Host when mutation rat
         }
     }
 
-    WHEN("The horizontal mutation rate and size are not zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host'symbiont Process is called") {
+    WHEN("The horizontal mutation rate and size are not zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
         config.HORIZ_MUTATION_SIZE(0.002);
         config.HORIZ_MUTATION_RATE(1.0);
         emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &w, &config, host_interaction_val);

@@ -431,7 +431,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       config.ECTOSYMBIOTIC_IMMUNITY(1);
       emp::Ptr<Host> host = emp::NewPtr<Host>(random, &w, &config, int_val);
       emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &w, &config, int_val);
-      
+
       w.AddOrgAt(host, host_pos);
       w.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
 
@@ -485,7 +485,7 @@ TEST_CASE("Host MakeNew", "[default]"){
     host2.Delete();
 }
 
-TEST_CASE("Host reproduce", "[default][efficient][lysis][pgg]"){
+TEST_CASE("Host reproduce", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymWorld w(*random);
     SymConfigBase config;

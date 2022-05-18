@@ -85,9 +85,6 @@ TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     emp::Ptr<PGGHost> host = emp::NewPtr<PGGHost>(random, &w, &config, host_int_val);
     host->AddSymbiont(symbiont);
 
-    //double piece = 40;
-    // double host_donation = 20; //sym_piece * host_int_val;
-    //double sym_portion = 0; //host_donation - (host_donation * sym_int_val);
     host->DistribResources(40);
 
     CHECK(symbiont->GetPoints() == 40.4);
@@ -106,7 +103,6 @@ TEST_CASE("PGGProcess", "[pgg]") {
     //add new test for free living sym not moving when it shouldnt
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
-        // double parent_orig_int_val = 1;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(140.0);
         config.HORIZ_TRANS(true);
@@ -130,7 +126,6 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     WHEN("Horizontal transmission is true and points is less than sym_h_res") {
         double int_val = 1;
-        // double parent_orig_int_val = 1;
         double points = 0.0;
         config.SYM_HORIZ_TRANS_RES(200.0);
         config.HORIZ_TRANS(true);
@@ -154,7 +149,6 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     WHEN("Horizontal transmission is false and points and points is greater then sym_h_res") {
         double int_val = 1;
-        // double parent_orig_int_val = 1;
         double points = 100.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
@@ -174,7 +168,6 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     WHEN("Horizontal transmission is false and points and points is less then sym_h_res") {
         double int_val = 1;
-        // double parent_orig_int_val = 1;
         double points = 40.0;
         config.SYM_HORIZ_TRANS_RES(80.0);
         config.HORIZ_TRANS(false);
@@ -212,9 +205,6 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
             emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
             host->AddSymbiont(symbiont);
 
-            // double resources = 100;
-            // double hostDonation = 20;
-            // double stolen = 48;
             double expected_sym_points = 68; // hostDonation + stolen
             double expected_return = 0; // hostportion * synergy
 
@@ -236,10 +226,6 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
                 emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(symbiont);
 
-                // double resources = 100;
-                // double hostDonation = 0;
-                // double stolen = 0;
-                // double hostDefense = 80;
                 double expected_sym_points = 0; // hostDonation + stolen
                 double expected_return = 0; // hostportion * synergy
 
@@ -257,10 +243,6 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
                 emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
                 host->AddSymbiont(symbiont);
 
-                // double resources = 100;
-                // double hostDonation = 0;
-                // double stolen = 5;
-                // double hostDefense = 50;
                 double expected_sym_points = 5; // hostDonation + stolen
                 double expected_return = 0; // hostportion * synergy
 
@@ -284,9 +266,6 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
         emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, sym_int_val);
         host->AddSymbiont(symbiont);
 
-        // double resources = 100;
-        // double hostDonation = 50;
-        // double hostPortion = 10; hostDonation * sym_int_val
         double expected_sym_points = 40; // hostDonation - hostPortion
         double expected_return = 50; // hostPortion * synergy
 

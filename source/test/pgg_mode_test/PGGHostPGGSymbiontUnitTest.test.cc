@@ -52,7 +52,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double sym_portion = host_donation - (host_donation * sym_int_val);
         host_portion += sym_return;
 
-        double host_points = num_syms * host_portion; // * by num_syms bc points are added during each iteration through host'symbiont syms
+        double host_points = num_syms * host_portion; // * by num_syms bc points are added during each iteration through host's syms
         double sym_points = sym_portion;
 
 
@@ -90,7 +90,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             double sym_piece = resources / num_syms; // how much resource each sym gets
             double host_defense = -1 * (host_int_val * sym_piece);
             double remaining_resources = sym_piece - host_defense;
-            double host_points = remaining_resources * num_syms; // * by num_syms bc points are added during each iteration through host'symbiont syms
+            double host_points = remaining_resources * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
             THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
                 for( emp::Ptr<Organism> symbiont : syms) {
@@ -126,7 +126,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             double remaining_resources = sym_piece - host_defense;
             double sym_steals = (host_int_val - sym_int_val) * remaining_resources;
             double sym_points = sym_steals;
-            double host_points = (remaining_resources - sym_steals) * num_syms; // * by num_syms bc points are added during each iteration through host'symbiont syms
+            double host_points = (remaining_resources - sym_steals) * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
             THEN("Symbionts points and Host points increase") {
                 for( emp::Ptr<Organism> symbiont : syms) {
@@ -156,7 +156,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         int host_portion = 90;  //remaining amount
         int sym_steals = 9; //host_portion * sym_int_val * -1; new code value should be 18
         int sym_portion = 19; //sym_steals + host_donation; new code value should be 28
-        host_portion = host_portion - sym_steals; //remove stolen resources from host'symbiont portion
+        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
 
         THEN("Symbionts points and Host points increase the correct amounts") {
             REQUIRE(symbiont->GetPoints() == sym_orig_points+sym_portion);
@@ -190,7 +190,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double host_portion = 36;  //remaining amount
         double sym_steals = 3.6; //host_portion * sym_int_val * -1
         double sym_portion = 7.6; //sym_steals + host_donation
-        host_portion = host_portion - sym_steals; //remove stolen resources from host'symbiont portion
+        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
 
         double host_final_portion = host_portion * num_syms;
 
@@ -235,7 +235,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         double sym_portion = 0;
 
         double sym_points = sym_portion;
-        double host_points = host_portion * num_syms; // * by num_syms bc points are added during each iteration through host'symbiont syms
+        double host_points = host_portion * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
         THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
             for( emp::Ptr<Organism> symbiont : syms) {

@@ -72,10 +72,10 @@ class Organism {
   //Symbiont functions
 
   virtual void Mutate() {
-    std::cout << "mutate called from Organism" << std::endl;
+    std::cout << "Mutate called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> Reproduce() {
-    std::cout << "reproduce called from Organism" << std::endl;
+    std::cout << "Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
@@ -122,10 +122,10 @@ class Organism {
     std::cout << "SetEfficiency called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual emp::Ptr<Organism> Reproduce(std::string mode) {
-    std::cout << "EfficientSymbiont's reproduce called from Organism" << std::endl;
+    std::cout << "EfficientSymbiont's Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void Mutate(std::string mode) {
-    std::cout << "EfficientSymbiont's mutate called from Organism" << std::endl;
+    std::cout << "EfficientSymbiont's Mutate called from Organism" << std::endl;
     throw "Organism method called!";}
 
   //Host functions
@@ -205,7 +205,7 @@ class Organism {
     std::cout << "SetInductionChance called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void UponInjection() {
-    std::cout << "chooseLysisOrLysogeny called from Organism" << std::endl;
+    std::cout << "UponInjection called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void LysisBurst(emp::WorldPosition location) {
     std::cout << "LysisBurst called from Organism" << std::endl;
