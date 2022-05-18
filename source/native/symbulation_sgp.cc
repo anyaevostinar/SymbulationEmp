@@ -66,6 +66,16 @@ int symbulation_main(int argc, char * argv[])
   }
 
   world.GetFullPop().back().DynamicCast<SGPHost>()->PrintCode();
+  int total = 0;
+  int contains = 0;
+  for (auto i : world.GetFullPop()) {
+    auto host = i.DynamicCast<SGPHost>();
+    if (host->containsReproduceInstruction()) {
+      contains++;
+    }
+    total++;
+  }
+  std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){

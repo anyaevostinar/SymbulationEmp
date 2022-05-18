@@ -11,6 +11,7 @@
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <cmath>
+#include <iostream>
 #include <string>
 
 class SGPHost;
@@ -27,7 +28,7 @@ struct PrintVal {
                   const sgpl::Program<Spec> &,
                   typename Spec::peripheral_t &peripheral);
 
-  static std::string name() { return "PrintVal"; }
+  static std::string name() { return "TryReproduce"; }
 
   static size_t prevalence() { return 1; }
 
@@ -62,27 +63,70 @@ public:
           std::set<int> _set = std::set<int>(), double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _set,
              _points),
-        program(100), peripheral{this} {
+        program(25), peripheral{this} {
     my_world = _world;
     cpu.InitializeAnchors(program);
   }
 
-  bool happened;
-  bool added;
+  bool passed;
+  bool encountered;
+  inline static int numPassed;
+  inline static int numEncountered;
+  inline static int totalRuns;
+  emp::WorldPosition lastPos;
 
   void Process(emp::WorldPosition pos) {
-    // run cpu step
+    // Run cpu step
+    lastPos = pos;
 
-    // generate random signals to launch available virtual cores
-    while (cpu.TryLaunchCore(emp::BitSet<64>(random)))
-      ;
+    // Generate random signals to launch available virtual cores
+    while (cpu.TryLaunchCore(emp::BitSet<64>(random))) {
+    }
 
-    // execute up to one thousand instructions
-    happened = false;
-    added = false;
+    // Execute up to 100 instructions
+    passed = false;
+    encountered = false;
     sgpl::execute_cpu<spec_t>(100, cpu, program, peripheral);
+    if (passed) {
+      numPassed++;
+    }
+    if (encountered) {
+      numEncountered++;
+    }
+    totalRuns++;
+    if ((totalRuns % 200000) == 0) {
+      std::cout
+        << "Found: "
+        << (int) (100 * ((double) numEncountered / (double) totalRuns))
+        << "%; passed: "
+        << (int) (100 * ((double) numPassed / (double) numEncountered))
+        << "%"
+        << std::endl;
+    }
 
-    Host::Process(pos);
+    // Instead of calling Host::Process, do the important stuff here
+    // Symbiotes are ignored for the time being
+    // Our instruction handles reproduction
+    if (GetDead()) {
+      return;
+    }
+    GrowOlder();
+  }
+
+  void maybeReproduce(float chance) {
+    if (random->P(chance)) {
+      auto p = reproduce();
+      my_world->DoBirth(p, lastPos.GetIndex());
+    }
+  }
+
+  bool containsReproduceInstruction() {
+    for (auto i : program) {
+      if (i.GetOpName() == PrintVal::name()) {
+        return true;
+      }
+    }
+    return false;
   }
 
   emp::Ptr<Organism> makeNew() {
@@ -102,15 +146,12 @@ public:
     for (auto i : program) {
       std::cout << i.GetOpName() << "(";
       for (auto a : i.args) {
-        std::cout << (int) a << " ";
+        std::cout << (int)a << " ";
       }
       std::cout << ")" << std::endl;
     }
   }
 };
-
-long h_total = 0;
-long h_got = 0;
 
 template <typename Spec>
 void PrintVal::run(sgpl::Core<Spec> &core, const sgpl::Instruction<Spec> &inst,
@@ -118,20 +159,11 @@ void PrintVal::run(sgpl::Core<Spec> &core, const sgpl::Instruction<Spec> &inst,
                    typename Spec::peripheral_t &peripheral) {
   float val = core.registers[inst.args[0]];
   float dist = abs(val);
-  if (dist < 1.0 && !peripheral.self->happened) {
-    peripheral.self->happened = true;
-    h_got++;
-    peripheral.self->AddPoints(-std::min(peripheral.self->GetPoints(), 5000.0));
-  } else {
-    peripheral.self->AddPoints(5000);
+  if (dist < 1.0 && !peripheral.self->passed) {
+    peripheral.self->passed = true;
+    peripheral.self->maybeReproduce(0.2 * (1.0 - dist));
   }
-  if (!peripheral.self->added) {
-    peripheral.self->added = true;
-    h_total++;
-    if ((h_total & 0b111111111111111) == 0) {
-      std::cout << "percent: " <<  ((double) h_got) /  ((double) h_total) << std::endl;
-    }
-  }
+  peripheral.self->encountered = true;
 }
 
 #endif
