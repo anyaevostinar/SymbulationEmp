@@ -26,7 +26,7 @@ python3 simple_repeat.py
 
 By default, this will run 5 replicates of each treatment specified in `simple_repeat.py` and use the random seeds 21-25 (inclusive). 
 You can specify the random seeds (and therefore also the number of replicates) using command line arguments, which are optional. 
-The first command line argument is the start of the range of seeds (exclusive), and the second command line argument is the end of the range of seeds (exclusive). 
+The first command line argument is the start of the range of seeds (inclusive), and the second command line argument is the end of the range of seeds (inclusive). 
 
 For example, the input
 ```shell
