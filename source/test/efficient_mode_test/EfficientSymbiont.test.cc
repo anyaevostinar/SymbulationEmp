@@ -412,10 +412,16 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             emp::Ptr<EfficientHost> new_infected = nullptr;
             if(host2->HasSym()) {
                 new_infected = host2;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
             } else if (host3->HasSym()) {
                 new_infected = host3;
+                REQUIRE(host2->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
             } else if(host4->HasSym()) {
                 new_infected = host4;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host2->HasSym() == false);
             }
             REQUIRE(new_infected != nullptr);
             REQUIRE(new_infected->HasSym());
@@ -444,10 +450,16 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             emp::Ptr<EfficientHost> new_infected = nullptr;
             if(host2->HasSym()) {
                 new_infected = host2;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
             } else if (host3->HasSym()) {
                 new_infected = host3;
+                REQUIRE(host2->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
             } else if(host4->HasSym()) {
                 new_infected = host4;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host2->HasSym() == false);
             }
             REQUIRE(new_infected != nullptr);
             REQUIRE(new_infected->HasSym());
@@ -494,4 +506,53 @@ TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
     REQUIRE(symbiont->GetEfficiency() == expected_efficieny);
 
     symbiont.Delete();
+}
+
+TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
+  double int_val = 0;
+  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  EfficientWorld world(*random);
+  SymConfigBase config;
+  int points_to_transmit = 100;
+
+  config.SYM_VERT_TRANS_RES(points_to_transmit);
+
+
+  emp::Ptr<Organism> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val);
+  emp::Ptr<Organism> host = emp::NewPtr<EfficientHost>(random, &world, &config, int_val);
+  REQUIRE(host->HasSym() == false);
+
+  WHEN("the world permits vertical transmission"){
+    world.SetVertTrans(1);
+
+    WHEN("the symbiont has enough points to transmit"){
+      symbiont->SetPoints(points_to_transmit);
+
+      THEN("the symbiont offspring is vertically transmitted to the host"){
+        symbiont->VerticalTransmission(host);
+        REQUIRE(host->HasSym() == true);
+      }
+    }
+
+    WHEN("the symbiont does not have enough points to transmit"){
+      symbiont->SetPoints(points_to_transmit - 1);
+
+      THEN("vertical transmission does not occur"){
+        symbiont->VerticalTransmission(host);
+        REQUIRE(host->HasSym() == false);
+      }
+    }
+  }
+
+  WHEN("the world does not permit vertical transmission"){
+    world.SetVertTrans(0);
+    symbiont->SetPoints(points_to_transmit);
+
+    THEN("vertical transmission does not occur"){
+      symbiont->VerticalTransmission(host);
+      REQUIRE(host->HasSym() == false);
+    }
+  }
+  host.Delete();
+  symbiont.Delete();
 }

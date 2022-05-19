@@ -425,7 +425,6 @@ TEST_CASE( "Update without free living symbionts", "[default]" ){
     world.Resize(world_size);
     int res_per_update = 10;
     config.RES_DISTRIBUTE(res_per_update);
-    int num_updates = 5;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
