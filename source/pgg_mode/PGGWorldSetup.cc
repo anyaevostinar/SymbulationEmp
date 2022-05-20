@@ -25,7 +25,7 @@ void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {
   if (my_config->GRID() == 0) {world->SetPopStruct_Mixed(false);}
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 // settings
-  world->SetVertTrans(my_config->VERTICAL_TRANSMISSION());
+
   world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
   world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
   world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());

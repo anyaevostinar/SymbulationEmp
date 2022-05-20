@@ -7,7 +7,7 @@ TEST_CASE("GetHostCountDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
 
     emp::DataMonitor<int>& host_count_node = world.GetHostCountDataNode();
@@ -35,7 +35,7 @@ TEST_CASE("GetSymCountDataNode", "[default]"){
     SymConfigBase config;
     int int_val = 0;
     int world_size = 4;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(world_size);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(2);
@@ -71,7 +71,7 @@ TEST_CASE("GetCountHostedSymsDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     config.SYM_LIMIT(4);
     world.Resize(4);
 
@@ -111,7 +111,7 @@ TEST_CASE("GetCountFreeSymsDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     config.SYM_LIMIT(4);
     world.Resize(4);
 
@@ -151,7 +151,7 @@ TEST_CASE("GetUninfectedHostsDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     config.SYM_LIMIT(4);
     world.Resize(10);
 
@@ -193,7 +193,7 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -245,7 +245,7 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -297,7 +297,7 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -345,7 +345,7 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -391,7 +391,7 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -450,7 +450,7 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);
@@ -507,7 +507,7 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);

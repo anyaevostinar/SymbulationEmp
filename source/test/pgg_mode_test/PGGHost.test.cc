@@ -5,7 +5,7 @@
 TEST_CASE("PGGHost constructor", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
     double int_val = -2;
@@ -44,7 +44,7 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
 TEST_CASE("PGGHost get pool", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld world(*random);
+    PGGWorld world(*random, &config);
     double pool = 1;
 
     emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, &world, &config);
@@ -63,7 +63,7 @@ TEST_CASE("PGGHost get pool", "[pgg]") {
 TEST_CASE("PGGHost DistributeResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld world(*random);
+    PGGWorld world(*random, &config);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
 
@@ -128,8 +128,8 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
 
 TEST_CASE("PGGHost MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld world(*random);
     SymConfigBase config;
+    PGGWorld world(*random, &config);
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> host1 = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);

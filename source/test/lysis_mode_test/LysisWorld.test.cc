@@ -10,7 +10,7 @@ TEST_CASE("Lysis mode Update()", "lysis"){
   int num_updates = 5;
   int burst_time = 2;
 
-  LysisWorld world(random);
+  LysisWorld world(random, &config);
   world.Resize(world_size);
   world.SetFreeLivingSyms(1);
   config.LYSIS(1);

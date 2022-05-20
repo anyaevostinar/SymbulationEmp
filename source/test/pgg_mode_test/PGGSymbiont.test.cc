@@ -5,7 +5,7 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
 
@@ -34,7 +34,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
@@ -74,7 +74,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
 TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld world(*random);
+    PGGWorld world(*random, &config);
     config.SYNERGY(5);
     config.PGG_SYNERGY(1.1);
     double host_int_val = 1;
@@ -97,7 +97,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld w(*random);
+    PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
     //add new test for free living sym not moving when it shouldnt
@@ -189,9 +189,9 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
 TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
+   SymConfigBase config;
+    PGGWorld w(*random, &config);
     PGGWorld * world = &w;
-    SymConfigBase config;
     config.SYNERGY(5);
 
 
@@ -282,8 +282,8 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
 
 TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld world(*random);
     SymConfigBase config;
+    PGGWorld world(*random, &config);
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, host_int_val);

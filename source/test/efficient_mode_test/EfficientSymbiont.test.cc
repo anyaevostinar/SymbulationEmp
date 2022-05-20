@@ -4,7 +4,7 @@
 TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     double int_val = -2;
@@ -44,7 +44,7 @@ TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
@@ -88,7 +88,7 @@ TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
 TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double points = 0;
@@ -136,7 +136,7 @@ TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
 TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(11);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     WHEN("Mutation rate is not zero, but interaction value mut rate is 0 and vertical transmission occurs") {
@@ -227,7 +227,7 @@ TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
 
@@ -303,7 +303,7 @@ TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
 TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -329,7 +329,7 @@ TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
 TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -355,7 +355,7 @@ TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]"
 TEST_CASE("EfficientSymbiont Mutate with vertical transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -384,7 +384,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     SymConfigBase config;
     config.SYM_HORIZ_TRANS_RES(10);
     config.EFFICIENT_SYM(1);
-    EfficientWorld world(*random);
+    EfficientWorld world(*random, &config);
     world.Resize(4);
     config.MUTATION_SIZE(0);
     config.MUTATION_RATE(0);
@@ -472,8 +472,8 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
 
 TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld world(*random);
     SymConfigBase config;
+    EfficientWorld world(*random, &config);
 
     double sym_int_val = 0.2;
     emp::Ptr<Organism> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
@@ -494,9 +494,9 @@ TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
 
 TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld w(*random);
-    EfficientWorld * world = &w;
     SymConfigBase config;
+    EfficientWorld w(*random, &config);
+    EfficientWorld * world = &w;
     double int_val = -1;
     emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
 
@@ -511,8 +511,8 @@ TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
 TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   double int_val = 0;
   emp::Ptr<emp::Random> random = new emp::Random(-1);
-  EfficientWorld world(*random);
   SymConfigBase config;
+  EfficientWorld world(*random, &config);
   int points_to_transmit = 100;
 
   config.SYM_VERT_TRANS_RES(points_to_transmit);
@@ -523,7 +523,7 @@ TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   REQUIRE(host->HasSym() == false);
 
   WHEN("the world permits vertical transmission"){
-    world.SetVertTrans(1);
+    config.VERTICAL_TRANSMISSION(1);
 
     WHEN("the symbiont has enough points to transmit"){
       symbiont->SetPoints(points_to_transmit);
@@ -545,7 +545,7 @@ TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   }
 
   WHEN("the world does not permit vertical transmission"){
-    world.SetVertTrans(0);
+    config.VERTICAL_TRANSMISSION(0);
     symbiont->SetPoints(points_to_transmit);
 
     THEN("vertical transmission does not occur"){

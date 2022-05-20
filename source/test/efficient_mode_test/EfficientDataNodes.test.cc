@@ -8,7 +8,7 @@ TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
     SymConfigBase config;
     int int_val = 0;
     double points = 10;
-    EfficientWorld world(random);
+    EfficientWorld world(random, &config);
     world.Resize(4);
     world.SetFreeLivingSyms(1);
     config.SYM_LIMIT(3);

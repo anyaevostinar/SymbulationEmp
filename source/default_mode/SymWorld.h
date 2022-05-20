@@ -9,6 +9,10 @@
 #include "../Organism.h"
 #include <set>
 #include <math.h>
+#include <set>
+#include <iomanip> // setprecision
+#include <sstream> // stringstream
+#include "../ConfigSetup.h"
 
 
 class SymWorld : public emp::World<Organism>{
@@ -19,24 +23,10 @@ protected:
 
   /**
     *
-    * Purpose: Represents the vertical transmission rate. This can be set with SetVertTrans()
-    *
-  */
-  double vertTrans = 0;
-
-  /**
-    *
     * Purpose: Represents the total resources in the world. This can be set with SetTotalRes()
     *
   */
   int total_res = -1;
-
-  /**
-    *
-    * Purpose: Represents if resources are limited or not. This can be set with SetLimitedRes()
-    *
-  */
-  bool limited_res = false;
 
   /**
     *
@@ -87,6 +77,12 @@ protected:
   */
   fun_calc_info_t calc_info_fun;
 
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigBase> my_config = NULL;
 
   /**
     *
@@ -125,11 +121,13 @@ public:
    *
    * Purpose: To construct an instance of SymWorld
    */
-  SymWorld(emp::Random & _random) : emp::World<Organism>(_random) {
+  SymWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
     fun_print_org = [](Organism & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
+    my_config = _config;
+    total_res = my_config->LIMITED_RES_TOTAL();
   }
 
 
@@ -167,16 +165,6 @@ public:
 
 
   /**
-   * Input: The double representing the vertical transmission rate
-   *
-   * Output: None
-   *
-   * Purpose: To set the vertical transmission rate
-   */
-  void SetVertTrans(double vt) {vertTrans = vt;}
-
-
-  /**
    * Input: The double representing the number of resources each host gets in each update.
    *
    * Output: None
@@ -184,16 +172,6 @@ public:
    * Purpose: To set the resources that each host gets per update.
    */
   void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
-
-
-  /**
-   * Input: To boolean representing if resources are limited or not.
-   *
-   * Output: None
-   *
-   * Purpose: To allow for resources to be limited or unlimited.
-   */
-  void SetLimitedRes(bool val) {limited_res = val;}
 
 
   /**
@@ -261,12 +239,7 @@ public:
    * is off, then the total resource value is of no consequence.
    */
   void SetTotalRes(int val) {
-    if(val<0){
-      SetLimitedRes(false);
-    } else {
-      SetLimitedRes(true);
-      total_res = val;
-    }
+    total_res = val;
   }
 
 
@@ -299,7 +272,7 @@ public:
    * Purpose: To determine if vertical transmission will occur
    */
   bool WillTransmit() {
-    bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
+    bool result = GetRandom().GetDouble(0.0, 1.0) < my_config->VERTICAL_TRANSMISSION();
     return result;
   }
 
@@ -378,7 +351,7 @@ public:
    * Purpose: To determine how many resources to distribute to each organism.
    */
   int PullResources(int desired_resources) {
-    if(!limited_res) {
+    if(total_res == -1) { //if LIMITED_RES_TOTAL == -1, unlimited
       return desired_resources;
     } else {
       if (total_res>=desired_resources) {
