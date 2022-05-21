@@ -20,48 +20,12 @@ protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
   using fun_calc_info_t = std::function<int(Organism &)>;
 
-
   /**
     *
     * Purpose: Represents the total resources in the world. This can be set with SetTotalRes()
     *
   */
   int total_res = -1;
-
-  /**
-    *
-    * Purpose: Represents if free living symbionts are allowed. This can be set with SetFreeLivingSyms()
-    *
-  */
-  bool do_free_living_syms = false;
-
-  /**
-    *
-    * Purpose: Represents how many resources each host gets per update. This can be set with SetResPerUpdate()
-    *
-  */
-  double resources_per_host_per_update = 0;
-
-  /**
-    *
-    * Purpose: Represents if free living symbionts are permitted to move around the world.
-    *
-  */
-  bool move_free_syms = false;
-
-  /**
-    *
-    * Purpose: Represents if phylogeneis should be tracked. This can be set with SetTrackPhylogeny()
-    *
-  */
-  bool track_phylogeny = false;
-
-  /**
-    *
-    * Purpose: Represents how many bins to place organisms into when tracking phylogenies.
-    *
-  */
-  size_t num_phylo_bins;
 
   /**
     *
@@ -109,7 +73,6 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -128,6 +91,16 @@ public:
     };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
+    if (my_config->PHYLOGENY() == true){
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+
+      AddSystematics(host_sys);
+      sym_sys->SetStorePosition(false);
+
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+    }
   }
 
 
@@ -158,90 +131,11 @@ public:
       }
     }
 
-    if(track_phylogeny){ //host systematic deletion is handled by empirical world destructor
+    if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
       sym_sys.Delete();
     }
   }
-
-
-  /**
-   * Input: The double representing the number of resources each host gets in each update.
-   *
-   * Output: None
-   *
-   * Purpose: To set the resources that each host gets per update.
-   */
-  void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
-
-
-  /**
-   * Input: The boolean representing if symbionts are allowed to be free living.
-   *
-   * Output: None
-   *
-   * Purpose: To allow for free-living symbionts
-   */
-  void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
-
-
-  /**
-   * Input: The bool representing if free living symbionts are
-   * permitted to move around in the world.
-   *
-   * Output: None
-   *
-   * Purpose: To set the value representing if FLS are
-   * permitted to move around.
-   */
-  void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
-
-  /**
-   * Input: The size_t number of bins that organisms should be
-   * placed into when phylogeny tracking is on.
-   *
-   * Output: None
-   *
-   * Purpose: To set the number of bins used by phylogenies.
-   */
-  void SetNumPhyloBins(size_t _in) {num_phylo_bins = _in;}
-
-
-
-  /**
-   * Input: The bool representing whether phylogenies should be tracked.
-   *
-   * Output: None
-   *
-   * Purpose: To set the value representing whether phylogenies
-   * should be tracked.
-   */
-  void SetTrackPhylogeny(bool _in) {
-    track_phylogeny = _in;
-    if (track_phylogeny == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
-
-      AddSystematics(host_sys);
-      sym_sys->SetStorePosition(false);
-
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-    }
-  }
-
-
-  /**
-   * Input: The int representing the total number of resources for the world.
-   *
-   * Output: None
-   *
-   * Purpose: To set the total number of resources in the world. If limited resources
-   * is off, then the total resource value is of no consequence.
-   */
-  void SetTotalRes(int val) {
-    total_res = val;
-  }
-
+  
 
   /**
    * Input: None
@@ -312,6 +206,7 @@ public:
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
       calc_info_fun = [&](Organism & org){
+        size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
         //classify orgs into bins base on interaction values,
         //inclusive of lower bound, exclusive of upper
         float size_of_bin = 2.0 / num_phylo_bins;
@@ -497,8 +392,8 @@ public:
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
-    if (track_phylogeny) AddSymToSystematic(new_sym);
-    if(!do_free_living_syms){
+    if (my_config->PHYLOGENY()) AddSymToSystematic(new_sym);
+    if(my_config->FREE_LIVING_SYMS() == 0){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
@@ -570,7 +465,7 @@ public:
    */
   void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
-    if(!do_free_living_syms){
+    if(my_config->FREE_LIVING_SYMS() == 0){
       int new_pos = GetNeighborHost(i);
       if (new_pos > -1) { //-1 means no living neighbors
         pop[new_pos]->AddSymbiont(sym_baby);
@@ -598,7 +493,7 @@ public:
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies
       else pop[i]->AddSymbiont(sym);
     }
-    else if(move_free_syms) {
+    else if(my_config->MOVE_FREE_SYMS()) {
       MoveIntoNewFreeWorldPos(ExtractSym(i), pos);
     }
   }
@@ -662,7 +557,7 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
-    if(track_phylogeny) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+    if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell

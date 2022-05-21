@@ -26,12 +26,6 @@ void worldSetup(emp::Ptr<LysisWorld> world, emp::Ptr<SymConfigBase> my_config) {
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 // settings
 
-  world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
-  world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
-  world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
-  world->SetTrackPhylogeny(my_config->PHYLOGENY());
-  world->SetNumPhyloBins(my_config->NUM_PHYLO_BINS());
-  world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
   const bool STAGGER_STARTING_BURST_TIMERS = true;
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;

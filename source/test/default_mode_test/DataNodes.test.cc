@@ -37,7 +37,9 @@ TEST_CASE("GetSymCountDataNode", "[default]"){
     int world_size = 4;
     SymWorld world(random, &config);
     world.Resize(world_size);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(2);
 
     emp::DataMonitor<int>& sym_count_node = world.GetSymCountDataNode();
@@ -195,7 +197,9 @@ TEST_CASE("GetSymIntValDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 21;
 
@@ -247,7 +251,9 @@ TEST_CASE("GetFreeSymIntValDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 21;
 
@@ -299,7 +305,9 @@ TEST_CASE("GetHostedSymIntValDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 21;
 
@@ -347,7 +355,9 @@ TEST_CASE("GetHostIntValDataNode", "[default]"){
     SymConfigBase config;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 21;
 
@@ -393,7 +403,9 @@ TEST_CASE("GetSymInfectChanceDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -452,7 +464,9 @@ TEST_CASE("GetFreeSymInfectChanceDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -509,7 +523,9 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
     int int_val = 0;
     SymWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 

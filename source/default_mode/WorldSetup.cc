@@ -6,14 +6,6 @@
 #include "Host.h"
 #include "Symbiont.h"
 
-void setWorldConfigValues(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config){
-  world->SetTotalRes(my_config->LIMITED_RES_TOTAL());
-  world->SetFreeLivingSyms(my_config->FREE_LIVING_SYMS());
-  world->SetMoveFreeSyms(my_config->MOVE_FREE_SYMS());
-  world->SetTrackPhylogeny(my_config->PHYLOGENY());
-  world->SetNumPhyloBins(my_config->NUM_PHYLO_BINS());
-  world->SetResPerUpdate(my_config->RES_DISTRIBUTE());
-}
 
 void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
 // params
@@ -34,8 +26,6 @@ void worldSetup(emp::Ptr<SymWorld> world, emp::Ptr<SymConfigBase> my_config) {
   if (my_config->GRID() == 0) {world->SetPopStruct_Mixed(false);}
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 
-  setWorldConfigValues(world, my_config);
-// settings
 
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;

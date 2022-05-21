@@ -12,7 +12,7 @@ TEST_CASE("Lysis mode Update()", "lysis"){
 
   LysisWorld world(random, &config);
   world.Resize(world_size);
-  world.SetFreeLivingSyms(1);
+  
   config.LYSIS(1);
   config.LYSIS_CHANCE(1);
   config.RES_DISTRIBUTE(res_per_update);

@@ -14,7 +14,6 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
     config.HORIZ_TRANS(true);
     config.HOST_REPRO_RES(400);
     config.RES_DISTRIBUTE(100);
-    world.SetResPerUpdate(100);
     config.SYNERGY(5);
     config.PGG(1);
 

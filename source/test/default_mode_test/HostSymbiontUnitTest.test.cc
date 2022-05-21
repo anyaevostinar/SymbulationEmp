@@ -463,9 +463,9 @@ TEST_CASE("HandleEctosymbiosis"){
   SymConfigBase config;
   SymWorld world(random, &config);
   world.Resize(1,1);
-  double int_val = 0.5;
-  world.SetMoveFreeSyms(0);
-  world.SetFreeLivingSyms(1);
+  double int_val = 0.5;\
+
+  config.FREE_LIVING_SYMS(1);
   config.SYM_INFECTION_CHANCE(0.0);
 
   WHEN("Ectosymbiosis is off"){

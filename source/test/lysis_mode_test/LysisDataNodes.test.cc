@@ -68,7 +68,9 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
     int int_val = 0;
     LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -124,7 +126,9 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
     int int_val = 0;
     LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -181,7 +185,9 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
     size_t burst_time = 3;
     LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
@@ -222,7 +228,9 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
     size_t burst_time = 3;
     LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
