@@ -1170,3 +1170,54 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     }
   }
 }
+
+TEST_CASE( "No mutation updates", "[default] "){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymWorld world(random);
+    SymConfigBase config;
+    double int_val = 0.4;
+    int world_size = 100;
+    world.Resize(world_size);
+
+    config.MUTATION_SIZE(1);
+    config.MUTATION_RATE(1);
+
+    emp::Ptr<Organism> symbiont = new Symbiont(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = new Host(&random, &world, &config, int_val);
+
+    emp::Ptr<Organism> mut_sym_baby = symbiont->reproduce();
+    emp::Ptr<Organism> mut_host_baby = host->reproduce();
+
+    REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
+    REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
+
+    REQUIRE(config.MUTATION_RATE() == 1);
+
+    config.MUTATION_RATE(0);
+    config.MUTATION_SIZE(0);
+    config.HOST_MUTATION_SIZE(0);
+    config.HOST_MUTATION_RATE(0);
+    config.MUTATE_LYSIS_CHANCE(0);
+    config.MUTATE_INDUCTION_CHANCE(0);
+    config.MUTATE_INC_VAL(0);
+
+    REQUIRE(config.MUTATION_RATE() == 0);
+    REQUIRE(config.MUTATION_SIZE() == 0);
+    REQUIRE(config.HOST_MUTATION_SIZE() == 0);
+    REQUIRE(config.HOST_MUTATION_RATE() == 0);
+    REQUIRE(config.MUTATE_LYSIS_CHANCE() == 0);
+    REQUIRE(config.MUTATE_INDUCTION_CHANCE() == 0);
+    REQUIRE(config.MUTATE_INC_VAL() == 0);
+
+    //REQUIRE(symbiont->GetSymConfigMutRate() == 0);
+
+    emp::Ptr<Organism> no_mut_sym_baby = symbiont->reproduce();
+    emp::Ptr<Organism> no_mut_host_baby = host->reproduce();
+
+    REQUIRE(no_mut_sym_baby->GetIntVal() < int_val + 0.00001);
+    REQUIRE(no_mut_sym_baby->GetIntVal() > int_val - 0.00001);
+    REQUIRE(no_mut_host_baby->GetIntVal() < int_val + 0.00001);
+    REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
+  }
+}

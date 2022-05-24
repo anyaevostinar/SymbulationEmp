@@ -8,7 +8,6 @@
 #include "../default_mode/DataNodes.h"
 
 // This is the main function for the NATIVE version of this project.
-
 int symbulation_main(int argc, char * argv[])
 {
   SymConfigBase config;
@@ -51,12 +50,29 @@ int symbulation_main(int argc, char * argv[])
   }
 
   worldSetup(&world, &config);
-  int numupdates = config.UPDATES();
 
   //Loop through updates
+  int numupdates = config.UPDATES();
   for (int i = 0; i < numupdates; i++) {
     if((i%TIMING_REPEAT)==0) {
       std::cout <<"Update: "<< i << std::endl;
+      std::cout.flush();
+    }
+    world.Update();
+  }
+
+  config.MUTATION_RATE(0);
+  config.MUTATION_SIZE(0);
+  config.HOST_MUTATION_SIZE(0);
+  config.HOST_MUTATION_RATE(0);
+  config.MUTATE_LYSIS_CHANCE(0);
+  config.MUTATE_INDUCTION_CHANCE(0);
+  config.MUTATE_INC_VAL(0);
+
+  int num_no_mut_updates = config.NO_MUT_UPDATES();
+  for (int i = 0; i < num_no_mut_updates; i++) {
+    if((i%TIMING_REPEAT)==0) {
+      std::cout <<"No mutation update: "<< i << std::endl;
       std::cout.flush();
     }
     world.Update();
