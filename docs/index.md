@@ -5,7 +5,8 @@
 :Authors: Anya Vostinar and contributors. 
 :GitHub: https://github.com/anyaevostinar/SymbulationEmp
 ```
-
+```{include} ../README.md
+```
 This is a software model of symbiosis which allows for evolution of
 parasitism and mutualism.
 
