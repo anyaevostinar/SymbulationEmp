@@ -98,7 +98,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> makeNew(){
+  emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
     host_baby->SetIncVal(GetIncVal());
     return host_baby;
@@ -113,8 +113,8 @@ public:
    * chosen from a normal distribution centered at 0, with a standard deviation that
    * is equal to the mutation size. Bacterium mutation can be turned on or off.
    */
-  void mutate() {
-    Host::mutate();
+  void Mutate() {
+    Host::Mutate();
 
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
 

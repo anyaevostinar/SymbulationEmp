@@ -48,7 +48,7 @@ int symbulation_main(int argc, char * argv[])
     world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
 
-  worldSetup(&world, &config);
+  efficientWorldSetup(&world, &config);
   int numupdates = config.UPDATES();
 
   //Loop through updates

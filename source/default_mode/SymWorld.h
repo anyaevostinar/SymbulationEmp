@@ -87,6 +87,7 @@ protected:
   */
   fun_calc_info_t calc_info_fun;
 
+
   /**
     *
     * Purpose: Represents the systematics object tracking hosts.
@@ -137,7 +138,7 @@ public:
    *
    * Output: None
    *
-   * Purpose: To destruct the data nodes belonging to SymWorld to conserve memory.
+   * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
@@ -152,6 +153,16 @@ public:
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
+
+    for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
+      if(sym_pop[i]) {
+        DoSymDeath(i);
+      }
+    }
+
+    if(track_phylogeny){ //host systematic deletion is handled by empirical world destructor
+      sym_sys.Delete();
+    }
   }
 
 
@@ -444,8 +455,11 @@ public:
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
-      if(!sym_pop[pos_id]) ++num_orgs;
-      else sym_pop[pos_id].Delete();
+      if(!sym_pop[pos_id]) {
+        ++num_orgs;
+      } else {
+        sym_pop[pos_id].Delete();
+      }
 
       //set the cell to point to the new sym
       sym_pop[pos_id] = new_org;
@@ -635,9 +649,9 @@ public:
    * Input: The size_t representing the location of the symbiont to be
    * extracted from the world.
    *
-   * Output: The pointer to the organism that was removed from the world
+   * Output: The pointer to the organism that was extracted from the world.
    *
-   * Purpose: To remove a symbiont from the world
+   * Purpose: To extract a symbiont from the world without deleting it.
    */
   emp::Ptr<Organism> ExtractSym(size_t i){
     emp::Ptr<Organism> sym;

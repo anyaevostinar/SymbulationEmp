@@ -135,7 +135,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> makeNew(){
+  emp::Ptr<Organism> MakeNew(){
     emp::Ptr<PGGHost> host_baby = emp::NewPtr<PGGHost>(random, my_world, my_config, GetIntVal());
     return host_baby;
   }
