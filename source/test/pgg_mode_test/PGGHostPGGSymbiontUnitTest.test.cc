@@ -5,7 +5,7 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    PGGWorld world(*random);
+    PGGWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Organism> host = emp::NewPtr<PGGHost>(random, &world, &config);
@@ -21,8 +21,8 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
 TEST_CASE("PGGHost DistribResources", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld world(*random);
     SymConfigBase config;
+    PGGWorld world(*random, &config);
     config.SYM_LIMIT(6);
     config.SYNERGY(5);
 
@@ -252,13 +252,13 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
 
 TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
-    PGGWorld * world = &w;
     SymConfigBase config;
+    PGGWorld w(*random, &config);
+    PGGWorld * world = &w;
 
 
     WHEN("When vertical transmission is enabled"){
-        world->SetVertTrans(1);
+        config.VERTICAL_TRANSMISSION(1);
         double host_int_val = .5;
         double sym_int_val = -.5;
 
@@ -277,7 +277,7 @@ TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
         symbiont.Delete();
     }
     WHEN("When vertical transmission is disabled"){
-        world->SetVertTrans(0);
+        config.VERTICAL_TRANSMISSION(0);
         double host_int_val = .5;
         double sym_int_val = -.5;
 
@@ -300,8 +300,8 @@ TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
 
 TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld world(*random);
     SymConfigBase config;
+    PGGWorld world(*random, &config);
     config.SYM_LIMIT(3);
     config.SYNERGY(5);
     config.PGG_SYNERGY(1.1);
@@ -337,9 +337,9 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
 
 TEST_CASE("PGGSym Dead and Removal", "[pgg]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    PGGWorld w(*random);
-    PGGWorld * world = &w;
     SymConfigBase config;
+    PGGWorld w(*random, &config);
+    PGGWorld * world = &w;
     config.SYM_LIMIT(2);
 
 

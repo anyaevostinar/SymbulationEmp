@@ -5,7 +5,7 @@ TEST_CASE("Symbiont Constructor", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -2;
@@ -42,7 +42,7 @@ TEST_CASE("SetIntVal, GetIntVal", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -1;
@@ -85,7 +85,7 @@ TEST_CASE("SetInfectionChance, GetInfectionChance", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -1;
@@ -112,7 +112,7 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -1;
@@ -142,7 +142,7 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
 TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -1;
@@ -163,7 +163,7 @@ TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
 TEST_CASE("WantsToInfect", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
     double int_val = 0;
 
@@ -199,7 +199,7 @@ TEST_CASE("WantsToInfect", "[default]"){
 TEST_CASE("InfectionFails", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
     double int_val = 0;
 
@@ -261,7 +261,7 @@ TEST_CASE("mutate", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(37);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
@@ -327,7 +327,7 @@ TEST_CASE("reproduce", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
 
@@ -427,7 +427,7 @@ TEST_CASE("Process", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     //add new test for free living sym not moving when it shouldnt
@@ -525,10 +525,10 @@ TEST_CASE("Process", "[default]") {
 }
 
 TEST_CASE("Symbiont ProcessResources", "[default]"){
-   emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
+    SymWorld w(*random, &config);
+    SymWorld * world = &w;
     config.SYNERGY(5);
 
 
@@ -623,9 +623,9 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
 TEST_CASE("Symbiont GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
-    world.Resize(2,2);
     SymConfigBase config;
+    SymWorld world(*random, &config);
+    world.Resize(2,2);
     config.SYM_AGE_MAX(2);
 
     WHEN ("A free-living symbiont reaches its maximum age"){
@@ -666,8 +666,8 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
 
 TEST_CASE("Symbiont MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
 
     double sym_int_val = 0.2;
     emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);

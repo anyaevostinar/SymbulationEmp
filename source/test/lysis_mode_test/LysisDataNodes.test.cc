@@ -8,7 +8,7 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     config.SYM_LIMIT(4);
     world.Resize(10);
 
@@ -66,9 +66,11 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -122,9 +124,11 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
@@ -179,9 +183,11 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
     SymConfigBase config;
     int int_val = 0;
     size_t burst_time = 3;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
@@ -220,9 +226,11 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
     SymConfigBase config;
     int int_val = 0;
     size_t burst_time = 3;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.LYSIS(1);
     config.LYSIS_CHANCE(1);
     config.BURST_TIME(burst_time);
@@ -261,7 +269,7 @@ TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
     config.SYM_LIMIT(4);
     int int_val = 0;
     size_t num_bins = 11;
-    LysisWorld world(random);
+    LysisWorld world(random, &config);
     world.Resize(4);
 
     emp::DataMonitor<double,emp::data::Histogram>& inc_dif_data_node = world.GetIncorporationDifferenceDataNode();

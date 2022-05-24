@@ -28,7 +28,7 @@ void efficientWorldSetup(emp::Ptr<EfficientWorld> world, emp::Ptr<SymConfigBase>
   if (my_config->GRID() == 0) {world->SetPopStruct_Mixed(false);}
   else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 // settings
-  setWorldConfigValues(world, my_config);
+
   double comp_host_1 = 0;
   double comp_host_2 = 0.95;
 

@@ -8,11 +8,12 @@
 TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
     emp::Random random(19);
-    SymWorld world(random);
+    SymConfigBase config;
+    SymWorld world(random, &config);
     int full_share = 100;
 
     WHEN(" the resources are unlimited ") {
-      world.SetLimitedRes(false);
+      config.LIMITED_RES_TOTAL(-1);
 
       THEN(" organisms get as many resources as they request ") {
         REQUIRE(world.PullResources(full_share) == full_share);
@@ -20,9 +21,9 @@ TEST_CASE("PullResources", "[default]") {
     }
 
     WHEN( " the resources are limited ") {
-      world.SetLimitedRes(true);
       int original_total = 150;
-      world.SetTotalRes(original_total);
+      config.LIMITED_RES_TOTAL(original_total);
+      SymWorld world(random, &config);
 
       THEN(" first organism gets full share of resources, next host gets a bit, everyone else gets nothing ") {
         REQUIRE(world.PullResources(full_share) == full_share);
@@ -37,10 +38,11 @@ TEST_CASE("PullResources", "[default]") {
 TEST_CASE( "Vertical Transmission", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymWorld world(random);
+    SymConfigBase config;
+    SymWorld world(random, &config);
 
     WHEN( "the vertical taransmission rate is 0" ) {
-      world.SetVertTrans(0);
+      config.VERTICAL_TRANSMISSION(0);
 
       THEN( "there is never vertical transmission" ) {
         REQUIRE( world.WillTransmit() == false );
@@ -52,7 +54,7 @@ TEST_CASE( "Vertical Transmission", "[default]" ) {
     }
 
     WHEN( "the vertical taransmission rate is 1" ) {
-      world.SetVertTrans(1);
+      config.VERTICAL_TRANSMISSION(1);
 
       THEN( "there is always vertical transmission" ) {
         REQUIRE( world.WillTransmit() == true );
@@ -64,7 +66,7 @@ TEST_CASE( "Vertical Transmission", "[default]" ) {
     }
 
     WHEN( "the vertical taransmission rate is .5" ) {
-      world.SetVertTrans(.5);
+      config.VERTICAL_TRANSMISSION(.5);
 
       THEN( "there is sometimes vertical transmission" ) {
         bool yes = false;
@@ -85,7 +87,8 @@ TEST_CASE( "World Capacity", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random);
+
+    SymWorld world(random, &config);
 
     WHEN( "hosts are added" ) {
 
@@ -110,15 +113,14 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
   GIVEN( "a world without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     config.VERTICAL_TRANSMISSION(0);
-    world.SetVertTrans(0);
+    config.VERTICAL_TRANSMISSION(0);
     config.MUTATION_SIZE(0);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
     config.HOST_REPRO_RES(400);
     config.RES_DISTRIBUTE(100);
-    world.SetResPerUpdate(100);
     config.SYNERGY(5);
 
     WHEN( "hostile hosts meet generous symbionts" ) {
@@ -154,11 +156,11 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
 
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.SetPopStruct_Mixed();
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);
-    world.SetVertTrans(0.7);
+    config.VERTICAL_TRANSMISSION(0.7);
     config.MUTATION_SIZE(0.002);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
@@ -200,7 +202,7 @@ TEST_CASE( "Hosts injected correctly", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random);
+    SymWorld world(random, &config);
 
     WHEN( "host added with interaction value 1" ) {
       //inject organism
@@ -240,13 +242,12 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
 
     WHEN( "free living syms are not allowed" ){
       world.Resize(world_size);
       config.FREE_LIVING_SYMS(0);
-      world.SetFreeLivingSyms(false);
 
       emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       world.AddOrgAt(host, 0);
@@ -264,7 +265,6 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
       world_size = 1000;
       world.Resize(world_size);
       config.FREE_LIVING_SYMS(1);
-      world.SetFreeLivingSyms(true);
 
 
       THEN( "syms can be injected into a random empty cell" ){
@@ -290,10 +290,10 @@ TEST_CASE( "DoBirth", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
-    world.SetFreeLivingSyms(true);
+    config.FREE_LIVING_SYMS(1);
     emp::Ptr<Organism> h2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
     world.AddOrgAt(h2, 3);
     emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -343,13 +343,12 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     size_t world_size = 4;
     world.Resize(world_size);
 
     WHEN( "free living symbionts are not allowed" ) {
       config.FREE_LIVING_SYMS(0);
-      world.SetFreeLivingSyms(false);
 
       WHEN( "there is a valid neighbouring host" ){
         emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -381,7 +380,6 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
     WHEN( "free living symbionts are allowed"){
       config.FREE_LIVING_SYMS(1);
-      world.SetFreeLivingSyms(true);
 
       THEN("it might be inserted into an empty cell"){
         world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0, 1));
@@ -420,7 +418,7 @@ TEST_CASE( "Update without free living symbionts", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
     int res_per_update = 10;
@@ -454,7 +452,7 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
     int res_per_update = 10;
@@ -468,7 +466,7 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
     config.FREE_SYM_RES_DISTRIBUTE(res_per_update);
     world_size = 16;
     world.Resize(world_size);
-    world.SetFreeLivingSyms(1);
+
     config.FREE_LIVING_SYMS(1);
     config.MOVE_FREE_SYMS(1);
 
@@ -545,8 +543,8 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
   GIVEN("free living syms are allowed"){
     emp::Random random(14);
     SymConfigBase config;
-    SymWorld world(random);
-    world.SetFreeLivingSyms(true);
+    SymWorld world(random, &config);
+    config.FREE_LIVING_SYMS(1);
     int int_val = 0;
     int world_size = 4;
     world.Resize(world_size);
@@ -584,7 +582,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
     WHEN("the sym does not want to/can't infect a parallel host"){
       size_t sym_id = 0;
       WHEN("moving is turned on"){
-        world.SetMoveFreeSyms(1);
+        config.MOVE_FREE_SYMS(1);
         sym->SetInfectionChance(0);
         THEN("the sym moves to a random spot in the free world"){
           REQUIRE(world.GetSymPop()[sym_id] == sym); //there should be a sym at pos 0
@@ -597,7 +595,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
         }
       }
       WHEN("moving is turned off"){
-        world.SetMoveFreeSyms(0);
+        config.MOVE_FREE_SYMS(0);
         THEN("the sym doesn't move"){
           REQUIRE(world.GetSymPop()[sym_id] == sym);
           world.MoveFreeSym(sym_pos);
@@ -614,7 +612,7 @@ TEST_CASE( "ExtractSym", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
     size_t sym_index = 1;
@@ -639,7 +637,7 @@ TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
 
@@ -670,8 +668,9 @@ TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ){
 
 TEST_CASE( "Resize", "[default]" ){
   GIVEN("a world"){
+    SymConfigBase config;
     emp::Random random(17);
-    SymWorld world(random);
+    SymWorld world(random, &config);
 
     size_t pop_size = world.GetPop().size();
     size_t sym_pop_size = world.GetSymPop().size();
@@ -702,7 +701,7 @@ TEST_CASE( "AddOrgAt", "[default]" ){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
     emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
@@ -745,7 +744,7 @@ TEST_CASE( "GetSymAt", "[default]" ){
     SymConfigBase config;
     int int_val = 0;
     int world_size = 4;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     world.Resize(world_size);
 
 
@@ -772,7 +771,7 @@ TEST_CASE( "DoSymDeath", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
     emp::Ptr<Organism> s = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
@@ -803,12 +802,11 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   config.MUTATION_SIZE(0.09);
   config.MUTATION_RATE(1);
   config.PHYLOGENY(1);
+  config.NUM_PHYLO_BINS(20);
   int int_val = 0;
-  SymWorld world(random);
+  SymWorld world(random, &config);
   int world_size = 4;
   world.Resize(world_size);
-  world.SetTrackPhylogeny(1);
-  world.SetNumPhyloBins(20);
 
 
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -857,8 +855,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       }
     }
 
-    WHEN("there are 19 taxonomic bins"){
-      world.SetNumPhyloBins(20);
+    WHEN("there are 20 taxonomic bins"){
 
       size_t count = 7;
       size_t pos = 0;
@@ -877,7 +874,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
     }
 
     WHEN("there are 2 taxonomic bins"){
-      world.SetNumPhyloBins(2);
+      config.NUM_PHYLO_BINS(2);
 
       size_t count = 3;
       size_t pos = 0;
@@ -938,13 +935,11 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   config.MUTATION_RATE(1);
   config.FREE_LIVING_SYMS(1);
   config.PHYLOGENY(1);
+  config.NUM_PHYLO_BINS(20);
   int int_val = 0;
-  SymWorld world(random);
+  SymWorld world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
-  world.SetTrackPhylogeny(1);
-  world.SetFreeLivingSyms(1);
-  world.SetNumPhyloBins(20);
 
   emp::Ptr<emp::Systematics<Organism,int>> sym_sys = world.GetSymSys();
 

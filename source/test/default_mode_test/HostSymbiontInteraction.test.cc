@@ -8,7 +8,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
   GIVEN( "an empty somewhat generous host without resource type and with 17 points" ) {
     emp::Random random;
-    SymWorld world(random);
+    SymWorld world(random, &config);
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
@@ -138,7 +138,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
   GIVEN( "an empty slightly defensive host" ) {
     emp::Random random(10);
-    SymWorld world(random);
+    SymWorld world(random, &config);
     Host host(&random, &world, &config, -.2);
 
     REQUIRE( host.GetIntVal() == -.2 );

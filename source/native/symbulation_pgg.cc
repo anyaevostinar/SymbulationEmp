@@ -35,7 +35,7 @@ int symbulation_main(int argc, char * argv[])
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  PGGWorld world(random);
+  PGGWorld world(random, &config);
 
 
   int TIMING_REPEAT = config.DATA_INT();
