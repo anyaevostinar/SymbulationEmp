@@ -9,10 +9,6 @@
 #include "../Organism.h"
 #include <set>
 #include <math.h>
-#include <set>
-#include <iomanip> // setprecision
-#include <sstream> // stringstream
-#include "../ConfigSetup.h"
 
 
 class SymWorld : public emp::World<Organism>{
@@ -135,7 +131,7 @@ public:
       sym_sys.Delete();
     }
   }
-  
+
 
   /**
    * Input: None
