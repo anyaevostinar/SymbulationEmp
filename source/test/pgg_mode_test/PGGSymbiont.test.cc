@@ -188,8 +188,8 @@ TEST_CASE("PGGProcess", "[pgg]") {
 }
 
 TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
-   emp::Ptr<emp::Random> random = new emp::Random(-1);
-   SymConfigBase config;
+    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    SymConfigBase config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
     config.SYNERGY(5);

@@ -8,7 +8,6 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
     PGGWorld world(*random, &config);
     config.VERTICAL_TRANSMISSION(0);
-    config.VERTICAL_TRANSMISSION(0);
     config.MUTATION_SIZE(0);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
