@@ -334,9 +334,9 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
 
 TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
     double int_val = 0.2;
 
     config.LYSIS(1);

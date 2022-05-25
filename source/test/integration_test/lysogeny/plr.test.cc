@@ -30,7 +30,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     int numupdates = 3000;
 
     WHEN("Prophage Loss Rate is 0.05"){
-        LysisWorld w(*random);
+        LysisWorld w(*random, &config);
         LysisWorld * world = &w;
 
         config.PROPHAGE_LOSS_RATE(0.05);
@@ -51,7 +51,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     }
 
     WHEN("Prophage Loss Rate is 0.025"){
-        LysisWorld w(*random);
+        LysisWorld w(*random, &config);
         LysisWorld * world = &w;
 
         config.PROPHAGE_LOSS_RATE(0.025);
@@ -73,7 +73,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     }
 
     WHEN("Prophage Loss Rate is 0"){
-        LysisWorld w(*random);
+        LysisWorld w(*random, &config);
         LysisWorld * world = &w;
 
         config.PROPHAGE_LOSS_RATE(0);
