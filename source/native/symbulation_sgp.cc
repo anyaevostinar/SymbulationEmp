@@ -65,12 +65,12 @@ int symbulation_main(int argc, char * argv[])
     world.Update();
   }
 
-  world.GetFullPop().back().DynamicCast<SGPHost>()->PrintCode();
+  world.GetFullPop().back().DynamicCast<SGPHost>()->getCpu().PrintCode();
   int total = 0;
   int contains = 0;
   for (auto i : world.GetFullPop()) {
     auto host = i.DynamicCast<SGPHost>();
-    if (host->containsReproduceInstruction()) {
+    if (host->getCpu().containsReproduceInstruction()) {
       contains++;
     }
     total++;
