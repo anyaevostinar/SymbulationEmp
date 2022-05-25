@@ -125,7 +125,7 @@ TEST_CASE("Phage constructor, GetIntVal", "[lysis]") {
     }
 }
 
-TEST_CASE("Phage reproduce", "[lysis]") {
+TEST_CASE("Phage Reproduce", "[lysis]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
     LysisWorld w(*random, &config);
@@ -270,7 +270,7 @@ TEST_CASE("Phage SetIncVal, GetIncVal", "[lysis]"){
     phage.Delete();
 }
 
-TEST_CASE("Phage uponInjection", "[lysis]"){
+TEST_CASE("Phage UponInjection", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymConfigBase config;
     LysisWorld w(*random, &config);
@@ -297,7 +297,7 @@ TEST_CASE("Phage uponInjection", "[lysis]"){
     phage.Delete();
 }
 
-TEST_CASE("phage_mutate", "[lysis]"){
+TEST_CASE("Phage Mutate", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
     SymConfigBase config;
     LysisWorld w(*random, &config);
