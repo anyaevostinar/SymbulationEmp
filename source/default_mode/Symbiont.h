@@ -389,7 +389,9 @@ public:
   }
 
   /**
-   * Input: The double representing the resources to be distributed to the symbionts and the host from whom it comes; if no host is provided it will automatically use my_host
+   * Input: The double representing the resources to be distributed to the symbiont
+   * and (optionally) the host from whom it comes; if no host is provided, the
+   * symbiont's host variable is used.
    *
    * Output: The double representing the host's resources
    *

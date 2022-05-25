@@ -339,7 +339,9 @@ public:
 
 
   /**
-   * Input: The double representing the resources that will be given to a phage.
+   * Input: The double representing the resources to be distributed to the phage
+   * and (optionally) the host from whom it comes; if no host is provided, the
+   * phage's host variable is used.
    *
    * Output: The double representing the resources that are left over from what
    * was distributed to the phage.

@@ -331,3 +331,42 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
 
     bacterium.Delete();
 }
+
+TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(9);
+    LysisWorld w(*random);
+    LysisWorld * world = &w;
+    SymConfigBase config;
+    double int_val = 0.2;
+
+    config.LYSIS(1);
+    config.LYSIS_CHANCE(0);
+    config.BENEFIT_TO_HOST(0);
+    config.SYNERGY(5);
+
+    emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+    emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+    phage->UponInjection();
+
+
+    double sym_piece = 20;
+    bacterium->DistribResToSym(phage, sym_piece);
+
+    // host would get 20 points if it did this with a symbiont
+    /* bacterium gets 16; int val is 0.2, sym piece is 20, so:
+           host donation = host int val * sym piece =  4
+           res in process = sym piece - host donation = 16
+       DistribResToSym then calls ProcessResources with host donation (4).
+       since the phage is lysogenic (lysis_chance = 0) and benefit to host is off (0),
+            phage ProcessResources returns 0.
+      ergo, bacterium only adds res in process (16) to its point total.*/
+    // phage gets 0 points; it doesn't process the 4 resources that bacterium donated
+
+    double expected_bacterium_points = 16;
+    double expected_phage_points = 0;
+    REQUIRE(bacterium->GetPoints() == expected_bacterium_points);
+    REQUIRE(phage->GetPoints() == expected_phage_points);
+
+    phage.Delete();
+    bacterium.Delete();
+}

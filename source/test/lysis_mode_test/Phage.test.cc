@@ -662,41 +662,6 @@ TEST_CASE("Phage ProcessResources", "[lysis]"){
             bacterium.Delete();
         }
     }
-
-    THEN("Phage, not Symbiont, ProcessResources is used"){
-      double int_val = 0.2;
-
-      config.LYSIS(1);
-      config.LYSIS_CHANCE(0);
-      config.BENEFIT_TO_HOST(0);
-      config.SYNERGY(5);
-
-      emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-      emp::Ptr<Host> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-      phage->UponInjection();
-
-      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-      emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, int_val);
-      REQUIRE(host->GetPoints() == bacterium->GetPoints());
-
-      double sym_piece = 20;
-      host->DistribResToSym(symbiont, sym_piece);
-      bacterium->DistribResToSym(phage, sym_piece);
-
-      double expected_host_points = 20;
-      double expected_bacterium_points = 16;
-      double host_points = host->GetPoints();
-      double bacterium_points = bacterium->GetPoints();
-
-      REQUIRE(host_points != bacterium_points);
-      REQUIRE(host_points == expected_host_points);
-      REQUIRE(bacterium_points == expected_bacterium_points);
-
-      phage.Delete();
-      bacterium.Delete();
-      symbiont.Delete();
-      host.Delete();
-    }
 }
 
 TEST_CASE("Phage MakeNew", "[lysis]"){
