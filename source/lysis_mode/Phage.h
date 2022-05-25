@@ -346,19 +346,19 @@ public:
    *
    * Purpose: To allow a phage to steal or use donated resources from their host.
    */
-  double ProcessResources(double hostDonation, emp::Ptr<Organism> host = nullptr){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
     if(host == nullptr){
       host = my_host;
     }
     if(lysogeny){
       if(my_config->BENEFIT_TO_HOST()){
-        return my_host->ProcessLysogenResources(incorporation_val);
+        return host->ProcessLysogenResources(incorporation_val);
       } else{
         return 0;
       }
     }
     else{
-      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
+      return Symbiont::ProcessResources(host_donation, host); //lytic phage do steal resources
     }
   }
 
