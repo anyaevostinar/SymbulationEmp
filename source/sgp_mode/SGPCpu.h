@@ -113,7 +113,8 @@ public:
     }
     totalRuns++;
     if (totalRuns == 200000) {
-      std::cout << "Found: "
+      std::cout << typeid(T).name()
+                << ": Found: "
                 << (int)(100 * ((double)numEncountered / (double)totalRuns))
                 << "%; passed: "
                 << (int)(100 * ((double)numPassed / (double)numEncountered))

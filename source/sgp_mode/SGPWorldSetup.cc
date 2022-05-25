@@ -3,6 +3,7 @@
 
 #include "SGPWorld.h"
 #include "SGPHost.h"
+#include "SGPSymbiont.h"
 #include "../ConfigSetup.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
@@ -69,7 +70,7 @@ void worldSetup(emp::Ptr<SGPWorld> world, emp::Ptr<SymConfigBase> my_config) {
     if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
     else {sym_int = my_config->SYM_INT();}
 
-    emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&random, world, my_config,
+    emp::Ptr<SGPSymbiont> new_sym = emp::NewPtr<SGPSymbiont>(&random, world, my_config,
       sym_int, 0);
     world->InjectSymbiont(new_sym);
   }

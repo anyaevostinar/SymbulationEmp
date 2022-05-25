@@ -44,17 +44,41 @@ public:
     cpu.runCpuStep();
 
     // Instead of calling Host::Process, do the important stuff here
-    // Symbiotes are ignored for the time being
     // Our instruction handles reproduction
     if (GetDead()) {
       return;
     }
+    if (HasSym()) { //let each sym do whatever they need to do
+        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+        for(size_t j = 0; j < syms.size(); j++){
+          emp::Ptr<Organism> curSym = syms[j];
+          if (GetDead()){
+            return; //If previous symbiont killed host, we're done
+          }
+          //sym position should have host index as id and
+          //position in syms list + 1 as index (0 as fls index)
+          emp::WorldPosition sym_pos = emp::WorldPosition(j+1, pos.GetIndex());
+          if(!curSym->GetDead()){
+            curSym->Process(sym_pos);
+          }
+          if(curSym->GetDead()){
+            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+            curSym.Delete();
+          }
+        } //for each sym in syms
+      } //if org has syms
     GrowOlder();
   }
 
   void maybeReproduce(float chance) {
     if (random->P(chance)) {
       auto p = reproduce();
+
+      //Now check if symbionts get to vertically transmit
+      for(auto parent : GetSymbionts()){
+        parent->VerticalTransmission(p);
+      }
+      // std::cout << "Reproducing, keeping " << p->GetSymbionts().size() << " of " << GetSymbionts().size() <<  " symbionts" << std::endl;
       my_world->DoBirth(p, lastPos.GetIndex());
     }
   }

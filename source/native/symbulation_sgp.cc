@@ -56,25 +56,37 @@ int symbulation_main(int argc, char * argv[])
   worldSetup(&world, &config);
   int numupdates = config.UPDATES();
 
+  int totalSyms = 0;
+
   //Loop through updates
   for (int i = 0; i < numupdates; i++) {
     if((i%TIMING_REPEAT)==0) {
       cout <<"Update: "<< i << endl;
+      totalSyms = 0;
+      for (auto i : world.GetFullPop()) {
+        auto host = i.DynamicCast<SGPHost>();
+        totalSyms += host->GetSymbionts().size();
+      }
+      std::cout << "Total number of symbionts with hosts: " << totalSyms << '\n';
       cout.flush();
     }
     world.Update();
   }
 
+  // Print some debug info for testing purposes
   world.GetFullPop().back().DynamicCast<SGPHost>()->getCpu().PrintCode();
   int total = 0;
   int contains = 0;
+  totalSyms = 0;
   for (auto i : world.GetFullPop()) {
     auto host = i.DynamicCast<SGPHost>();
+    totalSyms += host->GetSymbionts().size();
     if (host->getCpu().containsReproduceInstruction()) {
       contains++;
     }
     total++;
   }
+  std::cout << "Final total number of symbionts with hosts: " << totalSyms << '\n';
   std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
 
   //retrieve the dominant taxons for each organism and write them to a file
