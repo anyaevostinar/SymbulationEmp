@@ -388,26 +388,17 @@ public:
     }
   }
 
-
   /**
-   * Input: The double representing the resources to be distributed to the symbionts
-   *
-   * Output: The double representing the host's resources
-   *
-   * Purpose: To process and distribute resources.
-  */
-  double ProcessResources(double hostDonation){
-    return ProcessResources(hostDonation, my_host);
-  }
-
-  /**
-   * Input: The double representing the resources to be distributed to the symbionts and the host from whom it comes
+   * Input: The double representing the resources to be distributed to the symbionts and the host from whom it comes; if no host is provided it will automatically use my_host
    *
    * Output: The double representing the host's resources
    *
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double hostDonation, emp::Ptr<Organism> host){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
+    if(host == nullptr){
+      host = my_host;
+    }
     double sym_int_val = GetIntVal();
     double sym_portion = 0;
     double host_portion = 0;
@@ -416,11 +407,11 @@ public:
     if (sym_int_val<0){
       double stolen = host->StealResources(sym_int_val);
       host_portion = 0;
-      sym_portion = stolen + hostDonation;
+      sym_portion = stolen + host_donation;
     }
     else if (sym_int_val >= 0){
-      host_portion = hostDonation * sym_int_val;
-      sym_portion = hostDonation - host_portion;
+      host_portion = host_donation * sym_int_val;
+      sym_portion = host_donation - host_portion;
     }
     AddPoints(sym_portion);
     return host_portion * synergy;
