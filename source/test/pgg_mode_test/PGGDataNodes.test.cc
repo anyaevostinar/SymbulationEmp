@@ -7,9 +7,11 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    PGGWorld world(random);
+    PGGWorld world(random, &config);
     world.Resize(4);
-    world.SetFreeLivingSyms(1);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 

@@ -6,7 +6,7 @@ TEST_CASE("Host Constructor", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld w(*random);
+    SymWorld w(*random, &config);
     SymWorld * world = &w;
 
     double int_val = -2;
@@ -45,7 +45,7 @@ TEST_CASE("Host Constructor", "[default]") {
 TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, &world, &config);
@@ -75,7 +75,7 @@ TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
 TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
@@ -96,7 +96,7 @@ TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
 TEST_CASE("SetResTypes, GetResTypes", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
@@ -126,7 +126,7 @@ TEST_CASE("SetResTypes, GetResTypes", "[default]") {
 TEST_CASE("HasSym", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
@@ -151,7 +151,7 @@ TEST_CASE("Host Mutate", "[default]") {
     //TODO: put in tests for mutation size and mutation rate separately
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = -0.31;
 
     //MUTATION RATE
@@ -219,7 +219,7 @@ TEST_CASE("Host Mutate", "[default]") {
 TEST_CASE("DistributeResources", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
 
@@ -287,7 +287,7 @@ TEST_CASE("DistributeResources", "[default]") {
 TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
   emp::Ptr<emp::Random> random = new emp::Random(-1);
   SymConfigBase config;
-  SymWorld world(*random);
+  SymWorld world(*random, &config);
   double int_val = 1;
 
   emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
@@ -304,8 +304,8 @@ TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
 
 TEST_CASE("Steal resources unit test", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
 
 
     WHEN ("sym_int_val < host_int_val"){
@@ -361,8 +361,8 @@ TEST_CASE("Steal resources unit test", "[default]"){
 TEST_CASE("GetDoEctosymbiosis", "[default]"){
   GIVEN("A world"){
     emp::Ptr<emp::Random> random = new emp::Random(17);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
     world.Resize(2,2);
     double int_val = 0.5;
     size_t host_pos = 0;
@@ -444,8 +444,8 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
 
 TEST_CASE("Host GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
     config.HOST_AGE_MAX(2);
 
     WHEN ("A host reaches its maximum age"){
@@ -467,8 +467,8 @@ TEST_CASE("Host GrowOlder", "[default]"){
 
 TEST_CASE("Host MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
@@ -487,8 +487,8 @@ TEST_CASE("Host MakeNew", "[default]"){
 
 TEST_CASE("Host reproduce", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
 
     double host_int_val = 0.2;
     emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);

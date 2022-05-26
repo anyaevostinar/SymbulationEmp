@@ -5,7 +5,7 @@ TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config);
@@ -22,7 +22,7 @@ TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 TEST_CASE("Host SetSymbionts", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
     config.SYM_LIMIT(2);
 
@@ -56,7 +56,7 @@ TEST_CASE("Host SymLimit", "[default]") {
     emp::Ptr<emp::Random> random;
     random.New(-1);
     SymConfigBase config;
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
@@ -89,7 +89,7 @@ TEST_CASE("Host AddSymbiont", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
@@ -117,7 +117,7 @@ TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     config.SYM_LIMIT(6);
-    SymWorld world(*random);
+    SymWorld world(*random, &config);
     double int_val = 1;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
@@ -148,8 +148,8 @@ TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
 
 TEST_CASE("Host DistribResources", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld world(*random);
     SymConfigBase config;
+    SymWorld world(*random, &config);
     config.SYM_LIMIT(6);
     config.SYNERGY(5);
 
@@ -380,13 +380,14 @@ TEST_CASE("Host DistribResources", "[default]") {
 
 TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymWorld w(*random);
-    SymWorld * world = &w;
     SymConfigBase config;
+    SymWorld w(*random, &config);
+    SymWorld * world = &w;
+
 
 
     WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
-        world->SetVertTrans(1);
+        config.VERTICAL_TRANSMISSION(1);
         double points_required = 50;
         double points_recieved = points_required;
         config.SYM_VERT_TRANS_RES(points_required);
@@ -413,7 +414,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
         host_baby.Delete();
     }
     WHEN("When vertical transmission is disabled"){
-        world->SetVertTrans(0);
+        config.VERTICAL_TRANSMISSION(0);
         double host_int_val = .5;
         double sym_int_val = -.5;
 
@@ -432,7 +433,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
         host_baby.Delete();
     }
     WHEN("When the sym does not have enough resources to transmit"){
-        world->SetVertTrans(1);
+        config.VERTICAL_TRANSMISSION(1);
         double int_val = 0;
         double points_required = 50;
         double points_recieved = points_required - 1;
@@ -460,11 +461,11 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
 TEST_CASE("HandleEctosymbiosis"){
   emp::Random random(17);
   SymConfigBase config;
-  SymWorld world(random);
+  SymWorld world(random, &config);
   world.Resize(1,1);
   double int_val = 0.5;
-  world.SetMoveFreeSyms(0);
-  world.SetFreeLivingSyms(1);
+
+  config.FREE_LIVING_SYMS(1);
   config.SYM_INFECTION_CHANCE(0.0);
 
   WHEN("Ectosymbiosis is off"){

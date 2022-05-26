@@ -7,9 +7,9 @@ TEST_CASE("Phage Process", "[lysis]") {
 
         emp::Ptr<emp::Random> random;
         random.New(5);
-        LysisWorld w(*random);
-        LysisWorld * world = &w;
         SymConfigBase config;
+        LysisWorld w(*random, &config);
+        LysisWorld * world = &w;
         config.LYSIS(1);
         double int_val = -1;
 
@@ -92,16 +92,16 @@ TEST_CASE("Phage Process", "[lysis]") {
 
 TEST_CASE("Phage Vertical Transmission", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
     config.LYSIS(1);
 
     WHEN("phage is lytic"){
         config.LYSIS_CHANCE(1);
 
         WHEN("Vertical Transmission is enabled"){
-            world->SetVertTrans(1);
+            config.VERTICAL_TRANSMISSION(1);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
@@ -120,7 +120,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             host_baby.Delete();
         }
         WHEN("Vertical Transmission is disabled"){
-            world->SetVertTrans(0);
+            config.VERTICAL_TRANSMISSION(0);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
@@ -145,7 +145,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
         config.LYSIS_CHANCE(0);
 
         WHEN("Vertical Transmission is enabled"){
-            world->SetVertTrans(1);
+            config.VERTICAL_TRANSMISSION(1);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
@@ -164,7 +164,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
             host_baby.Delete();
         }
          WHEN("Vertical Transmission is disabled"){
-            world->SetVertTrans(0);
+            config.VERTICAL_TRANSMISSION(0);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
@@ -189,9 +189,9 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
 
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    LysisWorld w(*random);
-    LysisWorld *world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld *world = &w;
     config.SYM_LIMIT(2);
 
     WHEN("there is a single lysogenic phage and it is dead"){
@@ -243,9 +243,9 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
 
 TEST_CASE("Phage LysisBurst", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
 
     config.LYSIS(1);
     config.GRID_X(2);
@@ -284,9 +284,9 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
 
 TEST_CASE("Phage LysisStep", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
 
     double sym_repro_points = 5.0;
     config.LYSIS(1);
@@ -334,9 +334,9 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
 
 TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
     double int_val = 0.2;
 
     config.LYSIS(1);

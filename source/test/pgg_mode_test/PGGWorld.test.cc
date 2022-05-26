@@ -6,15 +6,13 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
 
   GIVEN( "a PGGworld without vertical transmission" ) {
     emp::Ptr<emp::Random> random = new emp::Random(17);
-    PGGWorld world(*random);
+    PGGWorld world(*random, &config);
     config.VERTICAL_TRANSMISSION(0);
-    world.SetVertTrans(0);
     config.MUTATION_SIZE(0);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
     config.HOST_REPRO_RES(400);
     config.RES_DISTRIBUTE(100);
-    world.SetResPerUpdate(100);
     config.SYNERGY(5);
     config.PGG(1);
 
@@ -44,11 +42,11 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
 
   GIVEN( "a PGGworld" ) {
     emp::Random random(17);
-    PGGWorld world(random);
+    PGGWorld world(random, &config);
     world.SetPopStruct_Mixed();
     config.GRID(0);
     config.VERTICAL_TRANSMISSION(0.7);
-    world.SetVertTrans(0.7);
+    config.VERTICAL_TRANSMISSION(0.7);
     config.MUTATION_SIZE(0.002);
     config.SYM_LIMIT(500);
     config.HORIZ_TRANS(true);
