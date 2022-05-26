@@ -339,23 +339,28 @@ public:
 
 
   /**
-   * Input: The double representing the resources that will be given to a phage.
+   * Input: The double representing the resources to be distributed to the phage
+   * and (optionally) the host from whom it comes; if no host is provided, the
+   * phage's host variable is used.
    *
    * Output: The double representing the resources that are left over from what
    * was distributed to the phage.
    *
    * Purpose: To allow a phage to steal or use donated resources from their host.
    */
-  double ProcessResources(double hostDonation){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
+    if(host == nullptr){
+      host = my_host;
+    }
     if(lysogeny){
       if(my_config->BENEFIT_TO_HOST()){
-        return my_host->ProcessLysogenResources(incorporation_val);
+        return host->ProcessLysogenResources(incorporation_val);
       } else{
         return 0;
       }
     }
     else{
-      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
+      return Symbiont::ProcessResources(host_donation, host); //lytic phage do steal resources
     }
   }
 
