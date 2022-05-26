@@ -81,7 +81,7 @@ print-%: ; @echo '$(subst ','\'',$*=$($*))'
 # Testing
 test:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test ~[integration]
 	@echo To run only the tests for each mode, use the following:
 	@echo Default mode testing: make test-default
 	@echo Efficient mode testing: make test-efficient
@@ -90,7 +90,7 @@ test:
 
 test-debug:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test ~[integration]
 	@echo To debug and test for each mode, use the following:
 	@echo Default mode: make test-debug-default
 	@echo Efficient mode: make test-debug-efficient
@@ -127,6 +127,14 @@ test-debug-pgg:
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+
+test-all:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test
+
+test-debug-all:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test
 
 # Extras
 .PHONY: clean test serve
