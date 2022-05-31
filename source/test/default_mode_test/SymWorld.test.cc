@@ -1033,20 +1033,21 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
 TEST_CASE( "No mutation updates", "[default] "){
   GIVEN("a world"){
     emp::Random random(17);
-    SymWorld world(random);
     SymConfigBase config;
+    config.MUTATION_SIZE(1);
+    config.MUTATION_RATE(1);
+    SymWorld world(random, &config);
     double int_val = 0.4;
     int world_size = 100;
     world.Resize(world_size);
 
-    config.MUTATION_SIZE(1);
-    config.MUTATION_RATE(1);
+
 
     emp::Ptr<Organism> symbiont = new Symbiont(&random, &world, &config, int_val);
     emp::Ptr<Organism> host = new Host(&random, &world, &config, int_val);
 
-    emp::Ptr<Organism> mut_sym_baby = symbiont->reproduce();
-    emp::Ptr<Organism> mut_host_baby = host->reproduce();
+    emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
+    emp::Ptr<Organism> mut_host_baby = host->Reproduce();
 
     REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
     REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
@@ -1071,8 +1072,8 @@ TEST_CASE( "No mutation updates", "[default] "){
 
     //REQUIRE(symbiont->GetSymConfigMutRate() == 0);
 
-    emp::Ptr<Organism> no_mut_sym_baby = symbiont->reproduce();
-    emp::Ptr<Organism> no_mut_host_baby = host->reproduce();
+    emp::Ptr<Organism> no_mut_sym_baby = symbiont->Reproduce();
+    emp::Ptr<Organism> no_mut_host_baby = host->Reproduce();
 
     REQUIRE(no_mut_sym_baby->GetIntVal() < int_val + 0.00001);
     REQUIRE(no_mut_sym_baby->GetIntVal() > int_val - 0.00001);
