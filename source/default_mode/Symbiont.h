@@ -342,7 +342,7 @@ public:
    *
    * Purpose: Does nothing for now, added for backwards compatibility from phage to symbiont
    */
-  void uponInjection(){
+  void UponInjection(){
     //does nothing for now, added for backwards compatibility from phage to symbiont
   }
 
@@ -370,7 +370,7 @@ public:
    * from a normal distribution centered on 0 with the mutation size as the standard
    * deviation.
    */
-  void mutate(){
+  void Mutate(){
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
 
@@ -388,26 +388,19 @@ public:
     }
   }
 
-
   /**
-   * Input: The double representing the resources to be distributed to the symbionts
-   *
-   * Output: The double representing the host's resources
-   *
-   * Purpose: To process and distribute resources.
-  */
-  double ProcessResources(double hostDonation){
-    return ProcessResources(hostDonation, my_host);
-  }
-
-  /**
-   * Input: The double representing the resources to be distributed to the symbionts and the host from whom it comes
+   * Input: The double representing the resources to be distributed to the symbiont
+   * and (optionally) the host from whom it comes; if no host is provided, the
+   * symbiont's host variable is used.
    *
    * Output: The double representing the host's resources
    *
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double hostDonation, emp::Ptr<Organism> host){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
+    if(host == nullptr){
+      host = my_host;
+    }
     double sym_int_val = GetIntVal();
     double sym_portion = 0;
     double host_portion = 0;
@@ -416,11 +409,11 @@ public:
     if (sym_int_val<0){
       double stolen = host->StealResources(sym_int_val);
       host_portion = 0;
-      sym_portion = stolen + hostDonation;
+      sym_portion = stolen + host_donation;
     }
     else if (sym_int_val >= 0){
-      host_portion = hostDonation * sym_int_val;
-      sym_portion = hostDonation - host_portion;
+      host_portion = host_donation * sym_int_val;
+      sym_portion = host_donation - host_portion;
     }
     AddPoints(sym_portion);
     return host_portion * synergy;
@@ -514,7 +507,7 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<Organism> makeNew() {
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
     return new_sym;
@@ -527,9 +520,9 @@ public:
    *
    * Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function
    */
-  emp::Ptr<Organism> reproduce() {
-    emp::Ptr<Organism> sym_baby = makeNew();
-    sym_baby->mutate();
+  emp::Ptr<Organism> Reproduce() {
+    emp::Ptr<Organism> sym_baby = MakeNew();
+    sym_baby->Mutate();
 
     if(my_config->PHYLOGENY() == 1){
       my_world->AddSymToSystematic(sym_baby, my_taxon);
@@ -547,7 +540,7 @@ public:
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = reproduce();
+      emp::Ptr<Organism> sym_baby = Reproduce();
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
     }
@@ -567,7 +560,7 @@ public:
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
-        emp::Ptr<Organism> sym_baby = reproduce();
+        emp::Ptr<Organism> sym_baby = Reproduce();
         my_world->SymDoBirth(sym_baby, location);
       }
     }

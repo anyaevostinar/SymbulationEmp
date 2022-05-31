@@ -16,62 +16,12 @@ protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
   using fun_calc_info_t = std::function<int(Organism &)>;
 
-
-  /**
-    *
-    * Purpose: Represents the vertical transmission rate. This can be set with SetVertTrans()
-    *
-  */
-  double vertTrans = 0;
-
   /**
     *
     * Purpose: Represents the total resources in the world. This can be set with SetTotalRes()
     *
   */
   int total_res = -1;
-
-  /**
-    *
-    * Purpose: Represents if resources are limited or not. This can be set with SetLimitedRes()
-    *
-  */
-  bool limited_res = false;
-
-  /**
-    *
-    * Purpose: Represents if free living symbionts are allowed. This can be set with SetFreeLivingSyms()
-    *
-  */
-  bool do_free_living_syms = false;
-
-  /**
-    *
-    * Purpose: Represents how many resources each host gets per update. This can be set with SetResPerUpdate()
-    *
-  */
-  double resources_per_host_per_update = 0;
-
-  /**
-    *
-    * Purpose: Represents if free living symbionts are permitted to move around the world.
-    *
-  */
-  bool move_free_syms = false;
-
-  /**
-    *
-    * Purpose: Represents if phylogeneis should be tracked. This can be set with SetTrackPhylogeny()
-    *
-  */
-  bool track_phylogeny = false;
-
-  /**
-    *
-    * Purpose: Represents how many bins to place organisms into when tracking phylogenies.
-    *
-  */
-  size_t num_phylo_bins;
 
   /**
     *
@@ -86,6 +36,13 @@ protected:
     *
   */
   fun_calc_info_t calc_info_fun;
+
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigBase> my_config = NULL;
 
   /**
     *
@@ -112,7 +69,6 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
-
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
 
@@ -124,11 +80,23 @@ public:
    *
    * Purpose: To construct an instance of SymWorld
    */
-  SymWorld(emp::Random & _random) : emp::World<Organism>(_random) {
+  SymWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
     fun_print_org = [](Organism & org, std::ostream & os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
     };
+    my_config = _config;
+    total_res = my_config->LIMITED_RES_TOTAL();
+    if (my_config->PHYLOGENY() == true){
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+
+      AddSystematics(host_sys);
+      sym_sys->SetStorePosition(false);
+
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+    }
   }
 
 
@@ -137,7 +105,7 @@ public:
    *
    * Output: None
    *
-   * Purpose: To destruct the data nodes belonging to SymWorld to conserve memory.
+   * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
@@ -152,109 +120,15 @@ public:
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
-  }
 
-
-  /**
-   * Input: The double representing the vertical transmission rate
-   *
-   * Output: None
-   *
-   * Purpose: To set the vertical transmission rate
-   */
-  void SetVertTrans(double vt) {vertTrans = vt;}
-
-
-  /**
-   * Input: The double representing the number of resources each host gets in each update.
-   *
-   * Output: None
-   *
-   * Purpose: To set the resources that each host gets per update.
-   */
-  void SetResPerUpdate(double val) {resources_per_host_per_update = val;}
-
-
-  /**
-   * Input: To boolean representing if resources are limited or not.
-   *
-   * Output: None
-   *
-   * Purpose: To allow for resources to be limited or unlimited.
-   */
-  void SetLimitedRes(bool val) {limited_res = val;}
-
-
-  /**
-   * Input: The boolean representing if symbionts are allowed to be free living.
-   *
-   * Output: None
-   *
-   * Purpose: To allow for free-living symbionts
-   */
-  void SetFreeLivingSyms(bool flp) {do_free_living_syms = flp; }
-
-
-  /**
-   * Input: The bool representing if free living symbionts are
-   * permitted to move around in the world.
-   *
-   * Output: None
-   *
-   * Purpose: To set the value representing if FLS are
-   * permitted to move around.
-   */
-  void SetMoveFreeSyms(bool mfs) {move_free_syms = mfs;}
-
-  /**
-   * Input: The size_t number of bins that organisms should be
-   * placed into when phylogeny tracking is on.
-   *
-   * Output: None
-   *
-   * Purpose: To set the number of bins used by phylogenies.
-   */
-  void SetNumPhyloBins(size_t _in) {num_phylo_bins = _in;}
-
-
-
-  /**
-   * Input: The bool representing whether phylogenies should be tracked.
-   *
-   * Output: None
-   *
-   * Purpose: To set the value representing whether phylogenies
-   * should be tracked.
-   */
-  void SetTrackPhylogeny(bool _in) {
-    track_phylogeny = _in;
-    if (track_phylogeny == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
-
-      AddSystematics(host_sys);
-      sym_sys->SetStorePosition(false);
-
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+    for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
+      if(sym_pop[i]) {
+        DoSymDeath(i);
+      }
     }
-  }
 
-
-  /**
-   * Input: The int representing the total number of resources for the world.
-   *
-   * Output: None
-   *
-   * Purpose: To set the total number of resources in the world. If limited resources
-   * is off, then the total resource value is of no consequence.
-   */
-  void SetTotalRes(int val) {
-    if(val<0){
-      SetLimitedRes(false);
-    } else {
-      SetLimitedRes(true);
-      total_res = val;
+    if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
+      sym_sys.Delete();
     }
   }
 
@@ -288,7 +162,7 @@ public:
    * Purpose: To determine if vertical transmission will occur
    */
   bool WillTransmit() {
-    bool result = GetRandom().GetDouble(0.0, 1.0) < vertTrans;
+    bool result = GetRandom().GetDouble(0.0, 1.0) < my_config->VERTICAL_TRANSMISSION();
     return result;
   }
 
@@ -328,6 +202,7 @@ public:
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
       calc_info_fun = [&](Organism & org){
+        size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
         //classify orgs into bins base on interaction values,
         //inclusive of lower bound, exclusive of upper
         float size_of_bin = 2.0 / num_phylo_bins;
@@ -367,7 +242,7 @@ public:
    * Purpose: To determine how many resources to distribute to each organism.
    */
   int PullResources(int desired_resources) {
-    if(!limited_res) {
+    if(total_res == -1) { //if LIMITED_RES_TOTAL == -1, unlimited
       return desired_resources;
     } else {
       if (total_res>=desired_resources) {
@@ -444,8 +319,11 @@ public:
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
-      if(!sym_pop[pos_id]) ++num_orgs;
-      else sym_pop[pos_id].Delete();
+      if(!sym_pop[pos_id]) {
+        ++num_orgs;
+      } else {
+        sym_pop[pos_id].Delete();
+      }
 
       //set the cell to point to the new sym
       sym_pop[pos_id] = new_org;
@@ -510,8 +388,8 @@ public:
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
-    if (track_phylogeny) AddSymToSystematic(new_sym);
-    if(!do_free_living_syms){
+    if (my_config->PHYLOGENY()) AddSymToSystematic(new_sym);
+    if(my_config->FREE_LIVING_SYMS() == 0){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
@@ -583,7 +461,7 @@ public:
    */
   void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
-    if(!do_free_living_syms){
+    if(my_config->FREE_LIVING_SYMS() == 0){
       int new_pos = GetNeighborHost(i);
       if (new_pos > -1) { //-1 means no living neighbors
         pop[new_pos]->AddSymbiont(sym_baby);
@@ -611,7 +489,7 @@ public:
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies
       else pop[i]->AddSymbiont(sym);
     }
-    else if(move_free_syms) {
+    else if(my_config->MOVE_FREE_SYMS()) {
       MoveIntoNewFreeWorldPos(ExtractSym(i), pos);
     }
   }
@@ -635,9 +513,9 @@ public:
    * Input: The size_t representing the location of the symbiont to be
    * extracted from the world.
    *
-   * Output: The pointer to the organism that was removed from the world
+   * Output: The pointer to the organism that was extracted from the world.
    *
-   * Purpose: To remove a symbiont from the world
+   * Purpose: To extract a symbiont from the world without deleting it.
    */
   emp::Ptr<Organism> ExtractSym(size_t i){
     emp::Ptr<Organism> sym;
@@ -675,7 +553,7 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
-    if(track_phylogeny) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+    if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
     //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell

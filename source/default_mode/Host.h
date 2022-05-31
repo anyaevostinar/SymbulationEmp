@@ -457,7 +457,7 @@ public:
     if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
       _in->SetHost(this);
-      _in->uponInjection();
+      _in->UponInjection();
     } else {
       _in.Delete();
     }
@@ -516,7 +516,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> makeNew(){
+  emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
     return new_host;
   }
@@ -528,9 +528,9 @@ public:
    *
    * Purpose: To create a new baby host and reset this host's points to 0.
    */
-  emp::Ptr<Organism> reproduce(){
-    emp::Ptr<Organism> host_baby = makeNew();
-    host_baby->mutate();
+  emp::Ptr<Organism> Reproduce(){
+    emp::Ptr<Organism> host_baby = MakeNew();
+    host_baby->Mutate();
     SetPoints(0);
     return host_baby;
   }
@@ -543,7 +543,7 @@ public:
    * Purpose: To mutate a host's interaction value. This is called on newly generated
    * hosts to allow for evolution to occur.
    */
-  void mutate(){
+  void Mutate(){
     double mutation_size = my_config->HOST_MUTATION_SIZE();
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
@@ -671,7 +671,7 @@ public:
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
         // will replicate & mutate a random offset from parent values
         // while resetting resource points for host and symbiont to zero
-       emp::Ptr<Organism> host_baby = reproduce();
+       emp::Ptr<Organism> host_baby = Reproduce();
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){

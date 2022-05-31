@@ -7,83 +7,83 @@ TEST_CASE("Phage Process", "[lysis]") {
 
         emp::Ptr<emp::Random> random;
         random.New(5);
-        LysisWorld w(*random);
-        LysisWorld * world = &w;
         SymConfigBase config;
+        LysisWorld w(*random, &config);
+        LysisWorld * world = &w;
         config.LYSIS(1);
         double int_val = -1;
 
         WHEN("Lysis is enabled and the Phage's burst timer >= the burst time") {
-            emp::Ptr<Phage> p;
-            p.New(random, world, &config, int_val);
-            emp::Ptr<Phage> p1;
-            p1.New(random, world, &config, int_val);
-            emp::Ptr<Phage> p2;
-            p2.New(random, world, &config, int_val);
+            emp::Ptr<Phage> phage;
+            phage.New(random, world, &config, int_val);
+            emp::Ptr<Phage> phage1;
+            phage1.New(random, world, &config, int_val);
+            emp::Ptr<Phage> phage2;
+            phage2.New(random, world, &config, int_val);
 
-            emp::Ptr<Bacterium> h;
-            h.New(random, &w, &config);
+            emp::Ptr<Bacterium> bacterium;
+            bacterium.New(random, world, &config);
 
-            p->SetHost(h);
+            phage->SetHost(bacterium);
             int time = 15;
-            p->SetBurstTimer(time);
+            phage->SetBurstTimer(time);
 
-            h->AddReproSym(p1);
-            h->AddReproSym(p2);
+            bacterium->AddReproSym(phage1);
+            bacterium->AddReproSym(phage2);
 
             THEN("Lysis occurs, the host dies") {
                 size_t location = 2;
                 // double resources_per_host_per_update = 40;
 
-                p->Process(location);
+                phage->Process(location);
 
                 bool host_dead = true;
                 std::vector<emp::Ptr<Organism>> empty_syms = {};
-                REQUIRE(h->GetDead() == host_dead);
-                REQUIRE(h->GetReproSymbionts() == empty_syms);
+                REQUIRE(bacterium->GetDead() == host_dead);
+                REQUIRE(bacterium->GetReproSymbionts() == empty_syms);
             }
 
-            p.Delete();
-            h.Delete();
+            phage.Delete();
+            bacterium.Delete();
         }
 
         WHEN("Lysis is enabled and the Phage's burst timer < the burst time") {
-            emp::Ptr<Bacterium> h;
-            h.New(random, &w, &config);
+            emp::Ptr<Bacterium> bacterium;
+            bacterium.New(random, world, &config);
 
             double phage_points = 10;
-            emp::Ptr<Phage> p3;
-            p3.New(random, world, &config, int_val);
-            emp::Ptr<Phage> p4;
-            p4.New(random, world, &config, int_val);
-            emp::Ptr<Phage> p5;
-            p5.New(random, world, &config, int_val);
-            p3->SetPoints(phage_points);
+            emp::Ptr<Phage> phage3;
+            phage3.New(random, world, &config, int_val);
+            emp::Ptr<Phage> phage4;
+            phage4.New(random, world, &config, int_val);
+            emp::Ptr<Phage> phage5;
+            phage5.New(random, world, &config, int_val);
+            phage3->SetPoints(phage_points);
 
-            h->AddReproSym(p4);
-            h->AddReproSym(p5);
+            bacterium->AddReproSym(phage4);
+            bacterium->AddReproSym(phage5);
             int num_host_orig_syms = 2;
-            p3->SetHost(h);
+            phage3->SetHost(bacterium);
 
             THEN("Phage reproduces, Host gains repro symbionts, Phage loses points") {
                 size_t location = 2;
                 // bool host_dead = false;
 
-                p3->Process(location);
+                phage3->Process(location);
 
-                REQUIRE(h->GetDead() == false);
+                REQUIRE(bacterium->GetDead() == false);
 
-                std::vector<emp::Ptr<Organism>> updated_repro_syms = h->GetReproSymbionts();
+                std::vector<emp::Ptr<Organism>> updated_repro_syms = bacterium->GetReproSymbionts();
 
                 REQUIRE( (int) updated_repro_syms.size() > num_host_orig_syms); // host gained repro syms
 
-                REQUIRE(p3->GetPoints() < phage_points); // phage lost points
+                REQUIRE(phage3->GetPoints() < phage_points); // phage lost points
 
 
             }
 
-            p3.Delete();
-            h.Delete();
+            phage3.Delete();
+            bacterium.Delete();
 
         }
         random.Delete();
@@ -92,47 +92,51 @@ TEST_CASE("Phage Process", "[lysis]") {
 
 TEST_CASE("Phage Vertical Transmission", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
     config.LYSIS(1);
 
     WHEN("phage is lytic"){
         config.LYSIS_CHANCE(1);
 
         WHEN("Vertical Transmission is enabled"){
-            world->SetVertTrans(1);
+            config.VERTICAL_TRANSMISSION(1);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
-            h->AddSymbiont(p);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+            bacterium->AddSymbiont(phage);
 
-            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-            p->VerticalTransmission(host_baby);
+            phage->VerticalTransmission(host_baby);
 
             THEN ("Phage does not vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
+            host_baby.Delete();
         }
-         WHEN("Vertical Transmission is disabled"){
-            world->SetVertTrans(0);
+        WHEN("Vertical Transmission is disabled"){
+            config.VERTICAL_TRANSMISSION(0);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
-            h->AddSymbiont(p);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+            bacterium->AddSymbiont(phage);
 
-            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-            p->VerticalTransmission(host_baby);
+            phage->VerticalTransmission(host_baby);
 
             THEN ("Phage does not vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
+            host_baby.Delete();
         }
 
     }
@@ -141,38 +145,42 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
         config.LYSIS_CHANCE(0);
 
         WHEN("Vertical Transmission is enabled"){
-            world->SetVertTrans(1);
+            config.VERTICAL_TRANSMISSION(1);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
-            h->AddSymbiont(p);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+            bacterium->AddSymbiont(phage);
 
-            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size() +1;
-            p->VerticalTransmission(host_baby);
+            phage->VerticalTransmission(host_baby);
 
             THEN ("Phage does vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
+            host_baby.Delete();
         }
          WHEN("Vertical Transmission is disabled"){
-            world->SetVertTrans(0);
+            config.VERTICAL_TRANSMISSION(0);
             double host_int_val = .5;
             double sym_int_val = -.5;
 
-            emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
-            emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
-            h->AddSymbiont(p);
+            emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+            emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+            bacterium->AddSymbiont(phage);
 
-            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, h->GetIntVal());
+            emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, world, &config, bacterium->GetIntVal());
             long unsigned int expected_sym_size = host_baby->GetSymbionts().size()+1;
-            p->VerticalTransmission(host_baby);
+            phage->VerticalTransmission(host_baby);
 
             THEN ("Phage does vertically transmit") {
                 REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
             }
+            bacterium.Delete();
+            host_baby.Delete();
         }
 
     }
@@ -181,9 +189,9 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
 
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    LysisWorld w(*random);
-    LysisWorld *world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld *world = &w;
     config.SYM_LIMIT(2);
 
     WHEN("there is a single lysogenic phage and it is dead"){
@@ -191,18 +199,19 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        emp::Ptr<Bacterium> h = new Bacterium(random, world, &config, host_int_val);
-        emp::Ptr<Phage> p = new Phage(random, world, &config, sym_int_val);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
 
-        h->AddSymbiont(p);
-        p->SetDead();
+        bacterium->AddSymbiont(phage);
+        phage->SetDead();
 
         long unsigned int expected_sym_size = 0;
-        h->Process(0);
+        bacterium->Process(0);
 
         THEN("phage is removed from syms list"){
-            REQUIRE(h->GetSymbionts().size() == expected_sym_size);
+            REQUIRE(bacterium->GetSymbionts().size() == expected_sym_size);
         }
+        bacterium.Delete();
     }
 
     WHEN("There are multiple lysogenic phage and only one dies"){
@@ -210,32 +219,33 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         double host_int_val = .5;
         double sym_int_val = -.5;
 
-        Bacterium * h = new Bacterium(random, world, &config, host_int_val);
-        Phage * p1 = new Phage(random, world, &config, sym_int_val);
-        Phage * p2 = new Phage(random, world, &config, 0.0);
+        emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
+        emp::Ptr<Organism> phage1 = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+        emp::Ptr<Organism> phage2 = emp::NewPtr<Phage>(random, world, &config, 0.0);
 
-        h->AddSymbiont(p1);
-        h->AddSymbiont(p2);
-        p1->SetDead();
+        bacterium->AddSymbiont(phage1);
+        bacterium->AddSymbiont(phage2);
+        phage1->SetDead();
 
         long unsigned int expected_sym_size = 1;
-        h->Process(0);
+        bacterium->Process(0);
 
         THEN("Only the dead phage is removed from the syms list"){
-            REQUIRE(h->GetSymbionts().size() == expected_sym_size);
+            REQUIRE(bacterium->GetSymbionts().size() == expected_sym_size);
 
-            Organism * curSym = h->GetSymbionts()[0];
-            REQUIRE(curSym->GetIntVal() == p2->GetIntVal());
-            REQUIRE(curSym == p2);
+            emp::Ptr<Organism> curSym = bacterium->GetSymbionts()[0];
+            REQUIRE(curSym->GetIntVal() == phage2->GetIntVal());
+            REQUIRE(curSym == phage2);
         }
+        bacterium.Delete();
     }
 }
 
 TEST_CASE("Phage LysisBurst", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(6);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
 
     config.LYSIS(1);
     config.GRID_X(2);
@@ -244,29 +254,29 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
     int location = 0;
 
     double int_val = 0;
-    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
+    emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
 
     GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms"){
-        Bacterium * orig_h = new Bacterium(random, &w, &config, int_val);
-        Bacterium * new_h = new Bacterium(random, &w, &config, int_val);
-        orig_h->AddSymbiont(p);
-        world->AddOrgAt(orig_h, 0);
-        world->AddOrgAt(new_h, 1);
+        emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+        emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+        orig_bacterium->AddSymbiont(phage);
+        world->AddOrgAt(orig_bacterium, 0);
+        world->AddOrgAt(new_bacterium, 1);
 
-        emp::Ptr<Organism> p_baby1 = p->reproduce();
-        emp::Ptr<Organism> p_baby2 = p->reproduce();
-        orig_h->AddReproSym(p_baby1);
-        orig_h->AddReproSym(p_baby2);
+        emp::Ptr<Organism> p_baby1 = phage->Reproduce();
+        emp::Ptr<Organism> p_baby2 = phage->Reproduce();
+        orig_bacterium->AddReproSym(p_baby1);
+        orig_bacterium->AddReproSym(p_baby2);
 
         WHEN("call the burst method so we can check injection") {
-            int original_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
-            p->LysisBurst(location);
+            int original_sym_num = new_bacterium->GetSymbionts().size() + orig_bacterium->GetSymbionts().size();
+            phage->LysisBurst(location);
 
             THEN("the repro syms go into the other host as symbionts and the original host dies"){
-                int new_sym_num = new_h->GetSymbionts().size() + orig_h->GetSymbionts().size();
+                int new_sym_num = new_bacterium->GetSymbionts().size() + orig_bacterium->GetSymbionts().size();
                 REQUIRE(new_sym_num == original_sym_num+2);
-                REQUIRE(size(orig_h->GetReproSymbionts()) == 0);
-                REQUIRE(orig_h->GetDead() == true);
+                REQUIRE(size(orig_bacterium->GetReproSymbionts()) == 0);
+                REQUIRE(orig_bacterium->GetDead() == true);
             }
         }
     }
@@ -274,48 +284,89 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
 
 TEST_CASE("Phage LysisStep", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(9);
-    LysisWorld w(*random);
-    LysisWorld * world = &w;
     SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
 
     double sym_repro_points = 5.0;
     config.LYSIS(1);
     config.SYM_LYSIS_RES(sym_repro_points);
 
     double int_val = 0;
-    emp::Ptr<Phage> p = new Phage(random, world, &config, int_val);
-    Bacterium * h = new Bacterium(random, &w, &config, int_val);
-    h->AddSymbiont(p);
+    emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+    emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+    bacterium->AddSymbiont(phage);
 
     WHEN("The phage doesn't have enough resources to reproduce"){
-        double repro_syms_size_pre_process = size(h->GetReproSymbionts());
+        double repro_syms_size_pre_process = size(bacterium->GetReproSymbionts());
         double orig_points = 3.0;
         double expected_points = 3.0;
-        p->SetPoints(orig_points);
+        phage->SetPoints(orig_points);
         double orig_burst_time = 0.0;
-        p->SetBurstTimer(orig_burst_time);
+        phage->SetBurstTimer(orig_burst_time);
 
-        p->LysisStep();
+        phage->LysisStep();
         THEN("The burst timer is incremented but no offspring are created"){
-            REQUIRE(p->GetBurstTimer() > orig_burst_time);
-            REQUIRE(size(h->GetReproSymbionts()) == repro_syms_size_pre_process);
-            REQUIRE(p->GetPoints() == expected_points);
+            REQUIRE(phage->GetBurstTimer() > orig_burst_time);
+            REQUIRE(size(bacterium->GetReproSymbionts()) == repro_syms_size_pre_process);
+            REQUIRE(phage->GetPoints() == expected_points);
         }
     }
 
     WHEN("The phage does have enough resources to reproduce"){
-        double expected_repro_syms_size_post_process = size(h->GetReproSymbionts()) + 1; //one offspring created
+        double expected_repro_syms_size_post_process = size(bacterium->GetReproSymbionts()) + 1; //one offspring created
         double orig_points = sym_repro_points;//symbiont given enough resources to produce one offspring
         double expected_points = 0.0;
-        p->SetPoints(orig_points);
+        phage->SetPoints(orig_points);
         double orig_burst_time = 0.0;
-        p->SetBurstTimer(orig_burst_time);
+        phage->SetBurstTimer(orig_burst_time);
 
-        p->LysisStep();
+        phage->LysisStep();
         THEN("The burst timer is incremented and offspring are created"){
-            REQUIRE(p->GetBurstTimer() > orig_burst_time);
-            REQUIRE(size(h->GetReproSymbionts()) == expected_repro_syms_size_post_process);
-            REQUIRE(p->GetPoints() == expected_points);
+            REQUIRE(phage->GetBurstTimer() > orig_burst_time);
+            REQUIRE(size(bacterium->GetReproSymbionts()) == expected_repro_syms_size_post_process);
+            REQUIRE(phage->GetPoints() == expected_points);
         }
     }
+
+    bacterium.Delete();
+}
+
+TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
+    emp::Ptr<emp::Random> random = new emp::Random(9);
+    SymConfigBase config;
+    LysisWorld w(*random, &config);
+    LysisWorld * world = &w;
+    double int_val = 0.2;
+
+    config.LYSIS(1);
+    config.LYSIS_CHANCE(0);
+    config.BENEFIT_TO_HOST(0);
+    config.SYNERGY(5);
+
+    emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+    emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+    phage->UponInjection();
+
+
+    double sym_piece = 20;
+    bacterium->DistribResToSym(phage, sym_piece);
+
+    // host would get 20 points if it did this with a symbiont
+    /* bacterium gets 16; int val is 0.2, sym piece is 20, so:
+           host donation = host int val * sym piece =  4
+           res in process = sym piece - host donation = 16
+       DistribResToSym then calls ProcessResources with host donation (4).
+       since the phage is lysogenic (lysis_chance = 0) and benefit to host is off (0),
+            phage ProcessResources returns 0.
+      ergo, bacterium only adds res in process (16) to its point total.*/
+    // phage gets 0 points; it doesn't process the 4 resources that bacterium donated
+
+    double expected_bacterium_points = 16;
+    double expected_phage_points = 0;
+    REQUIRE(bacterium->GetPoints() == expected_bacterium_points);
+    REQUIRE(phage->GetPoints() == expected_phage_points);
+
+    phage.Delete();
+    bacterium.Delete();
 }

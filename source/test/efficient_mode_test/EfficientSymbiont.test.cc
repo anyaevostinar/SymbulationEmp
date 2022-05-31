@@ -4,42 +4,47 @@
 TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     double int_val = -2;
-    REQUIRE_THROWS( new EfficientSymbiont(random, world, &config, int_val) );
+    REQUIRE_THROWS( emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val) );
 
     int_val = -1;
-    EfficientSymbiont * s1 = new EfficientSymbiont(random, world, &config, int_val);
-    CHECK(s1->GetIntVal() == int_val);
-    CHECK(s1->GetAge() == 0); 
-    CHECK(s1->GetPoints() == 0);
+    emp::Ptr<EfficientSymbiont> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
+    CHECK(symbiont1->GetIntVal() == int_val);
+    CHECK(symbiont1->GetAge() == 0);
+    CHECK(symbiont1->GetPoints() == 0);
 
     int_val = -1;
     double points = 10;
     double efficiency = 0.5;
-    EfficientSymbiont * s2 = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
-    CHECK(s2->GetIntVal() == int_val);
-    CHECK(s2->GetEfficiency() == efficiency);
-    CHECK(s2->GetAge() == 0);
-    CHECK(s2->GetPoints() == points);
+
+    emp::Ptr<EfficientSymbiont> symbiont2 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
+    CHECK(symbiont2->GetIntVal() == int_val);
+    CHECK(symbiont2->GetEfficiency() == efficiency);
+    CHECK(symbiont2->GetAge() == 0);
+    CHECK(symbiont2->GetPoints() == points);
 
     int_val = 1;
-    EfficientSymbiont * s3 = new EfficientSymbiont(random, world, &config, int_val);
-    CHECK(s3->GetIntVal() == int_val);
-    CHECK(s3->GetAge() == 0);
-    CHECK(s3->GetPoints() == 0);
+    emp::Ptr<EfficientSymbiont> symbiont3 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
+    CHECK(symbiont3->GetIntVal() == int_val);
+    CHECK(symbiont3->GetAge() == 0);
+    CHECK(symbiont3->GetPoints() == 0);
 
     int_val = 2;
-    REQUIRE_THROWS(new EfficientSymbiont(random, world, &config, int_val) );
+    REQUIRE_THROWS(emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val) );
+
+    symbiont1.Delete();
+    symbiont2.Delete();
+    symbiont3.Delete();
 }
 
-TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     WHEN("Mutation rate is not zero") {
@@ -47,15 +52,16 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
         double orig_efficiency = 0.5;
         double points = 0;
         config.MUTATION_SIZE(0.002);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("vertical");
+        symbiont->Mutate("vertical");
 
         THEN("Mutation occurs and efficiency value changes, but within bounds") {
-            REQUIRE(s->GetEfficiency() != orig_efficiency);
-            REQUIRE(s->GetEfficiency() <= 1);
-            REQUIRE(s->GetEfficiency() >= 0);
+            REQUIRE(symbiont->GetEfficiency() != orig_efficiency);
+            REQUIRE(symbiont->GetEfficiency() <= 1);
+            REQUIRE(symbiont->GetEfficiency() >= 0);
         }
+        symbiont.Delete();
     }
 
 
@@ -67,22 +73,22 @@ TEST_CASE("EfficientSymbiont mutate", "[efficient]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("vertical");
+        symbiont->Mutate("vertical");
 
 
         THEN("Mutation does not occur and efficiency value does not change") {
-            REQUIRE(s->GetEfficiency() == orig_efficiency);
+            REQUIRE(symbiont->GetEfficiency() == orig_efficiency);
         }
-
+        symbiont.Delete();
     }
 }
 
 TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double points = 0;
@@ -90,44 +96,47 @@ TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
 
     WHEN("Efficiency is 1") {
         double efficiency = 1;
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->AddPoints(points_in);
+        symbiont->AddPoints(points_in);
 
         THEN("All points added") {
-            REQUIRE( s->GetPoints() == points_in);
+            REQUIRE( symbiont->GetPoints() == points_in);
         }
+        symbiont.Delete();
     }
 
     WHEN("Efficiency is 0.5") {
         double efficiency = 0.5;
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->AddPoints(points_in);
+        symbiont->AddPoints(points_in);
         double actual_points = 5; //points_in * 0.5
 
         THEN("Half points get added") {
-            REQUIRE( s->GetPoints() == actual_points);
+            REQUIRE( symbiont->GetPoints() == actual_points);
         }
+        symbiont.Delete();
     }
 
     WHEN("Efficiency is 0") {
         double efficiency = 0;
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->AddPoints(points_in);
+        symbiont->AddPoints(points_in);
         double actual_points = 0; //points_in * 0
 
         THEN("No points get added") {
-            REQUIRE( s->GetPoints() == actual_points);
+            REQUIRE( symbiont->GetPoints() == actual_points);
         }
+        symbiont.Delete();
     }
 }
 
 TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(11);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
     WHEN("Mutation rate is not zero, but interaction value mut rate is 0 and vertical transmission occurs") {
@@ -136,18 +145,18 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
         double points = 0;
         config.MUTATION_SIZE(0.002);
         config.INT_VAL_MUT_RATE(0);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("vertical");
+        symbiont->Mutate("vertical");
 
         THEN("Efficiency mutates but interaction value does not") {
-            
-            REQUIRE(s->GetEfficiency() != orig_efficiency);
-            REQUIRE(s->GetEfficiency() <= 1);
-            REQUIRE(s->GetEfficiency() >= 0);
-            REQUIRE(s->GetIntVal() == int_val);
-        }
 
+            REQUIRE(symbiont->GetEfficiency() != orig_efficiency);
+            REQUIRE(symbiont->GetEfficiency() <= 1);
+            REQUIRE(symbiont->GetEfficiency() >= 0);
+            REQUIRE(symbiont->GetIntVal() == int_val);
+        }
+        symbiont.Delete();
     }
     WHEN("Mutation rate is not zero, but interaction value mut rate is 0 and horizontal transmission occurs") {
         double int_val = 0;
@@ -155,19 +164,18 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
         double points = 0;
         config.MUTATION_SIZE(0.002);
         config.INT_VAL_MUT_RATE(0);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("horizontal");
+        symbiont->Mutate("horizontal");
 
         THEN("Efficiency mutates but interaction value does not") {
-            
-            REQUIRE(s->GetEfficiency() != orig_efficiency);
-            REQUIRE(s->GetEfficiency() <= 1);
-            REQUIRE(s->GetEfficiency() >= 0);
-            REQUIRE(s->GetIntVal() == int_val);
-        }
 
-        
+            REQUIRE(symbiont->GetEfficiency() != orig_efficiency);
+            REQUIRE(symbiont->GetEfficiency() <= 1);
+            REQUIRE(symbiont->GetEfficiency() >= 0);
+            REQUIRE(symbiont->GetIntVal() == int_val);
+        }
+        symbiont.Delete();
     }
 
     WHEN("Mutation rate is zero, but interaction value mut rate is not zero and vertical transmission occurs") {
@@ -177,18 +185,18 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(0);
         config.INT_VAL_MUT_RATE(1);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("vertical");
+        symbiont->Mutate("vertical");
 
         THEN("Efficiency does not mutate but interaction value does") {
-            
-            REQUIRE(s->GetEfficiency() == orig_efficiency);
-            REQUIRE(s->GetIntVal() <= 1);
-            REQUIRE(s->GetIntVal() >= -1);
-            REQUIRE(s->GetIntVal() != int_val);
-        }
 
+            REQUIRE(symbiont->GetEfficiency() == orig_efficiency);
+            REQUIRE(symbiont->GetIntVal() <= 1);
+            REQUIRE(symbiont->GetIntVal() >= -1);
+            REQUIRE(symbiont->GetIntVal() != int_val);
+        }
+        symbiont.Delete();
     }
     WHEN("Mutation rate is zero, but interaction value mut rate is not zero and horizontal transmission occurs") {
         double int_val = 0;
@@ -197,29 +205,29 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
         config.MUTATION_SIZE(0.002);
         config.MUTATION_RATE(0);
         config.INT_VAL_MUT_RATE(1);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, orig_efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, orig_efficiency);
 
-        s->mutate("horizontal");
+        symbiont->Mutate("horizontal");
 
         THEN("Efficiency does not mutate but interaction value does") {
-            
-            REQUIRE(s->GetEfficiency() == orig_efficiency);
-            REQUIRE(s->GetIntVal() <= 1);
-            REQUIRE(s->GetIntVal() >= -1);
-            REQUIRE(s->GetIntVal() != int_val);
-        }
 
-        
+            REQUIRE(symbiont->GetEfficiency() == orig_efficiency);
+            REQUIRE(symbiont->GetIntVal() <= 1);
+            REQUIRE(symbiont->GetIntVal() >= -1);
+            REQUIRE(symbiont->GetIntVal() != int_val);
+        }
+        symbiont.Delete();
+
     }
 
 
 }
 
-TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
+TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
 
     emp::Ptr<emp::Random> random = new emp::Random(3);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
 
@@ -231,17 +239,17 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, parent_orig_efficiency);
-        s->SetAge(10);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, parent_orig_efficiency);
+        symbiont->SetAge(10);
 
-        emp::Ptr<Organism> sym_baby = s->reproduce("vertical");
+        emp::Ptr<Organism> sym_baby = symbiont->Reproduce("vertical");
 
 
         THEN("Offspring's efficiency equals parent's efficiency") {
             double sym_baby_efficiency = 0.5;
             REQUIRE( sym_baby->GetEfficiency() == sym_baby_efficiency);
             REQUIRE( sym_baby->GetEfficiency() == parent_orig_efficiency);
-            REQUIRE( s->GetEfficiency() == parent_orig_efficiency);
+            REQUIRE( symbiont->GetEfficiency() == parent_orig_efficiency);
         }
 
         THEN("Offspring's points are zero") {
@@ -253,7 +261,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         THEN("Offspring's age is 0") {
             REQUIRE(sym_baby->GetAge() == 0);
         }
-
+        symbiont.Delete();
         sym_baby.Delete();
     }
 
@@ -265,13 +273,13 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         config.SYM_HORIZ_TRANS_RES(100.0);
         config.HORIZ_TRANS(true);
         config.MUTATION_SIZE(0.01);
-        EfficientSymbiont * s2 = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont2 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        emp::Ptr<Organism> sym_baby = s2->reproduce("vertical");
+        emp::Ptr<Organism> sym_baby = symbiont2->Reproduce("vertical");
 
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
-            REQUIRE( sym_baby->GetEfficiency() != parent_orig_efficiency);
+            REQUIRE(sym_baby->GetEfficiency() != parent_orig_efficiency);
             REQUIRE(sym_baby->GetEfficiency() <= 1);
             REQUIRE(sym_baby->GetEfficiency() >= 0);
         }
@@ -285,7 +293,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
         THEN("Offspring's age is 0") {
             REQUIRE(sym_baby->GetAge() == 0);
         }
-
+        symbiont2.Delete();
         sym_baby.Delete();
 
     }
@@ -295,7 +303,7 @@ TEST_CASE("EfficientSymbiont reproduce", "[efficient]") {
 TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -306,22 +314,22 @@ TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
         config.MUTATION_RATE(0);
         config.HORIZ_MUTATION_RATE(0);
         config.EFFICIENCY_MUT_RATE(1);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->mutate("horizontal");
+        symbiont->Mutate("horizontal");
 
         THEN("Efficiency changes during horizontal mutation, int val stays the same") {
-            REQUIRE(s->GetEfficiency() != efficiency);
-            REQUIRE(s->GetIntVal() == int_val);
+            REQUIRE(symbiont->GetEfficiency() != efficiency);
+            REQUIRE(symbiont->GetIntVal() == int_val);
         }
-
+        symbiont.Delete();
     }
 }
 
-TEST_CASE("EfficientSymbiont mutate with horizontal transmission", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -332,22 +340,22 @@ TEST_CASE("EfficientSymbiont mutate with horizontal transmission", "[efficient]"
         config.MUTATION_RATE(0);
         config.HORIZ_MUTATION_RATE(0);
         config.EFFICIENCY_MUT_RATE(1);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->mutate("horizontal");
+        symbiont->Mutate("horizontal");
 
         THEN("Efficiency changes during horizontal mutation, int val stays the same") {
-            REQUIRE(s->GetEfficiency() != efficiency);
-            REQUIRE(s->GetIntVal() == int_val);
+            REQUIRE(symbiont->GetEfficiency() != efficiency);
+            REQUIRE(symbiont->GetIntVal() == int_val);
         }
-
+        symbiont.Delete();
     }
 }
 
-TEST_CASE("EfficientSymbiont mutate with vertical transmission", "[efficient]") {
+TEST_CASE("EfficientSymbiont Mutate with vertical transmission", "[efficient]") {
     emp::Ptr<emp::Random> random = new emp::Random(10);
     SymConfigBase config;
-    EfficientWorld w(*random);
+    EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = 0;
     double efficiency = 0.5;
@@ -358,15 +366,15 @@ TEST_CASE("EfficientSymbiont mutate with vertical transmission", "[efficient]") 
         config.MUTATION_RATE(1);
         config.HORIZ_MUTATION_RATE(0);
         config.EFFICIENCY_MUT_RATE(-1);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        s->mutate("vertical");
+        symbiont->Mutate("vertical");
 
         THEN("Efficiency and int val should change because pulls from regular mutation rate") {
-            REQUIRE(s->GetEfficiency() != efficiency);
-            REQUIRE(s->GetIntVal() != int_val);
+            REQUIRE(symbiont->GetEfficiency() != efficiency);
+            REQUIRE(symbiont->GetIntVal() != int_val);
         }
-
+        symbiont.Delete();
     }
 }
 
@@ -376,76 +384,85 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     SymConfigBase config;
     config.SYM_HORIZ_TRANS_RES(10);
     config.EFFICIENT_SYM(1);
-    EfficientWorld w(*random);
-    EfficientWorld * world = &w;
-    w.Resize(4);
+    EfficientWorld world(*random, &config);
+    world.Resize(4);
     config.MUTATION_SIZE(0);
     config.MUTATION_RATE(0);
     double points = 11;
     double int_val = 0;
     double efficiency = 0.9;
     double host_interaction_val = 1;
-    double host_points = 0;
 
     WHEN("The horizontal transmission mutation rate and size are also zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
+        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
 
-        EfficientHost * h = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h2 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h3 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h4 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
-        h->AddSymbiont(s);
-        w.AddOrgAt(h, 0);
-        w.AddOrgAt(h2, 1);
-        w.AddOrgAt(h3, 2);
-        w.AddOrgAt(h4, 3);
+        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val, points, efficiency);
+        host->AddSymbiont(symbiont);
+        world.AddOrgAt(host, 0);
+        world.AddOrgAt(host2, 1);
+        world.AddOrgAt(host3, 2);
+        world.AddOrgAt(host4, 3);
 
-        h->Process(0);
+        host->Process(0);
 
         THEN("EfficientSymbiont reproduces and offspring goes into neighboring Host and offspring has identical efficiency value") {
-            EfficientHost * new_infected = nullptr;
-            if(h2->HasSym()) {
-                new_infected = h2;
-            } else if (h3->HasSym()) {
-                new_infected = h3;
-            } else if(h4->HasSym()) {
-                new_infected = h4;
+            emp::Ptr<EfficientHost> new_infected = nullptr;
+            if(host2->HasSym()) {
+                new_infected = host2;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
+            } else if (host3->HasSym()) {
+                new_infected = host3;
+                REQUIRE(host2->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
+            } else if(host4->HasSym()) {
+                new_infected = host4;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host2->HasSym() == false);
             }
             REQUIRE(new_infected != nullptr);
-            REQUIRE(new_infected->HasSym()); 
+            REQUIRE(new_infected->HasSym());
             REQUIRE(new_infected->GetSymbionts()[0]->GetEfficiency() == efficiency);
         }
-
     }
 
     WHEN("The horizontal mutation rate and size are not zero and an EfficientSymbiont is added to a Host and about to reproduce horizontally and Host's Process is called") {
         config.HORIZ_MUTATION_SIZE(0.002);
         config.HORIZ_MUTATION_RATE(1.0);
-        EfficientHost * h = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h2 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h3 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
-        EfficientHost * h4 = new EfficientHost(random, &w, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+        emp::Ptr<EfficientHost> host = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host3 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
+        emp::Ptr<EfficientHost> host4 = emp::NewPtr<EfficientHost>(random, &world, &config, host_interaction_val);
 
-        EfficientSymbiont * s = new EfficientSymbiont(random, world, &config, int_val, points, efficiency);
-        h->AddSymbiont(s);
-        w.AddOrgAt(h, 0);
-        w.AddOrgAt(h2, 1);
-        w.AddOrgAt(h3, 2);
-        w.AddOrgAt(h4, 3);
+        emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val, points, efficiency);
+        host->AddSymbiont(symbiont);
+        world.AddOrgAt(host, 0);
+        world.AddOrgAt(host2, 1);
+        world.AddOrgAt(host3, 2);
+        world.AddOrgAt(host4, 3);
 
-        h->Process(0);
+        host->Process(0);
 
         THEN("EfficientSymbiont reproduces and offspring with a different efficiency value goes into neighboring Host") {
-            EfficientHost * new_infected = nullptr;
-            if(h2->HasSym()) {
-                new_infected = h2;
-            } else if (h3->HasSym()) {
-                new_infected = h3;
-            } else if(h4->HasSym()) {
-                new_infected = h4;
+            emp::Ptr<EfficientHost> new_infected = nullptr;
+            if(host2->HasSym()) {
+                new_infected = host2;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
+            } else if (host3->HasSym()) {
+                new_infected = host3;
+                REQUIRE(host2->HasSym() == false);
+                REQUIRE(host4->HasSym() == false);
+            } else if(host4->HasSym()) {
+                new_infected = host4;
+                REQUIRE(host3->HasSym() == false);
+                REQUIRE(host2->HasSym() == false);
             }
             REQUIRE(new_infected != nullptr);
-            REQUIRE(new_infected->HasSym()); 
+            REQUIRE(new_infected->HasSym());
             REQUIRE(new_infected->GetSymbionts()[0]->GetEfficiency() != efficiency);
             REQUIRE(new_infected->GetSymbionts()[0]->GetIntVal() != int_val);
         }
@@ -453,38 +470,89 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
     }
 }
 
-TEST_CASE("EfficientSymbiont makeNew", "[efficient]"){
+TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld w(*random);
     SymConfigBase config;
+    EfficientWorld world(*random, &config);
 
     double sym_int_val = 0.2;
-    Organism * s1 = new EfficientSymbiont(random, &w, &config, sym_int_val);
-    Organism * s2 = s1->makeNew();
+    emp::Ptr<Organism> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Organism> symbiont2 = symbiont1->MakeNew();
 
     THEN("The new efficient symbiont has the same genome as its parent, but age and points 0"){
-        REQUIRE(s2->GetIntVal() == s1->GetIntVal());
-        REQUIRE(s2->GetInfectionChance() == s1->GetInfectionChance());
-        REQUIRE(s2->GetEfficiency() == s1->GetEfficiency());
-        REQUIRE(s2->GetAge() == 0);
-        REQUIRE(s2->GetPoints() == 0);
+        REQUIRE(symbiont2->GetIntVal() == symbiont1->GetIntVal());
+        REQUIRE(symbiont2->GetInfectionChance() == symbiont1->GetInfectionChance());
+        REQUIRE(symbiont2->GetEfficiency() == symbiont1->GetEfficiency());
+        REQUIRE(symbiont2->GetAge() == 0);
+        REQUIRE(symbiont2->GetPoints() == 0);
         //check that the offspring is the correct class
-        REQUIRE(typeid(*s2).name() == typeid(*s1).name());
+        REQUIRE(typeid(*symbiont2).name() == typeid(*symbiont1).name());
     }
+    symbiont1.Delete();
+    symbiont2.Delete();
 }
 
 TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    EfficientWorld w(*random);
-    EfficientWorld * world = &w;
     SymConfigBase config;
+    EfficientWorld w(*random, &config);
+    EfficientWorld * world = &w;
     double int_val = -1;
-    emp::Ptr<EfficientSymbiont> s = new EfficientSymbiont(random, world, &config, int_val);
+    emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
 
     double efficiency = 0.5;
-    s->SetEfficiency(efficiency);
+    symbiont->SetEfficiency(efficiency);
     double expected_efficieny = 0.5;
-    REQUIRE(s->GetEfficiency() == expected_efficieny);
+    REQUIRE(symbiont->GetEfficiency() == expected_efficieny);
 
-    delete s;
+    symbiont.Delete();
+}
+
+TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
+  double int_val = 0;
+  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  SymConfigBase config;
+  EfficientWorld world(*random, &config);
+  int points_to_transmit = 100;
+
+  config.SYM_VERT_TRANS_RES(points_to_transmit);
+
+
+  emp::Ptr<Organism> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val);
+  emp::Ptr<Organism> host = emp::NewPtr<EfficientHost>(random, &world, &config, int_val);
+  REQUIRE(host->HasSym() == false);
+
+  WHEN("the world permits vertical transmission"){
+    config.VERTICAL_TRANSMISSION(1);
+
+    WHEN("the symbiont has enough points to transmit"){
+      symbiont->SetPoints(points_to_transmit);
+
+      THEN("the symbiont offspring is vertically transmitted to the host"){
+        symbiont->VerticalTransmission(host);
+        REQUIRE(host->HasSym() == true);
+      }
+    }
+
+    WHEN("the symbiont does not have enough points to transmit"){
+      symbiont->SetPoints(points_to_transmit - 1);
+
+      THEN("vertical transmission does not occur"){
+        symbiont->VerticalTransmission(host);
+        REQUIRE(host->HasSym() == false);
+      }
+    }
+  }
+
+  WHEN("the world does not permit vertical transmission"){
+    config.VERTICAL_TRANSMISSION(0);
+    symbiont->SetPoints(points_to_transmit);
+
+    THEN("vertical transmission does not occur"){
+      symbiont->VerticalTransmission(host);
+      REQUIRE(host->HasSym() == false);
+    }
+  }
+  host.Delete();
+  symbiont.Delete();
 }

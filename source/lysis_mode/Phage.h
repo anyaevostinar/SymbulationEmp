@@ -215,7 +215,7 @@ public:
    * If a phage chooses to be lysogenic, their interaction value will be 0 to represent
    * them being neutral.
    */
-  void uponInjection() {
+  void UponInjection() {
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
       lysogeny = false;
@@ -235,8 +235,8 @@ public:
    * deviation that is equal to the mutation size. Phage mutation can be
    * on or off.
    */
-  void mutate() {
-    Symbiont::mutate();
+  void Mutate() {
+    Symbiont::Mutate();
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
@@ -266,7 +266,7 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<Organism> makeNew() {
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
     // pass down parent's genome
     sym_baby->SetIncVal(GetIncVal());
@@ -314,7 +314,7 @@ public:
       std::exit(1);
     }
     while(GetPoints() >= my_config->SYM_LYSIS_RES()) {
-      emp::Ptr<Organism> sym_baby = reproduce();
+      emp::Ptr<Organism> sym_baby = Reproduce();
       my_host->AddReproSym(sym_baby);
       SetPoints(GetPoints() - my_config->SYM_LYSIS_RES());
     }
@@ -332,30 +332,35 @@ public:
   void VerticalTransmission(emp::Ptr<Organism> host_baby){
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
-      emp::Ptr<Organism> phage_baby = reproduce();
+      emp::Ptr<Organism> phage_baby = Reproduce();
       host_baby->AddSymbiont(phage_baby);
     }
   }
 
 
   /**
-   * Input: The double representing the resources that will be given to a phage.
+   * Input: The double representing the resources to be distributed to the phage
+   * and (optionally) the host from whom it comes; if no host is provided, the
+   * phage's host variable is used.
    *
    * Output: The double representing the resources that are left over from what
    * was distributed to the phage.
    *
    * Purpose: To allow a phage to steal or use donated resources from their host.
    */
-  double ProcessResources(double hostDonation){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
+    if(host == nullptr){
+      host = my_host;
+    }
     if(lysogeny){
       if(my_config->BENEFIT_TO_HOST()){
-        return my_host->ProcessLysogenResources(incorporation_val);
+        return host->ProcessLysogenResources(incorporation_val);
       } else{
         return 0;
       }
     }
     else{
-      return Symbiont::ProcessResources(hostDonation); //lytic phage do steal resources
+      return Symbiont::ProcessResources(host_donation, host); //lytic phage do steal resources
     }
   }
 

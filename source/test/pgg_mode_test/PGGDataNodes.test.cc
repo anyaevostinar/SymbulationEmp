@@ -7,13 +7,15 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
-    PGGWorld w(random);
-    w.Resize(4);
-    w.SetFreeLivingSyms(1);
+    PGGWorld world(random, &config);
+    world.Resize(4);
+    
+    config.FREE_LIVING_SYMS(1);
+    config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);
     size_t num_bins = 11;
 
-    emp::DataMonitor<double, emp::data::Histogram>& sym_donation_node = w.GetPGGDataNode();
+    emp::DataMonitor<double, emp::data::Histogram>& sym_donation_node = world.GetPGGDataNode();
     REQUIRE(std::isnan(sym_donation_node.GetMean()));
     for(size_t i = 0; i < num_bins; i++){
       REQUIRE(sym_donation_node.GetHistCounts()[i] == 0);
@@ -32,15 +34,15 @@ TEST_CASE("GetPGGDataNode", "[pgg]"){
       expected_hist_counts[7] = 2;
       expected_hist_counts[9] = 1;
 
-      Host *host = new PGGHost(&random, &w, &config, int_val);
-      w.AddOrgAt(host, 0);
+      emp::Ptr<Host> host = emp::NewPtr<PGGHost>(&random, &world, &config, int_val);
+      world.AddOrgAt(host, 0);
 
       for(size_t i = 0; i < 3; i++){
-        w.AddOrgAt(new PGGSymbiont(&random, &w, &config, int_val, free_sym_donation_vals[i]), emp::WorldPosition(0, i));
-        host->AddSymbiont(new PGGSymbiont(&random, &w, &config, int_val, hosted_sym_donation_vals[i]));
+        world.AddOrgAt(emp::NewPtr<PGGSymbiont>(&random, &world, &config, int_val, free_sym_donation_vals[i]), emp::WorldPosition(0, i));
+        host->AddSymbiont(emp::NewPtr<PGGSymbiont>(&random, &world, &config, int_val, hosted_sym_donation_vals[i]));
       }
 
-      w.Update();
+      world.Update();
 
       THEN("their average efficiency is tracked by a data node"){
         REQUIRE(sym_donation_node.GetMean() < (expected_av + 0.0001));

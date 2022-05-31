@@ -92,7 +92,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> makeNew(){
+  emp::Ptr<Organism> MakeNew(){
     emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, my_config, GetIntVal());
     host_baby->SetEfficiency(GetEfficiency());
     return host_baby;
