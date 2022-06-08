@@ -27,7 +27,6 @@ top left!
 projects/index
 QuickStartGuides/index
 ALIFE2022Tutorial/index
-library/index
 api/library_root
 
 ```
