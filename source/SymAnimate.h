@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "default_mode/SymWorld.h"
+#include "default_mode/DataNodes.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
