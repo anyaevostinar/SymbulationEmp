@@ -35,7 +35,7 @@ private:
   const int RECT_WIDTH = 10;
 
   emp::Random random{config.SEED()};
-  SymWorld world{random};
+  SymWorld world{random, &config};
 
 
   emp::vector<emp::Ptr<Organism>> p;
