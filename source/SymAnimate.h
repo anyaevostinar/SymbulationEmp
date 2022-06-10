@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "default_mode/SymWorld.h"
+#include "default_mode/DataNodes.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
@@ -35,7 +36,7 @@ private:
   const int RECT_WIDTH = 10;
 
   emp::Random random{config.SEED()};
-  SymWorld world{random};
+  SymWorld world{random, &config};
 
 
   emp::vector<emp::Ptr<Organism>> p;
