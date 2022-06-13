@@ -3,6 +3,7 @@
 #include "../default_mode/Host.h"
 #include "../default_mode/WorldSetup.cc"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/config.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
@@ -51,32 +52,7 @@ int symbulation_main(int argc, char * argv[])
 
   worldSetup(&world, &config);
 
-  //Loop through updates
-  int numupdates = config.UPDATES();
-  for (int i = 0; i < numupdates; i++) {
-    if((i%TIMING_REPEAT)==0) {
-      std::cout <<"Update: "<< i << std::endl;
-      std::cout.flush();
-    }
-    world.Update();
-  }
-
-  config.MUTATION_RATE(0);
-  config.MUTATION_SIZE(0);
-  config.HOST_MUTATION_SIZE(0);
-  config.HOST_MUTATION_RATE(0);
-  config.MUTATE_LYSIS_CHANCE(0);
-  config.MUTATE_INDUCTION_CHANCE(0);
-  config.MUTATE_INC_VAL(0);
-
-  int num_no_mut_updates = config.NO_MUT_UPDATES();
-  for (int i = 0; i < num_no_mut_updates; i++) {
-    if((i%TIMING_REPEAT)==0) {
-      std::cout <<"No mutation update: "<< i << std::endl;
-      std::cout.flush();
-    }
-    world.Update();
-  }
+  world.RunExperiment();
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){

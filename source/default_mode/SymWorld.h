@@ -543,24 +543,74 @@ public:
     }
   }
 
+  /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: To set all settings in the MUTATION group to 0 for the no-mutation updates.
+   */
+   
+  void SetMutationZero() {
+    for (auto & group : my_config->GetGroupSet()) {
+      if(group->GetName() == "MUTATION"){
+        for (size_t i = 0; i < group->GetSize(); ++i) {
+          auto setting = group->GetEntry(i);
+          std::stringstream warnings;
+          setting->SetValue("0", warnings);
+          assert(warnings.str().empty());
+        }
+      }
+    }
+  }
+
+  /**
+   * Input: Optional boolean "verbose" that specifies whether to print the update numbers to standard output or not, defaults to true.
+   * 
+   * Output: None
+   * 
+   * Purpose: Run the number of updates and non-mutation updates specified in the configuration settings.
+   */
+  void RunExperiment(bool verbose=true) {
+    //Loop through updates
+    int numupdates = my_config->UPDATES();
+    for (int i = 0; i < numupdates; i++) {
+      if(verbose && (i%my_config->DATA_INT())==0) {
+        std::cout <<"Update: "<< i << std::endl;
+        std::cout.flush();
+      }
+      Update();
+    }
+
+    int num_no_mut_updates = my_config->NO_MUT_UPDATES();
+    if(num_no_mut_updates > 0) {
+      SetMutationZero();
+    }
+
+    for (int i = 0; i < num_no_mut_updates; i++) {
+      if(verbose && (i%my_config->DATA_INT())==0) {
+        std::cout <<"No mutation update: "<< i << std::endl;
+        std::cout.flush();
+      }
+      Update();
+    }
+  }
+
 
   /**
    * Input: None
    *
    * Output: None
    *
-   * Purpose: To call the process functions for hosts and symbionts.
+   * Purpose: To simulate a timestep in the world, which includes calling the process functions for hosts and symbionts and updating the data nodes.
    */
   void Update() {
     emp::World<Organism>::Update();
     if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
-    //TODO: put in fancy scheduler at some point
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
       if (IsOccupied(i) == false && !sym_pop[i]){ continue;} // no organism at that cell
-      //Would like to shove reproduction into Process, but it gets sticky with Symbiont reproduction
-      //Could put repro in Host process and population calls Symbiont process and place offspring as necessary?
       if(IsOccupied(i)){//can't call GetDead on a deleted sym, so
         pop[i]->Process(i);
         if (pop[i]->GetDead()) { //Check if the host died
@@ -571,8 +621,6 @@ public:
         emp::WorldPosition sym_pos = emp::WorldPosition(0,i);
         if (sym_pop[i]->GetDead()) DoSymDeath(i); //Might have died since their last time being processed
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
-        //if (sym_pop[i]->GetDead()) DoSymDeath(i); //Checking if they died during their process and cleaning up the corpse
-        //TODO: fix the reason why the corpse can't be immediately cleaned up
       }
     } // for each cell in schedule
   } // Update()

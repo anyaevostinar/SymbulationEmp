@@ -1030,54 +1030,103 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   }
 }
 
-TEST_CASE( "No mutation updates", "[default] "){
-  GIVEN("a world"){
+TEST_CASE( "SetMutationZero", "[default]") {
+  GIVEN("World first created with all mutation settings at 1") {
     emp::Random random(17);
     SymConfigBase config;
     config.MUTATION_SIZE(1);
     config.MUTATION_RATE(1);
+    config.HOST_MUTATION_SIZE(1);
+    config.HOST_MUTATION_RATE(1);
+    config.MUTATE_LYSIS_CHANCE(1);
+    config.MUTATE_INDUCTION_CHANCE(1);
+    config.MUTATE_INC_VAL(1);
+    config.EFFICIENCY_MUT_RATE(1);
+    config.INT_VAL_MUT_RATE(1);
+    config.HORIZ_MUTATION_SIZE(1);
+    config.HORIZ_MUTATION_RATE(1);
+    SymWorld world(random, &config);
+
+    REQUIRE(config.MUTATION_SIZE() == 1);
+    REQUIRE(config.MUTATION_RATE() == 1);
+    REQUIRE(config.HOST_MUTATION_SIZE() == 1);
+    REQUIRE(config.HOST_MUTATION_RATE() == 1);
+    REQUIRE(config.MUTATE_LYSIS_CHANCE() == 1);
+    REQUIRE(config.MUTATE_INDUCTION_CHANCE() == 1);
+    REQUIRE(config.MUTATE_INC_VAL() == 1);
+    REQUIRE(config.EFFICIENCY_MUT_RATE() == 1);
+    REQUIRE(config.INT_VAL_MUT_RATE() == 1);
+    REQUIRE(config.HORIZ_MUTATION_SIZE() == 1);
+    REQUIRE(config.HORIZ_MUTATION_RATE() == 1);
+    
+    WHEN("SetMutationZero method called") {
+      world.SetMutationZero();
+      THEN("Mutation size and rate both 0") {
+        REQUIRE(config.MUTATION_SIZE() == 0);
+        REQUIRE(config.MUTATION_RATE() == 0);
+        REQUIRE(config.HOST_MUTATION_SIZE() == 0);
+        REQUIRE(config.HOST_MUTATION_RATE() == 0);
+        REQUIRE(config.MUTATE_LYSIS_CHANCE() == 0);
+        REQUIRE(config.MUTATE_INDUCTION_CHANCE() == 0);
+        REQUIRE(config.MUTATE_INC_VAL() == 0);
+        REQUIRE(config.EFFICIENCY_MUT_RATE() == 0);
+        REQUIRE(config.INT_VAL_MUT_RATE() == 0);
+        REQUIRE(config.HORIZ_MUTATION_SIZE() == 0);
+        REQUIRE(config.HORIZ_MUTATION_RATE() == 0);
+      }
+    }
+  }
+}
+
+TEST_CASE( "No mutation updates", "[default] "){
+  GIVEN("a world with 1 mutation update and 1 non-mutation update"){
+    emp::Random random(17);
+    SymConfigBase config;
+    config.MUTATION_SIZE(1);
+    config.MUTATION_RATE(1);
+    config.UPDATES(1);
+    config.NO_MUT_UPDATES(1);
     SymWorld world(random, &config);
     double int_val = 0.4;
     int world_size = 100;
     world.Resize(world_size);
-
-
-
     emp::Ptr<Organism> symbiont = new Symbiont(&random, &world, &config, int_val);
     emp::Ptr<Organism> host = new Host(&random, &world, &config, int_val);
 
-    emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
-    emp::Ptr<Organism> mut_host_baby = host->Reproduce();
+    WHEN("A host and symbiont reproduce at first"){
+      emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
+      emp::Ptr<Organism> mut_host_baby = host->Reproduce();
 
-    REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
-    REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
+      THEN("Mutation rate and size are still 1"){
+        REQUIRE(config.MUTATION_RATE() == 1);
+        REQUIRE(config.MUTATION_SIZE() == 1);
+      }
+      THEN("Host and symbiont offspring are mutated"){
+        REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
+        REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
+      }
+    }
+    WHEN("The experiment runs and host and symbiont reproduce after"){
+      world.RunExperiment(false);
+      emp::Ptr<Organism> no_mut_sym_baby = symbiont->Reproduce();
+      emp::Ptr<Organism> no_mut_host_baby = host->Reproduce();
 
-    REQUIRE(config.MUTATION_RATE() == 1);
+      THEN("Mutation sizes and rates are all 0"){
+        REQUIRE(config.MUTATION_RATE() == 0);
+        REQUIRE(config.MUTATION_SIZE() == 0);
+        REQUIRE(config.HOST_MUTATION_SIZE() == 0);
+        REQUIRE(config.HOST_MUTATION_RATE() == 0);
+        REQUIRE(config.MUTATE_LYSIS_CHANCE() == 0);
+        REQUIRE(config.MUTATE_INDUCTION_CHANCE() == 0);
+        REQUIRE(config.MUTATE_INC_VAL() == 0);
+      }
+      THEN("Host and symbiont offspring aren't mutated"){
+        REQUIRE(no_mut_sym_baby->GetIntVal() < int_val + 0.00001);
+        REQUIRE(no_mut_sym_baby->GetIntVal() > int_val - 0.00001);
+        REQUIRE(no_mut_host_baby->GetIntVal() < int_val + 0.00001);
+        REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
+      }
+    }
 
-    config.MUTATION_RATE(0);
-    config.MUTATION_SIZE(0);
-    config.HOST_MUTATION_SIZE(0);
-    config.HOST_MUTATION_RATE(0);
-    config.MUTATE_LYSIS_CHANCE(0);
-    config.MUTATE_INDUCTION_CHANCE(0);
-    config.MUTATE_INC_VAL(0);
-
-    REQUIRE(config.MUTATION_RATE() == 0);
-    REQUIRE(config.MUTATION_SIZE() == 0);
-    REQUIRE(config.HOST_MUTATION_SIZE() == 0);
-    REQUIRE(config.HOST_MUTATION_RATE() == 0);
-    REQUIRE(config.MUTATE_LYSIS_CHANCE() == 0);
-    REQUIRE(config.MUTATE_INDUCTION_CHANCE() == 0);
-    REQUIRE(config.MUTATE_INC_VAL() == 0);
-
-    //REQUIRE(symbiont->GetSymConfigMutRate() == 0);
-
-    emp::Ptr<Organism> no_mut_sym_baby = symbiont->Reproduce();
-    emp::Ptr<Organism> no_mut_host_baby = host->Reproduce();
-
-    REQUIRE(no_mut_sym_baby->GetIntVal() < int_val + 0.00001);
-    REQUIRE(no_mut_sym_baby->GetIntVal() > int_val - 0.00001);
-    REQUIRE(no_mut_host_baby->GetIntVal() < int_val + 0.00001);
-    REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
   }
 }

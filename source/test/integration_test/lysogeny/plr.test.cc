@@ -26,8 +26,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     config.SYM_LYSIS_RES(10);
     config.START_MOI(0.5);
     config.FREE_LIVING_SYMS(1);
-
-    int numupdates = 3000;
+    config.UPDATES(3000);
 
     WHEN("Prophage Loss Rate is 0.05"){
         LysisWorld w(*random, &config);
@@ -39,10 +38,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         worldSetup(world, &config);
 
-        //Loop through updates
-        for (int i = 0; i < numupdates; i++) {
-            world->Update();
-        }
+        world->RunExperiment(false);
 
         THEN("Phage evolve to be lytic"){
             double avg = node.GetMean();
@@ -60,10 +56,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         worldSetup(world, &config);
 
-        //Loop through updates
-        for (int i = 0; i < numupdates; i++) {
-            world->Update();
-        }
+        world->RunExperiment(false);
 
         THEN("Phage evolve to be temperate"){
             double avg = node.GetMean();
@@ -82,10 +75,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         worldSetup(world, &config);
 
-        //Loop through updates
-        for (int i = 0; i < numupdates; i++) {
-            world->Update();
-        }
+        world->RunExperiment(false);
 
         THEN("Phage evolve to be lysogenic"){
             double avg = node.GetMean();

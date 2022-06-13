@@ -62,6 +62,10 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(MUTATE_LYSIS_CHANCE, int, 0, "Should the chance of lysis mutate? 0 for no, 1 for yes"),
     VALUE(MUTATE_INDUCTION_CHANCE, bool, 0, "Should the chance of Induction mutate? 0 for no, 1 for yes"),
     VALUE(MUTATE_INC_VAL, bool, 0, "Whether the incorporation vals mutate or not, 0 or 1"),
+    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The overall mutation rate of the efficiency trait in symbionts, -1 makes it same as mutation rate as determined by transmission mode"),
+    VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
+    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
+    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
 
 
 
@@ -72,10 +76,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-    VALUE(EFFICIENCY_MUT_RATE, double, -1, "The overall mutation rate of the efficiency trait in symbionts, -1 makes it same as mutation rate as determined by transmission mode"),
-    VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
-    VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
-    VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
+
 
 )
 #endif
