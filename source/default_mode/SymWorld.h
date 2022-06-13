@@ -558,7 +558,7 @@ public:
           auto setting = group->GetEntry(i);
           std::stringstream warnings;
           setting->SetValue("0", warnings);
-          assert(warnings.str().empty());
+          emp_assert(warnings.str().empty());
         }
       }
     }
