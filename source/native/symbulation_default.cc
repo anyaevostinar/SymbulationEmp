@@ -3,12 +3,12 @@
 #include "../default_mode/Host.h"
 #include "../default_mode/WorldSetup.cc"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../../Empirical/include/emp/config/config.hpp"
 #include <iostream>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
 
 // This is the main function for the NATIVE version of this project.
-
 int symbulation_main(int argc, char * argv[])
 {
   SymConfigBase config;
@@ -51,16 +51,8 @@ int symbulation_main(int argc, char * argv[])
   }
 
   worldSetup(&world, &config);
-  int numupdates = config.UPDATES();
 
-  //Loop through updates
-  for (int i = 0; i < numupdates; i++) {
-    if((i%TIMING_REPEAT)==0) {
-      std::cout <<"Update: "<< i << std::endl;
-      std::cout.flush();
-    }
-    world.Update();
-  }
+  world.RunExperiment();
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){
