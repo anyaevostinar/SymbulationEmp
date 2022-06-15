@@ -824,11 +824,11 @@ TEST_CASE( "Spatial structure", "[default]" ){
         emp::Ptr<Organism> host_baby = host_parent->Reproduce();
         world.DoBirth(host_baby, host_parent_pos);
 
-        /* We have parent position 101, so we expect baby to in one of 8 surrounding cells
-             | 000 | 001 | 002 | ...
-             | 100 |*101*| 102 | ...
-             | 200 | 201 | 202 | ...
-        */
+         // We have parent position 101, so we expect baby to be in one of 8 surrounding cells
+         //     | 000 | 001 | 002 | ...
+         //     | 100 |*101*| 102 | ...
+         //     | 200 | 201 | 202 | ...
+
         int possible_indices[8] = {0, 1, 2, 100, 102, 200, 201, 202};
         bool found_baby = false;
         for(int i = 0; i < 8; i++){
@@ -903,7 +903,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
       world.SetPopStruct_Mixed(false);
       //given the size of the world, it's very unlikely that
       //organisms will randomly be placed in a neighbor position
-      THEN("Host babies are born next to their parents"){
+      THEN("Host babies are born into a random position anywhere in the world"){
         emp::Ptr<Organism> host_parent = emp::NewPtr<Host>(&random, &world, &config, 1);
         size_t host_parent_pos = 101;
         world.AddOrgAt(host_parent, host_parent_pos);
@@ -922,7 +922,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
         REQUIRE(found_baby == false);
       }
       WHEN("Free living symbionts are permitted"){
-        THEN("Symbiont babies are horizontally transmitted to a position near their parents"){
+        THEN("Symbiont babies are horizontally transmitted to a random position anywhere in the world"){
           emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition sym_parent_pos = emp::WorldPosition(0, 250);
           world.AddOrgAt(sym_parent, sym_parent_pos);
@@ -940,7 +940,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
 
           REQUIRE(found_baby == false);
         }
-        THEN("Symbionts randomly move to cells near their old position"){
+        THEN("Symbionts randomly move to cells anywhere in the world"){
           emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition original_position = emp::WorldPosition(0, 898);
           world.AddOrgAt(symbiont, original_position);
@@ -959,7 +959,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
       }
       WHEN("Free living symbionts are not permitted"){
         config.FREE_LIVING_SYMS(0);
-        THEN("Symbionts are horizontally transmitted into a neighboring host"){
+        THEN("Symbionts are horizontally transmitted into hosts anywhere in the world"){
           emp::Ptr<Organism> host_parent = emp::NewPtr<Host>(&random, &world, &config, 1);
           emp::Ptr<Organism> neighboring_host = emp::NewPtr<Host>(&random, &world, &config, 1);
           emp::Ptr<Organism> distant_host = emp::NewPtr<Host>(&random, &world, &config, 1);
