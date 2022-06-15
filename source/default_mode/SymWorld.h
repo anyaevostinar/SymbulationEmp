@@ -70,6 +70,8 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
+  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_horiztrans;
+  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
 
 
 public:
@@ -120,6 +122,8 @@ public:
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
+    if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
+    if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
 
     for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
       if(sym_pop[i]) {
@@ -409,19 +413,21 @@ public:
    * Definitions of data node functions, expanded in DataNodes.h
    */
   void WritePhylogenyFile(const std::string & filename);
-  void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
   emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
   emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
+  emp::DataFile & SetUpTransmissionFile(const std::string & filename);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
+  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
+  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();

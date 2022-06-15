@@ -543,6 +543,10 @@ public:
       emp::Ptr<Organism> sym_baby = Reproduce();
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
+
+      //vertical transmission data nodes
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(1);
     }
   }
 
@@ -562,6 +566,10 @@ public:
         SetPoints(0);
         emp::Ptr<Organism> sym_baby = Reproduce();
         my_world->SymDoBirth(sym_baby, location);
+
+        //horizontal transmission data nodes
+        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(1);
       }
     }
   }
