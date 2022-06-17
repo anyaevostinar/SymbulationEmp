@@ -187,12 +187,14 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
 emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & file = SetupFile(filename);
   auto & node1 = GetHorizontalTransmissionAttemptCount();
+  auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
 
   file.AddVar(update, "update", "Update");
 
   //horizontal transmission
   file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts");
+  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes");
 
   //vertical transmission
   file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts");
@@ -554,10 +556,27 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
  * Input: None
  *
  * Output: The DataMonitor<int>& that has the information representing
- * how many attempts were made to horizontally transmit.
+ * how many successful attempts were made to horizontally transmit.
  *
  * Purpose: To retrieve the data nodes that is tracking the
- * number of attempted horizontal transmissions.
+ * number of successful horizontal transmissions.
+ */
+emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
+  if (!data_node_successes_horiztrans) {
+    data_node_successes_horiztrans.New();
+  }
+  return *data_node_successes_horiztrans;
+}
+
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts were made to vertically transmit.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of attempted vertical transmissions.
  */
 emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
   if (!data_node_attempts_verttrans) {

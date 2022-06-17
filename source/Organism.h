@@ -154,7 +154,7 @@ class Organism {
   virtual void SetResTypes(std::set<int> _in) {
     std::cout << "SetResTypes called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void AddSymbiont(emp::Ptr<Organism> _in)
+  virtual int AddSymbiont(emp::Ptr<Organism> _in)
    {std::cout << "AddSymbiont called from Organism" << std::endl;
      throw "Organism method called!";}
   virtual void AddReproSym(emp::Ptr<Organism> _in) {
