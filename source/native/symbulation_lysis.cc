@@ -59,16 +59,8 @@ int symbulation_main(int argc, char * argv[])
   }
 
   worldSetup(&world, &config);
-  int numupdates = config.UPDATES();
 
-  //Loop through updates
-  for (int i = 0; i < numupdates; i++) {
-    if((i%TIMING_REPEAT)==0) {
-      std::cout <<"Update: "<< i << std::endl;
-      std::cout.flush();
-    }
-    world.Update();
-  }
+  world.RunExperiment();  
 
   return 0;
 }
