@@ -552,7 +552,7 @@ public:
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
 
-      //vertical transmission data nodes
+      //vertical transmission data node
       emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(1);
     }

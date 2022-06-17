@@ -193,11 +193,11 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   file.AddVar(update, "update", "Update");
 
   //horizontal transmission
-  file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts");
-  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes");
+  file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts", true);
+  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes", true);
 
   //vertical transmission
-  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts");
+  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
 
   file.PrintHeaderKeys();
 
