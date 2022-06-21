@@ -408,6 +408,7 @@ public:
   /**
    * Definitions of data node functions, expanded in DataNodes.h
    */
+  void CreateDateFiles();
   void WritePhylogenyFile(const std::string & filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
@@ -545,12 +546,12 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: To set all settings in the MUTATION group to 0 for the no-mutation updates.
    */
-   
+
   void SetMutationZero() {
     for (auto & group : my_config->GetGroupSet()) {
       if(group->GetName() == "MUTATION"){
@@ -566,9 +567,9 @@ public:
 
   /**
    * Input: Optional boolean "verbose" that specifies whether to print the update numbers to standard output or not, defaults to true.
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: Run the number of updates and non-mutation updates specified in the configuration settings.
    */
   void RunExperiment(bool verbose=true) {

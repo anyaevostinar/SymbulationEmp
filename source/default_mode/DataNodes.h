@@ -3,6 +3,24 @@
 
 #include "SymWorld.h"
 
+/**
+* Input: None.
+*
+* Output: None.
+*
+* Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
+*/
+void SymWorld::CreateDateFiles(){
+  int TIMING_REPEAT = my_config->DATA_INT();
+  std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+
+  SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+
+  if(my_config->FREE_LIVING_SYMS() == 1){
+    SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  }
+}
 
 /**
  * Input: The address of the string representing the file to be
