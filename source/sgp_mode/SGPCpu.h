@@ -134,12 +134,21 @@ public:
     return false;
   }
 
+
+  SGPCpu<T> makeNew(T *organism) {
+    SGPCpu<T> cpu(organism);
+    cpu.program = program;
+    return cpu;
+  }
+
   void Mutate() { program.ApplyPointMutations(0.01); }
+
 
   void PrintCode() {
     std::cout << "--------" << std::endl;
     for (auto i : program) {
       std::cout << i.GetOpName() << "(";
+
       bool first = true;
       for (auto a : i.args) {
         if (!first) {
@@ -150,6 +159,7 @@ public:
         std::cout << (int)a;
       }
       std::cout << ")" << std::endl;
+
     }
   }
 };
