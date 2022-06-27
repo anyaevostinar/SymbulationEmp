@@ -6,7 +6,7 @@
 
 class SGPWorld : public SymWorld {
 public:
-    SGPWorld(emp::Random& r) : SymWorld(r)  {}
+    SGPWorld(emp::Random& r, emp::Ptr<SymConfigBase> _config) : SymWorld(r, _config)  {}
 };
 
 #endif

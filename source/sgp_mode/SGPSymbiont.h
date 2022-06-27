@@ -49,15 +49,15 @@ public:
     // }
   }
 
-  emp::Ptr<Organism> makeNew() {
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> host_baby =
         emp::NewPtr<SGPSymbiont>(random, my_world, my_config, cpu, GetIntVal());
     return host_baby;
   }
 
-  void mutate() {
-    Symbiont::mutate();
-    cpu.mutate();
+  void Mutate() {
+    Symbiont::Mutate();
+    cpu.Mutate();
   }
 };
 

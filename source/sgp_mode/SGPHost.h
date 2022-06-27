@@ -72,7 +72,7 @@ public:
 
   void maybeReproduce(float chance) {
     if (random->P(chance)) {
-      auto p = reproduce();
+      auto p = Reproduce();
 
       //Now check if symbionts get to vertically transmit
       for(auto parent : GetSymbionts()){
@@ -83,15 +83,15 @@ public:
     }
   }
 
-  emp::Ptr<Organism> makeNew() {
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby =
         emp::NewPtr<SGPHost>(random, my_world, my_config, cpu, GetIntVal());
     return host_baby;
   }
 
-  void mutate() {
-    Host::mutate();
-    cpu.mutate();
+  void Mutate() {
+    Host::Mutate();
+    cpu.Mutate();
   }
 };
 
