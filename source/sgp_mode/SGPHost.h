@@ -91,7 +91,9 @@ public:
 
   void Mutate() {
     Host::Mutate();
-    cpu.mutate();
+
+    cpu.Mutate();
+
   }
 };
 

@@ -134,23 +134,32 @@ public:
     return false;
   }
 
+
   SGPCpu<T> makeNew(T *organism) {
     SGPCpu<T> cpu(organism);
     cpu.program = program;
     return cpu;
   }
 
-  void mutate() { program.ApplyPointMutations(0.01); }
+  void Mutate() { program.ApplyPointMutations(0.01); }
+
 
   void PrintCode() {
     std::cout << "--------" << std::endl;
     for (auto i : program) {
       std::cout << i.GetOpName() << "(";
+
+      bool first = true;
       for (auto a : i.args) {
-        std::cout << (int)a << " ";
+        if (!first) {
+          std::cout << ", ";
+        } else {
+          first = false;
+        }
+        std::cout << (int)a;
       }
-      //std::cout << "): " << sgpl::Terminal::map_tag<spec_t>(i.GetTag())
-               // << std::endl;
+      std::cout << ")" << std::endl;
+
     }
   }
 };

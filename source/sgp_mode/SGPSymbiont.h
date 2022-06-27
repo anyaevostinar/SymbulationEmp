@@ -57,7 +57,9 @@ public:
 
   void Mutate() {
     Symbiont::Mutate();
-    cpu.mutate();
+
+    cpu.Mutate();
+
   }
 };
 
