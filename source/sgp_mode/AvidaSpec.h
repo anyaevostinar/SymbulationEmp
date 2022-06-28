@@ -222,6 +222,47 @@ void PrintCode(
   }
 }
 
+template <typename T> struct Task {
+  std::string name;
+  size_t n_inputs;
+  std::function<T(emp::vector<T> &)> taskFun;
+  float value;
+};
+emp::vector<Task<uint32_t>> DefaultTasks{
+  {"NOT", 1, [](auto x) { return ~x[0]; }, 1.0},
+  {"NAND", 2, [](auto x) { return ~(x[0] & x[1]); }, 1.0},
+  {"AND", 2, [](auto x) { return x[0] & x[1]; }, 2.0},
+  {"ORN", 2, [](auto x) { return x[0] | ~x[1]; }, 2.0},
+  {"OR", 2, [](auto x){ return x[0] | x[1]; }, 3.0},
+  {"ANDN", 2, [](auto x){ return x[0] & ~x[1]; }, 3.0},
+  {"NOR", 2, [](auto x){ return ~(x[0] | x[1]); }, 4.0},
+  {"XOR", 2, [](auto x){ return x[0] ^ x[1]; }, 4.0},
+  {"EQU", 2, [](auto x){ return ~(x[0] ^ x[1]); }, 5.0}
+};
+
+float checkTasks(AvidaPeripheral &peripheral, emp::vector<Task<uint32_t>> &tasks) {
+  if (!peripheral.output.has_value()) {
+    return false;
+  }
+  uint32_t check = peripheral.output.value();
+  peripheral.output.reset();
+  // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+  if (check == 0 || check == 1) {
+    return 0.0;
+  }
+  // The 9 default logic tasks in Avida
+  emp::vector<uint32_t> inputs;
+  return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
+    inputs = emp::vector{x, y};
+    for (auto task : tasks) {
+      if (check == task.taskFun(inputs)) {
+        return task.value;
+      }
+    }
+    return 0.0f;
+  });
+}
+
 float avidaCheckDefaultTasks(AvidaPeripheral &peripheral) {
   if (!peripheral.output.has_value()) {
     return false;
@@ -230,7 +271,7 @@ float avidaCheckDefaultTasks(AvidaPeripheral &peripheral) {
   peripheral.output.reset();
   // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
   if (check == 0 || check == 1) {
-    return 1.0;
+    return 0.0;
   }
   // The 9 default logic tasks in Avida
   return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
