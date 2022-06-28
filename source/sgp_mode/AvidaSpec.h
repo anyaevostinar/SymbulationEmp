@@ -61,10 +61,11 @@ struct AvidaPeripheral {
 namespace ainst {
 
 /**
- * Macro to easily create an instruction: `INST(MyInstruction, { *a = *b + 2;})`.
- * In the code block, operand registers are visible as `a`, `b`, and `c`,
- * all of type `uint32_t *`. Instructions may also access the `Core &core`,
- * `Instruction &inst`, `Program &program`, and `AvidaPeripheral &peripheral`.
+ * Macro to easily create an instruction:
+ * `INST(MyInstruction, { *a = *b + 2;})`. In the code block, operand registers
+ * are visible as `a`, `b`, and `c`, all of type `uint32_t *`. Instructions may
+ * also access the `Core &core`, `Instruction &inst`, `Program &program`, and
+ * `AvidaPeripheral &peripheral`.
  */
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
@@ -72,9 +73,11 @@ namespace ainst {
     static void                                                                \
     run(sgpl::Core<Spec> &core, const sgpl::Instruction<Spec> &inst,           \
         const sgpl::Program<Spec> &program, AvidaPeripheral &peripheral) {     \
-      uint32_t *a = &core.registers[inst.args[0]],                             \
-               *b = &core.registers[inst.args[1]],                             \
-               *c = &core.registers[inst.args[2]];                             \
+      uint32_t *a = (uint32_t *)&core.registers[inst.args[0]],                 \
+               *b = (uint32_t *)&core.registers[inst.args[1]],                 \
+               *c = (uint32_t *)&core.registers[inst.args[2]];                 \
+      /* avoid "unused variable" warnings */                                   \
+      a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
     }                                                                          \
     static size_t prevalence() { return 1; }                                   \
@@ -225,6 +228,10 @@ float avidaCheckDefaultTasks(AvidaPeripheral &peripheral) {
   }
   uint32_t check = peripheral.output.value();
   peripheral.output.reset();
+  // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+  if (check == 0 || check == 1) {
+    return 1.0;
+  }
   // The 9 default logic tasks in Avida
   return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
     // NOT
@@ -250,11 +257,13 @@ float avidaCheckDefaultTasks(AvidaPeripheral &peripheral) {
     }
     // OR
     if (!peripheral.done_tasks[4] && check == (x | y)) {
+      std::cout << "OR" << std::endl;
       peripheral.done_tasks.set(4);
       return 3.0;
     }
     // ANDN
     if (!peripheral.done_tasks[5] && check == (x & ~y)) {
+      std::cout << "ANDN" << std::endl;
       peripheral.done_tasks.set(5);
       return 3.0;
     }
