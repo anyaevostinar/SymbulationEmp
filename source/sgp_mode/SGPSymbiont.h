@@ -7,7 +7,7 @@
 
 class SGPSymbiont : public Symbiont {
 private:
-  SGPCpu<SGPSymbiont> cpu;
+  SGPCpu cpu;
   emp::Ptr<SGPWorld> my_world;
 
 public:
@@ -20,14 +20,14 @@ public:
   }
 
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config, SGPCpu<SGPSymbiont> oldCpu,
+              emp::Ptr<SymConfigBase> _config, SGPCpu oldCpu,
               double _intval = 0.0, double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
         cpu(this, _random, oldCpu) {
     my_world = _world;
   }
 
-  SGPCpu<SGPSymbiont> &getCpu() { return cpu; }
+  SGPCpu &getCpu() { return cpu; }
 
   emp::WorldPosition lastPos;
 
@@ -35,8 +35,10 @@ public:
     // Run cpu step
     lastPos = pos;
 
-    cpu.runCpuStep();
+    cpu.runCpuStep(pos);
 
+    // Make sure we don't reproduce accidentally using normal points
+    SetPoints(0);
     Symbiont::Process(pos);
   }
 

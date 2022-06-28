@@ -531,6 +531,15 @@ public:
     return sym_baby;
   }
 
+  void ReproduceAndSpawn(emp::WorldPosition location) {
+    // symbiont reproduces independently (horizontal transmission) if it has enough resources
+    //TODO: try just subtracting points to be consistent with vertical transmission
+    //points = points - my_config->SYM_HORIZ_TRANS_RES();
+    SetPoints(0);
+    emp::Ptr<Organism> sym_baby = Reproduce();
+    my_world->SymDoBirth(sym_baby, location);
+  }
+
   /**
    * Input: The pointer to the organism that is the new host baby
    *

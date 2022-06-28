@@ -7,7 +7,7 @@
 
 class SGPHost : public Host {
 private:
-  SGPCpu<SGPHost> cpu;
+  SGPCpu cpu;
   emp::Ptr<SGPWorld> my_world;
 
 public:
@@ -23,7 +23,7 @@ public:
   }
 
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, SGPCpu<SGPHost> oldCpu,
+          emp::Ptr<SymConfigBase> _config, SGPCpu oldCpu,
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           std::set<int> _set = std::set<int>(), double _points = 0.0)
@@ -33,7 +33,7 @@ public:
     my_world = _world;
   }
 
-  SGPCpu<SGPHost> &getCpu() { return cpu; }
+  SGPCpu &getCpu() { return cpu; }
 
   emp::WorldPosition lastPos;
 
@@ -41,7 +41,7 @@ public:
     // Run cpu step
     lastPos = pos;
 
-    cpu.runCpuStep();
+    cpu.runCpuStep(pos);
 
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction

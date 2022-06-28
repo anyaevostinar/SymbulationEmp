@@ -650,6 +650,19 @@ public:
     SetResInProcess(0);
   }
 
+  void ReproduceAndSpawn(emp::WorldPosition pos) {
+    // will replicate & mutate a random offset from parent values
+    // while resetting resource points for host and symbiont to zero
+    emp::Ptr<Organism> host_baby = Reproduce();
+
+    //Now check if symbionts get to vertically transmit
+    for(size_t j = 0; j< (GetSymbionts()).size(); j++){
+      emp::Ptr<Organism> parent = GetSymbionts()[j];
+      parent->VerticalTransmission(host_baby);
+    }
+    my_world->DoBirth(host_baby, pos.GetIndex()); //Automatically deals with grid
+  }
+
 
   /**
    * Input: The size_t value representing the location of the host.
