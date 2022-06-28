@@ -60,12 +60,21 @@ struct AvidaPeripheral {
 
 namespace ainst {
 
+/**
+ * Macro to easily create an instruction: `INST(MyInstruction, { *a = *b + 2;})`.
+ * In the code block, operand registers are visible as `a`, `b`, and `c`,
+ * all of type `uint32_t *`. Instructions may also access the `Core &core`,
+ * `Instruction &inst`, `Program &program`, and `AvidaPeripheral &peripheral`.
+ */
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
     template <typename Spec>                                                   \
     static void                                                                \
     run(sgpl::Core<Spec> &core, const sgpl::Instruction<Spec> &inst,           \
         const sgpl::Program<Spec> &program, AvidaPeripheral &peripheral) {     \
+      uint32_t *a = &core.registers[inst.args[0]],                             \
+               *b = &core.registers[inst.args[1]],                             \
+               *c = &core.registers[inst.args[2]];                             \
       InstCode                                                                 \
     }                                                                          \
     static size_t prevalence() { return 1; }                                   \
@@ -74,52 +83,34 @@ namespace ainst {
 
 INST(JumpIfNEq, {
   // Even != works differently on floats because of NaNs
-  if (*(uint32_t *)&core.registers[inst.args[0]] !=
-      *(uint32_t *)&core.registers[inst.args[1]]) {
+  if (*a != *b) {
     core.JumpToGlobalAnchorMatch(inst.tag);
   }
 });
 INST(JumpIfLess, {
-  if (*(uint32_t *)&core.registers[inst.args[0]] <
-      *(uint32_t *)&core.registers[inst.args[1]]) {
+  if (*a < *b) {
     core.JumpToGlobalAnchorMatch(inst.tag);
   }
 });
-INST(Increment, { ++*(uint32_t *)&core.registers[inst.args[0]]; });
-INST(Decrement, { --*(uint32_t *)&core.registers[inst.args[0]]; });
+INST(Increment, { ++*a; });
+INST(Decrement, { --*a; });
 // Unary shift (>>1 or <<1)
-INST(ShiftLeft, { *(uint32_t *)&core.registers[inst.args[0]] <<= 1; });
-INST(ShiftRight, { *(uint32_t *)&core.registers[inst.args[0]] >>= 1; });
-INST(Add, {
-  *(uint32_t *)&core.registers[inst.args[0]] =
-      *(uint32_t *)&core.registers[inst.args[1]] +
-      *(uint32_t *)&core.registers[inst.args[2]];
-});
-INST(Subtract, {
-  *(uint32_t *)&core.registers[inst.args[0]] =
-      *(uint32_t *)&core.registers[inst.args[1]] -
-      *(uint32_t *)&core.registers[inst.args[2]];
-});
-INST(Nand, {
-  *(uint32_t *)&core.registers[inst.args[0]] =
-      ~(*(uint32_t *)&core.registers[inst.args[1]] &
-        *(uint32_t *)&core.registers[inst.args[2]]);
-});
-INST(Push, {
-  peripheral.stack.push_back(*(uint32_t *)&core.registers[inst.args[0]]);
-});
+INST(ShiftLeft, { *a <<= 1; });
+INST(ShiftRight, { *a >>= 1; });
+INST(Add, { *a = *b + *c; });
+INST(Subtract, { *a = *b - *c; });
+INST(Nand, { *a = ~(*b & *c); });
+INST(Push, { peripheral.stack.push_back(*a); });
 INST(Pop, {
   if (peripheral.stack.empty()) {
-    *(uint32_t *)&core.registers[inst.args[0]] = 0;
+    *a = 0;
   } else {
-    *(uint32_t *)&core.registers[inst.args[0]] = peripheral.stack.back();
+    *a = peripheral.stack.back();
     peripheral.stack.pop_back();
   }
 });
 INST(SwapStack, { std::swap(peripheral.stack, peripheral.stack2); });
-INST(Swap, {
-  std::swap(core.registers[inst.args[0]], core.registers[inst.args[1]]);
-});
+INST(Swap, { std::swap(*a, *b); });
 INST(Reproduce, {
   // TODO when should this work?
   float prob = peripheral.merit / 256.0;
@@ -133,8 +124,8 @@ INST(Reproduce, {
 INST(IO, {
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   peripheral.input_buf.push(next);
-  peripheral.output = *(uint32_t *)&core.registers[inst.args[0]];
-  *(uint32_t *)&core.registers[inst.args[0]] = next;
+  peripheral.output = *a;
+  *a = next;
 });
 
 } // namespace ainst
@@ -161,8 +152,9 @@ using AvidaSpec = sgpl::Spec<AvidaLibrary, AvidaPeripheral>;
 
 void PrintOp(sgpl::Instruction<AvidaSpec> &ins,
              emp::map<std::string, size_t> &arities,
-             emp::map<AvidaSpec::tag_t, std::string> &labels,
-             sgpl::Program<AvidaSpec> &program) {
+             emp::map<size_t, std::string> &labels,
+             sgpl::Program<AvidaSpec> &program,
+             sgpl::JumpTable<AvidaSpec, AvidaSpec::global_matching_t> &table) {
   const std::string &name = ins.GetOpName();
   if (arities.count(name)) {
     // Simple instruction
@@ -171,49 +163,59 @@ void PrintOp(sgpl::Instruction<AvidaSpec> &ins,
       std::cout << ' ';
     }
     size_t arity = arities[name];
+    bool first = true;
     for (size_t i = 0; i < arity; i++) {
-      std::cout << "r" << (int)ins.args[i] << ' ';
+      if (!first) {
+        std::cout << ", ";
+      }
+      first = false;
+      std::cout << 'r' << (int)ins.args[i];
     }
   } else {
-    std::string tag_name;
-    if (labels.count(ins.tag)) {
-      tag_name = labels[ins.tag];
-    } else {
-      size_t offset = labels.size();
-      tag_name = 'A' + (char) (offset / 26);
-      tag_name += 'A' + (char) (offset % 26);
-      labels.insert(std::pair(ins.tag, tag_name));
-      // program.j
-    }
-    if (name == "JumpIfNEq" || name == "JumpIfLess") {
-      std::cout << "    " << emp::to_lower(name);
-      for (size_t i = 0; i < 12 - name.length(); i++) {
-        std::cout << ' ';
+    // Jump or anchor with a tag
+    // Match the tag to the correct global anchor, then print it out as a
+    // 2-letter code AA, AB, etc.
+    auto match = table.MatchRegulated(ins.tag);
+    if (match.size()) {
+      size_t tag = match.front();
+      std::string tag_name;
+      tag_name += 'A' + tag / 26;
+      tag_name += 'A' + tag % 26;
+      if (name == "JumpIfNEq" || name == "JumpIfLess") {
+        std::cout << "    " << emp::to_lower(name);
+        for (size_t i = 0; i < 12 - name.length(); i++) {
+          std::cout << ' ';
+        }
+        std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
+                  << ", " << tag_name;
+      } else if (name == "Global Anchor") {
+        std::cout << tag_name << ':';
+      } else {
+        std::cout << "<unknown " << name << ">";
       }
-      std::cout << tag_name;
-    } else if (name == "Global Anchor") {
-      std::cout << tag_name << ':';
     } else {
-      std::cout << "<unknown " << name << ">";
+      std::cout << "<illegal instruction tag>";
     }
   }
   std::cout << '\n';
 }
 
-void PrintCode(sgpl::Program<AvidaSpec> &program) {
+void PrintCode(
+    sgpl::Program<AvidaSpec> &program,
+    sgpl::JumpTable<AvidaSpec, AvidaSpec::global_matching_t> &table) {
   emp::map<std::string, size_t> arities{
       std::pair("Nop-0", 0),      std::pair("ShiftLeft", 1),
       std::pair("ShiftRight", 1), std::pair("Increment", 1),
       std::pair("Decrement", 1),  std::pair("Push", 1),
       std::pair("Pop", 1),        std::pair("SwapStack", 0),
-      std::pair("Swap", 3),       std::pair("Add", 3),
+      std::pair("Swap", 2),       std::pair("Add", 3),
       std::pair("Subtract", 3),   std::pair("Nand", 3),
       std::pair("Reproduce", 0),  std::pair("IO", 1)};
-  emp::map<AvidaSpec::tag_t, std::string> labels;
+  emp::map<size_t, std::string> labels;
 
   std::cout << "--------" << std::endl;
   for (auto i : program) {
-    PrintOp(i, arities, labels, program);
+    PrintOp(i, arities, labels, program, table);
   }
 }
 

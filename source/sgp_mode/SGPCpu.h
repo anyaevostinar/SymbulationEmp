@@ -62,7 +62,7 @@ public:
 
 
   void PrintCode() {
-    ::PrintCode(program);
+    ::PrintCode(program, cpu.GetActiveCore().GetGlobalJumpTable());
   }
 };
 
