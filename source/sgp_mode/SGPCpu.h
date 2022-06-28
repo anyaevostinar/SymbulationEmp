@@ -20,7 +20,8 @@
 #include <string>
 
 /**
- * Represents the virtual CPU and the program genome for an organism in the SGP mode.
+ * Represents the virtual CPU and the program genome for an organism in the SGP
+ * mode.
  */
 class SGPCpu {
   using spec_t = AvidaSpec;
@@ -37,7 +38,8 @@ public:
     cpu.InitializeAnchors(program);
   }
 
-  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<emp::Random> random, SGPCpu oldCpu)
+  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<emp::Random> random,
+         SGPCpu oldCpu)
       : program(oldCpu.program), peripheral(organism), random(random) {
     cpu.InitializeAnchors(program);
   }
@@ -52,14 +54,13 @@ public:
     // Execute up to 30 instructions
     sgpl::execute_cpu<spec_t>(30, cpu, program, peripheral);
 
-    float score = avidaCheckDefaultTasks(peripheral);
+    float score = checkTasks(peripheral, DefaultTasks);
     if (score != 0) {
       peripheral.merit += pow(2, score);
     }
   }
 
   void Mutate() { program.ApplyPointMutations(0.01); }
-
 
   void PrintCode() {
     ::PrintCode(program, cpu.GetActiveCore().GetGlobalJumpTable());
