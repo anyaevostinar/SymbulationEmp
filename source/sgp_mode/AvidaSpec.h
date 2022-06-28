@@ -58,6 +58,59 @@ struct AvidaPeripheral {
   AvidaPeripheral(emp::Ptr<Organism> host) : host(host) {}
 };
 
+template <typename T> struct Task {
+  std::string name;
+  size_t n_inputs;
+  std::function<T(emp::vector<T> &)> taskFun;
+  float value;
+
+  size_t n_succeeds = 0;
+};
+emp::vector<Task<uint32_t>> DefaultTasks{
+    {"NOT", 1, [](auto x) { return ~x[0]; }, 1.0},
+    {"NAND", 2, [](auto x) { return ~(x[0] & x[1]); }, 1.0},
+    {"AND", 2, [](auto x) { return x[0] & x[1]; }, 2.0},
+    {"ORN", 2, [](auto x) { return x[0] | ~x[1]; }, 2.0},
+    {"OR", 2, [](auto x) { return x[0] | x[1]; }, 3.0},
+    {"ANDN", 2, [](auto x) { return x[0] & ~x[1]; }, 3.0},
+    {"NOR", 2, [](auto x) { return ~(x[0] | x[1]); }, 4.0},
+    {"XOR", 2, [](auto x) { return x[0] ^ x[1]; }, 4.0},
+    {"EQU", 2, [](auto x) { return ~(x[0] ^ x[1]); }, 5.0}};
+
+float checkTasks(AvidaPeripheral &peripheral,
+                 emp::vector<Task<uint32_t>> &tasks) {
+  if (!peripheral.output.has_value()) {
+    return 0.0;
+  }
+  uint32_t check = peripheral.output.value();
+  peripheral.output.reset();
+  // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+  if (check == 0 || check == 1) {
+    return 0.0;
+  }
+  // The 9 default logic tasks in Avida
+  emp::vector<uint32_t> inputs;
+  return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
+    inputs = {x, y};
+    for (auto &task : tasks) {
+      if (check == task.taskFun(inputs)) {
+        task.n_succeeds++;
+        return task.value;
+      }
+    }
+    return 0.0f;
+  });
+}
+
+void taskCheckpoint() {
+  std::cout << "Task progress:\n";
+  for (auto &task : DefaultTasks) {
+    std::cout << "    " << task.name << ": " << task.n_succeeds;
+    task.n_succeeds = 0;
+  }
+  std::cout << std::endl;
+}
+
 namespace ainst {
 
 /**
@@ -116,8 +169,7 @@ INST(SwapStack, { std::swap(peripheral.stack, peripheral.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 INST(Reproduce, {
   // TODO when should this work?
-  float prob = peripheral.merit / 256.0;
-  if (sgpl::tlrand.Get().P(prob)) {
+  if (peripheral.merit > 128.0) {
     peripheral.merit = 0;
     peripheral.done_tasks.reset();
     peripheral.host->ReproduceAndSpawn(peripheral.location);
@@ -125,10 +177,14 @@ INST(Reproduce, {
 });
 // Set output to value of register and set register to new input
 INST(IO, {
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
-  peripheral.input_buf.push(next);
   peripheral.output = *a;
+  float score = checkTasks(peripheral, DefaultTasks);
+  if (score != 0.0) {
+    peripheral.merit += pow(2, score);
+  }
+  uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
+  peripheral.input_buf.push(next);
 });
 
 } // namespace ainst
@@ -221,167 +277,5 @@ void PrintCode(
     PrintOp(i, arities, labels, program, table);
   }
 }
-
-template <typename T> struct Task {
-  std::string name;
-  size_t n_inputs;
-  std::function<T(emp::vector<T> &)> taskFun;
-  float value;
-};
-emp::vector<Task<uint32_t>> DefaultTasks{
-  {"NOT", 1, [](auto x) { return ~x[0]; }, 1.0},
-  {"NAND", 2, [](auto x) { return ~(x[0] & x[1]); }, 1.0},
-  {"AND", 2, [](auto x) { return x[0] & x[1]; }, 2.0},
-  {"ORN", 2, [](auto x) { return x[0] | ~x[1]; }, 2.0},
-  {"OR", 2, [](auto x){ return x[0] | x[1]; }, 3.0},
-  {"ANDN", 2, [](auto x){ return x[0] & ~x[1]; }, 3.0},
-  {"NOR", 2, [](auto x){ return ~(x[0] | x[1]); }, 4.0},
-  {"XOR", 2, [](auto x){ return x[0] ^ x[1]; }, 4.0},
-  {"EQU", 2, [](auto x){ return ~(x[0] ^ x[1]); }, 5.0}
-};
-
-float checkTasks(AvidaPeripheral &peripheral, emp::vector<Task<uint32_t>> &tasks) {
-  if (!peripheral.output.has_value()) {
-    return false;
-  }
-  uint32_t check = peripheral.output.value();
-  peripheral.output.reset();
-  // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
-  if (check == 0 || check == 1) {
-    return 0.0;
-  }
-  // The 9 default logic tasks in Avida
-  emp::vector<uint32_t> inputs;
-  return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
-    inputs = emp::vector{x, y};
-    for (auto task : tasks) {
-      if (check == task.taskFun(inputs)) {
-        return task.value;
-      }
-    }
-    return 0.0f;
-  });
-}
-
-float avidaCheckDefaultTasks(AvidaPeripheral &peripheral) {
-  if (!peripheral.output.has_value()) {
-    return false;
-  }
-  uint32_t check = peripheral.output.value();
-  peripheral.output.reset();
-  // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
-  if (check == 0 || check == 1) {
-    return 0.0;
-  }
-  // The 9 default logic tasks in Avida
-  return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
-    // NOT
-    if (!peripheral.done_tasks[0] && check == ~x) {
-      peripheral.done_tasks.set(0);
-      return 1.0;
-    }
-    // NAND
-    if (!peripheral.done_tasks[1] && check == ~(x & y)) {
-      peripheral.done_tasks.set(1);
-      return 1.0;
-    }
-    // AND
-    if (!peripheral.done_tasks[2] && check == (x & y)) {
-      peripheral.done_tasks.set(2);
-      return 2.0;
-    }
-    // ORN
-    // I'm pretty sure this is what ORN and ANDN are doing
-    if (!peripheral.done_tasks[3] && check == (x | ~y)) {
-      peripheral.done_tasks.set(3);
-      return 2.0;
-    }
-    // OR
-    if (!peripheral.done_tasks[4] && check == (x | y)) {
-      std::cout << "OR" << std::endl;
-      peripheral.done_tasks.set(4);
-      return 3.0;
-    }
-    // ANDN
-    if (!peripheral.done_tasks[5] && check == (x & ~y)) {
-      std::cout << "ANDN" << std::endl;
-      peripheral.done_tasks.set(5);
-      return 3.0;
-    }
-    // NOR
-    if (!peripheral.done_tasks[6] && check == ~(x | y)) {
-      std::cout << "NOR" << std::endl;
-      peripheral.done_tasks.set(6);
-      return 4.0;
-    }
-    // XOR
-    if (!peripheral.done_tasks[7] && check == (x ^ y)) {
-      std::cout << "XOR" << std::endl;
-      peripheral.done_tasks.set(7);
-      return 4.0;
-    }
-    // EQU (=NXOR)
-    if (!peripheral.done_tasks[8] && check == ~(x ^ y)) {
-      std::cout << "EQU!" << std::endl;
-      peripheral.done_tasks.set(8);
-      return 5.0;
-    }
-    return 0.0;
-  });
-}
-
-/* TASKS
-
-REACTION  NOT  not   process:value=1.0:type=pow  requisite:max_count=1
-REACTION  NAND nand  process:value=1.0:type=pow  requisite:max_count=1
-REACTION  AND  and   process:value=2.0:type=pow  requisite:max_count=1
-REACTION  ORN  orn   process:value=2.0:type=pow  requisite:max_count=1
-REACTION  OR   or    process:value=3.0:type=pow  requisite:max_count=1
-REACTION  ANDN andn  process:value=3.0:type=pow  requisite:max_count=1
-REACTION  NOR  nor   process:value=4.0:type=pow  requisite:max_count=1
-REACTION  XOR  xor   process:value=4.0:type=pow  requisite:max_count=1
-REACTION  EQU  equ   process:value=5.0:type=pow  requisite:max_count=1
-*/
-
-/* INSTRUCTIONS
-
-# No-ops
-INST nop-A         # a
-INST nop-B         # b
-INST nop-C         # c
-
-# Flow control operations
-INST if-n-equ      # d
-INST if-less       # e
-INST if-label      # f
-INST mov-head      # g
-INST jmp-head      # h
-INST get-head      # i
-INST set-flow      # j
-
-# Single Argument Math
-INST shift-r       # k
-INST shift-l       # l
-INST inc           # m
-INST dec           # n
-INST push          # o
-INST pop           # p
-INST swap-stk      # q
-INST swap          # r
-
-# Double Argument Math
-INST add           # s
-INST sub           # t
-INST nand          # u
-
-# Biological Operations
-INST h-copy        # v
-INST h-alloc       # w
-INST h-divide      # x
-
-# I/O and Sensory
-INST IO            # y
-INST h-search      # z
-*/
 
 #endif

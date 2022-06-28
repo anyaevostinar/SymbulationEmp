@@ -68,6 +68,7 @@ int symbulation_main(int argc, char * argv[])
         totalSyms += host->GetSymbionts().size();
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
+      taskCheckpoint();
       cout.flush();
     }
     world.Update();

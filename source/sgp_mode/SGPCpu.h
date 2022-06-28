@@ -53,11 +53,6 @@ public:
 
     // Execute up to 30 instructions
     sgpl::execute_cpu<spec_t>(30, cpu, program, peripheral);
-
-    float score = checkTasks(peripheral, DefaultTasks);
-    if (score != 0) {
-      peripheral.merit += pow(2, score);
-    }
   }
 
   void Mutate() { program.ApplyPointMutations(0.01); }
