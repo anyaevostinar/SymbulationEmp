@@ -39,7 +39,7 @@ public:
   }
 
   SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<emp::Random> random,
-         SGPCpu oldCpu)
+         SGPCpu &oldCpu)
       : program(oldCpu.program), peripheral(organism), random(random) {
     cpu.InitializeAnchors(program);
   }

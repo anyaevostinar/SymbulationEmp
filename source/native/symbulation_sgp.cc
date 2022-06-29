@@ -7,6 +7,7 @@
 #include <memory>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
+#include "../sgp_mode/Scheduler.h"
 
 using namespace std;
 

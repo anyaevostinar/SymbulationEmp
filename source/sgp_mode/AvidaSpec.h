@@ -16,11 +16,19 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <cmath>
 #include <iostream>
+#include <mutex>
+#include <atomic>
 #include <string>
 
 template <const size_t len = 8> struct IORingBuffer {
   uint32_t buffer[len];
   size_t next = 0;
+
+  IORingBuffer() {
+    for (size_t i = 0; i < len; i++) {
+      buffer[i] = 0;
+    }
+  }
 
   void push(uint32_t x) {
     buffer[next] = x;
@@ -64,7 +72,7 @@ template <typename T> struct Task {
   std::function<T(emp::vector<T> &)> taskFun;
   float value;
 
-  size_t n_succeeds = 0;
+  std::atomic<size_t> *n_succeeds = new std::atomic<size_t>(0);
 };
 emp::vector<Task<uint32_t>> DefaultTasks{
     {"NOT", 1, [](auto x) { return ~x[0]; }, 1.0},
@@ -94,7 +102,7 @@ float checkTasks(AvidaPeripheral &peripheral,
     inputs = {x, y};
     for (auto &task : tasks) {
       if (check == task.taskFun(inputs)) {
-        task.n_succeeds++;
+        (*task.n_succeeds)++;
         return task.value;
       }
     }
@@ -105,11 +113,13 @@ float checkTasks(AvidaPeripheral &peripheral,
 void taskCheckpoint() {
   std::cout << "Task progress:\n";
   for (auto &task : DefaultTasks) {
-    std::cout << "    " << task.name << ": " << task.n_succeeds;
-    task.n_succeeds = 0;
+    std::cout << "    " << task.name << ": " << *task.n_succeeds;
+    task.n_succeeds->store(0);
   }
   std::cout << std::endl;
 }
+
+emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> toReproduce;
 
 namespace ainst {
 
@@ -167,12 +177,14 @@ INST(Pop, {
 });
 INST(SwapStack, { std::swap(peripheral.stack, peripheral.stack2); });
 INST(Swap, { std::swap(*a, *b); });
+std::mutex reproduce_mutex;
 INST(Reproduce, {
-  // TODO when should this work?
   if (peripheral.merit > 128.0) {
     peripheral.merit = 0;
     peripheral.done_tasks.reset();
-    peripheral.host->ReproduceAndSpawn(peripheral.location);
+    // Add this organism to the queue to reproduce, using the mutex to avoid a data race
+    std::lock_guard<std::mutex> lock(reproduce_mutex);
+    toReproduce.push_back(std::pair(peripheral.host, peripheral.location));
   }
 });
 // Set output to value of register and set register to new input
