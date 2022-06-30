@@ -61,8 +61,6 @@ struct AvidaPeripheral {
 
   emp::WorldPosition location;
 
-  float merit = 0.0;
-
   AvidaPeripheral(emp::Ptr<Organism> host) : host(host) {}
 };
 
@@ -179,9 +177,8 @@ INST(SwapStack, { std::swap(peripheral.stack, peripheral.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
-  if (peripheral.merit > 128.0) {
-    peripheral.merit = 0;
-    peripheral.done_tasks.reset();
+  if (peripheral.host->GetPoints() > 48.0) {
+    peripheral.host->SetPoints(0.0);
     // Add this organism to the queue to reproduce, using the mutex to avoid a data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
     toReproduce.push_back(std::pair(peripheral.host, peripheral.location));
@@ -192,7 +189,7 @@ INST(IO, {
   peripheral.output = *a;
   float score = checkTasks(peripheral, DefaultTasks);
   if (score != 0.0) {
-    peripheral.merit += pow(2, score);
+    peripheral.host->AddPoints(pow(2, score));
   }
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;

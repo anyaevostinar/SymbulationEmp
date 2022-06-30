@@ -30,9 +30,15 @@ public:
   SGPCpu &getCpu() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    // Make sure we don't reproduce accidentally using normal points
-    SetPoints(0);
-    Symbiont::Process(pos);
+    // The parts of Symbiont::Process that don't use resources or reproduction
+
+    // Age the organism
+    GrowOlder();
+    // Check if the organism should move and do it
+    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
+      // if the symbiont should move, and hasn't been killed
+      my_world->MoveFreeSym(pos);
+    }
   }
 
   emp::Ptr<Organism> MakeNew() {

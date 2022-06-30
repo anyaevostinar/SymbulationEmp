@@ -11,7 +11,9 @@
 const size_t THREAD_COUNT = 16;
 const size_t BATCH_SIZE = 64;
 
-void thread_fun(SymWorld &world, std::atomic<size_t> &next_id) {
+void thread_fun(SymWorld &world, std::atomic<size_t> &next_id, size_t i) {
+  // Make sure each thread gets a different, deterministic, seed
+  sgpl::tlrand.Get().ResetSeed(world.GetUpdate() * THREAD_COUNT + i);
   while(true) {
     // Process CPUs for the next BATCH_SIZE organisms
     size_t start = next_id.fetch_add(BATCH_SIZE);
@@ -37,10 +39,10 @@ void runCpus(SymWorld &world) {
   emp::vector<std::thread> threads;
   std::atomic<size_t> next_id = 0;
   for (size_t i = 0; i < THREAD_COUNT-1; i++) {
-    threads.push_back(std::thread(thread_fun, std::ref(world), std::ref(next_id)));
+    threads.push_back(std::thread(thread_fun, std::ref(world), std::ref(next_id), i));
   }
   // Last thread is the main thread
-  thread_fun(world, next_id);
+  thread_fun(world, next_id, THREAD_COUNT - 1);
   // Wait for others to finish
   for (auto &thread : threads) {
     thread.join();
