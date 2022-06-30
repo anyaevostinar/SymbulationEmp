@@ -18,7 +18,7 @@ public:
           std::set<int> _set = std::set<int>(), double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _set,
              _points),
-        cpu(this, _random) {
+        cpu(this, _world, _random) {
     my_world = _world;
   }
 
@@ -29,7 +29,7 @@ public:
           std::set<int> _set = std::set<int>(), double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _set,
              _points),
-        cpu(this, _random, oldCpu) {
+        cpu(this, _world, _random, oldCpu) {
     my_world = _world;
   }
 

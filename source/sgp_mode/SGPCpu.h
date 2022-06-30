@@ -29,18 +29,20 @@ class SGPCpu {
 private:
   sgpl::Cpu<spec_t> cpu;
   sgpl::Program<spec_t> program;
-  AvidaPeripheral peripheral;
   emp::Ptr<emp::Random> random;
 
 public:
-  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<emp::Random> random)
-      : program(100), peripheral(organism), random(random) {
+  AvidaPeripheral peripheral;
+
+  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
+         emp::Ptr<emp::Random> random)
+      : program(100), random(random), peripheral(organism, world) {
     cpu.InitializeAnchors(program);
   }
 
-  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<emp::Random> random,
-         SGPCpu &oldCpu)
-      : program(oldCpu.program), peripheral(organism), random(random) {
+  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
+         emp::Ptr<emp::Random> random, SGPCpu &oldCpu)
+      : program(oldCpu.program), random(random), peripheral(organism, world) {
     cpu.InitializeAnchors(program);
   }
 

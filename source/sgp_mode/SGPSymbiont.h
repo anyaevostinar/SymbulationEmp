@@ -15,7 +15,7 @@ public:
               emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
               double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _random) {
+        cpu(this, _world, _random) {
     my_world = _world;
   }
 
@@ -23,7 +23,7 @@ public:
               emp::Ptr<SymConfigBase> _config, SGPCpu &oldCpu,
               double _intval = 0.0, double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _random, oldCpu) {
+        cpu(this, _world, _random, oldCpu) {
     my_world = _world;
   }
 

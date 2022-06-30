@@ -2,6 +2,7 @@
 #define AVIDA_SPEC_H
 
 #include "../Organism.h"
+#include "SGPWorld.h"
 #include "emp/Evolve/World.hpp"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
@@ -14,10 +15,10 @@
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+#include <atomic>
 #include <cmath>
 #include <iostream>
 #include <mutex>
-#include <atomic>
 #include <string>
 
 template <const size_t len = 8> struct IORingBuffer {
@@ -49,19 +50,21 @@ template <const size_t len = 8> struct IORingBuffer {
 };
 
 struct AvidaPeripheral {
-  std::vector<uint32_t> stack;
-  std::vector<uint32_t> stack2;
+  emp::vector<uint32_t> stack;
+  emp::vector<uint32_t> stack2;
 
   IORingBuffer<> input_buf;
-  std::optional<uint32_t> output;
+  emp::optional<uint32_t> output;
 
   std::bitset<64> done_tasks;
 
   emp::Ptr<Organism> host;
+  emp::Ptr<SGPWorld> world;
 
   emp::WorldPosition location;
 
-  AvidaPeripheral(emp::Ptr<Organism> host) : host(host) {}
+  AvidaPeripheral(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
+      : host(host), world(world) {}
 };
 
 template <typename T> struct Task {
@@ -116,8 +119,6 @@ void taskCheckpoint() {
   }
   std::cout << std::endl;
 }
-
-emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> toReproduce;
 
 namespace ainst {
 
@@ -181,7 +182,8 @@ INST(Reproduce, {
     peripheral.host->SetPoints(0.0);
     // Add this organism to the queue to reproduce, using the mutex to avoid a data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
-    toReproduce.push_back(std::pair(peripheral.host, peripheral.location));
+    peripheral.world->toReproduce.push_back(
+        std::pair(peripheral.host, peripheral.location));
   }
 });
 // Set output to value of register and set register to new input
