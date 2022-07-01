@@ -9,6 +9,9 @@ void runCpus(SymWorld &);
 
 class SGPWorld : public SymWorld {
 public:
+    double SymPointsDonated = 0.0;
+    double SymPointsEarned = 0.0;
+
     SGPWorld(emp::Random& r, emp::Ptr<SymConfigBase> _config) : SymWorld(r, _config) {}
 
     emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> toReproduce;

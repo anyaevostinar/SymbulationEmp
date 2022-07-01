@@ -19,16 +19,26 @@ void thread_fun(SymWorld &world, std::atomic<size_t> &next_id, size_t i) {
     size_t start = next_id.fetch_add(BATCH_SIZE);
     if (start > world.GetSize()) return;
     size_t end = start + BATCH_SIZE;
+    emp::vector<SGPCpu *> cpus;
 
     for (size_t id = start; id < end; id++) {
       if (world.IsOccupied(id)) {
         SGPHost &host = (SGPHost&) world.GetOrg(id);
-        host.getCpu().runCpuStep(id);
+        host.getCpu().peripheral.usedResources->reset();
+        cpus.push_back(&host.getCpu());
 
         for (auto sym : host.GetSymbionts()) {
           emp::Ptr<SGPSymbiont> s_sym = sym.DynamicCast<SGPSymbiont>();
-          s_sym->getCpu().runCpuStep(id);
+          cpus.push_back(&s_sym->getCpu());
         }
+
+        // Run the host and symbiont's code at the same time
+        for (int i = 0; i < 30; i++) {
+          for (SGPCpu * cpu : cpus) {
+            cpu->runCpuStep(id, 1);
+          }
+        }
+        cpus.clear();
       }
     }
   }

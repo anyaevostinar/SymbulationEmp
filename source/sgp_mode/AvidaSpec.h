@@ -56,7 +56,7 @@ struct AvidaPeripheral {
   IORingBuffer<> input_buf;
   emp::optional<uint32_t> output;
 
-  std::bitset<64> done_tasks;
+  emp::Ptr<emp::BitSet<64>> usedResources = emp::NewPtr<emp::BitSet<64>>();
 
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
@@ -74,6 +74,7 @@ template <typename T> struct Task {
   float value;
 
   std::atomic<size_t> *n_succeeds = new std::atomic<size_t>(0);
+  std::atomic<size_t> *n_succeeds_sym = new std::atomic<size_t>(0);
 };
 emp::vector<Task<uint32_t>> DefaultTasks{
     {"NOT", 1, [](auto x) { return ~x[0]; }, 1.0},
@@ -101,9 +102,14 @@ float checkTasks(AvidaPeripheral &peripheral,
   emp::vector<uint32_t> inputs;
   return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
     inputs = {x, y};
-    for (auto &task : tasks) {
-      if (check == task.taskFun(inputs)) {
-        (*task.n_succeeds)++;
+    for (size_t i = 0; i < tasks.size(); i++) {
+      Task<uint32_t> &task = tasks[i];
+      if (!peripheral.usedResources->Get(i) && check == task.taskFun(inputs)) {
+        peripheral.usedResources->Set(i);
+        if (peripheral.host->IsHost())
+          (*task.n_succeeds)++;
+        else
+          (*task.n_succeeds_sym)++;
         return task.value;
       }
     }
@@ -112,10 +118,16 @@ float checkTasks(AvidaPeripheral &peripheral,
 }
 
 void taskCheckpoint() {
-  std::cout << "Task progress:\n";
+  std::cout << "Host tasks completed since last checkpoint:\n";
   for (auto &task : DefaultTasks) {
-    std::cout << "    " << task.name << ": " << *task.n_succeeds;
+    std::cout << "  \t" << task.name << ": " << *task.n_succeeds;
     task.n_succeeds->store(0);
+  }
+  std::cout << std::endl;
+  std::cout << "Symbiont tasks completed since last checkpoint:\n";
+  for (auto &task : DefaultTasks) {
+    std::cout << "  \t" << task.name << ": " << *task.n_succeeds_sym;
+    task.n_succeeds_sym->store(0);
   }
   std::cout << std::endl;
 }
@@ -178,9 +190,11 @@ INST(SwapStack, { std::swap(peripheral.stack, peripheral.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
-  if (peripheral.host->GetPoints() > 48.0) {
-    peripheral.host->SetPoints(0.0);
-    // Add this organism to the queue to reproduce, using the mutex to avoid a data race
+  double points = peripheral.host->IsHost() ? 128.0 : 4.0;
+  if (peripheral.host->GetPoints() > points) {
+    peripheral.host->AddPoints(-points);
+    // Add this organism to the queue to reproduce, using the mutex to avoid a
+    // data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
     peripheral.world->toReproduce.push_back(
         std::pair(peripheral.host, peripheral.location));
@@ -192,10 +206,28 @@ INST(IO, {
   float score = checkTasks(peripheral, DefaultTasks);
   if (score != 0.0) {
     peripheral.host->AddPoints(pow(2, score));
+    if (!peripheral.host->IsHost()) {
+      peripheral.world->SymPointsEarned += pow(2, score);
+    }
   }
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   peripheral.input_buf.push(next);
+});
+INST(Donate, {
+  if (peripheral.host->IsHost())
+    return;
+  if (emp::Ptr<Organism> host = peripheral.host->GetHost()) {
+    // Donate 20% of the total points of the symbiont-host system
+    // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+    // couple of instructions
+    double toDonate =
+        fmin(peripheral.host->GetPoints(),
+             (peripheral.host->GetPoints() + host->GetPoints()) * 0.20);
+    peripheral.world->SymPointsDonated += toDonate;
+    host->AddPoints(toDonate);
+    peripheral.host->AddPoints(-toDonate);
+  }
 });
 
 } // namespace ainst
@@ -214,9 +246,9 @@ using AvidaLibrary =
                     ainst::Add, ainst::Subtract, ainst::Nand,
                     // biological operations
                     // no copy or alloc
-                    ainst::Reproduce, ainst::IO
+                    ainst::Reproduce, ainst::IO,
                     // no h-search
-                    >;
+                    ainst::Donate>;
 
 using AvidaSpec = sgpl::Spec<AvidaLibrary, AvidaPeripheral>;
 
@@ -280,7 +312,8 @@ void PrintCode(
       std::pair("Pop", 1),        std::pair("SwapStack", 0),
       std::pair("Swap", 2),       std::pair("Add", 3),
       std::pair("Subtract", 3),   std::pair("Nand", 3),
-      std::pair("Reproduce", 0),  std::pair("IO", 1)};
+      std::pair("Reproduce", 0),  std::pair("IO", 1),
+      std::pair("Donate", 0)};
   emp::map<size_t, std::string> labels;
 
   std::cout << "--------" << std::endl;

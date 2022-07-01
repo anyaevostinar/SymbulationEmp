@@ -3,6 +3,7 @@
 
 #include "../default_mode/Symbiont.h"
 #include "SGPCpu.h"
+#include "SGPHost.h"
 #include "SGPWorld.h"
 
 class SGPSymbiont : public Symbiont {
@@ -25,6 +26,11 @@ public:
       : Symbiont(_random, _world, _config, _intval, _points),
         cpu(this, _world, _random, oldCpu) {
     my_world = _world;
+  }
+
+  void SetHost(emp::Ptr<Organism> host) {
+    Symbiont::SetHost(host);
+    cpu.peripheral.usedResources = host.DynamicCast<SGPHost>()->getCpu().peripheral.usedResources;
   }
 
   SGPCpu &getCpu() { return cpu; }

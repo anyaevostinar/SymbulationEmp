@@ -46,7 +46,7 @@ public:
     cpu.InitializeAnchors(program);
   }
 
-  void runCpuStep(emp::WorldPosition location) {
+  void runCpuStep(emp::WorldPosition location, size_t nCycles = 30) {
     // Generate random signals to launch available virtual cores
     while (cpu.TryLaunchCore(emp::BitSet<64>(random))) {
     }
@@ -54,7 +54,7 @@ public:
     peripheral.location = location;
 
     // Execute up to 30 instructions
-    sgpl::execute_cpu<spec_t>(30, cpu, program, peripheral);
+    sgpl::execute_cpu<spec_t>(nCycles, cpu, program, peripheral);
   }
 
   void Mutate() { program.ApplyPointMutations(0.01); }
