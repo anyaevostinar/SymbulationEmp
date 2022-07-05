@@ -7,6 +7,7 @@
 #include <memory>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
+#include "../sgp_mode/Scheduler.h"
 
 using namespace std;
 
@@ -67,27 +68,40 @@ int symbulation_main(int argc, char * argv[])
         auto host = i.DynamicCast<SGPHost>();
         totalSyms += host->GetSymbionts().size();
       }
-      std::cout << "Total number of symbionts with hosts: " << totalSyms << '\n';
-      cout.flush();
+      std::cout << "Total number of symbionts with hosts: " << totalSyms
+                << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
+      taskCheckpoint();
+      double percent = 100.0 * world.SymPointsDonated / world.SymPointsEarned;
+      std::cout << "Syms donated " << percent << "\% of the points they earned ("
+                << world.SymPointsDonated << "/" << world.SymPointsEarned << ")"
+                << std::endl;
+      world.SymPointsDonated = 0.0;
+      world.SymPointsEarned = 0.0;
     }
     world.Update();
   }
 
   // Print some debug info for testing purposes
-  world.GetFullPop().back().DynamicCast<SGPHost>()->getCpu().PrintCode();
+  emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+  sample->getCpu().PrintCode();
+  for (auto &sym : sample->GetSymbionts()) {
+    std::cout << "\n---- SYMBIONT CODE ----\n";
+    sym.DynamicCast<SGPSymbiont>()->getCpu().PrintCode();
+  }
+
   int total = 0;
-  int contains = 0;
+  // int contains = 0;
   totalSyms = 0;
   for (auto i : world.GetFullPop()) {
     auto host = i.DynamicCast<SGPHost>();
     totalSyms += host->GetSymbionts().size();
-    if (host->getCpu().containsReproduceInstruction()) {
-      contains++;
-    }
+    // if (host->getCpu().containsReproduceInstruction()) {
+    //   contains++;
+    // }
     total++;
   }
   std::cout << "Final total number of symbionts with hosts: " << totalSyms << '\n';
-  std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
+  // std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){

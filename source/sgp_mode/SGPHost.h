@@ -7,7 +7,7 @@
 
 class SGPHost : public Host {
 private:
-  SGPCpu<SGPHost> cpu;
+  SGPCpu cpu;
   emp::Ptr<SGPWorld> my_world;
 
 public:
@@ -18,31 +18,24 @@ public:
           std::set<int> _set = std::set<int>(), double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _set,
              _points),
-        cpu(this, _random) {
+        cpu(this, _world, _random) {
     my_world = _world;
   }
 
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, SGPCpu<SGPHost> oldCpu,
+          emp::Ptr<SymConfigBase> _config, SGPCpu &oldCpu,
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           std::set<int> _set = std::set<int>(), double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _set,
              _points),
-        cpu(this, _random, oldCpu) {
+        cpu(this, _world, _random, oldCpu) {
     my_world = _world;
   }
 
-  SGPCpu<SGPHost> &getCpu() { return cpu; }
-
-  emp::WorldPosition lastPos;
+  SGPCpu &getCpu() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    // Run cpu step
-    lastPos = pos;
-
-    cpu.runCpuStep();
-
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {
@@ -68,19 +61,6 @@ public:
         } //for each sym in syms
       } //if org has syms
     GrowOlder();
-  }
-
-  void maybeReproduce(float chance) {
-    if (random->P(chance)) {
-      auto p = Reproduce();
-
-      //Now check if symbionts get to vertically transmit
-      for(auto parent : GetSymbionts()){
-        parent->VerticalTransmission(p);
-      }
-      // std::cout << "Reproducing, keeping " << p->GetSymbionts().size() << " of " << GetSymbionts().size() <<  " symbionts" << std::endl;
-      my_world->DoBirth(p, lastPos.GetIndex());
-    }
   }
 
   emp::Ptr<Organism> MakeNew() {

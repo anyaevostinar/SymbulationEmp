@@ -1,0 +1,62 @@
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
+
+#include <emp/base/vector.hpp>
+#include "SGPWorld.h"
+#include "SGPHost.h"
+#include "SGPSymbiont.h"
+#include <thread>
+#include <atomic>
+
+const size_t THREAD_COUNT = 16;
+const size_t BATCH_SIZE = 64;
+
+void thread_fun(SymWorld &world, std::atomic<size_t> &next_id, size_t i) {
+  // Make sure each thread gets a different, deterministic, seed
+  sgpl::tlrand.Get().ResetSeed(world.GetUpdate() * THREAD_COUNT + i);
+  while(true) {
+    // Process CPUs for the next BATCH_SIZE organisms
+    size_t start = next_id.fetch_add(BATCH_SIZE);
+    if (start > world.GetSize()) return;
+    size_t end = start + BATCH_SIZE;
+    emp::vector<SGPCpu *> cpus;
+
+    for (size_t id = start; id < end; id++) {
+      if (world.IsOccupied(id)) {
+        SGPHost &host = (SGPHost&) world.GetOrg(id);
+        host.getCpu().peripheral.usedResources->reset();
+        cpus.push_back(&host.getCpu());
+
+        for (auto sym : host.GetSymbionts()) {
+          emp::Ptr<SGPSymbiont> s_sym = sym.DynamicCast<SGPSymbiont>();
+          cpus.push_back(&s_sym->getCpu());
+        }
+
+        // Run the host and symbiont's code at the same time
+        for (int i = 0; i < 30; i++) {
+          for (SGPCpu * cpu : cpus) {
+            cpu->runCpuStep(id, 1);
+          }
+        }
+        cpus.clear();
+      }
+    }
+  }
+}
+
+void runCpus(SymWorld &world) {
+  // TODO use a persistent thread pool instead of spawning new threads every update
+  emp::vector<std::thread> threads;
+  std::atomic<size_t> next_id = 0;
+  for (size_t i = 0; i < THREAD_COUNT-1; i++) {
+    threads.push_back(std::thread(thread_fun, std::ref(world), std::ref(next_id), i));
+  }
+  // Last thread is the main thread
+  thread_fun(world, next_id, THREAD_COUNT - 1);
+  // Wait for others to finish
+  for (auto &thread : threads) {
+    thread.join();
+  }
+}
+
+#endif
