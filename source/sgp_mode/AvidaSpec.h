@@ -121,12 +121,18 @@ float checkTasks(AvidaPeripheral &peripheral, emp::vector<Task> &tasks) {
   }
   emp::vector<uint32_t> inputs;
   for (size_t i = 0; i < peripheral.input_buf.size(); i++) {
+    if (peripheral.input_buf[i] == 0)
+      continue;
+
     inputs = {peripheral.input_buf[i], peripheral.input_buf[i + 1]};
     for (size_t i = 0; i < tasks.size(); i++) {
       Task &task = tasks[i];
       if (std::holds_alternative<InputTask>(task.kind) &&
           !peripheral.usedResources->Get(i)) {
         InputTask &itask = std::get<InputTask>(task.kind);
+        if (itask.n_inputs > 1 && inputs[1] == 0)
+          continue;
+
         if (itask.taskFun(inputs) == check) {
           peripheral.usedResources->Set(i, !task.unlimited);
           if (peripheral.host->IsHost())
