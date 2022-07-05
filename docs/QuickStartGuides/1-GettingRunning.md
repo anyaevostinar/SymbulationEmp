@@ -8,6 +8,8 @@ Symbulation allows you to compile your C++ to either:
 This how-to aims to walk you through all the nitty gritty required to
 successfully compile a simple "default" executable for running at the command line.
 
+If you aren't able to install everything locally, you can try out editing the command-line version of the code on [this Repl](https://replit.com/@anyaevostinar/Symbulation-Example). The web version can't be rebuilt on Replit at the moment due to missing packages on the Replit platform.
+
 ## Install: Native C++ Compiler
 
 In the Unix-verse (e.g., Linux / MacOS) commonly used compilers include `gcc` and `clang`. From this point onwards, we assume that you're working with `gcc`.  
