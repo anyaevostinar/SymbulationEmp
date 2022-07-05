@@ -62,12 +62,6 @@ If you have something against delicious cookies and want to do without Cookiecut
     git clone https://github.com/anyaevostinar/SymbulationEmp
     ```
 
-2. In the same level as `SymbulationEmp`, you will need a recursive copy of Empirical: 
-
-    ```shell
-    git clone --recursive https://github.com/devosoft/Empirical.git 
-    ```
-
 ### Compiling
 
 Regardless of how you got everything downloaded, it's now time to compile!
@@ -77,13 +71,7 @@ cd SymbulationEmp
 make
 ```
 
-Which command you use to run the executable depends on your version.
-If you are using version 0.1:
-```
-./symbulation
-```
-
-If you are using a later version (or the `refactor` branch, which has the development version):
+Then run:
 ```shell
 ./symbulation_default
 ```
@@ -96,7 +84,7 @@ These can also be altered at the command line:
 
 For example:
 ```
-./symbulation_default -VERTICAL_TRANSMISSION 0.5
+./symbulation_default -VERTICAL_TRANSMISSION 0.5 -GRID_X 50 -GRID_Y 50
 ```
 
 To see how to use our workflow and scripts to collect and analyze data, please proceed to the [Collecting Data](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/2-CollectingData.html) quickstart guide!
@@ -105,11 +93,8 @@ To see how to use our workflow and scripts to collect and analyze data, please p
 
 These instructions are for if you want to make *changes* to the web GUI and run it locally. You don't need to do this to be able to use Symbulation's web browser; you can instead access it here: [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html).
 
-First, you'll need Emscripten. 
-We recommend putting it in the same directory that you have SymbulationEmp and Empirical:
-
-```
-git clone https://github.com/emscripten-core/emsdk.git
+First, you'll need to set up Emscripten, which is included in the `SymbulationEmp` folder:
+```bash
 cd emsdk
 ./emsdk install 1.38.48
 ./emsdk activate 1.38.48
@@ -122,43 +107,10 @@ cd emsdk
 source ./emsdk_env.sh
 ```
 
-Then navigate back to SymbulationEmp and build the web version:
+Then navigate back to SymbulationEmp's top folder and build the web version:
 
 ```
-cd SymbulationEmp
-make web
-```
-
-```shell
-./symbulation_default
-```
-
-## Web
-
-You don't need to do this to be able to use Symbulation's web browser since it is hosted here: [https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html](https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html).
-
-However, if you want to make changes to the web GUI and run it locally, this is how you do that.
-
-First, you'll need Emscripten, we recommend putting it in the same directory that you have SymbulationEmp and Empirical:
-
-```
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install 1.38.48
-./emsdk activate 1.38.48
-```
-
-Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):
-
-```
-cd emsdk
-source ./emsdk_env.sh
-```
-
-Then navigate back to SymbulationEmp and build the web version:
-
-```
-cd SymbulationEmp
+cd ..
 make web
 ```
 
