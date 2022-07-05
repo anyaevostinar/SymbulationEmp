@@ -4,7 +4,7 @@
 #include "../../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Prophage Loss Rate Results", "[integration]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(5);
     SymConfigBase config;
 
     //smaller world than actual experiment, starting with full population
