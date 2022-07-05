@@ -32,7 +32,7 @@ template <const size_t len = 8> struct IORingBuffer {
     next = (next + 1) % len;
   }
 
-  uint32_t operator[](size_t idx) { return buffer[idx]; }
+  uint32_t operator[](size_t idx) { return buffer[idx % len]; }
 
   size_t size() { return len; }
 };
