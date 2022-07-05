@@ -16,6 +16,7 @@ However, if you want, there are some things that you could install ahead of time
 * If you use a Windows system, we recommend that you install [Windows Subsystem for Linux](https://docs.microsoft.com/en-us/windows/wsl/) (Symbulation doesn't run on Windows unfortunately)
 * [Check if you have `gcc` and if you don't, install it](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#install-native-c-compiler). **This install can take a while**, hence why it's good to do ahead of the workshop. (`clang` might work, but we'll assume that you are using `gcc` and won't be able to help with issues with `clang`.)
 * [Install `cookiecutter` and pull down the Symbulation project template](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#using-cookiecutter) so that we can use it to set up the folder structure more easily. It will give an error at the end about not succeeding to push to GitHub; that's normal and nothing to worry about.
+* If you don't want to/can't install things, you can do most things using [this Replit](https://replit.com/@anyaevostinar/Symbulation-Example), just not building the web version.
 
 ## Schedule
 
