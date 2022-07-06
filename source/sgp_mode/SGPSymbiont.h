@@ -28,15 +28,23 @@ public:
     my_world = _world;
   }
 
+  ~SGPSymbiont() {
+    if (!my_host) {
+      cpu.state.used_resources.Delete();
+    }
+  }
+
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
-    cpu.state.used_resources = host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
+    cpu.state.used_resources.Delete();
+    cpu.state.used_resources =
+        host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
   }
 
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-      cpu.RunCPUStep(pos);
+    cpu.RunCPUStep(pos);
 
     // The parts of Symbiont::Process that don't use resources or reproduction
 

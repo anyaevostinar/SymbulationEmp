@@ -38,6 +38,9 @@ public:
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
+    if (my_world->GetUpdate() % 30 == 0)
+      cpu.state.used_resources->reset();
+
     cpu.RunCPUStep(pos);
 
     // Instead of calling Host::Process, do the important stuff here

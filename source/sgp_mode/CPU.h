@@ -102,25 +102,26 @@ public:
       // Match the tag to the correct global anchor, then print it out as a
       // 2-letter code AA, AB, etc.
       auto match = table.MatchRegulated(ins.tag);
+      std::string tag_name;
       if (match.size()) {
         size_t tag = match.front();
-        std::string tag_name;
         tag_name += 'A' + tag / 26;
         tag_name += 'A' + tag % 26;
-        if (name == "JumpIfNEq" || name == "JumpIfLess") {
-          std::cout << "    " << emp::to_lower(name);
-          for (size_t i = 0; i < 12 - name.length(); i++) {
-            std::cout << ' ';
-          }
-          std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
-                    << ", " << tag_name;
-        } else if (name == "Global Anchor") {
-          std::cout << tag_name << ':';
-        } else {
-          std::cout << "<unknown " << name << ">";
-        }
       } else {
-        std::cout << "<illegal instruction tag>";
+        tag_name = "<nowhere>";
+      }
+
+      if (name == "JumpIfNEq" || name == "JumpIfLess") {
+        std::cout << "    " << emp::to_lower(name);
+        for (size_t i = 0; i < 12 - name.length(); i++) {
+          std::cout << ' ';
+        }
+        std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
+                  << ", " << tag_name;
+      } else if (name == "Global Anchor") {
+        std::cout << tag_name << ':';
+      } else {
+        std::cout << "<unknown " << name << ">";
       }
     }
     std::cout << '\n';

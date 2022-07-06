@@ -69,6 +69,9 @@ public:
         replaced.insert(new_pos.GetIndex());
       } else {
         SymDoBirth(child, org.second);
+        // A host and its sym can't both reproduce in the same update, but that
+        // doesn't really matter
+        replaced.insert(org.second.GetIndex());
       }
     }
     to_reproduce.clear();
