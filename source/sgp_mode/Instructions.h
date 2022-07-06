@@ -92,10 +92,32 @@ INST(IO, {
       state.world->SymPointsEarned += pow(2, score);
     }
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next = sgpl::tlrand.Get().GetBits50();;
   *a = next;
   state.input_buf.push(next);
 });
+
+INST(Reuptake, {
+  uint32_t next;
+  state.output = *a;
+  float score = checkTasks(state, DefaultTasks);
+  if (score != 0.0) {
+    state.host->AddPoints(pow(2, score));
+    if (!state.host->IsHost()) {
+      state.world->SymPointsEarned += pow(2, score);
+    }
+  }
+  if(state.internalEnvironment->size() > 0){
+    next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];
+    state.internalEnvironment->pop_back();
+  }
+  else{
+    next = sgpl::tlrand.Get().GetBits50();
+  }
+  *a = next;
+  state.input_buf.push(next);
+});
+
 INST(Donate, {
   if (state.host->IsHost())
     return;

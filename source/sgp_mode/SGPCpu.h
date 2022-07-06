@@ -42,7 +42,7 @@ class SGPCpu {
                       // no copy or alloc
                       inst::Reproduce, inst::IO,
                       // no h-search
-                      inst::Donate>;
+                      inst::Donate, inst::Reuptake>;
 
   using Spec = sgpl::Spec<Library, CPUState>;
 
@@ -137,7 +137,7 @@ public:
         std::pair("Swap", 2),       std::pair("Add", 3),
         std::pair("Subtract", 3),   std::pair("Nand", 3),
         std::pair("Reproduce", 0),  std::pair("IO", 1),
-        std::pair("Donate", 0)};
+        std::pair("Donate", 0), std::pair("Reuptake", 1)};
     emp::map<size_t, std::string> labels;
 
     std::cout << "--------" << std::endl;

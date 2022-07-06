@@ -38,11 +38,9 @@ struct CPUState {
   emp::optional<uint32_t> output;
 
   emp::Ptr<emp::BitSet<64>> usedResources = emp::NewPtr<emp::BitSet<64>>();
-
+  emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
-
-  emp::Ptr
 
   emp::WorldPosition location;
 
