@@ -70,7 +70,19 @@ int symbulation_main(int argc, char * argv[])
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-      world.GetTaskSet().TaskCheckpoint();
+
+      // Print out metrics on completed tasks
+      std::cout << "Host tasks completed since last checkpoint:\n";
+      for (auto data : world.GetTaskSet()) {
+        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_host;
+      }
+      std::cout << "\nSymbiont tasks completed since last checkpoint:\n";
+      for (auto data : world.GetTaskSet()) {
+        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_sym;
+      }
+      std::cout << std::endl;
+      world.GetTaskSet().ResetTaskData();
+
       double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
       std::cout << "Syms donated " << percent << "\% of the points they earned ("
                 << world.sym_points_donated << "/" << world.sym_points_earned << ")"

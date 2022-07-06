@@ -24,15 +24,21 @@ struct Task {
   std::string name;
   std::variant<InputTask, OutputTask> kind;
   bool unlimited = true;
-
-  std::atomic<size_t> *n_succeeds = new std::atomic<size_t>(0);
-  std::atomic<size_t> *n_succeeds_sym = new std::atomic<size_t>(0);
 };
 class TaskSet {
   emp::vector<Task> tasks;
+  // vector<atomic<>> doesn't work since the vector needs to copy its elements
+  // on resize and atomic isn't copiable, so we need pointers
+  emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
+  emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
 public:
-  TaskSet(std::initializer_list<Task> tasks) : tasks(tasks) {}
+  TaskSet(std::initializer_list<Task> tasks) : tasks(tasks) {
+    for (size_t i = 0; i < tasks.size(); i++) {
+      n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+      n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+    }
+  }
 
   float CheckTasks(CPUState &state, uint32_t output) {
     // Check output tasks
@@ -44,9 +50,9 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           if (state.host->IsHost())
-            (*task.n_succeeds)++;
+            ++*n_succeeds_host[i];
           else
-            (*task.n_succeeds_sym)++;
+            ++*n_succeeds_sym[i];
           return score;
         }
       }
@@ -72,12 +78,10 @@ public:
 
           if (itask.taskFun(inputs) == output) {
             state.used_resources->Set(i, !task.unlimited);
-            // std::cout << task.name << ": " << inputs[0] << ", " << inputs[1]
-            // << " --> " << output << std::endl;
             if (state.host->IsHost())
-              (*task.n_succeeds)++;
+              ++*n_succeeds_host[i];
             else
-              (*task.n_succeeds_sym)++;
+              ++*n_succeeds_sym[i];
             return itask.value;
           }
         }
@@ -86,19 +90,39 @@ public:
     return 0.0f;
   }
 
-  void TaskCheckpoint() {
-    std::cout << "Host tasks completed since last checkpoint:\n";
-    for (auto &task : tasks) {
-      std::cout << "  \t" << task.name << ": " << *task.n_succeeds;
-      task.n_succeeds->store(0);
+  // Provide access to data about task completion with an iterator
+  struct TaskData {
+    const Task &task;
+    size_t n_succeeds_host;
+    size_t n_succeeds_sym;
+  };
+
+  struct Iterator {
+    const TaskSet &task_set;
+    size_t index;
+
+    Iterator &operator++() {
+      index++;
+      return *this;
     }
-    std::cout << std::endl;
-    std::cout << "Symbiont tasks completed since last checkpoint:\n";
-    for (auto &task : tasks) {
-      std::cout << "  \t" << task.name << ": " << *task.n_succeeds_sym;
-      task.n_succeeds_sym->store(0);
+
+    bool operator!=(const Iterator &other) { return index != other.index; }
+
+    TaskData operator*() const {
+      return TaskData{task_set.tasks[index], *task_set.n_succeeds_host[index],
+                      *task_set.n_succeeds_sym[index]};
     }
-    std::cout << std::endl;
+  };
+
+  Iterator begin() const { return Iterator{*this, 0}; }
+
+  Iterator end() const { return Iterator{*this, tasks.size()}; }
+
+  void ResetTaskData() {
+    for (size_t i = 0; i < tasks.size(); i++) {
+      n_succeeds_host[i]->store(0);
+      n_succeeds_sym[i]->store(0);
+    }
   }
 };
 
