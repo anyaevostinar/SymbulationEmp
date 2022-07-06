@@ -51,8 +51,8 @@ float checkTasks(CPUState &state, emp::vector<Task> &tasks) {
   for (size_t i = 0; i < tasks.size(); i++) {
     Task &task = tasks[i];
     if (std::holds_alternative<OutputTask>(task.kind) &&
-        !state.usedResources->Get(i)) {
-      state.usedResources->Set(i, !task.unlimited);
+        !state.used_resources->Get(i)) {
+      state.used_resources->Set(i, !task.unlimited);
       float score = std::get<OutputTask>(task.kind).taskFun(check);
       if (score > 0.0) {
         if (state.host->IsHost())
@@ -77,13 +77,13 @@ float checkTasks(CPUState &state, emp::vector<Task> &tasks) {
     for (size_t i = 0; i < tasks.size(); i++) {
       Task &task = tasks[i];
       if (std::holds_alternative<InputTask>(task.kind) &&
-          !state.usedResources->Get(i)) {
+          !state.used_resources->Get(i)) {
         InputTask &itask = std::get<InputTask>(task.kind);
         if (itask.n_inputs > 1 && inputs[1] == 0)
           continue;
 
         if (itask.taskFun(inputs) == check) {
-          state.usedResources->Set(i, !task.unlimited);
+          state.used_resources->Set(i, !task.unlimited);
           if (state.host->IsHost())
             (*task.n_succeeds)++;
           else

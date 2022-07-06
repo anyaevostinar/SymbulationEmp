@@ -37,7 +37,7 @@ struct CPUState {
   IORingBuffer<> input_buf;
   emp::optional<uint32_t> output;
 
-  emp::Ptr<emp::BitSet<64>> usedResources = emp::NewPtr<emp::BitSet<64>>();
+  emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
 
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;

@@ -79,7 +79,7 @@ INST(Reproduce, {
     // Add this organism to the queue to reproduce, using the mutex to avoid a
     // data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
-    state.world->toReproduce.push_back(std::pair(state.host, state.location));
+    state.world->to_reproduce.push_back(std::pair(state.host, state.location));
   }
 });
 // Set output to value of register and set register to new input
@@ -89,7 +89,7 @@ INST(IO, {
   if (score != 0.0) {
     state.host->AddPoints(pow(2, score));
     if (!state.host->IsHost()) {
-      state.world->SymPointsEarned += pow(2, score);
+      state.world->sym_points_earned += pow(2, score);
     }
   }
   uint32_t next = sgpl::tlrand.Get().GetBits50();
@@ -103,12 +103,12 @@ INST(Donate, {
     // Donate 20% of the total points of the symbiont-host system
     // This way, a sym can donate e.g. 40 or 60 percent of their points in a
     // couple of instructions
-    double toDonate =
+    double to_donate =
         fmin(state.host->GetPoints(),
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->SymPointsDonated += toDonate;
-    host->AddPoints(toDonate);
-    state.host->AddPoints(-toDonate);
+    state.world->sym_points_donated += to_donate;
+    host->AddPoints(to_donate);
+    state.host->AddPoints(-to_donate);
   }
 });
 

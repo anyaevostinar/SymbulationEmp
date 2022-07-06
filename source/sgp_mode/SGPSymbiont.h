@@ -2,13 +2,13 @@
 #define SGPSYMBIONT_H
 
 #include "../default_mode/Symbiont.h"
-#include "SGPCpu.h"
+#include "CPU.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
 
 class SGPSymbiont : public Symbiont {
 private:
-  SGPCpu cpu;
+  CPU cpu;
   emp::Ptr<SGPWorld> my_world;
 
 public:
@@ -21,7 +21,7 @@ public:
   }
 
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config, SGPCpu &oldCpu,
+              emp::Ptr<SymConfigBase> _config, CPU &oldCpu,
               double _intval = 0.0, double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
         cpu(this, _world, _random, oldCpu) {
@@ -30,12 +30,14 @@ public:
 
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
-    cpu.peripheral.usedResources = host.DynamicCast<SGPHost>()->getCpu().peripheral.usedResources;
+    cpu.state.used_resources = host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
   }
 
-  SGPCpu &getCpu() { return cpu; }
+  CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
+      cpu.RunCPUStep(pos);
+
     // The parts of Symbiont::Process that don't use resources or reproduction
 
     // Age the organism

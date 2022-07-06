@@ -71,22 +71,22 @@ int symbulation_main(int argc, char * argv[])
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
       taskCheckpoint();
-      double percent = 100.0 * world.SymPointsDonated / world.SymPointsEarned;
+      double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
       std::cout << "Syms donated " << percent << "\% of the points they earned ("
-                << world.SymPointsDonated << "/" << world.SymPointsEarned << ")"
+                << world.sym_points_donated << "/" << world.sym_points_earned << ")"
                 << std::endl;
-      world.SymPointsDonated = 0.0;
-      world.SymPointsEarned = 0.0;
+      world.sym_points_donated = 0.0;
+      world.sym_points_earned = 0.0;
     }
     world.Update();
   }
 
   // Print some debug info for testing purposes
   emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
-  sample->getCpu().PrintCode();
+  sample->GetCPU().PrintCode();
   for (auto &sym : sample->GetSymbionts()) {
     std::cout << "\n---- SYMBIONT CODE ----\n";
-    sym.DynamicCast<SGPSymbiont>()->getCpu().PrintCode();
+    sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode();
   }
 
   int total = 0;
