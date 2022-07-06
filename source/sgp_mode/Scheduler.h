@@ -3,6 +3,7 @@
 
 #include "../Organism.h"
 #include "../default_mode/SymWorld.h"
+#include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <atomic>
 #include <emp/base/vector.hpp>
 #include <functional>
@@ -15,7 +16,7 @@ class Scheduler {
   void RunThread(SymWorld &world, std::atomic<size_t> &next_id, size_t i,
                  std::function<void(emp::WorldPosition, Organism &)> &callback) {
     // Make sure each thread gets a different, deterministic, seed
-    // sgpl::tlrand.Get().ResetSeed(world.GetUpdate() * THREAD_COUNT + i);
+    sgpl::tlrand.Get().ResetSeed(world.GetUpdate() * THREAD_COUNT + i);
     while (true) {
       // Process CPUs for the next BATCH_SIZE organisms
       size_t start = next_id.fetch_add(BATCH_SIZE);

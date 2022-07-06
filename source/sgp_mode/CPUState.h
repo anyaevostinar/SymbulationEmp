@@ -2,7 +2,7 @@
 #define CPU_STATE_H
 
 #include "../Organism.h"
-#include "SGPWorld.h"
+#include "emp/Evolve/World_structure.hpp"
 #include "emp/base/Ptr.hpp"
 #include "emp/base/optional.hpp"
 #include "emp/base/vector.hpp"
@@ -30,12 +30,14 @@ template <const size_t len = 8> struct IORingBuffer {
   size_t size() { return len; }
 };
 
+// CPUState has a pointer to the SGPWorld, but it can't include it
+class SGPWorld;
+
 struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
 
   IORingBuffer<> input_buf;
-  emp::optional<uint32_t> output;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
 

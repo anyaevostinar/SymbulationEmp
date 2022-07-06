@@ -4,6 +4,7 @@
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/SymWorld.h"
 #include "Scheduler.h"
+#include "Tasks.h"
 #include <atomic>
 
 // Helper to get around std::atomic<double> not having a specialization
@@ -25,15 +26,17 @@ struct AtomicDouble {
 class SGPWorld : public SymWorld {
 private:
   Scheduler scheduler;
+  TaskSet task_set;
 
 public:
   AtomicDouble sym_points_donated;
   AtomicDouble sym_points_earned;
-
-  SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config)
-      : SymWorld(r, _config) {}
-
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
+
+  SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
+      : SymWorld(r, _config), task_set(task_set) {}
+
+  TaskSet &GetTaskSet() { return task_set; }
 
   void Update() {
     // These must be done here because we don't call SymWorld::Update()

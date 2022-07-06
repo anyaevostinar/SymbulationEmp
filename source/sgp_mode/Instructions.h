@@ -2,6 +2,7 @@
 #define INSTRUCTIONS_H
 
 #include "CPUState.h"
+#include "SGPWorld.h"
 #include "Tasks.h"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
@@ -84,8 +85,7 @@ INST(Reproduce, {
 });
 // Set output to value of register and set register to new input
 INST(IO, {
-  state.output = *a;
-  float score = checkTasks(state, DefaultTasks);
+  float score = state.world->GetTaskSet().CheckTasks(state, *a);
   if (score != 0.0) {
     state.host->AddPoints(pow(2, score));
     if (!state.host->IsHost()) {

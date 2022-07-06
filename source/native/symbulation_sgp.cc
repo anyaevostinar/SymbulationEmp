@@ -36,7 +36,7 @@ int symbulation_main(int argc, char * argv[])
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  SGPWorld world(random, &config);
+  SGPWorld world(random, &config, DefaultTasks);
 
 
   int TIMING_REPEAT = config.DATA_INT();
@@ -70,7 +70,7 @@ int symbulation_main(int argc, char * argv[])
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-      taskCheckpoint();
+      world.GetTaskSet().TaskCheckpoint();
       double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
       std::cout << "Syms donated " << percent << "\% of the points they earned ("
                 << world.sym_points_donated << "/" << world.sym_points_earned << ")"
