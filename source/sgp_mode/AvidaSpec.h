@@ -4,8 +4,14 @@
 #include "../Organism.h"
 #include "SGPWorld.h"
 #include "emp/Evolve/World.hpp"
+#include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
+#include "sgpl/library/OpLibraryCoupler.hpp"
+#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
+#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/operations/unary/Increment.hpp"
+#include "sgpl/operations/unary/Terminal.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
@@ -14,9 +20,7 @@
 #include <iostream>
 #include <mutex>
 #include <string>
-#include <variant>
 
-// Helper that keeps the last `len` inputs and discards the rest
 template <const size_t len = 8> struct IORingBuffer {
   uint32_t buffer[len];
   size_t next = 0;
@@ -32,9 +36,17 @@ template <const size_t len = 8> struct IORingBuffer {
     next = (next + 1) % len;
   }
 
-  uint32_t operator[](size_t idx) { return buffer[idx % len]; }
-
-  size_t size() { return len; }
+  float any_pair(std::function<float(uint32_t, uint32_t)> func) {
+    for (size_t i = 0; i < len; i++) {
+      if (buffer[i] == 0 || buffer[(i + 1) % len] == 0)
+        continue;
+      float score = func(buffer[i], buffer[(i + 1) % len]);
+      if (score != 0.0) {
+        return score;
+      }
+    }
+    return 0.0;
+  }
 };
 
 struct AvidaPeripheral {
@@ -46,6 +58,8 @@ struct AvidaPeripheral {
 
   emp::Ptr<emp::BitSet<64>> usedResources = emp::NewPtr<emp::BitSet<64>>();
 
+  emp::Ptr<emp::vector<uint32_t>> waste = emp::NewPtr<emp::vector<uint32_t>>();
+
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
 
@@ -55,96 +69,75 @@ struct AvidaPeripheral {
       : host(host), world(world) {}
 };
 
-// An input task computes an expected output based on the inputs, and if the
-// organism's output matches, it gives it a certain reward:
-// `InputTask sum{ 2, [](auto &x) { return x[0] + x[1]; }, 1.0 };`
-struct InputTask {
-  size_t n_inputs;
-  std::function<uint32_t(emp::vector<uint32_t> &)> taskFun;
-  float value;
-};
-
-// An output task returns a reward based on the output the organism produced:
-// `OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
-struct OutputTask {
-  std::function<float(uint32_t)> taskFun;
-};
-
-struct Task {
+template <typename T> struct Task {
   std::string name;
-  std::variant<InputTask, OutputTask> kind;
-  bool unlimited = true;
-
-  std::atomic<size_t> *n_succeeds = new std::atomic<size_t>(0);
+  size_t n_inputs;
+  std::function<T(emp::vector<T>&)> taskFun;
+  float value;
   std::atomic<size_t> *n_succeeds_sym = new std::atomic<size_t>(0);
 };
-// The 9 default logic tasks in Avida
-// These are checked top-to-bottom and the reward is given for the first one
-// that matches
-emp::vector<Task> DefaultTasks{
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
-    {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
-    {"AND", InputTask{2, [](auto &x) { return x[0] & x[1]; }, 2.0}, false},
-    {"ORN", InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 2.0}, false},
-    {"OR", InputTask{2, [](auto &x) { return x[0] | x[1]; }, 3.0}, false},
-    {"ANDN", InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 3.0}, false},
-    {"NOR", InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 4.0}, false},
-    {"XOR", InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 4.0}, false},
-    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false}};
 
-float checkTasks(AvidaPeripheral &peripheral, emp::vector<Task> &tasks) {
+ struct numberTask {
+   std::string name;
+   std::function<bool(uint32_t)> hasNumberProperty;
+   float value;
+
+std::atomic<size_t> *n_succeeds = new std::atomic<size_t>(0);
+ };
+
+emp::vector<numberTask> SquareTasks{
+  {"SQU", [](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0; }, 3.0}
+};
+
+emp::vector<Task<uint32_t>> DefaultTasks{
+    {"GROW", 1, [](auto x) { return x[0] + 100;}, 10.0},
+    {"SHRINK", 1, [](auto x) { return x[0] - floor(x[0] * 0.5);}, 10.0}
+    };
+
+float checkTasks(AvidaPeripheral &peripheral,
+                 emp::vector<Task<uint32_t>> &tasks) {
   if (!peripheral.output.has_value()) {
     return 0.0;
   }
   uint32_t check = peripheral.output.value();
   peripheral.output.reset();
-  // Check output tasks
-  for (size_t i = 0; i < tasks.size(); i++) {
-    Task &task = tasks[i];
-    if (std::holds_alternative<OutputTask>(task.kind) &&
-        !peripheral.usedResources->Get(i)) {
-      peripheral.usedResources->Set(i, !task.unlimited);
-      float score = std::get<OutputTask>(task.kind).taskFun(check);
-      if (score > 0.0) {
-        if (peripheral.host->IsHost())
-          (*task.n_succeeds)++;
-        else
-          (*task.n_succeeds_sym)++;
-        return score;
-      }
-    }
-  }
-  // Check input tasks
   // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
   if (check == 0 || check == 1) {
     return 0.0;
   }
-  emp::vector<uint32_t> inputs;
-  for (size_t i = 0; i < peripheral.input_buf.size(); i++) {
-    inputs = {peripheral.input_buf[i], peripheral.input_buf[i + 1]};
-    for (size_t i = 0; i < tasks.size(); i++) {
-      Task &task = tasks[i];
-      if (std::holds_alternative<InputTask>(task.kind) &&
-          !peripheral.usedResources->Get(i)) {
-        InputTask &itask = std::get<InputTask>(task.kind);
-        if (itask.taskFun(inputs) == check) {
-          peripheral.usedResources->Set(i, !task.unlimited);
-          if (peripheral.host->IsHost())
-            (*task.n_succeeds)++;
-          else
-            (*task.n_succeeds_sym)++;
-          return itask.value;
+  if (peripheral.host -> IsHost()){
+      for (numberTask task : SquareTasks){
+        if(task.hasNumberProperty(check)){
+          (*task.n_succeeds)++;
+            peripheral.waste->insert(peripheral.waste->begin(), sqrt(check));
+          return task.value;
         }
-      }
     }
-  }
-  return 0.0f;
+    return 0.0f;
+  
+  } else{
+        emp::vector<uint32_t> inputs;
+        return peripheral.input_buf.any_pair([&](uint32_t x, uint32_t y) {
+        inputs = {x, y};
+        for (size_t i = 0; i < tasks.size(); i++) {
+          Task<uint32_t> &task = tasks[i];
+          if (!peripheral.usedResources->Get(i) && check == task.taskFun(inputs)) {
+              peripheral.usedResources->Set(i);
+              (*task.n_succeeds_sym)++;
+              peripheral.waste->insert(peripheral.waste->begin(), check);
+              return task.value;
+            }
+        }
+        return 0.0f;
+      });
+    }
+  
 }
 
 void taskCheckpoint() {
   std::cout << "Host tasks completed since last checkpoint:\n";
-  for (auto &task : DefaultTasks) {
-    std::cout << "  \t" << task.name << ": " << *task.n_succeeds;
+  for (numberTask task : SquareTasks) {
+    std::cout << "    " << task.name << ": " << *task.n_succeeds;
     task.n_succeeds->store(0);
   }
   std::cout << std::endl;
@@ -201,12 +194,7 @@ INST(ShiftRight, { *a >>= 1; });
 INST(Add, { *a = *b + *c; });
 INST(Subtract, { *a = *b - *c; });
 INST(Nand, { *a = ~(*b & *c); });
-INST(Push, {
-  // Organism stacks cap out at 16 elements so they don't waste too much memory
-  if (peripheral.stack.size() < 16) {
-    peripheral.stack.push_back(*a);
-  }
-});
+INST(Push, { peripheral.stack.push_back(*a); });
 INST(Pop, {
   if (peripheral.stack.empty()) {
     *a = 0;
@@ -239,7 +227,15 @@ INST(IO, {
       peripheral.world->SymPointsEarned += pow(2, score);
     }
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t resourceLocation = std::rand() % 2;
+  uint32_t next;
+  if (resourceLocation == 0 % 2 && peripheral.waste->size() > 0){
+    next = (*peripheral.waste)[peripheral.waste->size() - 1];
+    peripheral.waste->pop_back();
+  }else{
+       next = sgpl::tlrand.Get().GetBits50();
+  }
+  //std::cout << "Resource Location value: " << resourceLocation;
   *a = next;
   peripheral.input_buf.push(next);
 });

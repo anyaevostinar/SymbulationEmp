@@ -31,6 +31,7 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
     cpu.peripheral.usedResources = host.DynamicCast<SGPHost>()->getCpu().peripheral.usedResources;
+    cpu.peripheral.waste = host.DynamicCast<SGPHost>()->getCpu().peripheral.waste;
   }
 
   SGPCpu &getCpu() { return cpu; }
