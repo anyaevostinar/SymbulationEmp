@@ -99,21 +99,18 @@ INST(IO, {
 
 INST(Reuptake, {
   uint32_t next;
-  state.output = *a;
-  float score = checkTasks(state, DefaultTasks);
+  float score = state.world->GetTaskSet().CheckTasks(state, *a);
   if (score != 0.0) {
     state.host->AddPoints(pow(2, score));
     if (!state.host->IsHost()) {
-      state.world->SymPointsEarned += pow(2, score);
+      state.world->sym_points_earned += pow(2, score);
     }
   }
   if(state.internalEnvironment->size() > 0){
     next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];
     state.internalEnvironment->pop_back();
   }
-  else{
-    next = 0;
-  }
+  else{ next = 0;}
   *a = next;
   state.input_buf.push(next);
 });

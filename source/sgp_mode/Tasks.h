@@ -41,6 +41,10 @@ public:
   }
 
   float CheckTasks(CPUState &state, uint32_t output) {
+    // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+    if (output == 0 || output == 1) {
+      return 0.0;
+    }
     // Check output tasks
     for (size_t i = 0; i < tasks.size(); i++) {
       Task &task = tasks[i];
@@ -53,15 +57,12 @@ public:
             ++*n_succeeds_host[i];
           else
             ++*n_succeeds_sym[i];
+          state.internalEnvironment->insert(state.internalEnvironment->begin(), sqrt(output));
           return score;
         }
       }
     }
     // Check input tasks
-    // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
-    if (output == 0 || output == 1) {
-      return 0.0;
-    }
     emp::vector<uint32_t> inputs;
     for (size_t i = 0; i < state.input_buf.size(); i++) {
       if (state.input_buf[i] == 0)
@@ -130,7 +131,7 @@ public:
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 TaskSet DefaultTasks{
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
+    /*{"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
     {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
     {"AND", InputTask{2, [](auto &x) { return x[0] & x[1]; }, 2.0}, false},
     {"ORN", InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 2.0}, false},
@@ -138,6 +139,7 @@ TaskSet DefaultTasks{
     {"ANDN", InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 3.0}, false},
     {"NOR", InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 4.0}, false},
     {"XOR", InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 4.0}, false},
-    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false}};
+    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false},*/
+    {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? 1.0 : 0.0; } }}};
 
 #endif
