@@ -33,7 +33,14 @@ public:
     my_world = _world;
   }
 
-  ~SGPHost() { cpu.state.used_resources.Delete(); }
+  ~SGPHost() {
+    cpu.state.used_resources.Delete();
+    // Invalidate any in-progress reproduction
+    if (cpu.state.in_progress_repro != -1) {
+      my_world->to_reproduce[cpu.state.in_progress_repro].second =
+          emp::WorldPosition::invalid_id;
+    }
+  }
 
   CPU &GetCPU() { return cpu; }
 
@@ -41,13 +48,14 @@ public:
     if (my_world->GetUpdate() % 30 == 0)
       cpu.state.used_resources->reset();
 
-    cpu.RunCPUStep(pos);
-
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {
       return;
     }
+
+    cpu.RunCPUStep(pos);
+
     if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
       for (size_t j = 0; j < syms.size(); j++) {
@@ -74,6 +82,8 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby =
         emp::NewPtr<SGPHost>(random, my_world, my_config, cpu, GetIntVal());
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
     return host_baby;
   }
 

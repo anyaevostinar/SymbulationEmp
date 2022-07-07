@@ -74,12 +74,16 @@ INST(SwapStack, { std::swap(state.stack, state.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
+  // Only one reproduction is allowed per update
+  if (state.in_progress_repro != -1)
+    return;
   double points = state.host->IsHost() ? 128.0 : 4.0;
   if (state.host->GetPoints() > points) {
     state.host->AddPoints(-points);
     // Add this organism to the queue to reproduce, using the mutex to avoid a
     // data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
+    state.in_progress_repro = state.world->to_reproduce.size();
     state.world->to_reproduce.push_back(std::pair(state.host, state.location));
   }
 });

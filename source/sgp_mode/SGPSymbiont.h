@@ -5,6 +5,7 @@
 #include "CPU.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
+#include "emp/Evolve/World_structure.hpp"
 
 class SGPSymbiont : public Symbiont {
 private:
@@ -31,6 +32,11 @@ public:
   ~SGPSymbiont() {
     if (!my_host) {
       cpu.state.used_resources.Delete();
+    }
+    // Invalidate any in-progress reproduction
+    if (cpu.state.in_progress_repro != -1) {
+      my_world->to_reproduce[cpu.state.in_progress_repro].second =
+          emp::WorldPosition::invalid_id;
     }
   }
 
@@ -60,6 +66,8 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> host_baby =
         emp::NewPtr<SGPSymbiont>(random, my_world, my_config, cpu, GetIntVal());
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
     return host_baby;
   }
 

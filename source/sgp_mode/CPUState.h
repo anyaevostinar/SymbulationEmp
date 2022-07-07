@@ -40,6 +40,9 @@ struct CPUState {
   IORingBuffer<> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  // If this organism is queued for reproduction, this stores its position in
+  // the queue. When the organism dies, its queue slot will be invalidated.
+  int in_progress_repro = -1;
 
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;

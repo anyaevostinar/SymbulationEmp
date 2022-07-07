@@ -52,12 +52,9 @@ public:
       }
     });
 
-    std::unordered_set<uint32_t> replaced;
     for (auto org : to_reproduce) {
-      if (replaced.count(org.second.GetIndex())) {
-        // This organism has been replaced, it's dead
+      if (!org.second.IsValid())
         continue;
-      }
       emp::Ptr<Organism> child = org.first->Reproduce();
       if (child->IsHost()) {
         // Host::Reproduce() doesn't take care of vertical transmission, that
@@ -65,13 +62,11 @@ public:
         for (auto &sym : org.first->GetSymbionts()) {
           sym->VerticalTransmission(child);
         }
-        emp::WorldPosition new_pos = DoBirth(child, org.second);
-        replaced.insert(new_pos.GetIndex());
+        DoBirth(child, org.second);
       } else {
+        // A sym reproducing into a host won't let that host reproduce this
+        // update
         SymDoBirth(child, org.second);
-        // A host and its sym can't both reproduce in the same update, but that
-        // doesn't really matter
-        replaced.insert(org.second.GetIndex());
       }
     }
     to_reproduce.clear();
