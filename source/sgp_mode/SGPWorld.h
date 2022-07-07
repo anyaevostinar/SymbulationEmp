@@ -34,7 +34,8 @@ public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
-      : SymWorld(r, _config), task_set(task_set) {}
+      : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
+        task_set(task_set) {}
 
   TaskSet &GetTaskSet() { return task_set; }
 
@@ -47,7 +48,7 @@ public:
     if (my_config->PHYLOGENY())
       sym_sys->Update();
 
-    scheduler.ProcessOrgs(*this, [&](emp::WorldPosition pos, Organism &org) {
+    scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
       org.Process(pos);
       if (pop[pos.GetIndex()]->GetDead()) { // Check if the host died
         DoDeath(pos);
