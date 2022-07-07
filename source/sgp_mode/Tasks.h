@@ -31,7 +31,7 @@ struct Task {
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 emp::vector<Task> DefaultTasks{
-    /*{"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
+    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
     {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
     {"AND", InputTask{2, [](auto &x) { return x[0] & x[1]; }, 2.0}, false},
     {"ORN", InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 2.0}, false},
@@ -39,8 +39,8 @@ emp::vector<Task> DefaultTasks{
     {"ANDN", InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 3.0}, false},
     {"NOR", InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 4.0}, false},
     {"XOR", InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 4.0}, false},
-    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false},*/
-    {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? 1.0 : 0.0; } }}};//Is using the variable in the return value possible?
+    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false},
+    {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? float(0.5*x) : 0.0; } }}};//Is using the variable in the return value possible?
 
 float checkTasks(CPUState &state, emp::vector<Task> &tasks) {
   if (!state.output.has_value()) {

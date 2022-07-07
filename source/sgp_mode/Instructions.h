@@ -92,7 +92,7 @@ INST(IO, {
       state.world->SymPointsEarned += pow(2, score);
     }
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();;
+  uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });
@@ -112,7 +112,7 @@ INST(Reuptake, {
     state.internalEnvironment->pop_back();
   }
   else{
-    next = sgpl::tlrand.Get().GetBits50();
+    next = 0;
   }
   *a = next;
   state.input_buf.push(next);

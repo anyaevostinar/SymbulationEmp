@@ -8,6 +8,7 @@
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
 #include "../sgp_mode/Scheduler.h"
+#include "../sgp_mode/SquareTesting.h"
 
 using namespace std;
 
@@ -79,7 +80,14 @@ int symbulation_main(int argc, char * argv[])
       world.SymPointsEarned = 0.0;
     }
     world.Update();
+    if (numupdates == 100){
+        SGPHost &host = (SGPHost&) world.GetOrg(1);
+        emp::Ptr<SGPSymbiont> symbiont = host.GetSymbionts().back().DynamicCast<SGPSymbiont>();
+        CheckSymbiont(1, host, *symbiont);
+    }
+  
   }
+
 
   // Print some debug info for testing purposes
   emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
@@ -108,6 +116,7 @@ int symbulation_main(int argc, char * argv[])
     world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
   }
   return 0;
+  
 }
 
 /*
