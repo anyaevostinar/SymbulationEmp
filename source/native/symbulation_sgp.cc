@@ -37,7 +37,7 @@ int symbulation_main(int argc, char * argv[])
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  SGPWorld world(random, &config);
+  SGPWorld world(random, &config, DefaultTasks);
 
 
   int TIMING_REPEAT = config.DATA_INT();
@@ -71,13 +71,25 @@ int symbulation_main(int argc, char * argv[])
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-      taskCheckpoint();
-      double percent = 100.0 * world.SymPointsDonated / world.SymPointsEarned;
+
+      // Print out metrics on completed tasks
+      std::cout << "Host tasks completed since last checkpoint:\n";
+      for (auto data : world.GetTaskSet()) {
+        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_host;
+      }
+      std::cout << "\nSymbiont tasks completed since last checkpoint:\n";
+      for (auto data : world.GetTaskSet()) {
+        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_sym;
+      }
+      std::cout << std::endl;
+      world.GetTaskSet().ResetTaskData();
+
+      double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
       std::cout << "Syms donated " << percent << "\% of the points they earned ("
-                << world.SymPointsDonated << "/" << world.SymPointsEarned << ")"
+                << world.sym_points_donated << "/" << world.sym_points_earned << ")"
                 << std::endl;
-      world.SymPointsDonated = 0.0;
-      world.SymPointsEarned = 0.0;
+      world.sym_points_donated = 0.0;
+      world.sym_points_earned = 0.0;
     }
     world.Update();
     if (numupdates == 100){
@@ -91,10 +103,10 @@ int symbulation_main(int argc, char * argv[])
 
   // Print some debug info for testing purposes
   emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
-  sample->getCpu().PrintCode();
+  sample->GetCPU().PrintCode();
   for (auto &sym : sample->GetSymbionts()) {
     std::cout << "\n---- SYMBIONT CODE ----\n";
-    sym.DynamicCast<SGPSymbiont>()->getCpu().PrintCode();
+    sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode();
   }
 
   int total = 0;

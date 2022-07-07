@@ -25,7 +25,7 @@
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
  */
-class SGPCpu {
+class CPU {
   using Library =
       sgpl::OpLibrary<sgpl::Nop<>, inst::JumpIfNEq, inst::JumpIfLess,
                       // if-label doesn't make sense for SGP, same with *-head
@@ -46,35 +46,33 @@ class SGPCpu {
 
   using Spec = sgpl::Spec<Library, CPUState>;
 
-private:
   sgpl::Cpu<Spec> cpu;
   sgpl::Program<Spec> program;
   emp::Ptr<emp::Random> random;
 
 public:
-  CPUState peripheral;
+  CPUState state;
 
-  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-         emp::Ptr<emp::Random> random)
-      : program(100), random(random), peripheral(organism, world) {
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
+      emp::Ptr<emp::Random> random)
+      : program(100), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
   }
 
-  SGPCpu(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-         emp::Ptr<emp::Random> random, SGPCpu &oldCpu)
-      : program(oldCpu.program), random(random), peripheral(organism, world) {
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
+      emp::Ptr<emp::Random> random, CPU &old_cpu)
+      : program(old_cpu.program), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
   }
 
-  void runCpuStep(emp::WorldPosition location, size_t nCycles = 30) {
+  void RunCPUStep(emp::WorldPosition location, size_t nCycles = 1) {
     // Generate random signals to launch available virtual cores
     while (cpu.TryLaunchCore(emp::BitSet<64>(random))) {
     }
 
-    peripheral.location = location;
+    state.location = location;
 
-    // Execute up to 30 instructions
-    sgpl::execute_cpu<Spec>(nCycles, cpu, program, peripheral);
+    sgpl::execute_cpu<Spec>(nCycles, cpu, program, state);
   }
 
   void Mutate() { program.ApplyPointMutations(0.01); }
@@ -104,25 +102,26 @@ public:
       // Match the tag to the correct global anchor, then print it out as a
       // 2-letter code AA, AB, etc.
       auto match = table.MatchRegulated(ins.tag);
+      std::string tag_name;
       if (match.size()) {
         size_t tag = match.front();
-        std::string tag_name;
         tag_name += 'A' + tag / 26;
         tag_name += 'A' + tag % 26;
-        if (name == "JumpIfNEq" || name == "JumpIfLess") {
-          std::cout << "    " << emp::to_lower(name);
-          for (size_t i = 0; i < 12 - name.length(); i++) {
-            std::cout << ' ';
-          }
-          std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
-                    << ", " << tag_name;
-        } else if (name == "Global Anchor") {
-          std::cout << tag_name << ':';
-        } else {
-          std::cout << "<unknown " << name << ">";
-        }
       } else {
-        std::cout << "<illegal instruction tag>";
+        tag_name = "<nowhere>";
+      }
+
+      if (name == "JumpIfNEq" || name == "JumpIfLess") {
+        std::cout << "    " << emp::to_lower(name);
+        for (size_t i = 0; i < 12 - name.length(); i++) {
+          std::cout << ' ';
+        }
+        std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
+                  << ", " << tag_name;
+      } else if (name == "Global Anchor") {
+        std::cout << tag_name << ':';
+      } else {
+        std::cout << "<unknown " << name << ">";
       }
     }
     std::cout << '\n';
