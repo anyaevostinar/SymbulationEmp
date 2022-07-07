@@ -45,7 +45,7 @@ public:
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    if (my_world->GetUpdate() % 30 == 0)
+    if (my_world->GetUpdate() % 30/my_config->CYCLES_PER_UPDATE() == 0)
       cpu.state.used_resources->reset();
 
     // Instead of calling Host::Process, do the important stuff here
@@ -54,7 +54,7 @@ public:
       return;
     }
 
-    cpu.RunCPUStep(pos);
+    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
 
     if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();

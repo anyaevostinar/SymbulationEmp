@@ -38,6 +38,8 @@ public:
 
   TaskSet &GetTaskSet() { return task_set; }
 
+  emp::Ptr<SymConfigBase> GetConfig() { return my_config; }
+
   void Update() {
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future

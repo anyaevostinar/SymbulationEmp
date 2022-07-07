@@ -50,7 +50,7 @@ public:
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    cpu.RunCPUStep(pos);
+    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
 
     // The parts of Symbiont::Process that don't use resources or reproduction
 

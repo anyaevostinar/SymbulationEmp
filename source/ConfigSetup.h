@@ -77,6 +77,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
 
-
+    GROUP(SGP, "Complex Genomes Settings"),
+    VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
+    VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
 )
 #endif
