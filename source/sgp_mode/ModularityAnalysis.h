@@ -37,12 +37,12 @@
   *
   *
   */
-  float static GetPModularity (int num_tasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs, int genome_size){
-      int length = genome_size;
+  float static GetPModularity (int num_tasks, emp::vector<emp::vector<int>> task_programs){
+      int length = task_programs[0].size();
       float physical_mod_val = 0.0; 
     
-      emp::vector<emp::Ptr<int>> alt_task_starts = GetUsefulStarts(task_programs);
-      emp::vector<emp::Ptr<int>> alt_task_ends = GetUsefulEnds(task_programs);
+      emp::vector<int> alt_task_starts = GetUsefulStarts(task_programs);
+      emp::vector<int> alt_task_ends = GetUsefulEnds(task_programs);
 
       float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
 
@@ -56,13 +56,13 @@
   *
   *
   */
-  emp::vector<emp::Ptr<int>> static GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
-      emp::vector<emp::Ptr<int>> list_of_starts ={};
+  emp::vector<int> static GetUsefulStarts(emp::vector<emp::vector<int>> task_programs){
+      emp::vector<int> list_of_starts ={};
 
       for(int y=0; y<task_programs.size(); y++){
           for(int e = 0; e<=task_programs[y].size()-1;e++){
               if(task_programs[y][e] == 1){
-                  list_of_starts.pushback(e);
+                  list_of_starts.push_back(e);
                   break;
               }
 
@@ -78,13 +78,13 @@
   *
   *
   */
-  emp::vector<emp::Ptr<int>> static GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
-      emp::vector<emp::Ptr<int>> list_of_ends ={};
+  emp::vector<int> static GetUsefulEnds(emp::vector<emp::vector<int>> task_programs){
+       emp::vector<int> list_of_ends ={};
 
        for(int y=0; y<task_programs.size(); y++){
           for(int f = task_programs[y].size()-1; f>=0;f--){
-              if(task_programs[y][e] == 1){
-                  list_of_ends.pushback(e);
+              if(task_programs[y][f] == 1){
+                  list_of_ends.push_back(f);
                   break;
               }
 
@@ -112,8 +112,8 @@
   *
   *
   */
-  float static GetSummedValue (int num_tasks, emp::vector<emp::Ptr<int>> starts_used, emp::vector<emp::Ptr<int>> ends_used, 
-      emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alt_genomes, int genome_size){
+  float static GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
+  emp::vector<emp::vector<int>>alt_genomes, int genome_size){
 
       int length = genome_size;
       float final_sum = 0.0;
@@ -139,7 +139,7 @@
   *
   *
   */
-  int static GetNumSites(emp::vector<emp::Ptr<int>> alt_genome, int length){
+  int static GetNumSites(emp::vector<int> alt_genome, int length){
     // for altered genome clusters
     int total_sites = 0;
     int genome_size = length;
@@ -160,7 +160,7 @@
   *
   *
   */
-  int static GetSumSiteDist(int start_used, int end_used, emp::vector<emp::Ptr<int>> alt_genome){
+  int static GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
     //for individual traits of the genome
      int sum_dist =0;
 
