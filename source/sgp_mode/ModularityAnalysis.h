@@ -114,30 +114,30 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   //Start of physicalModularityCode
 
-  float GetPModularity (int numTasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms, int genomeSize){
-      int length = genomeSize;
-      float physicalModVal = 0.0; 
+  float GetPModularity (int num_tasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs, int genome_size){
+      int length = genome_size;
+      float physical_mod_val = 0.0; 
     
-      emp::vector<emp::Ptr<int>> altTaskStarts = GetUsefulStarts(taskPrograms);
-      emp::vector<emp::Ptr<int>> altTaskEnds = GetUsefulEnds(taskPrograms);
+      emp::vector<emp::Ptr<int>> alt_task_starts = GetUsefulStarts(task_programs);
+      emp::vector<emp::Ptr<int>> altTaskEnds = GetUsefulEnds(task_programs);
 
-      float formulaSum = getSummedValue(tasksCount, altTaskStarts, altTaskEnds,taskPrograms,length);
+      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
 
-      physicalModVal = calcPModularity(tasksCount, formulaSum, length);
+      physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
 
-      return physicalModVal;
+      return physical_mod_val;
 
   }
 
   //creates a vector of the position in each alter program of the first !(No-op) instruction to appear
 
-  emp::vector<emp::Ptr<int>> GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms){
-      emp::vector<emp::Ptr<int>> listOfStarts ={};
+  emp::vector<emp::Ptr<int>> GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
+      emp::vector<emp::Ptr<int>> list_of_starts ={};
 
-      for(int y=0; y<taskPrograms.size(); y++)){
-          for(int e = 0; e<=taskPrograms[y].size()-1;e++){
-              if(taskPrograms[y][e] == 1){
-                  listOfStarts.pushback(e);
+      for(int y=0; y<task_programs.size(); y++)){
+          for(int e = 0; e<=task_programs[y].size()-1;e++){
+              if(task_programs[y][e] == 1){
+                  list_of_starts.pushback(e);
                   break;
               }
 
@@ -145,59 +145,59 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
       }
 
-      return listOfStarts;
+      return list_of_starts;
 
   }
 
   //creates a vector of the position in each alter program of the last !(No-op) instruction to appear
 
-  emp::vector<emp::Ptr<int>> GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms){
-      emp::vector<emp::Ptr<int>> listOfEnds ={};
+  emp::vector<emp::Ptr<int>> GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
+      emp::vector<emp::Ptr<int>> list_of_ends ={};
 
-       for(int y=0; y<taskPrograms.size(); y++)){
-          for(int f = taskPrograms[y].size()-1; f>=0;f--){
-              if(taskPrograms[y][e] == 1){
-                  listOfEnds.pushback(e);
+       for(int y=0; y<task_programs.size(); y++)){
+          for(int f = task_programs[y].size()-1; f>=0;f--){
+              if(task_programs[y][e] == 1){
+                  list_of_ends.pushback(e);
                   break;
               }
 
           }
 
-      return listOfEnds;
+      return list_of_ends;
 
   }
 
-  float CalcPModularity (int numTasks, float summedValue,int genomeSize){
-    int length = genomeSize;
-    float layerOne = 2/(length*numTasks);
-    float layerTwo = layerOne * summedValue;
-    float physicalMod = 1 - LayerTwo;
+  float CalcPModularity (int num_tasks, float summed_value,int genome_size){
+    int length = genome_size;
+    float layer_one = 2/(length*num_tasks);
+    float layer_two = layer_one * summed_value;
+    float physical_mod = 1 - layer_two;
 
-    return physicalMod;
+    return physical_mod;
 
   }
 
   //the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
-  float GetSummedValue (int numTasks, emp::vector<emp::Ptr<int>> startsUsed, emp::vector<emp::Ptr<int>> endsUsed, 
-  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> altGenomes, int programSize){
+  float GetSummedValue (int num_tasks, emp::vector<emp::Ptr<int>> starts_used, emp::vector<emp::Ptr<int>> ends_used, 
+      emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alt_genomes, int genome_size){
 
-      int length = programSize;
-      float finalSum = 0.0;
+      int length = genome_size;
+      float final_sum = 0.0;
 
 
-      for(int a=1; a<=numTasks; a++){
-        float taskSum =0.0;
+      for(int a=1; a<=num_tasks; a++){
+        float task_sum =0.0;
 
       //call methods on the altered program a
-        int numSitesA = .GetNumSites(altGenomes{a}, length);
-        int SumSiteDistA = .GetSumSiteDist(startsUsed{a}, endsUsed{a}, altGenomes{a});
+        int num_sites_a = this.GetNumSites(alt_genomes{a}, length);
+        int Sum_site_dist_a = this.GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
 
-        taskSum = SumSiteDistA/(numSitesA*(numSitesA-1));
+        task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
 
-        finalSum += taskSum;
+        final_sum += task_sum;
       }
 
-      return finalSum;
+      return final_sum;
 
   }
 
