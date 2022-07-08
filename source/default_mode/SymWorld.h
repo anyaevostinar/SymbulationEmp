@@ -370,6 +370,14 @@ public:
    * Purpose: To determine the location of a valid occupied neighboring position.
    */
   int GetNeighborHost (size_t i) {
+    // Attempt to use GetRandomNeighborPos first, since it's much faster
+    for (int i = 0; i < 3; i++) {
+      emp::WorldPosition neighbor = GetRandomNeighborPos(i);
+      if (neighbor.IsValid() && pop[neighbor.GetIndex()].Raw())
+        return neighbor.GetIndex();
+    }
+
+    // Then enumerate all occupied neighbors, in case many neighbors are unoccupied
     const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
     if (validNeighbors.empty()) return -1;
     else {
