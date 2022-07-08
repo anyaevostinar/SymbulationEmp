@@ -5,17 +5,18 @@
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/ModularityAnalysis.h"
 
-//test for sites
-//test for dist
-//test for Sum
-//test for calPM
+
 
 TEST_CASE("GetNumSites", "[sgp]"){
         int length = 20;
-        emp::Ptr<SGPHost> host1 = emp::NewPtr<SGPHost>(random, world, &config, int_val);
-        emp::vector<emp::Ptr<int>> usefulGenome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
-        int siteCount = usefulGenome.GetNumSites(usefulGenome,length);
-        REQUIRE(siteCount==3);
+        
+        //host constructor is very wrong but before I fix that I just want the make to be able to see the test file
+
+        emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(random, world, &config, int_val);
+
+        emp::vector<emp::Ptr<int>> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
+        int site_count = host.GetNumSites(useful_genome,length);
+        REQUIRE(site_count==3);
 }
 
 //TEST_CASE("GetPModularity", "[sgp]"){}
