@@ -12,7 +12,7 @@
 
 TEST_CASE("GetNumSites", "[sgp]"){
         int length = 20;
-        emp::Ptr<SGPHost> host1 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
+        emp::Ptr<SGPHost> host1 = emp::NewPtr<SGPHost>(random, world, &config, int_val);
         emp::vector<emp::Ptr<int>> usefulGenome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
         int siteCount = usefulGenome.GetNumSites(usefulGenome,length);
         REQUIRE(siteCount==3);

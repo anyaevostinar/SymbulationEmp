@@ -118,12 +118,12 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
       int length = genome_size;
       float physical_mod_val = 0.0; 
     
-      emp::vector<emp::Ptr<int>> alt_task_starts = GetUsefulStarts(task_programs);
-      emp::vector<emp::Ptr<int>> altTaskEnds = GetUsefulEnds(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_starts = this->GetUsefulStarts(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_ends = this->GetUsefulEnds(task_programs);
 
-      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
+      float formula_sum = this->GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
 
-      physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
+      physical_mod_val = this->CalcPModularity(tasks_count, formula_sum, length);
 
       return physical_mod_val;
 
@@ -189,8 +189,8 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
         float task_sum =0.0;
 
       //call methods on the altered program a
-        int num_sites_a = this.GetNumSites(alt_genomes{a}, length);
-        int Sum_site_dist_a = this.GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
+        int num_sites_a = this->GetNumSites(alt_genomes{a}, length);
+        int Sum_site_dist_a = this->GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
 
         task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
 
