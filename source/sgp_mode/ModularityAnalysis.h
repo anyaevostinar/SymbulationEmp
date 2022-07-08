@@ -239,22 +239,7 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
   }
 
   //end of physical modularity code
-   
-int CheckHammingDistance(SGPHost other) {
-    int dis = 0;
-    // sgpl::Program<AvidaSpec> &program;
-    // sgpl::Program<AvidaSpec> &otherProgram;
-    sgpl::Program<AvidaSpec> program = this->getCpu().getProgram();
-    sgpl::Program<AvidaSpec> otherProgram = other.getCpu().getProgram();
-    
-    for (int i=0;i<=99; ++i) {
-      if (!compareOp(program[i],otherProgram[i])){
-        dis++;
-      }
-    }
-    return dis;
-  }
 
-	
+#endif
 	
 	
