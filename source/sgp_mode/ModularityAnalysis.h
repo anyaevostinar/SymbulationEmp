@@ -31,23 +31,21 @@
 //GetUsefulLists(...){}
   //will need the getUsefulCode(takes in host, task) method
 
-//GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alteredInstrList){}
-//GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alteredInstrList){}
-
-//separated code from GetPModularity
+//removed code from GetPModularity
  // int tasksCount = getNumTasks();
  //  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms = GetUsefulLists();
 
   //top level method, only the frame right now, several methods not finished yet
-  float GetPModularity (int numTasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms){
+  float GetPModularity (int numTasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms, int genomeSize){
+      int length = genomeSize;
       float physicalModVal = 0.0; 
     
       emp::vector<emp::Ptr<int>> altTaskStarts = GetUsefulStarts(taskPrograms);
       emp::vector<emp::Ptr<int>> altTaskEnds = GetUsefulEnds(taskPrograms);
 
-      float formulaSum = getSummedValue(tasksCount, altTaskStarts, altTaskEnds,taskPrograms);
+      float formulaSum = getSummedValue(tasksCount, altTaskStarts, altTaskEnds,taskPrograms,length);
 
-      physicalModVal = calcPModularity(tasksCount, formulaSum);
+      physicalModVal = calcPModularity(tasksCount, formulaSum, length);
 
       return physicalModVal;
 
@@ -59,7 +57,7 @@
       emp::vector<emp::Ptr<int>> listOfStarts ={};
 
       for(int y=0; y<taskPrograms.size(); y++)){
-          for(int e = 0; e<=99;e++){
+          for(int e = 0; e<=taskPrograms[y].size()-1;e++){
               if(taskPrograms[y][e] == 1){
                   listOfStarts.pushback(e);
                   break;
@@ -79,7 +77,7 @@
       emp::vector<emp::Ptr<int>> listOfEnds ={};
 
        for(int y=0; y<taskPrograms.size(); y++)){
-          for(int f = 99; f>=0;f--){
+          for(int f = taskPrograms[y].size()-1; f>=0;f--){
               if(taskPrograms[y][e] == 1){
                   listOfEnds.pushback(e);
                   break;
@@ -91,9 +89,9 @@
 
   }
 
-  float CalcPModularity (int numTasks, float summedValue){
-    int length = 100;
-    float layerOne = 2/(length*numTraits);
+  float CalcPModularity (int numTasks, float summedValue,int genomeSize){
+    int length = genomeSize;
+    float layerOne = 2/(length*numTasks);
     float layerTwo = layerOne * summedValue;
     float physicalMod = 1 - LayerTwo;
 
@@ -103,8 +101,9 @@
 
   //the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
   float GetSummedValue (int numTasks, emp::vector<emp::Ptr<int>> startsUsed, emp::vector<emp::Ptr<int>> endsUsed, 
-  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> altGenomes){
+  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> altGenomes, int programSize){
 
+      int length = programSize;
       float finalSum = 0.0;
 
 
@@ -112,12 +111,12 @@
         float taskSum =0.0;
 
       //call methods on the altered program a
-        int numSitesA = .getNumSites(altGenomes{a});
-        int SumSiteDistA = .getSumSiteDist(startsUsed{a}, endsUsed{a}, altGenomes{a});
+        int numSitesA = .GetNumSites(altGenomes{a}, length);
+        int SumSiteDistA = .GetSumSiteDist(startsUsed{a}, endsUsed{a}, altGenomes{a});
 
         taskSum = SumSiteDistA/(numSitesA*(numSitesA-1));
 
-        finalSum += traitSum;
+        finalSum += taskSum;
       }
 
       return finalSum;
@@ -125,10 +124,10 @@
   }
 
   //Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
-  int GetNumSites(emp::vector<emp::Ptr<int>> altGenome){
+  int GetNumSites(emp::vector<emp::Ptr<int>> altGenome, int length){
     // for altered genome clusters
     int totalSites = 0;
-    int genomeSize =100;
+    int genomeSize = length;
 
     for(int b = 0; b<=(genomeSize-2); b++){
 

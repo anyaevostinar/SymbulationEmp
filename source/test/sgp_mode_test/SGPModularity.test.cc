@@ -10,67 +10,21 @@
 //test for Sum
 //test for calPM
 
-TEST_CASE("GetPModularity", "[sgp]"){
-
-
-
-
-
-
-}
-
-
-TEST_CASE("GetUsefulEnds", "[sgp]"){
-
-
-
-
-
-
-}
-
-TEST_CASE("GetUsefulStarts", "[sgp]"){
-
-
-
-
-
-
-}
-
-
-TEST_CASE("GetSumSiteDist", "[sgp]"){
-
-
-
-
-
-
-}
-
 TEST_CASE("GetNumSites", "[sgp]"){
-    
-
-
-
-
-
+        emp::vector<emp::Ptr<int>> usefulGenome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
+        int siteCount = usefulGenome.GetNumSites(usefulGenome);
+        REQUIRE(siteCount==3);
 }
 
-TEST_CASE("GetSummedValue", "[sgp]"){
-    
+//TEST_CASE("GetPModularity", "[sgp]"){}
 
 
+//TEST_CASE("GetUsefulEnds", "[sgp]"){}
 
+//TEST_CASE("GetUsefulStarts", "[sgp]"){}
 
+//TEST_CASE("GetSumSiteDist", "[sgp]"){}
 
-}
+//TEST_CASE("GetSummedValue", "[sgp]"){}
 
-TEST_CASE("CalcPModularity", "[sgp]"){
-    
-
-
-
-
-
-}
+//TEST_CASE("CalcPModularity", "[sgp]"){}
