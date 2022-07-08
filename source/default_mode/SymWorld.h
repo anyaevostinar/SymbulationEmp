@@ -369,16 +369,16 @@ public:
    *
    * Purpose: To determine the location of a valid occupied neighboring position.
    */
-  int GetNeighborHost (size_t i) {
+  int GetNeighborHost (size_t id) {
     // Attempt to use GetRandomNeighborPos first, since it's much faster
     for (int i = 0; i < 3; i++) {
-      emp::WorldPosition neighbor = GetRandomNeighborPos(i);
-      if (neighbor.IsValid() && pop[neighbor.GetIndex()].Raw())
+      emp::WorldPosition neighbor = GetRandomNeighborPos(id);
+      if (neighbor.IsValid() && neighbor.GetIndex() < GetSize() && pop[neighbor.GetIndex()].Raw())
         return neighbor.GetIndex();
     }
 
     // Then enumerate all occupied neighbors, in case many neighbors are unoccupied
-    const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(i);
+    const emp::vector<size_t> validNeighbors = GetValidNeighborOrgIDs(id);
     if (validNeighbors.empty()) return -1;
     else {
       int randI = GetRandom().GetUInt(0, validNeighbors.size());
