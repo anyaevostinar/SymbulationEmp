@@ -36,7 +36,7 @@ public:
 
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
-    cpu.state.used_resources.Delete();
+    //cpu.state.used_resources.Delete();
     cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
     cpu.state.internalEnvironment = host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;

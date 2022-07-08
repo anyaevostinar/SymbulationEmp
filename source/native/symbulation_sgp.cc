@@ -8,7 +8,7 @@
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
 #include "../sgp_mode/Scheduler.h"
-#include "../sgp_mode/SquareTesting.h"
+#include "../sgp_mode/SquareTest.h"
 
 using namespace std;
 
@@ -90,16 +90,15 @@ int symbulation_main(int argc, char * argv[])
                 << std::endl;
       world.sym_points_donated = 0.0;
       world.sym_points_earned = 0.0;
+      emp::Ptr<SGPHost> host = world.GetFullPop().back().DynamicCast<SGPHost>();
+      if (host->HasSym()){
+          emp::Ptr<SGPSymbiont> symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
+          CheckSymbiont(*host, *symbiont);
+        }  
     }
-    world.Update();
-    if (numupdates == 100){
-        SGPHost &host = (SGPHost&) world.GetOrg(1);
-        emp::Ptr<SGPSymbiont> symbiont = host.GetSymbionts().back().DynamicCast<SGPSymbiont>();
-        CheckSymbiont(1, host, *symbiont);
-    }
-  
-  }
 
+    world.Update();
+  }
 
   // Print some debug info for testing purposes
   emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();

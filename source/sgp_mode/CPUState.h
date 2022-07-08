@@ -48,6 +48,10 @@ struct CPUState {
 
   CPUState(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
       : host(host), world(world) {}
+
+  CPUState(CPUState &state) : host(state.host), world(state.world) {
+    used_resources = emp::NewPtr<emp::BitSet<64>>();
+  } 
 };
 
 #endif

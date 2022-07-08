@@ -33,7 +33,8 @@ public:
     my_world = _world;
   }
 
-  ~SGPHost() { cpu.state.used_resources.Delete(); }
+  ~SGPHost() { cpu.state.used_resources.Delete(); 
+  }
 
   CPU &GetCPU() { return cpu; }
 
