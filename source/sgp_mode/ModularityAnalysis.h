@@ -1,5 +1,5 @@
-#ifndef MODULARITY_H
-#define MODULARITY_H
+#ifndef MODULARITY_ANALYSIS_H
+#define MODULARITY_ANALYSIS_H
 
 #include "../../Empirical/include/emp/Evolve/World.hpp"
 #include "../../Empirical/include/emp/data/DataFile.hpp"
@@ -7,35 +7,113 @@
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../Organism.h"
-#include "SGPCpu.h"
+#include "../default_mode/Host.h"
+#include "CPUState.h"
+#include "Instructions.h"
+#include "SGPWorld.h"
+#include "Tasks.h"
+#include "sgpl/algorithm/execute_cpu.hpp"
+#include "sgpl/hardware/Cpu.hpp"
+#include "sgpl/library/OpLibraryCoupler.hpp"
+#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
+#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
+#include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/operations/unary/Increment.hpp"
+#include "sgpl/operations/unary/Terminal.hpp"
+#include "sgpl/program/Program.hpp"
+#include "sgpl/spec/Spec.hpp"
+#include "sgpl/utility/ThreadLocalRandom.hpp"
+#include "CPU.h"
+#include "CPUState.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
+#include "Tasks.h"
 #include <set>
 #include <math.h>
 
+using Library =
+      sgpl::OpLibrary<sgpl::Nop<>, inst::JumpIfNEq, inst::JumpIfLess,
+                      // if-label doesn't make sense for SGP, same with *-head
+                      // and set-flow but this is required
+                      sgpl::global::Anchor,
+                      // single argument math
+                      inst::ShiftLeft, inst::ShiftRight, inst::Increment,
+                      inst::Decrement,
+                      // Stack manipulation
+                      inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
+                      // double argument math
+                      inst::Add, inst::Subtract, inst::Nand,
+                      // biological operations
+                      // no copy or alloc
+                      inst::Reproduce, inst::IO,
+                      // no h-search
+                      inst::Donate>;
+using Spec = sgpl::Spec<Library, CPUState>;
 
+emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
-//Physical ModularityCode
- //NEXTSTEPS: needs to get the tasks being checked and the number of them being checked. ____
-  // Then needs to get their useful Genome vector _____
-  // Then needs to plug that into getTotalSum and getNumSites/getSiteDist within getTotalSum. v/
-  //then return physical modularity and print it out v/
-  //create tests for the code
+    CPUState state = host.GetCPU().state;
+    
+    emp::vector<Task> full_tasks = state.world->GetTaskSet().GetTasks();
 
+    
+    
+    sgpl::Program<Spec> program = host.GetCPU().GetProgram();
+    emp::vector<emp::vector<int>> result;
 
-//int getNumTasks(...){}
-  // will need to get from the phenotype/tag methods I think
+    for (int j=0;j<(int)full_tasks.size();++j){
+        //iterate through every task
+        
+        emp::vector<int> useful;
+        emp::vector<int> useless;
+        emp::vector<int> binary_string;
 
-// binary<64 or 9> getDoneTasks(...) needed to getNumTraits ---> ask katrina
+        // emp::vector<Task> one_task;
+        // one_task.push_back(full_tasks[j]);
 
-//GetUsefulLists(...){}
-  //will need the getUsefulCode(takes in host, task) method
+        std::initializer_list<Task> one_task = {full_tasks[j]};
 
-//removed code from GetPModularity
- // int tasksCount = getNumTasks();
- //  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms = GetUsefulLists();
+        TaskSet test_task_set = TaskSet(one_task);
+        sgpl::Program<Spec> useful_program;
 
-  //top level method, only the frame right now, several methods not finished yet
+        for (int i=0;i<100; ++i) {
+            //iterate through every line of instruction
+            sgpl::Program<Spec> test_program = program;
+            // test_program[i].NopOut();
+            test_program[i].op_code = 0; // change that line of instruction to no-op
+            host.GetCPU().SetProgram(test_program);    
+            float score = test_task_set.CheckTasks(host.GetCPU().state, 2);
+            if(score != 0){
+                std::cout<<"???"<<std::endl;
+            } else {
+                std::cout<<score<< " check point 1"<<std::endl;
+            }//currently it is printing 100 things so it successfully went through the first task
+            if (score != 0.0){
+                useful.push_back(i);
+                binary_string.push_back(1);
+            } else {
+                useless.push_back(i);
+                binary_string.push_back(0);
+            }
+            
+            
+        }
+        
+        for (int i=0;i<(int)useless.size(); ++i){
+            int &line = useless[i];
+            useful_program[line].op_code = 0;//0 means nop
+        }
+        host.GetCPU().SetProgram(useful_program);
+        host.GetCPU().PrintCode();
+        // host.GetCPU().SetProgram(program);
+        result.push_back(binary_string);
+    }
+    host.GetCPU().SetProgram(program);
+    return result;
+}
+
+  //Start of physicalModularityCode
+
   float GetPModularity (int numTasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms, int genomeSize){
       int length = genomeSize;
       float physicalModVal = 0.0; 
