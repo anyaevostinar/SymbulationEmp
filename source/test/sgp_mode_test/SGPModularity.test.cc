@@ -10,6 +10,35 @@
 //test for Sum
 //test for calPM
 
+TEST_CASE("GetPModularity", "[sgp]"){
+
+
+
+
+
+
+}
+
+
+TEST_CASE("GetUsefulEnds", "[sgp]"){
+
+
+
+
+
+
+}
+
+TEST_CASE("GetUsefulStarts", "[sgp]"){
+
+
+
+
+
+
+}
+
+
 TEST_CASE("GetSumSiteDist", "[sgp]"){
 
 

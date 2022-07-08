@@ -34,7 +34,7 @@
 //GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alteredInstrList){}
 //GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alteredInstrList){}
 
-separated code from GetPModularity
+//separated code from GetPModularity
  // int tasksCount = getNumTasks();
  //  emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms = GetUsefulLists();
 
@@ -58,9 +58,12 @@ separated code from GetPModularity
   emp::vector<emp::Ptr<int>> GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms){
       emp::vector<emp::Ptr<int>> listOfStarts ={};
 
-      for("iterate through list of programs"){
+      for(int y=0; y<taskPrograms.size(); y++)){
           for(int e = 0; e<=99;e++){
-              if(taskProgram[e])
+              if(taskPrograms[y][e] == 1){
+                  listOfStarts.pushback(e);
+                  break;
+              }
 
           }
 
@@ -74,6 +77,15 @@ separated code from GetPModularity
 
   emp::vector<emp::Ptr<int>> GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> taskPrograms){
       emp::vector<emp::Ptr<int>> listOfEnds ={};
+
+       for(int y=0; y<taskPrograms.size(); y++)){
+          for(int f = 99; f>=0;f--){
+              if(taskPrograms[y][e] == 1){
+                  listOfEnds.pushback(e);
+                  break;
+              }
+
+          }
 
       return listOfEnds;
 
