@@ -37,16 +37,16 @@
   *
   *
   */
-  float GetPModularity (int num_tasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs, int genome_size){
+  float static GetPModularity (int num_tasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs, int genome_size){
       int length = genome_size;
       float physical_mod_val = 0.0; 
     
-      emp::vector<emp::Ptr<int>> alt_task_starts = task_programs->GetUsefulStarts(task_programs);
-      emp::vector<emp::Ptr<int>> alt_task_ends = task_programs->GetUsefulEnds(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_starts = GetUsefulStarts(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_ends = GetUsefulEnds(task_programs);
 
-      float formula_sum = task_programs.GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
+      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
 
-      physical_mod_val = task_programs.CalcPModularity(tasks_count, formula_sum, length);
+      physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
 
       return physical_mod_val;
 
@@ -56,10 +56,10 @@
   *
   *
   */
-  emp::vector<emp::Ptr<int>> GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
+  emp::vector<emp::Ptr<int>> static GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
       emp::vector<emp::Ptr<int>> list_of_starts ={};
 
-      for(int y=0; y<task_programs.size(); y++)){
+      for(int y=0; y<task_programs.size(); y++){
           for(int e = 0; e<=task_programs[y].size()-1;e++){
               if(task_programs[y][e] == 1){
                   list_of_starts.pushback(e);
@@ -78,10 +78,10 @@
   *
   *
   */
-  emp::vector<emp::Ptr<int>> GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
+  emp::vector<emp::Ptr<int>> static GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
       emp::vector<emp::Ptr<int>> list_of_ends ={};
 
-       for(int y=0; y<task_programs.size(); y++)){
+       for(int y=0; y<task_programs.size(); y++){
           for(int f = task_programs[y].size()-1; f>=0;f--){
               if(task_programs[y][e] == 1){
                   list_of_ends.pushback(e);
@@ -98,7 +98,7 @@
   *
   *
   */
-  float CalcPModularity (int num_tasks, float summed_value,int genome_size){
+  float static CalcPModularity (int num_tasks, float summed_value,int genome_size){
     int length = genome_size;
     float layer_one = 2/(length*num_tasks);
     float layer_two = layer_one * summed_value;
@@ -112,7 +112,7 @@
   *
   *
   */
-  float GetSummedValue (int num_tasks, emp::vector<emp::Ptr<int>> starts_used, emp::vector<emp::Ptr<int>> ends_used, 
+  float static GetSummedValue (int num_tasks, emp::vector<emp::Ptr<int>> starts_used, emp::vector<emp::Ptr<int>> ends_used, 
       emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alt_genomes, int genome_size){
 
       int length = genome_size;
@@ -123,8 +123,8 @@
         float task_sum =0.0;
 
       //call methods on the altered program a
-        int num_sites_a = alt_genomes.GetNumSites(alt_genomes{a}, length);
-        int Sum_site_dist_a = alt_genomes.GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
+        int num_sites_a = GetNumSites(alt_genomes{a}, length);
+        int Sum_site_dist_a = GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
 
         task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
 
@@ -139,7 +139,7 @@
   *
   *
   */
-  int GetNumSites(emp::vector<emp::Ptr<int>> alt_genome, int length){
+  int static GetNumSites(emp::vector<emp::Ptr<int>> alt_genome, int length){
     // for altered genome clusters
     int total_sites = 0;
     int genome_size = length;
@@ -160,7 +160,7 @@
   *
   *
   */
-  int GetSumSiteDist(int start_used, int end_used, emp::vector<emp::Ptr<int>> alt_genome){
+  int static GetSumSiteDist(int start_used, int end_used, emp::vector<emp::Ptr<int>> alt_genome){
     //for individual traits of the genome
      int sum_dist =0;
 
