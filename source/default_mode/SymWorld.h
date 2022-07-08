@@ -373,7 +373,7 @@ public:
     // Attempt to use GetRandomNeighborPos first, since it's much faster
     for (int i = 0; i < 3; i++) {
       emp::WorldPosition neighbor = GetRandomNeighborPos(id);
-      if (neighbor.IsValid() && neighbor.GetIndex() < GetSize() && pop[neighbor.GetIndex()].Raw())
+      if (neighbor.IsValid() && IsOccupied(neighbor))
         return neighbor.GetIndex();
     }
 
