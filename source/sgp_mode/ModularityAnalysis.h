@@ -31,87 +31,6 @@
 #include <set>
 #include <math.h>
 
-using Library =
-      sgpl::OpLibrary<sgpl::Nop<>, inst::JumpIfNEq, inst::JumpIfLess,
-                      // if-label doesn't make sense for SGP, same with *-head
-                      // and set-flow but this is required
-                      sgpl::global::Anchor,
-                      // single argument math
-                      inst::ShiftLeft, inst::ShiftRight, inst::Increment,
-                      inst::Decrement,
-                      // Stack manipulation
-                      inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-                      // double argument math
-                      inst::Add, inst::Subtract, inst::Nand,
-                      // biological operations
-                      // no copy or alloc
-                      inst::Reproduce, inst::IO,
-                      // no h-search
-                      inst::Donate>;
-using Spec = sgpl::Spec<Library, CPUState>;
-
-emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
-
-    CPUState state = host.GetCPU().state;
-    
-    emp::vector<Task> full_tasks = state.world->GetTaskSet().GetTasks();
-
-    
-    
-    sgpl::Program<Spec> program = host.GetCPU().GetProgram();
-    emp::vector<emp::vector<int>> result;
-
-    for (int j=0;j<(int)full_tasks.size();++j){
-        //iterate through every task
-        
-        emp::vector<int> useful;
-        emp::vector<int> useless;
-        emp::vector<int> binary_string;
-
-        // emp::vector<Task> one_task;
-        // one_task.push_back(full_tasks[j]);
-
-        std::initializer_list<Task> one_task = {full_tasks[j]};
-
-        TaskSet test_task_set = TaskSet(one_task);
-        sgpl::Program<Spec> useful_program;
-
-        for (int i=0;i<100; ++i) {
-            //iterate through every line of instruction
-            sgpl::Program<Spec> test_program = program;
-            // test_program[i].NopOut();
-            test_program[i].op_code = 0; // change that line of instruction to no-op
-            host.GetCPU().SetProgram(test_program);    
-            float score = test_task_set.CheckTasks(host.GetCPU().state, 2);
-            if(score != 0){
-                std::cout<<"???"<<std::endl;
-            } else {
-                std::cout<<score<< " check point 1"<<std::endl;
-            }//currently it is printing 100 things so it successfully went through the first task
-            if (score != 0.0){
-                useful.push_back(i);
-                binary_string.push_back(1);
-            } else {
-                useless.push_back(i);
-                binary_string.push_back(0);
-            }
-            
-            
-        }
-        
-        for (int i=0;i<(int)useless.size(); ++i){
-            int &line = useless[i];
-            useful_program[line].op_code = 0;//0 means nop
-        }
-        host.GetCPU().SetProgram(useful_program);
-        host.GetCPU().PrintCode();
-        // host.GetCPU().SetProgram(program);
-        result.push_back(binary_string);
-    }
-    host.GetCPU().SetProgram(program);
-    return result;
-}
-
   //Start of physicalModularityCode
 
   /*
@@ -122,12 +41,12 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
       int length = genome_size;
       float physical_mod_val = 0.0; 
     
-      emp::vector<emp::Ptr<int>> alt_task_starts = this->GetUsefulStarts(task_programs);
-      emp::vector<emp::Ptr<int>> alt_task_ends = this->GetUsefulEnds(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_starts = task_programs->GetUsefulStarts(task_programs);
+      emp::vector<emp::Ptr<int>> alt_task_ends = task_programs->GetUsefulEnds(task_programs);
 
-      float formula_sum = this->GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
+      float formula_sum = task_programs.GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
 
-      physical_mod_val = this->CalcPModularity(tasks_count, formula_sum, length);
+      physical_mod_val = task_programs.CalcPModularity(tasks_count, formula_sum, length);
 
       return physical_mod_val;
 
@@ -204,8 +123,8 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
         float task_sum =0.0;
 
       //call methods on the altered program a
-        int num_sites_a = this->GetNumSites(alt_genomes{a}, length);
-        int Sum_site_dist_a = this->GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
+        int num_sites_a = alt_genomes.GetNumSites(alt_genomes{a}, length);
+        int Sum_site_dist_a = alt_genomes.GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
 
         task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
 
