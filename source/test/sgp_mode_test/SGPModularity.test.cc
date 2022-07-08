@@ -12,10 +12,12 @@ TEST_CASE("GetNumSites", "[sgp]"){
         
         //host constructor is very wrong but before I fix that I just want the make to be able to see the test file
 
-        emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(random, world, &config, int_val);
+        emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        sample->GetCPU().PrintCode();
+
 
         emp::vector<emp::Ptr<int>> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
-        int site_count = host.GetNumSites(useful_genome,length);
+        int site_count = sample.GetNumSites(useful_genome,length);
         REQUIRE(site_count==3);
 }
 
