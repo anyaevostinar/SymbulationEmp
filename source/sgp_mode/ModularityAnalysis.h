@@ -114,6 +114,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   //Start of physicalModularityCode
 
+  /*
+  *
+  *
+  */
   float GetPModularity (int num_tasks, emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs, int genome_size){
       int length = genome_size;
       float physical_mod_val = 0.0; 
@@ -129,8 +133,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
-  //creates a vector of the position in each alter program of the first !(No-op) instruction to appear
-
+  /*creates a vector of the position in each alter program of the first !(No-op) instruction to appear
+  *
+  *
+  */
   emp::vector<emp::Ptr<int>> GetUsefulStarts(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
       emp::vector<emp::Ptr<int>> list_of_starts ={};
 
@@ -149,8 +155,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
-  //creates a vector of the position in each alter program of the last !(No-op) instruction to appear
-
+  /*creates a vector of the position in each alter program of the last !(No-op) instruction to appear
+  *
+  *
+  */
   emp::vector<emp::Ptr<int>> GetUsefulEnds(emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> task_programs){
       emp::vector<emp::Ptr<int>> list_of_ends ={};
 
@@ -167,6 +175,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
+  /*
+  *
+  *
+  */
   float CalcPModularity (int num_tasks, float summed_value,int genome_size){
     int length = genome_size;
     float layer_one = 2/(length*num_tasks);
@@ -177,7 +189,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
-  //the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
+  /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
+  *
+  *
+  */
   float GetSummedValue (int num_tasks, emp::vector<emp::Ptr<int>> starts_used, emp::vector<emp::Ptr<int>> ends_used, 
       emp::vector<emp::Ptr<emp::vector<emp::Ptr<int>>>> alt_genomes, int genome_size){
 
@@ -201,7 +216,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
-  //Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
+  /*Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
+  *
+  *
+  */
   int GetNumSites(emp::vector<emp::Ptr<int>> alt_genome, int length){
     // for altered genome clusters
     int total_sites = 0;
@@ -219,7 +237,10 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
   }
 
-  //returns the total distance in instruction lines between useful code sites 
+  /*returns the total distance in instruction lines between useful code sites 
+  *
+  *
+  */
   int GetSumSiteDist(int start_used, int end_used, emp::vector<emp::Ptr<int>> alt_genome){
     //for individual traits of the genome
      int sum_dist =0;
