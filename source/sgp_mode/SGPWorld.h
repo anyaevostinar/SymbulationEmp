@@ -3,10 +3,9 @@
 
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/SymWorld.h"
+#include "Scheduler.h"
+#include "Tasks.h"
 #include <atomic>
-
-// Avoid annoying header cycles since Scheduler depends on SGPWorld
-void runCpus(SymWorld &);
 
 // Helper to get around std::atomic<double> not having a specialization
 struct AtomicDouble {
@@ -25,22 +24,36 @@ struct AtomicDouble {
 };
 
 class SGPWorld : public SymWorld {
+private:
+  Scheduler scheduler;
+  TaskSet task_set;
+
 public:
-  AtomicDouble SymPointsDonated;
-  AtomicDouble SymPointsEarned;
+  AtomicDouble sym_points_donated;
+  AtomicDouble sym_points_earned;
+  emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
-  SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config)
-      : SymWorld(r, _config) {}
+  SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
+      : SymWorld(r, _config), task_set(task_set) {}
 
-  emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> toReproduce;
+  TaskSet &GetTaskSet() { return task_set; }
 
   void Update() {
-    // First run all organisms' CPUs, then perform all reproduction scheduled
-    // for this update
-    runCpus(*this);
+    // These must be done here because we don't call SymWorld::Update()
+    // That may change in the future
+    emp::World<Organism>::Update();
+    if (my_config->PHYLOGENY())
+      sym_sys->Update();
+
+    scheduler.ProcessOrgs(*this, [&](emp::WorldPosition pos, Organism &org) {
+      org.Process(pos);
+      if (pop[pos.GetIndex()]->GetDead()) { // Check if the host died
+        DoDeath(pos);
+      }
+    });
 
     std::unordered_set<uint32_t> replaced;
-    for (auto org : toReproduce) {
+    for (auto org : to_reproduce) {
       if (replaced.count(org.second.GetIndex())) {
         // This organism has been replaced, it's dead
         continue;
@@ -56,11 +69,12 @@ public:
         replaced.insert(new_pos.GetIndex());
       } else {
         SymDoBirth(child, org.second);
+        // A host and its sym can't both reproduce in the same update, but that
+        // doesn't really matter
+        replaced.insert(org.second.GetIndex());
       }
     }
-    toReproduce.clear();
-
-    SymWorld::Update();
+    to_reproduce.clear();
   }
 };
 
