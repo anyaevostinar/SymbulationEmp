@@ -202,38 +202,38 @@ emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
   }
 
   //Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
-  int GetNumSites(emp::vector<emp::Ptr<int>> altGenome, int length){
+  int GetNumSites(emp::vector<emp::Ptr<int>> alt_genome, int length){
     // for altered genome clusters
-    int totalSites = 0;
-    int genomeSize = length;
+    int total_sites = 0;
+    int genome_size = length;
 
-    for(int b = 0; b<=(genomeSize-2); b++){
+    for(int b = 0; b<=(genome_size-2); b++){
 
-        if(altGenome[b]==1&&altGenome[b+1]==0){totalSites++;}
+        if(alt_genome[b]==1&&alt_genome[b+1]==0){total_sites++;}
 
     }
 
-    if(altGenome[genomeSize-2]==0 && altGenome[genomeSize-1]==1){ totalSites++;}
+    if(alt_genome[genome_size-2]==0 && alt_genome[genome_size-1]==1){ total_sites++;}
   
-    return totalSites;
+    return total_sites;
 
   }
 
   //returns the total distance in instruction lines between useful code sites 
-  int GetSumSiteDist(int startUsed, int endUsed, emp::vector<emp::Ptr<int>> altGenome){
+  int GetSumSiteDist(int start_used, int end_used, emp::vector<emp::Ptr<int>> alt_genome){
     //for individual traits of the genome
-     int sumDist =0;
+     int sum_dist =0;
 
-     for(int c = startUsed; c <= endUsed; c++){
+     for(int c = start_used; c <= end_used; c++){
 
-        if(altGenome[c] == 0){
-          sumDist ++;
+        if(alt_genome[c] == 0){
+          sum_dist ++;
         }
 
 
      }
 
-    return sumDist;
+    return sum_dist;
 
 
   }
