@@ -33,7 +33,7 @@ public:
       cpu.state.used_resources.Delete();
     }
   }
-
+//TODO: fix symbiont access to host resources to avoid dead pointers
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
     //cpu.state.used_resources.Delete();

@@ -8,7 +8,7 @@
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
 #include "../sgp_mode/Scheduler.h"
-#include "../sgp_mode/SquareTest.h"
+#include "../sgp_mode/SymbiontImpact.h"
 
 using namespace std;
 

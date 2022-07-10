@@ -96,7 +96,11 @@ INST(IO, {
   *a = next;
   state.input_buf.push(next);
 });
-
+/*
+Modified version of IO that gets resources from internal environment--
+after adding points to the organism, takes the last entry in the internal environment vector as input.
+If internal environment is empty, does nothing.
+*/
 INST(Reuptake, {
   uint32_t next;
   float score = state.world->GetTaskSet().CheckTasks(state, *a);
@@ -109,10 +113,9 @@ INST(Reuptake, {
   if(state.internalEnvironment->size() > 0){
     next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];
     state.internalEnvironment->pop_back();
+    *a = next;
+    state.input_buf.push(next);
   }
-  else{ next = 0;}
-  *a = next;
-  state.input_buf.push(next);
 });
 
 INST(Donate, {

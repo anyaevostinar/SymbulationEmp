@@ -32,7 +32,7 @@ template <const size_t len = 8> struct IORingBuffer {
 
 // CPUState has a pointer to the SGPWorld, but it can't include it
 class SGPWorld;
-
+//TODO: Change name of state.host to something more generally applicable
 struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
