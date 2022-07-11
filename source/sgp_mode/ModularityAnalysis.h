@@ -97,6 +97,10 @@
               }
 
           }
+
+          if ((list_of_ends.size()-1)!=y) {
+              list_of_ends.push_back(0);
+          }
           
        }
 

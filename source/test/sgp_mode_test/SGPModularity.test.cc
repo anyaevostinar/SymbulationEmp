@@ -35,9 +35,25 @@ TEST_CASE("GetUsefulStarts", "[sgp]"){
         emp::vector<emp::vector<int>> useful_genomes = {useful_genome_a,useful_genome_b,useful_genome_c,useful_genome_d,useful_genome_e};
 
         emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
-        emp::vector<int> true_useful_starts = {0,6,useful_genome_c.size()-5,useful_genome_c.size()-1, 0};
+        emp::vector<int> true_useful_starts = {0,6,useful_genome_c.size()-5,useful_genome_d.size()-1, 0};
 
         REQUIRE(calc_useful_starts == true_useful_starts);
+
+}
+
+TEST_CASE("GetUsefulEnds", "[sgp]"){
+        emp::vector<int> useful_genome_a = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,0,1};
+        emp::vector<int> useful_genome_b = {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0};
+        emp::vector<int> useful_genome_c = {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0};
+        emp::vector<int> useful_genome_d = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        emp::vector<int> useful_genome_e = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+        emp::vector<emp::vector<int>> useful_genomes = {useful_genome_a,useful_genome_b,useful_genome_c,useful_genome_d,useful_genome_e};
+
+        emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
+        emp::vector<int> true_useful_ends = {useful_genome_a.size()-1,9,useful_genome_c.size()-3,0, 0};
+
+        REQUIRE(calc_useful_ends == true_useful_ends);
 
 }
 
