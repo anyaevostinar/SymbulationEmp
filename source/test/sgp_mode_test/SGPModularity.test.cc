@@ -9,12 +9,20 @@
 
 //have world call these methods
 
-TEST_CASE("GetNumSites", "[sgp]");{
-        int length = 20;
+TEST_CASE("GetNumSites", "[sgp]"){
        
+        WHEN("last position is in a site"){
         emp::vector<int> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
-        int site_count = GetNumSites(useful_genome,length);
+        int site_count = GetNumSites(useful_genome);
         REQUIRE(site_count==3);
+        }
+
+        WHEN("when last position is a one-instruction size site"){
+        emp::vector<int> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,0,1};
+        int site_count = GetNumSites(useful_genome);
+        REQUIRE(site_count==4);
+        }
+
 }
 
 //TEST_CASE("GetPModularity", "[sgp]"){}

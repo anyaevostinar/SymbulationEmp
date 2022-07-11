@@ -99,10 +99,10 @@
   *
   *
   */
-  int  GetNumSites(emp::vector<int> alt_genome, int length){
+  int  GetNumSites(emp::vector<int> alt_genome){
     // for altered genome clusters
     int total_sites = 0;
-    int genome_size = length;
+    int genome_size = alt_genome.size();
 
     for(int b = 0; b<=(genome_size-2); b++){
 
@@ -110,7 +110,7 @@
 
     }
 
-    if(alt_genome[genome_size-2]==0 && alt_genome[genome_size-1]==1){ total_sites++;}
+    if(alt_genome[genome_size-1]==1){ total_sites++;}
   
     return total_sites;
 
@@ -143,9 +143,8 @@
   *
   */
   float GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
-  emp::vector<emp::vector<int>>alt_genomes, int genome_size){
+  emp::vector<emp::vector<int>>alt_genomes){
 
-      int length = genome_size;
       float final_sum = 0.0;
 
 
@@ -153,7 +152,7 @@
         float task_sum =0.0;
 
       //call methods on the altered program a
-        int num_sites_a = GetNumSites(alt_genomes[a], length);
+        int num_sites_a = GetNumSites(alt_genomes[a]);
         int sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
 
         task_sum = sum_site_dist_a/(num_sites_a*(num_sites_a-1));
@@ -176,7 +175,7 @@
       emp::vector<int> alt_task_starts = GetUsefulStarts(task_programs);
       emp::vector<int> alt_task_ends = GetUsefulEnds(task_programs);
 
-      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
+      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs);
 
       physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
 
