@@ -12,7 +12,7 @@
 TEST_CASE("GetNumSites", "[sgp]");{
         int length = 20;
        
-        emp::vector<int> useful_genome = [1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1];
+        emp::vector<int> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
         int site_count = GetNumSites(useful_genome,length);
         REQUIRE(site_count==3);
 }
