@@ -108,6 +108,30 @@
 
   }
 
+  /*returns the total distance in instruction lines between useful code sites 
+  *
+  *
+  */
+  int  GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
+    //for individual traits of the genome
+     int sum_dist =0;
+
+     if(start_used!=end_used){
+        for(int c = start_used; c <= end_used; c++){
+
+            if(alt_genome[c] == 0){
+              sum_dist ++;
+            }
+
+
+        }
+     }
+
+    return sum_dist;
+
+
+  }
+
 
   /*
   *
@@ -123,28 +147,6 @@
 
   }
 
-
-  /*returns the total distance in instruction lines between useful code sites 
-  *
-  *
-  */
-  int  GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
-    //for individual traits of the genome
-     int sum_dist =0;
-
-     for(int c = start_used; c <= end_used; c++){
-
-        if(alt_genome[c] == 0){
-          sum_dist ++;
-        }
-
-
-     }
-
-    return sum_dist;
-
-
-  }
 
    /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
   *

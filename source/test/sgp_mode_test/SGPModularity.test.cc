@@ -57,14 +57,30 @@ TEST_CASE("GetUsefulEnds", "[sgp]"){
 
 }
 
+TEST_CASE("GetSumSiteDist", "[sgp]"){
+        
+        emp::vector<int> useful_genome_a = {0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,1};
+        emp::vector<int> useful_genome_b = {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0};
+        emp::vector<int> useful_genome_c = {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0};
+        emp::vector<int> useful_genome_d = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+        emp::vector<int> useful_genome_e = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+        emp::vector<emp::vector<int>> useful_genomes = {useful_genome_a,useful_genome_b,useful_genome_c,useful_genome_d,useful_genome_e};
+        emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
+        emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
+        
+        emp::vector<int> test_distances = {};
+        emp::vector<int> true_distances = {7,0,2,useful_genome_d.size()-2,0};
+        
+        for(int i = 0; i<=useful_genomes.size()-1;i++){
+                test_distances.push_back(GetSumSiteDist(calc_useful_starts[i],calc_useful_ends[i], useful_genomes[i]));
+        }
+        
+        REQUIRE(test_distances==true_distances);
+
+}
+
 //TEST_CASE("GetPModularity", "[sgp]"){}
-
-
-//TEST_CASE("GetUsefulEnds", "[sgp]"){}
-
-//TEST_CASE("GetUsefulStarts", "[sgp]"){}
-
-//TEST_CASE("GetSumSiteDist", "[sgp]"){}
 
 //TEST_CASE("GetSummedValue", "[sgp]"){}
 
