@@ -33,6 +33,27 @@
 
   //Start of physicalModularityCode
 
+  /*Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
+  *
+  *
+  */
+  int  GetNumSites(emp::vector<int> alt_genome){
+    // for altered genome clusters
+    int total_sites = 0;
+    int genome_size = alt_genome.size();
+
+    for(int b = 0; b<=(genome_size-2); b++){
+
+        if(alt_genome[b]==1&&alt_genome[b+1]==0){total_sites++;}
+
+    }
+
+    if(alt_genome[genome_size-1]==1){ total_sites++;}
+  
+    return total_sites;
+
+  }
+
   
 
   /*creates a vector of the position in each alter program of the first !(No-op) instruction to appear
@@ -49,6 +70,10 @@
                   break;
               }
 
+          }
+
+          if ((list_of_starts.size()-1)!=y) {
+              list_of_starts.push_back(0);
           }
 
       }
@@ -72,6 +97,7 @@
               }
 
           }
+          
        }
 
       return list_of_ends;
@@ -93,28 +119,6 @@
 
   }
 
- 
-
-  /*Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
-  *
-  *
-  */
-  int  GetNumSites(emp::vector<int> alt_genome){
-    // for altered genome clusters
-    int total_sites = 0;
-    int genome_size = alt_genome.size();
-
-    for(int b = 0; b<=(genome_size-2); b++){
-
-        if(alt_genome[b]==1&&alt_genome[b+1]==0){total_sites++;}
-
-    }
-
-    if(alt_genome[genome_size-1]==1){ total_sites++;}
-  
-    return total_sites;
-
-  }
 
   /*returns the total distance in instruction lines between useful code sites 
   *
