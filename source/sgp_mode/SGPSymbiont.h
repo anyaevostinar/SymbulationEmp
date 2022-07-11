@@ -41,8 +41,10 @@ public:
   }
 
   void SetHost(emp::Ptr<Organism> host) {
+    if (!my_host) {
+      cpu.state.used_resources.Delete();
+    }
     Symbiont::SetHost(host);
-    cpu.state.used_resources.Delete();
     cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
   }
@@ -61,6 +63,14 @@ public:
       // if the symbiont should move, and hasn't been killed
       my_world->MoveFreeSym(pos);
     }
+  }
+
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    // Save and restore the in-progress reproduction, since Reproduce() will be called
+    // but it will still be on the queue for horizontal transmission
+    size_t old = cpu.state.in_progress_repro;
+    Symbiont::VerticalTransmission(host_baby);
+    cpu.state.in_progress_repro = old;
   }
 
   emp::Ptr<Organism> MakeNew() {
