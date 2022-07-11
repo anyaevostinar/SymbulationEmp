@@ -154,9 +154,9 @@
 
       //call methods on the altered program a
         int num_sites_a = GetNumSites(alt_genomes[a], length);
-        int Sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
+        int sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
 
-        task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
+        task_sum = sum_site_dist_a/(num_sites_a*(num_sites_a-1));
 
         final_sum += task_sum;
       }
@@ -169,7 +169,7 @@
   *
   *
   */
-  float  GetPModularity (int num_tasks, emp::vector<emp::vector<int>> task_programs){
+  float  GetPModularity (int tasks_count, emp::vector<emp::vector<int>> task_programs){
       int length = task_programs[0].size();
       float physical_mod_val = 0.0; 
     

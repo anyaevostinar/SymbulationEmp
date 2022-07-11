@@ -7,19 +7,13 @@
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/ModularityAnalysis.h"
 
+//have world call these methods
 
-
-TEST_CASE("GetNumSites", "[sgp]"){
+TEST_CASE("GetNumSites", "[sgp]");{
         int length = 20;
-        
-        //host constructor is very wrong but before I fix that I just want the make to be able to see the test file
-
-        emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
-        sample->GetCPU().PrintCode();
-
-
+       
         emp::vector<int> useful_genome = [1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1];
-        int site_count = sample.GetNumSites(useful_genome,length);
+        int site_count = GetNumSites(useful_genome,length);
         REQUIRE(site_count==3);
 }
 
