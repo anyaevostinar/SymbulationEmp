@@ -18,7 +18,7 @@ TEST_CASE("GetNumSites", "[sgp]"){
         sample->GetCPU().PrintCode();
 
 
-        emp::vector<emp::Ptr<int>> useful_genome = {1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1};
+        emp::vector<int> useful_genome = [1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1];
         int site_count = sample.GetNumSites(useful_genome,length);
         REQUIRE(site_count==3);
 }

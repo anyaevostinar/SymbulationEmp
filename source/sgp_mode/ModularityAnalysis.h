@@ -33,30 +33,13 @@
 
   //Start of physicalModularityCode
 
-  /*
-  *
-  *
-  */
-  float static GetPModularity (int num_tasks, emp::vector<emp::vector<int>> task_programs){
-      int length = task_programs[0].size();
-      float physical_mod_val = 0.0; 
-    
-      emp::vector<int> alt_task_starts = GetUsefulStarts(task_programs);
-      emp::vector<int> alt_task_ends = GetUsefulEnds(task_programs);
-
-      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
-
-      physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
-
-      return physical_mod_val;
-
-  }
+  
 
   /*creates a vector of the position in each alter program of the first !(No-op) instruction to appear
   *
   *
   */
-  emp::vector<int> static GetUsefulStarts(emp::vector<emp::vector<int>> task_programs){
+  emp::vector<int>  GetUsefulStarts(emp::vector<emp::vector<int>> task_programs){
       emp::vector<int> list_of_starts ={};
 
       for(int y=0; y<task_programs.size(); y++){
@@ -78,7 +61,7 @@
   *
   *
   */
-  emp::vector<int> static GetUsefulEnds(emp::vector<emp::vector<int>> task_programs){
+  emp::vector<int>  GetUsefulEnds(emp::vector<emp::vector<int>> task_programs){
        emp::vector<int> list_of_ends ={};
 
        for(int y=0; y<task_programs.size(); y++){
@@ -89,16 +72,18 @@
               }
 
           }
+       }
 
       return list_of_ends;
 
   }
 
+
   /*
   *
   *
   */
-  float static CalcPModularity (int num_tasks, float summed_value,int genome_size){
+  float  CalcPModularity (int num_tasks, float summed_value,int genome_size){
     int length = genome_size;
     float layer_one = 2/(length*num_tasks);
     float layer_two = layer_one * summed_value;
@@ -108,38 +93,13 @@
 
   }
 
-  /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
-  *
-  *
-  */
-  float static GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
-  emp::vector<emp::vector<int>>alt_genomes, int genome_size){
-
-      int length = genome_size;
-      float final_sum = 0.0;
-
-
-      for(int a=1; a<=num_tasks; a++){
-        float task_sum =0.0;
-
-      //call methods on the altered program a
-        int num_sites_a = GetNumSites(alt_genomes{a}, length);
-        int Sum_site_dist_a = GetSumSiteDist(starts_used{a}, ends_used{a}, alt_genomes{a});
-
-        task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
-
-        final_sum += task_sum;
-      }
-
-      return final_sum;
-
-  }
+ 
 
   /*Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
   *
   *
   */
-  int static GetNumSites(emp::vector<int> alt_genome, int length){
+  int  GetNumSites(emp::vector<int> alt_genome, int length){
     // for altered genome clusters
     int total_sites = 0;
     int genome_size = length;
@@ -160,7 +120,7 @@
   *
   *
   */
-  int static GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
+  int  GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
     //for individual traits of the genome
      int sum_dist =0;
 
@@ -175,6 +135,52 @@
 
     return sum_dist;
 
+
+  }
+
+   /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
+  *
+  *
+  */
+  float GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
+  emp::vector<emp::vector<int>>alt_genomes, int genome_size){
+
+      int length = genome_size;
+      float final_sum = 0.0;
+
+
+      for(int a=1; a<=num_tasks; a++){
+        float task_sum =0.0;
+
+      //call methods on the altered program a
+        int num_sites_a = GetNumSites(alt_genomes[a], length);
+        int Sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
+
+        task_sum = Sum_site_dist_a/(num_sites_a*(num_sites_a-1));
+
+        final_sum += task_sum;
+      }
+
+      return final_sum;
+
+  }
+
+  /*
+  *
+  *
+  */
+  float  GetPModularity (int num_tasks, emp::vector<emp::vector<int>> task_programs){
+      int length = task_programs[0].size();
+      float physical_mod_val = 0.0; 
+    
+      emp::vector<int> alt_task_starts = GetUsefulStarts(task_programs);
+      emp::vector<int> alt_task_ends = GetUsefulEnds(task_programs);
+
+      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs,length);
+
+      physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
+
+      return physical_mod_val;
 
   }
 
