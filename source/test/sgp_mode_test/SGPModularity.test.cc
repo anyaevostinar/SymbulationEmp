@@ -94,7 +94,7 @@ TEST_CASE("GetSummedValue", "[sgp]"){
         double test_sum = GetSummedValue(useful_genomes.size(), calc_useful_starts, calc_useful_ends, useful_genomes);
         double found_value = 10.5833333333;
         
-        REQUIRE((int)((test_sum/found_value)*1000) == 1000);
+        REQUIRE(test_sum==Approx(found_value));
 
 
 
@@ -107,20 +107,20 @@ TEST_CASE("CalcPModularity", "[sgp]"){
 
         double test_phys_mod_a = CalcPModularity(task_num, summed_value, genome_size);
         double found_value_a = 0.788333;
-        REQUIRE((int)((test_phys_mod_a/found_value_a)*1000) == 1000);
+        REQUIRE(test_phys_mod_a==Approx(found_value_a));
         
 
         summed_value = 1.58333;
         task_num=4;
         double test_phys_mod_b = CalcPModularity(task_num, summed_value, genome_size);
         double found_value_b = 0.96041675;
-        REQUIRE((int)((test_phys_mod_b/found_value_b)*100) == 100);
+        REQUIRE(test_phys_mod_b==Approx(found_value_b));
         
 
         summed_value = 0.0;
         double test_phys_mod_c = CalcPModularity(task_num, summed_value, genome_size);
         double found_value_c = -1;
-        REQUIRE((int)((test_phys_mod_c/found_value_c)*1000) == 1000);
+        REQUIRE(test_phys_mod_c==Approx(found_value_c));
 
 
 }
@@ -137,7 +137,7 @@ TEST_CASE("GetPModularity", "[sgp]"){
         int num_tasks = 5;
         double test_phys_mod_a = GetPModularity(num_tasks, useful_genomes);
         double found_value_a = 0.788333;
-        REQUIRE((int)((test_phys_mod_a/found_value_a)*1000) == 1000);
+        REQUIRE(test_phys_mod_a==Approx(found_value_a));
 
         num_tasks = 4;
         useful_genomes.pop_back();
@@ -146,8 +146,7 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
         double test_phys_mod_b = GetPModularity(num_tasks, useful_genomes);
         double found_value_b = 0.96041675;
-        std::cout<<test_phys_mod_b;
-        REQUIRE((int)((test_phys_mod_b/found_value_b)*100) == 100);
+        REQUIRE(test_phys_mod_b==Approx(found_value_b));
 
 
 }
