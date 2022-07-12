@@ -140,6 +140,8 @@ html_copy_source = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Symbulationdoc'
 
+html_css_files = ["https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"]
+
 
 # -- Options for LaTeX output ------------------------------------------
 
