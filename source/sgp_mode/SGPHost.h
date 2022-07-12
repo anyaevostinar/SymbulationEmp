@@ -4,6 +4,7 @@
 #include "../default_mode/Host.h"
 #include "CPU.h"
 #include "SGPWorld.h"
+#include "emp/base/Ptr.hpp"
 
 class SGPHost : public Host {
 private:
@@ -20,6 +21,8 @@ public:
              _points),
         cpu(this, _world, _random) {
     my_world = _world;
+    cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+    cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
   }
 
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
@@ -31,10 +34,13 @@ public:
              _points),
         cpu(this, _world, _random, old_cpu) {
     my_world = _world;
+    cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+    cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
   }
 
   ~SGPHost() {
     cpu.state.used_resources.Delete();
+    cpu.state.shared_completed.Delete();
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
       my_world->to_reproduce[cpu.state.in_progress_repro].second =
@@ -45,7 +51,7 @@ public:
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    if (my_world->GetUpdate() % 30/my_config->CYCLES_PER_UPDATE() == 0)
+    if (my_world->GetUpdate() % (30 / my_config->CYCLES_PER_UPDATE()) == 0)
       cpu.state.used_resources->reset();
 
     // Instead of calling Host::Process, do the important stuff here

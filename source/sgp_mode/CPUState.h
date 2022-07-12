@@ -37,9 +37,11 @@ struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
 
-  IORingBuffer<> input_buf;
+  IORingBuffer<4> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  emp::vector<size_t> self_completed;
+  emp::Ptr<emp::vector<size_t>> shared_completed = nullptr;
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   int in_progress_repro = -1;

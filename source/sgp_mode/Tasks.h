@@ -24,6 +24,10 @@ struct Task {
   std::string name;
   std::variant<InputTask, OutputTask> kind;
   bool unlimited = true;
+  emp::vector<size_t> dependencies;
+  /// The total number of times this task's dependencies must be completed for
+  /// each use of this task
+  size_t num_dep_completes = 1;
 };
 class TaskSet {
   emp::vector<Task> tasks;
@@ -40,15 +44,61 @@ public:
     }
   }
 
-  float CheckTasks(CPUState &state, uint32_t output) {
+  bool CanPerformTask(CPUState &state, size_t task_id) {
+    if (state.used_resources->Get(task_id)) {
+      return false;
+    }
+    Task &task = tasks[task_id];
+    if (task.dependencies.size()) {
+      size_t num_dep_completes = std::reduce(
+          task.dependencies.begin(), task.dependencies.end(), 0,
+          [&](auto acc, auto i) {
+            return acc + state.self_completed[i] + (*state.shared_completed)[i];
+          });
+      if (num_dep_completes < task.num_dep_completes) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  void MarkPerformedTask(CPUState &state, size_t task_id, bool shared) {
+    Task &task = tasks[task_id];
+    if (!task.unlimited) {
+      state.used_resources->Set(task_id);
+    }
+    if (task.dependencies.size()) {
+      // TODO does it make sense to reset to 0, or to let them accumulate
+      // resources?
+      size_t total = task.num_dep_completes;
+      for (size_t i : task.dependencies) {
+        size_t drop = std::min(state.self_completed[i], total);
+        total -= drop;
+        state.self_completed[i] -= drop;
+        drop = std::min((*state.shared_completed)[i], total);
+        total -= drop;
+        (*state.shared_completed)[i] -= drop;
+        if (total == 0) {
+          break;
+        }
+      }
+    }
+    if (shared) {
+      (*state.shared_completed)[task_id]++;
+    } else {
+      state.self_completed[task_id]++;
+    }
+  }
+
+  float CheckTasks(CPUState &state, uint32_t output, bool shared) {
     // Check output tasks
     for (size_t i = 0; i < tasks.size(); i++) {
       Task &task = tasks[i];
       if (std::holds_alternative<OutputTask>(task.kind) &&
-          !state.used_resources->Get(i)) {
-        state.used_resources->Set(i, !task.unlimited);
+          CanPerformTask(state, i)) {
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
+          MarkPerformedTask(state, i, shared);
           if (state.host->IsHost())
             ++*n_succeeds_host[i];
           else
@@ -71,13 +121,13 @@ public:
       for (size_t i = 0; i < tasks.size(); i++) {
         Task &task = tasks[i];
         if (std::holds_alternative<InputTask>(task.kind) &&
-            !state.used_resources->Get(i)) {
+            CanPerformTask(state, i)) {
           InputTask &itask = std::get<InputTask>(task.kind);
           if (itask.n_inputs > 1 && inputs[1] == 0)
             continue;
 
           if (itask.taskFun(inputs) == output) {
-            state.used_resources->Set(i, !task.unlimited);
+            MarkPerformedTask(state, i, shared);
             if (state.host->IsHost())
               ++*n_succeeds_host[i];
             else
@@ -89,6 +139,8 @@ public:
     }
     return 0.0f;
   }
+
+  size_t NumTasks() { return tasks.size(); }
 
   // Provide access to data about task completion with an iterator
   struct TaskData {
@@ -132,12 +184,33 @@ public:
 TaskSet DefaultTasks{
     {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
     {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
-    {"AND", InputTask{2, [](auto &x) { return x[0] & x[1]; }, 2.0}, false},
-    {"ORN", InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 2.0}, false},
-    {"OR", InputTask{2, [](auto &x) { return x[0] | x[1]; }, 3.0}, false},
-    {"ANDN", InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 3.0}, false},
-    {"NOR", InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 4.0}, false},
-    {"XOR", InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 4.0}, false},
-    {"EQU", InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 5.0}, false}};
+    {"AND",
+     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 4.0},
+     true,
+     {0, 1}}, // NOT or NAND
+    {"ORN",
+     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 4.0},
+     true,
+     {0, 1}},
+    {"OR",
+     InputTask{2, [](auto &x) { return x[0] | x[1]; }, 8.0},
+     true,
+     {0, 1}},
+    {"ANDN",
+     InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 8.0},
+     true,
+     {2, 3, 4}}, // AND, ORN, OR
+    {"NOR",
+     InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 16.0},
+     true,
+     {2, 3, 4}},
+    {"XOR",
+     InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 16.0},
+     true,
+     {2, 3, 4}},
+    {"EQU",
+     InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 32.0},
+     true,
+     {5, 6, 7}}}; // ANDN, NOR, XOR
 
 #endif

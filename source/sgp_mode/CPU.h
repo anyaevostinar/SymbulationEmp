@@ -34,7 +34,7 @@ class CPU {
                       inst::Decrement,
                       // biological operations
                       // no copy or alloc
-                      inst::Reproduce, inst::IO,
+                      inst::Reproduce, inst::PrivateIO, inst::SharedIO,
                       // double argument math
                       inst::Add, inst::Subtract, inst::Nand,
                       // Stack manipulation
@@ -71,23 +71,25 @@ public:
       program[0].op_code = Library::GetOpCode("Global Anchor");
       program[0].tag = start_tag;
 
-      // io r0
-      // nand r0, r0, r0
-      // io r0
+      // sharedio   r0
+      // nand       r0, r0, r0
+      // sharedio   r0
       // reproduce
-      program[96].op_code = Library::GetOpCode("IO");
+      program[96].op_code = Library::GetOpCode("SharedIO");
       program[97].op_code = Library::GetOpCode("Nand");
-      program[98].op_code = Library::GetOpCode("IO");
+      program[98].op_code = Library::GetOpCode("SharedIO");
       program[99].op_code = Library::GetOpCode("Reproduce");
     }
 
     Mutate();
+    state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
 
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
       emp::Ptr<emp::Random> random, CPU &old_cpu)
       : program(old_cpu.program), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
+    state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
 
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
@@ -101,7 +103,7 @@ public:
   }
 
   void Mutate() {
-    program.ApplyPointMutations(0.01);
+    program.ApplyPointMutations(0.03);
     cpu.InitializeAnchors(program);
   }
 
@@ -157,14 +159,10 @@ public:
 
   void PrintCode() {
     emp::map<std::string, size_t> arities{
-        std::pair("Nop-0", 0),      std::pair("ShiftLeft", 1),
-        std::pair("ShiftRight", 1), std::pair("Increment", 1),
-        std::pair("Decrement", 1),  std::pair("Push", 1),
-        std::pair("Pop", 1),        std::pair("SwapStack", 0),
-        std::pair("Swap", 2),       std::pair("Add", 3),
-        std::pair("Subtract", 3),   std::pair("Nand", 3),
-        std::pair("Reproduce", 0),  std::pair("IO", 1),
-        std::pair("Donate", 0)};
+        {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
+        {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
+        {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
+        {"Reproduce", 0}, {"PrivateIO", 1},    {"SharedIO", 1},   {"Donate", 0}};
     emp::map<size_t, std::string> labels;
 
     std::cout << "--------" << std::endl;

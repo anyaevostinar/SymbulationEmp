@@ -47,6 +47,8 @@ public:
     Symbiont::SetHost(host);
     cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
+    cpu.state.shared_completed =
+        host.DynamicCast<SGPHost>()->GetCPU().state.shared_completed;
   }
 
   CPU &GetCPU() { return cpu; }
