@@ -74,22 +74,42 @@ INST(SwapStack, { std::swap(state.stack, state.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
+  // Only one reproduction is allowed per update
+  if (state.in_progress_repro != -1)
+    return;
   double points = state.host->IsHost() ? 128.0 : 4.0;
   if (state.host->GetPoints() > points) {
     state.host->AddPoints(-points);
     // Add this organism to the queue to reproduce, using the mutex to avoid a
     // data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
+    state.in_progress_repro = state.world->to_reproduce.size();
     state.world->to_reproduce.push_back(std::pair(state.host, state.location));
   }
 });
 // Set output to value of register and set register to new input
-INST(IO, {
-  float score = state.world->GetTaskSet().CheckTasks(state, *a);
+INST(PrivateIO, {
+  float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
-    state.host->AddPoints(pow(2, score));
     if (!state.host->IsHost()) {
-      state.world->sym_points_earned += pow(2, score);
+      state.world->sym_points_earned += score;
+    } else {
+      // A host loses 25% of points when performing private IO operations
+      score *= 0.75;
+    }
+    state.host->AddPoints(score);
+  }
+  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  *a = next;
+  state.input_buf.push(next);
+});
+// Set output to value of register and set register to new input
+INST(SharedIO, {
+  float score = state.world->GetTaskSet().CheckTasks(state, *a, true);
+  if (score != 0.0) {
+    state.host->AddPoints(score);
+    if (!state.host->IsHost()) {
+      state.world->sym_points_earned += score;
     }
   }
   uint32_t next = sgpl::tlrand.Get().GetBits50();

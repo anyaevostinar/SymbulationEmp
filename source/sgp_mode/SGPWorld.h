@@ -34,9 +34,12 @@ public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
-      : SymWorld(r, _config), task_set(task_set) {}
+      : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
+        task_set(task_set) {}
 
   TaskSet &GetTaskSet() { return task_set; }
+
+  emp::Ptr<SymConfigBase> GetConfig() { return my_config; }
 
   void Update() {
     // These must be done here because we don't call SymWorld::Update()
@@ -45,19 +48,16 @@ public:
     if (my_config->PHYLOGENY())
       sym_sys->Update();
 
-    scheduler.ProcessOrgs(*this, [&](emp::WorldPosition pos, Organism &org) {
+    scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
       org.Process(pos);
       if (pop[pos.GetIndex()]->GetDead()) { // Check if the host died
         DoDeath(pos);
       }
     });
 
-    std::unordered_set<uint32_t> replaced;
     for (auto org : to_reproduce) {
-      if (replaced.count(org.second.GetIndex())) {
-        // This organism has been replaced, it's dead
+      if (!org.second.IsValid())
         continue;
-      }
       emp::Ptr<Organism> child = org.first->Reproduce();
       if (child->IsHost()) {
         // Host::Reproduce() doesn't take care of vertical transmission, that
@@ -65,13 +65,11 @@ public:
         for (auto &sym : org.first->GetSymbionts()) {
           sym->VerticalTransmission(child);
         }
-        emp::WorldPosition new_pos = DoBirth(child, org.second);
-        replaced.insert(new_pos.GetIndex());
+        DoBirth(child, org.second);
       } else {
+        // A sym reproducing into a host won't let that host reproduce this
+        // update
         SymDoBirth(child, org.second);
-        // A host and its sym can't both reproduce in the same update, but that
-        // doesn't really matter
-        replaced.insert(org.second.GetIndex());
       }
     }
     to_reproduce.clear();
