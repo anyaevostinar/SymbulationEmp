@@ -30,6 +30,14 @@ class Scheduler {
   size_t n_done;
   std::atomic_bool finished = false;
 
+  /**
+   * Input: None
+   *
+   * Output: The ID of this thread, between 0 and THREAD_COUNT.
+   *
+   * Purpose: Runs a worker thread for the scheduler, which processes organisms
+   * each update and then waits to be signaled for the next update.
+   */
   void RunThread(size_t i) {
     // Make sure each thread gets a different, deterministic, seed
     sgpl::tlrand.Get().ResetSeed(i);
@@ -71,6 +79,13 @@ public:
   Scheduler(SymWorld &world, size_t thread_count)
       : world(world), thread_count(thread_count) {}
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Stops any running threads when the scheduler is destroyed.
+   */
   ~Scheduler() {
     {
       std::unique_lock<std::mutex> lock(ready_lock);
@@ -82,6 +97,14 @@ public:
     }
   }
 
+  /**
+   * Input: A function to run on each organism.
+   *
+   * Output: None
+   *
+   * Purpose: Runs the provided callback on each organism in the world, without
+   * spawning any threads.
+   */
   void ProcessOrgsSync(
       std::function<void(emp::WorldPosition, Organism &)> callback) {
     for (size_t id = 0; id < world.GetSize(); id++) {
@@ -91,6 +114,13 @@ public:
     }
   }
 
+  /**
+   * Input: A function to run on each organism.
+   *
+   * Output: None
+   *
+   * Purpose: Runs the provided callback on each organism in the world.
+   */
   void
   ProcessOrgs(std::function<void(emp::WorldPosition, Organism &)> callback) {
     // Special case so we don't start any threads when they're not needed

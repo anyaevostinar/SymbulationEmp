@@ -5,17 +5,21 @@
 #include <atomic>
 #include <variant>
 
-// An input task computes an expected output based on the inputs, and if the
-// organism's output matches, it gives it a certain reward:
-// `InputTask sum{ 2, [](auto &x) { return x[0] + x[1]; }, 1.0 };`
+/**
+ * An input task computes an expected output based on the inputs, and if the
+ * organism's output matches, it gives it a certain reward:
+ * `InputTask sum{ 2, [](auto &x) { return x[0] + x[1]; }, 1.0 };`
+ */
 struct InputTask {
   size_t n_inputs;
   std::function<uint32_t(emp::vector<uint32_t> &)> taskFun;
   float value;
 };
 
-// An output task returns a reward based on the output the organism produced:
-// `OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+/**
+ * An output task returns a reward based on the output the organism produced:
+ * `OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+ */
 struct OutputTask {
   std::function<float(uint32_t)> taskFun;
 };
@@ -29,6 +33,7 @@ struct Task {
   /// each use of this task
   size_t num_dep_completes = 1;
 };
+
 class TaskSet {
   emp::vector<Task> tasks;
   // vector<atomic<>> doesn't work since the vector needs to copy its elements
@@ -36,15 +41,7 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
-public:
-  TaskSet(std::initializer_list<Task> tasks) : tasks(tasks) {
-    for (size_t i = 0; i < tasks.size(); i++) {
-      n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
-      n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
-    }
-  }
-
-  bool CanPerformTask(CPUState &state, size_t task_id) {
+  bool CanPerformTask(const CPUState &state, size_t task_id) {
     if (state.used_resources->Get(task_id)) {
       return false;
     }
@@ -67,29 +64,61 @@ public:
     if (!task.unlimited) {
       state.used_resources->Set(task_id);
     }
+
     if (task.dependencies.size()) {
       // TODO does it make sense to reset to 0, or to let them accumulate
       // resources?
       size_t total = task.num_dep_completes;
       for (size_t i : task.dependencies) {
-        size_t drop = std::min(state.self_completed[i], total);
-        total -= drop;
-        state.self_completed[i] -= drop;
-        drop = std::min((*state.shared_completed)[i], total);
-        total -= drop;
-        (*state.shared_completed)[i] -= drop;
+        // Subtract just as much as needed from each dependency until we've
+        // accumulated `num_dep_completes` completions
+        size_t subtract = std::min(state.self_completed[i], total);
+        total -= subtract;
+        state.self_completed[i] -= subtract;
+
+        subtract = std::min((*state.shared_completed)[i], total);
+        total -= subtract;
+        (*state.shared_completed)[i] -= subtract;
+
         if (total == 0) {
           break;
         }
       }
     }
+
     if (shared) {
       (*state.shared_completed)[task_id]++;
     } else {
       state.self_completed[task_id]++;
     }
+
+    if (state.host->IsHost())
+      ++*n_succeeds_host[task_id];
+    else
+      ++*n_succeeds_sym[task_id];
   }
 
+public:
+  /**
+   * Construct a TaskSet from a list of tasks
+   */
+  TaskSet(std::initializer_list<Task> tasks) : tasks(tasks) {
+    for (size_t i = 0; i < tasks.size(); i++) {
+      n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+      n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+    }
+  }
+
+  /**
+   * Input: The current CPU state, the output to check against, and whether to
+   * update shared or private completed pools for dependent tasks.
+   *
+   * Output: The score that the organism earned from any completed tasks, or 0
+   * if no tasks were completed.
+   *
+   * Purpose: Checks whether a certain output produced by the organism completes
+   * any tasks, and updates necessary state fields if so.
+   */
   float CheckTasks(CPUState &state, uint32_t output, bool shared) {
     // Check output tasks
     for (size_t i = 0; i < tasks.size(); i++) {
@@ -99,10 +128,6 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           MarkPerformedTask(state, i, shared);
-          if (state.host->IsHost())
-            ++*n_succeeds_host[i];
-          else
-            ++*n_succeeds_sym[i];
           return score;
         }
       }
@@ -128,10 +153,6 @@ public:
 
           if (itask.taskFun(inputs) == output) {
             MarkPerformedTask(state, i, shared);
-            if (state.host->IsHost())
-              ++*n_succeeds_host[i];
-            else
-              ++*n_succeeds_sym[i];
             return itask.value;
           }
         }

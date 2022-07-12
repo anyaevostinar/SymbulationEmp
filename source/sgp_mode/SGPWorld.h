@@ -37,10 +37,32 @@ public:
       : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
         task_set(task_set) {}
 
+  /**
+   * Input: None
+   *
+   * Output: The task set used for this world.
+   *
+   * Purpose: Allows accessing the world's task set.
+   */
   TaskSet &GetTaskSet() { return task_set; }
 
+  /**
+   * Input: None
+   *
+   * Output: The configuration used for this world.
+   *
+   * Purpose: Allows accessing the world's config.
+   */
   emp::Ptr<SymConfigBase> GetConfig() { return my_config; }
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To simulate a timestep in the world, which includes calling the
+   * process functions for hosts and symbionts and updating the data nodes.
+   */
   void Update() {
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future
@@ -67,8 +89,6 @@ public:
         }
         DoBirth(child, org.second);
       } else {
-        // A sym reproducing into a host won't let that host reproduce this
-        // update
         SymDoBirth(child, org.second);
       }
     }
