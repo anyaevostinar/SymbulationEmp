@@ -91,11 +91,10 @@ TEST_CASE("GetSummedValue", "[sgp]"){
         emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
         emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
 
-        double test_sum_a = GetSummedValue(useful_genomes.size(), calc_useful_starts, calc_useful_ends, useful_genomes);
-        std::cout << "current: " << + test_sum_a << std::endl;
+        double test_sum = GetSummedValue(useful_genomes.size(), calc_useful_starts, calc_useful_ends, useful_genomes);
         double found_value = 10.5833333333;
-        std::cout << "actual: " << + found_value << std::endl;
-        std::cout << "genome_size: " << + useful_genome_a.size() << std::endl;
+        
+        REQUIRE((int)((test_sum/found_value)*1000) == 1000);
 
 
 
@@ -107,23 +106,21 @@ TEST_CASE("CalcPModularity", "[sgp]"){
         int genome_size = 20;
 
         double test_phys_mod_a = CalcPModularity(task_num, summed_value, genome_size);
-        std::cout << "current: " << + test_phys_mod_a << std::endl;
         double found_value_a = 0.788333;
-        std::cout << "actual: " << + found_value_a << std::endl;
-
+        REQUIRE((int)((test_phys_mod_a/found_value_a)*1000) == 1000);
+        
 
         summed_value = 1.58333;
         task_num=4;
         double test_phys_mod_b = CalcPModularity(task_num, summed_value, genome_size);
-        std::cout << "current: " << + test_phys_mod_b << std::endl;
-        double found_value_b = 0.960417;
-        std::cout << "actual: " << + found_value_b << std::endl;
+        double found_value_b = 0.96041675;
+        REQUIRE((int)((test_phys_mod_b/found_value_b)*100) == 100);
+        
 
         summed_value = 0.0;
         double test_phys_mod_c = CalcPModularity(task_num, summed_value, genome_size);
-        std::cout << "current: " << + test_phys_mod_c << std::endl;
         double found_value_c = -1;
-        std::cout << "actual: " << + found_value_c << std::endl;
+        REQUIRE((int)((test_phys_mod_c/found_value_c)*1000) == 1000);
 
 
 }
@@ -138,22 +135,19 @@ TEST_CASE("GetPModularity", "[sgp]"){
         emp::vector<emp::vector<int>> useful_genomes = {useful_genome_a,useful_genome_b,useful_genome_c,useful_genome_d,useful_genome_e};
         
         int num_tasks = 5;
-        std::cout << "tasks: " << + num_tasks << std::endl;
         double test_phys_mod_a = GetPModularity(num_tasks, useful_genomes);
-        std::cout << "current: " << + test_phys_mod_a << std::endl;
         double found_value_a = 0.788333;
-        std::cout << "actual: " << + found_value_a << std::endl;
+        REQUIRE((int)((test_phys_mod_a/found_value_a)*1000) == 1000);
 
         num_tasks = 4;
         useful_genomes.pop_back();
         useful_genomes.pop_back();
         useful_genomes.push_back(useful_genome_e);
 
-        std::cout << "tasks: " << + num_tasks << std::endl;
         double test_phys_mod_b = GetPModularity(num_tasks, useful_genomes);
-        std::cout << "current: " << + test_phys_mod_b << std::endl;
-        double found_value_b = 0.960417;
-        std::cout << "actual: " << + found_value_b << std::endl;
+        double found_value_b = 0.96041675;
+        std::cout<<test_phys_mod_b;
+        REQUIRE((int)((test_phys_mod_b/found_value_b)*100) == 100);
 
 
 }
