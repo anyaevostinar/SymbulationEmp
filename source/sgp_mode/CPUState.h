@@ -32,7 +32,7 @@ template <const size_t len = 8> struct IORingBuffer {
 
 // CPUState has a pointer to the SGPWorld, but it can't include it
 class SGPWorld;
-//TODO: Change name of state.host to something more generally applicable
+
 struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
@@ -40,7 +40,11 @@ struct CPUState {
   IORingBuffer<> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  // If this organism is queued for reproduction, this stores its position in
+  // the queue. When the organism dies, its queue slot will be invalidated.
   emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
+  int in_progress_repro = -1;
+//TODO: Change host to something more general, like Organism
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
 
@@ -48,10 +52,10 @@ struct CPUState {
 
   CPUState(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
       : host(host), world(world) {}
-
+  
   CPUState(CPUState &state) : host(state.host), world(state.world) {
     used_resources = emp::NewPtr<emp::BitSet<64>>();
-  } 
+  }
 };
 
 #endif

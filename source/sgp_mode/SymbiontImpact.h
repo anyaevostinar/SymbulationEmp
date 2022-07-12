@@ -10,6 +10,7 @@
 #include "CPU.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
+#include "Tasks.h"
 #include <set>
 #include <math.h>
 
@@ -18,9 +19,7 @@ void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     host.ClearReproSyms();
     host.SetPoints(0.0);
     host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-    //host.GetCPU().PrintCode();
     std::cout <<"without sym: " << host.GetPoints() << std::endl;
-    //set the host point to zero
     host.SetPoints(0.0);
     host.AddSymbiont(emp::NewPtr<SGPSymbiont>(symbiont));
     symbiont.SetPoints(0.0);
@@ -30,8 +29,18 @@ void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     }
     std::cout <<"with sym: " << host.GetPoints() << std::endl;
     std::cout << "=====" << std::endl;
-    //host.SetPoints(0.0);
+    host.SetPoints(0.0);
     symbiont.SetPoints(0.0);
+}
+
+void CheckHost(SGPHost host){
+   //std::cout << "Running CheckHost" << std::endl;
+   host.ClearSyms(); 
+   host.ClearReproSyms();
+   host.SetPoints(0.0);
+   host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
+   std::cout <<"solo host: " << host.GetPoints() << std::endl;
+   host.SetPoints(0.0);
 }
 
 

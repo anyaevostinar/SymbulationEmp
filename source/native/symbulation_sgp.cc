@@ -36,8 +36,11 @@ int symbulation_main(int argc, char * argv[])
 
   config.Write(std::cout);
   emp::Random random(config.SEED());
-
-  SGPWorld world(random, &config, DefaultTasks);
+  TaskSet task_set = LogicTasks;
+  if (config.TASK_TYPE() == 0){
+     task_set = SquareTasks;
+  }
+  SGPWorld world(random, &config, task_set);
 
 
   int TIMING_REPEAT = config.DATA_INT();
@@ -90,13 +93,18 @@ int symbulation_main(int argc, char * argv[])
                 << std::endl;
       world.sym_points_donated = 0.0;
       world.sym_points_earned = 0.0;
-      emp::Ptr<SGPHost> host = world.GetFullPop().back().DynamicCast<SGPHost>();
-      if (host->HasSym()){
+      int i = 0;
+      emp::Ptr<SGPHost> host = world.GetFullPop()[i].DynamicCast<SGPHost>();
+      while (!host->HasSym()){//Not always a high number of hosts that have symbionts
+          i++;
+          host = world.GetFullPop()[i].DynamicCast<SGPHost>();
+      }
           emp::Ptr<SGPSymbiont> symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
           CheckSymbiont(*host, *symbiont);
-        }  
+        /*else if (host->GetPoints() > 0){
+          CheckHost(*host);
+        }*/
     }
-
     world.Update();
   }
 
@@ -127,7 +135,6 @@ int symbulation_main(int argc, char * argv[])
     world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
   }
   return 0;
-  
 }
 
 /*

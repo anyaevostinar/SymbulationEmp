@@ -28,16 +28,21 @@ public:
     my_world = _world;
   }
 
+  SGPSymbiont(SGPSymbiont &symbiont)
+      : Symbiont(symbiont),
+        cpu(this, symbiont.my_world, symbiont.random, symbiont.cpu) {
+  }
+
   ~SGPSymbiont() {
     if (!my_host) {
-      cpu.state.used_resources.Delete();
+      //cpu.state.used_resources.Delete();
     }
   }
 //TODO: fix symbiont access to host resources to avoid dead pointers
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
     //cpu.state.used_resources.Delete();
-    cpu.state.used_resources =
+    cpu.state.used_resources = 
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
     cpu.state.internalEnvironment = host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
   }
@@ -45,7 +50,7 @@ public:
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    cpu.RunCPUStep(pos);
+    cpu.RunCPUStep(pos, 1);
 
     // The parts of Symbiont::Process that don't use resources or reproduction
 

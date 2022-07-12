@@ -33,7 +33,15 @@ public:
     my_world = _world;
   }
 
-  ~SGPHost() { cpu.state.used_resources.Delete(); 
+  SGPHost(SGPHost &host)
+      : Host(host),
+        cpu(this, host.my_world, host.random, host.cpu) {
+    
+  }
+
+
+
+  ~SGPHost() { //cpu.state.used_resources.Delete(); 
   }
 
   CPU &GetCPU() { return cpu; }
@@ -42,7 +50,7 @@ public:
     if (my_world->GetUpdate() % 30 == 0)
       cpu.state.used_resources->reset();
 
-    cpu.RunCPUStep(pos);
+    cpu.RunCPUStep(pos, 1);
 
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction

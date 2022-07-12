@@ -74,12 +74,16 @@ INST(SwapStack, { std::swap(state.stack, state.stack2); });
 INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
+  // Only one reproduction is allowed per update
+  if (state.in_progress_repro != -1)
+    return;
   double points = state.host->IsHost() ? 128.0 : 4.0;
   if (state.host->GetPoints() > points) {
     state.host->AddPoints(-points);
     // Add this organism to the queue to reproduce, using the mutex to avoid a
     // data race
     std::lock_guard<std::mutex> lock(reproduce_mutex);
+    state.in_progress_repro = state.world->to_reproduce.size();
     state.world->to_reproduce.push_back(std::pair(state.host, state.location));
   }
 });
@@ -92,15 +96,25 @@ INST(IO, {
       state.world->sym_points_earned += pow(2, score);
     }
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next = 4;//sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });
-/*
-Modified version of IO that gets resources from internal environment--
-after adding points to the organism, takes the last entry in the internal environment vector as input.
-If internal environment is empty, does nothing.
-*/
+INST(Donate, {
+  if (state.host->IsHost())
+    return;
+  if (emp::Ptr<Organism> host = state.host->GetHost()) {
+    // Donate 20% of the total points of the symbiont-host system
+    // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+    // couple of instructions
+    double to_donate =
+        fmin(state.host->GetPoints(),
+             (state.host->GetPoints() + host->GetPoints()) * 0.20);
+    state.world->sym_points_donated += to_donate;
+    host->AddPoints(to_donate);
+    state.host->AddPoints(-to_donate);
+  }
+});
 INST(Reuptake, {
   uint32_t next;
   float score = state.world->GetTaskSet().CheckTasks(state, *a);
@@ -118,21 +132,6 @@ INST(Reuptake, {
   }
 });
 
-INST(Donate, {
-  if (state.host->IsHost())
-    return;
-  if (emp::Ptr<Organism> host = state.host->GetHost()) {
-    // Donate 20% of the total points of the symbiont-host system
-    // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-    // couple of instructions
-    double to_donate =
-        fmin(state.host->GetPoints(),
-             (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->sym_points_donated += to_donate;
-    host->AddPoints(to_donate);
-    state.host->AddPoints(-to_donate);
-  }
-});
 
 } // namespace inst
 
