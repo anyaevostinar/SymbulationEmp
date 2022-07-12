@@ -68,15 +68,20 @@ public:
     config_panel.ExcludeSetting("COMPETITION_MODE");
     config_panel.ExcludeSetting("SYM_INFECTION_CHANCE");
     config_panel.ExcludeSetting("SYM_INFECTION_FAILURE_RATE");
+    config_panel.ExcludeSetting("START_MOI");
+    config_panel.ExcludeSetting("PHYLOGENY");
+    config_panel.ExcludeSetting("NUM_PHYLO_BINS");
 
     config_panel.ExcludeGroup("LYSIS");
     config_panel.ExcludeGroup("DTH");
     config_panel.ExcludeGroup("PGG");
+    config_panel.ExcludeGroup("ECTOSYMBIOSIS");
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");
     config_panel.SetRange("SYM_AGE_MAX", "-1", "1000");
     config_panel.SetRange("HOST_AGE_MAX", "-1", "1000");
+    config_panel.SetRange("LIMITED_RES_TOTAL", "-1", "10000");
 
 
     animation.SetCSS("flex-grow", "1");
