@@ -33,8 +33,15 @@
 
   //Start of physicalModularityCode
 
-  /*Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
+  /**
+  * 
+  * Input: Takes in a vector of ints either 0 or 1 representing No-op or necessary instructions respectively. 
+  * the vector is a modified version of a normal genome that has the positions of all the necessary 
+  * and unnecessary instructions for a task
   *
+  * Output: Outputs an integer of the number of sites of useful instructions within a modified program
+  *
+  *Purpose: Gets the total number of instruction clusters, without no-ops inside of them, and returns their total amount
   *
   */
   int  GetNumSites(emp::vector<int> alt_genome){
@@ -56,8 +63,13 @@
 
   
 
-  /*creates a vector of the position in each alter program of the first !(No-op) instruction to appear
+   /**
+  * 
+  * Input: 
   *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   emp::vector<int>  GetUsefulStarts(emp::vector<emp::vector<int>> task_programs){
@@ -82,8 +94,13 @@
 
   }
 
-  /*creates a vector of the position in each alter program of the last !(No-op) instruction to appear
+  /**
+  * 
+  * Input: 
   *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   emp::vector<int>  GetUsefulEnds(emp::vector<emp::vector<int>> task_programs){
@@ -108,8 +125,13 @@
 
   }
 
-  /*returns the total distance in instruction lines between useful code sites 
+  /**
+  * 
+  * Input: 
   *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   int  GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
@@ -132,8 +154,13 @@
 
   }
 
- /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
+ /**
+  * 
+  * Input: 
   *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   double GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
@@ -164,8 +191,13 @@
 
   }
 
-  /*
+  /**
+  * 
+  * Input: 
   *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   double  CalcPModularity (int num_tasks, double summed_value,int genome_size){
@@ -182,8 +214,13 @@
   }
 
 
-  /*
-  * Frame function to call all the necessary functions inside
+  /**
+  * 
+  * Input: 
+  *
+  * Output: 
+  *
+  *Purpose: 
   *
   */
   float  GetPModularity (int tasks_count, emp::vector<emp::vector<int>> task_programs){
@@ -225,6 +262,16 @@
 
   using Spec = sgpl::Spec<Library, CPUState>;
 
+
+  /**
+  * 
+  * Input: 
+  *
+  * Output: 
+  *
+  *Purpose: 
+  *
+  */
   emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
 
     CPUState state = host.GetCPU().state;

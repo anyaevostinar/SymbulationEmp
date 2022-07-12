@@ -165,7 +165,8 @@ TEST_CASE("GetPModularityHelper", "[sgp]"){
         SGPWorld world(random, &config);
         //something is wrong with this world set up as well as if a taskset is added to the end of the parameters
         //are there issues with the includes?? function either doesn't have what it needs to or can't see it
-        //could also just do practice runs in SGP-world by including a function method that calls it for every host
+        //could also just do practice runs in SGP-world by including a function method that calls it for hosts
+        //issues with library, spec struc, GetProgram and SetProgram, GetTasks()
                 
 
         //emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
