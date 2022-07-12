@@ -63,6 +63,7 @@ public:
   }
 
   void MarkPerformedTask(CPUState &state, size_t task_id, bool shared) {
+    //std::cout << "MarkPerformedTask first line" << std::endl;
     Task &task = tasks[task_id];
     if (!task.unlimited) {
       state.used_resources->Set(task_id);
@@ -215,7 +216,7 @@ TaskSet LogicTasks{
      {5, 6, 7}}}; // ANDN, NOR, XOR
 
   TaskSet SquareTasks{
-  {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? 1.0 : 0.0; } }}
+  {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? 4.0 : 0.0; } }}
 };
 
 #endif

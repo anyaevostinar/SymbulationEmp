@@ -97,13 +97,14 @@ int symbulation_main(int argc, char * argv[])
       emp::Ptr<SGPHost> host = world.GetFullPop()[i].DynamicCast<SGPHost>();
       while (!host->HasSym()){//Not always a high number of hosts that have symbionts
           i++;
+          if (i == world.GetFullPop().size()){
+            std::cout << "No symbionts available" << std::endl;
+            exit(0);
+          }
           host = world.GetFullPop()[i].DynamicCast<SGPHost>();
       }
           emp::Ptr<SGPSymbiont> symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
           CheckSymbiont(*host, *symbiont);
-        /*else if (host->GetPoints() > 0){
-          CheckHost(*host);
-        }*/
     }
     world.Update();
   }

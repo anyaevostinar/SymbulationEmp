@@ -40,8 +40,9 @@ public:
 
   SGPHost(SGPHost &host)
       : Host(host),
-        cpu(this, host.my_world, host.random, host.cpu) {
-    
+        cpu(this, host.my_world, host.random, host.cpu), my_world(host.my_world){
+      cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+      cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
   }
 
   ~SGPHost() {

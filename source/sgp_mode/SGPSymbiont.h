@@ -31,7 +31,8 @@ public:
 
   SGPSymbiont(SGPSymbiont &symbiont)
       : Symbiont(symbiont),
-        cpu(this, symbiont.my_world, symbiont.random, symbiont.cpu) {
+        cpu(this, symbiont.my_world, symbiont.random, symbiont.cpu), my_world(symbiont.my_world){
+
   }
 
   ~SGPSymbiont() {
