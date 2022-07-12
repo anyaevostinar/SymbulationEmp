@@ -150,10 +150,11 @@
           
           
           double sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
+          double num_sites_a = GetNumSites(alt_genomes[a]);
+          if (sum_site_dist_a!=0) { 
 
-          if (sum_site_dist_a>0) {
-              double num_sites_a = GetNumSites(alt_genomes[a]);
               task_sum = sum_site_dist_a/(num_sites_a*(num_sites_a-1));
+
           }
 
           final_sum += task_sum;
@@ -168,8 +169,11 @@
   *
   */
   double  CalcPModularity (int num_tasks, double summed_value,int genome_size){
-    int length = genome_size;
-    double layer_one = 2/(length*num_tasks);
+    if (summed_value==0||num_tasks==0) {
+      return  -1;    
+    }
+    double length = genome_size;
+    double layer_one = 2.0/(length*num_tasks);
     double layer_two = layer_one * summed_value;
     double physical_mod = 1 - layer_two;
 
