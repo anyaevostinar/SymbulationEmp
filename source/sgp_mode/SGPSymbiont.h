@@ -5,6 +5,7 @@
 #include "CPU.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
+#include "emp/Evolve/World_structure.hpp"
 
 class SGPSymbiont : public Symbiont {
 private:
@@ -35,22 +36,31 @@ public:
 
   ~SGPSymbiont() {
     if (!my_host) {
-      //cpu.state.used_resources.Delete();
+      cpu.state.used_resources.Delete();
+    }
+    // Invalidate any in-progress reproduction
+    if (cpu.state.in_progress_repro != -1) {
+      my_world->to_reproduce[cpu.state.in_progress_repro].second =
+          emp::WorldPosition::invalid_id;
     }
   }
-//TODO: fix symbiont access to host resources to avoid dead pointers
+
   void SetHost(emp::Ptr<Organism> host) {
+    if (!my_host) {
+      cpu.state.used_resources.Delete();
+    }
     Symbiont::SetHost(host);
-    //cpu.state.used_resources.Delete();
-    cpu.state.used_resources = 
+    cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
+    cpu.state.shared_completed =
+        host.DynamicCast<SGPHost>()->GetCPU().state.shared_completed;
     cpu.state.internalEnvironment = host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
   }
 
   CPU &GetCPU() { return cpu; }
 
   void Process(emp::WorldPosition pos) {
-    cpu.RunCPUStep(pos, 1);
+    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
 
     // The parts of Symbiont::Process that don't use resources or reproduction
 
@@ -63,9 +73,19 @@ public:
     }
   }
 
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    // Save and restore the in-progress reproduction, since Reproduce() will be called
+    // but it will still be on the queue for horizontal transmission
+    size_t old = cpu.state.in_progress_repro;
+    Symbiont::VerticalTransmission(host_baby);
+    cpu.state.in_progress_repro = old;
+  }
+
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> host_baby =
         emp::NewPtr<SGPSymbiont>(random, my_world, my_config, cpu, GetIntVal());
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
     return host_baby;
   }
 

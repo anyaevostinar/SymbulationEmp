@@ -37,14 +37,16 @@ struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
 
-  IORingBuffer<> input_buf;
+  IORingBuffer<4> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  emp::vector<size_t> self_completed;
+  emp::Ptr<emp::vector<size_t>> shared_completed = nullptr;
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
   int in_progress_repro = -1;
-//TODO: Change host to something more general, like Organism
+
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
 
@@ -52,10 +54,6 @@ struct CPUState {
 
   CPUState(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
       : host(host), world(world) {}
-  
-  CPUState(CPUState &state) : host(state.host), world(state.world) {
-    used_resources = emp::NewPtr<emp::BitSet<64>>();
-  }
 };
 
 #endif
