@@ -161,8 +161,11 @@ TEST_CASE("GetPModularity", "[sgp]"){
 TEST_CASE("GetPModularityHelper", "[sgp]"){
         emp::Ptr<emp::Random> random = new emp::Random(-1);
         SymConfigBase config;
-        TaskSet test_tasks = DefaultTasks
-        SGPWorld world(random, &config, test_tasks);
+        TaskSet test_tasks = DefaultTasks;
+        SGPWorld world(random, &config);
+        //something is wrong with this world set up as well as if a taskset is added to the end of the parameters
+        //are there issues with the includes?? function either doesn't have what it needs to or can't see it
+        //could also just do practice runs in SGP-world by including a function method that calls it for every host
                 
 
         //emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
