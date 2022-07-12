@@ -6,6 +6,13 @@
 #include "../../sgp_mode/SGPSymbiont.h"
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/ModularityAnalysis.h"
+#include "../../default_mode/Symbiont.h"
+#include "../../default_mode/Host.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include <iostream>
+#include <memory>
+#include "../../sgp_mode/Scheduler.h"
 
 //have world call these methods
 
@@ -147,6 +154,36 @@ TEST_CASE("GetPModularity", "[sgp]"){
         double test_phys_mod_b = GetPModularity(num_tasks, useful_genomes);
         double found_value_b = 0.96041675;
         REQUIRE(test_phys_mod_b==Approx(found_value_b));
+
+
+}
+
+TEST_CASE("GetPModularityHelper", "[sgp]"){
+        emp::Ptr<emp::Random> random = new emp::Random(-1);
+        SymConfigBase config;
+        TaskSet test_tasks = DefaultTasks
+        SGPWorld world(random, &config, test_tasks);
+                
+
+        //emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+
+      //  emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
+
+
+        
+        
+        
+        //that it works for both hosts and syms but just hosts is fine for now
+
+        //when there are tasks
+        //it returns a vector of vectors filled with 0 and 1 all the same length as the full genome
+        //that it only gets the tasks that the host can actually do
+                //compare to tag of the host
+        //that it doesn't crash due to unexpected issues like: the host not having a cpu or a program
+
+       //when there aren't ->return empty vector of vectors
+
+
 
 
 }

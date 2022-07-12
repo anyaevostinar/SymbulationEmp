@@ -92,6 +92,8 @@ public:
     state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
 
+  sgpl::Program<spec_t> &GetProgram() { return program; }
+
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
     if (!cpu.HasActiveCore()) {
       cpu.DoLaunchCore(start_tag);
@@ -106,6 +108,8 @@ public:
     program.ApplyPointMutations(0.03);
     cpu.InitializeAnchors(program);
   }
+  
+
 
   void PrintOp(sgpl::Instruction<Spec> &ins,
                emp::map<std::string, size_t> &arities,
