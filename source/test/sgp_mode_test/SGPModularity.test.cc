@@ -80,9 +80,26 @@ TEST_CASE("GetSumSiteDist", "[sgp]"){
 
 }
 
-//TEST_CASE("GetPModularity", "[sgp]"){}
+TEST_CASE("GetSummedValue", "[sgp]"){
+        emp::vector<int> useful_genome_a = {0,0,0,0,1,0,1,1,1,1,0,0,0,0,0,1,1,1,0,1};
+        emp::vector<int> useful_genome_b = {0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0};
+        emp::vector<int> useful_genome_c = {0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0};
+        emp::vector<int> useful_genome_d = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1};
+        emp::vector<int> useful_genome_e = {0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0};
 
-//TEST_CASE("GetSummedValue", "[sgp]"){}
+        emp::vector<emp::vector<int>> useful_genomes = {useful_genome_a,useful_genome_b,useful_genome_c,useful_genome_d,useful_genome_e};
+        emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
+        emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
+
+        double test_sum_a = GetSummedValue(useful_genomes.size(), calc_useful_starts, calc_useful_ends, useful_genomes);
+        std::cout << test_sum_a << std::endl;
+
+
+}
+
+
+
+//TEST_CASE("GetPModularity", "[sgp]"){}
 
 //TEST_CASE("CalcPModularity", "[sgp]"){}
 

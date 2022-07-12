@@ -10,8 +10,8 @@
 #include <thread>
 
 class Scheduler {
-  const size_t THREAD_COUNT = 16;
-  const size_t BATCH_SIZE = 256;
+  const size_t THREAD_COUNT = 12;
+  const size_t BATCH_SIZE = 48;
 
   void RunThread(SymWorld &world, std::atomic<size_t> &next_id, size_t i,
                  std::function<void(emp::WorldPosition, Organism &)> &callback) {

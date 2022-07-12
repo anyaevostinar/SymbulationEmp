@@ -132,42 +132,31 @@
 
   }
 
-
-  /*
+ /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
   *
   *
   */
-  float  CalcPModularity (int num_tasks, float summed_value,int genome_size){
-    int length = genome_size;
-    float layer_one = 2/(length*num_tasks);
-    float layer_two = layer_one * summed_value;
-    float physical_mod = 1 - layer_two;
-
-    return physical_mod;
-
-  }
-
-
-   /*the program vector might be turned into an int vector as well depending on the checkUsefulCode return value
-  *
-  *
-  */
-  float GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
+  double GetSummedValue (int num_tasks, emp::vector<int> starts_used, emp::vector<int> ends_used, 
   emp::vector<emp::vector<int>>alt_genomes){
 
-      float final_sum = 0.0;
+      double final_sum = 0.0;
 
 
-      for(int a=1; a<=num_tasks; a++){
-        float task_sum =0.0;
+      for(int a=0; a<=num_tasks-1; a++){
+          double task_sum =0.0;
 
-      //call methods on the altered program a
-        int num_sites_a = GetNumSites(alt_genomes[a]);
-        int sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
+          //call methods on the altered program a
+          
+          
+          
+          double sum_site_dist_a = GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
 
-        task_sum = sum_site_dist_a/(num_sites_a*(num_sites_a-1));
+          if (sum_site_dist_a>0) {
+              double num_sites_a = GetNumSites(alt_genomes[a]);
+              task_sum = sum_site_dist_a/(num_sites_a*(num_sites_a-1));
+          }
 
-        final_sum += task_sum;
+          final_sum += task_sum;
       }
 
       return final_sum;
@@ -178,14 +167,29 @@
   *
   *
   */
+  double  CalcPModularity (int num_tasks, double summed_value,int genome_size){
+    int length = genome_size;
+    double layer_one = 2/(length*num_tasks);
+    double layer_two = layer_one * summed_value;
+    double physical_mod = 1 - layer_two;
+
+    return physical_mod;
+
+  }
+
+
+  /*
+  *
+  *
+  */
   float  GetPModularity (int tasks_count, emp::vector<emp::vector<int>> task_programs){
       int length = task_programs[0].size();
-      float physical_mod_val = 0.0; 
+      double physical_mod_val = 0.0; 
     
       emp::vector<int> alt_task_starts = GetUsefulStarts(task_programs);
       emp::vector<int> alt_task_ends = GetUsefulEnds(task_programs);
 
-      float formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs);
+      double formula_sum = GetSummedValue(tasks_count, alt_task_starts, alt_task_ends,task_programs);
 
       physical_mod_val = CalcPModularity(tasks_count, formula_sum, length);
 
