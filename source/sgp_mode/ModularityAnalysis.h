@@ -220,7 +220,7 @@
   *
   * Output: 
   *
-  *Purpose: 
+  *Purpose: Takes all the calculation methods and calls them in order of having a simplified way of getting an organism's Physical Modularity
   *
   */
   float  GetPModularity (int tasks_count, emp::vector<emp::vector<int>> task_programs){
@@ -265,11 +265,11 @@
 
   /**
   * 
-  * Input: 
+  * Input: Takes in a host
   *
-  * Output: 
+  * Output: Outputs a vector of int vectors that represents all the necessary instructions to do a task for each task the host can do
   *
-  *Purpose: 
+  *Purpose: To get modified versions of the host's genome to give to top level modularity methods
   *
   */
   emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
