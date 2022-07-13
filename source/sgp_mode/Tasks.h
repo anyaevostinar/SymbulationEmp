@@ -63,7 +63,6 @@ public:
   }
 
   void MarkPerformedTask(CPUState &state, size_t task_id, bool shared) {
-    //std::cout << "MarkPerformedTask first line" << std::endl;
     Task &task = tasks[task_id];
     if (!task.unlimited) {
       state.used_resources->Set(task_id);
