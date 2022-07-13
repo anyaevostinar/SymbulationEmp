@@ -26,7 +26,11 @@ VALUE(LIMITED_RES_TOTAL, int, -1, "Number of total resources available over the 
 
 It is common convention in Symbulation's configuration settings for -1 to be used to turn a feature off (so that we don't have to have two settings for each feature).
 
-:fa:`bug` Bug alert: Make sure you don't forget the comma at the end!</i>
+.. |fa-bug| raw:: html
+
+   <i class="fa-solid fa-bug"></i>
+
+|fa-bug| Bug alert: Make sure you don't forget the comma at the end!</i>
 
 That's all you have to do to get your new configuration option in the configuration object that gets passed all around the code!
 
