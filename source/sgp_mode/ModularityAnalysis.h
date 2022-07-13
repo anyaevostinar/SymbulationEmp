@@ -314,8 +314,10 @@
 
             //fore every task in the task set create a new taskSet with just the one task. Do this in loop format. Possibly use TaskData
             //trying to use struct iterator
-            emp::vector<Task> passing_task = {one_task};
-            TaskSet test_task_set(passing_task);
+            //doesn't like these two lines
+            auto task_holder = *one_task;
+            emp::vector<Task> passing_task = {task_holder.task};
+            TaskSet test_task_set=passing_task;
             
             sgpl::Program<Spec> useful_program;
 

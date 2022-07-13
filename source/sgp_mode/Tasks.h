@@ -44,9 +44,6 @@ public:
     }
   }
 
-  emp::vector<Task> &GetTasks() {
-    return tasks;
-  }
 
   bool CanPerformTask(CPUState &state, size_t task_id) {
     if (state.used_resources->Get(task_id)) {
