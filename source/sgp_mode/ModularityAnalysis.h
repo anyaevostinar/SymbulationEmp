@@ -273,17 +273,28 @@
   *
   */
   emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost* host){
+    std::cout<<" Gun0";
 
-    CPUState state = host->GetCPU().state;
+    CPUState condition = host->GetCPU().GetState();
     
-    emp::vector<Task> full_tasks = state.world->GetTaskSet().GetTasks();
+    std::cout<<" Guna";
 
+   // emp::vector<Task> full_tasks = 
+    TaskSet all_tasks = condition.world->GetTaskSet();//.GetTasks();
+
+    //emp::vector<Task> full_tasks = all_tasks.GetTasks();
+
+    std::cout<<" Gunb";
     
-    
-    sgpl::Program<Spec> program = host->GetCPU().GetProgram();
+    sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
+
+    std::cout<<" Gunc";
+
     emp::vector<emp::vector<int>> result;
 
-    for (int j=0;j<(int)full_tasks.size();++j){
+    std::cout<<" Gun1";
+
+    for (int j=0;j<(int)all_tasks.NumTasks();++j){
         //iterate through every task
         
         emp::vector<int> useful;
@@ -293,44 +304,58 @@
         // emp::vector<Task> one_task;
         // one_task.push_back(full_tasks[j]);
 
-        std::initializer_list<Task> one_task = {full_tasks[j]};
+       // std::initializer_list<Task> one_task = {all_tasks.TaskData[j]};
+        for (TaskSet::Iterator one_task = all_tasks.begin(); one_task!=all_tasks.end(); ++one_task) {
+            
+            //to be found later
+            
 
-        TaskSet test_task_set = TaskSet(one_task);
-        sgpl::Program<Spec> useful_program;
+            std::cout<<" Gun2";
 
-        for (int i=0;i<100; ++i) {
-            //iterate through every line of instruction
-            sgpl::Program<Spec> test_program = program;
-            // test_program[i].NopOut();
-            test_program[i].op_code = 0; // change that line of instruction to no-op
-            host->GetCPU().SetProgram(test_program);    
-            float score = test_task_set.CheckTasks(host->GetCPU().state, 2,false); //temporary false, unsure of this line
-            if(score != 0){
-                std::cout<<"???";
-            } else {
-                std::cout<<score<< " check point 1";
-            }//currently it is printing 100 things so it successfully went through the first task
-            if (score != 0.0){
-                useful.push_back(i);
-                binary_string.push_back(1);
-            } else {
-                useless.push_back(i);
-                binary_string.push_back(0);
+            //fore every task in the task set create a new taskSet with just the one task. Do this in loop format. Possibly use TaskData
+            //trying to use struct iterator
+            emp::vector<Task> passing_task = {one_task};
+            TaskSet test_task_set(passing_task);
+            
+            sgpl::Program<Spec> useful_program;
+
+            for (int i=0;i<100; ++i) {
+                //iterate through every line of instruction
+                sgpl::Program<Spec> test_program = original_program;
+                // test_program[i].NopOut();
+                test_program[i].op_code = 0; // change that line of instruction to no-op
+                host->GetCPU().SetProgram(test_program);    
+                float score = test_task_set.CheckTasks(host->GetCPU().state, 2,true); //temporary false, unsure of this line
+                if(score != 0){
+                    std::cout<<"???";
+                } else {
+                    std::cout<<score<< " check point 1";
+                }//currently it is printing 100 things so it successfully went through the first task
+                if (score != 0.0){
+                    useful.push_back(i);
+                    binary_string.push_back(1);
+                } else {
+                    useless.push_back(i);
+                    binary_string.push_back(0);
+                }
+                
+                
             }
+            std::cout<<" Gun3";
             
-            
+            for (int i=0;i<(int)useless.size(); ++i){
+                int &line = useless[i];
+                useful_program[line].op_code = 0;//0 means nop
+            }
+            std::cout<<" Gun4";
+            host->GetCPU().SetProgram(useful_program);
+            host->GetCPU().PrintCode();
+            // host.GetCPU().SetProgram(program);
+            result.push_back(binary_string);
         }
-        
-        for (int i=0;i<(int)useless.size(); ++i){
-            int &line = useless[i];
-            useful_program[line].op_code = 0;//0 means nop
-        }
-        host->GetCPU().SetProgram(useful_program);
-        host->GetCPU().PrintCode();
-        // host.GetCPU().SetProgram(program);
-        result.push_back(binary_string);
     }
-    host->GetCPU().SetProgram(program);
+    std::cout<<" Gun5";
+    host->GetCPU().SetProgram(original_program);
     return result;
 }
 
