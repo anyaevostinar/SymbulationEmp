@@ -316,8 +316,12 @@
             //trying to use struct iterator
             //doesn't like these two lines
             auto task_holder = *one_task;
-            emp::vector<Task> passing_task = {task_holder.task};
-            TaskSet test_task_set=passing_task;
+            Task passing_task = task_holder.task;
+            //emp::vector<Task> passing_task = {task_holder.task};
+
+            //tring to pass the task off to a task-set; not working well
+            //TaskSet test_task_set = TaskSet(std::initializer_list<Task> passing_task : tasks(passing_task));
+           // test_task_set.SetTasks(passing_task);
             
             sgpl::Program<Spec> useful_program;
 
@@ -327,7 +331,8 @@
                 // test_program[i].NopOut();
                 test_program[i].op_code = 0; // change that line of instruction to no-op
                 host->GetCPU().SetProgram(test_program);    
-                float score = test_task_set.CheckTasks(host->GetCPU().state, 2,true); //temporary false, unsure of this line
+                //float score = passing_task.CheckTasks(host->GetCPU().state, 2,true); //temporary false, unsure of this line
+                
                 if(score != 0){
                     std::cout<<"???";
                 } else {
