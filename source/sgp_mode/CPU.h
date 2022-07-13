@@ -93,6 +93,10 @@ public:
   }
 
   sgpl::Program<Spec> &GetProgram() { return program; }
+  
+  void SetProgram(sgpl::Program<Spec> &new_program){
+      this->program = new_program;
+  };
 
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
     if (!cpu.HasActiveCore()) {
