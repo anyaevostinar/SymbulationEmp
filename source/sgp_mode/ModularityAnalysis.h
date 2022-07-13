@@ -272,15 +272,15 @@
   *Purpose: To get modified versions of the host's genome to give to top level modularity methods
   *
   */
-  emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost host){
+  emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost* host){
 
-    CPUState state = host.GetCPU().state;
+    CPUState state = host->GetCPU().state;
     
     emp::vector<Task> full_tasks = state.world->GetTaskSet().GetTasks();
 
     
     
-    sgpl::Program<Spec> program = host.GetCPU().GetProgram();
+    sgpl::Program<Spec> program = host->GetCPU().GetProgram();
     emp::vector<emp::vector<int>> result;
 
     for (int j=0;j<(int)full_tasks.size();++j){
@@ -303,8 +303,8 @@
             sgpl::Program<Spec> test_program = program;
             // test_program[i].NopOut();
             test_program[i].op_code = 0; // change that line of instruction to no-op
-            host.GetCPU().SetProgram(test_program);    
-            float score = test_task_set.CheckTasks(host.GetCPU().state, 2);
+            host->GetCPU().SetProgram(test_program);    
+            float score = test_task_set.CheckTasks(host->GetCPU().state, 2,false); //temporary false, unsure of this line
             if(score != 0){
                 std::cout<<"???";
             } else {
@@ -325,12 +325,12 @@
             int &line = useless[i];
             useful_program[line].op_code = 0;//0 means nop
         }
-        host.GetCPU().SetProgram(useful_program);
-        host.GetCPU().PrintCode();
+        host->GetCPU().SetProgram(useful_program);
+        host->GetCPU().PrintCode();
         // host.GetCPU().SetProgram(program);
         result.push_back(binary_string);
     }
-    host.GetCPU().SetProgram(program);
+    host->GetCPU().SetProgram(program);
     return result;
 }
 

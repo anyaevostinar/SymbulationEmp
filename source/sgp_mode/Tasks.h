@@ -144,6 +144,7 @@ public:
     return 0.0f;
   }
 
+
   size_t NumTasks() { return tasks.size(); }
 
   // Provide access to data about task completion with an iterator

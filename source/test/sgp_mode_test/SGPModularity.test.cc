@@ -167,10 +167,13 @@ TEST_CASE("GetPModularityHelper", "[sgp]"){
         
         //issues with library, spec struc, GetProgram and SetProgram, GetTasks()
                 
-
+       
+        std::cout<<" ham0";
         emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        std::cout<<" ham1";
+        //emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
+        std::cout<<" ham2";
 
-        emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
 
 
         
