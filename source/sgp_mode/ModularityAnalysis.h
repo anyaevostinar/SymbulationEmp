@@ -65,11 +65,11 @@
 
    /**
   * 
-  * Input: 
+  * Input: A vector of vectors of ints to represent modified program structures
   *
-  * Output: 
+  * Output: A vector of the first non No-op instruction in each program structure
   *
-  *Purpose: 
+  *Purpose: Get the first non No-op instruction in the modified genomes and adds them to a vector for GetNumSiteDist() to use
   *
   */
   emp::vector<int>  GetUsefulStarts(emp::vector<emp::vector<int>> task_programs){
@@ -96,11 +96,11 @@
 
   /**
   * 
-  * Input: 
+  * Input:  A vector of vectors of ints to represent modified program structures
   *
-  * Output: 
+  * Output:  A vector of the last non No-op instruction in each program structure
   *
-  *Purpose: 
+  *Purpose: Get the last non No-op instruction in the modified programs and adds them to a vector for GetNumSiteDist() to use
   *
   */
   emp::vector<int>  GetUsefulEnds(emp::vector<emp::vector<int>> task_programs){
@@ -127,11 +127,11 @@
 
   /**
   * 
-  * Input: 
+  * Input: The positions of the first and last not No-op instructions in the modified program that is also passed into GetSumSiteDist
   *
-  * Output: 
+  * Output: Returns an integer of all the No-op instructions that appear between the start and the end of the not No-op instructions
   *
-  *Purpose: 
+  *Purpose: Sums all of the No-op instructions between the first and last useful code to get a distance metric to be called in GetSummedValue
   *
   */
   int  GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome){
@@ -263,7 +263,7 @@
   using Spec = sgpl::Spec<Library, CPUState>;
 
 
-  /**
+  /*
   * 
   * Input: Takes in a host
   *

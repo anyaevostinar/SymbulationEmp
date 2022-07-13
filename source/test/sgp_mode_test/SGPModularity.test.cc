@@ -8,7 +8,7 @@
 #include "../../sgp_mode/ModularityAnalysis.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
-#include "../../sgp_mode/SGPWorldSetup.cc"
+//#include "../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include <memory>
@@ -159,19 +159,18 @@ TEST_CASE("GetPModularity", "[sgp]"){
 }
 
 TEST_CASE("GetPModularityHelper", "[sgp]"){
-        emp::Ptr<emp::Random> random = new emp::Random(-1);
+        emp::Random random(17);
         SymConfigBase config;
         TaskSet test_tasks = DefaultTasks;
-        SGPWorld world(random, &config);
-        //something is wrong with this world set up as well as if a taskset is added to the end of the parameters
-        //are there issues with the includes?? function either doesn't have what it needs to or can't see it
-        //could also just do practice runs in SGP-world by including a function method that calls it for hosts
+        SGPWorld world(random, &config, test_tasks);
+        
+        
         //issues with library, spec struc, GetProgram and SetProgram, GetTasks()
                 
 
-        //emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
 
-      //  emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
+        emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
 
 
         

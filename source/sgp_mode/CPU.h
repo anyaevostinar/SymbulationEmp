@@ -92,7 +92,7 @@ public:
     state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
 
-  sgpl::Program<spec_t> &GetProgram() { return program; }
+  sgpl::Program<Spec> &GetProgram() { return program; }
 
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
     if (!cpu.HasActiveCore()) {
