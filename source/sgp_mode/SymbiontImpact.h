@@ -13,7 +13,7 @@
 #include "Tasks.h"
 #include <set>
 #include <math.h>
-
+//Method currently non-functional; still needs bug fixes before usable
 void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     host.ClearSyms();
     host.ClearReproSyms();
@@ -33,16 +33,6 @@ void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     std::cout << "=====" << std::endl;
     host.SetPoints(0.0);
     newSymbiont->SetPoints(0.0);
-}
-
-void CheckHost(SGPHost host){
-   //std::cout << "Running CheckHost" << std::endl;
-   host.ClearSyms(); 
-   host.ClearReproSyms();
-   host.SetPoints(0.0);
-   host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-   std::cout <<"solo host: " << host.GetPoints() << std::endl;
-   host.SetPoints(0.0);
 }
 
 

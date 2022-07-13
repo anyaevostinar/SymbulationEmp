@@ -39,6 +39,8 @@ int symbulation_main(int argc, char * argv[])
   TaskSet task_set = LogicTasks;
   if (config.TASK_TYPE() == 0){
      task_set = SquareTasks;
+  }else if (config.TASK_TYPE() == 1){
+    task_set = LogicTasks;
   }
   SGPWorld world(random, &config, task_set);
 
@@ -93,18 +95,7 @@ int symbulation_main(int argc, char * argv[])
                 << std::endl;
       world.sym_points_donated = 0.0;
       world.sym_points_earned = 0.0;
-      int i = 0;
-      emp::Ptr<SGPHost> host = world.GetFullPop()[i].DynamicCast<SGPHost>();
-      while (!host->HasSym()){//Not always a high number of hosts that have symbionts
-          i++;
-          if (i == world.GetFullPop().size()){
-            std::cout << "No symbionts available" << std::endl;
-            exit(0);
-          }
-          host = world.GetFullPop()[i].DynamicCast<SGPHost>();
       }
-          emp::Ptr<SGPSymbiont> symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
-          CheckSymbiont(*host, *symbiont);
     }
     world.Update();
   }

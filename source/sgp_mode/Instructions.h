@@ -99,7 +99,7 @@ INST(PrivateIO, {
     }
     state.host->AddPoints(score);
   }
-  uint32_t next = 1;//sgpl::tlrand.Get().GetBits50();
+  uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });
@@ -115,7 +115,7 @@ void AddOrganismPoints(CPUState state, uint32_t output){
 // Set output to value of register and set register to new input
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
-  uint32_t next = 1;//sgpl::tlrand.Get().GetBits50();
+  uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });

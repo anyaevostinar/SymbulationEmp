@@ -93,6 +93,10 @@ public:
 
   float CheckTasks(CPUState &state, uint32_t output, bool shared) {
     // Check output tasks
+    // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+    if (output == 0 || output == 1) {
+      return 0.0;
+    }
     for (size_t i = 0; i < tasks.size(); i++) {
       Task &task = tasks[i];
       if (std::holds_alternative<OutputTask>(task.kind) &&
@@ -110,10 +114,6 @@ public:
       }
     }
     // Check input tasks
-    // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
-    if (output == 0 || output == 1) {
-      return 0.0;
-    }
     emp::vector<uint32_t> inputs;
     for (size_t i = 0; i < state.input_buf.size(); i++) {
       if (state.input_buf[i] == 0)
