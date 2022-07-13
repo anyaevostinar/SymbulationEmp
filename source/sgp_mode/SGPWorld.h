@@ -69,10 +69,14 @@ public:
     emp::World<Organism>::Update();
     if (my_config->PHYLOGENY())
       sym_sys->Update();
+    // Handle resource inflow
+    if (total_res != -1) {
+      total_res += my_config->LIMITED_RES_INFLOW();
+    }
 
     scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
       org.Process(pos);
-      if (pop[pos.GetIndex()]->GetDead()) { // Check if the host died
+      if (org.GetDead()) { // Check if the host died
         DoDeath(pos);
       }
     });

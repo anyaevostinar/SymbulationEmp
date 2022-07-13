@@ -91,6 +91,7 @@ INST(Reproduce, {
 INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
+    score = state.world->PullResources(score);
     if (!state.host->IsHost()) {
       state.world->sym_points_earned += score;
     } else {
@@ -107,6 +108,7 @@ INST(PrivateIO, {
 INST(SharedIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, true);
   if (score != 0.0) {
+    score = state.world->PullResources(score);
     state.host->AddPoints(score);
     if (!state.host->IsHost()) {
       state.world->sym_points_earned += score;

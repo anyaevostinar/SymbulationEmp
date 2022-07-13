@@ -232,7 +232,7 @@ public:
 
 
   /**
-   * Input: The amount of resourcces an organism wants from the world.
+   * Input: The amount of resources an organism wants from the world.
    *
    * Output: If there are unlimited resources or the total resources are greater than those requested,
    * returns the amount of desired resources.
@@ -614,6 +614,12 @@ public:
    */
   void Update() {
     emp::World<Organism>::Update();
+
+    // Handle resource inflow
+    if (total_res != -1) {
+      total_res += my_config->LIMITED_RES_INFLOW();
+    }
+
     if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell
