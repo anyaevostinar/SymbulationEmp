@@ -204,39 +204,39 @@ public:
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 TaskSet LogicTasks{
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
-    {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
+    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0}, false},
+    {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 5.0}, false},
     {"AND",
-     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 4.0},
+     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 40.0},
      true,
      {0, 1}}, // NOT or NAND
     {"ORN",
-     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 4.0},
+     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 40.0},
      true,
      {0, 1}},
     {"OR",
-     InputTask{2, [](auto &x) { return x[0] | x[1]; }, 8.0},
+     InputTask{2, [](auto &x) { return x[0] | x[1]; }, 80.0},
      true,
      {0, 1}},
     {"ANDN",
-     InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 8.0},
+     InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 80.0},
      true,
      {2, 3, 4}}, // AND, ORN, OR
     {"NOR",
-     InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 16.0},
+     InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 160.0},
      true,
      {2, 3, 4}},
     {"XOR",
-     InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 16.0},
+     InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 160.0},
      true,
      {2, 3, 4}},
     {"EQU",
-     InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 32.0},
+     InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 320.0},
      true,
      {5, 6, 7}}}; // ANDN, NOR, XOR
 
-  TaskSet SquareTasks{
-  {"SQU", OutputTask{[](uint32_t x) { return sqrt(x) - floor(sqrt(x)) == 0 ? 4.0 : 0.0; } }}
-};
+TaskSet SquareTasks{{"SQU", OutputTask{[](uint32_t x) {
+                       return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
+                     }}}};
 
 #endif
