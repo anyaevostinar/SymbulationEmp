@@ -248,16 +248,102 @@ The `Phage` class has three new traits and has configuration settings for turnin
   }
 ```
 
+### (Optional) World Class and Data Nodes
+If you have added new evolvable traits to the organisms, you will probably want to find out information about those traits.
+You may also want to change how the environment impacts the organisms, even if you didn't make new inheritable traits.
+In either case, you'll need to create a new "world" class that inherits from `SymWorld` or one of its subclasses. 
+
+For example, here is the start of the [`EfficientWorld`](https://github.com/anyaevostinar/SymbulationEmp/blob/main/source/efficient_mode/EfficientWorld.h) class:
+
+```
+#ifndef EFFWORLD_H
+#define EFFWORLD_H
+
+#include "../default_mode/SymWorld.h"
+#include "../default_mode/DataNodes.h"
+
+class EfficientWorld : public SymWorld {
+//All new code here
+}
+```
+
+Empirical provides a powerful data-tracking framework that works with the world classes, so there is only a bit of setup that you need to do to track and output data from your experiment.
+We're going to focus on data collection here, but of course if you want to change how the environment interacts with the organisms, you can do that by overwriting `SymWorld` methods in this class as well.
+
+You'll need to first make a new instance variable for your [`DataMonitor`](https://empirical.readthedocs.io/en/latest/api/typedef_namespaceemp_1aaf92a6b9dd531666c3e3da2b888c29ba.html). A data monitor is a special version of an Empirical [`DataNode`](https://empirical.readthedocs.io/en/latest/api/classemp_1_1DataNode.html) that is focused on the data that it most recently received and the distribution of values that it has received previously, so it's useful for tracking what the data looks like every so many updates. 
+There is a huge amount of power in the `DataNode` functionality that we are ignoring, so if there are different ways that you'd like to track your data, go take a look at Empirical's documentation!
+
+We want our data instance variables to look like this:
+```
+emp::Ptr<emp::DataMonitor<type>> data_node_name;
+```
+
+For example, here is the new data monitor for tracking the efficiency trait of `EfficientSymbiont`s:
+```
+/**
+    *
+    * Purpose: Data node tracking the average efficiency of efficient symbionts.
+    *
+  */
+  emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
+```
+
+Before we go further, we should make sure to clean up our memory, so let's define the world destructor to delete the data node:
+```
+~EfficientWorld(){
+      if (data_node_efficiency) data_node_efficiency.Delete();
+  }
+```
+
+Next, we need to define what data is going to be stored in the data node.
+The data nodes use anonymous functions and event triggers so the world knows to add to them whenever specific events happen.
+The most common event that we want to add data during is Update, so we'll have a template that looks like this for defining what our data node does:
+```
+emp::DataMonitor<type>& GetNAMEDataNode() {
+    if (!data_node_name) { //if the data node doesn't already exist, make it!
+      data_node_name.New();
+      OnUpdate([this](size_t){ //this is the anonymous function that is called every update
+        data_node_name->Reset(); //assuming you want to clear out data from the previous update
+        for (size_t i = 0; i< pop.size(); i++) { // go through the population
+          if (IsOccupied(i)) { //check that there is an organism
+            data_node_name->AddDatum(pop[i]->GetData()); //add whatever data to the data node
+          }//close if
+      }//close for
+      });
+    }
+    return *data_node_efficiency; //hand back the data node that's been created
+  }
+```
+
+As you can see from the inline comments, we are making a method that makes the data node if it doesn't already exist. 
+When creating it, we add an unnamed function to the world's OnUpdate to-do list to go through the population and get the information that we want about each of our organisms, which we then add to the data node.
+
+To get data out of the data node and into a file, we use Empirical's `DataFile` class.
+A datafile is generally initialized in the `.cc` file for your mode, which we'll discuss below.
+However, we need a method in the `World` class to actually setup the datafile and tell it what it will be doing.
+Here is the general structure of that method:
+```
+/**
+   * Input: The address of the string representing the file to be
+   * created's name
+   *
+   * Output: The address of the DataFile that has been created.
+   *
+   * Purpose: To set up the file that will be used to track mean efficiency
+   */
+  emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetEfficiencyDataNode();
+    file.AddVar(update, "update", "Update");
+    file.AddMean(node, "mean_efficiency", "Average efficiency", true);
+    file.PrintHeaderKeys();
+
+    return file;
+  }
+```
 
 
-
-
-### World Class: Scenario 2 Only
-In the second scenario, since you have added new traits to the organisms, you will need to add code that can track the evolution of these traits. 
-Once the organisms have been made, they must be put in a world. 
-Create a world class that extends the `SymWorld.h` class in the `source/default_mode`.
-Next, make sure to add data nodes and functions that set up a data tracking file by using your newly created data nodes. 
-
+The following is still in development.
 ### World Setup
 Next, create the source file to set up your newly created world. 
 Follow a similar pattern as the other mode setup files. 
