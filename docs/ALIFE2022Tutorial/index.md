@@ -53,7 +53,7 @@ However, if you want, there are some things that you could install ahead of time
 (~15 minutes)
 
 * Work through [making a new configuration setting](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/3-CreatingConfigSetting.html)
-* Making a new mode to change how resources are distributed (for example)
+* Work through [making a new mode](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/4-CreatingAMode.html)
 
 ### Wrap-up 
 (~10 minutes)
