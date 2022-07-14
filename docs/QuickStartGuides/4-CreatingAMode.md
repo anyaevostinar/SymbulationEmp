@@ -329,26 +329,30 @@ Here is the general structure of that method:
    *
    * Output: The address of the DataFile that has been created.
    *
-   * Purpose: To set up the file that will be used to track mean efficiency
+   * Purpose: To set up the file that will be used to track YOUR TRAIT
    */
-  emp::DataFile & SetupEfficiencyFile(const std::string & filename) {
-    auto & file = SetupFile(filename);
-    auto & node = GetEfficiencyDataNode();
-    file.AddVar(update, "update", "Update");
-    file.AddMean(node, "mean_efficiency", "Average efficiency", true);
+  emp::DataFile & SetupTRAITFile(const std::string & filename) {
+    auto & file = SetupFile(filename); //A method from the Empirical World class
+    auto & node = GetNAMEDataNode(); //The method you made previously
+    file.AddVar(update, "update", "Update"); //You'll usually want the update information
+    file.AddMean(node, "mean_TRAIT", "Average TRAIT", true);
     file.PrintHeaderKeys();
 
     return file;
   }
 ```
 
+Empirical's [datafiles have many statistical methods already available](https://empirical.readthedocs.io/en/latest/library/data/data.html) including all the different flavors of averages, total, min/max, variance, skew, kurtosis, histogram bins, and ways for you to easily add new calculations.
+You can have multiple datanodes pulled from in the same file if you wish as well.
 
-The following is still in development.
-### World Setup
-Next, create the source file to set up your newly created world. 
-Follow a similar pattern as the other mode setup files. 
+
+
+### (Optional) World Setup
+If you've made new organism(s) and a world, you'll need a new `WorldSetup` file.
 The primary difference should be the organism types added to the world, which should now be your newly created host(s) and symbiont(s).
 
+
+The following is still in development.
 ## Native File
 Next, add a file to `source/native` with the name `symbulation_<name>.cc`. 
 This is the main source file that will allow the experiment to function. 
