@@ -103,15 +103,18 @@ INST(PrivateIO, {
   *a = next;
   state.input_buf.push(next);
 });
-// Set output to value of register and set register to new input
-INST(SharedIO, {
-  float score = state.world->GetTaskSet().CheckTasks(state, *a, true);
+void AddOrganismPoints(CPUState state, uint32_t output){
+    float score = state.world->GetTaskSet().CheckTasks(state, output, true);
   if (score != 0.0) {
     state.host->AddPoints(score);
     if (!state.host->IsHost()) {
       state.world->sym_points_earned += score;
     }
   }
+}
+// Set output to value of register and set register to new input
+INST(SharedIO, {
+  AddOrganismPoints(state, *a);
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
@@ -131,6 +134,20 @@ INST(Donate, {
     state.host->AddPoints(-to_donate);
   }
 });
+
+
+
+INST(Reuptake, {
+  uint32_t next;
+  AddOrganismPoints(state, *a);
+  if(state.internalEnvironment->size() > 0){//Only gets resources if the organism has values in their internal environment
+    next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];//Takes a resource from back of internal environment vector
+    state.internalEnvironment->pop_back();//Clears out the selected resource from Internal Environment
+    *a = next;
+    state.input_buf.push(next);
+  }
+});
+
 
 } // namespace inst
 
