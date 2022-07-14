@@ -8,7 +8,6 @@
 #include "../../sgp_mode/ModularityAnalysis.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
-//#include "../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include <iostream>
 #include <memory>
@@ -158,7 +157,7 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
-TEST_CASE("ReducedProgramFuctions", "[sgp]"){
+TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Random random(10);
         SymConfigBase config;
         int world_size = 1;
@@ -168,14 +167,36 @@ TEST_CASE("ReducedProgramFuctions", "[sgp]"){
         world.resize(world_size);
         config.POP_SIZE(pop_size);
 
-        
-        
-        std::cout<<" ham0";
         emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
-        std::cout<<" ham1-";
         std::cout<< world.GetFullPop().size();
-        emp::vector<emp::vector<int>> useful_genomes = GetReducedProgramRepresentations(test_sample);
-        std::cout<<"-ham2";
+        std::cout<<"-Alamo ";
+
+        size_t test_id = 0;
+
+        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); //gives Segfault currently
+        
+
+
+}
+
+
+
+
+
+TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
+        emp::Random random(-1);
+        SymConfigBase config;
+        int world_size = 1;
+        int pop_size = 1;
+        TaskSet test_tasks = LogicTasks;
+        SGPWorld world(random, &config, test_tasks);
+        world.resize(world_size);
+        config.POP_SIZE(pop_size);
+
+        
+        emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        std::cout<< world.GetFullPop().size();
+        std::cout<<"-Malpha";
 
         //that it works for both hosts and syms but just hosts is fine for now
 
