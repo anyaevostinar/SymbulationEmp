@@ -158,12 +158,12 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
-TEST_CASE("GetPModularityHelper", "[sgp]"){
+TEST_CASE("ReducedProgramFuctions", "[sgp]"){
         emp::Random random(10);
         SymConfigBase config;
         int world_size = 1;
         int pop_size = 1;
-        TaskSet test_tasks = DefaultTasks;
+        TaskSet test_tasks = LogicTasks;
         SGPWorld world(random, &config, test_tasks);
         world.resize(world_size);
         config.POP_SIZE(pop_size);
@@ -172,17 +172,11 @@ TEST_CASE("GetPModularityHelper", "[sgp]"){
         
         std::cout<<" ham0";
         emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
-        //REQUIRE(test_sample be valid host);
         std::cout<<" ham1-";
         std::cout<< world.GetFullPop().size();
-        emp::vector<emp::vector<int>> useful_genomes = PhysicalModularityHelper(test_sample);
+        emp::vector<emp::vector<int>> useful_genomes = GetReducedProgramRepresentations(test_sample);
         std::cout<<"-ham2";
 
-
-
-        
-        
-        
         //that it works for both hosts and syms but just hosts is fine for now
 
         //when there are tasks

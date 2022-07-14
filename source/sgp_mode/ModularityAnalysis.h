@@ -272,99 +272,92 @@
   *Purpose: To get modified versions of the host's genome to give to top level modularity methods
   *
   */
-  emp::vector<emp::vector<int>> PhysicalModularityHelper(SGPHost* host){
-    std::cout<<" Gun0";
 
-    CPUState condition = host->GetCPU().GetState();
-    
-    std::cout<<" Guna";
+  emp::vector<int> GetNecessaryInstructions(SGPHost* test_host,size_t test_task_id, TaskSet task_passer){
 
-   // emp::vector<Task> full_tasks = 
-    TaskSet all_tasks = condition.world->GetTaskSet();//.GetTasks();
+        test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
+        sgpl::Program<Spec> control_program = test_host->GetCPU().GetProgram();
+        sgpl::Program<Spec> test_program = control_program;
+        emp::vector<int> reduced_position_guide = {};
 
-    //emp::vector<Task> full_tasks = all_tasks.GetTasks();
+        if(task_passer.CanPerformTask(test_host->GetCPU().state, test_task_id)){
 
-    std::cout<<" Gunb";
-    
-    sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
-
-    std::cout<<" Gunc";
-
-    emp::vector<emp::vector<int>> result;
-
-    std::cout<<" Gun1";
-
-    for (int j=0;j<(int)all_tasks.NumTasks();++j){
-        //iterate through every task
-        
-        emp::vector<int> useful;
-        emp::vector<int> useless;
-        emp::vector<int> binary_string;
-
-        // emp::vector<Task> one_task;
-        // one_task.push_back(full_tasks[j]);
-
-       // std::initializer_list<Task> one_task = {all_tasks.TaskData[j]};
-        for (TaskSet::Iterator one_task = all_tasks.begin(); one_task!=all_tasks.end(); ++one_task) {
-            
-            //to be found later
-            
-
-            std::cout<<" Gun2";
-
-            //fore every task in the task set create a new taskSet with just the one task. Do this in loop format. Possibly use TaskData
-            //trying to use struct iterator
-            //doesn't like these two lines
-            auto task_holder = *one_task;
-            Task passing_task = task_holder.task;
-            //emp::vector<Task> passing_task = {task_holder.task};
-
-            //tring to pass the task off to a task-set; not working well
-            //TaskSet test_task_set = TaskSet(std::initializer_list<Task> passing_task : tasks(passing_task));
-           // test_task_set.SetTasks(passing_task);
-            
-            sgpl::Program<Spec> useful_program;
-
-            for (int i=0;i<100; ++i) {
-                //iterate through every line of instruction
-                sgpl::Program<Spec> test_program = original_program;
-                // test_program[i].NopOut();
-                test_program[i].op_code = 0; // change that line of instruction to no-op
-                host->GetCPU().SetProgram(test_program);    
-                //float score = passing_task.CheckTasks(host->GetCPU().state, 2,true); //temporary false, unsure of this line
+            for(int k=0; k<=control_program.size()-1; k++){
                 
-                if(score != 0){
-                    std::cout<<"???";
-                } else {
-                    std::cout<<score<< " check point 1";
-                }//currently it is printing 100 things so it successfully went through the first task
-                if (score != 0.0){
-                    useful.push_back(i);
-                    binary_string.push_back(1);
-                } else {
-                    useless.push_back(i);
-                    binary_string.push_back(0);
+                test_program[k].op_code = 0;
+                //do I need to reset anything before running CanPerformTask on the altered code?
+                test_host->GetCPU().SetProgram(test_program);
+
+                test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
+
+                if(!(task_passer.CanPerformTask(test_host->GetCPU().state, test_task_id))){
+                    reduced_position_guide.push_back(1);
                 }
-                
-                
+
+                else{
+                    reduced_position_guide.push_back(0);
+                }
+
+                test_host->GetCPU().SetProgram(control_program);
+
             }
-            std::cout<<" Gun3";
-            
-            for (int i=0;i<(int)useless.size(); ++i){
-                int &line = useless[i];
-                useful_program[line].op_code = 0;//0 means nop
-            }
-            std::cout<<" Gun4";
-            host->GetCPU().SetProgram(useful_program);
-            host->GetCPU().PrintCode();
-            // host.GetCPU().SetProgram(program);
-            result.push_back(binary_string);
         }
+
+        return reduced_position_guide;
+
     }
-    std::cout<<" Gun5";
-    host->GetCPU().SetProgram(original_program);
-    return result;
+
+emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost* host){
+    CPUState condition = host->GetCPU().state;
+    TaskSet all_tasks = condition.world->GetTaskSet();
+    sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
+    emp::vector<emp::vector<int>> map_of_guides;
+
+    for (size_t j=0;j<all_tasks.NumTasks();++j){            
+            emp::vector<int> position_guide = {};
+            position_guide = GetNecessaryInstructions(host, j, all_tasks);
+            map_of_guides.push_back(position_guide);
+                
+    }
+    
+    return map_of_guides;
 }
+
+emp::vector<sgpl::Program<Spec>> MapToProgramConvert(emp::vector<emp::vector<int>> instr_map, sgpl::Program<Spec> original_program){
+    emp::vector<sgpl::Program<Spec>> converted_programs = {};
+    for(int guide_num = 0; guide_num<=instr_map.size()-1; guide_num++){
+        sgpl::Program<Spec> reduced_program = original_program;
+
+        for(int guide_position = 0; guide_position<=instr_map[guide_num].size()-1; guide_position++){
+            if(instr_map[guide_num][guide_position]==0){
+                reduced_program[guide_position].op_code = 0;
+            }
+
+        }
+
+        converted_programs.push_back(reduced_program);
+
+    }
+
+    return converted_programs;
+
+}
+
+
+emp::vector<sgpl::Program<Spec>> GetReducedPrograms(SGPHost* host){
+
+    CPUState condition = host->GetCPU().state;
+    TaskSet all_tasks = condition.world->GetTaskSet();
+    sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
+    emp::vector<emp::vector<int>> position_map = GetReducedProgramRepresentations(host);
+    emp::vector<sgpl::Program<Spec>> reduced_programs = MapToProgramConvert(position_map,original_program);
+
+
+    return reduced_programs;
+
+   
+}
+
 
 
 
