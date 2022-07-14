@@ -40,7 +40,7 @@ class CPU {
                       // Stack manipulation
                       inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
                       // no h-search
-                      inst::Donate, inst::JumpIfNEq, inst::JumpIfLess,
+                      inst::Donate, inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
                       // if-label doesn't make sense for SGP, same with *-head
                       // and set-flow but this is required
                       sgpl::global::Anchor>;
@@ -172,7 +172,7 @@ public:
         {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
         {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
         {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
-        {"Reproduce", 0}, {"PrivateIO", 1},    {"SharedIO", 1},   {"Donate", 0}};
+        {"Reproduce", 0}, {"PrivateIO", 1},    {"SharedIO", 1},   {"Donate", 0}, {"Reuptake", 1}};
     emp::map<size_t, std::string> labels;
 
     std::cout << "--------" << std::endl;
