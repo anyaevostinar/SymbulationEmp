@@ -26,6 +26,20 @@ public:
       if (data_node_PGG) data_node_PGG.Delete();
   }
 
+  /**
+  * Input: None.
+  *
+  * Output: None.
+  *
+  * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
+  */
+  void CreateDateFiles(){
+    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    SymWorld::CreateDateFiles();
+    SetupPGGSymIntValFile(my_config->FILE_PATH()+"PGGSymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+  }
+
+
    /**
     * Input: The address of the string representing the file to be
     * created's name

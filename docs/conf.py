@@ -140,6 +140,10 @@ html_copy_source = False
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Symbulationdoc'
 
+html_js_files = [
+    'https://kit.fontawesome.com/8485b453b8.js',
+]
+
 
 # -- Options for LaTeX output ------------------------------------------
 

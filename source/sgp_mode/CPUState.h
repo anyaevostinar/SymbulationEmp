@@ -51,8 +51,9 @@ struct CPUState {
   emp::Ptr<emp::vector<size_t>> shared_completed = nullptr;
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
+  emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
   int in_progress_repro = -1;
-
+//TODO:Change to name to something more general, like organism
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
 

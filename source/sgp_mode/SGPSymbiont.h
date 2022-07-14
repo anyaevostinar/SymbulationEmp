@@ -37,6 +37,12 @@ public:
     my_world = _world;
   }
 
+  SGPSymbiont(SGPSymbiont &symbiont)
+      : Symbiont(symbiont),
+        cpu(this, symbiont.my_world, symbiont.random, symbiont.cpu), my_world(symbiont.my_world){
+
+  }
+
   /**
    * Input: None
    *
@@ -72,6 +78,7 @@ public:
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
     cpu.state.shared_completed =
         host.DynamicCast<SGPHost>()->GetCPU().state.shared_completed;
+    cpu.state.internalEnvironment = host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
   }
 
   /**
