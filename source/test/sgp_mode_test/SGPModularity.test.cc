@@ -171,9 +171,13 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         std::cout<< world.GetFullPop().size();
         std::cout<<"-Alamo ";
 
+        //test_sample->GetCPU().state.location = emp::WorldPosition(world.GetRandomCellID());
+        //
+
         size_t test_id = 0;
 
-        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); //gives Segfault currently
+        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); //gives Segfault currently 
+        //issue with RunCpuStep
         
 
 

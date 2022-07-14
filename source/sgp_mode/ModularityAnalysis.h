@@ -272,15 +272,21 @@ using Library =
   *Purpose: To get modified versions of the host's genome to give to top level modularity methods
   *
   */
+//if(my_config->GRID()) {
+ //     world->AddOrgAt(new_org, emp::WorldPosition(world->GetRandomCellID()));
 
   emp::vector<int> GetNecessaryInstructions(SGPHost* test_host,size_t test_task_id, TaskSet task_passer){
-
+        std::cout<<" AlbertFirst ";
         test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
+            std::cout<<" AlbertSecond ";
         sgpl::Program<Spec> control_program = test_host->GetCPU().GetProgram();
+            std::cout<<" AlbertThird ";
         sgpl::Program<Spec> test_program = control_program;
         emp::vector<int> reduced_position_guide = {};
 
+        std::cout<<" RobertSecond \n";
         if(task_passer.CanPerformTask(test_host->GetCPU().state, test_task_id)){
+            std::cout<<" ShenanigansThird \n";
 
             for(int k=0; k<=control_program.size()-1; k++){
                 
