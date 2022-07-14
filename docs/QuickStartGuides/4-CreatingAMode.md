@@ -25,12 +25,6 @@ If you want to create new subclasses of `Host`, `Symbiont`, or `SymWorld`, a new
 There are several steps to creating your own mode, including following conventions for file structure, adding your own organisms, adding a WorldSetup file, adding targets to the makefile, designing tests, and more. 
 This guide will walk you through how to properly add most of these features.
 
-<!-- First, you must decide if your new mode falls under one of two scenarios. 
-In the first scenario, you wish to change the processes of an existing organism, but will not be adding any new traits. 
-The second scenario includes the addition of new traits, or genome values, and will therefore also require functions that track the evolution of this new trait. 
-Depending on the goals of your project and which scenario it falls under (1 or 2), you will need to add to the codebase in a varying manner. 
-Most sections below pertain to both scenarios and should be completed no matter what. Sections that are specific to a particular scenario will be labeled accordingly. -->
-
 ## Makefile
 First, you'll want to add the necessary targets to the `Makefile` for your new mode, so that you can compile and test your code as you go. 
 This file can be a little overwhelming since there is a lot there already, but the bare minimum that you'll need is a compiling target.
@@ -272,7 +266,7 @@ The `Phage` class has three new traits and has configuration settings for turnin
   }
 ```
 
-### (Optional) World Class and Data Nodes
+## (Optional) World Class and Data Nodes
 If you have added new evolvable traits to the organisms, you will probably want to find out information about those traits.
 You may also want to change how the environment impacts the organisms, even if you didn't make new inheritable traits.
 In either case, you'll need to create a new "world" class that inherits from `SymWorld` or one of its subclasses. 
@@ -291,6 +285,7 @@ class EfficientWorld : public SymWorld {
 }
 ```
 
+### DataMonitor/Node
 Empirical provides a powerful data-tracking framework that works with the world classes, so there is only a bit of setup that you need to do to track and output data from your experiment.
 We're going to focus on data collection here, but of course if you want to change how the environment interacts with the organisms, you can do that by overwriting `SymWorld` methods in this class as well.
 
@@ -342,6 +337,7 @@ emp::DataMonitor<type>& GetNAMEDataNode() {
 As you can see from the inline comments, we are making a method that makes the data node if it doesn't already exist. 
 When creating it, we add an unnamed function to the world's OnUpdate to-do list to go through the population and get the information that we want about each of our organisms, which we then add to the data node.
 
+### DataFile
 To get data out of the data node and into a file, we use Empirical's `DataFile` class.
 However, we need a method in the `World` class to actually setup the datafile and tell it what it will be doing.
 Here is the general structure of that method:
@@ -387,7 +383,7 @@ Finally, you should make a `CreateDataFiles` method that can be called in your `
 You should simply replace `TRAIT` with whatever your datafiles are called and add more setup calls if you have multiple datafiles.
 
 
-### (Optional) World Setup
+## (Optional) World Setup
 If you've made new organism(s) and a world, you'll need a new `WorldSetup` file.
 The world setup function is responsible for making organisms and placing them into the world.
 We are working on refactoring it to reduce duplicated code between modes, but for now, you will need to copy some code that is generally needed by every mode.
