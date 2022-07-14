@@ -95,7 +95,7 @@ int symbulation_main(int argc, char * argv[])
                 << std::endl;
       world.sym_points_donated = 0.0;
       world.sym_points_earned = 0.0;
-      }
+      
     }
     world.Update();
   }
