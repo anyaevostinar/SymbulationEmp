@@ -98,7 +98,6 @@ public:
       this->program = new_program;
   };
 
-  CPUState GetState(){return  state;}
 
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
     if (!cpu.HasActiveCore()) {
