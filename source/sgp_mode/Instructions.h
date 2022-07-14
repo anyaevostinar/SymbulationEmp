@@ -93,7 +93,6 @@ INST(Reproduce, {
 INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
-    score = state.world->PullResources(score);
     if (!state.host->IsHost()) {
       state.world->sym_points_earned += score;
     } else {
@@ -106,10 +105,9 @@ INST(PrivateIO, {
   *a = next;
   state.input_buf.push(next);
 });
-void AddOrganismPoints(CPUState state, uint32_t output){
-    float score = state.world->GetTaskSet().CheckTasks(state, output, true);
+void AddOrganismPoints(CPUState state, uint32_t output) {
+  float score = state.world->GetTaskSet().CheckTasks(state, output, true);
   if (score != 0.0) {
-    score = state.world->PullResources(score);
     state.host->AddPoints(score);
     if (!state.host->IsHost()) {
       state.world->sym_points_earned += score;
@@ -139,8 +137,6 @@ INST(Donate, {
   }
 });
 
-
-
 INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
@@ -151,7 +147,6 @@ INST(Reuptake, {
     state.input_buf.push(next);
   }
 });
-
 
 } // namespace inst
 

@@ -1,6 +1,7 @@
 #ifndef TASKS_H
 #define TASKS_H
 
+#include "../default_mode/SymWorld.h"
 #include "CPUState.h"
 #include <atomic>
 #include <variant>
@@ -59,7 +60,12 @@ class TaskSet {
     return true;
   }
 
-  void MarkPerformedTask(CPUState &state, size_t task_id, bool shared) {
+  float MarkPerformedTask(CPUState &state, size_t task_id, bool shared, float score) {
+    score = state.world.Cast<SymWorld>()->PullResources(score);
+    if (score == 0.0) {
+      return score;
+    }
+
     Task &task = tasks[task_id];
     if (!task.unlimited) {
       state.used_resources->Set(task_id);
@@ -96,6 +102,8 @@ class TaskSet {
       ++*n_succeeds_host[task_id];
     else
       ++*n_succeeds_sym[task_id];
+
+    return score;
   }
 
 public:
@@ -131,8 +139,9 @@ public:
           CanPerformTask(state, i)) {
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
-          MarkPerformedTask(state, i, shared);
-          state.internalEnvironment->insert(state.internalEnvironment->begin(), sqrt(output));
+          score = MarkPerformedTask(state, i, shared, score);
+          state.internalEnvironment->insert(state.internalEnvironment->begin(),
+                                            sqrt(output));
           return score;
         }
       }
@@ -153,8 +162,8 @@ public:
             continue;
 
           if (itask.taskFun(inputs) == output) {
-            MarkPerformedTask(state, i, shared);
-            return itask.value;
+            float score = MarkPerformedTask(state, i, shared, itask.value);
+            return score;
           }
         }
       }
