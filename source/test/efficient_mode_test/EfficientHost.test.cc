@@ -58,7 +58,7 @@ TEST_CASE("EfficientHost MakeNew", "[efficient]"){
         REQUIRE(host2->GetPoints() == 0);
         REQUIRE(host2->GetAge() == 0);
         //check that the offspring is the correct class
-        REQUIRE(typeid(*host2).name() == typeid(*host1).name());
+        REQUIRE(host2->GetName() == "EfficientHost");
     }
     host1.Delete();
     host2.Delete();

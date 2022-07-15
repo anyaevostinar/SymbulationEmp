@@ -683,7 +683,7 @@ TEST_CASE("Phage MakeNew", "[lysis]"){
         REQUIRE(new_phage->GetBurstTimer() == 0);
 
         //check that the offspring is the correct class
-        REQUIRE(typeid(*new_phage).name() == typeid(*phage).name());
+        REQUIRE(new_phage->GetName() == "Phage");
     }
 
     phage.Delete();

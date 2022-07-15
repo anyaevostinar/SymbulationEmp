@@ -1,9 +1,12 @@
 #ifndef ORGANISM_H
 #define ORGANISM_H
 
+#include <iostream>
+#include <ostream>
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <string>
 #include "ConfigSetup.h"
 
 class Organism {
@@ -18,6 +21,10 @@ class Organism {
   Organism & operator=(Organism &&) = default;
   bool operator==(const Organism &other) const {return (this == &other);}
   bool operator!=(const Organism &other) const {return !(*this == other);}
+
+  virtual std::string const GetName() {
+    std::cout << "GetName called from Organism" << std::endl;
+    throw "Organism method called!";}
 
   virtual double GetIntVal() const {
     std::cout << "GetIntVal called from Organsim" << std::endl;
@@ -183,7 +190,7 @@ class Organism {
   virtual void IncBurstTimer() {
     std::cout << "IncBurstTimer called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetBurstTimer(int _in) {
+  virtual void SetBurstTimer(double _in) {
     std::cout << "SetBurstTimer called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double GetLysisChance() {
@@ -212,10 +219,10 @@ class Organism {
     throw "Organism method called!";}
 
   //Public goods game host functions
-  virtual void SetPool() {
+  virtual void SetPool(double _in) {
     std::cout << "SetPool called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void AddPool() {
+  virtual void AddPool(double _in) {
     std::cout << "AddPool called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void DistribPool() {
@@ -225,7 +232,7 @@ class Organism {
   virtual double GetDonation() {
     std::cout << "GetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetDonation() {
+  virtual void SetDonation(double _in) {
     std::cout << "SetDonation called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessPool() {

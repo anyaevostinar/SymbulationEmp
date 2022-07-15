@@ -295,7 +295,7 @@ TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
       REQUIRE(symbiont2->GetPoints() == 0);
       REQUIRE(symbiont2->GetAge() == 0);
       //check that the offspring is the correct class
-      REQUIRE(typeid(*symbiont2).name() == typeid(*symbiont1).name());
+      REQUIRE(symbiont2->GetName() == "PGGSymbiont");
     }
     symbiont1.Delete();
     symbiont2.Delete();

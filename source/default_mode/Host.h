@@ -5,6 +5,7 @@
 #include "../../Empirical/include/emp/tools/string_utils.hpp"
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <string>
 #include "../Organism.h"
 #include "SymWorld.h"
 
@@ -193,6 +194,17 @@ public:
    */
   bool operator!=(const Host &other) const {return !(*this == other);}
 
+
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Host
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "Host";
+  }
 
 /**
   * Input: None

@@ -64,6 +64,17 @@ public:
   EfficientHost() = default;
 
   /**
+  * Input: None
+  * 
+  * Output: Name of class as string, EfficientHost
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "EfficientHost";
+  }
+
+  /**
    * Input: Efficiency value
    *
    * Output: None
