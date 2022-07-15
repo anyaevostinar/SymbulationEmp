@@ -266,7 +266,7 @@ TEST_CASE("Bacterium MakeNew", "[lysis]"){
       REQUIRE(new_bacterium->GetPoints() == 0);
       REQUIRE(new_bacterium->GetAge() == 0);
       //check that the offspring is the correct class
-      REQUIRE(typeid(*new_bacterium).name() == typeid(*bacterium).name());
+      REQUIRE(new_bacterium->GetName() == "Bacterium");
     }
 
     bacterium.Delete();

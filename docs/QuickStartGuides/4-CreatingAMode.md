@@ -25,14 +25,32 @@ If you want to create new subclasses of `Host`, `Symbiont`, or `SymWorld`, a new
 There are several steps to creating your own mode, including following conventions for file structure, adding your own organisms, adding a WorldSetup file, adding targets to the makefile, designing tests, and more. 
 This guide will walk you through how to properly add most of these features.
 
-<!-- First, you must decide if your new mode falls under one of two scenarios. 
-In the first scenario, you wish to change the processes of an existing organism, but will not be adding any new traits. 
-The second scenario includes the addition of new traits, or genome values, and will therefore also require functions that track the evolution of this new trait. 
-Depending on the goals of your project and which scenario it falls under (1 or 2), you will need to add to the codebase in a varying manner. 
-Most sections below pertain to both scenarios and should be completed no matter what. Sections that are specific to a particular scenario will be labeled accordingly. -->
+## Makefile
+First, you'll want to add the necessary targets to the `Makefile` for your new mode, so that you can compile and test your code as you go. 
+This file can be a little overwhelming since there is a lot there already, but the bare minimum that you'll need is a compiling target.
+Navigate to the section of the file that looks like this:
+```
+default-mode:	source/native/symbulation_default.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
+
+efficient-mode:	source/native/symbulation_efficient.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
+
+lysis-mode:	source/native/symbulation_lysis.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_lysis.cc -o symbulation_lysis
+
+pgg-mode:	source/native/symbulation_pgg.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
+```
+
+Choose a one word descriptor for your new mode and add a line following the above template with your mode name.
+
+If you wish, you can also add the more advanced targets that you will find helpful if you need to use Empirical's debug mode (great for finding memory leaks!) and running the test suite. These each have their own section with the other modes following the format that you can again copy and adapt:
+* a debug taget, with the naming convention "debug-<name>" and "<name>-debug"
+* a testing target, with the naming convention "test-<name>"
+* a debug while testing target, with the naming convention "test-debug-<name>"
 
 ## Primary Folder
-Choose a one word descriptor for your new mode. 
 Then make a folder in `SymbulationEmp/source` named `<name>_mode`. 
 Inside of this folder will be a world setup source file (explained in more detail later), as well as any necessary header files such as your new subclasses.
 
@@ -248,7 +266,7 @@ The `Phage` class has three new traits and has configuration settings for turnin
   }
 ```
 
-### (Optional) World Class and Data Nodes
+## (Optional) World Class and Data Nodes
 If you have added new evolvable traits to the organisms, you will probably want to find out information about those traits.
 You may also want to change how the environment impacts the organisms, even if you didn't make new inheritable traits.
 In either case, you'll need to create a new "world" class that inherits from `SymWorld` or one of its subclasses. 
@@ -267,6 +285,7 @@ class EfficientWorld : public SymWorld {
 }
 ```
 
+### DataMonitor/Node
 Empirical provides a powerful data-tracking framework that works with the world classes, so there is only a bit of setup that you need to do to track and output data from your experiment.
 We're going to focus on data collection here, but of course if you want to change how the environment interacts with the organisms, you can do that by overwriting `SymWorld` methods in this class as well.
 
@@ -318,8 +337,8 @@ emp::DataMonitor<type>& GetNAMEDataNode() {
 As you can see from the inline comments, we are making a method that makes the data node if it doesn't already exist. 
 When creating it, we add an unnamed function to the world's OnUpdate to-do list to go through the population and get the information that we want about each of our organisms, which we then add to the data node.
 
+### DataFile
 To get data out of the data node and into a file, we use Empirical's `DataFile` class.
-A datafile is generally initialized in the `.cc` file for your mode, which we'll discuss below.
 However, we need a method in the `World` class to actually setup the datafile and tell it what it will be doing.
 Here is the general structure of that method:
 ```
@@ -345,30 +364,146 @@ Here is the general structure of that method:
 Empirical's [datafiles have many statistical methods already available](https://empirical.readthedocs.io/en/latest/library/data/data.html) including all the different flavors of averages, total, min/max, variance, skew, kurtosis, histogram bins, and ways for you to easily add new calculations.
 You can have multiple datanodes pulled from in the same file if you wish as well.
 
+Finally, you should make a `CreateDataFiles` method that can be called in your `.cc` to make your new file in addition to the files from the superclass:
+```
+/**
+  * Input: None.
+  *
+  * Output: None.
+  *
+  * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the YOUR_TRAIT condition experiment.
+  */
+  void CreateDateFiles(){
+    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    SymWorld::CreateDateFiles();
+    SetupTRAITFile(my_config->FILE_PATH()+"TRAIT"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+  }
+```
+
+You should simply replace `TRAIT` with whatever your datafiles are called and add more setup calls if you have multiple datafiles.
 
 
-### (Optional) World Setup
+## (Optional) World Setup
 If you've made new organism(s) and a world, you'll need a new `WorldSetup` file.
-The primary difference should be the organism types added to the world, which should now be your newly created host(s) and symbiont(s).
+The world setup function is responsible for making organisms and placing them into the world.
+We are working on refactoring it to reduce duplicated code between modes, but for now, you will need to copy some code that is generally needed by every mode.
+The primary difference will be the organism types added to the world, which should now be your newly created host(s) and symbiont(s).
+Here is the structure with notes of what you should change:
+```
+#ifndef NAMEWORLD_SETUP_C //Change to your mode name thoughout the includes
+#define NAMEWORLD_SETUP_C
+
+#include "YOURWorld.h"
+#include "../ConfigSetup.h"
+#include "YOURSymbiont.h"
+#include "YOURHost.h"
+
+//Change to your world type below
+void worldSetup(emp::Ptr<YOURWorld> world, emp::Ptr<SymConfigBase> my_config) {
+  emp::Random& random = world->GetRandom();
+
+  double start_moi = my_config->START_MOI();
+  long unsigned int POP_SIZE;
+  if (my_config->POP_SIZE() == -1) {
+    POP_SIZE = my_config->GRID_X() * my_config->GRID_Y();
+  } else {
+    POP_SIZE = my_config->POP_SIZE();
+  }
+  bool random_phen_host = false;
+  bool random_phen_sym = false;
+  if(my_config->HOST_INT() == -2) random_phen_host = true;
+  if(my_config->SYM_INT() == -2) random_phen_sym = true;
+
+  if (my_config->GRID() == 0) {world->SetPopStruct_Mixed(false);}
+  else world->SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
+
+  //inject hosts
+  for (size_t i = 0; i < POP_SIZE; i++){
+    emp::Ptr<YOURHost> new_org; //Change to your host type
+
+    if (random_phen_host) {new_org.New(&random, world, my_config, random.GetDouble(-1, 1));
+    } else { new_org.New(&random, world, my_config, my_config->HOST_INT());
+    }
+    if(my_config->GRID()) {
+      world->AddOrgAt(new_org, emp::WorldPosition(world->GetRandomCellID()));
+    } else {
+      world->AddOrgAt(new_org, world->size());
+    }
+  }
+
+  //sets up the world size
+  world->Resize(my_config->GRID_X(), my_config->GRID_Y());
+
+  //This loop must be outside of the host generation loop since otherwise
+  //syms try to inject into mostly empty spots at first
+  int total_syms = POP_SIZE * start_moi;
+  for (int j = 0; j < total_syms; j++){
+    double sym_int = 0;
+    if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
+    else {sym_int = my_config->SYM_INT();}
+
+    //Change to your symbiont type below
+    emp::Ptr<YOURSymbiont> new_sym = emp::NewPtr<YOURSymbiont>(&random, world, my_config, sym_int, 0, 1);
+    world->InjectSymbiont(new_sym);
+  }
+}
+
+#endif
+```
+If you have any new configuration settings that influence how organisms are first created, you will need to do that here.
 
 
-The following is still in development.
 ## Native File
-Next, add a file to `source/native` with the name `symbulation_<name>.cc`. 
+You'll next need to make a `.cc` file that sets everything up. 
+This file can be fairly simple if you aren't making major changes from how Symbulation currently works.
+You should first add a file to `source/native` with the name `symbulation_<name>.cc` where `<name>` is whatever you are calling your mode. 
 This is the main source file that will allow the experiment to function. 
 In it, the world is created, set up according to the setup file, and is permitted to run for the specified number of updates.
+Here is the template for this file:
+```
+#include "../YOUR_mode/YOURWorld.h"
+#include "../YOUR_mode/YOURWorldSetup.cc"
+#include "symbulation.h"
 
-## Makefile
-Lastly, add the necessary targets to the Makefile for your new mode. Your new mode will need:
+// This is the main function for the NATIVE version of this project.
 
-- a compiling target, with the naming convention "<name>-mode"
+int symbulation_main(int argc, char * argv[])
+{
+  SymConfigBase config;
+  CheckConfigFile(config, argc, argv);
 
-Advanced targets:
-- a debug taget, with the naming convention "debug-<name>" and "<name>-debug"
-- a testing target, with the naming convention "test-<name>"
-- a debug while testing target, with the naming convention "test-debug-<name>"
+  config.Write(std::cout);
+  emp::Random random(config.SEED());
 
-## Testing
+  YOURWorld world(random, &config);
+
+  YOURWorldSetup(&world, &config);
+  world.CreateDateFiles();
+  world.RunExperiment();
+
+  return 0;
+}
+
+/*
+This definition guard prevents main from being defined twice during testing.
+In testing, Catch will define a main function which will initiate tests
+(including testing the symbulation_main function above).
+*/
+#ifndef CATCH_CONFIG_MAIN
+int main(int argc, char * argv[]) {
+  return symbulation_main(argc, argv);
+}
+#endif
+```
+
+Of course, if you want to make changes to how the experiment is setup or run, you can make this file more complicated or write your own version of provided functions.
+
+## Experiment!
+Once you have created your organisms and corresponding world, added a main source file, and added targets to the Makefile, you are ready to experiment!
+Run `make YOUR-mode` to build your code (and probably solve some bugs along the way).
+
+<!-- ## Testing
+The following is still in development.
 After you have created your new mode, you must design tests to ensure it is functioning as expected. 
 Add a folder to `source/test` with the name `<name>_mode_test`. 
 Inside of this folder, add testing source files corresponding to each organism. 
@@ -376,7 +511,4 @@ Make sure to also add files that test the interactions between organisms, as wel
 Also make sure to do the following: 
 
 - Include the testing file paths in `source/catch/main.cc`.
-- Add catch tags
-
-## Experiment!
-Once you have created your organisms and corresponding world, designed their tests, added a main source file, and added targets to the Makefile, you are ready to experiment!
+- Add catch tags -->

@@ -1,6 +1,5 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
-#include <set>
 
 TEST_CASE( "Host-Symbiont interactions", "[default]") {
   SymConfigBase config;
@@ -12,12 +11,11 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
     double host_interaction_val = 0.5;
     double host_points = 17;
     double host_resource = 100;
-    Host host(&random, &world, &config, host_interaction_val, {}, {}, std::set<int>(), host_points);
+    Host host(&random, &world, &config, host_interaction_val, {}, {}, host_points);
 
     REQUIRE( host.GetIntVal() == .5 );
     REQUIRE( host.GetSymbionts().size() == 0 );
     REQUIRE( host.GetReproSymbionts().size() == 0 );
-    REQUIRE( host.GetResTypes().size() == 0 );
     REQUIRE( host.GetPoints() == host_points );
 
     WHEN( "resources are distributed" ) {
@@ -144,7 +142,6 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
     REQUIRE( host.GetIntVal() == -.2 );
     REQUIRE( host.GetSymbionts().size() == 0 );
     REQUIRE( host.GetReproSymbionts().size() == 0 );
-    REQUIRE( host.GetResTypes().size() == 0 );
     REQUIRE( host.GetPoints() == 0 );
 
     WHEN( "resources are distributed" ) {
