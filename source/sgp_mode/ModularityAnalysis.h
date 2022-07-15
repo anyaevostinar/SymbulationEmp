@@ -267,12 +267,22 @@ using Spec = sgpl::Spec<Library, CPUState>;
 // if(my_config->GRID()) {
 //      world->AddOrgAt(new_org, emp::WorldPosition(world->GetRandomCellID()));
 
-bool ReturnTaskDone(TaskSet task_list){
+//reset task data after calling
+bool ReturnTaskDone(TaskSet task_list, size_t task_id){
     bool if_task_true = false;
-    for(iterator:: current_task){
+    for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
+        std::cout<<" Rascal";
+        
+        //need a way to also have it check for smaller tasks done in larger dependent tasks
+        if (one_task.index==task_id){
+            auto task_holder = *one_task;
+            std::cout<<" Lemur ";
 
+            if(task_holder.n_succeeds_host >0){
+                if_task_true = true;
+            }
+        }
     }
-
     return if_task_true;
 }
 
@@ -284,20 +294,24 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
   sgpl::Program<Spec> control_program = test_host->GetCPU().GetProgram();
   sgpl::Program<Spec> test_program = control_program;
   emp::vector<int> reduced_position_guide = {};
+  std::cout<<"HAPPYSUCCESS ";
 
-  bool can_do_task = false;
+  bool can_do_task = ReturnTaskDone(task_passer, test_task_id);
+  
 
   if (can_do_task) {
-    std::cout << " ShenanigansThird \n";
+    std::cout<<"GREatVentur ";
 
     for (int k = 0; k <= control_program.size() - 1; k++) {
-
+    
       test_program[k].op_code = 0;
       // do I need to reset anything before running CanPerformTask on the
       // altered code?
       test_host->GetCPU().SetProgram(test_program);
 
       test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
+      can_do_task = ReturnTaskDone(task_passer, test_task_id);
+      
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
@@ -306,7 +320,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
       else {
         reduced_position_guide.push_back(0);
       }
-
+      
       test_host->GetCPU().SetProgram(control_program);
     }
   }
@@ -330,7 +344,7 @@ emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
 }
 
 emp::vector<sgpl::Program<Spec>>
-MapToProgramConvert(emp::vector<emp::vector<int>> instr_map,
+MapToProgramsConvert(emp::vector<emp::vector<int>> instr_map,
                     sgpl::Program<Spec> original_program) {
   emp::vector<sgpl::Program<Spec>> converted_programs = {};
   for (int guide_num = 0; guide_num <= instr_map.size() - 1; guide_num++) {
@@ -357,7 +371,7 @@ emp::vector<sgpl::Program<Spec>> GetReducedPrograms(SGPHost *host) {
   emp::vector<emp::vector<int>> position_map =
       GetReducedProgramRepresentations(host);
   emp::vector<sgpl::Program<Spec>> reduced_programs =
-      MapToProgramConvert(position_map, original_program);
+      MapToProgramsConvert(position_map, original_program);
 
   return reduced_programs;
 }

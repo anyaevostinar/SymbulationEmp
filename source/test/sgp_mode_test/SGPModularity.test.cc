@@ -157,6 +157,12 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
+TEST_CASE("ReturnTaskDone","[sgp]"){
+//currently working on here
+
+
+}
+
 TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Random random(10);
         SymConfigBase config;
@@ -169,13 +175,12 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
 
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
-        std::cout<<"-Alamo ";
-     
-
+        
         size_t test_id = 0;
 
-        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); //gives Segfault currently 
-        //issue with RunCpuStep
+        //emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
+        
+        
         
 
 
@@ -186,7 +191,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
 
 
 TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
-        emp::Random random(-1);
+        emp::Random random(10);
         SymConfigBase config;
         int world_size = 1;
         int pop_size = 1;
@@ -198,7 +203,9 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
         emp::vector<emp::vector<int>> test_map = {};
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
-        test_map = GetReducedProgramRepresentations(test_sample);
+        //test_map = GetReducedProgramRepresentations(test_sample);
+        
+        //GetReducedPrograms(test_sample); gets segfault
 
         std::cout<<"-Malpha";
 
