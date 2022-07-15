@@ -1,11 +1,6 @@
 #ifndef ORGANISM_H
 #define ORGANISM_H
 
-#include <iostream>
-#include <ostream>
-#include <set>
-#include <iomanip> // setprecision
-#include <sstream> // stringstream
 #include <string>
 #include "ConfigSetup.h"
 
