@@ -7,6 +7,7 @@
 #include <memory>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
+#include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
 
@@ -49,16 +50,7 @@ int symbulation_main(int argc, char * argv[])
 
 
   //Set up files
-  //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
-
-  std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
-
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-
-  if(config.FREE_LIVING_SYMS() == 1){
-    world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }
+  world.CreateDataFiles();
 
   worldSetup(&world, &config);
   int numupdates = config.UPDATES();
@@ -76,25 +68,6 @@ int symbulation_main(int argc, char * argv[])
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-
-      // Print out metrics on completed tasks
-      std::cout << "Host tasks completed since last checkpoint:\n";
-      for (auto data : world.GetTaskSet()) {
-        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_host;
-      }
-      std::cout << "\nSymbiont tasks completed since last checkpoint:\n";
-      for (auto data : world.GetTaskSet()) {
-        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_sym;
-      }
-      std::cout << std::endl;
-      world.GetTaskSet().ResetTaskData();
-
-      double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
-      std::cout << "Syms donated " << percent << "\% of the points they earned ("
-                << world.sym_points_donated << "/" << world.sym_points_earned << ")"
-                << std::endl;
-      world.sym_points_donated = 0.0;
-      world.sym_points_earned = 0.0;
     }
     world.Update();
   }
@@ -123,6 +96,7 @@ int symbulation_main(int argc, char * argv[])
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){
+    std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
     world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
   }
   return 0;

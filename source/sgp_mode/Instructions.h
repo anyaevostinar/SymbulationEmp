@@ -94,7 +94,8 @@ INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
     if (!state.host->IsHost()) {
-      state.world->sym_points_earned += score;
+      state.world->GetSymEarnedDataNode().WithMonitor(
+          [=](auto &m) { m.AddDatum(score); });
     } else {
       // A host loses 25% of points when performing private IO operations
       score *= 0.75;
@@ -110,7 +111,8 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
   if (score != 0.0) {
     state.host->AddPoints(score);
     if (!state.host->IsHost()) {
-      state.world->sym_points_earned += score;
+      state.world->GetSymEarnedDataNode().WithMonitor(
+          [=](auto &m) { m.AddDatum(score); });
     }
   }
 }
@@ -131,7 +133,8 @@ INST(Donate, {
     double to_donate =
         fmin(state.host->GetPoints(),
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->sym_points_donated += to_donate;
+    state.world->GetSymDonatedDataNode().WithMonitor(
+        [=](auto &m) { m.AddDatum(to_donate); });
     host->AddPoints(to_donate);
     state.host->AddPoints(-to_donate);
   }
