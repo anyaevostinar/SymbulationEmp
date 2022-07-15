@@ -299,8 +299,13 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
             //use the information in state
             // if task_holder.dependencies == test_host->GetCPU().state.self_completed
             //loop through elements of dependencies and check if self_completed has larger or equal values in the same places
+            
+     //None of these commented sections seem right or on target from a logic or a testing perspective. Also looks a bit crazy not gonna lie.     
+
             // test_host->GetCPU().state.self_completed[task_id] > 0
             //task_holder.n_succeeds_host >0
+            //if(host_cpu.state.self_completed[task_id]==host_cpu.state.shared_completed[task_id])
+            //if(host_cpu.state.self_completed[dependency_matching_element] >= Task.num_dep_completes)
             //if(host_cpu.state.self_completed[task_id] > 0){
                 if_task_true = true;
             //}

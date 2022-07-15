@@ -157,6 +157,8 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
+///the tests below are incomplete and in-progress
+
 TEST_CASE("ReturnTaskDone","[sgp]"){
 //currently focusing on getting this code up and running
 //the conditional inside is probably still not up to par
@@ -173,6 +175,9 @@ TEST_CASE("ReturnTaskDone","[sgp]"){
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
         size_t test_id = 7;
+
+        test_sample->GetCPU().PrintCode();
+        //conclusion: Get a better genome
 
         task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU());
 
