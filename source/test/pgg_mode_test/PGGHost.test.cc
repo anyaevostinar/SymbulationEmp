@@ -1,6 +1,5 @@
 #include "../../pgg_mode/PGGHost.h"
 #include "../../pgg_mode/PGGSymbiont.h"
-#include <set>
 
 TEST_CASE("PGGHost constructor", "[pgg]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
@@ -20,9 +19,8 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     int_val = -1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
-    std::set<int> set = std::set<int>();
     double points = 10;
-    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, world, &config, int_val, syms, repro_syms, set, points);
+    emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, world, &config, int_val, syms, repro_syms, points);
     CHECK(host2->GetIntVal() == int_val);
     CHECK(host2->GetAge() == 0);
     CHECK(host2->GetPoints() == points);

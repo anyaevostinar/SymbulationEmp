@@ -27,9 +27,8 @@ public:
   EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  std::set<int> _set = std::set<int>(),
   double _points = 0.0, double _efficient = 0.1) :
-  Host(_random, _world, _config, _intval, _syms, _repro_syms, _set, _points) {
+  Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
     efficiency = _efficient;
     my_world = _world;
   }

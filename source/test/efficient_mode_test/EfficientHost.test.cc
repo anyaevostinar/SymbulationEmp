@@ -19,10 +19,9 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
     int_val = -1;
     emp::vector<emp::Ptr<Organism>> syms = {};
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
-    std::set<int> set = std::set<int>();
     double points = 10;
     double efficiency = 0.5;
-    emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, world, &config, int_val, syms, repro_syms, set, points, efficiency);
+    emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, world, &config, int_val, syms, repro_syms, points, efficiency);
     CHECK(host2->GetIntVal() == int_val);
     CHECK(host2->GetEfficiency() == efficiency);
     CHECK(host2->GetAge() == 0);
