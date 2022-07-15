@@ -72,6 +72,17 @@ public:
   Bacterium() = default;
 
   /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Bacterium
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "Bacterium";
+  }
+
+  /**
    * Input: None
    *
    * Output: The double representing a genome's value.

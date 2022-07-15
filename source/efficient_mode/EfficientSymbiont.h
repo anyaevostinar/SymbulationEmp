@@ -5,6 +5,8 @@
 #include "EfficientWorld.h"
 #include "EfficientHost.h"
 
+
+
 class EfficientSymbiont: public Symbiont {
 protected:
 
@@ -97,6 +99,17 @@ public:
   EfficientSymbiont() = default;
 
   /**
+  * Input: None
+  * 
+  * Output: Name of class as string, EfficientSymbiont
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "EfficientSymbiont";
+  }
+
+  /**
    * Input: Efficiency value
    *
    * Output: None
@@ -137,6 +150,8 @@ public:
    * Purpose: Mutating the efficiency of an efficient symbiont based upon the config
    * setting for mutation size.
    */
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Woverloaded-virtual"
   void Mutate(std::string mode){
     double local_size;
     double local_rate;
@@ -182,6 +197,7 @@ public:
       else if (efficiency > 1) efficiency = 1;
     }
   }
+  #pragma clang diagnostic pop
 
 
 
@@ -206,11 +222,15 @@ public:
    *
    * Purpose: To produce a new symbiont
    */
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Woverloaded-virtual"
   emp::Ptr<Organism> Reproduce(std::string mode) {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate(mode);
     return sym_baby;
   }
+  #pragma clang diagnostic pop
+  
 
   /**
    * Input: The pointer to the organism that is the new host baby

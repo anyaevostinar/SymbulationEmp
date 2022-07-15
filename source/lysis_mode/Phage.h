@@ -99,6 +99,16 @@ public:
    */
   Phage() = default;
 
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Phage
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "Phage";
+  }
 
   /**Input: None
    *
