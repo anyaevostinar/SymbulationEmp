@@ -1,5 +1,7 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
+#include <iostream>
+#include <ostream>
 #include <set>
 
 TEST_CASE("Host Constructor", "[default]") {
@@ -23,7 +25,7 @@ TEST_CASE("Host Constructor", "[default]") {
     emp::vector<emp::Ptr<Organism>> repro_syms = {};
     std::set<int> set = std::set<int>();
     double points = 10;
-    emp::Ptr<Host> host2 = emp::NewPtr<Host>(random, world, &config, int_val, syms, repro_syms, set, points);
+    emp::Ptr<Host> host2 = emp::NewPtr<Host>(random, world, &config, int_val, syms, repro_syms, points);
     CHECK(host2->GetIntVal() == int_val);
     CHECK(host2->GetAge() == 0);
     CHECK(host2->GetPoints() == points);
@@ -89,36 +91,6 @@ TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
     host->AddPoints(points);
     expected_points = 126;
     REQUIRE(host->GetPoints() == expected_points);
-
-    host.Delete();
-}
-
-TEST_CASE("SetResTypes, GetResTypes", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
-    SymWorld world(*random, &config);
-    double int_val = 1;
-    emp::vector<emp::Ptr<Organism>> syms = {};
-    emp::vector<emp::Ptr<Organism>> repro_syms = {};
-    std::set<int> res_types {1,3,5,9,2};
-
-    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val, syms, repro_syms, res_types);
-
-    std::set<int> expected_res_types = host->GetResTypes();
-    for (int number : res_types)
-    {
-        // Tests if each integer from res_types is in expected_res_types
-        REQUIRE(expected_res_types.find(number) != expected_res_types.end());
-    }
-
-    res_types = {0,1};
-    host->SetResTypes(res_types);
-    expected_res_types = host->GetResTypes();
-    for (int number : res_types)
-    {
-        // Tests if each integer from res_types is in expected_res_types
-        REQUIRE(expected_res_types.find(number) != expected_res_types.end());
-    }
 
     host.Delete();
 }

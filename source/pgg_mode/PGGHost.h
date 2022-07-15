@@ -26,8 +26,7 @@ public:
   PGGHost(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points) {my_world = _world;}
+  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points) {my_world = _world;}
 
 
   /**

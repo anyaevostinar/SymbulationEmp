@@ -136,9 +136,6 @@ class Organism {
   virtual emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {
     std::cout << "GetReproSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual std::set<int> GetResTypes() const {
-    std::cout << "GetResTypes called from Organism" << std::endl;
-    throw "Organism method called!";}
   virtual void SetResInProcess(double _in){
     std::cout << "SetResInProcess called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -150,9 +147,6 @@ class Organism {
     throw "Organism method called!";}
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
-    throw "Organism method called!";}
-  virtual void SetResTypes(std::set<int> _in) {
-    std::cout << "SetResTypes called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void AddSymbiont(emp::Ptr<Organism> _in)
    {std::cout << "AddSymbiont called from Organism" << std::endl;
