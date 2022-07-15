@@ -273,8 +273,10 @@ using Spec = sgpl::Spec<Library, CPUState>;
 //Task &task = tasks[task_id];
 bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
     bool if_task_true = false;
+    bool share = true;
 
     host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
+    task_list.MarkPerformedTask(host_cpu.state,  task_id, share);
     
     for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
 
@@ -306,9 +308,12 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
             //task_holder.n_succeeds_host >0
             //if(host_cpu.state.self_completed[task_id]==host_cpu.state.shared_completed[task_id])
             //if(host_cpu.state.self_completed[dependency_matching_element] >= Task.num_dep_completes)
-            //if(host_cpu.state.self_completed[task_id] > 0){
+            //if(host_cpu.state.self_completed[task_id] > 0)
+            
+            //0 should be a pointer???
+            //if(!(host_cpu.state.shared_completed[task_id]==nullptr) && host_cpu.state.shared_completed[task_id]>0){
                 if_task_true = true;
-            //}
+           // }
         }
     }
     return if_task_true;
