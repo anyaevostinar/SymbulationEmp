@@ -172,9 +172,9 @@ TEST_CASE("ReturnTaskDone","[sgp]"){
 
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
-        size_t test_id = 0;
+        size_t test_id = 7;
 
-        task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU().state);
+        task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU());
 
         
         REQUIRE(task_done==true);
@@ -194,9 +194,15 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
         
-        size_t test_id =0;
+        size_t test_id =7;
 
         emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
+        emp::vector<int> zero_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0};
+        REQUIRE(program_position_guide == zero_vector);
+        //right now this returns a vector of  vectors of ints that are all 0
         
         
         
@@ -218,12 +224,21 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
         world.resize(world_size);
         config.POP_SIZE(pop_size);
 
+        emp::vector<int> zero_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0};
+
         emp::vector<emp::vector<int>> test_map = {};
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
-        //test_map = GetReducedProgramRepresentations(test_sample);
+        test_map = GetReducedProgramRepresentations(test_sample);
+        for(int guide = 0; guide<test_map.size();guide++){
+               REQUIRE( test_map[guide] == zero_vector);
+               //right now this returns a vector of  vectors of ints that are all 0
+        }
         
-        //GetReducedPrograms(test_sample); gets segfault
+       // GetReducedPrograms(test_sample); // gets segfault
 
         std::cout<<"-Malpha";
 
