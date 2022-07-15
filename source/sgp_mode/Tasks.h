@@ -44,7 +44,7 @@ public:
     }
   }
 
-
+  //checks if dependencies are satisfied and that there are still available resources
   bool CanPerformTask(CPUState &state, size_t task_id) {
     if (state.used_resources->Get(task_id)) {
       return false;

@@ -167,12 +167,10 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         world.resize(world_size);
         config.POP_SIZE(pop_size);
 
-        emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
         std::cout<<"-Alamo ";
-
-        //test_sample->GetCPU().state.location = emp::WorldPosition(world.GetRandomCellID());
-        //
+     
 
         size_t test_id = 0;
 
@@ -197,9 +195,11 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
         world.resize(world_size);
         config.POP_SIZE(pop_size);
 
-        
-        emp::Ptr<SGPHost> test_sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+        emp::vector<emp::vector<int>> test_map = {};
+        emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
+        test_map = GetReducedProgramRepresentations(test_sample);
+
         std::cout<<"-Malpha";
 
         //that it works for both hosts and syms but just hosts is fine for now
