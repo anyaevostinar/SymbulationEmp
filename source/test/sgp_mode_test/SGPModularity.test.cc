@@ -158,8 +158,26 @@ TEST_CASE("GetPModularity", "[sgp]"){
 }
 
 TEST_CASE("ReturnTaskDone","[sgp]"){
-//currently working on here
+//currently focusing on getting this code up and running
+//the conditional inside is probably still not up to par
+        emp::Random random(10);
+        SymConfigBase config;
+        int world_size = 1;
+        int pop_size = 1;
+        TaskSet test_tasks = LogicTasks;
+        SGPWorld world(random, &config, test_tasks);
+        world.resize(world_size);
+        config.POP_SIZE(pop_size);
+        bool task_done = false;
 
+        emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
+        std::cout<< world.GetFullPop().size();
+        size_t test_id = 0;
+
+        task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU().state);
+
+        
+        REQUIRE(task_done==true);
 
 }
 
@@ -176,9 +194,9 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
         
-        size_t test_id = 0;
+        size_t test_id =0;
 
-        //emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
+        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
         
         
         

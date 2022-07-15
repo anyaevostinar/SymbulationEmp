@@ -268,17 +268,37 @@ using Spec = sgpl::Spec<Library, CPUState>;
 //      world->AddOrgAt(new_org, emp::WorldPosition(world->GetRandomCellID()));
 
 //reset task data after calling
-bool ReturnTaskDone(TaskSet task_list, size_t task_id){
+//should be using CpuState variables
+//task.dependencies.size()
+//Task &task = tasks[task_id];
+bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPUState host_state){
     bool if_task_true = false;
     for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
+
+        //loops through all the tasks
+
         std::cout<<" Rascal";
         
         //need a way to also have it check for smaller tasks done in larger dependent tasks
+        
+        //catches the target task
         if (one_task.index==task_id){
-            auto task_holder = *one_task;
+            //once we have the target then
+            //get task data from target
+
+            TaskSet::TaskData task_holder= *one_task;
+            Task target_task = task_holder.task;
+            size_t n_hosts = task_holder.n_succeeds_host;
             std::cout<<" Lemur ";
 
-            if(task_holder.n_succeeds_host >0){
+            //under what conditions should this return true
+            //how can we confirm the orginism did the task?
+            //use the information in state
+            // if task_holder.dependencies == test_host->GetCPU().state.self_completed
+            //loop through elements of dependencies and check if self_completed has larger or equal values in the same places
+            // test_host->GetCPU().state.self_completed[task_id] > 0
+            //task_holder.n_succeeds_host >0
+            if(host_state.self_completed[task_id] > 0){
                 if_task_true = true;
             }
         }
@@ -296,7 +316,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
   emp::vector<int> reduced_position_guide = {};
   std::cout<<"HAPPYSUCCESS ";
 
-  bool can_do_task = ReturnTaskDone(task_passer, test_task_id);
+  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU().state);
   
 
   if (can_do_task) {
@@ -310,7 +330,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
       test_host->GetCPU().SetProgram(test_program);
 
       test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
-      can_do_task = ReturnTaskDone(task_passer, test_task_id);
+      can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU().state);
       
 
       if (!can_do_task) {
