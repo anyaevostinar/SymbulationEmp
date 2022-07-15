@@ -77,7 +77,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(SGP, "Complex Genomes Settings"),
     VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
-    VALUE(THREAD_COUNT, size_t, 12, "Number of threads used to process organisms in parallel"),
+    VALUE(THREAD_COUNT, size_t, 4, "Number of threads used to process organisms in parallel"),
     VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
     VALUE(TASK_TYPE, bool, 0, "0 for squaring tasks, 1 for logic tasks"),
 )

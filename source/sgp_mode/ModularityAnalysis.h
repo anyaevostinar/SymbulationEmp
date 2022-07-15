@@ -271,8 +271,11 @@ using Spec = sgpl::Spec<Library, CPUState>;
 //should be using CpuState variables
 //task.dependencies.size()
 //Task &task = tasks[task_id];
-bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPUState host_state){
+bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
     bool if_task_true = false;
+
+    host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
+    
     for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
 
         //loops through all the tasks
@@ -298,9 +301,9 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPUState host_state){
             //loop through elements of dependencies and check if self_completed has larger or equal values in the same places
             // test_host->GetCPU().state.self_completed[task_id] > 0
             //task_holder.n_succeeds_host >0
-            if(host_state.self_completed[task_id] > 0){
+            //if(host_cpu.state.self_completed[task_id] > 0){
                 if_task_true = true;
-            }
+            //}
         }
     }
     return if_task_true;
@@ -316,7 +319,8 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
   emp::vector<int> reduced_position_guide = {};
   std::cout<<"HAPPYSUCCESS ";
 
-  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU().state);
+    //whatever task it is on it should turn out to be true
+  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU());
   
 
   if (can_do_task) {
@@ -330,7 +334,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
       test_host->GetCPU().SetProgram(test_program);
 
       test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
-      can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU().state);
+      can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU());
       
 
       if (!can_do_task) {

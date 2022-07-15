@@ -61,7 +61,7 @@ int symbulation_main(int argc, char * argv[])
   }
 
   worldSetup(&world, &config);
-  int numupdates = config.UPDATES();
+  int numupdates = 10000;//config.UPDATES();
 
   int totalSyms = 0;
 

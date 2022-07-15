@@ -46,6 +46,7 @@ public:
 
   //checks if dependencies are satisfied and that there are still available resources
   bool CanPerformTask(CPUState &state, size_t task_id) {
+    //potential start safety check or alternative to iterator in ReturnTaskDone()
     if (state.used_resources->Get(task_id)) {
       return false;
     }
@@ -185,14 +186,14 @@ public:
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 TaskSet LogicTasks{
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1.0}, false},
+    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1}, false},
     {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
     {"AND",
-     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 4.0},
+     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 10.0},
      true,
      {0, 1}}, // NOT or NAND
     {"ORN",
-     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 4.0},
+     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 100.0},
      true,
      {0, 1}},
     {"OR",
