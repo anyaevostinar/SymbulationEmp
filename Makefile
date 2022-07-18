@@ -46,7 +46,7 @@ pgg-mode:	source/native/symbulation_pgg.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
 
 sgp-mode:	source/native/symbulation_sgp.cc
-	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp 
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp
 
 symbulation.js: source/web/symbulation-web.cc
 	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
@@ -128,7 +128,9 @@ test-pgg:
 test-debug-pgg:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [pgg]
-
+test-sgp:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp]
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 

@@ -13,11 +13,13 @@
 #include "Tasks.h"
 #include <set>
 #include <math.h>
+#include<iostream>
+#include <tuple>
 //Method currently non-functional; still needs bug fixes before usable
-void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
+std::tuple<float, float> CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     host.ClearSyms();
     host.ClearReproSyms();
-    host.SetPoints(0.0);
+    host.SetPoints(0.0);//Maybe make this part into helper function
     host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
     std::cout <<"without sym: " << host.GetPoints() << std::endl;
     host.SetPoints(0.0);
@@ -29,10 +31,12 @@ void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
         newSymbiont->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,1);
     }
     std::cout <<"with sym: " << host.GetPoints() << std::endl;
-    std::cout <<"sym: " << symbiont.GetPoints() << std::endl;
+    std::cout <<"sym: " << newSymbiont->GetPoints() << std::endl;
     std::cout << "=====" << std::endl;
+    std::tuple pointTuple = std::make_tuple((host.GetPoints()), (newSymbiont->GetPoints()));
     host.SetPoints(0.0);
     newSymbiont->SetPoints(0.0);
+    return pointTuple;
 }
 
 
