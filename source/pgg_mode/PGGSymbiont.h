@@ -75,6 +75,16 @@ public:
   */
   PGGSymbiont & operator=(PGGSymbiont &&) = default;
 
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, PGGSymbiont
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "PGGSymbiont";
+  }
 
   /**
    * Input: None

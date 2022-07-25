@@ -679,7 +679,7 @@ TEST_CASE("Symbiont MakeNew", "[default]"){
         REQUIRE(sym2->GetAge() == 0);
         REQUIRE(sym2->GetPoints() == 0);
         //check that the offspring is the correct class
-        REQUIRE(typeid(*sym2).name() == typeid(*sym1).name());
+        REQUIRE(sym2->GetName() == "Symbiont");
     }
 
     sym1.Delete();

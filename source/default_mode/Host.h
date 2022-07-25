@@ -3,9 +3,9 @@
 
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/tools/string_utils.hpp"
-#include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <string>
 #include "../Organism.h"
 #include "SymWorld.h"
 
@@ -43,19 +43,11 @@ protected:
 
   /**
     *
-    * Purpose: Represents the set of repro symbionts belonging to a host.
+    * Purpose: Represents the set of in-progress "reproductive" symbionts belonging to a host. These are symbionts that aren't yet active.
     * Symbionts can be added with AddReproSymb(). This can be cleared with ClearSyms()
     *
   */
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
-
-  /**
-    *
-    * Purpose: Represents the resource type available to hosts.
-    * This is currently not implemented fully.
-    *
-  */
-  std::set<int> res_types = {};
 
   /**
     *
@@ -109,9 +101,7 @@ public:
   Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms),
-  res_types(_set), points(_points), random(_random), my_world(_world), my_config(_config) {
+  double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms), points(_points), random(_random), my_world(_world), my_config(_config) {
     if ( _intval > 1 || _intval < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
@@ -205,6 +195,17 @@ public:
   bool operator!=(const Host &other) const {return !(*this == other);}
 
 
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Host
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "Host";
+  }
+
 /**
   * Input: None
   *
@@ -233,16 +234,6 @@ public:
  * Purpose: To get the vector containing pointers to the host's repro syms.
  */
   emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
-
-
-  /**
-   * Input: None
-   *
-   * Output: The set of ints representing a host's res type.
-   *
-   * Purpose: To get the set of ints representing the host's res type.
-   */
-  std::set<int> GetResTypes() const { return res_types;}
 
 
   /**
@@ -304,16 +295,6 @@ public:
       AddSymbiont(_in[i]);
     }
   }
-
-
-  /**
-   * Input: A set of ints representing a host's resource type.
-   *
-   * Output: None
-   *
-   * Purpose: To set a host's resource types to the input.
-   */
-  void SetResTypes(std::set<int> _in) {res_types = _in;}
 
 
   /**

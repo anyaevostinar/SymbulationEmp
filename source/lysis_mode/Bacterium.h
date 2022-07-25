@@ -34,8 +34,7 @@ public:
   Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  std::set<int> _set = std::set<int>(),
-  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _set, _points)  {
+  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points)  {
     host_incorporation_val = my_config->HOST_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);
@@ -71,6 +70,17 @@ public:
    * Purpose: To tell the compiler to use its default generated variants of the constructor
    */
   Bacterium() = default;
+
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Bacterium
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() {
+    return  "Bacterium";
+  }
 
   /**
    * Input: None
