@@ -19,18 +19,24 @@ TEST_CASE("Host Symbiont Test Chamber", "[sgp]"){
         emp::Ptr<emp::Random> random = new emp::Random(-1);
         SymConfigBase config;
         TaskSet TestTasks{
-  {"DUMMY", OutputTask{[](uint32_t x) { return x ? 4.0 : 0.0; } }}
+  {"DUMMY", OutputTask{[](uint32_t x) { return x ? 4.0 : 0.0; } }}//Bit weird because it's not testing squares
 };   
         SGPWorld w(*random, &config, TestTasks);
         SGPWorld *world = &w;
         //Host Symbiont Preprocessing
         worldSetup(world, &config);
+        int hostIndexNoResources = PreProcessCheckSymbiont(world);
+        REQUIRE(hostIndexNoResources == -1);
         world->Update();
-        std::tuple<emp::Ptr<SGPHost>, emp::Ptr<SGPSymbiont>> hostSymbiontPair = PreProcessCheckSymbiont(world);
-        emp::Ptr<SGPHost> host = get<0>(hostSymbiontPair);
+
+        int hostIndexWithResources = PreProcessCheckSymbiont(world);
+        REQUIRE(hostIndexWithResources >= 0);
+        //emp::Ptr<SGPHost> host = get<0>(hostSymbiontPair);
         emp::Ptr<SGPSymbiont> symbiont = get<1>(hostSymbiontPair);
 
-        REQUIRE(host->GetPoints() > 0);
+        //REQUIRE(host->GetPoints() > 0);
+
+
         //Actual CheckSymbiont tests
         emp::Ptr<SGPHost> testHost = emp::NewPtr<SGPHost>(random, world, &config);
         emp::Ptr<SGPSymbiont> testSymbiont = emp::NewPtr<SGPSymbiont>(random, world, &config);
