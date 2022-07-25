@@ -43,10 +43,10 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
   bool CanPerformTask(const CPUState &state, size_t task_id) {
-    if (state.used_resources->Get(task_id)) {
+    Task &task = tasks[task_id];
+    if (state.used_resources->Get(task_id) && !task.unlimited) {
       return false;
     }
-    Task &task = tasks[task_id];
     if (task.dependencies.size()) {
       size_t num_dep_completes = std::reduce(
           task.dependencies.begin(), task.dependencies.end(), 0,
@@ -67,9 +67,8 @@ class TaskSet {
     }
 
     Task &task = tasks[task_id];
-    if (!task.unlimited) {
-      state.used_resources->Set(task_id);
-    }
+    state.used_resources->Set(task_id);
+    
 
     if (task.dependencies.size()) {
       // TODO does it make sense to reset to 0, or to let them accumulate
@@ -221,7 +220,7 @@ TaskSet LogicTasks{
      true,
      {0, 1}}, // NOT or NAND
     {"ORN",
-     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 100.0},
+     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 100.0}},
     {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0}, false},
     {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 5.0}, false},
     {"AND",

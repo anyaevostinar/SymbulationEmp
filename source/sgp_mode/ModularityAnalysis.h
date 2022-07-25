@@ -309,6 +309,7 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
             //if(host_cpu.state.self_completed[task_id]==host_cpu.state.shared_completed[task_id])
             //if(host_cpu.state.self_completed[dependency_matching_element] >= Task.num_dep_completes)
             //if(host_cpu.state.self_completed[task_id] > 0)
+            //create a new tracking vector in the state
             
             //0 should be a pointer???
             //if(!(host_cpu.state.shared_completed[task_id]==nullptr) && host_cpu.state.shared_completed[task_id]>0){
