@@ -7,6 +7,7 @@
 #include <memory>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
+#include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
 
@@ -68,16 +69,7 @@ int symbulation_main(int argc, char * argv[])
 
 
   //Set up files
-  //world.SetupPopulationFile().SetTimingRepeat(TIMING_REPEAT);
-
-  std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
-
-  world.SetupHostIntValFile(config.FILE_PATH()+"HostVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  world.SetupSymIntValFile(config.FILE_PATH()+"SymVals"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-
-  if(config.FREE_LIVING_SYMS() == 1){
-    world.SetUpFreeLivingSymFile(config.FILE_PATH()+"FreeLivingSyms_"+config.FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  }
+  world.CreateDataFiles();
 
   worldSetup(&world, &config);
   int numupdates = config.UPDATES();
@@ -159,6 +151,7 @@ int symbulation_main(int argc, char * argv[])
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){
+    std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
     world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
   }
   return 0;

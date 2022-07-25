@@ -53,10 +53,21 @@ However, if you want, there are some things that you could install ahead of time
 (~15 minutes)
 
 * Work through [making a new configuration setting](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/3-CreatingConfigSetting.html)
-* Making a new mode to change how resources are distributed (for example)
+* Work through [making a new mode](https://symbulation.readthedocs.io/en/latest/QuickStartGuides/4-CreatingAMode.html)
 
 ### Wrap-up 
 (~10 minutes)
 
 * What do you think?
 * What would you want to make Symbulation something you would use in your own research or teaching?
+
+# ALIFE Talks Featuring Symbulation
+Here are the talks at ALIFE 2022 that feature Symbulation! 
+The links are in theory the Google Calendar invites, hopefully they work :).
+
+* [Monday 15:30-15:50](https://calendar.google.com/calendar/u/0/r/eventedit?text=21.+Claire+Schregardus,+Michael+Wiser+and+Anya+VostinarDirty+Transmission+Hypothesis:+Increased+Mutations+During+Horizontal+Transmission+Can+Select+for+Increased+Levels+of+Mutualism+in+Endosymbionts&dates=20220718T133000Z/20220718T135000Z&details&location) 21. Claire Schregardus, Michael Wiser and Anya Vostinar Dirty Transmission Hypothesis: Increased Mutations During Horizontal Transmission Can Select for Increased Levels of Mutualism in Endosymbionts
+* [Wednesday 15:20-15:40](https://calendar.google.com/calendar/u/0/r/eventedit?text=19.+Kiara+Johnson,+Piper+Welch,+Emily+Dolson+and+Anya+VostinarEndosymbiosis+or+Bust:+Influence+of+Ectosymbiosis+on+Evolution+of+Obligate+Endosymbiosis&dates=20220720T132000Z/20220720T134000Z&details&location) 19. Kiara Johnson, Piper Welch, Emily Dolson and Anya Vostinar Endosymbiosis or Bust: Influence of Ectosymbiosis on Evolution of Obligate Endosymbiosis
+* [Wednesday 15:40-16:00](https://calendar.google.com/calendar/u/0/r/eventedit?text=20.+Alison+Cameron,+Seth+Dorchen,+Sarah+Doore+and+Anya+VostinarKeep+Your+Frenemies+Closer:+Bacteriophage+That+Benefit+Their+Hosts+Evolve+to+be+More+Temperate&dates=20220720T134000Z/20220720T140000Z&details&location) 20. Alison Cameron, Seth Dorchen, Sarah Doore and Anya Vostinar Keep Your Frenemies Closer: Bacteriophage That Benefit Their Hosts Evolve to be More Temperate
+* [Thursday 15:00-15:20](https://calendar.google.com/calendar/u/0/r/eventedit?text=4.+Anya+Vostinar,+Katherine+Skocelas,+Alexander+Lalejini+and+Luis+ZamanSymbiosis+in+Digital+Evolution:+A+Review+and+Future+Directions&dates=20220721T130000Z/20220721T132000Z&details&location) 4. Anya Vostinar, Katherine Skocelas, Alexander Lalejini and Luis Zaman Symbiosis in Digital Evolution: A Review and Future Directions
+* [Friday 15:00-15:20](https://calendar.google.com/calendar/u/0/r/eventedit?text=126.+Emily+Dolson,+Anya+Vostinar,+Shakeal+Hodge+and+Zhen+RenEvolutionary+stability+of+host-endosymbiont+mutualism+is+reduced+by+multi-infection&dates=20220722T130000Z/20220722T132000Z&details&location) 126. Emily Dolson, Anya Vostinar, Shakeal Hodge and Zhen Ren Evolutionary stability of host-endosymbiont mutualism is reduced by multi-infection
+

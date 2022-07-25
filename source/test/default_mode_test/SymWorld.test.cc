@@ -35,6 +35,65 @@ TEST_CASE("PullResources", "[default]") {
   }
 }
 
+TEST_CASE("Limited resources inflow", "[default]") {
+  GIVEN(" a world ") {
+    emp::Random random(11);
+    SymConfigBase config;
+    int full_share = 100;
+
+    WHEN( " the resources are limited and inflow is zero ") {
+      int original_total = 150;
+      config.LIMITED_RES_TOTAL(original_total);
+      config.LIMITED_RES_INFLOW(0);
+      SymWorld world(random, &config);
+      // Update() calls GetPermutation() which crashes if the size is zero
+      world.Resize(1);
+
+      THEN(" first organism gets full share of resources, next host gets a bit, everyone else gets nothing ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
+        REQUIRE(world.PullResources(full_share) == (original_total-full_share));
+        REQUIRE(world.PullResources(full_share) == 0);
+        REQUIRE(world.PullResources(full_share) == 0);
+        AND_WHEN(" the world is updated ") {
+          world.Update();
+          THEN(" no organisms get points since the total is still zero ") {
+            REQUIRE(world.PullResources(full_share) == 0);
+            REQUIRE(world.PullResources(full_share) == 0);
+            REQUIRE(world.PullResources(full_share) == 0);
+            REQUIRE(world.PullResources(full_share) == 0);
+          }
+        }
+      }
+    }
+
+    WHEN( " the resources are limited and inflow is turned on ") {
+      int original_total = 150;
+      int inflow = 25;
+      config.LIMITED_RES_TOTAL(original_total);
+      config.LIMITED_RES_INFLOW(inflow);
+      SymWorld world(random, &config);
+      // Update() calls GetPermutation() which crashes if the size is zero
+      world.Resize(1);
+
+      THEN(" first organism gets full share of resources, next host gets a bit, everyone else gets nothing ") {
+        REQUIRE(world.PullResources(full_share) == full_share);
+        REQUIRE(world.PullResources(full_share) == (original_total-full_share));
+        REQUIRE(world.PullResources(full_share) == 0);
+        REQUIRE(world.PullResources(full_share) == 0);
+        AND_WHEN(" the world is updated ") {
+          world.Update();
+          THEN(" the first organism gets some new resources, everyone else gets nothing ") {
+            REQUIRE(world.PullResources(full_share) == inflow);
+            REQUIRE(world.PullResources(full_share) == 0);
+            REQUIRE(world.PullResources(full_share) == 0);
+            REQUIRE(world.PullResources(full_share) == 0);
+          }
+        }
+      }
+    }
+  }
+}
+
 TEST_CASE( "Vertical Transmission", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);

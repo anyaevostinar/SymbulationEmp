@@ -128,9 +128,14 @@ test-pgg:
 test-debug-pgg:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [pgg]
+
 test-sgp:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp]
+test-debug-sgp:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp]
+
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 
