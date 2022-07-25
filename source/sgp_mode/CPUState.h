@@ -9,11 +9,13 @@
 #include "emp/bits/BitSet.hpp"
 #include <cstdint>
 
-// Helper that keeps the last `len` inputs and discards the rest
-template <const size_t len = 8> struct IORingBuffer {
+/// A helper class for a ring buffer that keeps the latest `len` inputs and
+/// discards the rest.
+template <const size_t len> class IORingBuffer {
   uint32_t buffer[len];
   size_t next = 0;
 
+public:
   IORingBuffer() {
     for (size_t i = 0; i < len; i++) {
       buffer[i] = 0;
@@ -33,6 +35,10 @@ template <const size_t len = 8> struct IORingBuffer {
 // CPUState has a pointer to the SGPWorld, but it can't include it
 class SGPWorld;
 
+/**
+ * The CPUState holds all state that can be accessed by instructions in the
+ * organism's genomes. Each organism has its own CPUState.
+ */
 struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
@@ -40,6 +46,7 @@ struct CPUState {
   IORingBuffer<4> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  // TODO revisit naming of `completed` fields
   emp::vector<size_t> self_completed;
   emp::Ptr<emp::vector<size_t>> shared_completed = nullptr;
   // If this organism is queued for reproduction, this stores its position in

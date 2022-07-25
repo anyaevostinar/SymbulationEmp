@@ -77,7 +77,9 @@ INST(Reproduce, {
   // Only one reproduction is allowed per update
   if (state.in_progress_repro != -1)
     return;
-  double points = state.host->IsHost() ? 128.0 : 4.0;
+  double points = state.host->IsHost()
+                      ? state.world->GetConfig()->HOST_REPRO_RES()
+                      : state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
   if (state.host->GetPoints() > points) {
     state.host->AddPoints(-points);
     // Add this organism to the queue to reproduce, using the mutex to avoid a
@@ -92,7 +94,8 @@ INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
     if (!state.host->IsHost()) {
-      state.world->sym_points_earned += score;
+      state.world->GetSymEarnedDataNode().WithMonitor(
+          [=](auto &m) { m.AddDatum(score); });
     } else {
       // A host loses 25% of points when performing private IO operations
       score *= 0.75;
@@ -103,12 +106,13 @@ INST(PrivateIO, {
   *a = next;
   state.input_buf.push(next);
 });
-void AddOrganismPoints(CPUState state, uint32_t output){
-    float score = state.world->GetTaskSet().CheckTasks(state, output, true);
+void AddOrganismPoints(CPUState state, uint32_t output) {
+  float score = state.world->GetTaskSet().CheckTasks(state, output, true);
   if (score != 0.0) {
     state.host->AddPoints(score);
     if (!state.host->IsHost()) {
-      state.world->sym_points_earned += score;
+      state.world->GetSymEarnedDataNode().WithMonitor(
+          [=](auto &m) { m.AddDatum(score); });
     }
   }
 }
@@ -129,13 +133,12 @@ INST(Donate, {
     double to_donate =
         fmin(state.host->GetPoints(),
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->sym_points_donated += to_donate;
+    state.world->GetSymDonatedDataNode().WithMonitor(
+        [=](auto &m) { m.AddDatum(to_donate); });
     host->AddPoints(to_donate);
     state.host->AddPoints(-to_donate);
   }
 });
-
-
 
 INST(Reuptake, {
   uint32_t next;
@@ -147,7 +150,6 @@ INST(Reuptake, {
     state.input_buf.push(next);
   }
 });
-
 
 } // namespace inst
 
