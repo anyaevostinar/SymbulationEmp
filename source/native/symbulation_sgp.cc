@@ -13,25 +13,23 @@
 using namespace std;
 
 // This is the main function for the NATIVE version of this project.
-std::tuple<emp::Ptr<SGPHost>, emp::Ptr<SGPSymbiont>> PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
+int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
           int hostIndex = 0;
           emp::Ptr<SGPHost> host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-          while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetPoints() == 0)){//Not always a high number of hosts that have symbionts
+          while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetPoints() == 0 || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
                 if(!world->GetSymPop().size()){
-                  break;
+                  return -1;
                 }
                 hostIndex++;
                 host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-                
+                std::cout << host->GetCPU().state.recentCompletion << std::endl;
           }
           emp::Ptr<SGPSymbiont> symbiont;
           if(hostIndex == world->GetFullPop().size()){
             std::cout << "No remaining hosts that have both symbionts and points" << std::endl;
-            exit(0);
-            return make_tuple(host, symbiont);
+            return -1;
           }else{
-             symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
-              return make_tuple(host, symbiont);
+             return hostIndex;
           }
 
 }
@@ -117,13 +115,24 @@ int symbulation_main(int argc, char * argv[])
       world.sym_points_donated = 0.0;
       world.sym_points_earned = 0.0;
       if (i >= 1){
-        std::tuple<emp::Ptr<SGPHost>, emp::Ptr<SGPSymbiont>> hostSymbiontPair = PreProcessCheckSymbiont(&world);
-        emp::Ptr<SGPHost> host = get<0>(hostSymbiontPair);
-        emp::Ptr<SGPSymbiont> symbiont = get<1>(hostSymbiontPair);
-        CheckSymbiont(*host, *symbiont);
+        int selectedHostValue = PreProcessCheckSymbiont(&world);
+        if (selectedHostValue != -1){
+            emp::Ptr<SGPHost> host = world.GetFullPop()[selectedHostValue].DynamicCast<SGPHost>();
+            emp::Ptr<SGPSymbiont> symbiont = host->GetSymbionts().back().DynamicCast<SGPSymbiont>();
+            std::cout<< "Host incoming points: " << host->GetPoints() << std::endl;
+            CheckSymbiont(*host, *symbiont);
+        }
       }
     }
+    int k = 0;
+    while (k < world.GetFullPop().size()){
+      emp::Ptr<SGPHost> host = world.GetFullPop()[k].DynamicCast<SGPHost>();
+      //std::cout << "Current completed:" << host->GetCPU().state.recentCompletion << std::endl;
+      //host->GetCPU().state.recentCompletion = 0;
+      k++;
+    }
     world.Update();
+
   }
 
   // Print some debug info for testing purposes

@@ -45,6 +45,7 @@ struct CPUState {
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
+  int recentCompletion = 0;
   int in_progress_repro = -1;
 //TODO:Change to name to something more general, like organism
   emp::Ptr<Organism> host;

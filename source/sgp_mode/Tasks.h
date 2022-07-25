@@ -103,6 +103,7 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           MarkPerformedTask(state, i, shared);
+          state.recentCompletion = 1;
           if (state.host->IsHost())
             ++*n_succeeds_host[i];
           else
