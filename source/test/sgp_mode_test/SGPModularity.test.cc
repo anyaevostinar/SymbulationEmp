@@ -159,36 +159,39 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 ///the tests below are incomplete and in-progress
 
-TEST_CASE("ReturnTaskDone","[sgp]"){
+// TEST_CASE("ReturnTaskDone","[sgp]"){
 //currently focusing on getting this code up and running
 //the conditional inside is probably still not up to par
-        emp::Random random(10);
-        SymConfigBase config;
-        int world_size = 1;
-        int pop_size = 1;
-        TaskSet test_tasks = LogicTasks;
-        SGPWorld world(random, &config, test_tasks);
-        world.resize(world_size);
-        config.POP_SIZE(pop_size);
-        bool task_done = false;
+        // emp::Random random(10);
+        // SymConfigBase config;
+        // config.RANDOM_ANCESTOR(false);
+        // int world_size = 1;
+        // int pop_size = 1;
+        // TaskSet test_tasks = LogicTasks;
+        // SGPWorld world(random, &config, test_tasks);
+        // world.resize(world_size);
+        // config.POP_SIZE(pop_size);
+        // bool task_done = false;
 
-        emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
-        std::cout<< world.GetFullPop().size();
-        size_t test_id = 7;
+        // emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
+        // std::cout<< world.GetFullPop().size();
+        // size_t test_id = 0;
 
-        test_sample->GetCPU().PrintCode();
+        //test_sample->GetCPU().PrintCode();
         //conclusion: Get a better genome
 
-        task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU());
+//         task_done = ReturnTaskDone(test_tasks, test_id,test_sample->GetCPU());
 
         
-        REQUIRE(task_done==true);
+//         REQUIRE(task_done!=true);
 
-}
+
+// }
 
 TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Random random(10);
         SymConfigBase config;
+        config.RANDOM_ANCESTOR(false);
         int world_size = 1;
         int pop_size = 1;
         TaskSet test_tasks = LogicTasks;
@@ -199,15 +202,17 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
         std::cout<< world.GetFullPop().size();
         
-        size_t test_id =7;
+        size_t test_id =0;
 
-        emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
+       emp::vector<int> program_position_guide = GetNecessaryInstructions(test_sample, test_id, test_tasks); 
         emp::vector<int> zero_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
         0,0,0,0,0,0,0,0,0,0};
-        REQUIRE(program_position_guide == zero_vector);
+       REQUIRE(program_position_guide == zero_vector);
         //right now this returns a vector of  vectors of ints that are all 0
+
+        std::cout<<" -GugGWQ ";
         
         
         
@@ -219,48 +224,42 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]"){
 
 
 
-TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
-        emp::Random random(10);
-        SymConfigBase config;
-        int world_size = 1;
-        int pop_size = 1;
-        TaskSet test_tasks = LogicTasks;
-        SGPWorld world(random, &config, test_tasks);
-        world.resize(world_size);
-        config.POP_SIZE(pop_size);
+// TEST_CASE("GetReducedProgramRepresentations", "[sgp]"){
+//         emp::Random random(10);
+//         SymConfigBase config;
+//         config.RANDOM_ANCESTOR(false);
+//         int world_size = 1;
+//         int pop_size = 1;
+//         TaskSet test_tasks = LogicTasks;
+//         SGPWorld world(random, &config, test_tasks);
+//         world.resize(world_size);
+//         config.POP_SIZE(pop_size);
 
-        emp::vector<int> zero_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-        0,0,0,0,0,0,0,0,0,0};
+//         emp::vector<int> zero_vector = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//         0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+//         0,0,0,0,0,0,0,0,0,0};
 
-        emp::vector<emp::vector<int>> test_map = {};
-        emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
-        std::cout<< world.GetFullPop().size();
-        test_map = GetReducedProgramRepresentations(test_sample);
-        for(int guide = 0; guide<test_map.size();guide++){
-               REQUIRE( test_map[guide] == zero_vector);
+//         emp::vector<emp::vector<int>> test_map = {};
+//         emp::Ptr<SGPHost> test_sample = emp::NewPtr<SGPHost>(&random, &world, &config);
+//         std::cout<< world.GetFullPop().size();
+//        test_map = GetReducedProgramRepresentations(test_sample);
+//        emp::vector<emp::vector<int>>zero_map = {};
+        //for(int guide = 0; guide<test_map.size();guide++){
+        //       REQUIRE( test_map ==zero_map);
+             
                //right now this returns a vector of  vectors of ints that are all 0
-        }
+        //}
         
        // GetReducedPrograms(test_sample); // gets segfault
 
-        std::cout<<"-Malpha";
+//         std::cout<<"-Malpha";
 
-        //that it works for both hosts and syms but just hosts is fine for now
-
-        //when there are tasks
-        //it returns a vector of vectors filled with 0 and 1 all the same length as the full genome
-        //that it only gets the tasks that the host can actually do
-                //compare to tag of the host
-        //that it doesn't crash due to unexpected issues like: the host not having a cpu or a program
-
-       //when there aren't ->return empty vector of vectors
+       
 
 
 
-
-}
+// }
 
 
 

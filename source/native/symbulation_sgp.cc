@@ -53,7 +53,7 @@ int symbulation_main(int argc, char * argv[])
   world.CreateDataFiles();
 
   worldSetup(&world, &config);
-  int numupdates = 10000;//config.UPDATES();
+  int numupdates = 1000;//config.UPDATES();
 
   int totalSyms = 0;
 

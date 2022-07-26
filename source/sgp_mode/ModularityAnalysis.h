@@ -264,74 +264,44 @@ using Spec = sgpl::Spec<Library, CPUState>;
  *modularity methods
  *
  */
-// if(my_config->GRID()) {
-//      world->AddOrgAt(new_org, emp::WorldPosition(world->GetRandomCellID()));
 
-//reset task data after calling
-//should be using CpuState variables
-//task.dependencies.size()
-//Task &task = tasks[task_id];
 bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
     bool if_task_true = false;
-    bool share = true;
 
     host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
-    task_list.MarkPerformedTask(host_cpu.state,  task_id, share);
     
     for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
 
-        //loops through all the tasks
-
         std::cout<<" Rascal";
         
-        //need a way to also have it check for smaller tasks done in larger dependent tasks
-        
-        //catches the target task
         if (one_task.index==task_id){
-            //once we have the target then
-            //get task data from target
-
-            TaskSet::TaskData task_holder= *one_task;
-            Task target_task = task_holder.task;
-            size_t n_hosts = task_holder.n_succeeds_host;
+           
             std::cout<<" Lemur ";
 
-            //under what conditions should this return true
-            //how can we confirm the orginism did the task?
-            //use the information in state
-            // if task_holder.dependencies == test_host->GetCPU().state.self_completed
-            //loop through elements of dependencies and check if self_completed has larger or equal values in the same places
+            if(host_cpu.state.used_resources->Get(task_id)){
+              if_task_true = true;
+              std::cout<<" Yes";
+            }
             
-     //None of these commented sections seem right or on target from a logic or a testing perspective. Also looks a bit crazy not gonna lie.     
-
-            // test_host->GetCPU().state.self_completed[task_id] > 0
-            //task_holder.n_succeeds_host >0
-            //if(host_cpu.state.self_completed[task_id]==host_cpu.state.shared_completed[task_id])
-            //if(host_cpu.state.self_completed[dependency_matching_element] >= Task.num_dep_completes)
-            //if(host_cpu.state.self_completed[task_id] > 0)
-            //create a new tracking vector in the state
-            
-            //0 should be a pointer???
-            //if(!(host_cpu.state.shared_completed[task_id]==nullptr) && host_cpu.state.shared_completed[task_id]>0){
-                if_task_true = true;
-           // }
         }
     }
+    host_cpu.state.used_resources->reset();
     return if_task_true;
 }
 
-emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
+emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
                                           size_t test_task_id,
                                           TaskSet task_passer) {
 
-  test_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-  sgpl::Program<Spec> control_program = test_host->GetCPU().GetProgram();
-  sgpl::Program<Spec> test_program = control_program;
+  sgpl::Program<Spec> control_program = sample_host->GetCPU().GetProgram();
+
   emp::vector<int> reduced_position_guide = {};
   std::cout<<"HAPPYSUCCESS ";
 
     //whatever task it is on it should turn out to be true
-  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU());
+  sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
+  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,sample_host->GetCPU());
+  std::cout<<"  HALLLEELUYAH   ";
   
 
   if (can_do_task) {
@@ -339,13 +309,10 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
 
     for (int k = 0; k <= control_program.size() - 1; k++) {
     
-      test_program[k].op_code = 0;
-      // do I need to reset anything before running CanPerformTask on the
-      // altered code?
-      test_host->GetCPU().SetProgram(test_program);
+      sample_host->GetCPU().GetProgram()[k].op_code = 0;
 
-      test_host->GetCPU().RunCPUStep(test_host->GetCPU().state.location, 100);
-      can_do_task = ReturnTaskDone(task_passer, test_task_id,test_host->GetCPU());
+      sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
+      can_do_task = ReturnTaskDone(task_passer, test_task_id,sample_host->GetCPU());
       
 
       if (!can_do_task) {
@@ -356,7 +323,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *test_host,
         reduced_position_guide.push_back(0);
       }
       
-      test_host->GetCPU().SetProgram(control_program);
+      sample_host->GetCPU().SetProgram(control_program);
     }
   }
 
