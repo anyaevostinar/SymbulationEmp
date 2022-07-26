@@ -221,16 +221,6 @@ TaskSet LogicTasks{
      {0, 1}}, // NOT or NAND
     {"ORN",
      InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 100.0}},
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0}, false},
-    {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 5.0}, false},
-    {"AND",
-     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 40.0},
-     true,
-     {0, 1}}, // NOT or NAND
-    {"ORN",
-     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 40.0},
-     true,
-     {0, 1}},
     {"OR",
      InputTask{2, [](auto &x) { return x[0] | x[1]; }, 80.0},
      true,
