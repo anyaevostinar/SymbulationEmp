@@ -142,7 +142,7 @@ emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
 }
 
 emp::vector<sgpl::Program<Spec>>
-MapToProgramsConvert(emp::vector<emp::vector<int>> instr_map,
+GuideToProgramsConvert(emp::vector<emp::vector<int>> instr_map,
                     sgpl::Program<Spec> original_program) {
   emp::vector<sgpl::Program<Spec>> converted_programs = {};
   for (int guide_num = 0; guide_num <= instr_map.size() - 1; guide_num++) {
@@ -169,7 +169,7 @@ emp::vector<sgpl::Program<Spec>> GetReducedPrograms(SGPHost *host) {
   emp::vector<emp::vector<int>> position_map =
       GetReducedProgramRepresentations(host);
   emp::vector<sgpl::Program<Spec>> reduced_programs =
-      MapToProgramsConvert(position_map, original_program);
+      GuideToProgramsConvert(position_map, original_program);
 
   return reduced_programs;
 }
