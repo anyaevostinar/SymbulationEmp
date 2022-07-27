@@ -5,6 +5,7 @@
 #include "CPUState.h"
 #include <atomic>
 #include <variant>
+#include <map>
 
 /**
  * An input task computes an expected output based on the inputs, and if the
@@ -30,6 +31,10 @@ struct Task {
   std::variant<InputTask, OutputTask> kind;
   bool unlimited = true;
   emp::vector<size_t> dependencies;
+  uint32_t curHostOutput = 0;
+  uint32_t curSymOutput = 0;
+  std::map<uint32_t, uint32_t> hostCalculationTable;
+  std::map<uint32_t, uint32_t> symCalculationTable;
   /// The total number of times this task's dependencies must be completed for
   /// each use of this task
   size_t num_dep_completes = 1;
@@ -41,7 +46,6 @@ class TaskSet {
   // on resize and atomic isn't copiable, so we need pointers
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
-
   bool CanPerformTask(const CPUState &state, size_t task_id) {
     if (state.used_resources->Get(task_id)) {
       return false;
@@ -117,6 +121,33 @@ public:
     }
   }
 
+  void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
+            task.curHostOutput = output;
+            if (calculationMap.empty()){
+              calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+            }else{
+               //std::cout << "Hallelujah" << std::endl;
+              std::map<uint32_t, uint32_t>::iterator placemark;
+              placemark = calculationMap.begin();
+              while (placemark != calculationMap.end() && output != placemark->first){
+                if(state.host->IsHost()){
+                  std::cout << "Host First:" << placemark->first << std::endl;
+                  std::cout << "Host Second:" << placemark->second << std::endl;
+                }else{
+                    std::cout << "Sym First:" << placemark->first << std::endl;
+                    std::cout << "Sym Second:" << placemark->second << std::endl;
+                }
+                    placemark++;
+              }
+              std::cout << "-----------" << std::endl;
+              if (output == placemark->first){
+                  placemark->second++;
+              }else if (placemark == calculationMap.end()){
+                calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+              }
+          }
+  }
+
   /**
    * Input: The current CPU state, the output to check against, and whether to
    * update shared or private completed pools for dependent tasks.
@@ -142,8 +173,22 @@ public:
           score = MarkPerformedTask(state, i, shared, score);
           state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                             sqrt(output));
+          if(state.host->IsHost()){
+            task.curHostOutput = output;
+            IncrementSquareMap(task, state, output, task.hostCalculationTable);
+          }else{
+            task.curSymOutput = output;
+            IncrementSquareMap(task, state, output, task.symCalculationTable);
+          }
           return score;
         }
+        
+        /*if(state.host->IsHost()){
+          task.curHostOutput = 0;
+        }
+        else{
+            task.curSymOutput = 0;
+        }*/
       }
     }
     // Check input tasks
@@ -207,7 +252,13 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
+uint32_t DummyFunction() const{
+    return 5;
+}
 };
+
+
+
 
 // The 9 default logic tasks in Avida
 // These are checked top-to-bottom and the reward is given for the first one

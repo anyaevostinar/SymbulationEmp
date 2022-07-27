@@ -88,25 +88,7 @@ int symbulation_main(int argc, char * argv[])
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
 
-      // Print out metrics on completed tasks
-      std::cout << "Host tasks completed since last checkpoint:\n";
-      for (auto data : world.GetTaskSet()) {
-        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_host;
-      }
-      std::cout << "\nSymbiont tasks completed since last checkpoint:\n";
-      for (auto data : world.GetTaskSet()) {
-        std::cout << "  \t" << data.task.name << ": " << data.n_succeeds_sym;
-      }
-      std::cout << std::endl;
-      world.GetTaskSet().ResetTaskData();
-
-      double percent = 100.0 * world.sym_points_donated / world.sym_points_earned;
-      std::cout << "Syms donated " << percent << "\% of the points they earned ("
-                << world.sym_points_donated << "/" << world.sym_points_earned << ")"
-                << std::endl;
-      world.sym_points_donated = 0.0;
-      world.sym_points_earned = 0.0;
-      if (i >= 1){
+      /*if (i >= 1){
         int selectedHostValue = PreProcessCheckSymbiont(&world);
         if (selectedHostValue != -1){
             emp::Ptr<SGPHost> host = world.GetFullPop()[selectedHostValue].DynamicCast<SGPHost>();
@@ -114,15 +96,15 @@ int symbulation_main(int argc, char * argv[])
             std::cout<< "Host incoming points: " << host->GetPoints() << std::endl;
             CheckSymbiont(*host, *symbiont);
         }
-      }
+      }*/
     }
-    int k = 0;
+    /*int k = 0;
     while (k < world.GetFullPop().size()){
       emp::Ptr<SGPHost> host = world.GetFullPop()[k].DynamicCast<SGPHost>();
       //std::cout << "Current completed:" << host->GetCPU().state.recentCompletion << std::endl;
-      //host->GetCPU().state.recentCompletion = 0;
+      host->GetCPU().state.recentCompletion = 0;
       k++;
-    }
+    }*/
     world.Update();
 
   }
