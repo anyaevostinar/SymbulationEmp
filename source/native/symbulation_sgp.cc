@@ -87,7 +87,7 @@ int symbulation_main(int argc, char * argv[])
       }
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-
+  task_set.ClearSquareFrequencyData();
       /*if (i >= 1){
         int selectedHostValue = PreProcessCheckSymbiont(&world);
         if (selectedHostValue != -1){
@@ -97,6 +97,7 @@ int symbulation_main(int argc, char * argv[])
             CheckSymbiont(*host, *symbiont);
         }
       }*/
+
     }
     /*int k = 0;
     while (k < world.GetFullPop().size()){

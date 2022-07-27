@@ -6,6 +6,7 @@
 #include <atomic>
 #include <variant>
 #include <map>
+#include <string>
 
 /**
  * An input task computes an expected output based on the inputs, and if the
@@ -126,20 +127,11 @@ public:
             if (calculationMap.empty()){
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
             }else{
-               //std::cout << "Hallelujah" << std::endl;
               std::map<uint32_t, uint32_t>::iterator placemark;
               placemark = calculationMap.begin();
               while (placemark != calculationMap.end() && output != placemark->first){
-                if(state.host->IsHost()){
-                  std::cout << "Host First:" << placemark->first << std::endl;
-                  std::cout << "Host Second:" << placemark->second << std::endl;
-                }else{
-                    std::cout << "Sym First:" << placemark->first << std::endl;
-                    std::cout << "Sym Second:" << placemark->second << std::endl;
-                }
                     placemark++;
               }
-              std::cout << "-----------" << std::endl;
               if (output == placemark->first){
                   placemark->second++;
               }else if (placemark == calculationMap.end()){
@@ -252,8 +244,24 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
-uint32_t DummyFunction() const{
-    return 5;
+std::string GetSquareFrequencyData(){
+  std::string frequencyList = "";
+  std::map<uint32_t, uint32_t>::iterator dataGrabber;
+  dataGrabber = tasks[0].hostCalculationTable.begin();
+  while (dataGrabber != tasks[0].hostCalculationTable.end()){
+        uint32_t square = dataGrabber->first;
+        uint32_t frequency = dataGrabber->second;
+        std::string strSquare = std::to_string(square);
+        std::string strFrequency = std::to_string(frequency);
+        frequencyList = frequencyList + strSquare + ": " + strFrequency + "; ";
+        dataGrabber++;
+        }
+    return frequencyList;
+}
+void ClearSquareFrequencyData(){
+  tasks[0].hostCalculationTable.clear();
+  std::cout << tasks[0].hostCalculationTable.size() << std::endl;
+  tasks[0].symCalculationTable.clear();
 }
 };
 
