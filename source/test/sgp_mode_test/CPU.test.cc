@@ -7,6 +7,8 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
+  // Make the ancestor genome do NOT instead of SQUARE
+  config.TASK_TYPE(1);
 
   // Make the NOT task guaranteed to provide enough resources for reproduction after one completion
   TaskSet task_set{

@@ -34,7 +34,8 @@ public:
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
       emp::Ptr<emp::Random> random)
-      : program(CreateStartProgram(world->GetConfig())), random(random), state(organism, world) {
+      : program(CreateStartProgram(world->GetConfig())), random(random),
+        state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
@@ -43,8 +44,8 @@ public:
    * Constructs a new CPU with a copy of another CPU's genome.
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random, const CPU &old_cpu)
-      : program(old_cpu.program), random(random), state(organism, world) {
+      emp::Ptr<emp::Random> random, const sgpl::Program<Spec> &program)
+      : program(program), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
@@ -79,6 +80,8 @@ public:
     cpu.InitializeAnchors(program);
   }
 
+  const sgpl::Program<Spec> &GetProgram() const { return program; }
+
 private:
   /**
    * Input: The instruction to print, and the context needed to print it.
@@ -90,7 +93,7 @@ private:
    */
   void PrintOp(const sgpl::Instruction<Spec> &ins,
                const emp::map<std::string, size_t> &arities,
-               sgpl::JumpTable<Spec, Spec::global_matching_t> &table) {
+               sgpl::JumpTable<Spec, Spec::global_matching_t> &table) const {
     const std::string &name = ins.GetOpName();
     if (arities.count(name)) {
       // Simple instruction
@@ -153,7 +156,6 @@ public:
         {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
         {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
         {"Reuptake", 1}};
-    emp::map<size_t, std::string> labels;
 
     std::cout << "--------" << std::endl;
     for (auto i : program) {
