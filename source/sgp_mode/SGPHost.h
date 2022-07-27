@@ -22,8 +22,7 @@ public:
           emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms,
-             _points),
+      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
         cpu(this, _world, _random) {
     my_world = _world;
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
@@ -38,8 +37,7 @@ public:
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms,
-             _points),
+      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
         cpu(this, _world, _random, old_cpu) {
     my_world = _world;
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
@@ -47,10 +45,10 @@ public:
   }
 
   SGPHost(SGPHost &host)
-      : Host(host),
-        cpu(this, host.my_world, host.random, host.cpu), my_world(host.my_world){
-      cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
-      cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
+      : Host(host), cpu(this, host.my_world, host.random, host.cpu),
+        my_world(host.my_world) {
+    cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+    cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
   }
 
   /**
