@@ -185,6 +185,7 @@ double GetSummedValue(int num_tasks, emp::vector<int> starts_used,
     final_sum += task_sum;
   }
 
+
   return final_sum;
 }
 
@@ -197,10 +198,8 @@ double GetSummedValue(int num_tasks, emp::vector<int> starts_used,
  *Purpose:
  *
  */
+
 double CalcPModularity(int num_tasks, double summed_value, int genome_size) {
-  if (summed_value == 0 || num_tasks == 0) {
-    return -1;
-  }
   double length = genome_size;
   double layer_one = 2.0 / (length * num_tasks);
   double layer_two = layer_one * summed_value;

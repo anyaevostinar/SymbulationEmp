@@ -126,7 +126,7 @@ TEST_CASE("CalcPModularity", "[sgp]"){
 
         summed_value = 0.0;
         double test_phys_mod_c = CalcPModularity(task_num, summed_value, genome_size);
-        double found_value_c = -1;
+        double found_value_c = 1;
         REQUIRE(test_phys_mod_c==Approx(found_value_c));
 
 
@@ -158,7 +158,7 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
-//failing test here
+
 TEST_CASE("GetPMFromHost","[sgp]"){
 emp::Random random(5);
   SymConfigBase config;
@@ -180,7 +180,6 @@ emp::Random random(5);
     double test_phys_mod = GetPMFromHost(task_set_size, test_sample);
     
     REQUIRE(expected_phys_mod == test_phys_mod);
-    //should be getting 1.0 and not -1.0
 
 
   }
