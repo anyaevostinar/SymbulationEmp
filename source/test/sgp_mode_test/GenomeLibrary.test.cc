@@ -9,8 +9,10 @@ void TestGenome(Task task, sgpl::Program<Spec> program) {
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
-  // Make the NOT task guaranteed to provide enough resources for reproduction
-  // after one completion
+  // Ensure we can actually complete the task
+  task.dependencies.clear();
+  task.unlimited = true;
+
   TaskSet task_set{task};
   SGPWorld world(random, &config, task_set);
 
@@ -25,6 +27,7 @@ void TestGenome(Task task, sgpl::Program<Spec> program) {
 
   TestOrg organism;
   CPU cpu(&organism, &world, &random, program);
+  // cpu.PrintCode();
   cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
   cpu.state.shared_completed->resize(LogicTasks.NumTasks());
 
@@ -39,13 +42,34 @@ void TestGenome(Task task, sgpl::Program<Spec> program) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome({"NOT", InputTask{1, [](auto &a) { return ~a[0]; }, 256.0}, true},
-             CreateNotProgram(100));
+  TestGenome(NOT, CreateNotProgram(100));
 }
 
 TEST_CASE("Generate SQUARE program", "[sgp]") {
-  TestGenome({"SQU", OutputTask{[](uint32_t x) {
-                return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
-              }}},
-             CreateSquareProgram(100));
+  TestGenome(SQU, CreateSquareProgram(100));
+}
+
+TEST_CASE("Generate NAND program", "[sgp]") {
+  TestGenome(NAND, CreateNandProgram(100));
+}
+TEST_CASE("Generate AND program", "[sgp]") {
+  TestGenome(AND, CreateAndProgram(100));
+}
+TEST_CASE("Generate ORN program", "[sgp]") {
+  TestGenome(ORN, CreateOrnProgram(100));
+}
+TEST_CASE("Generate OR program", "[sgp]") {
+  TestGenome(OR, CreateOrProgram(100));
+}
+TEST_CASE("Generate ANDN program", "[sgp]") {
+  TestGenome(ANDN, CreateAndnProgram(100));
+}
+TEST_CASE("Generate NOR program", "[sgp]") {
+  TestGenome(NOR, CreateNorProgram(100));
+}
+TEST_CASE("Generate XOR program", "[sgp]") {
+  TestGenome(XOR, CreateXorProgram(100));
+}
+TEST_CASE("Generate EQU program", "[sgp]") {
+  TestGenome(EQU, CreateEquProgram(100));
 }
