@@ -6,6 +6,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   emp::Random random(61);
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
+  config.SYM_HORIZ_TRANS_RES(100);
 
   // Make the NOT task guaranteed to provide enough resources for reproduction after one completion
   TaskSet task_set{
