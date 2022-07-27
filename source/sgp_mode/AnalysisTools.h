@@ -61,30 +61,35 @@ using Spec = sgpl::Spec<Library, CPUState>;
  *
  */
 
-bool ReturnTaskDone(TaskSet task_list, size_t task_id,CPU host_cpu){
-    bool if_task_true = false;
+bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
+  bool if_task_true = false;
 
-    host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
-    
-    for (TaskSet::Iterator one_task = task_list.begin(); one_task!=task_list.end(); ++one_task) {
+  host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
-        std::cout<<" Rascal";
-        
-        if (one_task.index==task_id){
-           
-            std::cout<<" Lemur ";
+  for (TaskSet::Iterator one_task = task_list.begin();
+       one_task != task_list.end(); ++one_task) {
 
-            if(host_cpu.state.used_resources->Get(task_id)){
-              if_task_true = true;
-              std::cout<<" Yes";
-            }
-            
-        }
+    if (one_task.index == task_id) {
+      
+      if (host_cpu.state.used_resources->Get(task_id)) {
+        if_task_true = true;
+      }
     }
-    host_cpu.state.used_resources->reset();
-    return if_task_true;
+  }
+  host_cpu.state.used_resources->reset();
+  return if_task_true;
 }
 
+/**
+ *
+ * Input:
+ *
+ * Output:
+ *
+ *Purpose: Takes all the calculation methods and calls them in order of having a
+ *simplified way of getting an organism's Physical Modularity
+ *
+ */
 emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
                                           size_t test_task_id,
                                           TaskSet task_passer) {
@@ -92,24 +97,21 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
   sgpl::Program<Spec> control_program = sample_host->GetCPU().GetProgram();
 
   emp::vector<int> reduced_position_guide = {};
-  std::cout<<"HAPPYSUCCESS ";
 
-    //whatever task it is on it should turn out to be true
+  // whatever task it is on it should turn out to be true
   sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-  bool can_do_task = ReturnTaskDone(task_passer, test_task_id,sample_host->GetCPU());
-  std::cout<<"  HALLLEELUYAH   ";
-  
+  bool can_do_task =
+      ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 
   if (can_do_task) {
-    std::cout<<"GREatVentur ";
 
     for (int k = 0; k <= control_program.size() - 1; k++) {
-    
+
       sample_host->GetCPU().GetProgram()[k].op_code = 0;
 
       sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-      can_do_task = ReturnTaskDone(task_passer, test_task_id,sample_host->GetCPU());
-      
+      can_do_task =
+          ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
@@ -118,7 +120,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
       else {
         reduced_position_guide.push_back(0);
       }
-      
+
       sample_host->GetCPU().SetProgram(control_program);
     }
   }
@@ -126,6 +128,16 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
   return reduced_position_guide;
 }
 
+/**
+ *
+ * Input:
+ *
+ * Output:
+ *
+ *Purpose: Takes all the calculation methods and calls them in order of having a
+ *simplified way of getting an organism's Physical Modularity
+ *
+ */
 emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
   CPUState condition = host->GetCPU().state;
   TaskSet all_tasks = condition.world->GetTaskSet();
@@ -140,40 +152,6 @@ emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
 
   return map_of_guides;
 }
-
-emp::vector<sgpl::Program<Spec>>
-GuideToProgramsConvert(emp::vector<emp::vector<int>> instr_map,
-                    sgpl::Program<Spec> original_program) {
-  emp::vector<sgpl::Program<Spec>> converted_programs = {};
-  for (int guide_num = 0; guide_num <= instr_map.size() - 1; guide_num++) {
-    sgpl::Program<Spec> reduced_program = original_program;
-
-    for (int guide_position = 0;
-         guide_position <= instr_map[guide_num].size() - 1; guide_position++) {
-      if (instr_map[guide_num][guide_position] == 0) {
-        reduced_program[guide_position].op_code = 0;
-      }
-    }
-
-    converted_programs.push_back(reduced_program);
-  }
-
-  return converted_programs;
-}
-
-emp::vector<sgpl::Program<Spec>> GetReducedPrograms(SGPHost *host) {
-
-  CPUState condition = host->GetCPU().state;
-  TaskSet all_tasks = condition.world->GetTaskSet();
-  sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
-  emp::vector<emp::vector<int>> position_map =
-      GetReducedProgramRepresentations(host);
-  emp::vector<sgpl::Program<Spec>> reduced_programs =
-      GuideToProgramsConvert(position_map, original_program);
-
-  return reduced_programs;
-}
-
 
 
 #endif

@@ -85,8 +85,8 @@ public:
       program[98].op_code = Library::GetOpCode("SharedIO");
       program[99].op_code = Library::GetOpCode("Reproduce");
     }
-
-    Mutate();
+    cpu.InitializeAnchors(program);
+    //Mutate();
     state.self_completed.resize(world->GetTaskSet().NumTasks());
   }
 

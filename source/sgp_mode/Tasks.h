@@ -39,12 +39,13 @@ class TaskSet {
   emp::vector<Task> tasks;
   // vector<atomic<>> doesn't work since the vector needs to copy its elements
   // on resize and atomic isn't copiable, so we need pointers
+  //&& !task.unlimited
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
   bool CanPerformTask(const CPUState &state, size_t task_id) {
     Task &task = tasks[task_id];
-    if (state.used_resources->Get(task_id) && !task.unlimited) {
+    if (state.used_resources->Get(task_id)&& !task.unlimited) {
       return false;
     }
     if (task.dependencies.size()) {

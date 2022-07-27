@@ -14,6 +14,7 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+#include "AnalysisTools.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
@@ -214,7 +215,7 @@ double CalcPModularity(int num_tasks, double summed_value, int genome_size) {
  *simplified way of getting an organism's Physical Modularity
  *
  */
-float GetPModularity(int tasks_count,
+double GetPModularity(int tasks_count,
                      emp::vector<emp::vector<int>> task_programs) {
   int length = task_programs[0].size();
   double physical_mod_val = 0.0;
@@ -229,6 +230,26 @@ float GetPModularity(int tasks_count,
 
   return physical_mod_val;
 }
+
+/**
+ *
+ * Input:
+ *
+ * Output:
+ *
+ *Purpose: Takes all the calculation methods and calls them in order of having a
+ *simplified way of getting an organism's Physical Modularity
+ *
+ */
+double GetPMFromHost(int task_set_size, SGPHost *input_host){
+  emp::vector<emp::vector<int>> obtained_positions = GetReducedProgramRepresentations(input_host);
+  double phys_mod = GetPModularity(task_set_size, obtained_positions);
+
+  return phys_mod;
+
+}
+
+
 
 // end of physical modularity code
 
