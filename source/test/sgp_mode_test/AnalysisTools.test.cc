@@ -95,8 +95,8 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
         emp::NewPtr<SGPHost>(&random, &world, &config);
     
     test_map = GetReducedProgramRepresentations(test_sample);
-    emp::vector<emp::vector<int>> zero_map = {zero_vector, {}, {}, {}, {},
-                                              {},          {}, {}, {}};
+    emp::vector<emp::vector<int>> zero_map = {zero_vector, {9}, {9}, {9}, {9},
+                                              {9},          {9}, {9}, {9}};
     for (int guide = 0; guide < test_map.size(); guide++) {
       REQUIRE(test_map == zero_map);
     }

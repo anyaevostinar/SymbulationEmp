@@ -158,6 +158,34 @@ TEST_CASE("GetPModularity", "[sgp]"){
 
 }
 
+//failing test here
+TEST_CASE("GetPMFromHost","[sgp]"){
+emp::Random random(5);
+  SymConfigBase config;
+  config.RANDOM_ANCESTOR(false);
+  int world_size = 1;
+  int pop_size = 1;
+  TaskSet test_tasks = LogicTasks;
+  SGPWorld world(random, &config, test_tasks);
+  world.resize(world_size);
+  config.POP_SIZE(pop_size);
+  bool task_done = false;
+
+  emp::Ptr<SGPHost> test_sample =
+      emp::NewPtr<SGPHost>(&random, &world, &config);
+
+  WHEN("The only task is the basic not genome") {
+    size_t task_set_size = test_tasks.NumTasks();
+    double expected_phys_mod = 1.0;
+    double test_phys_mod = GetPMFromHost(task_set_size, test_sample);
+    
+    REQUIRE(expected_phys_mod == test_phys_mod);
+    //should be getting 1.0 and not -1.0
+
+
+  }
+}
+
 
 
 

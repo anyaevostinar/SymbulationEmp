@@ -103,6 +103,12 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
   bool can_do_task =
       ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 
+  //catches if a task cannot be done
+  if(!can_do_task){
+    reduced_position_guide = {9};
+    return reduced_position_guide;
+  }
+
   if (can_do_task) {
 
     for (int k = 0; k <= control_program.size() - 1; k++) {

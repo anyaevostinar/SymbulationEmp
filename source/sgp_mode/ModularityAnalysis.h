@@ -8,13 +8,13 @@
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../Organism.h"
 #include "../default_mode/Host.h"
+#include "AnalysisTools.h"
 #include "CPU.h"
 #include "CPUState.h"
 #include "Instructions.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
-#include "AnalysisTools.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
@@ -28,6 +28,7 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <math.h>
 #include <set>
+
 
 // Start of physicalModularityCode
 
@@ -165,17 +166,20 @@ double GetSummedValue(int num_tasks, emp::vector<int> starts_used,
 
   double final_sum = 0.0;
 
+
   for (int a = 0; a <= num_tasks - 1; a++) {
     double task_sum = 0.0;
 
     // call methods on the altered program a
+    if (alt_genomes[a][0] != 9) {
 
-    double sum_site_dist_a =
-        GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
-    double num_sites_a = GetNumSites(alt_genomes[a]);
-    if (sum_site_dist_a != 0) {
+      double sum_site_dist_a =
+          GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
+      double num_sites_a = GetNumSites(alt_genomes[a]);
+      if (sum_site_dist_a != 0) {
 
-      task_sum = sum_site_dist_a / (num_sites_a * (num_sites_a - 1));
+        task_sum = sum_site_dist_a / (num_sites_a * (num_sites_a - 1));
+      }
     }
 
     final_sum += task_sum;
@@ -216,7 +220,7 @@ double CalcPModularity(int num_tasks, double summed_value, int genome_size) {
  *
  */
 double GetPModularity(int tasks_count,
-                     emp::vector<emp::vector<int>> task_programs) {
+                      emp::vector<emp::vector<int>> task_programs) {
   int length = task_programs[0].size();
   double physical_mod_val = 0.0;
 
@@ -241,18 +245,23 @@ double GetPModularity(int tasks_count,
  *simplified way of getting an organism's Physical Modularity
  *
  */
-double GetPMFromHost(int task_set_size, SGPHost *input_host){
-  emp::vector<emp::vector<int>> obtained_positions = GetReducedProgramRepresentations(input_host);
-  double phys_mod = GetPModularity(task_set_size, obtained_positions);
+double GetPMFromHost(int task_set_size, SGPHost *input_host) {
+  emp::vector<emp::vector<int>> obtained_positions =
+      GetReducedProgramRepresentations(input_host);
+
+  int tasks_done=0;
+  for(int k=0;k<task_set_size;k++){
+    if(obtained_positions[k][0]!=9){
+      tasks_done++;
+    }
+
+  }
+
+  double phys_mod = GetPModularity(tasks_done, obtained_positions);
 
   return phys_mod;
-
 }
 
-
-
 // end of physical modularity code
-
-
 
 #endif
