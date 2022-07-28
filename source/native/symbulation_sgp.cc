@@ -15,7 +15,7 @@ using namespace std;
 
 // This is the main function for the NATIVE version of this project.
 int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
-          int hostIndex = 0;
+          uint32_t hostIndex = 0;
           emp::Ptr<SGPHost> host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
           while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetPoints() == 0 || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
                 if(!world->GetSymPop().size()){
@@ -88,7 +88,7 @@ int symbulation_main(int argc, char * argv[])
       std::cout << "Total number of symbionts with hosts: " << totalSyms
                 << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
   
-      /*if (i >= 1){
+      if (i >= 1){
         int selectedHostValue = PreProcessCheckSymbiont(&world);
         if (selectedHostValue != -1){
             emp::Ptr<SGPHost> host = world.GetFullPop()[selectedHostValue].DynamicCast<SGPHost>();
@@ -96,16 +96,16 @@ int symbulation_main(int argc, char * argv[])
             std::cout<< "Host incoming points: " << host->GetPoints() << std::endl;
             CheckSymbiont(*host, *symbiont);
         }
-      }*/
+      }
 
     }
-    /*int k = 0;
+    uint32_t k = 0;
     while (k < world.GetFullPop().size()){
       emp::Ptr<SGPHost> host = world.GetFullPop()[k].DynamicCast<SGPHost>();
       //std::cout << "Current completed:" << host->GetCPU().state.recentCompletion << std::endl;
       host->GetCPU().state.recentCompletion = 0;
       k++;
-    }*/
+    }
     world.Update();
     if (i % 100 == 0){
       world.GetTaskSet().ClearSquareFrequencyData();

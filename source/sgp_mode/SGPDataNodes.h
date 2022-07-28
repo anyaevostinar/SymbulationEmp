@@ -15,7 +15,10 @@ void SGPWorld::CreateDataFiles() {
   SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
                  file_ending)
         .SetTimingRepeat(my_config->DATA_INT());
-  SetupOutputFrequencyFile(my_config->FILE_PATH() + "SquareFreq" + my_config->FILE_NAME() +
+  SetupHostOutputFile(my_config->FILE_PATH() + "Host_Square" + my_config->FILE_NAME() +
+                 file_ending)
+        .SetTimingRepeat(my_config->DATA_INT());
+  SetupSymOutputFile(my_config->FILE_PATH() + "Sym_Square" + my_config->FILE_NAME() +
                  file_ending)
         .SetTimingRepeat(my_config->DATA_INT());
 }
@@ -39,11 +42,20 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-emp::DataFile &SGPWorld::SetupOutputFrequencyFile(const std::string &filename) {
+emp::DataFile &SGPWorld::SetupHostOutputFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
-    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){ os << task_set.GetSquareFrequencyData(); };
+    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){ os << task_set.GetSquareFrequencyData(1); };
     file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
+  file.PrintHeaderKeys();
+  return file;
+}
+
+emp::DataFile &SGPWorld::SetupSymOutputFile(const std::string &filename) {
+  auto &file = SetupFile(filename);
+  file.AddVar(update, "update", "Update");
+    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){ os << task_set.GetSquareFrequencyData(0); };
+    file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();
   return file;
 }

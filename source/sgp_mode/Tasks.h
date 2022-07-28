@@ -244,11 +244,18 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
-std::string GetSquareFrequencyData(){
+std::string GetSquareFrequencyData(bool Host){
   std::string frequencyList = "";
+  std::map<uint32_t, uint32_t> myMap;
   std::map<uint32_t, uint32_t>::iterator dataGrabber;
-  dataGrabber = tasks[0].hostCalculationTable.begin();
-  while (dataGrabber != tasks[0].hostCalculationTable.end()){
+  if (Host){
+     myMap = tasks[0].hostCalculationTable;
+  }
+  else{
+     myMap = tasks[0].symCalculationTable;
+  }
+  dataGrabber = myMap.begin();
+  while (dataGrabber != myMap.end()){
         uint32_t square = dataGrabber->first;
         uint32_t frequency = dataGrabber->second;
         std::string strSquare = std::to_string(square);
@@ -303,7 +310,7 @@ TaskSet LogicTasks{
      {5, 6, 7}}}; // ANDN, NOR, XOR
 
 TaskSet SquareTasks{{"SQU", OutputTask{[](uint32_t x) {
-                       return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
+                       return sqrt(x) - floor(sqrt(x)) == 0 ? float(0.5 * x) : 0.0;
                      }}}};
 
 #endif

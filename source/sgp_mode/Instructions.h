@@ -127,7 +127,7 @@ INST(SharedIO, {
   //state.recentCompletion = 12;
   //std::cout << "Recent completed:" << state.recentCompletion << std::endl;
 });
-INST(Donate, {
+/*INST(Donate, {
   if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -142,7 +142,7 @@ INST(Donate, {
     host->AddPoints(to_donate);
     state.host->AddPoints(-to_donate);
   }
-});
+});*/
 
 INST(Reuptake, {
   uint32_t next;

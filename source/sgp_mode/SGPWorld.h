@@ -130,7 +130,8 @@ public:
 
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
-  emp::DataFile &SetupOutputFrequencyFile(const std::string &filename);
+  emp::DataFile &SetupHostOutputFile(const std::string &filename);
+  emp::DataFile &SetupSymOutputFile(const std::string &filename);
 
   void CreateDataFiles();
 };
