@@ -260,7 +260,6 @@ std::string GetSquareFrequencyData(){
 }
 void ClearSquareFrequencyData(){
   tasks[0].hostCalculationTable.clear();
-  std::cout << tasks[0].hostCalculationTable.size() << std::endl;
   tasks[0].symCalculationTable.clear();
 }
 };
