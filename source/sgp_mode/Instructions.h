@@ -101,12 +101,10 @@ INST(PrivateIO, {
       score *= 0.75;
     }
     state.host->AddPoints(score);
-    //state.recentCompletion = 12;
   }
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
-  //std::cout << "Recent completed:" << state.recentCompletion << std::endl;
 });
 void AddOrganismPoints(CPUState state, uint32_t output) {
   float score = state.world->GetTaskSet().CheckTasks(state, output, true);
@@ -124,8 +122,6 @@ INST(SharedIO, {
   uint32_t next = sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
-  //state.recentCompletion = 12;
-  //std::cout << "Recent completed:" << state.recentCompletion << std::endl;
 });
 /*INST(Donate, {
   if (state.host->IsHost())
@@ -153,7 +149,6 @@ INST(Reuptake, {
     *a = next;
     state.input_buf.push(next);
   }
-  //std::cout << "Recent completed:" << state.recentCompletion << std::endl;
 });
 
 } // namespace inst

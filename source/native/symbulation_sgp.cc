@@ -17,13 +17,12 @@ using namespace std;
 int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
           uint32_t hostIndex = 0;
           emp::Ptr<SGPHost> host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-          while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetPoints() == 0 || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
+          while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
                 if(!world->GetSymPop().size()){
                   return -1;
                 }
                 hostIndex++;
                 host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-                std::cout << host->GetCPU().state.recentCompletion << std::endl;
           }
           emp::Ptr<SGPSymbiont> symbiont;
           if(hostIndex == world->GetFullPop().size()){
@@ -99,11 +98,11 @@ int symbulation_main(int argc, char * argv[])
       }*/
 
     }
-   /* uint32_t k = 0;
+    /*uint32_t k = 0;
     while (k < world.GetFullPop().size()){
       emp::Ptr<SGPHost> host = world.GetFullPop()[k].DynamicCast<SGPHost>();
       //std::cout << "Current completed:" << host->GetCPU().state.recentCompletion << std::endl;
-      host->GetCPU().state.recentCompletion = 0;
+      //host->GetCPU().state.recentCompletion = 0;
       k++;
     }*/
     world.Update();
