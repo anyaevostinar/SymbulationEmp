@@ -135,6 +135,8 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
  *code to get a distance metric to be called in GetSummedValue
  *
  */
+
+ //editing in progress
 int GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome) {
   // for individual traits of the genome
   int sum_dist = 0;
@@ -142,9 +144,8 @@ int GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome) {
   if (start_used != end_used) {
     for (int c = start_used; c <= end_used; c++) {
 
-      if (alt_genome[c] == 0) {
         sum_dist++;
-      }
+      
     }
   }
 
@@ -171,7 +172,7 @@ double GetSummedValue(int num_tasks, emp::vector<int> starts_used,
     double task_sum = 0.0;
 
     // call methods on the altered program a
-    if (alt_genomes[a][0] != 9) {
+    if (alt_genomes[a][0] != -1) {
 
       double sum_site_dist_a =
           GetSumSiteDist(starts_used[a], ends_used[a], alt_genomes[a]);
@@ -250,7 +251,7 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
 
   int tasks_done=0;
   for(int k=0;k<task_set_size;k++){
-    if(obtained_positions[k][0]!=9){
+    if(obtained_positions[k][0]!=-1){
       tasks_done++;
     }
 

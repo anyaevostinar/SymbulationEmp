@@ -63,6 +63,7 @@ using Spec = sgpl::Spec<Library, CPUState>;
 
 bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
   bool if_task_true = false;
+ 
 
   host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
@@ -76,6 +77,7 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
       }
     }
   }
+  host_cpu.CPUReset();
   host_cpu.state.used_resources->reset();
   return if_task_true;
 }
@@ -99,13 +101,12 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
   emp::vector<int> reduced_position_guide = {};
 
   // whatever task it is on it should turn out to be true
-  sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
   bool can_do_task =
       ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 
   //catches if a task cannot be done
   if(!can_do_task){
-    reduced_position_guide = {9};
+    reduced_position_guide.push_back(-1);
     return reduced_position_guide;
   }
 
@@ -115,7 +116,6 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
 
       sample_host->GetCPU().GetProgram()[k].op_code = 0;
 
-      sample_host->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
       can_do_task =
           ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 

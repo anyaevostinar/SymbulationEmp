@@ -66,7 +66,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
     REQUIRE(program_position_guide == zero_vector);
   }
 }
@@ -88,15 +88,15 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
 
     emp::vector<emp::vector<int>> test_map = {};
     emp::Ptr<SGPHost> test_sample =
         emp::NewPtr<SGPHost>(&random, &world, &config);
     
     test_map = GetReducedProgramRepresentations(test_sample);
-    emp::vector<emp::vector<int>> zero_map = {zero_vector, {9}, {9}, {9}, {9},
-                                              {9},          {9}, {9}, {9}};
+    emp::vector<emp::vector<int>> zero_map = {zero_vector, {-1}, {-1}, {-1}, {-1},
+                                              {-1},          {-1}, {-1}, {-1}};
     for (int guide = 0; guide < test_map.size(); guide++) {
       REQUIRE(test_map == zero_map);
     }
