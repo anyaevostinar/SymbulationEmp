@@ -175,6 +175,7 @@ emp::Random random(5);
       emp::NewPtr<SGPHost>(&random, &world, &config);
 
   WHEN("The only task is the basic not genome") {
+       test_sample->GetCPU().PrintCode();
     size_t task_set_size = test_tasks.NumTasks();
     double expected_phys_mod = 1.0;
     double test_phys_mod = GetPMFromHost(task_set_size, test_sample);

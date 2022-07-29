@@ -106,15 +106,11 @@ public:
       this->program = new_program;
   };
 
-  void CPUReset(){
-    //cpu.killcore()
-   // state.input_buf.reset();
-    cpu.Reset();
-    cpu.InitializeAnchors(program);
-
-
+  sgpl::Cpu<Spec> ReturnSGPLCPU(){
+    return cpu;
   }
 
+  
 
   /**
    * Input: The location of the organism (used for reproduction), and the number

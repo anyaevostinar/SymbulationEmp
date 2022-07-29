@@ -45,6 +45,7 @@ class TaskSet {
 
   bool CanPerformTask(const CPUState &state, size_t task_id) {
     Task &task = tasks[task_id];
+    
     if (state.used_resources->Get(task_id)&& !task.unlimited) {
       return false;
     }

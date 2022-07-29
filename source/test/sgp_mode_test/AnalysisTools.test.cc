@@ -40,6 +40,7 @@ TEST_CASE("ReturnTaskDone", "[sgp]") {
 
     REQUIRE(task_done == true);
   }
+
 }
 
 TEST_CASE("GetNecessaryInstructions", "[sgp]") {

@@ -141,13 +141,30 @@ int GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome) {
   // for individual traits of the genome
   int sum_dist = 0;
 
-  if (start_used != end_used) {
+  //if less than the diameter of the genome
+  if(end_used-start_used<=(alt_genome.size()/2)){
+    sum_dist = end_used-start_used;
+    return sum_dist;
+  }
+
+  else{
+    int site_a;
+    int site_b;
     for (int c = start_used; c <= end_used; c++) {
 
         sum_dist++;
       
-    }
+   }
   }
+
+
+  // if (start_used != end_used) {
+  //   for (int c = start_used; c <= end_used; c++) {
+
+  //       sum_dist++;
+      
+  //   }
+  // }
 
   return sum_dist;
 }
