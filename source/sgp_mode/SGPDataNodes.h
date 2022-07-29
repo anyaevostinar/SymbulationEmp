@@ -45,8 +45,18 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
 emp::DataFile &SGPWorld::SetupHostOutputFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
-    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){ os << task_set.GetSquareFrequencyData(1); };
-    file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
+    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
+    std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(1);
+    std::map<uint32_t, uint32_t>::iterator dataGrabber = squareData.begin();
+  while (dataGrabber != squareData.end()){
+        os << dataGrabber->first;
+        os << ": ";
+        os << dataGrabber->second;
+        os << "; ";
+        dataGrabber++;
+        }
+  };
+  file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
   file.PrintHeaderKeys();
   return file;
 }
@@ -54,7 +64,17 @@ emp::DataFile &SGPWorld::SetupHostOutputFile(const std::string &filename) {
 emp::DataFile &SGPWorld::SetupSymOutputFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
-    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){ os << task_set.GetSquareFrequencyData(0); };
+    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
+    std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(0);
+    std::map<uint32_t, uint32_t>::iterator dataGrabber = squareData.begin();
+  while (dataGrabber != squareData.end()){
+        os << dataGrabber->first;
+        os << ": ";
+        os << dataGrabber->second;
+        os << "; ";
+        dataGrabber++;
+        }
+  };
     file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();
   return file;

@@ -125,13 +125,17 @@ public:
   void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
             task.curHostOutput = output;
             if (calculationMap.empty()){
+              std::cout<< "Hallelujah" << std::endl;
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
             }else{
               std::map<uint32_t, uint32_t>::iterator placemark;
               placemark = calculationMap.begin();
               while (placemark != calculationMap.end() && output != placemark->first){
+                  std::cout << "First: " << placemark->first << std::endl;
+                  std::cout << "Second: " << placemark->second << std::endl;
                     placemark++;
               }
+              std::cout << "--------" << std::endl;
               if (output == placemark->first){
                   placemark->second++;
               }else if (placemark == calculationMap.end()){
@@ -163,6 +167,7 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           score = MarkPerformedTask(state, i, shared, score);
+          state.recentCompletion = 1;
           state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                             sqrt(output));
           if(state.host->IsHost()){
@@ -244,17 +249,19 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
-std::string GetSquareFrequencyData(bool Host){
-  std::string frequencyList = "";
+std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
+  //std::string frequencyList = "";
   std::map<uint32_t, uint32_t> myMap;
-  std::map<uint32_t, uint32_t>::iterator dataGrabber;
+  //std::map<uint32_t, uint32_t>::iterator dataGrabber;
   if (Host){
      myMap = tasks[0].hostCalculationTable;
   }
   else{
      myMap = tasks[0].symCalculationTable;
   }
-  dataGrabber = myMap.begin();
+  return myMap;
+  
+  /*dataGrabber = myMap.begin();
   while (dataGrabber != myMap.end()){
         uint32_t square = dataGrabber->first;
         uint32_t frequency = dataGrabber->second;
@@ -263,7 +270,7 @@ std::string GetSquareFrequencyData(bool Host){
         frequencyList = frequencyList + strSquare + ": " + strFrequency + "; ";
         dataGrabber++;
         }
-    return frequencyList;
+    return frequencyList;*/
 }
 void ClearSquareFrequencyData(){
   tasks[0].hostCalculationTable.clear();
