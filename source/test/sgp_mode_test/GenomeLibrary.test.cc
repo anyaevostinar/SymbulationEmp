@@ -3,7 +3,7 @@
 
 #include "../../catch/catch.hpp"
 
-void TestGenome(Task task, sgpl::Program<Spec> program) {
+void TestGenome(Task task, void (ProgramBuilder::*method)()) {
   emp::Random random(61);
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
@@ -26,7 +26,9 @@ void TestGenome(Task task, sgpl::Program<Spec> program) {
   };
 
   TestOrg organism;
-  CPU cpu(&organism, &world, &random, program);
+  ProgramBuilder builder;
+  (builder.*method)();
+  CPU cpu(&organism, &world, &random, builder.build(100));
   // cpu.PrintCode();
   cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
   cpu.state.shared_completed->resize(LogicTasks.NumTasks());
@@ -42,34 +44,34 @@ void TestGenome(Task task, sgpl::Program<Spec> program) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome(NOT, CreateNotProgram(100));
+  TestGenome(NOT, &ProgramBuilder::addNot);
 }
 
 TEST_CASE("Generate SQUARE program", "[sgp]") {
-  TestGenome(SQU, CreateSquareProgram(100));
+  TestGenome(SQU, &ProgramBuilder::addSquare);
 }
 
 TEST_CASE("Generate NAND program", "[sgp]") {
-  TestGenome(NAND, CreateNandProgram(100));
+  TestGenome(NAND, &ProgramBuilder::addNand);
 }
 TEST_CASE("Generate AND program", "[sgp]") {
-  TestGenome(AND, CreateAndProgram(100));
+  TestGenome(AND, &ProgramBuilder::addAnd);
 }
 TEST_CASE("Generate ORN program", "[sgp]") {
-  TestGenome(ORN, CreateOrnProgram(100));
+  TestGenome(ORN, &ProgramBuilder::addOrn);
 }
 TEST_CASE("Generate OR program", "[sgp]") {
-  TestGenome(OR, CreateOrProgram(100));
+  TestGenome(OR, &ProgramBuilder::addOr);
 }
 TEST_CASE("Generate ANDN program", "[sgp]") {
-  TestGenome(ANDN, CreateAndnProgram(100));
+  TestGenome(ANDN, &ProgramBuilder::addAndn);
 }
 TEST_CASE("Generate NOR program", "[sgp]") {
-  TestGenome(NOR, CreateNorProgram(100));
+  TestGenome(NOR, &ProgramBuilder::addNor);
 }
 TEST_CASE("Generate XOR program", "[sgp]") {
-  TestGenome(XOR, CreateXorProgram(100));
+  TestGenome(XOR, &ProgramBuilder::addXor);
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
-  TestGenome(EQU, CreateEquProgram(100));
+  TestGenome(EQU, &ProgramBuilder::addEqu);
 }

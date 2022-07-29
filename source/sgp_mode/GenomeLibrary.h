@@ -3,6 +3,7 @@
 
 #include "Instructions.h"
 #include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include <cstddef>
@@ -33,51 +34,218 @@ using Spec = sgpl::Spec<Library, CPUState>;
 const Spec::tag_t START_TAG(std::numeric_limits<uint64_t>::max());
 const size_t PROGRAM_LENGTH = 100;
 
+/**
+ * Allows building up a program without knowing the final size.
+ * When it's done and `build()` is called, the instructions added to the builder will be
+ * located at the end of the generated program, right before `reproduce`.
+ */
+class ProgramBuilder : emp::vector<sgpl::Instruction<Spec>> {
+public:
+  void add(const std::string op_name, uint8_t arg0 = 0, uint8_t arg1 = 0,
+           uint8_t arg2 = 0) {
+    sgpl::Instruction<Spec> inst;
+    inst.op_code = Library::GetOpCode(op_name);
+    inst.args = {arg0, arg1, arg2};
+    push_back(inst);
+  }
+
+  sgpl::Program<Spec> build(size_t length) {
+    add("Reproduce");
+
+    sgpl::Program<Spec> program;
+    // Set everything to 0 - this makes them no-ops since that's the first
+    // inst in the library
+    program.resize(length - size());
+    program[0].op_code = Library::GetOpCode("Global Anchor");
+    program[0].tag = START_TAG;
+
+    program.insert(program.end(), begin(), end());
+
+    return program;
+  }
+
+  void addNot() {
+    // sharedio   r0
+    // nand       r0, r0, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("Nand");
+    add("SharedIO");
+  }
+
+  void addSquare() {
+    // Always output 4:
+    // pop        r0
+    // increment  r0          -> 1
+    // add        r0, r0, r0  -> 2
+    // add        r0, r0, r0  -> 4
+    // sharedio   r0
+    add("Pop");
+    add("Increment");
+    add("Add");
+    add("Add");
+    add("SharedIO");
+    add("Reproduce");
+  }
+
+  void addNand() {
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r1, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand", 0, 1, 0);
+    add("SharedIO");
+  }
+
+  void addAnd() {
+    // ~(a nand b)
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r1, r0
+    // nand       r0, r0, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand", 0, 1, 0);
+    add("Nand");
+    add("SharedIO");
+  }
+
+  void addOrn() {
+    // (~a) nand b
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r0, r0
+    // nand       r0, r1, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand");
+    add("Nand", 0, 1, 0);
+    add("SharedIO");
+  }
+
+  void addOr() {
+    // (~a) nand (~b)
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r0, r0
+    // nand       r1, r1, r1
+    // nand       r0, r1, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand", 0, 0, 0);
+    add("Nand", 1, 1, 1);
+    add("Nand", 0, 1, 0);
+    add("SharedIO");
+  }
+
+  void addAndn() {
+    // ~(a nand (~b))
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r1, r1, r1
+    // nand       r0, r1, r0
+    // nand       r0, r0, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand", 1, 1, 1);
+    add("Nand", 0, 1, 0);
+    add("Nand", 0, 0, 0);
+    add("SharedIO");
+  }
+
+  void addNor() {
+    // ~((~a) nand (~b))
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r0, r0
+    // nand       r1, r1, r1
+    // nand       r0, r1, r0
+    // nand       r0, r0, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+    add("Nand", 0, 0, 0);
+    add("Nand", 1, 1, 1);
+    add("Nand", 0, 1, 0);
+    add("Nand", 0, 0, 0);
+    add("SharedIO");
+  }
+
+  void addXor() {
+    // (a & ~b) | (~a & b) --> (a nand ~b) nand (~a nand b)
+    // sharedio   r0
+    // sharedio   r1
+    //
+    // nand       r3, r1, r1
+    // nand       r3, r3, r0
+    //
+    // nand       r2, r0, r0
+    // nand       r2, r2, r1
+    //
+    // nand       r0, r2, r3
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+
+    add("Nand", 3, 1, 1);
+    add("Nand", 3, 3, 0);
+
+    add("Nand", 2, 0, 0);
+    add("Nand", 2, 2, 1);
+
+    add("Nand", 0, 2, 3);
+    add("SharedIO");
+  }
+
+  void addEqu() {
+    // ~(a ^ b)
+    // sharedio   r0
+    // sharedio   r1
+    //
+    // nand       r3, r1, r1
+    // nand       r3, r3, r0
+    //
+    // nand       r2, r0, r0
+    // nand       r2, r2, r1
+    //
+    // nand       r0, r2, r3
+    // nand       r0, r0, r0
+    // sharedio   r0
+    add("SharedIO");
+    add("SharedIO", 1);
+
+    add("Nand", 3, 1, 1);
+    add("Nand", 3, 3, 0);
+
+    add("Nand", 2, 0, 0);
+    add("Nand", 2, 2, 1);
+
+    add("Nand", 0, 2, 3);
+    add("Nand", 0, 0, 0);
+    add("SharedIO");
+  }
+};
+
 sgpl::Program<Spec> CreateRandomProgram(size_t length) {
   return sgpl::Program<Spec>(length);
 }
 
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // sharedio   r0
-  // nand       r0, r0, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 4].op_code = Library::GetOpCode("SharedIO");
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
+  ProgramBuilder program;
+  program.addNot();
+  return program.build(length);
 }
 
 sgpl::Program<Spec> CreateSquareProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // Always output 4:
-  // pop        r0
-  // increment  r0          -> 1
-  // add        r0, r0, r0  -> 2
-  // add        r0, r0, r0  -> 4
-  // sharedio   r0
-  // reproduce
-  program[length - 6].op_code = Library::GetOpCode("Pop");
-  program[length - 5].op_code = Library::GetOpCode("Increment");
-  program[length - 4].op_code = Library::GetOpCode("Add");
-  program[length - 3].op_code = Library::GetOpCode("Add");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
+  ProgramBuilder program;
+  program.addSquare();
+  return program.build(length);
 }
 
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
@@ -88,258 +256,6 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   } else {
     return CreateSquareProgram(PROGRAM_LENGTH);
   }
-}
-
-// Other logic tasks
-
-sgpl::Program<Spec> CreateNandProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r0, r1, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 5].op_code = Library::GetOpCode("SharedIO");
-  program[length - 4].op_code = Library::GetOpCode("SharedIO");
-  program[length - 4].args[0] = 1;
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 3].args[1] = 1;
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateAndProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // ~(a nand b)
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r0, r1, r0
-  // nand       r0, r0, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 6].op_code = Library::GetOpCode("SharedIO");
-  program[length - 5].op_code = Library::GetOpCode("SharedIO");
-  program[length - 5].args[0] = 1;
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args[1] = 1;
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateOrnProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // (~a) nand b
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r0, r0, r0
-  // nand       r0, r1, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 6].op_code = Library::GetOpCode("SharedIO");
-  program[length - 5].op_code = Library::GetOpCode("SharedIO");
-  program[length - 5].args[0] = 1;
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 3].args[1] = 1;
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateOrProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // (~a) nand (~b)
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r0, r0, r0
-  // nand       r1, r1, r1
-  // nand       r0, r1, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 7].op_code = Library::GetOpCode("SharedIO");
-  program[length - 6].op_code = Library::GetOpCode("SharedIO");
-  program[length - 6].args[0] = 1;
-  program[length - 5].op_code = Library::GetOpCode("Nand");
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args = {1, 1, 1};
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 3].args[1] = 1;
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateAndnProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // ~(a nand (~b))
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r1, r1, r1
-  // nand       r0, r1, r0
-  // nand       r0, r0, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 7].op_code = Library::GetOpCode("SharedIO");
-  program[length - 6].op_code = Library::GetOpCode("SharedIO");
-  program[length - 6].args[0] = 1;
-  program[length - 5].op_code = Library::GetOpCode("Nand");
-  program[length - 5].args = {1, 1, 1};
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args[1] = 1;
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateNorProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // ~((~a) nand (~b))
-  // sharedio   r0
-  // sharedio   r1
-  // nand       r0, r0, r0
-  // nand       r1, r1, r1
-  // nand       r0, r1, r0
-  // nand       r0, r0, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 8].op_code = Library::GetOpCode("SharedIO");
-  program[length - 7].op_code = Library::GetOpCode("SharedIO");
-  program[length - 7].args[0] = 1;
-  program[length - 6].op_code = Library::GetOpCode("Nand");
-  program[length - 5].op_code = Library::GetOpCode("Nand");
-  program[length - 5].args = {1, 1, 1};
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args[1] = 1;
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateXorProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // (a & ~b) | (~a & b) --> (a nand ~b) nand (~a nand b)
-  // sharedio   r0
-  // sharedio   r1
-  //
-  // nand       r3, r1, r1
-  // nand       r3, r3, r0
-  //
-  // nand       r2, r0, r0
-  // nand       r2, r2, r1
-  //
-  // nand       r0, r2, r3
-  // sharedio   r0
-  // reproduce
-  program[length - 9].op_code = Library::GetOpCode("SharedIO");
-  program[length - 8].op_code = Library::GetOpCode("SharedIO");
-  program[length - 8].args[0] = 1;
-
-  program[length - 7].op_code = Library::GetOpCode("Nand");
-  program[length - 7].args = {3, 1, 1};
-  program[length - 6].op_code = Library::GetOpCode("Nand");
-  program[length - 6].args = {3, 3, 0};
-
-  program[length - 5].op_code = Library::GetOpCode("Nand");
-  program[length - 5].args = {2, 0, 0};
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args = {2, 2, 1};
-
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 3].args = {0, 2, 3};
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
-}
-
-sgpl::Program<Spec> CreateEquProgram(size_t length) {
-  sgpl::Program<Spec> program;
-  // Set everything to 0 - this makes them no-ops since that's the first
-  // inst in the library
-  program.resize(length);
-  program[0].op_code = Library::GetOpCode("Global Anchor");
-  program[0].tag = START_TAG;
-
-  // ~(a ^ b)
-  // sharedio   r0
-  // sharedio   r1
-  //
-  // nand       r3, r1, r1
-  // nand       r3, r3, r0
-  //
-  // nand       r2, r0, r0
-  // nand       r2, r2, r1
-  //
-  // nand       r0, r2, r3
-  // nand       r0, r0, r0
-  // sharedio   r0
-  // reproduce
-  program[length - 10].op_code = Library::GetOpCode("SharedIO");
-  program[length - 9].op_code = Library::GetOpCode("SharedIO");
-  program[length - 9].args[0] = 1;
-
-  program[length - 8].op_code = Library::GetOpCode("Nand");
-  program[length - 8].args = {3, 1, 1};
-  program[length - 7].op_code = Library::GetOpCode("Nand");
-  program[length - 7].args = {3, 3, 0};
-
-  program[length - 6].op_code = Library::GetOpCode("Nand");
-  program[length - 6].args = {2, 0, 0};
-  program[length - 5].op_code = Library::GetOpCode("Nand");
-  program[length - 5].args = {2, 2, 1};
-
-  program[length - 4].op_code = Library::GetOpCode("Nand");
-  program[length - 4].args = {0, 2, 3};
-  program[length - 3].op_code = Library::GetOpCode("Nand");
-  program[length - 2].op_code = Library::GetOpCode("SharedIO");
-  program[length - 1].op_code = Library::GetOpCode("Reproduce");
-  return program;
 }
 
 #endif
