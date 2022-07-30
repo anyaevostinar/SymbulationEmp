@@ -83,8 +83,8 @@ public:
       // reproduce
       program[96].op_code = Library::GetOpCode("SharedIO");
       program[97].op_code = Library::GetOpCode("Nand");
-      program[98].op_code = Library::GetOpCode("SharedIO");
-      program[99].op_code = Library::GetOpCode("Reproduce");
+    program[98].op_code = Library::GetOpCode("SharedIO");
+    program[99].op_code = Library::GetOpCode("Reproduce");
     }
 
     Mutate();
@@ -118,6 +118,15 @@ public:
 
     sgpl::execute_cpu<Spec>(nCycles, cpu, program, state);
   }
+  
+  sgpl::Cpu<Spec> Getcpu(){
+    return cpu;
+  }
+  sgpl::Program<Spec> GetProgram(){
+    return program;
+  }
+
+
 
   /**
    * Input: None

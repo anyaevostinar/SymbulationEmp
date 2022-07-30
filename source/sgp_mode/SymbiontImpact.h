@@ -19,10 +19,12 @@
 std::tuple<float, float> CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
     host.ClearSyms();
     host.ClearReproSyms();
-    host.SetPoints(0.0);//Maybe make this part into helper function
+    host.SetPoints(0.0);
     host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
     std::cout <<"without sym: " << host.GetPoints() << std::endl;
     host.SetPoints(0.0);
+    host.GetCPU().Getcpu().Reset();
+    host.GetCPU().Getcpu().InitializeAnchors(host.GetCPU().GetProgram());
     emp::Ptr<SGPSymbiont> newSymbiont = emp::NewPtr<SGPSymbiont>(symbiont);
     host.AddSymbiont(newSymbiont);
     newSymbiont->SetPoints(0.0);
