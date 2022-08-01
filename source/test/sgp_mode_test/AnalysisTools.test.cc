@@ -64,7 +64,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
     
     emp::vector<int> program_position_guide =
         GetNecessaryInstructions(test_sample, test_id, test_tasks);
-    test_sample->GetCPU().PrintCode();
+  
     emp::vector<int> expected_vector = {
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
