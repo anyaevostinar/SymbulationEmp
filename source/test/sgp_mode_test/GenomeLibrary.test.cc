@@ -27,6 +27,7 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
 
   TestOrg organism;
   ProgramBuilder builder;
+  // Call the provided method reference
   (builder.*method)();
   CPU cpu(&organism, &world, &random, builder.build(100));
   // cpu.PrintCode();

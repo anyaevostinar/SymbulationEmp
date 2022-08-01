@@ -52,7 +52,8 @@ public:
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
-   * of CPU cycles to run.
+   * of CPU cycles to run. If the organism shouldn't be allowed to reproduce,
+   * then the location should be `emp::WorldPosition::invalid_id`.
    *
    * Output: None
    *
