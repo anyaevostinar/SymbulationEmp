@@ -102,11 +102,11 @@ public:
 
   sgpl::Program<Spec> &GetProgram() { return program; }
   
-  void SetProgram(sgpl::Program<Spec> &new_program){
+  void SetProgram(const sgpl::Program<Spec> &new_program){
       this->program = new_program;
   };
 
-  sgpl::Cpu<Spec> ReturnSGPLCPU(){
+  sgpl::Cpu<Spec>& ReturnSGPLCPU(){
     return cpu;
   }
 

@@ -147,6 +147,7 @@ int GetSumSiteDist(int start_used, int end_used, emp::vector<int> alt_genome) {
     return sum_dist;
   }
 
+  //this portion is still in progress
   else{
     int site_a;
     int site_b;

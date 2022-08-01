@@ -3,6 +3,8 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../sgp_mode/CPU.h"
+#include "../../sgp_mode/SGPDataNodes.h"
+#include "../../default_mode/DataNodes.h"
 #include "../../sgp_mode/CPUState.h"
 #include "../../sgp_mode/Instructions.h"
 #include "../../sgp_mode/ModularityAnalysis.h"
@@ -62,14 +64,16 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
     
     emp::vector<int> program_position_guide =
         GetNecessaryInstructions(test_sample, test_id, test_tasks);
-    emp::vector<int> zero_vector = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    test_sample->GetCPU().PrintCode();
+    emp::vector<int> expected_vector = {
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
-    REQUIRE(program_position_guide == zero_vector);
+    REQUIRE(program_position_guide == expected_vector);
   }
+
 }
 
 TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
@@ -84,8 +88,8 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
   config.POP_SIZE(pop_size);
 
   WHEN("The only task is the basic not genome") {
-    emp::vector<int> zero_vector = {
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    emp::vector<int> expected_vector = {
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -96,10 +100,10 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
         emp::NewPtr<SGPHost>(&random, &world, &config);
     
     test_map = GetReducedProgramRepresentations(test_sample);
-    emp::vector<emp::vector<int>> zero_map = {zero_vector, {-1}, {-1}, {-1}, {-1},
+    emp::vector<emp::vector<int>> expected_map = {expected_vector, {-1}, {-1}, {-1}, {-1},
                                               {-1},          {-1}, {-1}, {-1}};
     for (int guide = 0; guide < test_map.size(); guide++) {
-      REQUIRE(test_map == zero_map);
+      REQUIRE(test_map == expected_map);
     }
   }
 }

@@ -25,8 +25,10 @@
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+#include <iostream>
 #include <math.h>
 #include <set>
+
 
 // start of getUsefulGenomes methods
 
@@ -64,35 +66,23 @@ using Spec = sgpl::Spec<Library, CPUState>;
 bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
   bool if_task_true = false;
 
-  host_cpu.ReturnSGPLCPU().KillActiveCore();
-  host_cpu.ReturnSGPLCPU().KillStaleCore();
   host_cpu.ReturnSGPLCPU().Reset();
   host_cpu.state.used_resources->reset();
+
   IORingBuffer<4> temp_buffer;
   host_cpu.state.input_buf = temp_buffer;
-   
-  
+  host_cpu.ReturnSGPLCPU().InitializeAnchors(host_cpu.GetProgram());
 
-  
-  host_cpu.RunCPUStep(host_cpu.state.location, 100);
+  host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
-  for (TaskSet::Iterator one_task = task_list.begin();
-       one_task != task_list.end(); ++one_task) {
-
-    if (one_task.index == task_id) {
-      auto task_holder = *one_task;
-
-      
-      if (host_cpu.state.used_resources->Get(task_id)) {
-        if_task_true = true;
-      }
-    }
+  if (host_cpu.state.used_resources->Get(task_id)) {
+    if_task_true = true;
   }
-   host_cpu.ReturnSGPLCPU().InitializeAnchors(host_cpu.GetProgram());
-   host_cpu.state.used_resources->reset();
 
-   IORingBuffer<4> empty_buffer;
-   host_cpu.state.input_buf = empty_buffer;
+  host_cpu.state.used_resources->reset();
+
+  IORingBuffer<4> empty_buffer;
+  host_cpu.state.input_buf = empty_buffer;
   return if_task_true;
 }
 
@@ -110,7 +100,8 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
                                           size_t test_task_id,
                                           TaskSet task_passer) {
 
-  sgpl::Program<Spec> control_program = sample_host->GetCPU().GetProgram();
+  sgpl::Program<Spec> const control_program =
+      sample_host->GetCPU().GetProgram();
   sgpl::Program<Spec> test_program = control_program;
 
   emp::vector<int> reduced_position_guide = {};
@@ -119,8 +110,8 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
   bool can_do_task =
       ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
 
-  //catches if a task cannot be done ever
-  if(!can_do_task){
+  // catches if a task cannot be done ever
+  if (!can_do_task) {
     reduced_position_guide.push_back(-1);
     return reduced_position_guide;
   }
@@ -130,7 +121,6 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
     for (int k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
-
       sample_host->GetCPU().SetProgram(test_program);
 
       can_do_task =
@@ -176,6 +166,5 @@ emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
 
   return map_of_guides;
 }
-
 
 #endif
