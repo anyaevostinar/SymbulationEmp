@@ -32,6 +32,65 @@
 
 // Start of physicalModularityCode
 
+
+/**
+ *
+ * Input: A vector of vectors of ints to represent modified program structures
+ *
+ * Output: A vector of the first non No-op instruction in each program structure
+ *
+ *Purpose: Get the first non No-op instruction in the modified genomes and adds
+ *them to a vector for GetNumSiteDist() to use
+ *
+ */
+emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
+  emp::vector<int> list_of_starts = {};
+
+  for (int y = 0; y < task_programs.size(); y++) {
+    for (int e = 0; e <= task_programs[y].size() - 1; e++) {
+      if (task_programs[y][e] == 1) {
+        list_of_starts.push_back(e);
+        break;
+      }
+    }
+
+    if ((list_of_starts.size() - 1) != y) {
+      list_of_starts.push_back(0);
+    }
+  }
+
+  return list_of_starts;
+}
+
+/**
+ *
+ * Input:  A vector of vectors of ints to represent modified program structures
+ *
+ * Output:  A vector of the last non No-op instruction in each program structure
+ *
+ *Purpose: Get the last non No-op instruction in the modified programs and adds
+ *them to a vector for GetNumSiteDist() to use
+ *
+ */
+emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
+  emp::vector<int> list_of_ends = {};
+
+  for (int y = 0; y < task_programs.size(); y++) {
+    for (int f = task_programs[y].size() - 1; f >= 0; f--) {
+      if (task_programs[y][f] == 1) {
+        list_of_ends.push_back(f);
+        break;
+      }
+    }
+
+    if ((list_of_ends.size() - 1) != y) {
+      list_of_ends.push_back(0);
+    }
+  }
+
+  return list_of_ends;
+}
+
 /**
  *
  * Input: Takes in a vector of ints either 0 or 1 representing No-op or
@@ -46,12 +105,12 @@
  *of them, and returns their total amount
  *unless there are no sites the method should always return at least 2
  */
-int GetNumSites(emp::vector<int> alt_genome) {
+int GetNumSites(int start_inst, int end_inst,emp::vector<int> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
   int genome_size = alt_genome.size();
 
-  for (int b = 0; b <= (genome_size - 1); b++) {
+  for (int b = start_inst; b <= end_inst; b++) {
 
     if (alt_genome[b] == 1 ) {
       total_sites++;
@@ -64,6 +123,7 @@ int GetNumSites(emp::vector<int> alt_genome) {
 
 
 
+
 /**
  *
  * Input: instruction i and instruction j positions
@@ -73,8 +133,6 @@ int GetNumSites(emp::vector<int> alt_genome) {
  *Purpose: takes the distance between two sites and returns the value
  *
  */
-
- //editing in progress
 int GetDistance(int i, int j, int length){
   // return std::abs(i-j); // if we treat genome as non-circular
   int genome_length = length;
@@ -96,25 +154,38 @@ int GetDistance(int i, int j, int length){
  *
  */
 
-double GetPModularity(int tasks_count,
-                      emp::vector<emp::vector<int>> task_programs) {
+double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
   double all_distance = 0.0;
+  emp::vector<int> useful_starts = GetUsefulStarts(task_programs);
+  emp::vector<int> useful_ends = GetUsefulEnds(task_programs);
+
+
   for (int t = 0; t < (int)task_programs.size(); t++){//loop through different tasks
+    
     emp::vector<int> program = task_programs[t];
-    int nSt = GetNumSites(program);
+    int nSt = GetNumSites(useful_starts[t],useful_ends[t],program);
     int sum_distance = 0;
-    for (int i = 0; t < (int)program.size(); i++){
-      for (int j = 0; j < (int)program.size(); j++){
-        if ((i != j) && (program[i] == 1) && (program[j] == 1)){
+
+    for (int i = useful_starts[t]; t <useful_ends[t]; i++){
+    
+    if(program[i]==1){
+      
+      for (int j = useful_starts[t]; j < useful_ends[t]; j++){
+    
+        if ((i != j) && (program[j] == 1)){
+          std::cout<<" Bazinga " <<std::endl;
           sum_distance += GetDistance(i,j,(int) program.size());
         }
       }
     }
+    }
+    std::cout<<" CONTROL P POLEASE " <<std::endl;
     double task_distance = sum_distance/(nSt * (nSt-1));
     all_distance += task_distance;
   }
 
-  double physical_mod_val = 1-(2*all_distance/(100*(int)task_programs.size()));
+  
+  double physical_mod_val = 1-(2*all_distance/(task_programs[0].size()*(int)task_programs.size()));
   return physical_mod_val;
 
 }
@@ -135,13 +206,7 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(input_host);
 
-  int tasks_done=0;
-  for(int k=0;k<task_set_size;k++){
-    if(obtained_positions[k][0]!=-1){
-      tasks_done++;
-    }
-
-  }
+  
   emp::vector<emp::vector<int>> filtered_obtained_positions;
   for (int i = 0; i < (int)obtained_positions.size(); i++){
     if(obtained_positions[i].size() != 1){
@@ -150,7 +215,7 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
   }
   
 
-  double phys_mod = GetPModularity(tasks_done, filtered_obtained_positions);
+  double phys_mod = GetPModularity(filtered_obtained_positions);
 
   return phys_mod;
 }

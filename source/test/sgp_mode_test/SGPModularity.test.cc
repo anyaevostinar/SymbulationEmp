@@ -1,4 +1,3 @@
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../sgp_mode/AnalysisTools.h"
@@ -22,13 +21,13 @@ TEST_CASE("GetNumSites", "[sgp]") {
   WHEN("last position is in a site") {
     emp::vector<int> useful_genome = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
-    int site_count = GetNumSites(useful_genome);
+    int site_count = GetNumSites(0,19,useful_genome);
     REQUIRE(site_count == 10);
   }
 
   WHEN("when there are no sites") {
     emp::vector<int> useful_genome = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    int site_count = GetNumSites(useful_genome);
+    int site_count = GetNumSites(0,19,useful_genome);
     REQUIRE(site_count == 0);
   }
 }
@@ -47,7 +46,7 @@ TEST_CASE("GetDistance", "[sgp]") {
         int site_i = 50;
         int site_j = 40;
         int expected_distance =10;
-        obtained_distance = GetDistance(site_i,site_j);
+        obtained_distance = GetDistance(site_i,site_j,length);
         REQUIRE(obtained_distance == expected_distance);
 
 
@@ -57,7 +56,7 @@ TEST_CASE("GetDistance", "[sgp]") {
         int site_i = 1;
         int site_j = 71;
         int expected_distance = 30;
-        obtained_distance = GetDistance(site_i,site_j);
+        obtained_distance = GetDistance(site_i,site_j,length);
         REQUIRE(obtained_distance == expected_distance);
 
   }
@@ -66,7 +65,7 @@ TEST_CASE("GetDistance", "[sgp]") {
         int site_i = 30;
         int site_j = 30;
         int expected_distance = 0;
-        obtained_distance = GetDistance(site_i,site_j);
+        obtained_distance = GetDistance(site_i,site_j,length);
         REQUIRE(obtained_distance == expected_distance);
 
 
@@ -76,37 +75,40 @@ TEST_CASE("GetDistance", "[sgp]") {
 // needs editing
 
 TEST_CASE("GetPModularity", "[sgp]") {
-  emp::vector<int> useful_genome_a = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
-                                      0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+  //emp::vector<int> useful_genome_a = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+  //                                    0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
   emp::vector<int> useful_genome_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  emp::vector<int> useful_genome_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                      0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
+  //emp::vector<int> useful_genome_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  //                                    0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
   emp::vector<int> useful_genome_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-  emp::vector<int> useful_genome_e = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+  //emp::vector<int> useful_genome_e = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+  //                                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  emp::vector<emp::vector<int>> useful_genomes = {
-      useful_genome_a, useful_genome_b, useful_genome_c, useful_genome_d,
-      useful_genome_e};
+  emp::vector<emp::vector<int>> useful_genomes = {useful_genome_b};
 
-  int num_tasks = 5;
-  double test_phys_mod_a = GetPModularity(num_tasks, useful_genomes);
-  double found_value_a = 0.788333;
+  std::cout<<" 2 ";
+
+  int num_tasks = 1;
+  double test_phys_mod_a = GetPModularity(useful_genomes);
+  std::cout<<" 3 ";
+  double found_value_a = 0.8333333;
+  std::cout<<" 2 ";
   REQUIRE(test_phys_mod_a == Approx(found_value_a));
 
-  num_tasks = 4;
-  useful_genomes.pop_back();
-  useful_genomes.pop_back();
-  useful_genomes.push_back(useful_genome_e);
+  num_tasks = 2;
+  std::cout<<" 2 ";
+  useful_genomes.push_back(useful_genome_d);
+  std::cout<<" 2 ";
 
-  double test_phys_mod_b = GetPModularity(num_tasks, useful_genomes);
-  double found_value_b = 0.96041675;
+  double test_phys_mod_b = GetPModularity(useful_genomes);
+  std::cout<<" 3 ";
+  double found_value_b = 0.90833333;
   REQUIRE(test_phys_mod_b == Approx(found_value_b));
 }
 
-TEST_CASE("GetPMFromHost", "[sgp]") {
+TEST_CASE("GetPMFromHost", "[sg]") {
   emp::Random random(5);
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
