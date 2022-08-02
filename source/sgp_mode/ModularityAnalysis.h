@@ -29,9 +29,7 @@
 #include <math.h>
 #include <set>
 
-
 // Start of physicalModularityCode
-
 
 /**
  *
@@ -105,24 +103,20 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
  *of them, and returns their total amount
  *unless there are no sites the method should always return at least 2
  */
-int GetNumSites(int start_inst, int end_inst,emp::vector<int> alt_genome) {
+int GetNumSites(int start_inst, int end_inst, emp::vector<int> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
   int genome_size = alt_genome.size();
 
   for (int b = start_inst; b <= end_inst; b++) {
 
-    if (alt_genome[b] == 1 ) {
+    if (alt_genome[b] == 1) {
       total_sites++;
     }
   }
 
-
   return total_sites;
 }
-
-
-
 
 /**
  *
@@ -133,11 +127,11 @@ int GetNumSites(int start_inst, int end_inst,emp::vector<int> alt_genome) {
  *Purpose: takes the distance between two sites and returns the value
  *
  */
-int GetDistance(int i, int j, int length){
+int GetDistance(int i, int j, int length) {
   // return std::abs(i-j); // if we treat genome as non-circular
   int genome_length = length;
-  int dis = std::abs(i-j);
-  if (dis <= genome_length/2){
+  int dis = std::abs(i - j);
+  if (dis <= genome_length / 2) {
     return dis;
   }
   return genome_length - dis;
@@ -145,12 +139,14 @@ int GetDistance(int i, int j, int length){
 
 /**
  *
- * Input: Takes in the number of tasks and the 2d vector representing the positions of all the tasks' sites
+ * Input: Takes in the number of tasks and the 2d vector representing the
+ *positions of all the tasks' sites
  *
  * Output: A number between 0 and 1 that, as the physical modularity value
  *
  *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Physical Modularity from a 2d vector of all the sites of the tasks it can do
+ *simplified way of getting an organism's Physical Modularity from a 2d vector
+ *of all the sites of the tasks it can do
  *
  */
 
@@ -159,37 +155,35 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> useful_starts = GetUsefulStarts(task_programs);
   emp::vector<int> useful_ends = GetUsefulEnds(task_programs);
 
+  for (int t = 0; t < (int)task_programs.size();
+       t++) { // loop through different tasks
 
-  for (int t = 0; t < (int)task_programs.size(); t++){//loop through different tasks
-    
     emp::vector<int> program = task_programs[t];
-    int nSt = GetNumSites(useful_starts[t],useful_ends[t],program);
-    int sum_distance = 0;
+    int nSt = GetNumSites(useful_starts[t], useful_ends[t], program);
+    double sum_distance = 0;
 
-    for (int i = useful_starts[t]; t <useful_ends[t]; i++){
-    
-    if(program[i]==1){
-      
-      for (int j = useful_starts[t]; j < useful_ends[t]; j++){
-    
-        if ((i != j) && (program[j] == 1)){
-          std::cout<<" Bazinga " <<std::endl;
-          sum_distance += GetDistance(i,j,(int) program.size());
+    for (int i = useful_starts[t]; i < useful_ends[t]; i++) {
+
+      if (program[i] == 1) {
+
+        for (int j = useful_starts[t]; j < useful_ends[t]; j++) {
+
+          if ((i != j) && (program[j] == 1)) {
+            sum_distance += GetDistance(i, j, (int)program.size());
+          }
         }
       }
     }
-    }
-    std::cout<<" CONTROL P POLEASE " <<std::endl;
-    double task_distance = sum_distance/(nSt * (nSt-1));
+
+    double task_distance = sum_distance / (nSt * (nSt - 1));
     all_distance += task_distance;
   }
 
-  
-  double physical_mod_val = 1-(2*all_distance/(task_programs[0].size()*(int)task_programs.size()));
+  double physical_mod_val =
+      1 - (2 * all_distance /
+           (task_programs[0].size() * (int)task_programs.size()));
   return physical_mod_val;
-
 }
-
 
 /**
  *
@@ -206,14 +200,12 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(input_host);
 
-  
   emp::vector<emp::vector<int>> filtered_obtained_positions;
-  for (int i = 0; i < (int)obtained_positions.size(); i++){
-    if(obtained_positions[i].size() != 1){
+  for (int i = 0; i < (int)obtained_positions.size(); i++) {
+    if (obtained_positions[i].size() != 1) {
       filtered_obtained_positions.push_back(obtained_positions[i]);
     }
   }
-  
 
   double phys_mod = GetPModularity(filtered_obtained_positions);
 
@@ -221,40 +213,42 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
 }
 // end of physical modularity code
 
-//start of functional modularity code
-
+// start of functional modularity code
 
 /**
  *
- * Input: Takes in the number of tasks and the 2d vector representing the positions of all the tasks' sites
+ * Input: Takes in the number of tasks and the 2d vector representing the
+ *positions of all the tasks' sites
  *
  * Output: A number between 0 and 1 that, as the functional modularity value
  *
  *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Functional Modularity from a 2d vector of all the sites of the tasks it can do
+ *simplified way of getting an organism's Functional Modularity from a 2d vector
+ *of all the sites of the tasks it can do
  *
  */
 
-double GetFModularity(int tasks_count, 
+double GetFModularity(int tasks_count,
                       emp::vector<emp::vector<int>> task_programs) {
   int length = task_programs[0].size();
   double functional_mod_val = 0.0;
   double sum = 0.0; // sum is everything on the numerator
-  for (int i = 0; i < (int)task_programs.size(); i++){ //trait a
-    for (int j = 0; j < (int)task_programs.size(); j++){ //trait b
-      if (i != j){
+  for (int i = 0; i < (int)task_programs.size(); i++) {   // trait a
+    for (int j = 0; j < (int)task_programs.size(); j++) { // trait b
+      if (i != j) {
         emp::vector<int> current_program = task_programs[i];
-        for (int k = 0; k < (int)current_program.size(); k++){
-          if(current_program[k] == 1){
-            sum += (1 - task_programs[j][k]); 
-            //task_programs[j][k] is the M(s,b) in the paper, 
-            //which specifies whether site s is required for expression of trait b
+        for (int k = 0; k < (int)current_program.size(); k++) {
+          if (current_program[k] == 1) {
+            sum += (1 - task_programs[j][k]);
+            // task_programs[j][k] is the M(s,b) in the paper,
+            // which specifies whether site s is required for expression of
+            // trait b
           }
         }
       }
     }
   }
-  functional_mod_val = sum / (length * tasks_count * (tasks_count-1));
+  functional_mod_val = sum / (length * tasks_count * (tasks_count - 1));
   return functional_mod_val;
 }
 
@@ -272,24 +266,24 @@ double GetFMFromHost(int task_set_size, SGPHost *input_host) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(input_host);
 
-  int tasks_done=0;
-  for(int k=0;k<task_set_size;k++){
-    if(obtained_positions[k][0]!=-1){
+  int tasks_done = 0;
+  for (int k = 0; k < task_set_size; k++) {
+    if (obtained_positions[k][0] != -1) {
       tasks_done++;
     }
   }
   emp::vector<emp::vector<int>> filtered_obtained_positions;
-  for (int i = 0; i < (int)obtained_positions.size(); i++){
-    if(obtained_positions[i].size() != 1){
+  for (int i = 0; i < (int)obtained_positions.size(); i++) {
+    if (obtained_positions[i].size() != 1) {
       filtered_obtained_positions.push_back(obtained_positions[i]);
     }
   }
-  
+
   double func_mod = GetFModularity(tasks_done, filtered_obtained_positions);
 
   return func_mod;
 }
 
-//end of functional modularity
+// end of functional modularity
 
 #endif

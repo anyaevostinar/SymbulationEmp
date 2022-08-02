@@ -88,22 +88,16 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
   emp::vector<emp::vector<int>> useful_genomes = {useful_genome_b};
 
-  std::cout<<" 2 ";
-
   int num_tasks = 1;
   double test_phys_mod_a = GetPModularity(useful_genomes);
-  std::cout<<" 3 ";
   double found_value_a = 0.8333333;
-  std::cout<<" 2 ";
+ 
   REQUIRE(test_phys_mod_a == Approx(found_value_a));
 
   num_tasks = 2;
-  std::cout<<" 2 ";
   useful_genomes.push_back(useful_genome_d);
-  std::cout<<" 2 ";
 
   double test_phys_mod_b = GetPModularity(useful_genomes);
-  std::cout<<" 3 ";
   double found_value_b = 0.90833333;
   REQUIRE(test_phys_mod_b == Approx(found_value_b));
 }
