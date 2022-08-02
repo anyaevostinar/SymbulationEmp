@@ -38,7 +38,7 @@ TEST_CASE("ReturnTaskDone", "[sgp]") {
     size_t test_id = 0;
 
 
-    task_done = ReturnTaskDone(test_tasks, test_id, test_sample->GetCPU());
+    task_done = ReturnTaskDone(test_id, test_sample->GetCPU());
 
     REQUIRE(task_done == true);
   }
@@ -63,7 +63,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
     size_t test_id = 0;
     
     emp::vector<int> program_position_guide =
-        GetNecessaryInstructions(test_sample, test_id, test_tasks);
+        GetNecessaryInstructions(test_sample, test_id);
   
     emp::vector<int> expected_vector = {
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,

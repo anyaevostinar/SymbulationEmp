@@ -63,7 +63,7 @@ using Spec = sgpl::Spec<Library, CPUState>;
  *
  */
 
-bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
+bool ReturnTaskDone(size_t task_id, CPU host_cpu) {
   bool if_task_true = false;
 
   host_cpu.ReturnSGPLCPU().Reset();
@@ -97,8 +97,7 @@ bool ReturnTaskDone(TaskSet task_list, size_t task_id, CPU host_cpu) {
  *
  */
 emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
-                                          size_t test_task_id,
-                                          TaskSet task_passer) {
+                                          size_t test_task_id) {
 
   sgpl::Program<Spec> const control_program =
       sample_host->GetCPU().GetProgram();
@@ -108,7 +107,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
 
   // whatever task it is on it should turn out to be true
   bool can_do_task =
-      ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
+      ReturnTaskDone(test_task_id, sample_host->GetCPU());
 
   // catches if a task cannot be done ever
   if (!can_do_task) {
@@ -124,7 +123,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
       sample_host->GetCPU().SetProgram(test_program);
 
       can_do_task =
-          ReturnTaskDone(task_passer, test_task_id, sample_host->GetCPU());
+          ReturnTaskDone(test_task_id, sample_host->GetCPU());
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
@@ -160,7 +159,7 @@ emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
 
   for (size_t j = 0; j < all_tasks.NumTasks(); ++j) {
     emp::vector<int> position_guide = {};
-    position_guide = GetNecessaryInstructions(host, j, all_tasks);
+    position_guide = GetNecessaryInstructions(host, j);
     map_of_guides.push_back(position_guide);
   }
 
