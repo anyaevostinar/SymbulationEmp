@@ -22,7 +22,6 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
     bool IsHost() override { return true; }
     void AddPoints(double p) override {}
     double GetPoints() override { return 0; }
-    emp::Ptr<Organism> Reproduce() override { return emp::NewPtr<TestOrg>(); }
   };
 
   TestOrg organism;

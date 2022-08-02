@@ -36,8 +36,9 @@ const size_t PROGRAM_LENGTH = 100;
 
 /**
  * Allows building up a program without knowing the final size.
- * When it's done and `build()` is called, the instructions added to the builder will be
- * located at the end of the generated program, right before `reproduce`.
+ * When it's done and `build()` is called, the instructions added to the builder
+ * will be located at the end of the generated program, right before
+ * `reproduce`.
  */
 class ProgramBuilder : emp::vector<sgpl::Instruction<Spec>> {
 public:
@@ -248,6 +249,11 @@ sgpl::Program<Spec> CreateSquareProgram(size_t length) {
   return program.build(length);
 }
 
+/**
+ * Picks what type of starting program should be created based on the config and
+ * creates it. It will be either random, a program that does NOT, or a program
+ * that does SQUARE (which always outputs 4).
+ */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
