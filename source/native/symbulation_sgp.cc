@@ -30,7 +30,7 @@ int symbulation_main(int argc, char * argv[])
     cerr << "There was a problem in processing the options file." << endl;
     exit(1);
   }
-  if (args.TestUnknown() == false) {
+  if (args.HasUnknown()) {
     cerr << "Leftover args no good." << endl;
     exit(1);
   }
@@ -83,15 +83,21 @@ int symbulation_main(int argc, char * argv[])
   int total = 0;
   // int contains = 0;
   totalSyms = 0;
+  double avg_mutualism = 0;
   for (auto i : world.GetFullPop()) {
     auto host = i.DynamicCast<SGPHost>();
     totalSyms += host->GetSymbionts().size();
+    if (host->HasSym()) {
+      avg_mutualism += CheckSymbiont(*host, *host->GetSymbionts().front().DynamicCast<SGPSymbiont>(), world);
+    }
     // if (host->getCpu().containsReproduceInstruction()) {
     //   contains++;
     // }
     total++;
   }
+  avg_mutualism /= totalSyms;
   std::cout << "Final total number of symbionts with hosts: " << totalSyms << '\n';
+  std::cout << "Average mutualism level: " << avg_mutualism << std::endl;
   // std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
 
   //retrieve the dominant taxons for each organism and write them to a file

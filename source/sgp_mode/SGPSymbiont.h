@@ -37,7 +37,7 @@ public:
     my_world = _world;
   }
 
-  SGPSymbiont(SGPSymbiont &symbiont)
+  SGPSymbiont(const SGPSymbiont &symbiont)
       : Symbiont(symbiont), cpu(this, symbiont.my_world, symbiont.random,
                                 symbiont.cpu.GetProgram()),
         my_world(symbiont.my_world) {}
@@ -53,6 +53,7 @@ public:
   ~SGPSymbiont() {
     if (!my_host) {
       cpu.state.used_resources.Delete();
+      cpu.state.shared_completed.Delete();
     }
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
@@ -71,6 +72,7 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     if (!my_host) {
       cpu.state.used_resources.Delete();
+      cpu.state.shared_completed.Delete();
     }
     Symbiont::SetHost(host);
     cpu.state.used_resources =
