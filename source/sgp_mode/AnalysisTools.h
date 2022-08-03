@@ -63,26 +63,26 @@ using Spec = sgpl::Spec<Library, CPUState>;
  *
  */
 
-bool ReturnTaskDone(size_t task_id, CPU host_cpu) {
+bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
   bool if_task_true = false;
 
-  host_cpu.ReturnSGPLCPU().Reset();
-  host_cpu.state.used_resources->reset();
+  org_cpu.ReturnSGPLCPU().Reset();
+  org_cpu.state.used_resources->reset();
 
   IORingBuffer<4> temp_buffer;
-  host_cpu.state.input_buf = temp_buffer;
-  host_cpu.ReturnSGPLCPU().InitializeAnchors(host_cpu.GetProgram());
+  org_cpu.state.input_buf = temp_buffer;
+  org_cpu.ReturnSGPLCPU().InitializeAnchors(org_cpu.GetProgram());
 
-  host_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
+  org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
-  if (host_cpu.state.used_resources->Get(task_id)) {
+  if (org_cpu.state.used_resources->Get(task_id)) {
     if_task_true = true;
   }
 
-  host_cpu.state.used_resources->reset();
+  org_cpu.state.used_resources->reset();
 
   IORingBuffer<4> empty_buffer;
-  host_cpu.state.input_buf = empty_buffer;
+  org_cpu.state.input_buf = empty_buffer;
   return if_task_true;
 }
 
@@ -96,18 +96,18 @@ bool ReturnTaskDone(size_t task_id, CPU host_cpu) {
  *simplified way of getting an organism's Physical Modularity
  *
  */
-emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
+emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
                                           size_t test_task_id) {
 
   sgpl::Program<Spec> const control_program =
-      sample_host->GetCPU().GetProgram();
+      org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
 
   emp::vector<int> reduced_position_guide = {};
 
   // whatever task it is on it should turn out to be true
   bool can_do_task =
-      ReturnTaskDone(test_task_id, sample_host->GetCPU());
+      ReturnTaskDone(test_task_id, org_cpu);
 
   // catches if a task cannot be done ever
   if (!can_do_task) {
@@ -120,10 +120,10 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
     for (int k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
-      sample_host->GetCPU().SetProgram(test_program);
+      org_cpu.SetProgram(test_program);
 
       can_do_task =
-          ReturnTaskDone(test_task_id, sample_host->GetCPU());
+          ReturnTaskDone(test_task_id, org_cpu);
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
@@ -133,7 +133,7 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
         reduced_position_guide.push_back(0);
       }
 
-      sample_host->GetCPU().SetProgram(control_program);
+      org_cpu.SetProgram(control_program);
       test_program = control_program;
     }
   }
@@ -151,15 +151,15 @@ emp::vector<int> GetNecessaryInstructions(SGPHost *sample_host,
  *simplified way of getting an organism's Physical Modularity
  *
  */
-emp::vector<emp::vector<int>> GetReducedProgramRepresentations(SGPHost *host) {
-  CPUState condition = host->GetCPU().state;
+emp::vector<emp::vector<int>> GetReducedProgramRepresentations(CPU org_cpu) {
+  CPUState condition = org_cpu.state;
   TaskSet all_tasks = condition.world->GetTaskSet();
-  sgpl::Program<Spec> original_program = host->GetCPU().GetProgram();
+  sgpl::Program<Spec> original_program = org_cpu.GetProgram();
   emp::vector<emp::vector<int>> map_of_guides;
 
   for (size_t j = 0; j < all_tasks.NumTasks(); ++j) {
     emp::vector<int> position_guide = {};
-    position_guide = GetNecessaryInstructions(host, j);
+    position_guide = GetNecessaryInstructions(org_cpu, j);
     map_of_guides.push_back(position_guide);
   }
 
