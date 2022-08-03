@@ -38,14 +38,15 @@ public:
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, _random, old_cpu) {
+        cpu(this, _world, _random, old_cpu.GetProgram()) {
     my_world = _world;
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
     cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
   }
 
   SGPHost(SGPHost &host)
-      : Host(host), cpu(this, host.my_world, host.random, host.cpu),
+      : Host(host),
+        cpu(this, host.my_world, host.random, host.cpu.GetProgram()),
         my_world(host.my_world) {
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
     cpu.state.shared_completed->resize(my_world->GetTaskSet().NumTasks());
