@@ -66,6 +66,7 @@ using Spec = sgpl::Spec<Library, CPUState>;
 
 bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
   bool if_task_true = false;
+  org_cpu.state.self_completed = {1,1,1,1,1,1,1,1,1};
 
   org_cpu.ReturnSGPLCPU().Reset();
   org_cpu.state.used_resources->reset();
