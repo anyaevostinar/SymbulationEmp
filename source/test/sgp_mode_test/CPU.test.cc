@@ -3,15 +3,6 @@
 #include "../../sgp_mode/SGPDataNodes.h"
 
 TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
-  emp::Random random(61);
-  SymConfigBase config;
-  config.RANDOM_ANCESTOR(false);
-
-  // Make the NOT task guaranteed to provide enough resources for reproduction after one completion
-  TaskSet task_set{
-      {"NOT", InputTask{1, [](auto &a) { return ~a[0]; }, 256.0}, true}};
-  SGPWorld world(random, &config, task_set);
-
   // Mock Organism to check reproduction
   class TestOrg : public Organism {
   public:
@@ -26,18 +17,51 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     }
   };
 
-  TestOrg organism;
-  CPU cpu(&organism, &world, &random);
-  cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
-  cpu.state.shared_completed->resize(LogicTasks.NumTasks());
+  emp::Random random(61);
+  SymConfigBase config;
+  config.RANDOM_ANCESTOR(false);
+  config.SYM_HORIZ_TRANS_RES(1);
+  WHEN("logic tasks are used") {
+    // Make the ancestor genome do NOT instead of SQUARE
+    config.TASK_TYPE(1);
 
-  // It should reproduce at the end of its program, which has length 100
-  cpu.RunCPUStep(0, 100);
-  world.Update();
+    TaskSet task_set{NOT};
+    SGPWorld world(random, &config, task_set);
 
-  REQUIRE(organism.reproduce_count == 1);
+    TestOrg organism;
+    CPU cpu(&organism, &world, &random);
+    cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+    cpu.state.shared_completed->resize(1);
 
-  cpu.state.shared_completed.Delete();
-  cpu.state.used_resources.Delete();
-  cpu.state.internalEnvironment.Delete();
+    // It should reproduce at the end of its program, which has length 100
+    cpu.RunCPUStep(0, 100);
+    world.Update();
+
+    REQUIRE(organism.reproduce_count == 1);
+
+    cpu.state.shared_completed.Delete();
+    cpu.state.used_resources.Delete();
+    cpu.state.internalEnvironment.Delete();
+  }
+  WHEN("square task is used") {
+    config.TASK_TYPE(0);
+
+    TaskSet task_set{SQU};
+    SGPWorld world(random, &config, task_set);
+
+    TestOrg organism;
+    CPU cpu(&organism, &world, &random);
+    cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+    cpu.state.shared_completed->resize(1);
+
+    // It should reproduce at the end of its program, which has length 100
+    cpu.RunCPUStep(0, 100);
+    world.Update();
+
+    REQUIRE(organism.reproduce_count == 1);
+
+    cpu.state.shared_completed.Delete();
+    cpu.state.used_resources.Delete();
+    cpu.state.internalEnvironment.Delete();
+  }
 }

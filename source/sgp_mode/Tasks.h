@@ -62,7 +62,8 @@ class TaskSet {
     return true;
   }
 
-  float MarkPerformedTask(CPUState &state, size_t task_id, bool shared, float score) {
+  float MarkPerformedTask(CPUState &state, size_t task_id, bool shared,
+                          float score) {
     score = state.world.Cast<SymWorld>()->PullResources(score);
     if (score == 0.0) {
       return score;
@@ -214,38 +215,44 @@ public:
 // The 9 default logic tasks in Avida
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
-TaskSet LogicTasks{
-    {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 1}, false},
-    {"NAND", InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 1.0}, false},
-    {"AND",
-     InputTask{2, [](auto &x) { return x[0] & x[1]; }, 10.0},
-     true,
-     {0, 1}}, // NOT or NAND
-    {"ORN",
-     InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 100.0}},
-    {"OR",
-     InputTask{2, [](auto &x) { return x[0] | x[1]; }, 80.0},
-     true,
-     {0, 1}},
-    {"ANDN",
-     InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 80.0},
-     true,
-     {2, 3, 4}}, // AND, ORN, OR
-    {"NOR",
-     InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 160.0},
-     true,
-     {2, 3, 4}},
-    {"XOR",
-     InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 160.0},
-     true,
-     {2, 3, 4}},
-    {"EQU",
-     InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 320.0},
-     true,
-     {5, 6, 7}}}; // ANDN, NOR, XOR
+const Task NOT = {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0},
+                  false},
+           NAND = {"NAND",
+                   InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 5.0},
+                   false},
+           AND = {"AND",
+                  InputTask{2, [](auto &x) { return x[0] & x[1]; }, 40.0},
+                  true,
+                  {0, 1}},
+           ORN = {"ORN",
+                  InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 40.0},
+                  true,
+                  {0, 1}},
+           OR = {"OR",
+                 InputTask{2, [](auto &x) { return x[0] | x[1]; }, 80.0},
+                 true,
+                 {0, 1}},
+           ANDN = {"ANDN",
+                   InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 80.0},
+                   true,
+                   {2, 3, 4}},
+           NOR = {"NOR",
+                  InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 160.0},
+                  true,
+                  {2, 3, 4}},
+           XOR = {"XOR",
+                  InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 160.0},
+                  true,
+                  {2, 3, 4}},
+           EQU = {"EQU",
+                  InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 320.0},
+                  true,
+                  {5, 6, 7}};
+TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
 
-TaskSet SquareTasks{{"SQU", OutputTask{[](uint32_t x) {
-                       return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
-                     }}}};
+const Task SQU = {"SQU", OutputTask{[](uint32_t x) {
+                    return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
+                  }}};
+TaskSet SquareTasks{SQU};
 
 #endif

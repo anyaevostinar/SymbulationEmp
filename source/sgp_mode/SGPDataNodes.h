@@ -39,6 +39,11 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   file.AddTotal(data_node_sym_earned->UnsynchronizedGetMonitor(),
                 "sym_points_earned", "Points earned by symbionts", true);
   GetSymDonatedDataNode();
+  file.AddFun<size_t>(
+      [&]() {
+        return data_node_sym_donated->UnsynchronizedGetMonitor().GetCount();
+      },
+      "sym_donate_calls", "Number of donate calls");
   file.AddTotal(data_node_sym_donated->UnsynchronizedGetMonitor(),
                 "sym_points_donated", "Points donated by symbionts", true);
   file.PrintHeaderKeys();
