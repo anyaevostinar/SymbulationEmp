@@ -52,9 +52,9 @@ emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
       }
     }
 
-    if ((list_of_starts.size() - 1) != y) {
-      list_of_starts.push_back(0);
-    }
+    // if ((list_of_starts.size() - 1) != y) {
+    //   list_of_starts.push_back(0);
+    // }
   }
 
   return list_of_starts;
@@ -81,9 +81,9 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
       }
     }
 
-    if ((list_of_ends.size() - 1) != y) {
-      list_of_ends.push_back(0);
-    }
+    // if ((list_of_ends.size() - 1) != y) {
+    //   list_of_ends.push_back(0);
+    // }
   }
 
   return list_of_ends;
@@ -159,28 +159,32 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
        t++) { // loop through different tasks
 
     emp::vector<int> program = task_programs[t];
-    int nSt = GetNumSites(useful_starts[t], useful_ends[t], program);
-    double sum_distance = 0;
+    int size = (int)program.size();
+    double nSt = GetNumSites(useful_starts[t], useful_ends[t], program);
+    if (nSt != 1) {
 
-    for (int i = useful_starts[t]; i < useful_ends[t]; i++) {
+      double sum_distance = 0;
 
-      if (program[i] == 1) {
+      for (int i = useful_starts[t]; i <= useful_ends[t]; i++) {
 
-        for (int j = useful_starts[t]; j < useful_ends[t]; j++) {
+        if (program[i] == 1) {
 
-          if ((i != j) && (program[j] == 1)) {
-            sum_distance += GetDistance(i, j, (int)program.size());
+          for (int j = useful_starts[t]; j <= useful_ends[t]; j++) {
+
+            if ((i != j) && (program[j] == 1)) {
+              sum_distance += GetDistance(i, j, size);
+            }
           }
         }
       }
-    }
 
-    double task_distance = sum_distance / (nSt * (nSt - 1));
-    all_distance += task_distance;
+      double task_distance = sum_distance / (nSt * (nSt - 1));
+      all_distance += task_distance;
+    }
   }
 
   double physical_mod_val =
-      1 - (2 * all_distance /
+      1 - (2.0 * all_distance /
            (task_programs[0].size() * (int)task_programs.size()));
   return physical_mod_val;
 }
@@ -196,7 +200,7 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
  *
  */
 
-double GetPMFromHost(int task_set_size, SGPHost *input_host) {
+double GetPMFromHost(SGPHost *input_host) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(input_host);
 
@@ -205,6 +209,9 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
     if (obtained_positions[i].size() != 1) {
       filtered_obtained_positions.push_back(obtained_positions[i]);
     }
+  }
+  if ((int)filtered_obtained_positions.size() == 0) {
+    return -1.0;
   }
 
   double phys_mod = GetPModularity(filtered_obtained_positions);
@@ -228,8 +235,8 @@ double GetPMFromHost(int task_set_size, SGPHost *input_host) {
  *
  */
 
-double GetFModularity(int tasks_count,
-                      emp::vector<emp::vector<int>> task_programs) {
+double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
+  int tasks_count = (int)task_programs.size();
   int length = task_programs[0].size();
   double functional_mod_val = 0.0;
   double sum = 0.0; // sum is everything on the numerator
@@ -262,16 +269,11 @@ double GetFModularity(int tasks_count,
  *simplified way of getting an organism's Functional Modularity
  *
  */
-double GetFMFromHost(int task_set_size, SGPHost *input_host) {
+double GetFMFromHost(SGPHost *input_host) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(input_host);
 
-  int tasks_done = 0;
-  for (int k = 0; k < task_set_size; k++) {
-    if (obtained_positions[k][0] != -1) {
-      tasks_done++;
-    }
-  }
+  
   emp::vector<emp::vector<int>> filtered_obtained_positions;
   for (int i = 0; i < (int)obtained_positions.size(); i++) {
     if (obtained_positions[i].size() != 1) {
@@ -279,7 +281,7 @@ double GetFMFromHost(int task_set_size, SGPHost *input_host) {
     }
   }
 
-  double func_mod = GetFModularity(tasks_done, filtered_obtained_positions);
+  double func_mod = GetFModularity(filtered_obtained_positions);
 
   return func_mod;
 }
