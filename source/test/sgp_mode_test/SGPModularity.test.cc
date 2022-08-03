@@ -5,6 +5,7 @@
 #include "../../sgp_mode/CPUState.h"
 #include "../../sgp_mode/Instructions.h"
 #include "../../sgp_mode/ModularityAnalysis.h"
+#include "../../sgp_mode/GenomeLibrary.h"
 #include "../../sgp_mode/SGPHost.h"
 #include "../../sgp_mode/SGPSymbiont.h"
 #include "../../sgp_mode/SGPWorld.h"
@@ -127,6 +128,7 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
     emp::Random random(5);
     SymConfigBase config;
     config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
     int world_size = 1;
     int pop_size = 1;
     TaskSet test_tasks = LogicTasks;
@@ -135,9 +137,10 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
     config.POP_SIZE(pop_size);
 
     emp::Ptr<SGPHost> test_sample =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::NewPtr<SGPHost>(&random, &world, &config);
+
     double expected_phys_mod = .956666667;
-    double test_phys_mod = GetPMFromHost(test_sample);
+    double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
 
     REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
   }
@@ -156,7 +159,7 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
     emp::Ptr<SGPHost> test_sample =
         emp::NewPtr<SGPHost>(&random, &world, &config);
     double expected_phys_mod = -1.0;
-    double test_phys_mod = GetPMFromHost(test_sample);
+    double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
 
     REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
   }

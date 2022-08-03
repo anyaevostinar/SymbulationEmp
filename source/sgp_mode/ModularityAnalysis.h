@@ -15,6 +15,7 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+#include "GenomeLibrary.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
@@ -200,9 +201,9 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
  *
  */
 
-double GetPMFromHost(SGPHost *input_host) {
+double GetPMFromHost(CPU org_cpu) {
   emp::vector<emp::vector<int>> obtained_positions =
-      GetReducedProgramRepresentations(input_host);
+      GetReducedProgramRepresentations(org_cpu);
 
   emp::vector<emp::vector<int>> filtered_obtained_positions;
   for (int i = 0; i < (int)obtained_positions.size(); i++) {
@@ -269,9 +270,9 @@ double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
  *simplified way of getting an organism's Functional Modularity
  *
  */
-double GetFMFromHost(SGPHost *input_host) {
+double GetFMFromHost(CPU org_cpu) {
   emp::vector<emp::vector<int>> obtained_positions =
-      GetReducedProgramRepresentations(input_host);
+      GetReducedProgramRepresentations(org_cpu);
 
   
   emp::vector<emp::vector<int>> filtered_obtained_positions;

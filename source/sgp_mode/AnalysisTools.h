@@ -13,6 +13,7 @@
 #include "Instructions.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
+#include "GenomeLibrary.h"
 #include "Tasks.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
