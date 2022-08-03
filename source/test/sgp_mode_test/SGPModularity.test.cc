@@ -195,7 +195,7 @@ TEST_CASE("GetFModularity", "[sgp]") {
   useful_genomes.push_back(useful_genome_d);
   WHEN("There are more than 2 succesful genomes, partial overlap"){
     double test_funct_mod_c = GetFModularity(useful_genomes);
-    double found_value_c = 0.0;
+    double found_value_c = 0.1;
 
     REQUIRE(test_funct_mod_c == Approx(found_value_c));
   }
