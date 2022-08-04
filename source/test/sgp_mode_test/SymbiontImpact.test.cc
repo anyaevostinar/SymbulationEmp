@@ -1,5 +1,5 @@
-#include "../../source/sgp_mode/GenomeLibrary.h"
 #include "../../source/sgp_mode/SymbiontImpact.h"
+#include "../../source/sgp_mode/GenomeLibrary.h"
 
 TEST_CASE("Parasitic sym is parasitic", "[sgp]") {
   emp::Random random(61);
@@ -15,16 +15,16 @@ TEST_CASE("Parasitic sym is parasitic", "[sgp]") {
   world.Update();
 
   ProgramBuilder hbuilder;
-  hbuilder.addNot();
-  SGPHost host(&random, &world, &config, hbuilder.build(100));
+  hbuilder.AddNot();
+  SGPHost host(&random, &world, &config, hbuilder.Build(100));
 
   ProgramBuilder sbuilder;
-  sbuilder.addNot();
+  sbuilder.AddNot();
   // add four instructions so the sym is guaranteed to complete NOT first
   for (size_t i = 0; i < config.CYCLES_PER_UPDATE(); i++) {
-    sbuilder.add("Nop-0");
+    sbuilder.Add("Nop-0");
   }
-  SGPSymbiont symbiont(&random, &world, &config, sbuilder.build(100));
+  SGPSymbiont symbiont(&random, &world, &config, sbuilder.Build(100));
 
   double score = CheckSymbiont(host, symbiont, world);
   REQUIRE(score < 0.0);
@@ -41,12 +41,12 @@ TEST_CASE("Mutualistic sym is mutualistic", "[sgp]") {
 
   ProgramBuilder hbuilder;
   // Needs the symbiont to do NOT so the dependency of AND is satisfied
-  hbuilder.addAnd();
-  SGPHost host(&random, &world, &config, hbuilder.build(100));
+  hbuilder.AddAnd();
+  SGPHost host(&random, &world, &config, hbuilder.Build(100));
 
   ProgramBuilder sbuilder;
-  sbuilder.addNot();
-  SGPSymbiont symbiont(&random, &world, &config, sbuilder.build(100));
+  sbuilder.AddNot();
+  SGPSymbiont symbiont(&random, &world, &config, sbuilder.Build(100));
 
   double score = CheckSymbiont(host, symbiont, world);
   REQUIRE(score > 0.0);
