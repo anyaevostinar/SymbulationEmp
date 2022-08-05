@@ -1,42 +1,49 @@
 #ifndef PHENOTYPE_ANALYSIS_H
 #define PHENOTYPE_ANALYSIS_H
 
-#include "../../Empirical/include/emp/Evolve/World.hpp"
-#include "../../Empirical/include/emp/data/DataFile.hpp"
-#include "../../Empirical/include/emp/Evolve/Systematics.hpp"
-#include "../../Empirical/include/emp/math/random_utils.hpp"
-#include "../../Empirical/include/emp/math/Random.hpp"
-#include "../Organism.h"
-#include "CPU.h"
 #include "SGPHost.h"
-#include "SGPWorld.h"
-#include "Tasks.h"
-#include <set>
-#include <math.h>
-//Method currently non-functional; still needs bug fixes before usable
-void CheckSymbiont(SGPHost host, SGPSymbiont symbiont){
-    host.ClearSyms();
-    host.ClearReproSyms();
-    host.SetPoints(0.0);
-    host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id, 100);
-    std::cout <<"without sym: " << host.GetPoints() << std::endl;
-    host.SetPoints(0.0);
-    emp::Ptr<SGPSymbiont> newSymbiont = emp::NewPtr<SGPSymbiont>(symbiont);
-    host.AddSymbiont(newSymbiont);
-    newSymbiont->SetPoints(0.0);
-    for (int i=0; i<100; i++){
-        host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,1);
-        newSymbiont->GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,1);
-    }
-    std::cout <<"with sym: " << host.GetPoints() << std::endl;
-    std::cout <<"sym: " << symbiont.GetPoints() << std::endl;
-    std::cout << "=====" << std::endl;
-    host.SetPoints(0.0);
-    newSymbiont->SetPoints(0.0);
+#include "SGPSymbiont.h"
+#include <cstddef>
+#include <emp/Evolve/World_structure.hpp>
+
+const size_t SYM_CHECK_UPDATES = 100;
+
+/**
+ * Input: A copy of the host and symbiont to check.
+ *
+ * Output: A measure of how mutualistic the symbiont is, going from very
+ * mutualistic (1.0) to very parasitic (-1.0).
+ *
+ * Purpose: Runs the host and symbiont in a test environment to determine the
+ * effect the symbiont has on the host.
+ */
+double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
+                     const SGPWorld &world) {
+  host.ClearSyms();
+  host.ClearReproSyms();
+  host.SetPoints(0.0);
+  for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
+    // world.GetUpdate() isn't changing since the whole world isn't being
+    // updated, so we need to do this resetting manually
+    if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
+      host.GetCPU().state.used_resources->reset();
+    host.Process(emp::WorldPosition::invalid_id);
+  }
+  double no_sym = host.GetPoints();
+  host.GetCPU().Reset();
+  host.SetPoints(0.0);
+  host.AddSymbiont(&symbiont);
+  symbiont.SetPoints(0.0);
+  for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
+    if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
+      host.GetCPU().state.used_resources->reset();
+    host.Process(emp::WorldPosition::invalid_id);
+  }
+  double with_sym = host.GetPoints();
+  // The host can't free the symbiont pointer because it's not heap-allocated
+  host.ClearSyms();
+  double change = (with_sym - no_sym) / fmax(fmax(no_sym, with_sym), 1);
+  return change;
 }
-
-
-
-
 
 #endif

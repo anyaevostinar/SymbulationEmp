@@ -38,6 +38,7 @@ public:
         state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(world->GetTaskSet().NumTasks());
   }
 
   /**
@@ -48,6 +49,15 @@ public:
       : program(program), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(world->GetTaskSet().NumTasks());
+  }
+
+  void Reset() {
+    cpu.Reset();
+    cpu.InitializeAnchors(program);
+    state = CPUState(state.host, state.world);
+    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
 
   /**
@@ -77,7 +87,8 @@ public:
    * Purpose: Mutates the genome code stored in the CPU.
    */
   void Mutate() {
-    program.ApplyPointMutations(0.03);
+    program.ApplyPointMutations(state.world->GetConfig()->MUTATION_SIZE() *
+                                15.0);
     cpu.InitializeAnchors(program);
   }
 
