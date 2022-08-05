@@ -43,7 +43,7 @@ TEST_CASE("ReturnTaskDone", "[sgp]") {
 
     task_done = ReturnTaskDone(test_id, test_sample->GetCPU());
 
-    REQUIRE(task_done == true);
+    THEN("") { REQUIRE(task_done == true);}
   }
 
 }
@@ -76,7 +76,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
-    REQUIRE(program_position_guide == expected_vector);
+    THEN("") { REQUIRE(program_position_guide == expected_vector);}
   }
 
 }
@@ -109,7 +109,7 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
     emp::vector<emp::vector<int>> expected_map = {expected_vector, {-1}, {-1}, {-1}, {-1},
                                               {-1},          {-1}, {-1}, {-1}};
     for (int guide = 0; guide < test_map.size(); guide++) {
-      REQUIRE(test_map == expected_map);
+      THEN("") { REQUIRE(test_map == expected_map);}
     }
   }
 }
