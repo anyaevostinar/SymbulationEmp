@@ -106,7 +106,11 @@ public:
       return;
     }
 
-    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    // Randomly decide whether to run before or after the symbiont
+    bool run_before = random->P(0.5);
+    if (run_before) {
+      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    }
 
     if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
@@ -128,6 +132,11 @@ public:
         }
       } // for each sym in syms
     }   // if org has syms
+
+    if (!run_before) {
+      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    }
+
     GrowOlder();
   }
 
