@@ -17,47 +17,47 @@
 // have world call these methods
 
 TEST_CASE("GetUsefulStarts", "[sgp]") {
-  emp::vector<int> useful_genome_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+  emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-  emp::vector<int> useful_genome_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+  emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-  emp::vector<int> useful_genome_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-  emp::vector<int> useful_genome_d = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_d = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-  emp::vector<int> useful_genome_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  emp::vector<emp::vector<int>> useful_genomes = {
-      useful_genome_a, useful_genome_b, useful_genome_c, useful_genome_d,
-      useful_genome_e};
+  emp::vector<emp::vector<int>> needed_code_sites = {
+      needed_code_sites_a, needed_code_sites_b, needed_code_sites_c, needed_code_sites_d,
+      needed_code_sites_e};
 
-  emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
-  emp::vector<int> true_useful_starts = {0, 6, useful_genome_c.size() - 5,
-                                         useful_genome_d.size() - 1};
+  emp::vector<int> calc_useful_starts = GetUsefulStarts(needed_code_sites);
+  emp::vector<int> true_useful_starts = {0, 6, needed_code_sites_c.size() - 5,
+                                         needed_code_sites_d.size() - 1};
 
   THEN("") { REQUIRE(calc_useful_starts == true_useful_starts);}
 }
 
 TEST_CASE("GetUsefulEnds", "[sgp]") {
-  emp::vector<int> useful_genome_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+  emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-  emp::vector<int> useful_genome_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+  emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  emp::vector<int> useful_genome_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
-  emp::vector<int> useful_genome_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  emp::vector<int> useful_genome_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  emp::vector<emp::vector<int>> useful_genomes = {
-      useful_genome_a, useful_genome_b, useful_genome_c, useful_genome_d,
-      useful_genome_e};
+  emp::vector<emp::vector<int>> needed_code_sites = {
+      needed_code_sites_a, needed_code_sites_b, needed_code_sites_c, needed_code_sites_d,
+      needed_code_sites_e};
 
-  emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
-  emp::vector<int> true_useful_ends = {useful_genome_a.size() - 1, 9,
-                                       useful_genome_c.size() - 3, 0};
+  emp::vector<int> calc_useful_ends = GetUsefulEnds(needed_code_sites);
+  emp::vector<int> true_useful_ends = {needed_code_sites_a.size() - 1, 9,
+                                       needed_code_sites_c.size() - 3, 0};
   // have world call these methods
 
   THEN("") { REQUIRE(calc_useful_ends == true_useful_ends);}
