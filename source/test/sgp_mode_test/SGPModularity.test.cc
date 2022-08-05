@@ -34,7 +34,7 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
 
   emp::vector<int> calc_useful_starts = GetUsefulStarts(useful_genomes);
   emp::vector<int> true_useful_starts = {0, 6, useful_genome_c.size() - 5,
-                                         useful_genome_d.size() - 1, 0};
+                                         useful_genome_d.size() - 1};
 
   THEN("") { REQUIRE(calc_useful_starts == true_useful_starts);}
 }
@@ -57,7 +57,7 @@ TEST_CASE("GetUsefulEnds", "[sgp]") {
 
   emp::vector<int> calc_useful_ends = GetUsefulEnds(useful_genomes);
   emp::vector<int> true_useful_ends = {useful_genome_a.size() - 1, 9,
-                                       useful_genome_c.size() - 3, 0, 0};
+                                       useful_genome_c.size() - 3, 0};
   // have world call these methods
 
   THEN("") { REQUIRE(calc_useful_ends == true_useful_ends);}
