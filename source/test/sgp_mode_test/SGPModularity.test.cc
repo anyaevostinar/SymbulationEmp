@@ -285,9 +285,8 @@ TEST_CASE("GetFMFromHost", "[sgp]") {
     sgpl::Program<Spec> test_program = builder.build(length);
     
     test_sample->GetCPU().SetProgram(test_program);
-    test_sample->GetCPU().PrintCode();
 
-    double expected_phys_mod = 0.035;
+    double expected_phys_mod = 0.025;
     double test_phys_mod = GetFMFromHost(test_sample->GetCPU());
 
     REQUIRE(Approx(expected_phys_mod) == test_phys_mod);

@@ -279,7 +279,6 @@ double GetFMFromHost(CPU org_cpu) {
   for (int i = 0; i < (int)obtained_positions.size(); i++) {
     if (obtained_positions[i].size() != 1) {
       filtered_obtained_positions.push_back(obtained_positions[i]);
-      //std::cout<< obtained_positions[i] std::endl;
     }
   }
   
