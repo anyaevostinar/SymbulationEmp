@@ -87,7 +87,8 @@ public:
    * Purpose: Mutates the genome code stored in the CPU.
    */
   void Mutate() {
-    program.ApplyPointMutations(0.03);
+    program.ApplyPointMutations(state.world->GetConfig()->MUTATION_SIZE() *
+                                15.0);
     cpu.InitializeAnchors(program);
   }
 
