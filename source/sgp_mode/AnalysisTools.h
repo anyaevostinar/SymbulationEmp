@@ -31,7 +31,7 @@
 #include <set>
 
 
-// start of getUsefulGenomes methods
+// start of getNecessarySites methods
 
 using Library = sgpl::OpLibrary<
     sgpl::Nop<>,
@@ -66,14 +66,8 @@ using Spec = sgpl::Spec<Library, CPUState>;
 
 bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
   bool if_task_true = false;
+  org_cpu.Reset();
   org_cpu.state.self_completed = {1,1,1,1,1,1,1,1,1};
-
-  org_cpu.ReturnSGPLCPU().Reset();
-  org_cpu.state.used_resources->reset();
-
-  IORingBuffer<4> temp_buffer;
-  org_cpu.state.input_buf = temp_buffer;
-  org_cpu.ReturnSGPLCPU().InitializeAnchors(org_cpu.GetProgram());
 
   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
@@ -81,10 +75,6 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
     if_task_true = true;
   }
 
-  org_cpu.state.used_resources->reset();
-
-  IORingBuffer<4> empty_buffer;
-  org_cpu.state.input_buf = empty_buffer;
   return if_task_true;
 }
 
@@ -100,7 +90,7 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  */
 emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
                                           size_t test_task_id) {
-
+  emp::Random random(-1);
   sgpl::Program<Spec> const control_program =
       org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
@@ -122,10 +112,10 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
     for (int k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
-      org_cpu.SetProgram(test_program);
+      CPU temp_cpu = CPU(org_cpu.state.host,org_cpu.state.world,&random,test_program);
 
       can_do_task =
-          ReturnTaskDone(test_task_id, org_cpu);
+          ReturnTaskDone(test_task_id, temp_cpu);
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
@@ -135,7 +125,6 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
         reduced_position_guide.push_back(0);
       }
 
-      org_cpu.SetProgram(control_program);
       test_program = control_program;
     }
   }

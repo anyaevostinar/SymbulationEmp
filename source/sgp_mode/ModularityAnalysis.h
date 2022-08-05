@@ -201,7 +201,7 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
  *
  */
 
-double GetPMFromHost(CPU org_cpu) {
+double GetPMFromCPU(CPU org_cpu) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
@@ -270,7 +270,7 @@ double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
  *simplified way of getting an organism's Functional Modularity
  *
  */
-double GetFMFromHost(CPU org_cpu) {
+double GetFMFromCPU(CPU org_cpu) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 

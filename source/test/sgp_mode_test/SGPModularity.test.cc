@@ -17,6 +17,8 @@
 // have world call these methods
 
 TEST_CASE("GetUsefulStarts", "[sgp]") {
+  GIVEN("A vector of 1s and 0s representing every site (instruction) in the actual genome that is either"
+  "necessary to perform the designated task or not necessary to perform the task, respectively"){
   emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
   emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -36,10 +38,13 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
   emp::vector<int> true_useful_starts = {0, 6, needed_code_sites_c.size() - 5,
                                          needed_code_sites_d.size() - 1};
 
-  THEN("") { REQUIRE(calc_useful_starts == true_useful_starts);}
+  REQUIRE(calc_useful_starts == true_useful_starts);
+  }
 }
 
 TEST_CASE("GetUsefulEnds", "[sgp]") {
+  GIVEN("A vector of 1s and 0s representing every site (instruction) in the actual genome that is either"
+  "necessary to perform the designated task or not necessary to perform the task, respectively"){
   emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                       0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
   emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -58,14 +63,16 @@ TEST_CASE("GetUsefulEnds", "[sgp]") {
   emp::vector<int> calc_useful_ends = GetUsefulEnds(needed_code_sites);
   emp::vector<int> true_useful_ends = {needed_code_sites_a.size() - 1, 9,
                                        needed_code_sites_c.size() - 3, 0};
-  // have world call these methods
-
-  THEN("") { REQUIRE(calc_useful_ends == true_useful_ends);}
+  
+   REQUIRE(calc_useful_ends == true_useful_ends);
+  }
 }
 
 TEST_CASE("GetNumSites", "[sgp]") {
+   GIVEN("A vector of 1s and 0s representing every site (instruction) in the actual genome that is either"
+  "necessary to perform the designated task or not necessary to perform the task, respectively"){
 
-  WHEN("there are sites") {
+  WHEN("there are necessary sites") {
     emp::vector<int> needed_code_sites = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                           0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
     int site_count = GetNumSites(0, 19, needed_code_sites);
@@ -73,41 +80,42 @@ TEST_CASE("GetNumSites", "[sgp]") {
     THEN("GetNumsites returns a number > 0") { REQUIRE(site_count == 10); }
   }
 
-  WHEN("there are no sites") {
+  WHEN("there are no necessary sites") {
     emp::vector<int> needed_code_sites = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
     int site_count = GetNumSites(0, 19, needed_code_sites);
 
     THEN("GetNumsites returns 0") { REQUIRE(site_count == 0); }
   }
+  }
 }
 
 TEST_CASE("GetDistance", "[sgp]") {
-  // For when the genome is treated as circular, the max distance is 1/2 the
-  // genome length, and the genome_length is always 100
+    GIVEN("For when the genome is treated as circular, the max distance is 1/2 the"
+  "genome length, and the genome_length is always 100"){
   int length = 100;
   int site_i = 0;
   int site_j = 0;
   int expected_distance = 0;
   int obtained_distance = 0;
 
-  WHEN("the distance value is less than the max distance") {
+  WHEN("the distance value (i-j) is less than the max distance") {
     int site_i = 50;
     int site_j = 40;
     int expected_distance = 10;
     obtained_distance = GetDistance(site_i, site_j, length);
 
-    THEN("Get distance returns the absolute value of i-j") {
+    THEN("Get distance returns a value less than the max distance") {
       REQUIRE(obtained_distance == expected_distance);
     }
   }
 
-  WHEN("The distance value is more than the max distance") {
+  WHEN("The distance value (i-j) is more than the max distance") {
     int site_i = 1;
     int site_j = 71;
     int expected_distance = 30;
     obtained_distance = GetDistance(site_i, site_j, length);
 
-    THEN("Subtract the abs val of i-j from the length of the genome") {
+    THEN("It returns a value less than or equal to the max distance") {
       REQUIRE(obtained_distance == expected_distance);
     }
   }
@@ -118,13 +126,16 @@ TEST_CASE("GetDistance", "[sgp]") {
     int expected_distance = 0;
     obtained_distance = GetDistance(site_i, site_j, length);
 
-    THEN("There is no distance") {
+    THEN("There is no distance returned") {
       REQUIRE(obtained_distance == expected_distance);
     }
+  }
   }
 }
 
 TEST_CASE("GetPModularity", "[sgp]") {
+   GIVEN("A vector of 1s and 0s representing every site (instruction) in the actual genome that is either"
+  "necessary to perform the designated task or not necessary to perform the task, respectively"){
   emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                           0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   emp::vector<int> needed_code_sites_c = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -136,7 +147,6 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
   emp::vector<emp::vector<int>> needed_code_sites = {needed_code_sites_b};
 
-  // tell what the ones and zeros mean
   int num_tasks = 1;
   WHEN("The only reduced program that can do a task is needed_code_sites_b") {
     double test_phys_mod_a = GetPModularity(needed_code_sites);
@@ -178,9 +188,10 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
     THEN("") { REQUIRE(test_phys_mod_d == Approx(found_value_d));}
   }
+  }
 }
 
-TEST_CASE("GetPMFromHost", "[sgp]") {
+TEST_CASE("GetPMFromCPU", "[sgp]") {
 
   WHEN("The only task is the basic not genome") {
     emp::Random random(5);
@@ -198,7 +209,7 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
         emp::NewPtr<SGPHost>(&random, &world, &config);
 
     double expected_phys_mod = .956666667;
-    double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
+    double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
     THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod);}
   }
@@ -217,7 +228,7 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
     emp::Ptr<SGPHost> test_sample =
         emp::NewPtr<SGPHost>(&random, &world, &config);
     double expected_phys_mod = -1.0;
-    double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
+    double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
     THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod);}
   }
@@ -240,26 +251,26 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
 
     WHEN("The genome is a Nand") {
       ProgramBuilder builder;
-      builder.addNand();
-      sgpl::Program<Spec> test_program = builder.build(length);
+      builder.AddNand();
+      sgpl::Program<Spec> test_program = builder.Build(length);
 
       test_sample->GetCPU().SetProgram(test_program);
 
       double expected_phys_mod = .952;
-      double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
+      double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
       THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod);}
     }
 
     WHEN("The genome is one of the other logic tasks only") {
       ProgramBuilder builder;
-      builder.addOrn();
-      sgpl::Program<Spec> test_program = builder.build(length);
+      builder.AddOrn();
+      sgpl::Program<Spec> test_program = builder.Build(length);
 
       test_sample->GetCPU().SetProgram(test_program);
 
       double expected_phys_mod = .9466667;
-      double test_phys_mod = GetPMFromHost(test_sample->GetCPU());
+      double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
       THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod);}
     }
@@ -267,6 +278,8 @@ TEST_CASE("GetPMFromHost", "[sgp]") {
 }
 
 TEST_CASE("GetFModularity", "[sgp]") {
+   GIVEN("A vector of 1s and 0s representing every site (instruction) in the actual genome that is either"
+  "necessary to perform the designated task or not necessary to perform the task, respectively"){
   emp::vector<int> needed_code_sites_a = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
                                           0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
   emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
@@ -322,9 +335,10 @@ TEST_CASE("GetFModularity", "[sgp]") {
 
     THEN("") { REQUIRE(test_funct_mod_d == Approx(found_value_d));}
   }
+  }
 }
 
-TEST_CASE("GetFMFromHost", "[sgp]") {
+TEST_CASE("GetFMFromCPU", "[sgp]") {
 
   WHEN("Checking how it processes an and-genome") {
     emp::Random random(5);
@@ -343,14 +357,14 @@ TEST_CASE("GetFMFromHost", "[sgp]") {
     emp::Ptr<SGPHost> test_sample =
         emp::NewPtr<SGPHost>(&random, &world, &config);
     ProgramBuilder builder;
-    builder.addNand();
-    builder.addNot();
-    sgpl::Program<Spec> test_program = builder.build(length);
+    builder.AddNand();
+    builder.AddNot();
+    sgpl::Program<Spec> test_program = builder.Build(length);
 
     test_sample->GetCPU().SetProgram(test_program);
 
     double expected_phys_mod = 0.025;
-    double test_phys_mod = GetFMFromHost(test_sample->GetCPU());
+    double test_phys_mod = GetFMFromCPU(test_sample->GetCPU());
 
     THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod);}
   }

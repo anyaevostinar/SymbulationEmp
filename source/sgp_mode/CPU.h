@@ -59,18 +59,7 @@ public:
     state.self_completed.resize(state.world->GetTaskSet().NumTasks());
     state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
-
-  sgpl::Program<Spec> &GetProgram() { return program; }
-  
-  void SetProgram(const sgpl::Program<Spec> &new_program){
-      this->program = new_program;
-  };
-
-  sgpl::Cpu<Spec>& ReturnSGPLCPU(){
-    return cpu;
-  }
-
-  
+    
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
