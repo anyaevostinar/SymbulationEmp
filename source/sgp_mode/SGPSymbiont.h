@@ -27,17 +27,18 @@ public:
   }
 
   /**
-   * Constructs an SGPSymbiont with a copy of the genome code from `old_cpu`.
+   * Constructs an SGPSymbiont with a copy of the provided genome.
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config, const CPU &oldCpu,
-              double _intval = 0.0, double _points = 0.0)
+              emp::Ptr<SymConfigBase> _config,
+              const sgpl::Program<Spec> &genome, double _intval = 0.0,
+              double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _world, _random, oldCpu.GetProgram()) {
+        cpu(this, _world, _random, genome) {
     my_world = _world;
   }
 
-  SGPSymbiont(SGPSymbiont &symbiont)
+  SGPSymbiont(const SGPSymbiont &symbiont)
       : Symbiont(symbiont), cpu(this, symbiont.my_world, symbiont.random,
                                 symbiont.cpu.GetProgram()),
         my_world(symbiont.my_world) {}
@@ -53,11 +54,28 @@ public:
   ~SGPSymbiont() {
     if (!my_host) {
       cpu.state.used_resources.Delete();
+      cpu.state.shared_completed.Delete();
     }
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
       my_world->to_reproduce[cpu.state.in_progress_repro].second =
           emp::WorldPosition::invalid_id;
+    }
+  }
+
+  bool operator<(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() < sgp->cpu.GetProgram();
+    } else {
+      return false;
+    }
+  }
+
+  bool operator==(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() == sgp->cpu.GetProgram();
+    } else {
+      return false;
     }
   }
 
@@ -71,6 +89,7 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     if (!my_host) {
       cpu.state.used_resources.Delete();
+      cpu.state.shared_completed.Delete();
     }
     Symbiont::SetHost(host);
     cpu.state.used_resources =
@@ -140,8 +159,8 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
-    emp::Ptr<SGPSymbiont> host_baby =
-        emp::NewPtr<SGPSymbiont>(random, my_world, my_config, cpu, GetIntVal());
+    emp::Ptr<SGPSymbiont> host_baby = emp::NewPtr<SGPSymbiont>(
+        random, my_world, my_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     return host_baby;

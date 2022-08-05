@@ -28,7 +28,7 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
   ProgramBuilder builder;
   // Call the provided method reference
   (builder.*method)();
-  CPU cpu(&organism, &world, &random, builder.build(100));
+  CPU cpu(&organism, &world, &random, builder.Build(100));
   // cpu.PrintCode();
   cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
   cpu.state.shared_completed->resize(LogicTasks.NumTasks());
@@ -44,34 +44,34 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome(NOT, &ProgramBuilder::addNot);
+  TestGenome(NOT, &ProgramBuilder::AddNot);
 }
 
 TEST_CASE("Generate SQUARE program", "[sgp]") {
-  TestGenome(SQU, &ProgramBuilder::addSquare);
+  TestGenome(SQU, &ProgramBuilder::AddSquare);
 }
 
 TEST_CASE("Generate NAND program", "[sgp]") {
-  TestGenome(NAND, &ProgramBuilder::addNand);
+  TestGenome(NAND, &ProgramBuilder::AddNand);
 }
 TEST_CASE("Generate AND program", "[sgp]") {
-  TestGenome(AND, &ProgramBuilder::addAnd);
+  TestGenome(AND, &ProgramBuilder::AddAnd);
 }
 TEST_CASE("Generate ORN program", "[sgp]") {
-  TestGenome(ORN, &ProgramBuilder::addOrn);
+  TestGenome(ORN, &ProgramBuilder::AddOrn);
 }
 TEST_CASE("Generate OR program", "[sgp]") {
-  TestGenome(OR, &ProgramBuilder::addOr);
+  TestGenome(OR, &ProgramBuilder::AddOr);
 }
 TEST_CASE("Generate ANDN program", "[sgp]") {
-  TestGenome(ANDN, &ProgramBuilder::addAndn);
+  TestGenome(ANDN, &ProgramBuilder::AddAndn);
 }
 TEST_CASE("Generate NOR program", "[sgp]") {
-  TestGenome(NOR, &ProgramBuilder::addNor);
+  TestGenome(NOR, &ProgramBuilder::AddNor);
 }
 TEST_CASE("Generate XOR program", "[sgp]") {
-  TestGenome(XOR, &ProgramBuilder::addXor);
+  TestGenome(XOR, &ProgramBuilder::AddXor);
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
-  TestGenome(EQU, &ProgramBuilder::addEqu);
+  TestGenome(EQU, &ProgramBuilder::AddEqu);
 }

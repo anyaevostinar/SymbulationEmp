@@ -48,7 +48,7 @@ struct CPUState {
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
   // TODO revisit naming of `completed` fields
   emp::vector<size_t> self_completed;
-  emp::Ptr<emp::vector<size_t>> shared_completed = nullptr;
+  emp::Ptr<emp::vector<size_t>> shared_completed = emp::NewPtr<emp::vector<size_t>>();
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   int in_progress_repro = -1;

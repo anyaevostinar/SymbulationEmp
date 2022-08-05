@@ -10,6 +10,7 @@
 #include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
+#include "symbulation.h"
 
 using namespace std;
 
@@ -18,25 +19,11 @@ using namespace std;
 int symbulation_main(int argc, char * argv[])
 {
   SymConfigBase config;
-
-  bool success = config.Read("SymSettings.cfg");
-  if(!success) {
-    std::cout << "You didn't have a SymSettings.cfg, so one is being written, please try again" << std::endl;
-    config.Write("SymSettings.cfg");
-  }
-
-  auto args = emp::cl::ArgManager(argc, argv);
-  if (args.ProcessConfigOptions(config, std::cout, "SymSettings.cfg") == false) {
-    cerr << "There was a problem in processing the options file." << endl;
-    exit(1);
-  }
-  if (args.TestUnknown() == false) {
-    cerr << "Leftover args no good." << endl;
-    exit(1);
-  }
+  CheckConfigFile(config, argc, argv);
 
   config.Write(std::cout);
   emp::Random random(config.SEED());
+
   TaskSet task_set = LogicTasks;
   if (config.TASK_TYPE() == 0){
      task_set = LogicTasks;
@@ -45,35 +32,15 @@ int symbulation_main(int argc, char * argv[])
   }
   SGPWorld world(random, &config, task_set);
 
-
-  int TIMING_REPEAT = config.DATA_INT();
-
-
-  //Set up files
-  world.CreateDataFiles();
-
   worldSetup(&world, &config);
-  int numupdates = 1000;//config.UPDATES();
+  world.CreateDataFiles();
+  world.RunExperiment();
 
-  int totalSyms = 0;
-
-  //Loop through updates
-  for (int i = 0; i < numupdates; i++) {
-    if((i%TIMING_REPEAT)==0) {
-      cout <<"Update: "<< i << endl;
-      totalSyms = 0;
-      for (auto i : world.GetFullPop()) {
-        auto host = i.DynamicCast<SGPHost>();
-        totalSyms += host->GetSymbionts().size();
-      }
-      std::cout << "Total number of symbionts with hosts: " << totalSyms
-                << "; out of " << world.GetFullPop().size() << " hosts" << '\n';
-    }
-    world.Update();
-  }
+  std::pair<emp::Ptr<Organism>, size_t> info = world.GetDominantInfo();
+  std::cout << "Dominant count: " << info.second << std::endl;
 
   // Print some debug info for testing purposes
-  emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+  emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
   sample->GetCPU().PrintCode();
   for (auto &sym : sample->GetSymbionts()) {
     std::cout << "\n---- SYMBIONT CODE ----\n";
@@ -81,18 +48,19 @@ int symbulation_main(int argc, char * argv[])
   }
 
   int total = 0;
-  // int contains = 0;
-  totalSyms = 0;
+  int totalSyms = 0;
+  double avg_mutualism = 0;
   for (auto i : world.GetFullPop()) {
     auto host = i.DynamicCast<SGPHost>();
     totalSyms += host->GetSymbionts().size();
-    // if (host->getCpu().containsReproduceInstruction()) {
-    //   contains++;
-    // }
+    if (host->HasSym()) {
+      avg_mutualism += CheckSymbiont(*host, *host->GetSymbionts().front().DynamicCast<SGPSymbiont>(), world);
+    }
     total++;
   }
+  avg_mutualism /= totalSyms;
   std::cout << "Final total number of symbionts with hosts: " << totalSyms << '\n';
-  // std::cout << "Final percent with a reproduce instruction: " << (100 * ((double) contains / (double) total)) << std::endl;
+  std::cout << "Average mutualism level: " << avg_mutualism << std::endl;
 
   //retrieve the dominant taxons for each organism and write them to a file
   if(config.PHYLOGENY() == 1){
