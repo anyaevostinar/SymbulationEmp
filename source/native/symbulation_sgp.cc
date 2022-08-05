@@ -59,15 +59,24 @@ int symbulation_main(int argc, char *argv[]) {
     }
   }
 
-  if (sample->HasSym()) {
-    std::cout << "Sample mutualism: "
-              << CheckSymbiont(
-                     *sample,
-                     *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
-                     world)
-              << std::endl;
-  } else {
-    std::cout << "Sample has no symbiont" << std::endl;
+  {
+    ofstream mutualism_file;
+    std::string mutualism_path =
+        config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
+    mutualism_file.open(mutualism_path);
+
+    if (sample->HasSym()) {
+      mutualism_file
+          << CheckSymbiont(
+                 *sample,
+                 *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
+                 world)
+          << std::endl;
+    } else {
+      // We want something in the file so it overwrites previous data, and NA is
+      // something R generally understands
+      mutualism_file << "NA" << std::endl;
+    }
   }
 
   // retrieve the dominant taxons for each organism and write them to a file
