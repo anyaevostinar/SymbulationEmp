@@ -1,23 +1,23 @@
-#include "../sgp_mode/SGPWorld.h"
-#include "../default_mode/Symbiont.h"
-#include "../default_mode/Host.h"
-#include "../sgp_mode/SGPWorldSetup.cc"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
-#include <iostream>
-#include <memory>
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
+#include "../default_mode/Host.h"
+#include "../default_mode/Symbiont.h"
 #include "../sgp_mode/SGPDataNodes.h"
+#include "../sgp_mode/SGPWorld.h"
+#include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
 #include "symbulation.h"
+#include <fstream>
+#include <iostream>
+#include <memory>
 
 using namespace std;
 
 // This is the main function for the NATIVE version of this project.
 
-int symbulation_main(int argc, char * argv[])
-{
+int symbulation_main(int argc, char *argv[]) {
   SymConfigBase config;
   CheckConfigFile(config, argc, argv);
 
@@ -25,9 +25,9 @@ int symbulation_main(int argc, char * argv[])
   emp::Random random(config.SEED());
 
   TaskSet task_set = LogicTasks;
-  if (config.TASK_TYPE() == 0){
-     task_set = SquareTasks;
-  }else if (config.TASK_TYPE() == 1){
+  if (config.TASK_TYPE() == 0) {
+    task_set = SquareTasks;
+  } else if (config.TASK_TYPE() == 1) {
     task_set = LogicTasks;
   }
   SGPWorld world(random, &config, task_set);
@@ -41,31 +41,39 @@ int symbulation_main(int argc, char * argv[])
 
   // Print some debug info for testing purposes
   emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
-  sample->GetCPU().PrintCode();
-  for (auto &sym : sample->GetSymbionts()) {
-    std::cout << "\n---- SYMBIONT CODE ----\n";
-    sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode();
-  }
 
-  int total = 0;
-  int totalSyms = 0;
-  double avg_mutualism = 0;
-  for (auto i : world.GetFullPop()) {
-    auto host = i.DynamicCast<SGPHost>();
-    totalSyms += host->GetSymbionts().size();
-    if (host->HasSym()) {
-      avg_mutualism += CheckSymbiont(*host, *host->GetSymbionts().front().DynamicCast<SGPSymbiont>(), world);
+  std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
+  {
+    ofstream genome_file;
+    std::string genome_path =
+        config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;
+    genome_file.open(genome_path);
+    sample->GetCPU().PrintCode(genome_file);
+
+    for (auto &sym : sample->GetSymbionts()) {
+      ofstream genome_file;
+      std::string genome_path =
+          config.FILE_PATH() + "Genome_Sym" + config.FILE_NAME() + file_ending;
+      genome_file.open(genome_path);
+      sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
     }
-    total++;
   }
-  avg_mutualism /= totalSyms;
-  std::cout << "Final total number of symbionts with hosts: " << totalSyms << '\n';
-  std::cout << "Average mutualism level: " << avg_mutualism << std::endl;
 
-  //retrieve the dominant taxons for each organism and write them to a file
-  if(config.PHYLOGENY() == 1){
-    std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
-    world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
+  if (sample->HasSym()) {
+    std::cout << "Sample mutualism: "
+              << CheckSymbiont(
+                     *sample,
+                     *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
+                     world)
+              << std::endl;
+  } else {
+    std::cout << "Sample has no symbiont" << std::endl;
+  }
+
+  // retrieve the dominant taxons for each organism and write them to a file
+  if (config.PHYLOGENY() == 1) {
+    world.WritePhylogenyFile(config.FILE_PATH() + "Phylogeny_" +
+                             config.FILE_NAME() + file_ending);
   }
   return 0;
 }
@@ -76,7 +84,5 @@ In testing, Catch will define a main function which will initiate tests
 (including testing the symbulation_main function above).
 */
 #ifndef CATCH_CONFIG_MAIN
-int main(int argc, char * argv[]) {
-  return symbulation_main(argc, argv);
-}
+int main(int argc, char *argv[]) { return symbulation_main(argc, argv); }
 #endif
