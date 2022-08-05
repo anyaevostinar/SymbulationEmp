@@ -11,11 +11,11 @@
 #include "AnalysisTools.h"
 #include "CPU.h"
 #include "CPUState.h"
+#include "GenomeLibrary.h"
 #include "Instructions.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
-#include "GenomeLibrary.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
@@ -29,6 +29,7 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <math.h>
 #include <set>
+
 
 // Start of physicalModularityCode
 
@@ -274,14 +275,13 @@ double GetFMFromCPU(CPU org_cpu) {
   emp::vector<emp::vector<int>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
-  
   emp::vector<emp::vector<int>> filtered_obtained_positions;
   for (int i = 0; i < (int)obtained_positions.size(); i++) {
     if (obtained_positions[i].size() != 1) {
       filtered_obtained_positions.push_back(obtained_positions[i]);
     }
   }
-  
+
   double func_mod = GetFModularity(filtered_obtained_positions);
 
   return func_mod;

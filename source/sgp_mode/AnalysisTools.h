@@ -10,10 +10,10 @@
 #include "../default_mode/Host.h"
 #include "CPU.h"
 #include "CPUState.h"
+#include "GenomeLibrary.h"
 #include "Instructions.h"
 #include "SGPHost.h"
 #include "SGPWorld.h"
-#include "GenomeLibrary.h"
 #include "Tasks.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
@@ -29,7 +29,6 @@
 #include <iostream>
 #include <math.h>
 #include <set>
-
 
 // start of getNecessarySites methods
 
@@ -54,20 +53,19 @@ using Spec = sgpl::Spec<Library, CPUState>;
 
 /*
  *
- * Input: Takes in a host
+ * Input: Takes in a cpu and the identifier for a specific task
  *
- * Output: Outputs a vector of int vectors that represents all the necessary
- *instructions to do a task for each task the host can do
+ * Output: a boolean representing a program's ability to do a logic task
  *
- *Purpose: To get modified versions of the host's genome to give to top level
- *modularity methods
+ *Purpose: To return whether or not the organism can perform the given task
+ *
  *
  */
 
 bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
   bool if_task_true = false;
   org_cpu.Reset();
-  org_cpu.state.self_completed = {1,1,1,1,1,1,1,1,1};
+  org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
 
@@ -88,18 +86,15 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  *simplified way of getting an organism's Physical Modularity
  *
  */
-emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
-                                          size_t test_task_id) {
+emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
   emp::Random random(-1);
-  sgpl::Program<Spec> const control_program =
-      org_cpu.GetProgram();
+  sgpl::Program<Spec> const control_program = org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
 
   emp::vector<int> reduced_position_guide = {};
 
-  // whatever task it is on it should turn out to be true
-  bool can_do_task =
-      ReturnTaskDone(test_task_id, org_cpu);
+  
+  bool can_do_task = ReturnTaskDone(test_task_id, org_cpu);
 
   // catches if a task cannot be done ever
   if (!can_do_task) {
@@ -112,10 +107,10 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu,
     for (int k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
-      CPU temp_cpu = CPU(org_cpu.state.host,org_cpu.state.world,&random,test_program);
+      CPU temp_cpu =
+          CPU(org_cpu.state.host, org_cpu.state.world, &random, test_program);
 
-      can_do_task =
-          ReturnTaskDone(test_task_id, temp_cpu);
+      can_do_task = ReturnTaskDone(test_task_id, temp_cpu);
 
       if (!can_do_task) {
         reduced_position_guide.push_back(1);
