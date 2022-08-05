@@ -36,8 +36,11 @@ int symbulation_main(int argc, char * argv[])
   world.CreateDataFiles();
   world.RunExperiment();
 
+  std::pair<emp::Ptr<Organism>, size_t> info = world.GetDominantInfo();
+  std::cout << "Dominant count: " << info.second << std::endl;
+
   // Print some debug info for testing purposes
-  emp::Ptr<SGPHost> sample = world.GetFullPop().back().DynamicCast<SGPHost>();
+  emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
   sample->GetCPU().PrintCode();
   for (auto &sym : sample->GetSymbionts()) {
     std::cout << "\n---- SYMBIONT CODE ----\n";

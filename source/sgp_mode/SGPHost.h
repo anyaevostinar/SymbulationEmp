@@ -63,6 +63,22 @@ public:
     }
   }
 
+  bool operator<(const Organism &other) const {
+    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
+      return cpu.GetProgram() < sgp->cpu.GetProgram();
+    } else {
+      return false;
+    }
+  }
+
+  bool operator==(const Organism &other) const {
+    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
+      return cpu.GetProgram() == sgp->cpu.GetProgram();
+    } else {
+      return false;
+    }
+  }
+
   /**
    * Input: None
    *

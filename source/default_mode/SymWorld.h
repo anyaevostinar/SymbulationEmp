@@ -605,6 +605,35 @@ public:
     }
   }
 
+  /// Get the organism most frequently found in the population and its
+  /// abundance.
+  /// Be sure to check whether the population is empty before calling!
+  std::pair<emp::Ptr<Organism>, size_t> GetDominantInfo() const {
+    emp_assert(
+      GetNumOrgs(),
+      "called GetDominantInfo on an empty population"
+    );
+
+    struct virtual_less {
+      bool operator() (const emp::Ptr<Organism> a, const emp::Ptr<Organism> b) const {
+        return *a < *b;
+      }
+    };
+
+    std::map<emp::Ptr<Organism>, size_t, virtual_less> counts;
+    for (emp::Ptr<Organism> org_ptr : GetFullPop()) {
+      if (org_ptr) ++counts[org_ptr];
+    }
+
+    return *std::max_element(
+      std::begin(counts),
+      std::end(counts),
+      [](const auto & p1, const auto & p2) {
+        return p1.second < p2.second; // compare by counts
+      }
+    );
+  }
+
 
   /**
    * Input: None

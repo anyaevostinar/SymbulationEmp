@@ -63,6 +63,22 @@ public:
     }
   }
 
+  bool operator<(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() < sgp->cpu.GetProgram();
+    } else {
+      return false;
+    }
+  }
+
+  bool operator==(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() == sgp->cpu.GetProgram();
+    } else {
+      return false;
+    }
+  }
+
   /**
    * Input: The pointer to an organism that will be set as the symbinot's host
    *
