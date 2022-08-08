@@ -71,6 +71,7 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
 
+  emp::Signal<void()> on_analyze_population_sig;
 
 public:
   /**
@@ -574,6 +575,17 @@ public:
   }
 
   /**
+   * Input: A function to run after the experiment has finished but before any no mutation updates have been run.
+   *
+   * Output: A key representing the added function, which can usually be ignored.
+   *
+   * Purpose: Allow performing population-level analyses before running no mutation updates.
+   */
+  emp::SignalKey OnAnalyzePopulation(const std::function<void()> & fun) {
+    return on_analyze_population_sig.AddAction(fun);
+  }
+
+  /**
    * Input: Optional boolean "verbose" that specifies whether to print the update numbers to standard output or not, defaults to true.
    *
    * Output: None
@@ -590,6 +602,8 @@ public:
       }
       Update();
     }
+
+    on_analyze_population_sig.Trigger();
 
     int num_no_mut_updates = my_config->NO_MUT_UPDATES();
     if(num_no_mut_updates > 0) {
