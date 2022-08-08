@@ -39,14 +39,16 @@ class TaskSet {
   emp::vector<Task> tasks;
   // vector<atomic<>> doesn't work since the vector needs to copy its elements
   // on resize and atomic isn't copiable, so we need pointers
+  //&& !task.unlimited
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
   bool CanPerformTask(const CPUState &state, size_t task_id) {
-    if (state.used_resources->Get(task_id)) {
+    Task &task = tasks[task_id];
+    
+    if (state.used_resources->Get(task_id)&& !task.unlimited) {
       return false;
     }
-    Task &task = tasks[task_id];
     if (task.dependencies.size()) {
       size_t num_dep_completes = std::reduce(
           task.dependencies.begin(), task.dependencies.end(), 0,
@@ -68,9 +70,8 @@ class TaskSet {
     }
 
     Task &task = tasks[task_id];
-    if (!task.unlimited) {
-      state.used_resources->Set(task_id);
-    }
+    state.used_resources->Set(task_id);
+    
 
     if (task.dependencies.size()) {
       // TODO does it make sense to reset to 0, or to let them accumulate
@@ -171,6 +172,7 @@ public:
     }
     return 0.0f;
   }
+
 
   size_t NumTasks() { return tasks.size(); }
 
