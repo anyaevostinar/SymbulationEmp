@@ -47,17 +47,19 @@ emp::unordered_map<std::bitset<64>, int> GetPhenotypeMap(emp::vector<CPU> organi
     for (size_t i = 0; i < organisms.size(); i++){
         CPU org_cpu = organisms[i];//.GetCPU();//??
         std::bitset<64> managed_tasks = ReturnTasksDone(org_cpu);
-        // if (phenotype.find(managed_tasks) == phenotype.end()){
-        std::cout<<"got phenotype: " << managed_tasks << std::endl; //00....001
-        phenotype[managed_tasks] += 1;
-        // }
+        
+        // std::cout<<"got phenotype: " << managed_tasks << std::endl; //00....001
+        phenotype[managed_tasks] += 1; // this works with / without key exists (i.e. just like python)
+        
     }
     return phenotype;
 
 
 }
 
-double AlphaDiversity(emp::unordered_map<std::bitset<64> , int> phenotype, double q= 0.0) {
+
+
+double AlphaDiversityHelper(emp::unordered_map<std::bitset<64> , int> phenotype, double q = 0.0) {
     int pop = 0;
     double partial = 0.0;
         
@@ -81,7 +83,13 @@ double AlphaDiversity(emp::unordered_map<std::bitset<64> , int> phenotype, doubl
     return alpha;
 }
 
-double ShannonDiversity(emp::unordered_map<std::bitset<64> , int> phenotype) {
+double AlphaDiversity(emp::vector<CPU> organisms){
+    emp::unordered_map<std::bitset<64> , int> phenotype = GetPhenotypeMap(organisms);
+    return AlphaDiversityHelper(phenotype);
+}
+
+
+double ShannonDiversityHelper(emp::unordered_map<std::bitset<64> , int> phenotype) {
     int pop = 0;
     emp::vector<double> proportion;
     double h = 0;
@@ -98,6 +106,11 @@ double ShannonDiversity(emp::unordered_map<std::bitset<64> , int> phenotype) {
     // std::cout << "Population: " << pop << "\n" << std::flush;
     // std::cout << "Shannon: " << h << "\n"<<std::flush;
     return h;
+}
+
+double ShannonDiversity(emp::vector<CPU> organisms){
+    emp::unordered_map<std::bitset<64> , int> phenotype = GetPhenotypeMap(organisms);
+    return ShannonDiversityHelper(phenotype);
 }
 
 

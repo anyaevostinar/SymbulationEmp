@@ -73,3 +73,95 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
     THEN("") { REQUIRE(test_map[zeros] == expected_map[zeros]); }
   }
 }
+
+
+TEST_CASE("AlphaDiversity", "[sgp]") {
+
+  WHEN("For a world with just two identical CPUs") {
+    emp::Random random(5);
+    SymConfigBase config;
+    config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
+    int world_size = 1;
+    int pop_size = 1;
+    TaskSet test_tasks = LogicTasks;
+    SGPWorld world(random, &config, test_tasks);
+    world.resize(world_size);
+    config.POP_SIZE(pop_size);
+
+    size_t length = 100;
+
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config);
+
+    ProgramBuilder builder;
+
+    sgpl::Program<Spec> test_program = builder.Build(length);
+    CPU temp_cpu1 =
+        CPU(test_sample1->GetCPU().state.host, test_sample1->GetCPU().state.world,
+            &random, test_program);
+    CPU temp_cpu2 =
+        CPU(test_sample2->GetCPU().state.host, test_sample2->GetCPU().state.world,
+            &random, test_program);
+    test_sample1->GetCPU() = temp_cpu1;
+    test_sample2->GetCPU() = temp_cpu2;
+
+    double expected_value = 1.0; //????
+    emp::vector<CPU> test_vec = {};
+    test_vec.push_back((*test_sample1).GetCPU());
+    test_vec.push_back((*test_sample2).GetCPU());
+
+    
+    double test_value = AlphaDiversity(test_vec);
+
+    THEN("") { REQUIRE(test_value == expected_value); }
+  }
+}
+
+
+TEST_CASE("ShannonDiversity", "[sgp]") {
+
+  WHEN("For a world with just two identical CPUs") {
+    emp::Random random(5);
+    SymConfigBase config;
+    config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
+    int world_size = 1;
+    int pop_size = 1;
+    TaskSet test_tasks = LogicTasks;
+    SGPWorld world(random, &config, test_tasks);
+    world.resize(world_size);
+    config.POP_SIZE(pop_size);
+
+    size_t length = 100;
+
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config);
+
+    ProgramBuilder builder;
+
+    sgpl::Program<Spec> test_program = builder.Build(length);
+    CPU temp_cpu1 =
+        CPU(test_sample1->GetCPU().state.host, test_sample1->GetCPU().state.world,
+            &random, test_program);
+    CPU temp_cpu2 =
+        CPU(test_sample2->GetCPU().state.host, test_sample2->GetCPU().state.world,
+            &random, test_program);
+    test_sample1->GetCPU() = temp_cpu1;
+    test_sample2->GetCPU() = temp_cpu2;
+
+    double expected_value = 0.0; //since ln 1 = 0
+    emp::vector<CPU> test_vec = {};
+    test_vec.push_back((*test_sample1).GetCPU());
+    test_vec.push_back((*test_sample2).GetCPU());
+
+    
+    double test_value = ShannonDiversity(test_vec);
+
+    THEN("") { REQUIRE(test_value == expected_value); }
+  }
+}
