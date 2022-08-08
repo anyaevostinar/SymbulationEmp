@@ -46,8 +46,8 @@
 emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> list_of_starts = {};
 
-  for (int y = 0; y < task_programs.size(); y++) {
-    for (int e = 0; e <= task_programs[y].size() - 1; e++) {
+  for (size_t y = 0; y < task_programs.size(); y++) {
+    for (size_t e = 0; e <= task_programs[y].size() - 1; e++) {
       if (task_programs[y][e] == 1) {
         list_of_starts.push_back(e);
         break;
@@ -75,8 +75,8 @@ emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
 emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> list_of_ends = {};
 
-  for (int y = 0; y < task_programs.size(); y++) {
-    for (int f = task_programs[y].size() - 1; f >= 0; f--) {
+  for (size_t y = 0; y < task_programs.size(); y++) {
+    for (size_t f = task_programs[y].size() - 1; f >= 0; f--) {
       if (task_programs[y][f] == 1) {
         list_of_ends.push_back(f);
         break;
@@ -108,7 +108,7 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
 int GetNumSites(int start_inst, int end_inst, emp::vector<int> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
-  int genome_size = alt_genome.size();
+  int genome_size = (int)alt_genome.size();
 
   for (int b = start_inst; b <= end_inst; b++) {
 

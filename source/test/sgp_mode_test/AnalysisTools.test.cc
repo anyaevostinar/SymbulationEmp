@@ -105,7 +105,7 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
     test_map = GetReducedProgramRepresentations(test_sample->GetCPU());
     emp::vector<emp::vector<int>> expected_map = {
         expected_vector, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}};
-    for (int guide = 0; guide < test_map.size(); guide++) {
+    for (size_t guide = 0; guide < test_map.size(); guide++) {
       THEN("") { REQUIRE(test_map == expected_map); }
     }
   }

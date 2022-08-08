@@ -104,7 +104,7 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
 
   if (can_do_task) {
 
-    for (int k = 0; k <= control_program.size() - 1; k++) {
+    for (size_t k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
       CPU temp_cpu =
