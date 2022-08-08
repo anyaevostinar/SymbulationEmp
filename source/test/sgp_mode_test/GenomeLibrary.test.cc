@@ -28,7 +28,7 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
   ProgramBuilder builder;
   // Call the provided method reference
   (builder.*method)();
-  CPU cpu(&organism, &world, &random, builder.Build(100));
+  CPU cpu(&organism, &world, builder.Build(100));
   // cpu.PrintCode();
   cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
   cpu.state.shared_completed->resize(LogicTasks.NumTasks());

@@ -22,7 +22,6 @@
 class CPU {
   sgpl::Cpu<Spec> cpu;
   sgpl::Program<Spec> program;
-  emp::Ptr<emp::Random> random;
 
 public:
   CPUState state;
@@ -32,9 +31,8 @@ public:
    * or a blank genome that knows how to do a simple task depending on the
    * config setting RANDOM_ANCESTOR.
    */
-  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random)
-      : program(CreateStartProgram(world->GetConfig())), random(random),
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
+      : program(CreateStartProgram(world->GetConfig())),
         state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
@@ -45,8 +43,8 @@ public:
    * Constructs a new CPU with a copy of another CPU's genome.
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random, const sgpl::Program<Spec> &program)
-      : program(program), random(random), state(organism, world) {
+      const sgpl::Program<Spec> &program)
+      : program(program), state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
     state.shared_completed->resize(world->GetTaskSet().NumTasks());
