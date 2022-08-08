@@ -108,7 +108,7 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
 int GetNumSites(int start_inst, int end_inst, emp::vector<int> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
-  int genome_size = (int)alt_genome.size();
+  // int genome_size = (int)alt_genome.size();
 
   for (int b = start_inst; b <= end_inst; b++) {
 
