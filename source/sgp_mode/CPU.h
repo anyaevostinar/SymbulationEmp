@@ -3,23 +3,16 @@
 
 #include "../default_mode/Host.h"
 #include "CPUState.h"
+#include "GenomeLibrary.h"
 #include "Instructions.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
-#include "sgpl/library/OpLibraryCoupler.hpp"
-#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
-#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
-#include "sgpl/operations/flow_global/Anchor.hpp"
-#include "sgpl/operations/unary/Increment.hpp"
-#include "sgpl/operations/unary/Terminal.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
-#include <cmath>
 #include <iostream>
-#include <limits>
 #include <string>
 
 /**
@@ -27,34 +20,9 @@
  * mode.
  */
 class CPU {
-  using Library =
-      sgpl::OpLibrary<sgpl::Nop<>,
-                      // single argument math
-                      inst::ShiftLeft, inst::ShiftRight, inst::Increment,
-                      inst::Decrement,
-                      // biological operations
-                      // no copy or alloc
-                      inst::Reproduce, inst::PrivateIO, inst::SharedIO,
-                      // double argument math
-                      inst::Add, inst::Subtract, inst::Nand,
-                      // Stack manipulation
-                      inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-                      // no h-search
-                      //inst::Donate, 
-                      inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
-                      // if-label doesn't make sense for SGP, same with *-head
-                      // and set-flow but this is required
-                      sgpl::global::Anchor>;
-
-  using Spec = sgpl::Spec<Library, CPUState>;
-
   sgpl::Cpu<Spec> cpu;
   sgpl::Program<Spec> program;
   emp::Ptr<emp::Random> random;
-  // Instead of picking an anchor to start at randomly, start at the anchor that
-  // has the most bits set by matching with the maximum valued tag. This way
-  // organisms can evolve to designate a certain anchor as the entry.
-  Spec::tag_t start_tag;
 
 public:
   CPUState state;
@@ -66,44 +34,36 @@ public:
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
       emp::Ptr<emp::Random> random)
-      : random(random), start_tag(std::numeric_limits<uint64_t>::max()),
+      : program(CreateStartProgram(world->GetConfig())), random(random),
         state(organism, world) {
-    if (world->GetConfig()->RANDOM_ANCESTOR()) {
-      program = sgpl::Program<Spec>(100);
-    } else {
-      // Set everything to 0 - this makes them no-ops since that's the first
-      // inst in the library
-      program.resize(100);
-      program[0].op_code = Library::GetOpCode("Global Anchor");
-      program[0].tag = start_tag;
-
-      // sharedio   r0
-      // nand       r0, r0, r0
-      // sharedio   r0
-      // reproduce
-      program[96].op_code = Library::GetOpCode("SharedIO");
-      program[97].op_code = Library::GetOpCode("Nand");
-    program[98].op_code = Library::GetOpCode("SharedIO");
-    program[99].op_code = Library::GetOpCode("Reproduce");
-    }
-
-    Mutate();
+    cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(world->GetTaskSet().NumTasks());
   }
 
   /**
    * Constructs a new CPU with a copy of another CPU's genome.
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random, const CPU &old_cpu)
-      : program(old_cpu.program), random(random), state(organism, world) {
+      emp::Ptr<emp::Random> random, const sgpl::Program<Spec> &program)
+      : program(program), random(random), state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(world->GetTaskSet().NumTasks());
+  }
+
+  void Reset() {
+    cpu.Reset();
+    cpu.InitializeAnchors(program);
+    state = CPUState(state.host, state.world);
+    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
-   * of CPU cycles to run.
+   * of CPU cycles to run. If the organism shouldn't be allowed to reproduce,
+   * then the location should be `emp::WorldPosition::invalid_id`.
    *
    * Output: None
    *
@@ -111,7 +71,7 @@ public:
    */
   void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
     if (!cpu.HasActiveCore()) {
-      cpu.DoLaunchCore(start_tag);
+      cpu.DoLaunchCore(START_TAG);
     }
 
     state.location = location;
@@ -136,9 +96,12 @@ public:
    * Purpose: Mutates the genome code stored in the CPU.
    */
   void Mutate() {
-    program.ApplyPointMutations(0.03);
+    program.ApplyPointMutations(state.world->GetConfig()->MUTATION_SIZE() *
+                                15.0);
     cpu.InitializeAnchors(program);
   }
+
+  const sgpl::Program<Spec> &GetProgram() const { return program; }
 
 private:
   /**
@@ -151,7 +114,7 @@ private:
    */
   void PrintOp(const sgpl::Instruction<Spec> &ins,
                const emp::map<std::string, size_t> &arities,
-               sgpl::JumpTable<Spec, Spec::global_matching_t> &table) {
+               sgpl::JumpTable<Spec, Spec::global_matching_t> &table) const {
     const std::string &name = ins.GetOpName();
     if (arities.count(name)) {
       // Simple instruction
@@ -212,8 +175,8 @@ public:
         {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
         {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
         {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
-        {"Reproduce", 0}, {"PrivateIO", 1},    {"SharedIO", 1},   {"Donate", 0}, {"Reuptake", 1}};
-    emp::map<size_t, std::string> labels;
+        {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
+        {"Reuptake", 1}};
 
     std::cout << "--------" << std::endl;
     for (auto i : program) {

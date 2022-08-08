@@ -75,7 +75,7 @@ INST(Swap, { std::swap(*a, *b); });
 std::mutex reproduce_mutex;
 INST(Reproduce, {
   // Only one reproduction is allowed per update
-  if (state.in_progress_repro != -1)
+  if (state.in_progress_repro != -1 || !state.location.IsValid())
     return;
   double points = state.host->IsHost()
                       ? state.world->GetConfig()->HOST_REPRO_RES()

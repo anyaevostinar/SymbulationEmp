@@ -14,7 +14,11 @@ class Organism {
   virtual ~Organism() {}
   Organism & operator=(const Organism &) = default;
   Organism & operator=(Organism &&) = default;
-  bool operator==(const Organism &other) const {return (this == &other);}
+  virtual bool operator<(const Organism &other) const {
+    std::cout << "operator< called from Organism" << std::endl;
+    throw "Organism method called!";
+  };
+  virtual bool operator==(const Organism &other) const {return (this == &other);}
   bool operator!=(const Organism &other) const {return !(*this == other);}
 
   virtual std::string const GetName() {
