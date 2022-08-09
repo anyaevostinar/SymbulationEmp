@@ -7,7 +7,7 @@
 #include "Instructions.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
-#include "sgpl/algorithm/execute_cpu.hpp"
+#include "sgpl/algorithm/execute_cpu_n_cycles.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
@@ -67,14 +67,14 @@ public:
    *
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
-  void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
+  void RunCPUStep(emp::WorldPosition location, size_t n_cycles) {
     if (!cpu.HasActiveCore()) {
       cpu.DoLaunchCore(START_TAG);
     }
 
     state.location = location;
 
-    sgpl::execute_cpu<Spec>(nCycles, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<Spec>(n_cycles, cpu, program, state);
   }
 
   /**
