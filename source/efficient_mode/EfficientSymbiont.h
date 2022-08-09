@@ -243,6 +243,10 @@ public:
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = Reproduce("vertical");
       host_baby->AddSymbiont(sym_baby);
+
+      //vertical transmission data node
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(1);
     }
   }
 
@@ -260,7 +264,16 @@ public:
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Organism> sym_baby = Reproduce("horizontal");
-        my_world->SymDoBirth(sym_baby, location);
+        emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
+
+        //horizontal transmission data nodes
+        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(1);
+
+        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        if(new_pos.IsValid()){
+          data_node_successes_horiztrans.AddDatum(1);
+        }
       }
     }
   }

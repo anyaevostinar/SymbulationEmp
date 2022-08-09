@@ -456,7 +456,7 @@ TEST_CASE("Host MakeNew", "[default]"){
     host2.Delete();
 }
 
-TEST_CASE("Host reproduce", "[default]"){
+TEST_CASE("Host Reproduce", "[default]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
     SymConfigBase config;
     SymWorld world(*random, &config);
@@ -473,4 +473,32 @@ TEST_CASE("Host reproduce", "[default]"){
 
     host1.Delete();
     host2.Delete();
+}
+
+TEST_CASE("AddSymbiont", "[default]"){
+  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 0;
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+  emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+
+  WHEN("A symbiont successfully infects"){
+    size_t pos = host->AddSymbiont(symbiont);
+    emp::vector<emp::Ptr<Organism>>& host_syms = host->GetSymbionts();
+    THEN("It is added to the host sym vector and it's position is returned"){
+      REQUIRE(host->HasSym() == true);
+      REQUIRE(pos == host_syms.size());
+      REQUIRE(host_syms.at(pos - 1) == symbiont);
+    }
+  }
+  WHEN("A symbiont fails to infect"){
+    config.SYM_LIMIT(0);
+    int pos = host->AddSymbiont(symbiont);
+    THEN("It is deleted and 0 is returned"){
+      REQUIRE(host->HasSym() == false);
+      REQUIRE(pos == 0);
+    }
+  }
+  host.Delete();
 }

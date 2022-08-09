@@ -5,11 +5,12 @@
 #include "CPU.h"
 #include "SGPWorld.h"
 #include "emp/base/Ptr.hpp"
+#include "sgpl/utility/ThreadLocalRandom.hpp"
 
 class SGPHost : public Host {
 private:
   CPU cpu;
-  emp::Ptr<SGPWorld> my_world;
+  const emp::Ptr<SGPWorld> my_world;
 
 public:
   /**
@@ -23,9 +24,7 @@ public:
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, _random) {
-    my_world = _world;
-  }
+        cpu(this, _world), my_world(_world) {}
 
   /**
    * Constructs an SGPHost with a copy of the provided genome.
@@ -36,13 +35,10 @@ public:
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, _random, genome) {
-    my_world = _world;
-  }
+        cpu(this, _world, genome), my_world(_world) {}
 
   SGPHost(const SGPHost &host)
-      : Host(host),
-        cpu(this, host.my_world, host.random, host.cpu.GetProgram()),
+      : Host(host), cpu(this, host.my_world, host.cpu.GetProgram()),
         my_world(host.my_world) {}
 
   /**
@@ -106,7 +102,11 @@ public:
       return;
     }
 
-    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    // Randomly decide whether to run before or after the symbiont
+    bool run_before = random->P(0.5);
+    if (run_before) {
+      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    }
 
     if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
@@ -128,6 +128,11 @@ public:
         }
       } // for each sym in syms
     }   // if org has syms
+
+    if (!run_before) {
+      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    }
+
     GrowOlder();
   }
 
