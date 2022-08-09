@@ -18,9 +18,6 @@
 #include <iostream>
 #include <memory>
 
-
-/// the tests below have only been tested for a genome that can perform not
-
 TEST_CASE("ReturnTaskDone", "[sgp]") {
   emp::Random random(10);
   SymConfigBase config;
@@ -38,75 +35,90 @@ TEST_CASE("ReturnTaskDone", "[sgp]") {
 
   bool task_done = false;
 
-  WHEN("The only task is the basic not genome") {
+  WHEN("The only task is the basic Not-genome") {
     size_t test_id = 0;
 
     task_done = ReturnTaskDone(test_id, test_sample->GetCPU());
 
-    THEN("") { REQUIRE(task_done == true); }
+    THEN("Task-0 (Not), can be done") { REQUIRE(task_done == true); }
   }
 }
 
 TEST_CASE("GetNecessaryInstructions", "[sgp]") {
-  emp::Random random(10);
-  SymConfigBase config;
-  config.RANDOM_ANCESTOR(false);
-  config.TASK_TYPE(1);
-  int world_size = 1;
-  int pop_size = 1;
-  TaskSet test_tasks = LogicTasks;
-  SGPWorld world(random, &config, test_tasks);
-  world.resize(world_size);
-  config.POP_SIZE(pop_size);
+  GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
+        "actual genome that is either"
+        "necessary to perform the designated task or not necessary to perform "
+        "the task, respectively") {
+    emp::Random random(10);
+    SymConfigBase config;
+    config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
+    int world_size = 1;
+    int pop_size = 1;
+    TaskSet test_tasks = LogicTasks;
+    SGPWorld world(random, &config, test_tasks);
+    world.resize(world_size);
+    config.POP_SIZE(pop_size);
 
-  emp::Ptr<SGPHost> test_sample =
-      emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPHost> test_sample =
+        emp::NewPtr<SGPHost>(&random, &world, &config);
 
-  WHEN("The only task is the basic not genome") {
-    size_t test_id = 0;
+    WHEN("The only task is the basic Not-genome") {
+      size_t test_id = 0;
 
-    emp::vector<int> program_position_guide =
-        GetNecessaryInstructions(test_sample->GetCPU(), test_id);
+      emp::vector<int> program_position_guide =
+          GetNecessaryInstructions(test_sample->GetCPU(), test_id);
 
-    emp::vector<int> expected_vector = {
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
-    THEN("") { REQUIRE(program_position_guide == expected_vector); }
+      emp::vector<int> expected_vector = {
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
+      THEN("There are 4 needed code sites") {
+        REQUIRE(program_position_guide == expected_vector);
+      }
+    }
   }
 }
 
 TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
-  emp::Random random(10);
-  SymConfigBase config;
-  config.RANDOM_ANCESTOR(false);
-  config.TASK_TYPE(1);
-  int world_size = 1;
-  int pop_size = 1;
-  TaskSet test_tasks = LogicTasks;
-  SGPWorld world(random, &config, test_tasks);
-  world.resize(world_size);
-  config.POP_SIZE(pop_size);
+  GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
+        "actual genome that is either"
+        "necessary to perform the designated task or not necessary to perform "
+        "the task, respectively") {
+    emp::Random random(10);
+    SymConfigBase config;
+    config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
+    int world_size = 1;
+    int pop_size = 1;
+    TaskSet test_tasks = LogicTasks;
+    SGPWorld world(random, &config, test_tasks);
+    world.resize(world_size);
+    config.POP_SIZE(pop_size);
 
-  WHEN("The only task is the basic not genome") {
-    emp::vector<int> expected_vector = {
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
+    WHEN("The only task is the basic Not-genome") {
+      emp::vector<int> expected_vector = {
+          1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+          0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0};
 
-    emp::vector<emp::vector<int>> test_map = {};
-    emp::Ptr<SGPHost> test_sample =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
+      emp::vector<emp::vector<int>> test_map = {};
+      emp::Ptr<SGPHost> test_sample =
+          emp::NewPtr<SGPHost>(&random, &world, &config);
 
-    test_map = GetReducedProgramRepresentations(test_sample->GetCPU());
-    emp::vector<emp::vector<int>> expected_map = {
-        expected_vector, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}};
-    for (int guide = 0; guide < test_map.size(); guide++) {
-      THEN("") { REQUIRE(test_map == expected_map); }
+      test_map = GetReducedProgramRepresentations(test_sample->GetCPU());
+      emp::vector<emp::vector<int>> expected_map = {
+          expected_vector, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}};
+      for (int guide = 0; guide < test_map.size(); guide++) {
+        THEN("There are 4 needed code sites necessary to perform the Not-task "
+             "and the genome cannot perform any other tasks") {
+          REQUIRE(test_map == expected_map);
+        }
+      }
     }
   }
 }

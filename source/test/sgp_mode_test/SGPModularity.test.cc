@@ -88,7 +88,7 @@ TEST_CASE("GetNumSites", "[sgp]") {
 
     WHEN("there are no necessary sites") {
       emp::vector<int> needed_code_sites = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-      int site_count = GetNumSites(0, 19, needed_code_sites);
+      int site_count = GetNumSites(0, 11, needed_code_sites);
 
       THEN("GetNumsites returns 0") { REQUIRE(site_count == 0); }
     }
@@ -166,9 +166,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
     num_tasks = 2;
     needed_code_sites.push_back(needed_code_sites_d);
-    WHEN("When there are two reduced program that can do  tasks, "
-         "needed_code_sites_b and "
-         "needed_code_sites_d") {
+    WHEN("When there are two reduced program that can do tasks") {
 
       double test_phys_mod_b = GetPModularity(needed_code_sites);
       double found_value_b = 0.8666666667;
@@ -179,9 +177,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
     needed_code_sites.pop_back();
     needed_code_sites.pop_back();
     needed_code_sites.push_back(needed_code_sites_e);
-    WHEN("The only reduced program that can do a task is needed_code_sites_e, "
-         "and e only has one "
-         "site") {
+    WHEN("The only reduced program that can do a task has one site") {
       double test_phys_mod_c = GetPModularity(needed_code_sites);
       double found_value_c = 1.0;
 
@@ -190,9 +186,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
     needed_code_sites.pop_back();
     needed_code_sites.push_back(needed_code_sites_c);
-    WHEN("The only reduced program that can do a task is needed_code_sites_c, "
-         "and c has the max "
-         "distance") {
+    WHEN("The only reduced program that can do a task has the max distance") {
       double test_phys_mod_d = GetPModularity(needed_code_sites);
       double found_value_d = 0.0;
 
@@ -271,7 +265,8 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       double expected_phys_mod = .952;
       double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-      THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+      THEN("The program has high physical modularity") 
+      { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
     }
 
     WHEN("The genome is one of the other logic tasks only") {
@@ -286,7 +281,8 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       double expected_phys_mod = .9466667;
       double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-      THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+      THEN("The physical modularity will be lower than the basic tasks'") 
+      { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
     }
   }
 }
@@ -312,31 +308,27 @@ TEST_CASE("GetFModularity", "[sgp]") {
     emp::vector<emp::vector<int>> needed_code_sites = {needed_code_sites_b,
                                                        needed_code_sites_e};
 
-    WHEN("reduced programs that can do tasks are needed_code_sites_b and "
-         "needed_code_sites_e, partial "
-         "overlap") {
+    WHEN("There is partial overlap between the two reduced programs") {
       double test_funct_mod_a = GetFModularity(needed_code_sites);
       double found_value_a = 0.05;
 
-      THEN("") { REQUIRE(test_funct_mod_a == Approx(found_value_a)); }
+      THEN("There is low functional modularity") { REQUIRE(test_funct_mod_a == Approx(found_value_a)); }
     }
     // change to conceptual framework and add thens
     needed_code_sites.pop_back();
     needed_code_sites.push_back(needed_code_sites_c);
-    WHEN("reduced programs that can do tasks are needed_code_sites_b and "
-         "needed_code_sites_c, No "
-         "overlap") {
+    WHEN("There is no overlap between the two reduced programs") {
       double test_funct_mod_b = GetFModularity(needed_code_sites);
       double found_value_b = 0.15;
 
-      THEN("") { REQUIRE(test_funct_mod_b == Approx(found_value_b)); }
+      THEN("There is high functional modularity") { REQUIRE(test_funct_mod_b == Approx(found_value_b)); }
     }
     needed_code_sites.push_back(needed_code_sites_d);
     WHEN("There are more than 2 succesful genomes, partial overlap") {
       double test_funct_mod_c = GetFModularity(needed_code_sites);
       double found_value_c = 0.1;
 
-      THEN("") { REQUIRE(test_funct_mod_c == Approx(found_value_c)); }
+      THEN("There is medium functional modularity") { REQUIRE(test_funct_mod_c == Approx(found_value_c)); }
     }
 
     needed_code_sites.pop_back();
@@ -350,14 +342,14 @@ TEST_CASE("GetFModularity", "[sgp]") {
       double test_funct_mod_d = GetFModularity(needed_code_sites);
       double found_value_d = 0.0;
 
-      THEN("") { REQUIRE(test_funct_mod_d == Approx(found_value_d)); }
+      THEN("The functional modularity is 0.0") { REQUIRE(test_funct_mod_d == Approx(found_value_d)); }
     }
   }
 }
 
 TEST_CASE("GetFMFromCPU", "[sgp]") {
 
-  WHEN("Checking how it processes an and-genome") {
+  WHEN("A genome that can perform Nand & Not is passed in") {
     emp::Random random(5);
     SymConfigBase config;
     config.RANDOM_ANCESTOR(false);
@@ -384,6 +376,6 @@ TEST_CASE("GetFMFromCPU", "[sgp]") {
     double expected_phys_mod = 0.025;
     double test_phys_mod = GetFMFromCPU(test_sample->GetCPU());
 
-    THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("Functional Modularity is very low") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
   }
 }
