@@ -93,7 +93,6 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
 
   emp::vector<int> reduced_position_guide = {};
 
-  
   bool can_do_task = ReturnTaskDone(test_task_id, org_cpu);
 
   // catches if a task cannot be done ever
@@ -107,8 +106,7 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
     for (int k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
-      CPU temp_cpu =
-          CPU(org_cpu.state.host, org_cpu.state.world, &random, test_program);
+      CPU temp_cpu = CPU(org_cpu.state.host, org_cpu.state.world, test_program);
 
       can_do_task = ReturnTaskDone(test_task_id, temp_cpu);
 
