@@ -430,17 +430,20 @@ public:
   /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
    *
-   * Output: None
+   * Output: The int describing the symbiont's position ID, or 0 if it did not successfully
+   * get added to the host's list of symbionts.
    *
    * Purpose: To add a symbionts to a host's symbionts
    */
-  void AddSymbiont(emp::Ptr<Organism> _in) {
+  int AddSymbiont(emp::Ptr<Organism> _in) {
     if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
+      return syms.size();
     } else {
       _in.Delete();
+      return 0;
     }
   }
 
