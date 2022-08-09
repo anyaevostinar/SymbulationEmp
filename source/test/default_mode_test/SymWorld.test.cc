@@ -406,32 +406,40 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
     size_t world_size = 4;
     world.Resize(world_size);
 
+    emp::WorldPosition new_pos;
+
     WHEN( "free living symbionts are not allowed" ) {
       config.FREE_LIVING_SYMS(0);
 
       WHEN( "there is a valid neighbouring host" ){
+        size_t host_pos = 1;
         emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        world.AddOrgAt(host, 0);
+        world.AddOrgAt(host, host_pos);
 
-        emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        world.SymDoBirth(sym, 1);
+        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        new_pos = world.SymDoBirth(new_symbiont, 1);
 
         emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
         emp::Ptr<Organism> host_sym = syms[0];
 
         THEN( "the sym is inserted into the valid neighbouring host" ){
-          REQUIRE(host_sym == sym);
+          REQUIRE(host_sym == new_symbiont);
           REQUIRE(world.GetNumOrgs() == 1);
+          REQUIRE(new_pos.IsValid() == true);
+
+          REQUIRE(new_pos.GetIndex() == 1);
+          REQUIRE(new_pos.GetPopID() == host_pos);
         }
       }
 
       WHEN( "there is no valid neighbouring host" ){
-        emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        world.SymDoBirth(sym, 1);
+
+        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), 1);
 
         THEN( "the sym is killed" ){
           //the world should be empty
           REQUIRE(world.GetNumOrgs() == 0);
+          REQUIRE(new_pos.IsValid() == false);
         }
       }
     }
@@ -439,16 +447,21 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
     WHEN( "free living symbionts are allowed"){
       config.FREE_LIVING_SYMS(1);
+      world_size = 2;
+      world.Resize(world_size);
 
       THEN("it might be inserted into an empty cell"){
-        world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0, 1));
+        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+
+        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), parent_pos);
+
         REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(new_pos.IsValid() == true);
+        REQUIRE(new_pos.GetIndex() == 0);
+        REQUIRE(new_pos.GetPopID() == 0);
       }
 
       THEN("it may be inserted into an occupied cell, overwriting the previous occupant"){
-        world_size = 2;
-        world.Resize(world_size);
-
         for(size_t i = 0; i < world_size; i++){
           world.AddOrgAt(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0, i));
         }
@@ -456,7 +469,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
         emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        world.SymDoBirth(new_symbiont, parent_pos);
+        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
 
         bool new_sym_born = false;
         for(size_t i = 0; i < world_size; i++){
@@ -467,6 +480,19 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
         REQUIRE(world.GetNumOrgs() == world_size);
         REQUIRE(new_sym_born == true);
+        REQUIRE(new_pos.IsValid() == true);
+        REQUIRE(world.IsInboundsPos(new_pos) == true);
+      }
+
+      THEN("it might not find a valid cell and get deleted"){
+        world_size = 0;
+        world.Resize(0);
+        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
+
+        REQUIRE(new_pos.IsValid() == false);
+        REQUIRE(world.GetNumOrgs() == 0);
       }
     }
   }
@@ -692,35 +718,41 @@ TEST_CASE( "ExtractSym", "[default]" ){
 }
 
 TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ){
-  GIVEN("free living syms are allowed"){
+  GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
-    int int_val = 0;
     SymWorld world(random, &config);
+    int int_val = 0;
     int world_size = 4;
     world.Resize(world_size);
 
-    emp::Ptr<Organism> parent_sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
     emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
     size_t orig_pos = 3;
     emp::WorldPosition orig_sym_pos = emp::WorldPosition(0, orig_pos);
-    world.AddOrgAt(parent_sym, orig_sym_pos);
 
-    REQUIRE(world.GetNumOrgs() == 1);
+    WHEN("A symbiont is successfully moved into a new symbiont world position"){
+      emp::Ptr<Organism> parent_sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.AddOrgAt(parent_sym, orig_sym_pos);
+      REQUIRE(world.GetNumOrgs() == 1);
 
-    world.MoveIntoNewFreeWorldPos(sym, orig_sym_pos);
-    REQUIRE(world.GetNumOrgs() == 2);
-    REQUIRE(world.GetSymPop()[orig_pos] == parent_sym);
-
-    bool sym_exists = false;
-    for(int i = 0; i < 2; i++) {
-      if (world.GetSymPop()[i] == sym) {
-        sym_exists = true;
-        break;
+      emp::WorldPosition new_pos = world.MoveIntoNewFreeWorldPos(sym, orig_sym_pos);
+      THEN("It returns its new symbiont world position and can be found there"){
+        REQUIRE(world.GetNumOrgs() == 2); //it didn't overwrite the parent
+        REQUIRE(world.GetSymAt(new_pos.GetPopID()) == sym);
+        REQUIRE(new_pos.IsValid() == true);
       }
     }
-    REQUIRE(sym_exists == true);
+
+    WHEN("A symbiont unsuccessfully attempts to move into a new symbiont world position"){
+      world_size = 0; // forcing an invalid new position
+      world.Resize(world_size);
+      emp::WorldPosition new_pos = world.MoveIntoNewFreeWorldPos(sym, orig_sym_pos);
+      THEN("It returns an invalid WorldPosition and is not present in the symbiont world"){
+        REQUIRE(world.GetNumOrgs() == 0); //the parent
+        REQUIRE(new_pos.IsValid() == false);
+      }
+    }
     //TODO: CHECK MOVING OUT OF HOST
   }
 }
@@ -1304,7 +1336,7 @@ TEST_CASE( "SetMutationZero", "[default]") {
     REQUIRE(config.INT_VAL_MUT_RATE() == 1);
     REQUIRE(config.HORIZ_MUTATION_SIZE() == 1);
     REQUIRE(config.HORIZ_MUTATION_RATE() == 1);
-    
+
     WHEN("SetMutationZero method called") {
       world.SetMutationZero();
       THEN("Mutation size and rate both 0") {
@@ -1373,6 +1405,30 @@ TEST_CASE( "No mutation updates", "[default] "){
         REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
       }
     }
+  }
+}
 
+TEST_CASE( "IsInboundsPos", "[default]" ){
+  GIVEN("a world"){
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int world_size = 4;
+    world.Resize(world_size);
+
+    size_t valid_pos = 3;
+    REQUIRE(world.IsInboundsPos(valid_pos) == true);
+
+    emp::WorldPosition valid_pos_wp = emp::WorldPosition(3,0);
+    REQUIRE(world.IsInboundsPos(valid_pos_wp) == true);
+
+    valid_pos_wp = emp::WorldPosition(0,3);
+    REQUIRE(world.IsInboundsPos(valid_pos_wp) == true);
+
+    emp::WorldPosition invalid_pos = emp::WorldPosition(4,3);
+    REQUIRE(world.IsInboundsPos(invalid_pos) == false);
+
+    invalid_pos = emp::WorldPosition(0,4);
+    REQUIRE(world.IsInboundsPos(invalid_pos) == false);
   }
 }
