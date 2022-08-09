@@ -51,6 +51,20 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   return file;
 }
 
+// emp::DataFile &SGPWorld::SetupAnalysisFile(const std::string &filename) {
+//   auto &file = SetupFile(filename);
+//   file.AddVar(update, "update", "Update");
+//   GetDiversityAnalysisDataNode();
+//   GetModularityAnalysisDataNode();
+//   file.AddTotal(data_node_diversity->UnsynchronizedGetMonitor(),
+//                 "world_diversity", "Diversity of world", true);
+//   file.AddTotal(data_node_modularity->UnsynchronizedGetMonitor(),
+//                 "world_modularity", "Modularity of world", true);
+//   file.PrintHeaderKeys();
+//   return file;
+// }
+
+
 void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());
@@ -80,5 +94,19 @@ SyncDataMonitor<double> &SGPWorld::GetSymDonatedDataNode() {
   }
   return *data_node_sym_donated;
 }
+
+// SyncDataMonitor<double> &SGPWorld::GetDiversityAnalysisDataNode(){
+//   if (!data_node_diversity) {
+//     data_node_diversity.New();
+//   }
+//   return *data_node_diversity;
+// }
+
+// SyncDataMonitor<double> &SGPWorld::GetModularityAnalysisDataNode(){
+//   if (!data_node_modularity) {
+//     data_node_modularity.New();
+//   }
+//   return *data_node_modularity;
+// }
 
 #endif
