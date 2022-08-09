@@ -14,7 +14,7 @@
 #include <iostream>
 #include <memory>
 
-// have world call these methods
+
 
 TEST_CASE("GetUsefulStarts", "[sgp]") {
   GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
@@ -161,7 +161,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
       double test_phys_mod_a = GetPModularity(needed_code_sites);
       double found_value_a = 0.8333333;
 
-      THEN("") { REQUIRE(test_phys_mod_a == Approx(found_value_a)); }
+      THEN("The physical modularity will be high") { REQUIRE(test_phys_mod_a == Approx(found_value_a)); }
     }
 
     num_tasks = 2;
@@ -172,7 +172,8 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
       double test_phys_mod_b = GetPModularity(needed_code_sites);
       double found_value_b = 0.8666666667;
-      THEN("") { REQUIRE(test_phys_mod_b == Approx(found_value_b)); }
+      THEN("The physical modularity will inc as compared to first case due to n_c_s_d")
+       { REQUIRE(test_phys_mod_b == Approx(found_value_b)); }
     }
 
     needed_code_sites.pop_back();
@@ -184,7 +185,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
       double test_phys_mod_c = GetPModularity(needed_code_sites);
       double found_value_c = 1.0;
 
-      THEN("") { REQUIRE(test_phys_mod_c == Approx(found_value_c)); }
+      THEN("There is perfect physical modularity") { REQUIRE(test_phys_mod_c == Approx(found_value_c)); }
     }
 
     needed_code_sites.pop_back();
@@ -195,7 +196,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
       double test_phys_mod_d = GetPModularity(needed_code_sites);
       double found_value_d = 0.0;
 
-      THEN("") { REQUIRE(test_phys_mod_d == Approx(found_value_d)); }
+      THEN("There is no physical modularity") { REQUIRE(test_phys_mod_d == Approx(found_value_d)); }
     }
   }
 }
@@ -220,7 +221,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
     double expected_phys_mod = .956666667;
     double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-    THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("Physical modularity is extremely high") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
   }
 
   WHEN("It is a random genome and the host can do no task") {
@@ -239,7 +240,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
     double expected_phys_mod = -1.0;
     double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-    THEN("") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("The method cannot take the program's physical modularity") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
   }
 
   WHEN("using logic tasks") {
