@@ -70,6 +70,9 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
+  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_horiztrans;
+  emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
+  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
 
 
 public:
@@ -120,6 +123,9 @@ public:
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
+    if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
+    if (data_node_attempts_horiztrans) data_node_successes_horiztrans.Delete();
+    if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
 
     for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
       if(sym_pop[i]) {
@@ -425,12 +431,16 @@ public:
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
+  emp::DataFile & SetUpTransmissionFile(const std::string & filename);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
+  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
+  emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
+  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
@@ -443,42 +453,75 @@ public:
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
    * current location.
    *
-   * Output: None
+   * Output: The WorldPosition object describing the symbiont's new location (it describes an 
+   * invalid position if the symbiont is deleted during movement)
    *
    * Purpose: To move a symbiont into a new world position.
    */
-  void MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
+  emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
-    if(new_pos.IsValid()){
+    if(IsInboundsPos(new_pos)){
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
-    } else sym.Delete();
+      return new_pos;
+    } else {
+      sym.Delete();
+      return emp::WorldPosition(); //lack of parameters results in invalid position
+    }
   }
+
+  /**
+   * Input: The WorldPosition object to be checked.
+   *
+   * Output: Wether the input object is within world bounds.
+   *
+   * Purpose: To determine whether the location of free-living organisms
+   * is within the bounds of the free-living worlds (the size of the pop and
+   * sym_pop vectors).
+   */
+  bool IsInboundsPos(emp::WorldPosition pos){
+    if(!pos.IsValid()){
+      return false;
+    } else if (pos.GetIndex() >= pop.size()){
+      return false;
+    } else if (pos.GetPopID() >= sym_pop.size()){
+      return false;
+    }
+    return true;
+  }
+
 
   /**
    * Input: The pointer to the organism that is being birthed, and the WorldPosition location
    * of the parent symbiont.
    *
-   * Output: None
+   * Output: The WorldPosition object describing the position the symbiont was born into (index = position in a host, 0 for free living and offset by one for position in host
+   * sym vector. id = position of self or host in sym_pop or pop vector). An invalid WorldPosition object is returned if the sym was killed.
    *
    * Purpose: To birth a new symbiont. If free living symbionts is on, the new symbiont
    * can be put into an unoccupied place in the world. If not, then it will be placed
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-  void SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     if(my_config->FREE_LIVING_SYMS() == 0){
-      int new_pos = GetNeighborHost(i);
-      if (new_pos > -1) { //-1 means no living neighbors
-        pop[new_pos]->AddSymbiont(sym_baby);
+      int new_host_pos = GetNeighborHost(i);
+      if (new_host_pos > -1) { //-1 means no living neighbors
+        int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+        if(new_index > 0){ //sym successfully infected
+          return emp::WorldPosition(new_index, new_host_pos);
+        } else { //sym got killed trying to infect
+          return emp::WorldPosition();
+        }
       } else {
         sym_baby.Delete();
+        return emp::WorldPosition();
       }
     } else {
-      MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
+      return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
     }
   }
 

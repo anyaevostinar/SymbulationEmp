@@ -16,6 +16,7 @@ void SymWorld::CreateDateFiles(){
 
   SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetUpTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
 
   if(my_config->FREE_LIVING_SYMS() == 1){
     SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
@@ -190,6 +191,36 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
+}
+
+
+/**
+ * Input: The address of the string representing the suffixes for the files to be created.
+ *
+ * Output: None.
+ *
+ * Purpose: To setup and write to the files that track the counts of attempted
+ * tranmissions.
+ */
+
+emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
+  auto & file = SetupFile(filename);
+  auto & node1 = GetHorizontalTransmissionAttemptCount();
+  auto & node2 = GetHorizontalTransmissionSuccessCount();
+  auto & node3 = GetVerticalTransmissionAttemptCount();
+
+  file.AddVar(update, "update", "Update");
+
+  //horizontal transmission
+  file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts", true);
+  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes", true);
+
+  //vertical transmission
+  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
+
+  file.PrintHeaderKeys();
+
+  return file;
 }
 
 
@@ -521,4 +552,56 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
   data_node_hostedsyminfectchance->SetupBins(0, 1.1, 11);
   return *data_node_hostedsyminfectchance;
 }
+
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts were made to horizontally transmit.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of attempted horizontal transmissions.
+ */
+emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
+  if (!data_node_attempts_horiztrans) {
+    data_node_attempts_horiztrans.New();
+  }
+  return *data_node_attempts_horiztrans;
+}
+
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many successful attempts were made to horizontally transmit.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of successful horizontal transmissions.
+ */
+emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
+  if (!data_node_successes_horiztrans) {
+    data_node_successes_horiztrans.New();
+  }
+  return *data_node_successes_horiztrans;
+}
+
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts were made to vertically transmit.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of attempted vertical transmissions.
+ */
+emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
+  if (!data_node_attempts_verttrans) {
+    data_node_attempts_verttrans.New();
+  }
+  return *data_node_attempts_verttrans;
+}
+
 #endif
