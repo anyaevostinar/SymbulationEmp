@@ -338,6 +338,14 @@ public:
    * Purpose: To set a symbiont's host
    */
   void SetHost(emp::Ptr<Organism> _in) {my_host = _in;}
+
+  /**
+   * Input: The double that will be the symbiont's infection chance
+   *
+   * Output: None
+   *
+   * Purpose: To set a symbiont's infection host and check that the proposed value is valid.
+   */
   void SetInfectionChance(double _in) {
     if(_in > 1 || _in < 0) throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
     else infection_chance = _in;
@@ -554,6 +562,10 @@ public:
       emp::Ptr<Organism> sym_baby = Reproduce();
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
+
+      //vertical transmission data node
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(1);
     }
   }
 
@@ -572,7 +584,16 @@ public:
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
         emp::Ptr<Organism> sym_baby = Reproduce();
-        my_world->SymDoBirth(sym_baby, location);
+        emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
+
+        //horizontal transmission data nodes
+        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(1);
+
+        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        if(new_pos.IsValid()){
+          data_node_successes_horiztrans.AddDatum(1);
+        }
       }
     }
   }

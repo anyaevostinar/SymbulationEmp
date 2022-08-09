@@ -51,8 +51,8 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
   bool CanPerformTask(const CPUState &state, size_t task_id) {
     Task &task = tasks[task_id];
-    
-    if (state.used_resources->Get(task_id)&& !task.unlimited) {
+
+    if (state.used_resources->Get(task_id) && !task.unlimited) {
       return false;
     }
     if (task.dependencies.size()) {
@@ -77,7 +77,6 @@ class TaskSet {
 
     Task &task = tasks[task_id];
     state.used_resources->Set(task_id);
-    
 
     if (task.dependencies.size()) {
       // TODO does it make sense to reset to 0, or to let them accumulate
@@ -172,6 +171,17 @@ public:
   }
 
   /**
+   * A custom copy constructor so that task completions aren't shared between
+   * TaskSets, which would be a problem for tests
+   */
+  TaskSet(const TaskSet &other) : tasks(other.tasks) {
+    for (size_t i = 0; i < tasks.size(); i++) {
+      n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+      n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+    }
+  }
+
+  /**
    * Input: The current CPU state, the output to check against, and whether to
    * update shared or private completed pools for dependent tasks.
    *
@@ -238,7 +248,6 @@ public:
     }
     return 0.0f;
   }
-
 
   size_t NumTasks() { return tasks.size(); }
 
