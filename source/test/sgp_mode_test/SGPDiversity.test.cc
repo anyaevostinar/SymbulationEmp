@@ -35,44 +35,34 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
 
     size_t length = 100;
 
-    emp::Ptr<SGPHost> test_sample1 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-    emp::Ptr<SGPHost> test_sample2 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-    // emp::Ptr<SGPHost> test_sample3 =
-        // emp::NewPtr<SGPHost>(&random, &world, &config);
-
     ProgramBuilder builder;
     // builder.AddNand();
     // builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
-    CPU temp_cpu1 =
-        CPU(test_sample1->GetCPU().state.host, test_sample1->GetCPU().state.world,
-            &random, test_program);
-    CPU temp_cpu2 =
-        CPU(test_sample2->GetCPU().state.host, test_sample2->GetCPU().state.world,
-            &random, test_program);
-    test_sample1->GetCPU() = temp_cpu1;
-    test_sample2->GetCPU() = temp_cpu2;
 
-    std::bitset<64> zeros;
-    zeros[0] = 1; //not sure why the two samples have 00....001
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+
+    emp::BitSet<64> zeros;
+  
     
-    emp::unordered_map<std::bitset<64> , int> expected_map;
+    emp::unordered_map<emp::BitSet<64> , int> expected_map;
     expected_map.insert({zeros,2});
     emp::vector<CPU> test_vec = {};
     test_vec.push_back((*test_sample1).GetCPU());
     test_vec.push_back((*test_sample2).GetCPU());
 
-    // emp::Ptr<emp::vector<Organism>> test_ptr =
-        // emp::NewPtr<emp::vector<Organism>>(test_vec);
     
     
-    emp::unordered_map<std::bitset<64>, int> test_map = GetPhenotypeMap(test_vec);
+    emp::unordered_map<emp::BitSet<64>, int> test_map = GetPhenotypeMap(test_vec);
 
     THEN("") { REQUIRE(test_map[zeros] == expected_map[zeros]); }
   }
 }
+
 
 
 TEST_CASE("AlphaDiversity", "[sgp]") {
@@ -91,24 +81,23 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
 
     size_t length = 100;
 
-    emp::Ptr<SGPHost> test_sample1 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-    emp::Ptr<SGPHost> test_sample2 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-
     ProgramBuilder builder;
-
+    // builder.AddNand();
+    // builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
-    CPU temp_cpu1 =
-        CPU(test_sample1->GetCPU().state.host, test_sample1->GetCPU().state.world,
-            &random, test_program);
-    CPU temp_cpu2 =
-        CPU(test_sample2->GetCPU().state.host, test_sample2->GetCPU().state.world,
-            &random, test_program);
-    test_sample1->GetCPU() = temp_cpu1;
-    test_sample2->GetCPU() = temp_cpu2;
 
-    double expected_value = 1.0; //????
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+
+    emp::BitSet<64> zeros;
+  
+    
+    emp::unordered_map<emp::BitSet<64> , int> expected_map;
+    expected_map.insert({zeros,2});
+    double expected_value = 1.0; 
     emp::vector<CPU> test_vec = {};
     test_vec.push_back((*test_sample1).GetCPU());
     test_vec.push_back((*test_sample2).GetCPU());
@@ -137,31 +126,34 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
 
     size_t length = 100;
 
-    emp::Ptr<SGPHost> test_sample1 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-    emp::Ptr<SGPHost> test_sample2 =
-        emp::NewPtr<SGPHost>(&random, &world, &config);
-
-    ProgramBuilder builder;
-
+     ProgramBuilder builder;
+    // builder.AddNand();
+    // builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
-    CPU temp_cpu1 =
-        CPU(test_sample1->GetCPU().state.host, test_sample1->GetCPU().state.world,
-            &random, test_program);
-    CPU temp_cpu2 =
-        CPU(test_sample2->GetCPU().state.host, test_sample2->GetCPU().state.world,
-            &random, test_program);
-    test_sample1->GetCPU() = temp_cpu1;
-    test_sample2->GetCPU() = temp_cpu2;
 
-    double expected_value = 0.0; //since ln 1 = 0
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+
+    emp::BitSet<64> zeros;
+  
+    
+    emp::unordered_map<emp::BitSet<64> , int> expected_map;
+    expected_map.insert({zeros,2});
+    double expected_value = 0.0;
     emp::vector<CPU> test_vec = {};
     test_vec.push_back((*test_sample1).GetCPU());
     test_vec.push_back((*test_sample2).GetCPU());
+
 
     
     double test_value = ShannonDiversity(test_vec);
 
     THEN("") { REQUIRE(test_value == expected_value); }
   }
+
+  
 }
+
