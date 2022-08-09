@@ -13,8 +13,7 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
   task.dependencies.clear();
   task.unlimited = true;
 
-  TaskSet task_set{task};
-  SGPWorld world(random, &config, task_set);
+  SGPWorld world(random, &config, TaskSet{task});
 
   // Mock Organism to check reproduction
   class TestOrg : public Organism {
@@ -36,7 +35,7 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
   cpu.RunCPUStep(0, 100);
   world.Update();
 
-  REQUIRE((*task_set.begin()).n_succeeds_host > 0);
+  REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
 
   cpu.state.shared_completed.Delete();
   cpu.state.used_resources.Delete();
@@ -74,4 +73,40 @@ TEST_CASE("Generate XOR program", "[sgp]") {
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
   TestGenome(EQU, &ProgramBuilder::AddEqu);
+}
+
+TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
+  emp::Random random(61);
+  SymConfigBase config;
+  config.RANDOM_ANCESTOR(false);
+  config.SYM_HORIZ_TRANS_RES(100);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  // Mock Organism to check reproduction
+  class TestOrg : public Organism {
+  public:
+    bool IsHost() override { return true; }
+    void AddPoints(double p) override {}
+    double GetPoints() override { return 0; }
+  };
+
+  TestOrg organism;
+  // Empty builder
+  ProgramBuilder builder;
+  CPU cpu(&organism, &world, builder.Build(100));
+  // cpu.PrintCode();
+  cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
+  cpu.state.shared_completed->resize(LogicTasks.NumTasks());
+
+  cpu.RunCPUStep(0, 100);
+  world.Update();
+
+  for (auto data : world.GetTaskSet()) {
+    REQUIRE(data.n_succeeds_host == 0);
+  }
+
+  cpu.state.shared_completed.Delete();
+  cpu.state.used_resources.Delete();
+  cpu.state.internalEnvironment.Delete();
 }
