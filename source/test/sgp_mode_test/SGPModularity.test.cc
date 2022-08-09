@@ -265,7 +265,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       sgpl::Program<Spec> test_program = builder.Build(length);
       CPU temp_cpu =
           CPU(test_sample->GetCPU().state.host,
-              test_sample->GetCPU().state.world, &random, test_program);
+              test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
       double expected_phys_mod = .952;
@@ -280,7 +280,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       sgpl::Program<Spec> test_program = builder.Build(length);
       CPU temp_cpu =
           CPU(test_sample->GetCPU().state.host,
-              test_sample->GetCPU().state.world, &random, test_program);
+              test_sample->GetCPU().state.world,test_program);
       test_sample->GetCPU() = temp_cpu;
 
       double expected_phys_mod = .9466667;
@@ -378,8 +378,7 @@ TEST_CASE("GetFMFromCPU", "[sgp]") {
     builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
     CPU temp_cpu =
-        CPU(test_sample->GetCPU().state.host, test_sample->GetCPU().state.world,
-            &random, test_program);
+        CPU(test_sample->GetCPU().state.host, test_sample->GetCPU().state.world,test_program);
     test_sample->GetCPU() = temp_cpu;
 
     double expected_phys_mod = 0.025;
