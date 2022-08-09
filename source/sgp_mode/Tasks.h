@@ -127,7 +127,9 @@ public:
 
   void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
             task.curHostOutput = output;
-            //std::cout<< "Output: " << output << std::endl;
+            if (state.host->IsHost()){
+            }
+            
             if (calculationMap.empty()){
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
               if(task.fullSquareList.size() == 0){
@@ -192,7 +194,6 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           score = MarkPerformedTask(state, i, shared, score);
-          state.recentCompletion = 1;
           state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                             sqrt(output));
           if(state.host->IsHost()){
@@ -276,9 +277,7 @@ public:
     }
   }
 std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
-  //std::string frequencyList = "";
   std::map<uint32_t, uint32_t> myMap;
-  //std::map<uint32_t, uint32_t>::iterator dataGrabber;
   if (Host){
      myMap = tasks[0].hostCalculationTable;
   }
@@ -286,17 +285,6 @@ std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
      myMap = tasks[0].symCalculationTable;
   }
   return myMap;
-  
-  /*dataGrabber = myMap.begin();
-  while (dataGrabber != myMap.end()){
-        uint32_t square = dataGrabber->first;
-        uint32_t frequency = dataGrabber->second;
-        std::string strSquare = std::to_string(square);
-        std::string strFrequency = std::to_string(frequency);
-        frequencyList = frequencyList + strSquare + ": " + strFrequency + "; ";
-        dataGrabber++;
-        }
-    return frequencyList;*/
 }
 void ClearSquareFrequencyData(){
   //std::cout<< "Current squares: " << tasks[0].fullSquareList.size() << std::endl;
@@ -347,7 +335,7 @@ const Task NOT = {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0},
 TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
 
 const Task SQU = {"SQU", OutputTask{[](uint32_t x) {
-                    return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
+                    return sqrt(x) - floor(sqrt(x)) == 0 ? (0.5 * x) : 0.0;
                   }}};
 TaskSet SquareTasks{SQU};
 

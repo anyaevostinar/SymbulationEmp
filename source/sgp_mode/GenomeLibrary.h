@@ -21,7 +21,8 @@ using Library = sgpl::OpLibrary<
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    inst::Donate, inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
+    //inst::Donate, 
+    inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
     // if-label doesn't make sense for SGP, same with *-head
     // and set-flow but this is required
     sgpl::global::Anchor>;
@@ -259,7 +260,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   } else if (config->TASK_TYPE() == 1) {
     return CreateNotProgram(PROGRAM_LENGTH);
   } else {
-    return CreateSquareProgram(PROGRAM_LENGTH);
+    return CreateNotProgram(PROGRAM_LENGTH);//CreateSquareProgram(PROGRAM_LENGTH);
   }
 }
 

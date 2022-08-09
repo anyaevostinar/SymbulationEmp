@@ -15,7 +15,7 @@
 using namespace std;
 
 // This is the main function for the NATIVE version of this project.
-int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
+/*int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
           uint32_t hostIndex = 0;
           emp::Ptr<SGPHost> host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
           while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
@@ -33,7 +33,7 @@ int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
              return hostIndex;
           }
 
-}
+}*/
 int symbulation_main(int argc, char * argv[])
 {
   SymConfigBase config;
