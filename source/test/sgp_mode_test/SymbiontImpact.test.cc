@@ -8,11 +8,6 @@ TEST_CASE("Parasitic sym is parasitic", "[sgp]") {
   config.SYM_HORIZ_TRANS_RES(100);
 
   SGPWorld world(random, &config, LogicTasks);
-  // This is needed so that the world update number is not divisible by 30 /
-  // CYCLES_PER_UPDATE, otherwise the used resources would be reset every time
-  // Host::Process is called which would break this parasitism
-  // TODO come up with a better system for resetting used resources
-  world.Update();
 
   ProgramBuilder hbuilder;
   hbuilder.AddNot();
@@ -37,7 +32,6 @@ TEST_CASE("Mutualistic sym is mutualistic", "[sgp]") {
   config.SYM_HORIZ_TRANS_RES(100);
 
   SGPWorld world(random, &config, LogicTasks);
-  world.Update();
 
   ProgramBuilder hbuilder;
   // Needs the symbiont to do NOT so the dependency of AND is satisfied

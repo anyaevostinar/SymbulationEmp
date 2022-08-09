@@ -27,7 +27,8 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
     // updated, so we need to do this resetting manually
     if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
       host.GetCPU().state.used_resources->reset();
-    host.Process(emp::WorldPosition::invalid_id);
+    host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,
+                             world.GetConfig()->CYCLES_PER_UPDATE());
   }
   double no_sym = host.GetPoints();
   host.GetCPU().Reset();
@@ -37,7 +38,19 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
     if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
       host.GetCPU().state.used_resources->reset();
-    host.Process(emp::WorldPosition::invalid_id);
+    // Instead of randomly ordering the host and symbiont (like in
+    // Host::Process()), alternate every update. That way it's deterministic and
+    // we don't need to have access to the emp::Random.
+    if (i % 2 == 0) {
+      host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,
+                               world.GetConfig()->CYCLES_PER_UPDATE());
+    }
+    symbiont.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,
+                                 world.GetConfig()->CYCLES_PER_UPDATE());
+    if (i % 2 != 0) {
+      host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,
+                               world.GetConfig()->CYCLES_PER_UPDATE());
+    }
   }
   double with_sym = host.GetPoints();
   // The host can't free the symbiont pointer because it's not heap-allocated
