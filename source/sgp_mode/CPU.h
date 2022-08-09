@@ -7,7 +7,7 @@
 #include "Instructions.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
-#include "sgpl/algorithm/execute_cpu.hpp"
+#include "sgpl/algorithm/execute_cpu_n_cycles.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
@@ -22,7 +22,6 @@
 class CPU {
   sgpl::Cpu<Spec> cpu;
   sgpl::Program<Spec> program;
-  emp::Ptr<emp::Random> random;
 
 public:
   CPUState state;
@@ -32,9 +31,8 @@ public:
    * or a blank genome that knows how to do a simple task depending on the
    * config setting RANDOM_ANCESTOR.
    */
-  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random)
-      : program(CreateStartProgram(world->GetConfig())), random(random),
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
+      : program(CreateStartProgram(world->GetConfig())),
         state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
@@ -45,8 +43,8 @@ public:
    * Constructs a new CPU with a copy of another CPU's genome.
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      emp::Ptr<emp::Random> random, const sgpl::Program<Spec> &program)
-      : program(program), random(random), state(organism, world) {
+      const sgpl::Program<Spec> &program)
+      : program(program), state(organism, world) {
     cpu.InitializeAnchors(program);
     state.self_completed.resize(world->GetTaskSet().NumTasks());
     state.shared_completed->resize(world->GetTaskSet().NumTasks());
@@ -69,14 +67,14 @@ public:
    *
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
-  void RunCPUStep(emp::WorldPosition location, size_t nCycles) {
+  void RunCPUStep(emp::WorldPosition location, size_t n_cycles) {
     if (!cpu.HasActiveCore()) {
       cpu.DoLaunchCore(START_TAG);
     }
 
     state.location = location;
 
-    sgpl::execute_cpu<Spec>(nCycles, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<Spec>(n_cycles, cpu, program, state);
   }
 
   /**
@@ -105,22 +103,23 @@ private:
    */
   void PrintOp(const sgpl::Instruction<Spec> &ins,
                const emp::map<std::string, size_t> &arities,
-               sgpl::JumpTable<Spec, Spec::global_matching_t> &table) const {
+               sgpl::JumpTable<Spec, Spec::global_matching_t> &table,
+               std::ostream &out = std::cout) const {
     const std::string &name = ins.GetOpName();
     if (arities.count(name)) {
       // Simple instruction
-      std::cout << "    " << emp::to_lower(name);
+      out << "    " << emp::to_lower(name);
       for (size_t i = 0; i < 12 - name.length(); i++) {
-        std::cout << ' ';
+        out << ' ';
       }
       size_t arity = arities.at(name);
       bool first = true;
       for (size_t i = 0; i < arity; i++) {
         if (!first) {
-          std::cout << ", ";
+          out << ", ";
         }
         first = false;
-        std::cout << 'r' << (int)ins.args[i];
+        out << 'r' << (int)ins.args[i];
       }
     } else {
       // Jump or anchor with a tag
@@ -137,19 +136,19 @@ private:
       }
 
       if (name == "JumpIfNEq" || name == "JumpIfLess") {
-        std::cout << "    " << emp::to_lower(name);
+        out << "    " << emp::to_lower(name);
         for (size_t i = 0; i < 12 - name.length(); i++) {
-          std::cout << ' ';
+          out << ' ';
         }
-        std::cout << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1]
-                  << ", " << tag_name;
+        out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
+            << tag_name;
       } else if (name == "Global Anchor") {
-        std::cout << tag_name << ':';
+        out << tag_name << ':';
       } else {
-        std::cout << "<unknown " << name << ">";
+        out << "<unknown " << name << ">";
       }
     }
-    std::cout << '\n';
+    out << '\n';
   }
 
 public:
@@ -161,7 +160,7 @@ public:
    * Purpose: Prints out a human-readable representation of the program code of
    * the organism's genome to standard output.
    */
-  void PrintCode() {
+  void PrintCode(std::ostream &out = std::cout) {
     emp::map<std::string, size_t> arities{
         {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
         {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
@@ -169,9 +168,8 @@ public:
         {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
         {"Reuptake", 1}};
 
-    std::cout << "--------" << std::endl;
     for (auto i : program) {
-      PrintOp(i, arities, cpu.GetActiveCore().GetGlobalJumpTable());
+      PrintOp(i, arities, cpu.GetActiveCore().GetGlobalJumpTable(), out);
     }
   }
 };

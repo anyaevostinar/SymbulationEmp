@@ -10,7 +10,7 @@
 class SGPSymbiont : public Symbiont {
 private:
   CPU cpu;
-  emp::Ptr<SGPWorld> my_world;
+  const emp::Ptr<SGPWorld> my_world;
 
 public:
   /**
@@ -21,10 +21,8 @@ public:
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
               emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
               double _points = 0.0)
-      : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _world, _random) {
-    my_world = _world;
-  }
+      : Symbiont(_random, _world, _config, _intval, _points), cpu(this, _world),
+        my_world(_world) {}
 
   /**
    * Constructs an SGPSymbiont with a copy of the provided genome.
@@ -34,13 +32,11 @@ public:
               const sgpl::Program<Spec> &genome, double _intval = 0.0,
               double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _world, _random, genome) {
-    my_world = _world;
-  }
+        cpu(this, _world, genome), my_world(_world) {}
 
   SGPSymbiont(const SGPSymbiont &symbiont)
-      : Symbiont(symbiont), cpu(this, symbiont.my_world, symbiont.random,
-                                symbiont.cpu.GetProgram()),
+      : Symbiont(symbiont),
+        cpu(this, symbiont.my_world, symbiont.cpu.GetProgram()),
         my_world(symbiont.my_world) {}
 
   /**

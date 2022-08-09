@@ -29,7 +29,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     SGPWorld world(random, &config, task_set);
 
     TestOrg organism;
-    CPU cpu(&organism, &world, &random);
+    CPU cpu(&organism, &world);
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
     cpu.state.shared_completed->resize(1);
 
@@ -50,7 +50,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     SGPWorld world(random, &config, task_set);
 
     TestOrg organism;
-    CPU cpu(&organism, &world, &random);
+    CPU cpu(&organism, &world);
     cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
     cpu.state.shared_completed->resize(1);
 
