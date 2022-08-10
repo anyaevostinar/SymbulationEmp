@@ -43,8 +43,8 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
-  bool CanPerformTask(const CPUState &state, size_t task_id) {
-    Task &task = tasks[task_id];
+  bool CanPerformTask(const CPUState &state, size_t task_id) const {
+    const Task &task = tasks[task_id];
 
     if (state.used_resources->Get(task_id) && !task.unlimited) {
       return false;
@@ -69,7 +69,7 @@ class TaskSet {
       return score;
     }
 
-    Task &task = tasks[task_id];
+    const Task &task = tasks[task_id];
     state.used_resources->Set(task_id);
 
     if (task.dependencies.size()) {
@@ -183,7 +183,7 @@ public:
     return 0.0f;
   }
 
-  size_t NumTasks() { return tasks.size(); }
+  size_t NumTasks() const { return tasks.size(); }
 
   // Provide access to data about task completion with an iterator
   struct TaskData {
@@ -257,11 +257,11 @@ const Task NOT = {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0},
                   InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 320.0},
                   true,
                   {5, 6, 7}};
-TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
+const TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
 
 const Task SQU = {"SQU", OutputTask{[](uint32_t x) {
                     return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
                   }}};
-TaskSet SquareTasks{SQU};
+const TaskSet SquareTasks{SQU};
 
 #endif
