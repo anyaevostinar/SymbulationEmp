@@ -16,3 +16,4 @@ symbulation.test
 *.gcno
 *.gcda
 signalgp-lite
+.vscode
