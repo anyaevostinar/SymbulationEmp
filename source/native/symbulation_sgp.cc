@@ -25,18 +25,13 @@ int symbulation_main(int argc, char *argv[]) {
   emp::Random random(config.SEED());
 
   TaskSet task_set = LogicTasks;
-<<<<<<< HEAD
+
   if (config.TASK_TYPE() == 0){
-     task_set = LogicTasks;
+     task_set = SquareTasks;
   }else if (config.TASK_TYPE() == 1){
-    task_set = SquareTasks;
-=======
-  if (config.TASK_TYPE() == 0) {
-    task_set = SquareTasks;
-  } else if (config.TASK_TYPE() == 1) {
     task_set = LogicTasks;
->>>>>>> 94b1c1bbe5469bd6a43342f3a76362ebf24a3c75
   }
+
   SGPWorld world(random, &config, task_set);
 
   worldSetup(&world, &config);
