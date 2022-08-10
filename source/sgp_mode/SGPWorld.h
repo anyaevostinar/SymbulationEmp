@@ -70,15 +70,6 @@ public:
   /**
    * Input: None
    *
-   * Output: The configuration used for this world.
-   *
-   * Purpose: Allows accessing the world's config.
-   */
-  const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
-
-  /**
-   * Input: None
-   *
    * Output: None
    *
    * Purpose: To simulate a timestep in the world, which includes calling the
