@@ -702,6 +702,9 @@ public:
         return p1.second > p2.second; // compare by counts, but we want the biggest first
       }
     );
+    if (counts.size() <= result.size()) {
+      result.resize(counts.size());
+    }
   
     return result;
   }
