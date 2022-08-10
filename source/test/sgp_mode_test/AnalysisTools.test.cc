@@ -113,7 +113,7 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
       test_map = GetReducedProgramRepresentations(test_sample->GetCPU());
       emp::vector<emp::vector<int>> expected_map = {
           expected_vector, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}, {-1}};
-      for (int guide = 0; guide < test_map.size(); guide++) {
+      for (int guide = 0; guide < (int)test_map.size(); guide++) {
         THEN("There are 4 needed code sites necessary to perform the Not-task "
              "and the genome cannot perform any other tasks") {
           REQUIRE(test_map == expected_map);

@@ -37,8 +37,8 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
         needed_code_sites_d, needed_code_sites_e};
 
     emp::vector<int> calc_useful_starts = GetUsefulStarts(needed_code_sites);
-    emp::vector<int> true_useful_starts = {0, 6, needed_code_sites_c.size() - 5,
-                                           needed_code_sites_d.size() - 1};
+    emp::vector<int> true_useful_starts = {0, 6, (int)needed_code_sites_c.size() - 5,
+                                           (int)needed_code_sites_d.size() - 1};
 
     REQUIRE(calc_useful_starts == true_useful_starts);
   }
@@ -65,8 +65,8 @@ TEST_CASE("GetUsefulEnds", "[sgp]") {
         needed_code_sites_d, needed_code_sites_e};
 
     emp::vector<int> calc_useful_ends = GetUsefulEnds(needed_code_sites);
-    emp::vector<int> true_useful_ends = {needed_code_sites_a.size() - 1, 9,
-                                         needed_code_sites_c.size() - 3, 0};
+    emp::vector<int> true_useful_ends = {(int)needed_code_sites_a.size() - 1, 9,
+                                         (int)needed_code_sites_c.size() - 3, 0};
 
     REQUIRE(calc_useful_ends == true_useful_ends);
   }
@@ -106,9 +106,9 @@ TEST_CASE("GetDistance", "[sgp]") {
     int obtained_distance = 0;
 
     WHEN("the distance value (i-j) is less than the max distance") {
-      int site_i = 50;
-      int site_j = 40;
-      int expected_distance = 10;
+      site_i = 50;
+      site_j = 40;
+      expected_distance = 10;
       obtained_distance = GetDistance(site_i, site_j, length);
 
       THEN("Get distance returns a value less than the max distance") {
@@ -117,9 +117,9 @@ TEST_CASE("GetDistance", "[sgp]") {
     }
 
     WHEN("The distance value (i-j) is more than the max distance") {
-      int site_i = 1;
-      int site_j = 71;
-      int expected_distance = 30;
+      site_i = 1;
+      site_j = 71;
+      expected_distance = 30;
       obtained_distance = GetDistance(site_i, site_j, length);
 
       THEN("It returns a value less than or equal to the max distance") {
@@ -128,9 +128,9 @@ TEST_CASE("GetDistance", "[sgp]") {
     }
 
     WHEN("there is no distance between the sites") {
-      int site_i = 30;
-      int site_j = 30;
-      int expected_distance = 0;
+      site_i = 30;
+      site_j = 30;
+      expected_distance = 0;
       obtained_distance = GetDistance(site_i, site_j, length);
 
       THEN("There is no distance returned") {
@@ -156,7 +156,7 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
     emp::vector<emp::vector<int>> needed_code_sites = {needed_code_sites_b};
 
-    int num_tasks = 1;
+
     WHEN("The only reduced program that can do a task is needed_code_sites_b") {
       double test_phys_mod_a = GetPModularity(needed_code_sites);
       double found_value_a = 0.8333333;
@@ -164,7 +164,6 @@ TEST_CASE("GetPModularity", "[sgp]") {
       THEN("The physical modularity will be high") { REQUIRE(test_phys_mod_a == Approx(found_value_a)); }
     }
 
-    num_tasks = 2;
     needed_code_sites.push_back(needed_code_sites_d);
     WHEN("When there are two reduced program that can do tasks") {
 
