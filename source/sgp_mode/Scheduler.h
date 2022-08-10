@@ -40,7 +40,7 @@ class Scheduler {
    */
   void RunThread(size_t i) {
     // Make sure each thread gets a different, deterministic, seed
-    sgpl::tlrand.Get().ResetSeed(i);
+    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED() * thread_count + i);
     size_t last_update = -1;
     while (true) {
       if (!finished && last_update == update) {
@@ -77,7 +77,10 @@ class Scheduler {
 
 public:
   Scheduler(SymWorld &world, size_t thread_count)
-      : world(world), thread_count(thread_count) {}
+      : world(world), thread_count(thread_count) {
+    // Reset the seed of the main thread based on the config
+    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED());
+  }
 
   /**
    * Input: None

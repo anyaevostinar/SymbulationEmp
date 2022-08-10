@@ -33,6 +33,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
+    VALUE(DOMINANT_COUNT, size_t, 10, "Number of dominant hosts to select"),
 
     GROUP(MUTATION, "Mutation"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
