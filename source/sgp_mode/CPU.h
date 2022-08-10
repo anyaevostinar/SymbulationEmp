@@ -91,8 +91,13 @@ public:
     cpu.InitializeAnchors(program);
   }
   
-
-
+  /**
+   * Input: None
+   *
+   * Output: Returns the CPU's program
+   *
+   * Purpose: To Get the Program of an Prganism from its CPU
+   */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
 
 private:
