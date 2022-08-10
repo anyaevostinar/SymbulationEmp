@@ -8,6 +8,7 @@
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
+#include "../sgp_mode/ModularityAnalysis.h"
 #include "symbulation.h"
 #include <fstream>
 #include <iostream>
@@ -43,6 +44,7 @@ int symbulation_main(int argc, char *argv[]) {
   emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
 
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
+  /*
   {
     ofstream genome_file;
     std::string genome_path =
@@ -78,12 +80,36 @@ int symbulation_main(int argc, char *argv[]) {
       mutualism_file << "NA" << std::endl;
     }
   }
+  */
+
+  {
+    ofstream modularity_file;
+    std::string modularity_path =
+        config.FILE_PATH() + "Modularity" + config.FILE_NAME() + file_ending;
+    modularity_file.open(modularity_path);
+
+    modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
+    modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
+
+    if (sample->HasSym()) {
+      modularity_file
+          << GetPMFromCPU(
+                 sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU())
+          << " ";
+      modularity_file
+          << GetFMFromCPU(
+                 sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
+    }
+      
+    modularity_file << std::endl;
+  }
 
   // retrieve the dominant taxons for each organism and write them to a file
+  /*
   if (config.PHYLOGENY() == 1) {
     world.WritePhylogenyFile(config.FILE_PATH() + "Phylogeny_" +
                              config.FILE_NAME() + file_ending);
-  }
+  }*/
   return 0;
 }
 
