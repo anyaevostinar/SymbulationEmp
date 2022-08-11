@@ -96,7 +96,7 @@ public:
    *
    * Output: Returns the CPU's program
    *
-   * Purpose: To Get the Program of an Prganism from its CPU
+   * Purpose: To Get the Program of an Organism from its CPU
    */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
 
