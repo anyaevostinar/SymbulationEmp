@@ -57,6 +57,7 @@ public:
     state.self_completed.resize(state.world->GetTaskSet().NumTasks());
     state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
+    
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
@@ -89,7 +90,14 @@ public:
                                 15.0);
     cpu.InitializeAnchors(program);
   }
-
+  
+  /**
+   * Input: None
+   *
+   * Output: Returns the CPU's program
+   *
+   * Purpose: To Get the Program of an Organism from its CPU
+   */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
 
 private:
