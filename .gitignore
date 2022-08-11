@@ -15,5 +15,4 @@ symbulation.test
 .Rproj.user
 *.gcno
 *.gcda
-signalgp-lite
 *.vscode
