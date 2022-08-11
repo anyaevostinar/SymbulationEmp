@@ -46,6 +46,14 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
       "sym_donate_calls", "Number of donate calls");
   file.AddTotal(data_node_sym_donated->UnsynchronizedGetMonitor(),
                 "sym_points_donated", "Points donated by symbionts", true);
+  GetSymStolenDataNode();
+  file.AddFun<size_t>(
+      [&]() {
+        return data_node_sym_stolen->UnsynchronizedGetMonitor().GetCount();
+      },
+      "sym_steal_calls", "Number of steal calls");
+  file.AddTotal(data_node_sym_stolen->UnsynchronizedGetMonitor(),
+                "sym_points_stolen", "Points stolen by symbionts", true);
   file.PrintHeaderKeys();
 
   return file;
@@ -79,6 +87,13 @@ SyncDataMonitor<double> &SGPWorld::GetSymDonatedDataNode() {
     data_node_sym_donated.New();
   }
   return *data_node_sym_donated;
+}
+
+SyncDataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
+  if (!data_node_sym_stolen) {
+    data_node_sym_stolen.New();
+  }
+  return *data_node_sym_stolen;
 }
 
 #endif

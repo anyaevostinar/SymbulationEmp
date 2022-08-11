@@ -42,6 +42,7 @@ private:
   Scheduler scheduler;
   TaskSet task_set;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
+  emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
@@ -55,6 +56,7 @@ public:
 
   ~SGPWorld() {
     data_node_sym_donated.Delete();
+    data_node_sym_stolen.Delete();
     data_node_sym_earned.Delete();
     // The vectors will delete themselves automatically
   }
@@ -125,6 +127,7 @@ public:
 
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetSymDonatedDataNode();
+  SyncDataMonitor<double> &GetSymStolenDataNode();
   SyncDataMonitor<double> &GetSymEarnedDataNode();
   void SetupTasksNodes();
 
