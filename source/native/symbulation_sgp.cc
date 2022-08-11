@@ -16,23 +16,6 @@
 using namespace std;
 
 // This is the main function for the NATIVE version of this project.
-/*int PreProcessCheckSymbiont(emp::Ptr<SGPWorld> world){
-          uint32_t hostIndex = 0;
-          emp::Ptr<SGPHost> host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-          while (hostIndex < world->GetFullPop().size() && (!host->HasSym() || host->GetCPU().state.recentCompletion == 0)){//Not always a high number of hosts that have symbionts
-                if(!world->GetSymPop().size()){
-                  return -1;
-                }
-                hostIndex++;
-                host = world->GetFullPop()[hostIndex].DynamicCast<SGPHost>();
-          }
-          emp::Ptr<SGPSymbiont> symbiont;
-          if(hostIndex == world->GetFullPop().size()){
-            std::cout << "No remaining hosts that have both symbionts and points" << std::endl;
-            return -1;
-          }else{
-             return hostIndex;
-          }*/
 
 int symbulation_main(int argc, char *argv[]) {
   SymConfigBase config;
@@ -81,7 +64,7 @@ int symbulation_main(int argc, char *argv[]) {
     std::string mutualism_path =
         config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
     mutualism_file.open(mutualism_path);
-
+    std::cout << "Generating output" << std::endl;
     if (sample->HasSym()) {
       mutualism_file
           << CheckSymbiont(

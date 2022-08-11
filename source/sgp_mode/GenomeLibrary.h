@@ -260,7 +260,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   } else if (config->TASK_TYPE() == 1) {
     return CreateNotProgram(PROGRAM_LENGTH);
   } else {
-    return CreateNotProgram(PROGRAM_LENGTH);//CreateSquareProgram(PROGRAM_LENGTH);
+    return CreateSquareProgram(PROGRAM_LENGTH);
   }
 }
 
