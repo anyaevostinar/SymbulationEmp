@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 
 using namespace std;
 
@@ -36,26 +37,35 @@ int symbulation_main(int argc, char *argv[]) {
   world.CreateDataFiles();
   world.RunExperiment();
 
-  std::pair<emp::Ptr<Organism>, size_t> info = world.GetDominantInfo();
-  std::cout << "Dominant count: " << info.second << std::endl;
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
+      world.GetDominantInfo();
+  std::cout << "Dominant count: " << dominant_organisms.front().second
+            << std::endl;
 
   // Print some debug info for testing purposes
-  emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
-
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
   {
-    ofstream genome_file;
-    std::string genome_path =
-        config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;
-    genome_file.open(genome_path);
-    sample->GetCPU().PrintCode(genome_file);
+    size_t idx = 0;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
 
-    for (auto &sym : sample->GetSymbionts()) {
       ofstream genome_file;
-      std::string genome_path =
-          config.FILE_PATH() + "Genome_Sym" + config.FILE_NAME() + file_ending;
+      std::string genome_path = config.FILE_PATH() + "Genome_Host" +
+                                std::to_string(idx) + config.FILE_NAME() +
+                                file_ending;
       genome_file.open(genome_path);
-      sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
+      sample->GetCPU().PrintCode(genome_file);
+
+      for (auto &sym : sample->GetSymbionts()) {
+        ofstream genome_file;
+        std::string genome_path = config.FILE_PATH() + "Genome_Sym" +
+                                  std::to_string(idx) + config.FILE_NAME() +
+                                  file_ending;
+        genome_file.open(genome_path);
+        sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
+      }
+
+      idx++;
     }
   }
 
@@ -64,18 +74,21 @@ int symbulation_main(int argc, char *argv[]) {
     std::string mutualism_path =
         config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
     mutualism_file.open(mutualism_path);
-    std::cout << "Generating output" << std::endl;
-    if (sample->HasSym()) {
-      mutualism_file
-          << CheckSymbiont(
-                 *sample,
-                 *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
-                 world)
-          << std::endl;
-    } else {
-      // We want something in the file so it overwrites previous data, and NA is
-      // something R generally understands
-      mutualism_file << "NA" << std::endl;
+
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      if (sample->HasSym()) {
+        mutualism_file
+            << CheckSymbiont(
+                   *sample,
+                   *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
+                   world)
+            << std::endl;
+      } else {
+        // We want something in the file so it overwrites previous data, and NA
+        // is something R generally understands
+        mutualism_file << "NA" << std::endl;
+      }
     }
   }
 

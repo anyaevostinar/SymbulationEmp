@@ -164,6 +164,16 @@ public:
   /**
    * Input: None
    *
+   * Output: The configuration used for this world.
+   *
+   * Purpose: Allows accessing the world's config.
+   */
+  const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
+
+
+  /**
+   * Input: None
+   *
    * Output: The boolean representing if vertical transmission will occur
    *
    * Purpose: To determine if vertical transmission will occur
@@ -663,10 +673,10 @@ public:
     }
   }
 
-  /// Get the organism most frequently found in the population and its
-  /// abundance.
-  /// Be sure to check whether the population is empty before calling!
-  std::pair<emp::Ptr<Organism>, size_t> GetDominantInfo() const {
+  /**
+   * Get the top `config.DOMINANT_COUNT` organisms from the population, sorted by their abundance.
+   */
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> GetDominantInfo() const {
     emp_assert(
       GetNumOrgs(),
       "called GetDominantInfo on an empty population"
@@ -682,14 +692,22 @@ public:
     for (emp::Ptr<Organism> org_ptr : GetFullPop()) {
       if (org_ptr) ++counts[org_ptr];
     }
+    emp::vector<std::pair<emp::Ptr<Organism>, size_t>> result(my_config->DOMINANT_COUNT());
 
-    return *std::max_element(
+    std::partial_sort_copy(
       std::begin(counts),
       std::end(counts),
+      result.begin(),
+      result.end(),
       [](const auto & p1, const auto & p2) {
-        return p1.second < p2.second; // compare by counts
+        return p1.second > p2.second; // compare by counts, but we want the biggest first
       }
     );
+    if (counts.size() <= result.size()) {
+      result.resize(counts.size());
+    }
+  
+    return result;
   }
 
 

@@ -4,6 +4,7 @@
 #include "../default_mode/SymWorld.h"
 #include "Scheduler.h"
 #include "Tasks.h"
+#include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
 
 /// Helper which synchronizes access to the DataMonitor with a mutex
@@ -72,15 +73,6 @@ public:
   /**
    * Input: None
    *
-   * Output: The configuration used for this world.
-   *
-   * Purpose: Allows accessing the world's config.
-   */
-  const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
-
-  /**
-   * Input: None
-   *
    * Output: None
    *
    * Purpose: To simulate a timestep in the world, which includes calling the
@@ -116,7 +108,18 @@ public:
         }
         DoBirth(child, org.second);
       } else {
-        SymDoBirth(child, org.second);
+        emp::WorldPosition new_pos = SymDoBirth(child, org.second);
+        // Because we're not calling HorizontalTransmission, we need to adjust
+        // these data nodes here
+        emp::DataMonitor<int> &data_node_attempts_horiztrans =
+            GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(1);
+
+        emp::DataMonitor<int> &data_node_successes_horiztrans =
+            GetHorizontalTransmissionSuccessCount();
+        if (new_pos.IsValid()) {
+          data_node_successes_horiztrans.AddDatum(1);
+        }
       }
     }
     to_reproduce.clear();
