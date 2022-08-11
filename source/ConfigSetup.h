@@ -81,6 +81,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
     VALUE(THREAD_COUNT, size_t, 12, "Number of threads used to process organisms in parallel"),
     VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
-    VALUE(TASK_TYPE, bool, 0, "0 for squaring tasks, 1 for logic tasks"),
+    VALUE(TASK_TYPE, bool, 1, "0 for squaring tasks, 1 for logic tasks"),
+    VALUE(DONATION, bool, 1, "1 if you want organisms to have a donate instruction, 0 if not"),
 )
 #endif
