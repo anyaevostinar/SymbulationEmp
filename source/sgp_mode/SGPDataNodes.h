@@ -33,8 +33,6 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
                   "Host completions of " + data.task.name, true);
     file.AddTotal(data_node_sym_tasks[i], "sym_task_" + data.task.name,
                   "Symbiont completions of " + data.task.name, true);
-    file.AddMax(data_node_host_largest_square[i], "host_largest_value_" + data.task.name, "Host Largest value for " + data.task.name, true);
-    file.AddMax(data_node_sym_largest_square[i], "sym_largest_value_" + data.task.name, "Symbiont Largest value for " + data.task.name, true);
     i++;
   }
   file.PrintHeaderKeys();
@@ -105,15 +103,11 @@ void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());
     data_node_sym_tasks.resize(task_set.NumTasks());
-    data_node_host_largest_square.resize(task_set.NumTasks());
-    data_node_sym_largest_square.resize(task_set.NumTasks());
     OnUpdate([&](auto) {
       int i = 0;
       for (auto data : task_set) {
         data_node_host_tasks[i].AddDatum(data.n_succeeds_host);
         data_node_sym_tasks[i].AddDatum(data.n_succeeds_sym);
-        data_node_host_largest_square[i].AddDatum(data.task.curHostOutput);
-        data_node_sym_largest_square[i].AddDatum(data.task.curSymOutput);
         i++;
       }
       task_set.ResetTaskData();

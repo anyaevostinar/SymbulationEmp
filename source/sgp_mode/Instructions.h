@@ -123,8 +123,9 @@ INST(SharedIO, {
   *a = next;
   state.input_buf.push(next);
 });
-/*INST(Donate, {
-  if (state.host->IsHost())
+INST(Donate, {
+  if (state.world->GetConfig()->DONATION()){
+      if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
     // Donate 20% of the total points of the symbiont-host system
@@ -138,7 +139,8 @@ INST(SharedIO, {
     host->AddPoints(to_donate);
     state.host->AddPoints(-to_donate);
   }
-});*/
+  }
+});
 
 INST(Reuptake, {
   uint32_t next;
