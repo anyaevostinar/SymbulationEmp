@@ -5,10 +5,10 @@
 
 #include "sanity_check.test.cc"
 
-//#include "../test/default_mode_test/SymWorld.test.cc"
-//#include "../test/default_mode_test/DataNodes.test.cc"
+#include "../test/default_mode_test/SymWorld.test.cc"
+#include "../test/default_mode_test/DataNodes.test.cc"
 
-/*#include "../test/default_mode_test/Host.test.cc"
+#include "../test/default_mode_test/Host.test.cc"
 #include "../test/default_mode_test/Symbiont.test.cc"
 #include "../test/default_mode_test/HostSymbiontInteraction.test.cc"
 #include "../test/default_mode_test/HostSymbiontUnitTest.test.cc"
@@ -39,4 +39,4 @@
 #include "../test/integration_test/lysogeny/plr.test.cc"
 #include "../test/integration_test/endosymbiosis/res_distribute.test.cc"
 #include "../test/integration_test/dirty_transmission/hz_mut_rate.test.cc"
-*/
+
