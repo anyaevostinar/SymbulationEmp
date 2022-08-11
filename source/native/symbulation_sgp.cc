@@ -9,6 +9,7 @@
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
 #include "../sgp_mode/ModularityAnalysis.h"
+#include "../sgp_mode/DiversityAnalysis.h"
 #include "symbulation.h"
 #include <fstream>
 #include <iostream>
@@ -35,24 +36,53 @@ int symbulation_main(int argc, char *argv[]) {
 
   worldSetup(&world, &config);
   world.CreateDataFiles();
+  // Print some debug info for testing purposes
+  std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
+
+  //emp::SignalKey OnAnalyzePopulation(const std::function<void()> & fun) {
+  //  return on_analyze_population_sig.AddAction(fun);
+  //}
+  world.OnAnalyzePopulation([&](){
+    emp::vector<CPU> cpus = {};
+    emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
+      world.GetDominantInfo();
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      cpus.push_back(sample->GetCPU());
+      if(sample->HasSym()){
+        cpus.push_back(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
+      }
+    }
+    double alpha = AlphaDiversity(cpus);
+    double shannon = ShannonDiversity(cpus);
+
+    ofstream diversity_file;
+    std::string diversity_path =
+        config.FILE_PATH()+ "_diversity_" + config.FILE_NAME() + file_ending;
+    diversity_file.open(diversity_path);
+
+    diversity_file << "alpha_diversity, shannon_diversity" << std::endl;
+    diversity_file << alpha <<" " << shannon << std::endl;
+
+
+  });
   world.RunExperiment();
 
-  std::pair<emp::Ptr<Organism>, size_t> info = world.GetDominantInfo();
-  std::cout << "Dominant count: " << info.second << std::endl;
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
+      world.GetDominantInfo();
+  std::cout << "Dominant count: " << dominant_organisms.front().second
+            << std::endl;
 
-  // Print some debug info for testing purposes
-  emp::Ptr<SGPHost> sample = info.first.DynamicCast<SGPHost>();
-
-  std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
-  /*
   {
     ofstream genome_file;
     std::string genome_path =
         config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;
     genome_file.open(genome_path);
-    sample->GetCPU().PrintCode(genome_file);
+    // Only print the genome of the most dominant host, at least for now
+    dominant_organisms.front().first.DynamicCast<SGPHost>()->GetCPU().PrintCode(
+        genome_file);
 
-    for (auto &sym : sample->GetSymbionts()) {
+    for (auto &sym : dominant_organisms.front().first->GetSymbionts()) {
       ofstream genome_file;
       std::string genome_path =
           config.FILE_PATH() + "Genome_Sym" + config.FILE_NAME() + file_ending;
@@ -67,49 +97,53 @@ int symbulation_main(int argc, char *argv[]) {
         config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
     mutualism_file.open(mutualism_path);
 
-    if (sample->HasSym()) {
-      mutualism_file
-          << CheckSymbiont(
-                 *sample,
-                 *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
-                 world)
-          << std::endl;
-    } else {
-      // We want something in the file so it overwrites previous data, and NA is
-      // something R generally understands
-      mutualism_file << "NA" << std::endl;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      if (sample->HasSym()) {
+        mutualism_file
+            << CheckSymbiont(
+                   *sample,
+                   *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
+                   world)
+            << std::endl;
+      } else {
+        // We want something in the file so it overwrites previous data, and NA
+        // is something R generally understands
+        mutualism_file << "NA" << std::endl;
+      }
     }
   }
-  */
 
-  {
-    ofstream modularity_file;
-    std::string modularity_path =
-        config.FILE_PATH() + "Modularity" + config.FILE_NAME() + file_ending;
-    modularity_file.open(modularity_path);
+  ofstream modularity_file;
+  std::string modularity_path =
+      config.FILE_PATH()+ "_modularity_" + config.FILE_NAME() + file_ending;
+  modularity_file.open(modularity_path);
 
+  modularity_file << "host_pm, host_fm, sym_pm, sym_fm" << std::endl;
+
+  for (auto pair : dominant_organisms) {
+    auto sample = pair.first.DynamicCast<SGPHost>();
     modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
     modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
-
     if (sample->HasSym()) {
       modularity_file
-          << GetPMFromCPU(
-                 sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU())
-          << " ";
+          << GetPMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << " ";
       modularity_file
-          << GetFMFromCPU(
-                 sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
+          << GetFMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << std::endl;
+
+    } else {
+      modularity_file << "NA ";
+      modularity_file << "NA " << std::endl;
     }
-      
-    modularity_file << std::endl;
   }
+  
+
 
   // retrieve the dominant taxons for each organism and write them to a file
-  /*
   if (config.PHYLOGENY() == 1) {
     world.WritePhylogenyFile(config.FILE_PATH() + "Phylogeny_" +
                              config.FILE_NAME() + file_ending);
-  }*/
+  }
   return 0;
 }
 
