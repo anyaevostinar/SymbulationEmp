@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 
 using namespace std;
 
@@ -44,20 +45,27 @@ int symbulation_main(int argc, char *argv[]) {
   // Print some debug info for testing purposes
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
   {
-    ofstream genome_file;
-    std::string genome_path =
-        config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;
-    genome_file.open(genome_path);
-    // Only print the genome of the most dominant host, at least for now
-    dominant_organisms.front().first.DynamicCast<SGPHost>()->GetCPU().PrintCode(
-        genome_file);
+    size_t idx = 0;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
 
-    for (auto &sym : dominant_organisms.front().first->GetSymbionts()) {
       ofstream genome_file;
-      std::string genome_path =
-          config.FILE_PATH() + "Genome_Sym" + config.FILE_NAME() + file_ending;
+      std::string genome_path = config.FILE_PATH() + "Genome_Host" +
+                                std::to_string(idx) + config.FILE_NAME() +
+                                file_ending;
       genome_file.open(genome_path);
-      sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
+      sample->GetCPU().PrintCode(genome_file);
+
+      for (auto &sym : sample->GetSymbionts()) {
+        ofstream genome_file;
+        std::string genome_path = config.FILE_PATH() + "Genome_Sym" +
+                                  std::to_string(idx) + config.FILE_NAME() +
+                                  file_ending;
+        genome_file.open(genome_path);
+        sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
+      }
+
+      idx++;
     }
   }
 
