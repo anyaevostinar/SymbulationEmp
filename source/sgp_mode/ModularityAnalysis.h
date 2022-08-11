@@ -74,7 +74,6 @@ emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
  */
 emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> list_of_ends = {};
-
   for (size_t y = 0; y < task_programs.size(); y++) {
     for (size_t f = task_programs[y].size() - 1; f >= 0; f--) {
       if (task_programs[y][f] == 1) {
@@ -108,7 +107,6 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
 int GetNumSites(int start_inst, int end_inst, emp::vector<int> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
-  // int genome_size = (int)alt_genome.size();
 
   for (int b = start_inst; b <= end_inst; b++) {
 
@@ -193,7 +191,7 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
 
 /**
  *
- * Input:Takes in the number of tasks in the taskset and a pointer to a host
+ * Input:Takes in the number of tasks in the taskset and a CPU reference
  *
  * Output: A number between 0 and 1 that, as the physical modularity value
  *
@@ -263,7 +261,7 @@ double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
 
 /**
  *
- * Input:Takes in the number of tasks in the taskset and a pointer to a host
+ * Input:Takes in the number of tasks in the taskset and a CPU reference
  *
  * Output: A number between 0 and 1 that, as the funtional modularity value
  *

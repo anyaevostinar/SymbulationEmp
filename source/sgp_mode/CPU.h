@@ -57,6 +57,7 @@ public:
     state.self_completed.resize(state.world->GetTaskSet().NumTasks());
     state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
+    
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
@@ -89,7 +90,14 @@ public:
                                 15.0);
     cpu.InitializeAnchors(program);
   }
-
+  
+  /**
+   * Input: None
+   *
+   * Output: Returns the CPU's program
+   *
+   * Purpose: To Get the Program of an Organism from its CPU
+   */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
 
 private:
@@ -166,7 +174,7 @@ public:
         {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
         {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
         {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
-        {"Reuptake", 1}};
+        {"Reuptake", 1},  {"Steal", 0}};
 
     for (auto i : program) {
       PrintOp(i, arities, cpu.GetActiveCore().GetGlobalJumpTable(), out);
