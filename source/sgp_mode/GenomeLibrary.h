@@ -24,7 +24,7 @@ using Library = sgpl::OpLibrary<
     inst::Donate, inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
     // if-label doesn't make sense for SGP, same with *-head
     // and set-flow but this is required
-    sgpl::global::Anchor>;
+    sgpl::global::Anchor, inst::Steal>;
 
 using Spec = sgpl::Spec<Library, CPUState>;
 

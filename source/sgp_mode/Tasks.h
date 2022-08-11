@@ -127,46 +127,18 @@ public:
 
   void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
             task.curHostOutput = output;
-            if (state.host->IsHost()){
-            }
-            
-            if (calculationMap.empty()){
+            if (calculationMap.empty()){//Base case for when the map is empty
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-              if(task.fullSquareList.size() == 0){
-                task.fullSquareList.push_back(output);
-              }else {
-                uint32_t j = 0;
-                uint32_t curValue = task.fullSquareList[j];
-                while(j != task.fullSquareList.size() && curValue != output){
-                  j++;
-                }if (j == task.fullSquareList.size()){
-                  task.fullSquareList.push_back(output);
-                }
-              }
             }else{
               std::map<uint32_t, uint32_t>::iterator placemark;
               placemark = calculationMap.begin();
               while (placemark != calculationMap.end() && output != placemark->first){
                     placemark++;
               }
-              if (output == placemark->first){
+              if (output == placemark->first){//If the output is already in the map, increment its count
                   placemark->second++;
-              }else if (placemark == calculationMap.end()){
+              }else if (placemark == calculationMap.end()){//If the output is not in the map, insert it and give it a count of 1
                 calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-                if(task.fullSquareList.size() == 0){
-                task.fullSquareList.push_back(output);
-              }else {
-                uint32_t j = 0;
-                uint32_t curValue = task.fullSquareList[j];
-                while(j != task.fullSquareList.size() && curValue != output){
-                  if(curValue == output){
-                    std::cout << "Aaaaaah!" << std::endl;
-                  }
-                  j++;
-                }if (j == task.fullSquareList.size()){
-                  task.fullSquareList.push_back(output);
-                }
-              }
               }
           }
   }
@@ -216,13 +188,6 @@ public:
           }
           return score;
         }
-        
-        /*if(state.host->IsHost()){
-          task.curHostOutput = 0;
-        }
-        else{
-            task.curSymOutput = 0;
-        }*/
       }
     }
     // Check input tasks
@@ -297,7 +262,6 @@ std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
   return myMap;
 }
 void ClearSquareFrequencyData(){
-  //std::cout<< "Current squares: " << tasks[0].fullSquareList.size() << std::endl;
   tasks[0].hostCalculationTable.clear();
   tasks[0].symCalculationTable.clear();
 }

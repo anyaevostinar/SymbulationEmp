@@ -56,7 +56,6 @@ struct CPUState {
 //TODO:Change to name to something more general, like organism
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
-
   emp::WorldPosition location;
 
   CPUState(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
