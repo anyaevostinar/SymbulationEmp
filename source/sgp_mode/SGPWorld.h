@@ -45,9 +45,8 @@ private:
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
-  emp::vector<emp::DataMonitor<size_t>> data_node_host_largest_square;
-  emp::vector<emp::DataMonitor<size_t>> data_node_sym_largest_square;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
+  
 
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
@@ -132,12 +131,11 @@ public:
   SyncDataMonitor<double> &GetSymStolenDataNode();
   SyncDataMonitor<double> &GetSymEarnedDataNode();
   void SetupTasksNodes();
-  void SetupOutputNodes();
 
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
-  emp::DataFile &SetupHostOutputFile(const std::string &filename);
-  emp::DataFile &SetupSymOutputFile(const std::string &filename);
+  emp::DataFile &SetupHostSquareFrequencyFile(const std::string &filename);
+  emp::DataFile &SetupSymSquareFrequencyFile(const std::string &filename);
 
   void CreateDataFiles();
 };

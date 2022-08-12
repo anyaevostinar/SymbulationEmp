@@ -650,6 +650,7 @@ public:
     int numupdates = my_config->UPDATES();
     for (int i = 0; i < numupdates; i++) {
       if(verbose && (i%my_config->DATA_INT())==0) {
+        std::cout <<"Update: "<< i << std::endl;
         std::cout.flush();
       }
       Update();

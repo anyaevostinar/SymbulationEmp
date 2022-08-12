@@ -124,21 +124,21 @@ INST(SharedIO, {
   state.input_buf.push(next);
 });
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION()){
+  if (state.world->GetConfig()->DONATION_INST()){
       if (state.host->IsHost())
-    return;
-  if (emp::Ptr<Organism> host = state.host->GetHost()) {
-    // Donate 20% of the total points of the symbiont-host system
-    // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-    // couple of instructions
-    double to_donate =
-        fmin(state.host->GetPoints(),
-             (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->GetSymDonatedDataNode().WithMonitor(
-        [=](auto &m) { m.AddDatum(to_donate); });
-    host->AddPoints(to_donate);
-    state.host->AddPoints(-to_donate);
-  }
+          return;
+      if (emp::Ptr<Organism> host = state.host->GetHost()) {
+        // Donate 20% of the total points of the symbiont-host system
+        // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+        // couple of instructions
+        double to_donate =
+            fmin(state.host->GetPoints(),
+                (state.host->GetPoints() + host->GetPoints()) * 0.20);
+        state.world->GetSymDonatedDataNode().WithMonitor(
+            [=](auto &m) { m.AddDatum(to_donate); });
+        host->AddPoints(to_donate);
+        state.host->AddPoints(-to_donate);
+      }
   }
 });
 INST(Steal, {
