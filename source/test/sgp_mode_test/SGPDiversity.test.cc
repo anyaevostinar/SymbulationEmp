@@ -19,6 +19,7 @@
 #include <iostream>
 #include <memory>
 
+
 TEST_CASE("GetPhenotypeMap", "[sgp]") {
 
   WHEN("For two identical CPUs") {
@@ -36,8 +37,6 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
     size_t length = 100;
 
     ProgramBuilder builder;
-    // builder.AddNand();
-    // builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
 
     emp::Ptr<SGPHost> test_sample1 =
@@ -59,7 +58,9 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
     
     emp::unordered_map<emp::BitSet<64>, int> test_map = GetPhenotypeMap(test_vec);
 
-    THEN("") { REQUIRE(test_map[zeros] == expected_map[zeros]); }
+    THEN("GetPhenotypeMap successfully count the phenotype twice") { 
+      REQUIRE(test_map[zeros] == expected_map[zeros]); 
+    }
   }
 }
 
@@ -82,8 +83,6 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
     size_t length = 100;
 
     ProgramBuilder builder;
-    // builder.AddNand();
-    // builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
 
     emp::Ptr<SGPHost> test_sample1 =
@@ -105,7 +104,9 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
     
     double test_value = AlphaDiversity(test_vec);
 
-    THEN("") { REQUIRE(test_value == expected_value); }
+    THEN("Calculation is correct") { 
+      REQUIRE(test_value == expected_value); 
+      }
   }
 }
 
@@ -126,9 +127,7 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
 
     size_t length = 100;
 
-     ProgramBuilder builder;
-    // builder.AddNand();
-    // builder.AddNot();
+    ProgramBuilder builder;
     sgpl::Program<Spec> test_program = builder.Build(length);
 
     emp::Ptr<SGPHost> test_sample1 =
@@ -151,8 +150,12 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
     
     double test_value = ShannonDiversity(test_vec);
 
-    THEN("") { REQUIRE(test_value == expected_value); }
+    THEN("Calculation is correct") { 
+      REQUIRE(test_value == expected_value); 
+    }
   }
+
+  
 
   
 }

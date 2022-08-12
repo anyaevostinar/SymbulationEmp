@@ -36,12 +36,9 @@ int symbulation_main(int argc, char *argv[]) {
 
   worldSetup(&world, &config);
   world.CreateDataFiles();
-  // Print some debug info for testing purposes
+  
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
-  //emp::SignalKey OnAnalyzePopulation(const std::function<void()> & fun) {
-  //  return on_analyze_population_sig.AddAction(fun);
-  //}
   world.OnAnalyzePopulation([&](){
     emp::vector<CPU> cpus = {};
     emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
@@ -74,6 +71,10 @@ int symbulation_main(int argc, char *argv[]) {
             << std::endl;
 
   {
+    size_t idx = 0;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      
     ofstream genome_file;
     std::string genome_path =
         config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;

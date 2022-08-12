@@ -44,8 +44,6 @@ private:
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
-  // emp::Ptr<SyncDataMonitor<double>> data_node_diversity;
-  // emp::Ptr<SyncDataMonitor<double>> data_node_modularity;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
