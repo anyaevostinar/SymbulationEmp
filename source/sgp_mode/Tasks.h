@@ -124,21 +124,25 @@ public:
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
   }
-
+  /**
+   * Input: A pointer to an organism's square frequency map, as well as the value of the current output
+   *
+   * Output: None
+   *
+   * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
+   * otherwise, increments the count for that output
+   */
   void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
             task.curHostOutput = output;
             if (calculationMap.empty()){//Base case for when the map is empty
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
             }else{
               std::map<uint32_t, uint32_t>::iterator placemark;
-              placemark = calculationMap.begin();
-              while (placemark != calculationMap.end() && output != placemark->first){
-                    placemark++;
-              }
-              if (output == placemark->first){//If the output is already in the map, increment its count
-                  placemark->second++;
-              }else if (placemark == calculationMap.end()){//If the output is not in the map, insert it and give it a count of 1
+              placemark = calculationMap.find(output);
+              if(placemark == calculationMap.end()){//If output does not exist in the map, add it with a count of 1
                 calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+              }else{//If output does exist in the map, increment its count
+                placemark->second++;
               }
           }
   }
@@ -179,13 +183,17 @@ public:
           score = MarkPerformedTask(state, i, shared, score);
           state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                             sqrt(output));
-          if(state.host->IsHost()){
-            task.curHostOutput = output;
-            IncrementSquareMap(task, state, output, task.hostCalculationTable);
-          }else{
-            task.curSymOutput = output;
-            IncrementSquareMap(task, state, output, task.symCalculationTable);
+          if(state.world.DynamicCast<SymWorld>()->GetConfig()->TASK_TYPE() == 0){
+            if(state.host->IsHost()){
+              task.curHostOutput = output;
+              IncrementSquareMap(task, state, output, task.hostCalculationTable);
+            }
+            else{
+              task.curSymOutput = output;
+              IncrementSquareMap(task, state, output, task.symCalculationTable);
+            }
           }
+          
           return score;
         }
       }
@@ -251,6 +259,15 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
+
+  /**
+   * Input: A boolean identifying a given organism as a host or a symbiont
+   *
+   * Output: The map of square frequencies that matches the organism's type
+   *
+   * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
+   on whether the organism is a host or a symbiont. 
+   */
 std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
   std::map<uint32_t, uint32_t> myMap;
   if (Host){
@@ -261,6 +278,7 @@ std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
   }
   return myMap;
 }
+
 void ClearSquareFrequencyData(){
   tasks[0].hostCalculationTable.clear();
   tasks[0].symCalculationTable.clear();

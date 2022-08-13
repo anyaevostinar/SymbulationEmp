@@ -648,7 +648,6 @@ public:
   void RunExperiment(bool verbose=true) {
     //Loop through updates
     int numupdates = my_config->UPDATES();
-    std::cout << "Updates: " << numupdates << std::endl;
     for (int i = 0; i < numupdates; i++) {
       if(verbose && (i%my_config->DATA_INT())==0) {
         std::cout <<"Update: "<< i << std::endl;
