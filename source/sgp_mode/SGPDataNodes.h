@@ -7,7 +7,7 @@ void SGPWorld::CreateDataFiles() {
   std::string file_ending =
       "_SEED" + std::to_string(my_config->SEED()) + ".data";
   SymWorld::CreateDateFiles();
-  if(my_config->DONATION_INST()){
+  if(my_config->DONATION_STEAL_INST()){
     SetupSymDonatedFile(my_config->FILE_PATH() + "SymDonated" +
                       my_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(my_config->DATA_INT());

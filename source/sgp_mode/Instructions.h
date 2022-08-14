@@ -124,7 +124,8 @@ INST(SharedIO, {
   state.input_buf.push(next);
 });
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_INST()){
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
+    std::cout << "Donation On!" << std::endl;
       if (state.host->IsHost())
           return;
       if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -142,20 +143,22 @@ INST(Donate, {
   }
 });
 INST(Steal, {
-  if (state.host->IsHost())
-    return;
-  if (emp::Ptr<Organism> host = state.host->GetHost()) {
-    // Steal 20% of the total points of the symbiont-host system
-    // This way, a sym can steal e.g. 40 or 60 percent of their points in a
-    // couple of instructions
-    double to_steal =
-        fmin(host->GetPoints(),
-             (state.host->GetPoints() + host->GetPoints()) * 0.20);
-    state.world->GetSymStolenDataNode().WithMonitor(
-        [=](auto &m) { m.AddDatum(to_steal); });
-    host->AddPoints(-to_steal);
-    state.host->AddPoints(to_steal);
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
+      if (state.host->IsHost())
+        return;
+      if (emp::Ptr<Organism> host = state.host->GetHost()) {
+        // Steal 20% of the total points of the symbiont-host system
+        // This way, a sym can steal e.g. 40 or 60 percent of their points in a
+        // couple of instructions
+        double to_steal =
+            fmin(host->GetPoints(),
+                (state.host->GetPoints() + host->GetPoints()) * 0.20);
+        state.world->GetSymStolenDataNode().WithMonitor(
+            [=](auto &m) { m.AddDatum(to_steal); });
+        host->AddPoints(-to_steal);
+        state.host->AddPoints(to_steal);
   }
+}
 });
 
 INST(Reuptake, {
