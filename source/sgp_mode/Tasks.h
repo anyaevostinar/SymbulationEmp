@@ -6,18 +6,73 @@
 #include <atomic>
 #include <variant>
 
-struct Task {
-  std::string name;
+class Task {
   bool unlimited = true;
   emp::vector<size_t> dependencies;
   /// The total number of times this task's dependencies must be completed for
   /// each use of this task
   size_t num_dep_completes = 1;
 
+public:
+  std::string name;
+
   Task(std::string name, bool unlimited = true,
        emp::vector<size_t> dependencies = {}, size_t num_dep_completes = 1)
-      : name(name), unlimited(unlimited), dependencies(dependencies),
-        num_dep_completes(num_dep_completes) {}
+      : unlimited(unlimited), dependencies(dependencies),
+        num_dep_completes(num_dep_completes), name(name) {}
+
+  virtual void MarkAlwaysPerformable() {
+    dependencies.clear();
+    unlimited = true;
+  }
+
+  virtual bool CanPerform(const CPUState &state, size_t task_id) {
+    if (state.used_resources->Get(task_id) && !unlimited) {
+      return false;
+    }
+    if (dependencies.size()) {
+      size_t actually_completed = std::reduce(
+          dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
+            return acc + state.self_completed[i] + (*state.shared_completed)[i];
+          });
+      if (actually_completed < num_dep_completes) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  virtual void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
+                             bool shared) {
+    state.used_resources->Set(task_id);
+
+    if (dependencies.size()) {
+      // TODO does it make sense to reset to 0, or to let them accumulate
+      // resources?
+      size_t total = num_dep_completes;
+      for (size_t i : dependencies) {
+        // Subtract just as much as needed from each dependency until we've
+        // accumulated `num_dep_completes` completions
+        size_t subtract = std::min(state.self_completed[i], total);
+        total -= subtract;
+        state.self_completed[i] -= subtract;
+
+        subtract = std::min((*state.shared_completed)[i], total);
+        total -= subtract;
+        (*state.shared_completed)[i] -= subtract;
+
+        if (total == 0) {
+          break;
+        }
+      }
+    }
+
+    if (shared) {
+      (*state.shared_completed)[task_id]++;
+    } else {
+      state.self_completed[task_id]++;
+    }
+  }
 
   virtual float CheckOutput(CPUState &state, uint32_t output) = 0;
 };
@@ -84,13 +139,11 @@ public:
       : OutputTask(name, task_fun, unlimited, dependencies, num_dep_completes) {
   }
 
-  float CheckOutput(CPUState &state, uint32_t output) override {
-    float score = OutputTask::CheckOutput(state, output);
-    if (score > 0.0) {
-      state.internalEnvironment->insert(state.internalEnvironment->begin(),
-                                        sqrt(output));
-    }
-    return score;
+  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
+                     bool shared) override {
+    OutputTask::MarkPerformed(state, output, task_id, shared);
+    state.internalEnvironment->insert(state.internalEnvironment->begin(),
+                                      sqrt(output));
   }
 };
 
@@ -101,61 +154,14 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
-  bool CanPerformTask(const CPUState &state, size_t task_id) const {
-    const Task &task = *tasks[task_id];
-
-    if (state.used_resources->Get(task_id) && !task.unlimited) {
-      return false;
-    }
-    if (task.dependencies.size()) {
-      size_t num_dep_completes = std::reduce(
-          task.dependencies.begin(), task.dependencies.end(), 0,
-          [&](auto acc, auto i) {
-            return acc + state.self_completed[i] + (*state.shared_completed)[i];
-          });
-      if (num_dep_completes < task.num_dep_completes) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  float MarkPerformedTask(CPUState &state, size_t task_id, bool shared,
-                          float score) {
+  float MarkPerformedTask(CPUState &state, uint32_t output, size_t task_id,
+                          bool shared, float score) {
     score = state.world.Cast<SymWorld>()->PullResources(score);
     if (score == 0.0) {
       return score;
     }
 
-    const Task &task = *tasks[task_id];
-    state.used_resources->Set(task_id);
-
-    if (task.dependencies.size()) {
-      // TODO does it make sense to reset to 0, or to let them accumulate
-      // resources?
-      size_t total = task.num_dep_completes;
-      for (size_t i : task.dependencies) {
-        // Subtract just as much as needed from each dependency until we've
-        // accumulated `num_dep_completes` completions
-        size_t subtract = std::min(state.self_completed[i], total);
-        total -= subtract;
-        state.self_completed[i] -= subtract;
-
-        subtract = std::min((*state.shared_completed)[i], total);
-        total -= subtract;
-        (*state.shared_completed)[i] -= subtract;
-
-        if (total == 0) {
-          break;
-        }
-      }
-    }
-
-    if (shared) {
-      (*state.shared_completed)[task_id]++;
-    } else {
-      state.self_completed[task_id]++;
-    }
+    tasks[task_id]->MarkPerformed(state, output, task_id, shared);
 
     if (state.host->IsHost())
       ++*n_succeeds_host[task_id];
@@ -204,10 +210,10 @@ public:
       return 0.0;
     }
     for (size_t i = 0; i < tasks.size(); i++) {
-      if (CanPerformTask(state, i)) {
+      if (tasks[i]->CanPerform(state, i)) {
         float score = tasks[i]->CheckOutput(state, output);
         if (score > 0.0) {
-          score = MarkPerformedTask(state, i, shared, score);
+          score = MarkPerformedTask(state, output, i, shared, score);
           return score;
         }
       }

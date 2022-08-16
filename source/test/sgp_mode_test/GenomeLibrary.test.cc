@@ -10,8 +10,7 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   config.SYM_HORIZ_TRANS_RES(100);
 
   // Ensure we can actually complete the task
-  task->dependencies.clear();
-  task->unlimited = true;
+  task->MarkAlwaysPerformable();
 
   SGPWorld world(random, &config, TaskSet{task});
 
