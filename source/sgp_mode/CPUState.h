@@ -27,9 +27,9 @@ public:
     next = (next + 1) % len;
   }
 
-  uint32_t operator[](size_t idx) { return buffer[idx % len]; }
+  uint32_t operator[](size_t idx) const { return buffer[idx % len]; }
 
-  size_t size() { return len; }
+  size_t size() const { return len; }
 };
 
 // CPUState has a pointer to the SGPWorld, but it can't include it
@@ -53,7 +53,8 @@ struct CPUState {
   // the queue. When the organism dies, its queue slot will be invalidated.
   int in_progress_repro = -1;
   emp::Ptr<emp::vector<uint32_t>> internalEnvironment = emp::NewPtr<emp::vector<uint32_t>>();
-//TODO:Change to name to something more general, like organism
+
+  // TODO: Change the name to something more general, like organism
   emp::Ptr<Organism> host;
   emp::Ptr<SGPWorld> world;
 

@@ -6,45 +6,103 @@
 #include <atomic>
 #include <variant>
 
-/**
- * An input task computes an expected output based on the inputs, and if the
- * organism's output matches, it gives it a certain reward:
- * `InputTask sum{ 2, [](auto &x) { return x[0] + x[1]; }, 1.0 };`
- */
-struct InputTask {
-  size_t n_inputs;
-  std::function<uint32_t(emp::vector<uint32_t> &)> taskFun;
-  float value;
-};
-
-/**
- * An output task returns a reward based on the output the organism produced:
- * `OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
- */
-struct OutputTask {
-  std::function<float(uint32_t)> taskFun;
-};
-
 struct Task {
   std::string name;
-  std::variant<InputTask, OutputTask> kind;
   bool unlimited = true;
   emp::vector<size_t> dependencies;
   /// The total number of times this task's dependencies must be completed for
   /// each use of this task
   size_t num_dep_completes = 1;
+
+  Task(std::string name, bool unlimited = true,
+       emp::vector<size_t> dependencies = {}, size_t num_dep_completes = 1)
+      : name(name), unlimited(unlimited), dependencies(dependencies),
+        num_dep_completes(num_dep_completes) {}
+
+  virtual float CheckOutput(CPUState &state, uint32_t output) = 0;
+};
+
+/**
+ * An input task computes an expected output based on the inputs, and if the
+ * organism's output matches, it gives it a certain reward:
+ * `InputTask sum{ "SUM", 2, 1.0, [](auto &x) { return x[0] + x[1]; } };`
+ */
+class InputTask : public Task {
+  size_t n_inputs;
+  std::function<uint32_t(emp::vector<uint32_t> &)> task_fun;
+  float value;
+
+public:
+  InputTask(std::string name, size_t n_inputs, float value,
+            std::function<uint32_t(emp::vector<uint32_t> &)> task_fun,
+            bool unlimited = true, emp::vector<size_t> dependencies = {},
+            size_t num_dep_completes = 1)
+      : Task(name, unlimited, dependencies, num_dep_completes),
+        n_inputs(n_inputs), task_fun(task_fun), value(value) {}
+
+  float CheckOutput(CPUState &state, uint32_t output) override {
+    for (size_t i = 0; i < state.input_buf.size(); i++) {
+      if (state.input_buf[i] == 0)
+        continue;
+
+      emp::vector<uint32_t> inputs{state.input_buf[i], state.input_buf[i + 1]};
+      if (n_inputs > 1 && inputs[1] == 0)
+        continue;
+
+      if (task_fun(inputs) == output) {
+        return value;
+      }
+    }
+    return 0;
+  }
+};
+
+/**
+ * An output task returns a reward based on the output the organism produced:
+ * `OutputTask is42{ "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+ */
+class OutputTask : public Task {
+  std::function<float(uint32_t)> task_fun;
+
+public:
+  OutputTask(std::string name, std::function<float(uint32_t)> task_fun,
+             bool unlimited = true, emp::vector<size_t> dependencies = {},
+             size_t num_dep_completes = 1)
+      : Task(name, unlimited, dependencies, num_dep_completes),
+        task_fun(task_fun) {}
+
+  float CheckOutput(CPUState &state, uint32_t output) override {
+    return task_fun(output);
+  }
+};
+
+class SquareTask : public OutputTask {
+public:
+  SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
+             bool unlimited = true, emp::vector<size_t> dependencies = {},
+             size_t num_dep_completes = 1)
+      : OutputTask(name, task_fun, unlimited, dependencies, num_dep_completes) {
+  }
+
+  float CheckOutput(CPUState &state, uint32_t output) override {
+    float score = OutputTask::CheckOutput(state, output);
+    if (score > 0.0) {
+      state.internalEnvironment->insert(state.internalEnvironment->begin(),
+                                        sqrt(output));
+    }
+    return score;
+  }
 };
 
 class TaskSet {
-  emp::vector<Task> tasks;
+  emp::vector<emp::Ptr<Task>> tasks;
   // vector<atomic<>> doesn't work since the vector needs to copy its elements
   // on resize and atomic isn't copiable, so we need pointers
-  //&& !task.unlimited
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
   bool CanPerformTask(const CPUState &state, size_t task_id) const {
-    const Task &task = tasks[task_id];
+    const Task &task = *tasks[task_id];
 
     if (state.used_resources->Get(task_id) && !task.unlimited) {
       return false;
@@ -69,7 +127,7 @@ class TaskSet {
       return score;
     }
 
-    const Task &task = tasks[task_id];
+    const Task &task = *tasks[task_id];
     state.used_resources->Set(task_id);
 
     if (task.dependencies.size()) {
@@ -111,7 +169,7 @@ public:
   /**
    * Construct a TaskSet from a list of tasks
    */
-  TaskSet(std::initializer_list<Task> tasks) : tasks(tasks) {
+  TaskSet(std::initializer_list<emp::Ptr<Task>> tasks) : tasks(tasks) {
     for (size_t i = 0; i < tasks.size(); i++) {
       n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
@@ -146,37 +204,11 @@ public:
       return 0.0;
     }
     for (size_t i = 0; i < tasks.size(); i++) {
-      Task &task = tasks[i];
-      if (std::holds_alternative<OutputTask>(task.kind) &&
-          CanPerformTask(state, i)) {
-        float score = std::get<OutputTask>(task.kind).taskFun(output);
+      if (CanPerformTask(state, i)) {
+        float score = tasks[i]->CheckOutput(state, output);
         if (score > 0.0) {
           score = MarkPerformedTask(state, i, shared, score);
-          state.internalEnvironment->insert(state.internalEnvironment->begin(),
-                                            sqrt(output));
           return score;
-        }
-      }
-    }
-    // Check input tasks
-    emp::vector<uint32_t> inputs;
-    for (size_t i = 0; i < state.input_buf.size(); i++) {
-      if (state.input_buf[i] == 0)
-        continue;
-
-      inputs = {state.input_buf[i], state.input_buf[i + 1]};
-      for (size_t i = 0; i < tasks.size(); i++) {
-        Task &task = tasks[i];
-        if (std::holds_alternative<InputTask>(task.kind) &&
-            CanPerformTask(state, i)) {
-          InputTask &itask = std::get<InputTask>(task.kind);
-          if (itask.n_inputs > 1 && inputs[1] == 0)
-            continue;
-
-          if (itask.taskFun(inputs) == output) {
-            float score = MarkPerformedTask(state, i, shared, itask.value);
-            return score;
-          }
         }
       }
     }
@@ -204,7 +236,7 @@ public:
     bool operator!=(const Iterator &other) { return index != other.index; }
 
     TaskData operator*() const {
-      return TaskData{task_set.tasks[index], *task_set.n_succeeds_host[index],
+      return TaskData{*task_set.tasks[index], *task_set.n_succeeds_host[index],
                       *task_set.n_succeeds_sym[index]};
     }
   };
@@ -224,44 +256,30 @@ public:
 // The 9 default logic tasks in Avida
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
-const Task NOT = {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0},
-                  false},
-           NAND = {"NAND",
-                   InputTask{2, [](auto &x) { return ~(x[0] & x[1]); }, 5.0},
-                   false},
-           AND = {"AND",
-                  InputTask{2, [](auto &x) { return x[0] & x[1]; }, 40.0},
-                  true,
-                  {0, 1}},
-           ORN = {"ORN",
-                  InputTask{2, [](auto &x) { return x[0] | ~x[1]; }, 40.0},
-                  true,
-                  {0, 1}},
-           OR = {"OR",
-                 InputTask{2, [](auto &x) { return x[0] | x[1]; }, 80.0},
-                 true,
-                 {0, 1}},
-           ANDN = {"ANDN",
-                   InputTask{2, [](auto &x) { return x[0] & ~x[1]; }, 80.0},
-                   true,
-                   {2, 3, 4}},
-           NOR = {"NOR",
-                  InputTask{2, [](auto &x) { return ~(x[0] | x[1]); }, 160.0},
-                  true,
-                  {2, 3, 4}},
-           XOR = {"XOR",
-                  InputTask{2, [](auto &x) { return x[0] ^ x[1]; }, 160.0},
-                  true,
-                  {2, 3, 4}},
-           EQU = {"EQU",
-                  InputTask{2, [](auto &x) { return ~(x[0] ^ x[1]); }, 320.0},
-                  true,
-                  {5, 6, 7}};
-const TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
+const InputTask
+    NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }, false},
+    NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }, false},
+    AND = {"AND", 2, 40.0, [](auto &x) { return x[0] & x[1]; }, true, {0, 1}},
+    ORN = {"ORN", 2, 40.0, [](auto &x) { return x[0] | ~x[1]; }, true, {0, 1}},
+    OR = {"OR", 2, 80.0, [](auto &x) { return x[0] | x[1]; }, true, {0, 1}},
+    ANDN = {"ANDN", 2,        80.0, [](auto &x) { return x[0] & ~x[1]; },
+            true,   {2, 3, 4}},
+    NOR = {"NOR", 2,        160.0, [](auto &x) { return ~(x[0] | x[1]); },
+           true,  {2, 3, 4}},
+    XOR = {"XOR", 2,        160.0, [](auto &x) { return x[0] ^ x[1]; },
+           true,  {2, 3, 4}},
+    EQU = {"EQU", 2,        320.0, [](auto &x) { return ~(x[0] ^ x[1]); },
+           true,  {5, 6, 7}};
+const TaskSet LogicTasks{
+    emp::NewPtr<InputTask>(NOT), emp::NewPtr<InputTask>(NAND),
+    emp::NewPtr<InputTask>(AND), emp::NewPtr<InputTask>(ORN),
+    emp::NewPtr<InputTask>(OR),  emp::NewPtr<InputTask>(ANDN),
+    emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
+    emp::NewPtr<InputTask>(EQU)};
 
-const Task SQU = {"SQU", OutputTask{[](uint32_t x) {
-                    return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
-                  }}};
-const TaskSet SquareTasks{SQU};
+const SquareTask SQU = {"SQU", [](uint32_t x) {
+                          return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
+                        }};
+const TaskSet SquareTasks{emp::NewPtr<SquareTask>(SQU)};
 
 #endif
