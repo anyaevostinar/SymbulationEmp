@@ -21,7 +21,7 @@ struct InputTask {
 
 /**
  * An output task returns a reward based on the output the organism produced:
- * `OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+ * OutputTask is42{ [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
  */
 struct OutputTask {
   std::function<float(uint32_t)> taskFun;
@@ -32,11 +32,6 @@ struct Task {
   std::variant<InputTask, OutputTask> kind;
   bool unlimited = true;
   emp::vector<size_t> dependencies;
-  uint32_t curHostOutput = 0;
-  uint32_t curSymOutput = 0;
-  std::map<uint32_t, uint32_t> hostCalculationTable;
-  std::map<uint32_t, uint32_t> symCalculationTable;
-  emp::vector<uint32_t> fullSquareList;
   /// The total number of times this task's dependencies must be completed for
   /// each use of this task
   size_t num_dep_completes = 1;
@@ -49,7 +44,10 @@ class TaskSet {
   //&& !task.unlimited
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
+  std::map<uint32_t, uint32_t> hostCalculationTable;
+  std::map<uint32_t, uint32_t> symCalculationTable;
 
+  
   bool CanPerformTask(const CPUState &state, size_t task_id) const {
     const Task &task = tasks[task_id];
 
@@ -124,16 +122,19 @@ public:
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
   }
+  emp::vector<Task> GetTasks(){//Delete this method
+    return tasks;
+  }
+
   /**
-   * Input: A pointer to an organism's square frequency map, as well as the value of the current output
+   * Input: A pointer to an organism's square frequency map and the value of the current output
    *
    * Output: None
    *
    * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
    * otherwise, increments the count for that output
    */
-  void IncrementSquareMap(Task &task, CPUState &state, uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
-            task.curHostOutput = output;
+  void IncrementSquareMap(uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
             if (calculationMap.empty()){//Base case for when the map is empty
               calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
             }else{
@@ -185,12 +186,10 @@ public:
                                             sqrt(output));
           if(state.world.DynamicCast<SymWorld>()->GetConfig()->TASK_TYPE() == 0){
             if(state.host->IsHost()){
-              task.curHostOutput = output;
-              IncrementSquareMap(task, state, output, task.hostCalculationTable);
+              IncrementSquareMap(output, hostCalculationTable);
             }
             else{
-              task.curSymOutput = output;
-              IncrementSquareMap(task, state, output, task.symCalculationTable);
+              IncrementSquareMap(output, symCalculationTable);
             }
           }
           
@@ -268,21 +267,27 @@ public:
    * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
    on whether the organism is a host or a symbiont. 
    */
-std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool Host){
-  std::map<uint32_t, uint32_t> myMap;
-  if (Host){
-     myMap = tasks[0].hostCalculationTable;
+   emp::Ptr<std::map<uint32_t, uint32_t>>GetHostCalculationTable(){
+     return &hostCalculationTable;
+   }
+   emp::Ptr<std::map<uint32_t, uint32_t>>GetSymCalculationTable(){
+     return &symCalculationTable;
+   }
+  std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost){
+    std::map<uint32_t, uint32_t> myMap;
+    if (isHost){
+      myMap = hostCalculationTable;
+    }
+    else {
+      myMap = symCalculationTable;
+    }
+    return myMap;
   }
-  else{
-     myMap = tasks[0].symCalculationTable;
-  }
-  return myMap;
-}
 
-void ClearSquareFrequencyData(){
-  tasks[0].hostCalculationTable.clear();
-  tasks[0].symCalculationTable.clear();
-}
+  void ClearSquareFrequencyData(){
+      hostCalculationTable.clear();
+      symCalculationTable.clear();
+  }
 };
 
 
@@ -326,8 +331,20 @@ const Task NOT = {"NOT", InputTask{1, [](auto &x) { return ~x[0]; }, 5.0},
                   {5, 6, 7}};
 const TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
 
-const Task SQU = {"SQU", OutputTask{[](uint32_t x) {
-                    return sqrt(x) - floor(sqrt(x)) == 0 ? (0.5 * x) : 0.0;
+      Task SQU = {"SQU", OutputTask{[](uint32_t x) {
+                    uint32_t largest_int = 4294967295;
+                    if (sqrt(x) - floor(sqrt(x)) == 0){
+                      if (x > (largest_int/2)){
+                        //std::cout << x << ": " << 0 - x << std::endl;
+                        //std::cout << (0.5 * (0 - x)) << std::endl;
+                        return (0.5 * (0 - x));
+                      }else{
+                        return (0.5 * x);
+                      }
+                    }else{
+                      return 0.0;
+                    }
+                    //return sqrt(x) - floor(sqrt(x)) == 0 ? (2147483647) : 0.0;
                   }}};
 const TaskSet SquareTasks{SQU};
 

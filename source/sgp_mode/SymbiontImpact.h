@@ -56,6 +56,8 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   // The host can't free the symbiont pointer because it's not heap-allocated
   host.ClearSyms();
   double change = (with_sym - no_sym) / fmax(fmax(no_sym, with_sym), 1);
+  std::cout << "Host number of reuptakes: " << world.numReuptakesHost << std::endl;
+  std::cout << "Sym number of reuptakes: " << world.numReuptakesSymbiont << std::endl;
   return change;
 }
 

@@ -50,7 +50,8 @@ private:
 
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
-
+  double numReuptakesHost = 0;
+  double numReuptakesSymbiont = 0;
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
       : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
         task_set(task_set) {}

@@ -125,7 +125,6 @@ INST(SharedIO, {
 });
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()){
-    std::cout << "Donation On!" << std::endl;
       if (state.host->IsHost())
           return;
       if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -164,6 +163,11 @@ INST(Steal, {
 INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
+  if(state.host->IsHost()){
+    state.world.DynamicCast<SGPWorld>()-> numReuptakesHost += 1; 
+  }else{
+    state.world.DynamicCast<SGPWorld>()-> numReuptakesHost += 1; 
+  }
   if(state.internalEnvironment->size() > 0){//Only gets resources if the organism has values in their internal environment
     next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];//Takes a resource from back of internal environment vector
     state.internalEnvironment->pop_back();//Clears out the selected resource from Internal Environment
