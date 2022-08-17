@@ -163,10 +163,12 @@ INST(Steal, {
 INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
-  if(state.host->IsHost()){
-    state.world.DynamicCast<SGPWorld>()-> numReuptakesHost += 1; 
+  if(!state.host->IsHost()){
+    state.world -> numReuptakesSymbiont += 1; 
+  } else if(state.host->IsHost()){
+    state.world-> numReuptakesHost += 1; 
   }else{
-    state.world.DynamicCast<SGPWorld>()-> numReuptakesHost += 1; 
+    std::cout << "Error" << std::endl;
   }
   if(state.internalEnvironment->size() > 0){//Only gets resources if the organism has values in their internal environment
     next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];//Takes a resource from back of internal environment vector
