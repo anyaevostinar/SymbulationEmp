@@ -52,7 +52,6 @@ int symbulation_main(int argc, char *argv[]) {
         for (auto sym: sample->GetSymbionts()){
           sym_cpus.push_back(sym.DynamicCast<SGPSymbiont>()->GetCPU());
         }
-        // cpus.push_back(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
       }
     }
     double host_alpha = AlphaDiversity(host_cpus);
@@ -66,7 +65,7 @@ int symbulation_main(int argc, char *argv[]) {
     diversity_file.open(diversity_path);
 
     diversity_file << "alpha_diversity, shannon_diversity, partner" << std::endl;
-    diversity_file << host_alpha <<" " << host_shannon << " host" << std::endl;
+    diversity_filze << host_alpha <<" " << host_shannon << " host" << std::endl;
     diversity_file << sym_alpha <<" " << sym_shannon << " symbiont" << std::endl;
 
 
