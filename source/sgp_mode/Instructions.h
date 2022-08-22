@@ -40,12 +40,12 @@ namespace inst {
 INST(JumpIfNEq, {
   // Even != works differently on floats because of NaNs
   if (*a != *b) {
-    core.JumpToGlobalAnchorMatch(inst.tag);
+    core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
   }
 });
 INST(JumpIfLess, {
   if (*a < *b) {
-    core.JumpToGlobalAnchorMatch(inst.tag);
+    core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
   }
 });
 INST(Increment, { ++*a; });

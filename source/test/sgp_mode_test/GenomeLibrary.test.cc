@@ -3,15 +3,14 @@
 
 #include "../../catch/catch.hpp"
 
-void TestGenome(Task task, void (ProgramBuilder::*method)()) {
+void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   emp::Random random(61);
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
   // Ensure we can actually complete the task
-  task.dependencies.clear();
-  task.unlimited = true;
+  task->MarkAlwaysPerformable();
 
   SGPWorld world(random, &config, TaskSet{task});
 
@@ -43,36 +42,36 @@ void TestGenome(Task task, void (ProgramBuilder::*method)()) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome(NOT, &ProgramBuilder::AddNot);
+  TestGenome(emp::NewPtr<InputTask>(NOT), &ProgramBuilder::AddNot);
 }
 
 TEST_CASE("Generate SQUARE program", "[sgp]") {
-  TestGenome(SQU, &ProgramBuilder::AddSquare);
+  TestGenome(emp::NewPtr<SquareTask>(SQU), &ProgramBuilder::AddSquare);
 }
 
 TEST_CASE("Generate NAND program", "[sgp]") {
-  TestGenome(NAND, &ProgramBuilder::AddNand);
+  TestGenome(emp::NewPtr<InputTask>(NAND), &ProgramBuilder::AddNand);
 }
 TEST_CASE("Generate AND program", "[sgp]") {
-  TestGenome(AND, &ProgramBuilder::AddAnd);
+  TestGenome(emp::NewPtr<InputTask>(AND), &ProgramBuilder::AddAnd);
 }
 TEST_CASE("Generate ORN program", "[sgp]") {
-  TestGenome(ORN, &ProgramBuilder::AddOrn);
+  TestGenome(emp::NewPtr<InputTask>(ORN), &ProgramBuilder::AddOrn);
 }
 TEST_CASE("Generate OR program", "[sgp]") {
-  TestGenome(OR, &ProgramBuilder::AddOr);
+  TestGenome(emp::NewPtr<InputTask>(OR), &ProgramBuilder::AddOr);
 }
 TEST_CASE("Generate ANDN program", "[sgp]") {
-  TestGenome(ANDN, &ProgramBuilder::AddAndn);
+  TestGenome(emp::NewPtr<InputTask>(ANDN), &ProgramBuilder::AddAndn);
 }
 TEST_CASE("Generate NOR program", "[sgp]") {
-  TestGenome(NOR, &ProgramBuilder::AddNor);
+  TestGenome(emp::NewPtr<InputTask>(NOR), &ProgramBuilder::AddNor);
 }
 TEST_CASE("Generate XOR program", "[sgp]") {
-  TestGenome(XOR, &ProgramBuilder::AddXor);
+  TestGenome(emp::NewPtr<InputTask>(XOR), &ProgramBuilder::AddXor);
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
-  TestGenome(EQU, &ProgramBuilder::AddEqu);
+  TestGenome(emp::NewPtr<InputTask>(EQU), &ProgramBuilder::AddEqu);
 }
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
