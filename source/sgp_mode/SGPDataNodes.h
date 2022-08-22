@@ -14,7 +14,6 @@ void SGPWorld::CreateDataFiles() {
   SetupSymDonatedFile(my_config->FILE_PATH() + "SymDonated" +
                       my_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(my_config->DATA_INT());
-  }
   if(my_config->TASK_TYPE() == 1){
     SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
                  file_ending)

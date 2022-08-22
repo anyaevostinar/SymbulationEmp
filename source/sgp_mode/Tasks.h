@@ -135,6 +135,8 @@ public:
 
 class SquareTask : public OutputTask {
 public:
+  std::map<uint32_t, uint32_t> hostCalculationTable;
+  std::map<uint32_t, uint32_t> symCalculationTable;
   SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
              bool unlimited = true, emp::vector<size_t> dependencies = {},
              size_t num_dep_completes = 1)
@@ -182,9 +184,6 @@ public:
       n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
-  }
-  emp::vector<Task> GetTasks(){//Delete this method
-    return tasks;
   }
 
   /**
@@ -240,17 +239,19 @@ public:
       if (tasks[i]->CanPerform(state, i)) {
         float score = tasks[i]->CheckOutput(state, output);
         if (score > 0.0) {
-          score = MarkPerformedTask(state, i, shared, score);
+          score = MarkPerformedTask(state, output, i, shared, score);
           if (output > 16){
               state.internalEnvironment->insert(state.internalEnvironment->begin(),
             sqrt(output));
           }
           if(state.world.DynamicCast<SymWorld>()->GetConfig()->TASK_TYPE() == 0){
+            emp::Ptr<Task> curTask = tasks[0];
+            emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
             if(state.host->IsHost()){
-              IncrementSquareMap(output, hostCalculationTable);
+              IncrementSquareMap(output, squareTask->hostCalculationTable);
             }
             else{
-              IncrementSquareMap(output, symCalculationTable);
+              IncrementSquareMap(output, squareTask->symCalculationTable);
             }
           }
           
@@ -306,26 +307,30 @@ public:
    * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
    on whether the organism is a host or a symbiont. 
    */
-   emp::Ptr<std::map<uint32_t, uint32_t>>GetHostCalculationTable(){
+   /*emp::Ptr<std::map<uint32_t, uint32_t>>GetHostCalculationTable(){
      return &hostCalculationTable;
    }
    emp::Ptr<std::map<uint32_t, uint32_t>>GetSymCalculationTable(){
      return &symCalculationTable;
-   }
+   }*/
   std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost){
     std::map<uint32_t, uint32_t> myMap;
+    emp::Ptr<Task> curTask = tasks[0];
+    emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
     if (isHost){
-      myMap = hostCalculationTable;
+      myMap = squareTask->hostCalculationTable;
     }
     else {
-      myMap = symCalculationTable;
+      myMap = squareTask->symCalculationTable;
     }
     return myMap;
   }
 
   void ClearSquareFrequencyData(){
-      hostCalculationTable.clear();
-      symCalculationTable.clear();
+      emp::Ptr<Task> curTask = tasks[0];
+      emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
+      squareTask->hostCalculationTable.clear();
+      squareTask->symCalculationTable.clear();
   }
 };
 
@@ -357,8 +362,18 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(EQU)};
 
 const SquareTask SQU = {"SQU", [](uint32_t x) {
-                          return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
-                        }};
+                    uint32_t largest_int = 4294967295;
+                    if (sqrt(x) - floor(sqrt(x)) == 0){
+                      if (x > (largest_int/2)){
+                        return 0.5 * (0 - x);
+                      }else{
+                        return (0.5 * x);
+                      }
+                    }else{
+                      return 0.0;
+                    }
+                    return 0.0;
+                  }};
 const TaskSet SquareTasks{emp::NewPtr<SquareTask>(SQU)};
 
 #endif
