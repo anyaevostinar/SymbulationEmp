@@ -79,10 +79,9 @@ emp::unordered_map<emp::BitSet<64>, int> GetPhenotypeMap(emp::vector<CPU> organi
  *
  * Input: A vector of cpus of organisms
  *
- * Output: A map with keys being phenotypes and values being counts of organisms
- * with corresponding phenotypes
+ * Output: A vector of the phenotypes of organisms
  *
- * Purpose: Get the count of phenotypes
+ * Purpose: Get the vector of phenotypes
  *
  */
 emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
@@ -97,7 +96,7 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
 
 /**
  *
- * Input: A map containing the count of phenotypes
+ * Input: A vector containing the count of phenotypes
  *
  * Output: The alpha diversity of the population
  *
@@ -105,10 +104,6 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
  *
  */
 double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, double q = 0.0) {
-    // if (q == 0.0){
-    //     return 1.0;
-    // }
-    // std::cout<< "break point2" << std::endl;
     emp::Random random = emp::Random();
     int org_count = phenotypes.size();
     double partial = 0.0;
@@ -117,11 +112,9 @@ double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, 
         emp::vector<emp::BitSet<64>> shell = {};
         groups.push_back(shell);
     }
-    emp::vector<double> proportion;
     
     for (auto const &phenotype: phenotypes){
         int random_number = random.GetUInt(0, j);
-        // std::cout<< "random number: " << random_number<<std::endl;
         groups[random_number].push_back(phenotype);
     }
 
@@ -135,14 +128,15 @@ double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, 
             } else {
                 sub_counts[org] = 1;
             }
-            // std::cout << "sub_counts: " << sub_counts[org] << std::endl;
         }
 
         for (auto const &pair: sub_counts){
-            partial += (size/org_count) * pow(pair.second/size,(q-1));
+            
+            double weight = (double)size/org_count;
+            double prop_abundance = pow((double)pair.second/size,(q-1));
+            partial += (weight * prop_abundance); 
         }
     }
-
     double alpha = 1/(pow(partial, 1/(q-1)));
     return alpha;
 }
