@@ -40,26 +40,34 @@ int symbulation_main(int argc, char *argv[]) {
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
   world.OnAnalyzePopulation([&](){
-    emp::vector<CPU> cpus = {};
+    emp::vector<CPU> host_cpus = {};
+    emp::vector<CPU> sym_cpus = {};
     emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
       world.GetDominantInfo();
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<SGPHost>();
-      cpus.push_back(sample->GetCPU());
+      host_cpus.push_back(sample->GetCPU());
+
       if(sample->HasSym()){
-        cpus.push_back(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
+        for (auto sym: sample->GetSymbionts()){
+          sym_cpus.push_back(sym.DynamicCast<SGPSymbiont>()->GetCPU());
+        }
+        // cpus.push_back(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU());
       }
     }
-    double alpha = AlphaDiversity(cpus);
-    double shannon = ShannonDiversity(cpus);
+    double host_alpha = AlphaDiversity(host_cpus);
+    double host_shannon = ShannonDiversity(host_cpus);
+    double sym_alpha = AlphaDiversity(sym_cpus);
+    double sym_shannon = ShannonDiversity(sym_cpus);
 
     ofstream diversity_file;
     std::string diversity_path =
         config.FILE_PATH()+ "_diversity_" + config.FILE_NAME() + file_ending;
     diversity_file.open(diversity_path);
 
-    diversity_file << "alpha_diversity, shannon_diversity" << std::endl;
-    diversity_file << alpha <<" " << shannon << std::endl;
+    diversity_file << "alpha_diversity, shannon_diversity, partner" << std::endl;
+    diversity_file << host_alpha <<" " << host_shannon << " host" << std::endl;
+    diversity_file << sym_alpha <<" " << sym_shannon << " symbiont" << std::endl;
 
 
   });
@@ -71,10 +79,6 @@ int symbulation_main(int argc, char *argv[]) {
             << std::endl;
 
   {
-    size_t idx = 0;
-    for (auto pair : dominant_organisms) {
-      auto sample = pair.first.DynamicCast<SGPHost>();
-      
     ofstream genome_file;
     std::string genome_path =
         config.FILE_PATH() + "Genome_Host" + config.FILE_NAME() + file_ending;
