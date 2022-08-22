@@ -1,6 +1,6 @@
 #include "../../sgp_mode/CPU.h"
-#include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPDataNodes.h"
+#include "../../sgp_mode/SGPWorld.h"
 
 TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   // Mock Organism to check reproduction
@@ -25,7 +25,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     // Make the ancestor genome do NOT instead of SQUARE
     config.TASK_TYPE(1);
 
-    TaskSet task_set{NOT};
+    TaskSet task_set{emp::NewPtr<InputTask>(NOT)};
     SGPWorld world(random, &config, task_set);
 
     TestOrg organism;
@@ -46,7 +46,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   WHEN("square task is used") {
     config.TASK_TYPE(0);
 
-    TaskSet task_set{SQU};
+    TaskSet task_set{emp::NewPtr<SquareTask>(SQU)};
     SGPWorld world(random, &config, task_set);
 
     TestOrg organism;
