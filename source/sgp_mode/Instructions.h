@@ -102,7 +102,7 @@ INST(PrivateIO, {
     }
     state.host->AddPoints(score);
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next = 1;//sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });
@@ -119,7 +119,7 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
 // Set output to value of register and set register to new input
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next = 1;//sgpl::tlrand.Get().GetBits50();
   *a = next;
   state.input_buf.push(next);
 });
@@ -163,16 +163,12 @@ INST(Steal, {
 INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
-  if(!state.host->IsHost()){
-    state.world -> numReuptakesSymbiont += 1; 
-  } else if(state.host->IsHost()){
-    state.world-> numReuptakesHost += 1; 
-  }else{
-    std::cout << "Error" << std::endl;
-  }
   if(state.internalEnvironment->size() > 0){//Only gets resources if the organism has values in their internal environment
     next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];//Takes a resource from back of internal environment vector
     state.internalEnvironment->pop_back();//Clears out the selected resource from Internal Environment
+    if (state.host->IsHost()){
+        std::cout << "Reuptake: " << next << std::endl;
+    }
     *a = next;
     state.input_buf.push(next);
   }

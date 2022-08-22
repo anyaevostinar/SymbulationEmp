@@ -182,8 +182,10 @@ public:
         float score = std::get<OutputTask>(task.kind).taskFun(output);
         if (score > 0.0) {
           score = MarkPerformedTask(state, i, shared, score);
-          state.internalEnvironment->insert(state.internalEnvironment->begin(),
-                                            sqrt(output));
+          if (output > 16){
+              state.internalEnvironment->insert(state.internalEnvironment->begin(),
+            sqrt(output));
+          }
           if(state.world.DynamicCast<SymWorld>()->GetConfig()->TASK_TYPE() == 0){
             if(state.host->IsHost()){
               IncrementSquareMap(output, hostCalculationTable);
@@ -335,16 +337,14 @@ const TaskSet LogicTasks{NOT, NAND, AND, ORN, OR, ANDN, NOR, XOR, EQU};
                     uint32_t largest_int = 4294967295;
                     if (sqrt(x) - floor(sqrt(x)) == 0){
                       if (x > (largest_int/2)){
-                        //std::cout << x << ": " << 0 - x << std::endl;
-                        //std::cout << (0.5 * (0 - x)) << std::endl;
-                        return (0.5 * (0 - x));
+                        return 0.5 * (0 - x);
                       }else{
                         return (0.5 * x);
                       }
                     }else{
                       return 0.0;
                     }
-                    //return sqrt(x) - floor(sqrt(x)) == 0 ? (2147483647) : 0.0;
+                    return 0.0;
                   }}};
 const TaskSet SquareTasks{SQU};
 
