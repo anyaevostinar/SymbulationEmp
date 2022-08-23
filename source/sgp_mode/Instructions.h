@@ -146,13 +146,14 @@ INST(Steal, {
     // Steal 20% of the total points of the symbiont-host system
     // This way, a sym can steal e.g. 40 or 60 percent of their points in a
     // couple of instructions
+    // 10% of the stolen resources are lost
     double to_steal =
         fmin(host->GetPoints(),
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
     state.world->GetSymStolenDataNode().WithMonitor(
         [=](auto &m) { m.AddDatum(to_steal); });
     host->AddPoints(-to_steal);
-    state.host->AddPoints(to_steal);
+    state.host->AddPoints(to_steal * 0.90);
   }
 });
 
