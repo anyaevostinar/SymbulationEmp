@@ -79,9 +79,10 @@ emp::unordered_map<emp::BitSet<64>, int> GetPhenotypeMap(emp::vector<CPU> organi
  *
  * Input: A vector of cpus of organisms
  *
- * Output: A vector of the phenotypes of organisms
+ * Output: A map with keys being phenotypes and values being counts of organisms
+ * with corresponding phenotypes
  *
- * Purpose: Get the vector of phenotypes
+ * Purpose: Get the count of phenotypes
  *
  */
 emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
@@ -96,16 +97,18 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
 
 /**
  *
- * Input: A vector containing the count of phenotypes
+ * Input: A random object (of the world), A map containing the count of phenotypes
  *
  * Output: The alpha diversity of the population
  *
  * Purpose: Calculates the alpha diversity based on the formula
  *
  */
-double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, double q = 0.0) {
-    emp::Random random = emp::Random();
+double AlphaDiversityHelper(emp::Random random, emp::vector<emp::BitSet<64>> phenotypes, int j = 9, double q = 0.0) {
+    
+    
     int org_count = phenotypes.size();
+    std::cout << "total size: " << org_count << std::endl;
     double partial = 0.0;
     emp::vector<emp::vector<emp::BitSet<64>>> groups = {};
     for (int i = 0; i < j; i++){ //initializing
@@ -131,10 +134,10 @@ double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, 
         }
 
         for (auto const &pair: sub_counts){
-            
             double weight = (double)size/org_count;
             double prop_abundance = pow((double)pair.second/size,(q-1));
-            partial += (weight * prop_abundance); 
+            
+            partial += weight * prop_abundance; 
         }
     }
     double alpha = 1/(pow(partial, 1/(q-1)));
@@ -143,22 +146,22 @@ double AlphaDiversityHelper(emp::vector<emp::BitSet<64>> phenotypes, int j = 4, 
 
 /**
  *
- * Input: A vector of cpu of organisms
+ * Input: A random object (of the world), A vector of cpu of organisms
  *
  * Output: The alpha diversity of the population
  *
  * Purpose: Calls and integrates the helper functions
  *
  */
-double AlphaDiversity(emp::vector<CPU> organisms){
+double AlphaDiversity(emp::Random random, emp::vector<CPU> organisms){
     if (organisms.size() == 0){
         return 1.0;
     }
     emp::vector<emp::BitSet<64>> phenotypes = GetPhenotypeVector(organisms);
     if (organisms.size() < 10){
-        return AlphaDiversityHelper(phenotypes, 1);
+        return AlphaDiversityHelper(random, phenotypes, 1);
     }
-    return AlphaDiversityHelper(phenotypes);
+    return AlphaDiversityHelper(random, phenotypes);
 }
 
 /**

@@ -42,21 +42,19 @@ int symbulation_main(int argc, char *argv[]) {
   world.OnAnalyzePopulation([&](){
     emp::vector<CPU> host_cpus = {};
     emp::vector<CPU> sym_cpus = {};
-    emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
-      world.GetDominantInfo();
-    for (auto pair : dominant_organisms) {
-      auto sample = pair.first.DynamicCast<SGPHost>();
+    emp::World<Organism>::pop_t pop = world.GetPop();
+    for (size_t i = 0; i < pop.size(); i++){
+      auto sample = pop[i].DynamicCast<SGPHost>();
       host_cpus.push_back(sample->GetCPU());
-
       if(sample->HasSym()){
         for (auto sym: sample->GetSymbionts()){
           sym_cpus.push_back(sym.DynamicCast<SGPSymbiont>()->GetCPU());
         }
       }
     }
-    double host_alpha = AlphaDiversity(host_cpus);
+    double host_alpha = AlphaDiversity(random, host_cpus);
     double host_shannon = ShannonDiversity(host_cpus);
-    double sym_alpha = AlphaDiversity(sym_cpus);
+    double sym_alpha = AlphaDiversity(random, sym_cpus);
     double sym_shannon = ShannonDiversity(sym_cpus);
 
     ofstream diversity_file;
@@ -65,11 +63,11 @@ int symbulation_main(int argc, char *argv[]) {
     diversity_file.open(diversity_path);
 
     diversity_file << "alpha_diversity, shannon_diversity, partner" << std::endl;
-    diversity_filze << host_alpha <<" " << host_shannon << " host" << std::endl;
+    diversity_file << host_alpha <<" " << host_shannon << " host" << std::endl;
     diversity_file << sym_alpha <<" " << sym_shannon << " symbiont" << std::endl;
 
-
   });
+  
   world.RunExperiment();
 
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
