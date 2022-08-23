@@ -30,22 +30,6 @@
 #include <math.h>
 #include <set>
 
-/**
- *
- * Input: A cpu of an organism
- *
- * Output: A length 64 emp bitset which describes the phenotype of organism
- * such that the ith 1 in the bitset marks the completion of task i.
- *
- * Purpose: Get the phenotype of an organism
- *
- */
-emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
-  
-  org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
-  
-  return *org_cpu.state.used_resources;
-}
 
 
 /**
@@ -60,6 +44,7 @@ emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
  */
 emp::unordered_map<emp::BitSet<64>, int> GetPhenotypeMap(emp::vector<CPU> organisms){
     emp::unordered_map<emp::BitSet<64> , int> phenotype_counts;
+    std::cout << "size: " << organisms.size()<< std::endl;
     for (size_t i = 0; i < organisms.size(); i++){
         CPU org_cpu = organisms[i];
         emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);        
@@ -93,6 +78,26 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
         phenotypes.push_back(managed_tasks);
     }
     return phenotypes;
+}
+
+/**
+ *
+ * Input: A vector of cpu of organisms
+ *
+ * Output: The species richness of the population
+ *
+ * Purpose: Returns the number of phenotypes of the population
+ *
+ */
+int GetRichness(emp::vector<CPU> organisms){
+    emp::unordered_map<emp::BitSet<64>, int> phenotype_counts = GetPhenotypeMap(organisms);
+    int i = 0;
+    for (auto const &phenotype: phenotype_counts){
+        std::cout << "phenotype: " << phenotype.first << " count: " << phenotype.second<< std::endl;
+        i += 1;
+    }
+    std::cout << "richness: " << i << std::endl;
+    return i;
 }
 
 /**
@@ -185,7 +190,8 @@ double ShannonDiversityHelper(emp::unordered_map<emp::BitSet<64>, int> phenotype
         proportion.push_back(prop);
     }
     for (auto const &i: proportion){
-        h -= log(i)/log(exp(1.0))*i;
+        std::cout << "log: " << log(i)/log(exp(1.0)) << std::endl;
+        h -= (log(i)/log(exp(1.0))*i);
     }
     return h;
 }

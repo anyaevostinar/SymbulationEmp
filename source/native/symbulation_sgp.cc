@@ -54,20 +54,22 @@ int symbulation_main(int argc, char *argv[]) {
     }
     double host_alpha = AlphaDiversity(random, host_cpus);
     double host_shannon = ShannonDiversity(host_cpus);
+    int host_richness = GetRichness(host_cpus);
     double sym_alpha = AlphaDiversity(random, sym_cpus);
     double sym_shannon = ShannonDiversity(sym_cpus);
+    int sym_richness = GetRichness(sym_cpus);
 
     ofstream diversity_file;
     std::string diversity_path =
         config.FILE_PATH()+ "_diversity_" + config.FILE_NAME() + file_ending;
     diversity_file.open(diversity_path);
 
-    diversity_file << "alpha_diversity, shannon_diversity, partner" << std::endl;
-    diversity_file << host_alpha <<" " << host_shannon << " host" << std::endl;
-    diversity_file << sym_alpha <<" " << sym_shannon << " symbiont" << std::endl;
+    diversity_file << "alpha_diversity, shannon_diversity, species_richness, partner" << std::endl;
+    diversity_file << host_alpha <<" " << host_shannon << " " << host_richness << " host" << std::endl;
+    diversity_file << sym_alpha <<" " << sym_shannon << " " << sym_richness << " symbiont" << std::endl;
 
   });
-  
+
   world.RunExperiment();
 
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
