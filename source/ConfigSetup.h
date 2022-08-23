@@ -82,5 +82,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(THREAD_COUNT, size_t, 12, "Number of threads used to process organisms in parallel"),
     VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
     VALUE(TASK_TYPE, bool, 0, "0 for squaring tasks, 1 for logic tasks"),
+    VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
 )
 #endif
