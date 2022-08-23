@@ -208,6 +208,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
+  auto & node4 = GetVerticalTransmissionSuccessCount();
 
   file.AddVar(update, "update", "Update");
 
@@ -216,7 +217,8 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes", true);
 
   //vertical transmission
-  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
+  file.AddTotal(node3, "attempts_verttrans", "Total number of vertical transmission attempts", true);
+  file.AddTotal(node4, "successes_verttrans", "Total number of vertical transmission successes", true);
 
   file.PrintHeaderKeys();
 
@@ -602,6 +604,22 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
     data_node_attempts_verttrans.New();
   }
   return *data_node_attempts_verttrans;
+}
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts to vertically transmit were successful.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of successful vertical transmissions.
+ */
+emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionSuccessCount() {
+  if (!data_node_successes_verttrans) {
+    data_node_successes_verttrans.New();
+  }
+  return *data_node_successes_verttrans;
 }
 
 #endif
