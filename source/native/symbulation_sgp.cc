@@ -96,25 +96,27 @@ int symbulation_main(int argc, char *argv[]) {
   }
 
   {
-    ofstream mutualism_file;
-    std::string mutualism_path =
-        config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
-    mutualism_file.open(mutualism_path);
-
+    size_t idx = 0;
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<SGPHost>();
-      if (sample->HasSym()) {
-        mutualism_file
-            << CheckSymbiont(
-                   *sample,
-                   *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
-                   world)
-            << std::endl;
-      } else {
-        // We want something in the file so it overwrites previous data, and NA
-        // is something R generally understands
-        mutualism_file << "NA" << std::endl;
+
+      ofstream genome_file;
+      std::string genome_path = config.FILE_PATH() + "Genome_Host" +
+                                std::to_string(idx) + config.FILE_NAME() +
+                                file_ending;
+      genome_file.open(genome_path);
+      sample->GetCPU().PrintCode(genome_file);
+
+      for (auto &sym : sample->GetSymbionts()) {
+        ofstream genome_file;
+        std::string genome_path = config.FILE_PATH() + "Genome_Sym" +
+                                  std::to_string(idx) + config.FILE_NAME() +
+                                  file_ending;
+        genome_file.open(genome_path);
+        sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
       }
+
+      idx++;
     }
   }
 
