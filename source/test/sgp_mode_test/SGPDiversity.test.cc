@@ -106,7 +106,7 @@ TEST_CASE("GetRichness", "[sgp]") {
     
     int test_size = GetRichness(test_vec);
 
-    THEN("GetPhenotypeMap successfully count the phenotype twice") { 
+    THEN("Species richness is equal to 3") { 
       REQUIRE(test_size == expected_types); 
     }
   }
@@ -153,7 +153,7 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
     
     double test_value = AlphaDiversity(random,test_vec);
 
-    THEN("Calculation is correct") { 
+    THEN("Alpha diversity is equal to 1") { 
       REQUIRE(test_value == expected_value); 
       }
   }
@@ -199,7 +199,7 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
     
     double test_value = ShannonDiversity(test_vec);
 
-    THEN("Calculation is correct") { 
+    THEN("Shannon diversity is equal to 0") { 
       REQUIRE(test_value == expected_value); 
     }
   }
