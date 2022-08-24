@@ -103,7 +103,7 @@ INST(PrivateIO, {
     state.host->AddPoints(score);
   }
   uint32_t next;
-  if (state.world->GetConfig()->TASK_TYPE() == 1){
+  if (state.world->GetConfig()->RANDOM_IO_INPUT()){
      next = sgpl::tlrand.Get().GetBits50();
   }else{
       next = 1;
@@ -125,7 +125,7 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
   uint32_t next;
-  if (state.world->GetConfig()->TASK_TYPE() == 1){
+  if (state.world->GetConfig()->RANDOM_IO_INPUT()){
      next = sgpl::tlrand.Get().GetBits50();
   }else{
       next = 1;

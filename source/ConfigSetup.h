@@ -83,5 +83,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
     VALUE(TASK_TYPE, bool, 0, "0 for squaring tasks, 1 for logic tasks"),
     VALUE(DONATION_STEAL_INST, bool, 1, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
+    VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
+
 )
 #endif
