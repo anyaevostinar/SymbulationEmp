@@ -661,6 +661,9 @@ public:
     int num_no_mut_updates = my_config->NO_MUT_UPDATES();
     if(num_no_mut_updates > 0) {
       SetMutationZero();
+      // Make sure that hosts stay with their symbionts: we're looking for the dominant *pair*
+      my_config->VERTICAL_TRANSMISSION(1);
+      my_config->SYM_VERT_TRANS_RES(0);
     }
 
     for (int i = 0; i < num_no_mut_updates; i++) {
