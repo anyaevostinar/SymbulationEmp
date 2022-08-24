@@ -151,7 +151,7 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
     test_vec.push_back((*test_sample2).GetCPU());
 
     
-    double test_value = AlphaDiversity(test_vec);
+    double test_value = AlphaDiversity(random,test_vec);
 
     THEN("Calculation is correct") { 
       REQUIRE(test_value == expected_value); 
