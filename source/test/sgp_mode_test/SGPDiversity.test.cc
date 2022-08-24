@@ -53,7 +53,6 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
     emp::vector<CPU> test_vec = {};
     test_vec.push_back((*test_sample1).GetCPU());
     test_vec.push_back((*test_sample2).GetCPU());
-
     
     
     emp::unordered_map<emp::BitSet<64>, int> test_map = GetPhenotypeMap(test_vec);
@@ -64,7 +63,7 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
   }
 }
 
-TEST_CASE("GetRichness", "[tag]") {
+TEST_CASE("GetRichness", "[sgp]") {
   WHEN("For three different CPUs") {
     emp::Random random(5);
     SymConfigBase config;
@@ -97,19 +96,13 @@ TEST_CASE("GetRichness", "[tag]") {
     emp::Ptr<SGPHost> test_sample3 =
         emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
 
-
     emp::BitSet<64> zeros;
   
-    
-    // emp::unordered_map<emp::BitSet<64> , int> expected_map;
-    // expected_map.insert({zeros,2});
     int expected_types = 3;
     emp::vector<CPU> test_vec = {};
     test_vec.push_back((*test_sample1).GetCPU());
     test_vec.push_back((*test_sample2).GetCPU());
     test_vec.push_back((*test_sample3).GetCPU());
-
-    
     
     int test_size = GetRichness(test_vec);
 
@@ -166,7 +159,7 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
   }
 }
 
-/*
+
 TEST_CASE("ShannonDiversity", "[sgp]") {
 
   WHEN("For a world with just two identical CPUs") {
@@ -215,4 +208,4 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
 
   
 }
-*/
+
