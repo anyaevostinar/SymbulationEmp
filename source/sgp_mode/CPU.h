@@ -103,7 +103,7 @@ public:
    *
    * Purpose: 
    */
-  sgpl::Cpu<Spec> Getcpu(){
+  sgpl::Cpu<Spec> GetCPU(){
     return cpu;
   }
 

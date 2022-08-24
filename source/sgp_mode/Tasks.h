@@ -148,6 +148,35 @@ public:
     OutputTask::MarkPerformed(state, output, task_id, shared);
     state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                       sqrt(output));
+    if(state.host->IsHost()){
+      IncrementSquareMap(output, 1);
+    }
+    else{
+      IncrementSquareMap(output, 0);
+    }
+  }
+
+   /**
+   * Input: A pointer to an organism's square frequency map and the value of the current output
+   *
+   * Output: None
+   *
+   * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
+   * otherwise, increments the count for that output
+   */
+  void IncrementSquareMap(uint32_t output, bool isHost){
+      std::map<uint32_t, uint32_t>& calculationMap = isHost ? hostCalculationTable : symCalculationTable;
+      if (calculationMap.empty()){//Base case for when the map is empty
+        calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+      }else{
+        std::map<uint32_t, uint32_t>::iterator placemark;
+        placemark = calculationMap.find(output);
+        if(placemark == calculationMap.end()){//If output does not exist in the map, add it with a count of 1
+          calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+        }else{//If output does exist in the map, increment its count
+          placemark->second++;
+        }
+    }
   }
 };
 
@@ -186,27 +215,6 @@ public:
     }
   }
 
-  /**
-   * Input: A pointer to an organism's square frequency map and the value of the current output
-   *
-   * Output: None
-   *
-   * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
-   * otherwise, increments the count for that output
-   */
-  void IncrementSquareMap(uint32_t output, std::map<uint32_t, uint32_t> &calculationMap){
-            if (calculationMap.empty()){//Base case for when the map is empty
-              calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-            }else{
-              std::map<uint32_t, uint32_t>::iterator placemark;
-              placemark = calculationMap.find(output);
-              if(placemark == calculationMap.end()){//If output does not exist in the map, add it with a count of 1
-                calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-              }else{//If output does exist in the map, increment its count
-                placemark->second++;
-              }
-          }
-  }
 
   /**
    * A custom copy constructor so that task completions aren't shared between
@@ -240,21 +248,6 @@ public:
         float score = tasks[i]->CheckOutput(state, output);
         if (score > 0.0) {
           score = MarkPerformedTask(state, output, i, shared, score);
-          if (output > 16){
-              state.internalEnvironment->insert(state.internalEnvironment->begin(),
-            sqrt(output));
-          }
-          if(state.world.DynamicCast<SymWorld>()->GetConfig()->TASK_TYPE() == 0){
-            emp::Ptr<Task> curTask = tasks[0];
-            emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-            if(state.host->IsHost()){
-              IncrementSquareMap(output, squareTask->hostCalculationTable);
-            }
-            else{
-              IncrementSquareMap(output, squareTask->symCalculationTable);
-            }
-          }
-          
           return score;
         }
       }
@@ -298,7 +291,6 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
-
   /**
    * Input: A boolean identifying a given organism as a host or a symbiont
    *
@@ -307,12 +299,6 @@ public:
    * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
    on whether the organism is a host or a symbiont. 
    */
-   /*emp::Ptr<std::map<uint32_t, uint32_t>>GetHostCalculationTable(){
-     return &hostCalculationTable;
-   }
-   emp::Ptr<std::map<uint32_t, uint32_t>>GetSymCalculationTable(){
-     return &symCalculationTable;
-   }*/
   std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost){
     std::map<uint32_t, uint32_t> myMap;
     emp::Ptr<Task> curTask = tasks[0];
@@ -325,7 +311,13 @@ public:
     }
     return myMap;
   }
-
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Empties the host and symbiont calculation tables 
+   */
   void ClearSquareFrequencyData(){
       emp::Ptr<Task> curTask = tasks[0];
       emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
@@ -361,10 +353,10 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
     emp::NewPtr<InputTask>(EQU)};
 
-const SquareTask SQU = {"SQU", [](uint32_t x) {
+  const SquareTask SQU = {"SQU", [](uint32_t x) {
                     uint32_t largest_int = 4294967295;
                     if (sqrt(x) - floor(sqrt(x)) == 0){
-                      if (x > (largest_int/2)){
+                      if (x > (largest_int/2)){//Awards points based on a number's distance from 0 rather than absolute size
                         return 0.5 * (0 - x);
                       }else{
                         return (0.5 * x);

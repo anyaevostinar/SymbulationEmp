@@ -76,10 +76,12 @@ emp::DataFile &SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename
             os << dataGrabber->second;
             os << "; ";
             dataGrabber++;
-            }
+            } 
+      task_set.ClearSquareFrequencyData();
   };
   file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();
+  
   return file;
 }
 
@@ -108,7 +110,6 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   file.AddTotal(data_node_sym_stolen->UnsynchronizedGetMonitor(),
                 "sym_points_stolen", "Points stolen by symbionts", true);
   file.PrintHeaderKeys();
-
   return file;
 }
 
