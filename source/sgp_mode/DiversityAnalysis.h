@@ -184,7 +184,6 @@ double ShannonDiversityHelper(emp::unordered_map<emp::BitSet<64>, int> phenotype
         proportion.push_back(prop);
     }
     for (auto const &i: proportion){
-        std::cout << "log: " << log(i)/log(exp(1.0)) << std::endl;
         h -= (log(i)/log(exp(1.0))*i);
     }
     return h;
