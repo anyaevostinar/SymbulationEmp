@@ -135,7 +135,7 @@ INST(Donate, {
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
     state.world->GetSymDonatedDataNode().WithMonitor(
         [=](auto &m) { m.AddDatum(to_donate); });
-    host->AddPoints(to_donate);
+    host->AddPoints(to_donate * (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
     state.host->AddPoints(-to_donate);
   }
 });
@@ -153,7 +153,7 @@ INST(Steal, {
     state.world->GetSymStolenDataNode().WithMonitor(
         [=](auto &m) { m.AddDatum(to_steal); });
     host->AddPoints(-to_steal);
-    state.host->AddPoints(to_steal * 0.90);
+    state.host->AddPoints(to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
   }
 });
 
