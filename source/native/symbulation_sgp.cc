@@ -128,26 +128,28 @@ int symbulation_main(int argc, char *argv[]) {
     }
   }
 
-  ofstream modularity_file;
-  std::string modularity_path =
-      config.FILE_PATH()+ "_modularity_" + config.FILE_NAME() + file_ending;
-  modularity_file.open(modularity_path);
+  {
+    ofstream modularity_file;
+    std::string modularity_path =
+        config.FILE_PATH()+ "_modularity_" + config.FILE_NAME() + file_ending;
+    modularity_file.open(modularity_path);
 
-  modularity_file << "host_pm, host_fm, sym_pm, sym_fm" << std::endl;
+    modularity_file << "host_pm, host_fm, sym_pm, sym_fm" << std::endl;
 
-  for (auto pair : dominant_organisms) {
-    auto sample = pair.first.DynamicCast<SGPHost>();
-    modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
-    modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
-    if (sample->HasSym()) {
-      modularity_file
-          << GetPMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << " ";
-      modularity_file
-          << GetFMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << std::endl;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
+      modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
+      if (sample->HasSym()) {
+        modularity_file
+            << GetPMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << " ";
+        modularity_file
+            << GetFMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << std::endl;
 
-    } else {
-      modularity_file << "NA ";
-      modularity_file << "NA " << std::endl;
+      } else {
+        modularity_file << "NA ";
+        modularity_file << "NA " << std::endl;
+      }
     }
   }
   
