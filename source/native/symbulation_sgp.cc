@@ -14,6 +14,7 @@
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <string>
 
 using namespace std;
 
@@ -32,6 +33,7 @@ int symbulation_main(int argc, char *argv[]) {
   } else if (config.TASK_TYPE() == 1) {
     task_set = LogicTasks;
   }
+  
   SGPWorld world(random, &config, task_set);
 
   worldSetup(&world, &config);
