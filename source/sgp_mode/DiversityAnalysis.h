@@ -44,7 +44,6 @@
  */
 emp::unordered_map<emp::BitSet<64>, int> GetPhenotypeMap(emp::vector<CPU> organisms){
     emp::unordered_map<emp::BitSet<64> , int> phenotype_counts;
-    std::cout << "size: " << organisms.size()<< std::endl;
     for (size_t i = 0; i < organisms.size(); i++){
         CPU org_cpu = organisms[i];
         emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);        
@@ -91,18 +90,14 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms){
  */
 int GetRichness(emp::vector<CPU> organisms){
     emp::unordered_map<emp::BitSet<64>, int> phenotype_counts = GetPhenotypeMap(organisms);
-    int i = 0;
-    for (auto const &phenotype: phenotype_counts){
-        std::cout << "phenotype: " << phenotype.first << " count: " << phenotype.second<< std::endl;
-        i += 1;
-    }
-    std::cout << "richness: " << i << std::endl;
-    return i;
+    return phenotype_counts.size();
 }
 
 /**
  *
- * Input: A random object (of the world), A map containing the count of phenotypes
+ * Input: A random object (of the world), A map containing the count of phenotypes, 
+ * an optional integer indicating number of groups to split into, 
+ * an optional double indicating weight of proportional abundance
  *
  * Output: The alpha diversity of the population
  *
@@ -113,7 +108,6 @@ double AlphaDiversityHelper(emp::Random random, emp::vector<emp::BitSet<64>> phe
     
     
     int org_count = phenotypes.size();
-    std::cout << "total size: " << org_count << std::endl;
     double partial = 0.0;
     emp::vector<emp::vector<emp::BitSet<64>>> groups = {};
     for (int i = 0; i < j; i++){ //initializing

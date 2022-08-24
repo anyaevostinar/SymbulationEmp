@@ -32,27 +32,6 @@
 
 // start of getNecessarySites methods
 
-using Library = sgpl::OpLibrary<
-    sgpl::Nop<>,
-    // single argument math
-    inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
-    // biological operations
-    // no copy or alloc
-    inst::Reproduce, inst::PrivateIO, inst::SharedIO,
-    // double argument math
-    inst::Add, inst::Subtract, inst::Nand,
-    // Stack manipulation
-    inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-    // no h-search
-    inst::Donate, inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
-    // if-label doesn't make sense for SGP, same with *-head
-    // and set-flow but this is required
-    sgpl::global::Anchor>;
-
-using Spec = sgpl::Spec<Library, CPUState>;
-
-
-
 /**
  *
  * Input: A cpu of an organism
@@ -93,12 +72,13 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
 
 /**
  *
- * Input:
+ * Input: Takes in a CPU and the number identifying a given task
  *
- * Output:
+ * Output: Returns a vector representing the full genome, reduced to 1s and 0s to show either
+ *that an instruction is necessary to complete the task, or not respectively
  *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Physical Modularity
+ * Purpose: Is to return a vector that acts as a reduced program representation
+ *of the necessary code lines to complete the given task
  *
  */
 emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
@@ -118,7 +98,7 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
 
   if (can_do_task) {
 
-    for (int k = 0; k <= control_program.size() - 1; k++) {
+    for (size_t k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
       CPU temp_cpu = CPU(org_cpu.state.host, org_cpu.state.world, test_program);
@@ -142,12 +122,15 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
 
 /**
  *
- * Input:
+ * Input: Takes in an organism's CPU
  *
- * Output:
+ * Output: Returns a vector with a reduced program representation taken from the organism
+ * for each task in the world's taskset
  *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Physical Modularity
+ * Purpose: To cycle through all the tasks in the world's taskset
+ * and return the necessary code sites within the original program 
+ * to complete each task. If the CPU does not have the necessary code,
+ * then a (-1) is returned in the first and only position of the reduced program representation.
  *
  */
 emp::vector<emp::vector<int>> GetReducedProgramRepresentations(CPU org_cpu) {

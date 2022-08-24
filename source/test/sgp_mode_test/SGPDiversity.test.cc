@@ -64,6 +64,62 @@ TEST_CASE("GetPhenotypeMap", "[sgp]") {
   }
 }
 
+TEST_CASE("GetRichness", "[tag]") {
+  WHEN("For three different CPUs") {
+    emp::Random random(5);
+    SymConfigBase config;
+    config.RANDOM_ANCESTOR(false);
+    config.TASK_TYPE(1);
+    int world_size = 1;
+    int pop_size = 1;
+    TaskSet test_tasks = LogicTasks;
+    SGPWorld world(random, &config, test_tasks);
+    world.resize(world_size);
+    config.POP_SIZE(pop_size);
+
+    size_t length = 100;
+
+    ProgramBuilder builder;
+    sgpl::Program<Spec> test_program = builder.Build(length);
+
+    emp::Ptr<SGPHost> test_sample1 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+    
+    builder.AddNand();
+    test_program = builder.Build(length);
+    emp::Ptr<SGPHost> test_sample2 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+    
+    builder.AddOrn();
+    test_program = builder.Build(length);
+    emp::Ptr<SGPHost> test_sample3 =
+        emp::NewPtr<SGPHost>(&random, &world, &config, test_program);
+
+
+    emp::BitSet<64> zeros;
+  
+    
+    // emp::unordered_map<emp::BitSet<64> , int> expected_map;
+    // expected_map.insert({zeros,2});
+    int expected_types = 3;
+    emp::vector<CPU> test_vec = {};
+    test_vec.push_back((*test_sample1).GetCPU());
+    test_vec.push_back((*test_sample2).GetCPU());
+    test_vec.push_back((*test_sample3).GetCPU());
+
+    
+    
+    int test_size = GetRichness(test_vec);
+
+    THEN("GetPhenotypeMap successfully count the phenotype twice") { 
+      REQUIRE(test_size == expected_types); 
+    }
+  }
+}
+
+
 
 
 TEST_CASE("AlphaDiversity", "[sgp]") {
@@ -110,7 +166,7 @@ TEST_CASE("AlphaDiversity", "[sgp]") {
   }
 }
 
-
+/*
 TEST_CASE("ShannonDiversity", "[sgp]") {
 
   WHEN("For a world with just two identical CPUs") {
@@ -159,4 +215,4 @@ TEST_CASE("ShannonDiversity", "[sgp]") {
 
   
 }
-
+*/
