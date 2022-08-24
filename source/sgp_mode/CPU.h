@@ -34,7 +34,7 @@ public:
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
       : program(CreateStartProgram(world->GetConfig())),
         state(organism, world) {
-    cpu.InitializeAnchors(program);
+    InitializeAnchors();
     state.self_completed.resize(world->GetTaskSet().NumTasks());
     state.shared_completed->resize(world->GetTaskSet().NumTasks());
   }
@@ -45,19 +45,38 @@ public:
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
       const sgpl::Program<Spec> &program)
       : program(program), state(organism, world) {
-    cpu.InitializeAnchors(program);
+    InitializeAnchors();
     state.self_completed.resize(world->GetTaskSet().NumTasks());
     state.shared_completed->resize(world->GetTaskSet().NumTasks());
   }
 
   void Reset() {
     cpu.Reset();
-    cpu.InitializeAnchors(program);
     state = CPUState(state.host, state.world);
+    InitializeAnchors();
     state.self_completed.resize(state.world->GetTaskSet().NumTasks());
     state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
   }
-    
+
+  void InitializeAnchors() {
+    cpu.InitializeAnchors(program);
+    uint8_t JumpNeq = Library::GetOpCode("JumpIfNEq");
+    uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
+    if (!cpu.HasActiveCore()) {
+      cpu.DoLaunchCore(START_TAG);
+    }
+    auto &table = cpu.GetActiveCore().GetGlobalJumpTable();
+    size_t idx = 0;
+    state.jump_table.resize(100);
+    for (auto &i : program) {
+      if (i.op_code == JumpNeq || i.op_code == JumpLess) {
+        auto entry = table.MatchRegulated(i.tag);
+        state.jump_table[idx] =
+            entry.size() > 0 ? table.GetVal(entry.front()) : idx + 1;
+      }
+      idx++;
+    }
+  }
 
   /**
    * Input: The location of the organism (used for reproduction), and the number
@@ -88,9 +107,9 @@ public:
   void Mutate() {
     program.ApplyPointMutations(state.world->GetConfig()->MUTATION_SIZE() *
                                 15.0);
-    cpu.InitializeAnchors(program);
+    InitializeAnchors();
   }
-  
+
   /**
    * Input: None
    *
