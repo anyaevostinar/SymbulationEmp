@@ -319,11 +319,16 @@ public:
    *
    * Purpose: Empties the host and symbiont calculation tables 
    */
-  void ClearSquareFrequencyData(){
+  void ClearSquareFrequencyData(bool IsHost){
       emp::Ptr<Task> curTask = tasks[0];
       emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-      squareTask->hostCalculationTable.clear();
-      squareTask->symCalculationTable.clear();
+      if (IsHost){
+          squareTask->hostCalculationTable.clear();
+      }
+      else{
+          squareTask->symCalculationTable.clear();
+      }
+      
   }
 };
 

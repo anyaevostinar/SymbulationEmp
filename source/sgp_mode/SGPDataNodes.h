@@ -56,6 +56,7 @@ emp::DataFile &SGPWorld::SetupHostSquareFrequencyFile(const std::string &filenam
         os << data.second;
         os << "; ";
     }
+    task_set.ClearSquareFrequencyData(1);
   };
   file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
   file.PrintHeaderKeys();
@@ -73,6 +74,7 @@ emp::DataFile &SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename
         os << data.second;
         os << "; ";
     }
+    task_set.ClearSquareFrequencyData(0);
   };
   file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();

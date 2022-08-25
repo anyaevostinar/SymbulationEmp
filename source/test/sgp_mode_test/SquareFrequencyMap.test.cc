@@ -70,7 +70,8 @@ TEST_CASE("ClearSquareFrequencyData successfully empties host and sym maps", "[s
     PLACEHOLDER.hostCalculationTable.insert(std::pair<uint32_t, uint32_t>(4, 1));
     PLACEHOLDER.hostCalculationTable.insert(std::pair<uint32_t, uint32_t>(5, 2));
     PLACEHOLDER.symCalculationTable.insert(std::pair<uint32_t, uint32_t>(6, 3));
-    PlaceholderTasks.ClearSquareFrequencyData();
+    PlaceholderTasks.ClearSquareFrequencyData(true);
+    PlaceholderTasks.ClearSquareFrequencyData(false);
     REQUIRE(PLACEHOLDER.hostCalculationTable.empty());
     REQUIRE(PLACEHOLDER.symCalculationTable.empty());
 }

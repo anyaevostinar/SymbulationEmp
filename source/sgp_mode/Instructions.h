@@ -134,6 +134,7 @@ INST(SharedIO, {
   state.input_buf.push(next);
 });
 INST(Donate, {
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
   if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -148,8 +149,10 @@ INST(Donate, {
     host->AddPoints(to_donate * (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
     state.host->AddPoints(-to_donate);
   }
+}
 });
 INST(Steal, {
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
   if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -164,6 +167,7 @@ INST(Steal, {
         [=](auto &m) { m.AddDatum(to_steal); });
     host->AddPoints(-to_steal);
     state.host->AddPoints(to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+  }
   }
 });
 
