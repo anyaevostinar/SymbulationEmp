@@ -34,6 +34,7 @@
 #include "../test/sgp_mode_test/AnalysisTools.test.cc"
 #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
 #include "../test/sgp_mode_test/SymbiontImpact.test.cc"
+#include "../test/sgp_mode_test/SquareFrequencyMap.test.cc"
 #include "../test/sgp_mode_test/SGPDiversity.test.cc"
 #include "../test/sgp_mode_test/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/SGPHost.test.cc"
@@ -42,3 +43,4 @@
 #include "../test/integration_test/lysogeny/plr.test.cc"
 #include "../test/integration_test/endosymbiosis/res_distribute.test.cc"
 #include "../test/integration_test/dirty_transmission/hz_mut_rate.test.cc"
+
