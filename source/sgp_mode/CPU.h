@@ -109,18 +109,6 @@ public:
 
     sgpl::execute_cpu_n_cycles<Spec>(n_cycles, cpu, program, state);
   }
-  /**
-   * Input: None
-   *
-   * Output: The SignalGPLite cpu. 
-   *
-   * Purpose: 
-   */
-  sgpl::Cpu<Spec> GetCPU(){
-    return cpu;
-  }
-
-
 
   /**
    * Input: None

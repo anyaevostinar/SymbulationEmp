@@ -91,10 +91,10 @@ int symbulation_main(int argc, char *argv[]) {
     phenotype_counts_file.open(phenotype_counts_path);
     
     phenotype_counts_file << "phenotype, count, partner" << std::endl;
-    for (auto const pair : host_phenotype_map){
+    for (auto const &pair : host_phenotype_map){
       phenotype_counts_file << pair.first << " " << pair.second << " host" << std::endl;
     }
-    for (auto const pair : sym_phenotype_map){
+    for (auto const &pair : sym_phenotype_map){
       phenotype_counts_file << pair.first << " " << pair.second << " sym" << std::endl;
     }
   });

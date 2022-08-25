@@ -16,17 +16,6 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
-#include "sgpl/algorithm/execute_cpu.hpp"
-#include "sgpl/hardware/Cpu.hpp"
-#include "sgpl/library/OpLibraryCoupler.hpp"
-#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
-#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
-#include "sgpl/operations/flow_global/Anchor.hpp"
-#include "sgpl/operations/unary/Increment.hpp"
-#include "sgpl/operations/unary/Terminal.hpp"
-#include "sgpl/program/Program.hpp"
-#include "sgpl/spec/Spec.hpp"
-#include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <math.h>
 #include <set>
 
