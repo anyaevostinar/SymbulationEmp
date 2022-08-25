@@ -94,7 +94,7 @@ public:
    * processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
-    if (my_world->GetUpdate() % (30 / my_config->CYCLES_PER_UPDATE()) == 0)
+    if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
       cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction

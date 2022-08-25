@@ -5,6 +5,8 @@
 #include "CPUState.h"
 #include <atomic>
 #include <variant>
+#include <map>
+#include <string>
 
 class Task {
   bool unlimited = true;
@@ -133,6 +135,8 @@ public:
 
 class SquareTask : public OutputTask {
 public:
+  std::map<uint32_t, uint32_t> hostCalculationTable;
+  std::map<uint32_t, uint32_t> symCalculationTable;
   SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
              bool unlimited = true, emp::vector<size_t> dependencies = {},
              size_t num_dep_completes = 1)
@@ -144,6 +148,36 @@ public:
     OutputTask::MarkPerformed(state, output, task_id, shared);
     state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                       sqrt(output));
+    if(state.host->IsHost()){
+      IncrementSquareMap(output, true);
+    }
+    else{
+      IncrementSquareMap(output, false);
+    }
+  }
+
+   /**
+   * Input: The value of the current output and a boolean indicating whether the organism
+   is a host or symbiont
+   *
+   * Output: None
+   *
+   * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
+   * otherwise, increments the count for that output
+   */
+  void IncrementSquareMap(uint32_t output, bool isHost){
+      std::map<uint32_t, uint32_t>& calculationMap = isHost ? hostCalculationTable : symCalculationTable;
+      if (calculationMap.empty()){//Base case for when the map is empty
+        calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+      }else{
+        std::map<uint32_t, uint32_t>::iterator placemark;
+        placemark = calculationMap.find(output);
+        if(placemark == calculationMap.end()){//If output does not exist in the map, add it with a count of 1
+          calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
+        }else{//If output does exist in the map, increment its count
+          placemark->second++;
+        }
+    }
   }
 };
 
@@ -181,6 +215,7 @@ public:
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
   }
+
 
   /**
    * A custom copy constructor so that task completions aren't shared between
@@ -257,7 +292,48 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
+  /**
+   * Input: A boolean identifying a given organism as a host or a symbiont
+   *
+   * Output: The map of square frequencies that matches the organism's type
+   *
+   * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
+   on whether the organism is a host or a symbiont. 
+   */
+  std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost){
+    std::map<uint32_t, uint32_t> myMap;
+    emp::Ptr<Task> curTask = tasks[0];
+    emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
+    if (isHost){
+      myMap = squareTask->hostCalculationTable;
+    }
+    else {
+      myMap = squareTask->symCalculationTable;
+    }
+    return myMap;
+  }
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Empties the host and symbiont calculation tables 
+   */
+  void ClearSquareFrequencyData(bool IsHost){
+      emp::Ptr<Task> curTask = tasks[0];
+      emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
+      if (IsHost){
+          squareTask->hostCalculationTable.clear();
+      }
+      else{
+          squareTask->symCalculationTable.clear();
+      }
+      
+  }
 };
+
+
+
 
 // The 9 default logic tasks in Avida
 // These are checked top-to-bottom and the reward is given for the first one
@@ -283,9 +359,19 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
     emp::NewPtr<InputTask>(EQU)};
 
-const SquareTask SQU = {"SQU", [](uint32_t x) {
-                          return sqrt(x) - floor(sqrt(x)) == 0 ? 40.0 : 0.0;
-                        }};
+  const SquareTask SQU = {"SQU", [](uint32_t x) {
+                    uint32_t largest_int = 4294967295;
+                    if (sqrt(x) - floor(sqrt(x)) == 0){
+                      if (x > (largest_int/2)){//Awards points based on a number's distance from 0 rather than absolute size
+                        return 0.5 * (0 - x);
+                      }else{
+                        return (0.5 * x);
+                      }
+                    }else{
+                      return 0.0;
+                    }
+                    return 0.0;
+                  }};
 const TaskSet SquareTasks{emp::NewPtr<SquareTask>(SQU)};
 
 #endif

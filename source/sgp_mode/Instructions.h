@@ -102,7 +102,12 @@ INST(PrivateIO, {
     }
     state.host->AddPoints(score);
   }
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next;
+  if (state.world->GetConfig()->RANDOM_IO_INPUT()){
+     next = sgpl::tlrand.Get().GetBits50();
+  }else{
+      next = 1;
+  }
   *a = next;
   state.input_buf.push(next);
 });
@@ -119,11 +124,17 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
 // Set output to value of register and set register to new input
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
-  uint32_t next = sgpl::tlrand.Get().GetBits50();
+  uint32_t next;
+  if (state.world->GetConfig()->RANDOM_IO_INPUT()){
+     next = sgpl::tlrand.Get().GetBits50();
+  }else{
+      next = 1;
+  }
   *a = next;
   state.input_buf.push(next);
 });
 INST(Donate, {
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
   if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
@@ -135,24 +146,28 @@ INST(Donate, {
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
     state.world->GetSymDonatedDataNode().WithMonitor(
         [=](auto &m) { m.AddDatum(to_donate); });
-    host->AddPoints(to_donate);
+    host->AddPoints(to_donate * (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
     state.host->AddPoints(-to_donate);
   }
+}
 });
 INST(Steal, {
+  if (state.world->GetConfig()->DONATION_STEAL_INST()){
   if (state.host->IsHost())
     return;
   if (emp::Ptr<Organism> host = state.host->GetHost()) {
     // Steal 20% of the total points of the symbiont-host system
     // This way, a sym can steal e.g. 40 or 60 percent of their points in a
     // couple of instructions
+    // 10% of the stolen resources are lost
     double to_steal =
         fmin(host->GetPoints(),
              (state.host->GetPoints() + host->GetPoints()) * 0.20);
     state.world->GetSymStolenDataNode().WithMonitor(
         [=](auto &m) { m.AddDatum(to_steal); });
     host->AddPoints(-to_steal);
-    state.host->AddPoints(to_steal);
+    state.host->AddPoints(to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+  }
   }
 });
 
