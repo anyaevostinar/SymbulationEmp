@@ -46,8 +46,8 @@
 emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> list_of_starts = {};
 
-  for (int y = 0; y < (int)task_programs.size(); y++) {
-    for (int e = 0; e <= (int)task_programs[y].size() - 1; e++) {
+  for (size_t y = 0; y < task_programs.size(); y++) {
+    for (size_t e = 0; e <= task_programs[y].size() - 1; e++) {
       if (task_programs[y][e] == 1) {
         list_of_starts.push_back(e);
         break;
@@ -74,11 +74,10 @@ emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
  */
 emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
   emp::vector<int> list_of_ends = {};
-
-  for (int y = 0; y < (int)task_programs.size(); y++) {
-    for (int f = (int)task_programs[y].size() - 1; f >= 0; f--) {
-      if (task_programs[y][f] == 1) {
-        list_of_ends.push_back(f);
+  for (size_t y = 0; y < task_programs.size(); y++) {
+    for (size_t f = task_programs[y].size(); f > 0; f--) {
+      if (task_programs[y][f-1] == 1) {
+        list_of_ends.push_back(f-1);
         break;
       }
     }
