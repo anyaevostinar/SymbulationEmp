@@ -34,6 +34,7 @@
 #include "../test/sgp_mode_test/AnalysisTools.test.cc"
 #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
 #include "../test/sgp_mode_test/SymbiontImpact.test.cc"
+#include "../test/sgp_mode_test/SGPDiversity.test.cc"
 
 #include "../test/integration_test/spatial_structure/vt.test.cc"
 #include "../test/integration_test/lysogeny/plr.test.cc"

@@ -32,30 +32,43 @@
 
 // start of getNecessarySites methods
 
-/*
+/**
  *
- * Input: Takes in a cpu and the identifier for a specific task
+ * Input: A cpu of an organism
  *
- * Output: Returns a boolean representing a program's ability to do a logic task
+ * Output: A length 64 emp bitset which describes the phenotype of organism
+ * such that the ith 1 in the bitset marks the completion of task i.
  *
- *Purpose: To return whether or not the organism can perform the given task
- *
+ * Purpose: Get the phenotype of an organism
  *
  */
-
-bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
+emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
   bool if_task_true = false;
   org_cpu.Reset();
   org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-  org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 100);
+  org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
 
-  if (org_cpu.state.used_resources->Get(task_id)) {
-    if_task_true = true;
-  }
-
-  return if_task_true;
+  return *org_cpu.state.used_resources;
 }
+
+
+/*
+ *
+ * Input: Takes in a cpu and the identifier for a specific task
+ *
+ * Output: a boolean representing a program's ability to do a logic task
+ *
+ * Purpose: To return whether or not the organism can perform the given task
+ *
+ *
+ */
+bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
+  return ReturnTasksDone(org_cpu).Get(task_id);
+}
+
+
+
 
 /**
  *
@@ -64,7 +77,7 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  * Output: Returns a vector representing the full genome, reduced to 1s and 0s to show either
  *that an instruction is necessary to complete the task, or not respectively
  *
- *Purpose: Is to return a vector that acts as a reduced program representation
+ * Purpose: Is to return a vector that acts as a reduced program representation
  *of the necessary code lines to complete the given task
  *
  */
@@ -111,12 +124,12 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
  *
  * Input: Takes in an organism's CPU
  *
- * Output:Returns a vector with a reduced program representation taken from the organism
+ * Output: Returns a vector with a reduced program representation taken from the organism
  * for each task in the world's taskset
  *
- *Purpose: To cycle through all the tasks in the world's taskset
- *and return the necessary code sites within the original program 
- *to complete each task. If the CPU does not have the necessary code,
+ * Purpose: To cycle through all the tasks in the world's taskset
+ * and return the necessary code sites within the original program 
+ * to complete each task. If the CPU does not have the necessary code,
  * then a (-1) is returned in the first and only position of the reduced program representation.
  *
  */
