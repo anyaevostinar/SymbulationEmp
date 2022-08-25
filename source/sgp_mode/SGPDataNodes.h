@@ -50,14 +50,12 @@ emp::DataFile &SGPWorld::SetupHostSquareFrequencyFile(const std::string &filenam
   file.AddVar(update, "update", "Update");
     std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
     std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(1);
-    std::map<uint32_t, uint32_t>::iterator dataGrabber = squareData.begin();
-  while (dataGrabber != squareData.end()){
-        os << dataGrabber->first;
+    for (auto data : squareData){
+         os << data.first;
         os << ": ";
-        os << dataGrabber->second;
+        os << data.second;
         os << "; ";
-        dataGrabber++;
-        }
+    }
   };
   file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
   file.PrintHeaderKeys();
@@ -69,15 +67,12 @@ emp::DataFile &SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename
   file.AddVar(update, "update", "Update");
   std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
       std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(0);
-      std::map<uint32_t, uint32_t>::iterator dataGrabber = squareData.begin();
-      while (dataGrabber != squareData.end()){
-            os << dataGrabber->first;
-            os << ": ";
-            os << dataGrabber->second;
-            os << "; ";
-            dataGrabber++;
-            } 
-      task_set.ClearSquareFrequencyData();
+      for (auto data : squareData){
+         os << data.first;
+        os << ": ";
+        os << data.second;
+        os << "; ";
+    }
   };
   file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();

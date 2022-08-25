@@ -23,43 +23,17 @@ class CPU {
   sgpl::Cpu<Spec> cpu;
   sgpl::Program<Spec> program;
 
-public:
-  CPUState state;
-
   /**
-   * Constructs a new CPU for an ancestor organism, with either a random genome
-   * or a blank genome that knows how to do a simple task depending on the
-   * config setting RANDOM_ANCESTOR.
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Initializes the jump table and task information in the CPUState.
+   * Should be called when a new CPU is created or the program is changed.
    */
-  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
-      : program(CreateStartProgram(world->GetConfig())),
-        state(organism, world) {
-    InitializeAnchors();
-    state.self_completed.resize(world->GetTaskSet().NumTasks());
-    state.shared_completed->resize(world->GetTaskSet().NumTasks());
-  }
-
-  /**
-   * Constructs a new CPU with a copy of another CPU's genome.
-   */
-  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
-      const sgpl::Program<Spec> &program)
-      : program(program), state(organism, world) {
-    InitializeAnchors();
-    state.self_completed.resize(world->GetTaskSet().NumTasks());
-    state.shared_completed->resize(world->GetTaskSet().NumTasks());
-  }
-
-  void Reset() {
-    cpu.Reset();
-    state = CPUState(state.host, state.world);
-    InitializeAnchors();
-    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
-    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
-  }
-
-  void InitializeAnchors() {
+  void InitializeState() {
     cpu.InitializeAnchors(program);
+
     uint8_t JumpNeq = Library::GetOpCode("JumpIfNEq");
     uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
     if (!cpu.HasActiveCore()) {
@@ -76,6 +50,45 @@ public:
       }
       idx++;
     }
+
+    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
+    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
+  }
+
+public:
+  CPUState state;
+
+  /**
+   * Constructs a new CPU for an ancestor organism, with either a random genome
+   * or a blank genome that knows how to do a simple task depending on the
+   * config setting RANDOM_ANCESTOR.
+   */
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
+      : program(CreateStartProgram(world->GetConfig())),
+        state(organism, world) {
+    InitializeState();
+  }
+
+  /**
+   * Constructs a new CPU with a copy of another CPU's genome.
+   */
+  CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world,
+      const sgpl::Program<Spec> &program)
+      : program(program), state(organism, world) {
+    InitializeState();
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Resets the CPU to its initial state.
+   */
+  void Reset() {
+    cpu.Reset();
+    state = CPUState(state.host, state.world);
+    InitializeState();
   }
 
   /**
@@ -119,7 +132,7 @@ public:
   void Mutate() {
     program.ApplyPointMutations(state.world->GetConfig()->MUTATION_SIZE() *
                                 15.0);
-    InitializeAnchors();
+    InitializeState();
   }
 
   /**

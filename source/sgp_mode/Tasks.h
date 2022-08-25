@@ -149,15 +149,16 @@ public:
     state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                       sqrt(output));
     if(state.host->IsHost()){
-      IncrementSquareMap(output, 1);
+      IncrementSquareMap(output, true);
     }
     else{
-      IncrementSquareMap(output, 0);
+      IncrementSquareMap(output, false);
     }
   }
 
    /**
-   * Input: A pointer to an organism's square frequency map and the value of the current output
+   * Input: The value of the current output and a boolean indicating whether the organism
+   is a host or symbiont
    *
    * Output: None
    *
