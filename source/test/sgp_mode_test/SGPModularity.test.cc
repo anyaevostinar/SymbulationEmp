@@ -211,7 +211,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
     emp::Ptr<SGPHost> test_sample =
         emp::NewPtr<SGPHost>(&random, &world, &config);
 
-    double expected_phys_mod = .956666667;
+    double expected_phys_mod = .94;
     double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
     THEN("Physical modularity is extremely high") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
@@ -261,7 +261,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
               test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
-      double expected_phys_mod = .952;
+      double expected_phys_mod = .94666667;
       double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
       THEN("The program has high physical modularity") 
@@ -372,7 +372,7 @@ TEST_CASE("GetFMFromCPU", "[sgp]") {
         CPU(test_sample->GetCPU().state.host, test_sample->GetCPU().state.world,test_program);
     test_sample->GetCPU() = temp_cpu;
 
-    double expected_phys_mod = 0.025;
+    double expected_phys_mod = 0.015;
     double test_phys_mod = GetFMFromCPU(test_sample->GetCPU());
 
     THEN("Functional Modularity is very low") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }

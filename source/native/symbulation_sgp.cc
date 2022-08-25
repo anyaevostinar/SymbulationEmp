@@ -8,6 +8,8 @@
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
+#include "../sgp_mode/ModularityAnalysis.h"
+#include "../sgp_mode/DiversityAnalysis.h"
 #include "symbulation.h"
 #include <fstream>
 #include <iostream>
@@ -26,10 +28,9 @@ int symbulation_main(int argc, char *argv[]) {
   emp::Random random(config.SEED());
 
   TaskSet task_set = LogicTasks;
-
-  if (config.TASK_TYPE() == 0){
-     task_set = SquareTasks;
-  }else if (config.TASK_TYPE() == 1){
+  if (config.TASK_TYPE() == 0) {
+    task_set = SquareTasks;
+  } else if (config.TASK_TYPE() == 1) {
     task_set = LogicTasks;
   }
 
@@ -37,6 +38,41 @@ int symbulation_main(int argc, char *argv[]) {
 
   worldSetup(&world, &config);
   world.CreateDataFiles();
+  
+  // Print some debug info for testing purposes
+  std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
+
+  world.OnAnalyzePopulation([&](){
+    emp::vector<CPU> host_cpus = {};
+    emp::vector<CPU> sym_cpus = {};
+    emp::World<Organism>::pop_t pop = world.GetPop();
+    for (size_t i = 0; i < pop.size(); i++){
+      auto sample = pop[i].DynamicCast<SGPHost>();
+      host_cpus.push_back(sample->GetCPU());
+      if(sample->HasSym()){
+        for (auto sym: sample->GetSymbionts()){
+          sym_cpus.push_back(sym.DynamicCast<SGPSymbiont>()->GetCPU());
+        }
+      }
+    }
+    double host_alpha = AlphaDiversity(random, host_cpus);
+    double host_shannon = ShannonDiversity(host_cpus);
+    int host_richness = GetRichness(host_cpus);
+    double sym_alpha = AlphaDiversity(random, sym_cpus);
+    double sym_shannon = ShannonDiversity(sym_cpus);
+    int sym_richness = GetRichness(sym_cpus);
+
+    ofstream diversity_file;
+    std::string diversity_path =
+        config.FILE_PATH()+ "_diversity_" + config.FILE_NAME() + file_ending;
+    diversity_file.open(diversity_path);
+
+    diversity_file << "alpha_diversity, shannon_diversity, species_richness, partner" << std::endl;
+    diversity_file << host_alpha <<" " << host_shannon << " " << host_richness << " host" << std::endl;
+    diversity_file << sym_alpha <<" " << sym_shannon << " " << sym_richness << " symbiont" << std::endl;
+
+  });
+
   world.RunExperiment();
 
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
@@ -44,8 +80,6 @@ int symbulation_main(int argc, char *argv[]) {
   std::cout << "Dominant count: " << dominant_organisms.front().second
             << std::endl;
 
-  // Print some debug info for testing purposes
-  std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
   {
     size_t idx = 0;
     for (auto pair : dominant_organisms) {
@@ -93,6 +127,33 @@ int symbulation_main(int argc, char *argv[]) {
       }
     }
   }
+
+  {
+    ofstream modularity_file;
+    std::string modularity_path =
+        config.FILE_PATH()+ "_modularity_" + config.FILE_NAME() + file_ending;
+    modularity_file.open(modularity_path);
+
+    modularity_file << "host_pm, host_fm, sym_pm, sym_fm" << std::endl;
+
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<SGPHost>();
+      modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
+      modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
+      if (sample->HasSym()) {
+        modularity_file
+            << GetPMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << " ";
+        modularity_file
+            << GetFMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << std::endl;
+
+      } else {
+        modularity_file << "NA ";
+        modularity_file << "NA " << std::endl;
+      }
+    }
+  }
+  
+
 
   // retrieve the dominant taxons for each organism and write them to a file
   if (config.PHYLOGENY() == 1) {
