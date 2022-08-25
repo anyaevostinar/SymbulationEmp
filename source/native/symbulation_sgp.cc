@@ -56,11 +56,24 @@ int symbulation_main(int argc, char *argv[]) {
       }
     }
     double host_alpha = AlphaDiversity(random, host_cpus);
-    double host_shannon = ShannonDiversity(host_cpus);
-    int host_richness = GetRichness(host_cpus);
+    emp::unordered_map<emp::BitSet<64>, int> host_phenotype_map = GetPhenotypeMap(host_cpus);
+    double host_shannon;
+    if (host_cpus.size() == 0){
+        host_shannon = 0.0;
+    } else {
+        host_shannon = ShannonDiversityHelper(host_phenotype_map);
+    }
+    int host_richness = host_phenotype_map.size();
+
     double sym_alpha = AlphaDiversity(random, sym_cpus);
-    double sym_shannon = ShannonDiversity(sym_cpus);
-    int sym_richness = GetRichness(sym_cpus);
+    emp::unordered_map<emp::BitSet<64>, int> sym_phenotype_map = GetPhenotypeMap(sym_cpus);
+    double sym_shannon;
+    if (sym_cpus.size() == 0){
+        sym_shannon = 0.0;
+    } else {
+        sym_shannon = ShannonDiversityHelper(sym_phenotype_map);
+    }
+    int sym_richness = sym_phenotype_map.size();
 
     ofstream diversity_file;
     std::string diversity_path =
@@ -71,6 +84,19 @@ int symbulation_main(int argc, char *argv[]) {
     diversity_file << host_alpha <<" " << host_shannon << " " << host_richness << " host" << std::endl;
     diversity_file << sym_alpha <<" " << sym_shannon << " " << sym_richness << " symbiont" << std::endl;
 
+
+    ofstream phenotype_counts_file;
+    std::string phenotype_counts_path =
+        config.FILE_PATH()+ "_phenotype_counts_" + config.FILE_NAME() + file_ending;
+    phenotype_counts_file.open(phenotype_counts_path);
+    
+    phenotype_counts_file << "phenotype, count, partner" << std::endl;
+    for (auto const pair : host_phenotype_map){
+      phenotype_counts_file << pair.first << " " << pair.second << " host" << std::endl;
+    }
+    for (auto const pair : sym_phenotype_map){
+      phenotype_counts_file << pair.first << " " << pair.second << " sym" << std::endl;
+    }
   });
 
   world.RunExperiment();
