@@ -174,11 +174,14 @@ INST(Steal, {
 INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
-  if(state.internalEnvironment->size() > 0){//Only gets resources if the organism has values in their internal environment
-    next = (*state.internalEnvironment)[state.internalEnvironment->size() - 1];//Takes a resource from back of internal environment vector
-    state.internalEnvironment->pop_back();//Clears out the selected resource from Internal Environment
+  if (state.internalEnvironment->size() > 0) { // Only gets resources if the organism has values in their internal environment
+    next = state.internalEnvironment->back(); // Takes a resource from back of internal environment vector
+    state.internalEnvironment->pop_back(); // Clears out the selected resource from Internal Environment
     *a = next;
     state.input_buf.push(next);
+  } else {
+    // Otherwise, reset the register to 0
+    *a = 0;
   }
 });
 
