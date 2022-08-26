@@ -66,7 +66,7 @@ TEST_CASE("GetNecessaryInstructions", "[sgp]") {
     WHEN("The only task is the basic Not-genome") {
       size_t test_id = 0;
 
-      emp::optional<emp::BitArray<100>> program_position_guide =
+      std::optional<emp::BitArray<100>> program_position_guide =
           GetNecessaryInstructions(test_sample->GetCPU(), test_id);
 
       emp::BitArray<100> expected_vector = {
@@ -109,9 +109,11 @@ TEST_CASE("GetReducedProgramRepresentations", "[sgp]") {
       emp::Ptr<SGPHost> test_sample =
           emp::NewPtr<SGPHost>(&random, &world, &config);
 
-      emp::vector<emp::optional<emp::BitArray<100>>> test_map =
+      // These need to be std::vectors because emp::vectors don't play well with
+      // Catch's magic for printing out the expanded `==` expression
+      std::vector<std::optional<emp::BitArray<100>>> test_map =
           GetReducedProgramRepresentations(test_sample->GetCPU());
-      emp::vector<emp::optional<emp::BitArray<100>>> expected_map = {
+      std::vector<std::optional<emp::BitArray<100>>> expected_map = {
           expected_vector, {}, {}, {}, {}, {}, {}, {}, {}};
 
       THEN("There are 4 needed code sites necessary to perform the Not-task "

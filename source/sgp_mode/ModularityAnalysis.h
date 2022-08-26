@@ -207,7 +207,7 @@ double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
  */
 
 double GetPMFromCPU(CPU org_cpu) {
-  emp::vector<emp::optional<emp::BitArray<100>>> obtained_positions =
+  emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
   emp::vector<emp::BitArray<100>> filtered_obtained_positions;
@@ -275,7 +275,7 @@ double GetFModularity(emp::vector<emp::BitArray<length>> task_programs) {
  *
  */
 double GetFMFromCPU(CPU org_cpu) {
-  emp::vector<emp::optional<emp::BitArray<100>>> obtained_positions =
+  emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
   emp::vector<emp::BitArray<100>> filtered_obtained_positions;

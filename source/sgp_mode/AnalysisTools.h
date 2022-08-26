@@ -83,7 +83,7 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  *of the necessary code lines to complete the given task
  *
  */
-emp::optional<emp::BitArray<100>> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
+std::optional<emp::BitArray<100>> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
   emp::Random random(-1);
   sgpl::Program<Spec> const control_program = org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
@@ -129,9 +129,9 @@ emp::optional<emp::BitArray<100>> GetNecessaryInstructions(CPU org_cpu, size_t t
  * then a (-1) is returned in the first and only position of the reduced program representation.
  *
  */
-emp::vector<emp::optional<emp::BitArray<100>>> GetReducedProgramRepresentations(CPU org_cpu) {
+emp::vector<std::optional<emp::BitArray<100>>> GetReducedProgramRepresentations(CPU org_cpu) {
   const TaskSet &all_tasks = org_cpu.state.world->GetTaskSet();
-  emp::vector<emp::optional<emp::BitArray<100>>> map_of_guides;
+  emp::vector<std::optional<emp::BitArray<100>>> map_of_guides;
 
   for (size_t j = 0; j < all_tasks.NumTasks(); ++j) {
     map_of_guides.push_back(GetNecessaryInstructions(org_cpu, j));

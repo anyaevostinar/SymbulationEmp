@@ -229,6 +229,8 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
 
   WHEN("It is a random genome and the host can do no task") {
     emp::Random random(5);
+    // It happens that using the default seed here accidentally completes NOT
+    sgpl::tlrand.Get().ResetSeed(5);
     SymConfigBase config;
     config.RANDOM_ANCESTOR(true);
     int world_size = 1;
