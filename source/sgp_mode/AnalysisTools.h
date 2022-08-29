@@ -15,6 +15,8 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+#include "emp/base/optional.hpp"
+#include "emp/bits/BitArray.hpp"
 #include "sgpl/algorithm/execute_cpu.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/library/OpLibraryCoupler.hpp"
@@ -28,6 +30,7 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include <iostream>
 #include <math.h>
+#include <optional>
 #include <set>
 
 // start of getNecessarySites methods
@@ -43,7 +46,6 @@
  *
  */
 emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
-  bool if_task_true = false;
   org_cpu.Reset();
   org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
@@ -81,23 +83,19 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  *of the necessary code lines to complete the given task
  *
  */
-emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
+std::optional<emp::BitArray<100>> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
   emp::Random random(-1);
   sgpl::Program<Spec> const control_program = org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
 
-  emp::vector<int> reduced_position_guide = {};
+  emp::BitArray<100> reduced_position_guide;
 
   bool can_do_task = ReturnTaskDone(test_task_id, org_cpu);
 
   // catches if a task cannot be done ever
   if (!can_do_task) {
-    reduced_position_guide.push_back(-1);
-    return reduced_position_guide;
-  }
-
-  if (can_do_task) {
-
+    return std::nullopt;
+  } else {
     for (size_t k = 0; k <= control_program.size() - 1; k++) {
 
       test_program[k].op_code = 0;
@@ -106,11 +104,9 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
       can_do_task = ReturnTaskDone(test_task_id, temp_cpu);
 
       if (!can_do_task) {
-        reduced_position_guide.push_back(1);
-      }
-
-      else {
-        reduced_position_guide.push_back(0);
+        reduced_position_guide.Set(k, 1);
+      } else {
+        reduced_position_guide.Set(k, 0);
       }
 
       test_program = control_program;
@@ -133,16 +129,12 @@ emp::vector<int> GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
  * then a (-1) is returned in the first and only position of the reduced program representation.
  *
  */
-emp::vector<emp::vector<int>> GetReducedProgramRepresentations(CPU org_cpu) {
-  CPUState condition = org_cpu.state;
-  TaskSet all_tasks = condition.world->GetTaskSet();
-  sgpl::Program<Spec> original_program = org_cpu.GetProgram();
-  emp::vector<emp::vector<int>> map_of_guides;
+emp::vector<std::optional<emp::BitArray<100>>> GetReducedProgramRepresentations(CPU org_cpu) {
+  const TaskSet &all_tasks = org_cpu.state.world->GetTaskSet();
+  emp::vector<std::optional<emp::BitArray<100>>> map_of_guides;
 
   for (size_t j = 0; j < all_tasks.NumTasks(); ++j) {
-    emp::vector<int> position_guide = {};
-    position_guide = GetNecessaryInstructions(org_cpu, j);
-    map_of_guides.push_back(position_guide);
+    map_of_guides.push_back(GetNecessaryInstructions(org_cpu, j));
   }
 
   return map_of_guides;

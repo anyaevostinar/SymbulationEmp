@@ -43,8 +43,10 @@
  *them to a vector for GetNumSiteDist() to use
  *
  */
-emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
-  emp::vector<int> list_of_starts = {};
+template <const size_t length>
+emp::vector<size_t>
+GetUsefulStarts(emp::vector<emp::BitArray<length>> task_programs) {
+  emp::vector<size_t> list_of_starts = {};
 
   for (size_t y = 0; y < task_programs.size(); y++) {
     for (size_t e = 0; e <= task_programs[y].size() - 1; e++) {
@@ -72,12 +74,14 @@ emp::vector<int> GetUsefulStarts(emp::vector<emp::vector<int>> task_programs) {
  *them to a vector for GetNumSiteDist() to use
  *
  */
-emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
-  emp::vector<int> list_of_ends = {};
+template <const size_t length>
+emp::vector<size_t>
+GetUsefulEnds(emp::vector<emp::BitArray<length>> task_programs) {
+  emp::vector<size_t> list_of_ends = {};
   for (size_t y = 0; y < task_programs.size(); y++) {
     for (size_t f = task_programs[y].size(); f > 0; f--) {
-      if (task_programs[y][f-1] == 1) {
-        list_of_ends.push_back(f-1);
+      if (task_programs[y][f - 1] == 1) {
+        list_of_ends.push_back(f - 1);
         break;
       }
     }
@@ -104,7 +108,9 @@ emp::vector<int> GetUsefulEnds(emp::vector<emp::vector<int>> task_programs) {
  *of them, and returns their total amount
  *unless there are no sites the method should always return at least 2
  */
-int GetNumSites(int start_inst, int end_inst, emp::vector<int> alt_genome) {
+template <const size_t length>
+int GetNumSites(int start_inst, int end_inst,
+                emp::BitArray<length> alt_genome) {
   // for altered genome clusters
   int total_sites = 0;
 
@@ -149,27 +155,27 @@ int GetDistance(int i, int j, int length) {
  *of all the sites of the tasks it can do
  *
  */
-
-double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
+template <const size_t length>
+double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
   double all_distance = 0.0;
-  emp::vector<int> useful_starts = GetUsefulStarts(task_programs);
-  emp::vector<int> useful_ends = GetUsefulEnds(task_programs);
+  emp::vector<size_t> useful_starts = GetUsefulStarts(task_programs);
+  emp::vector<size_t> useful_ends = GetUsefulEnds(task_programs);
 
-  for (int t = 0; t < (int)task_programs.size();
+  for (size_t t = 0; t < task_programs.size();
        t++) { // loop through different tasks
 
-    emp::vector<int> program = task_programs[t];
-    int size = (int)program.size();
+    emp::BitArray<length> program = task_programs[t];
+    size_t size = program.size();
     double nSt = GetNumSites(useful_starts[t], useful_ends[t], program);
     if (nSt != 1) {
 
       double sum_distance = 0;
 
-      for (int i = useful_starts[t]; i <= useful_ends[t]; i++) {
+      for (size_t i = useful_starts[t]; i <= useful_ends[t]; i++) {
 
         if (program[i] == 1) {
 
-          for (int j = useful_starts[t]; j <= useful_ends[t]; j++) {
+          for (size_t j = useful_starts[t]; j <= useful_ends[t]; j++) {
 
             if ((i != j) && (program[j] == 1)) {
               sum_distance += GetDistance(i, j, size);
@@ -184,8 +190,8 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
   }
 
   double physical_mod_val =
-      1 - (2.0 * all_distance /
-           (task_programs[0].size() * (int)task_programs.size()));
+      1 -
+      (2.0 * all_distance / (task_programs[0].size() * task_programs.size()));
   return physical_mod_val;
 }
 
@@ -201,16 +207,16 @@ double GetPModularity(emp::vector<emp::vector<int>> task_programs) {
  */
 
 double GetPMFromCPU(CPU org_cpu) {
-  emp::vector<emp::vector<int>> obtained_positions =
+  emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
-  emp::vector<emp::vector<int>> filtered_obtained_positions;
-  for (int i = 0; i < (int)obtained_positions.size(); i++) {
-    if (obtained_positions[i].size() != 1) {
-      filtered_obtained_positions.push_back(obtained_positions[i]);
+  emp::vector<emp::BitArray<100>> filtered_obtained_positions;
+  for (size_t i = 0; i < obtained_positions.size(); i++) {
+    if (obtained_positions[i].has_value()) {
+      filtered_obtained_positions.push_back(*obtained_positions[i]);
     }
   }
-  if ((int)filtered_obtained_positions.size() == 0) {
+  if (filtered_obtained_positions.size() == 0) {
     return -1.0;
   }
 
@@ -234,17 +240,16 @@ double GetPMFromCPU(CPU org_cpu) {
  *of all the sites of the tasks it can do
  *
  */
-
-double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
-  int tasks_count = (int)task_programs.size();
-  int length = task_programs[0].size();
+template <const size_t length>
+double GetFModularity(emp::vector<emp::BitArray<length>> task_programs) {
+  size_t tasks_count = task_programs.size();
   double functional_mod_val = 0.0;
   double sum = 0.0; // sum is everything on the numerator
-  for (int i = 0; i < (int)task_programs.size(); i++) {   // trait a
-    for (int j = 0; j < (int)task_programs.size(); j++) { // trait b
+  for (size_t i = 0; i < task_programs.size(); i++) {   // trait a
+    for (size_t j = 0; j < task_programs.size(); j++) { // trait b
       if (i != j) {
-        emp::vector<int> current_program = task_programs[i];
-        for (int k = 0; k < (int)current_program.size(); k++) {
+        emp::BitArray<length> current_program = task_programs[i];
+        for (size_t k = 0; k < current_program.size(); k++) {
           if (current_program[k] == 1) {
             sum += (1 - task_programs[j][k]);
             // task_programs[j][k] is the M(s,b) in the paper,
@@ -270,13 +275,13 @@ double GetFModularity(emp::vector<emp::vector<int>> task_programs) {
  *
  */
 double GetFMFromCPU(CPU org_cpu) {
-  emp::vector<emp::vector<int>> obtained_positions =
+  emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
-  emp::vector<emp::vector<int>> filtered_obtained_positions;
-  for (int i = 0; i < (int)obtained_positions.size(); i++) {
-    if (obtained_positions[i].size() != 1) {
-      filtered_obtained_positions.push_back(obtained_positions[i]);
+  emp::vector<emp::BitArray<100>> filtered_obtained_positions;
+  for (size_t i = 0; i < obtained_positions.size(); i++) {
+    if (obtained_positions[i].has_value()) {
+      filtered_obtained_positions.push_back(*obtained_positions[i]);
     }
   }
 

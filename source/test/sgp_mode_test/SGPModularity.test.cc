@@ -21,24 +21,24 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
         "actual genome that is either"
         "necessary to perform the designated task or not necessary to perform "
         "the task, respectively") {
-    emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::vector<int> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::vector<int> needed_code_sites_d = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-    emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    emp::BitArray<20> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    emp::BitArray<20> needed_code_sites_d = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    emp::vector<emp::vector<int>> needed_code_sites = {
+    emp::vector<emp::BitArray<20>> needed_code_sites = {
         needed_code_sites_a, needed_code_sites_b, needed_code_sites_c,
         needed_code_sites_d, needed_code_sites_e};
 
-    emp::vector<int> calc_useful_starts = GetUsefulStarts(needed_code_sites);
-    emp::vector<int> true_useful_starts = {0, 6, (int)needed_code_sites_c.size() - 5,
-                                           (int)needed_code_sites_d.size() - 1};
+    emp::vector<size_t> calc_useful_starts = GetUsefulStarts(needed_code_sites);
+    emp::vector<size_t> true_useful_starts = {
+        0, 6, needed_code_sites_c.size() - 5, needed_code_sites_d.size() - 1};
 
     REQUIRE(calc_useful_starts == true_useful_starts);
   }
@@ -49,24 +49,24 @@ TEST_CASE("GetUsefulEnds", "[sgp]") {
         "actual genome that is either"
         "necessary to perform the designated task or not necessary to perform "
         "the task, respectively") {
-    emp::vector<int> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
-    emp::vector<int> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
+    emp::BitArray<20> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    emp::vector<emp::vector<int>> needed_code_sites = {
+    emp::vector<emp::BitArray<20>> needed_code_sites = {
         needed_code_sites_a, needed_code_sites_b, needed_code_sites_c,
         needed_code_sites_d, needed_code_sites_e};
 
-    emp::vector<int> calc_useful_ends = GetUsefulEnds(needed_code_sites);
-    emp::vector<int> true_useful_ends = {(int)needed_code_sites_a.size() - 1, 9,
-                                         (int)needed_code_sites_c.size() - 3, 0};
+    emp::vector<size_t> calc_useful_ends = GetUsefulEnds(needed_code_sites);
+    emp::vector<size_t> true_useful_ends = {needed_code_sites_a.size() - 1, 9,
+                                            needed_code_sites_c.size() - 3, 0};
 
     REQUIRE(calc_useful_ends == true_useful_ends);
   }
@@ -79,15 +79,16 @@ TEST_CASE("GetNumSites", "[sgp]") {
         "the task, respectively") {
 
     WHEN("there are necessary sites") {
-      emp::vector<int> needed_code_sites = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
+      emp::BitArray<100> needed_code_sites = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                              0, 0, 0, 0, 0, 1, 1, 1, 1, 1};
       int site_count = GetNumSites(0, 19, needed_code_sites);
 
       THEN("GetNumsites returns a number > 0") { REQUIRE(site_count == 10); }
     }
 
     WHEN("there are no necessary sites") {
-      emp::vector<int> needed_code_sites = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+      emp::BitArray<100> needed_code_sites = {0, 0, 0, 0, 0, 0,
+                                              0, 0, 0, 0, 0, 0};
       int site_count = GetNumSites(0, 11, needed_code_sites);
 
       THEN("GetNumsites returns 0") { REQUIRE(site_count == 0); }
@@ -145,23 +146,24 @@ TEST_CASE("GetPModularity", "[sgp]") {
         "actual genome that is either"
         "necessary to perform the designated task or not necessary to perform "
         "the task, respectively") {
-    emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_c = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-    emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_c = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
+    emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    emp::vector<emp::vector<int>> needed_code_sites = {needed_code_sites_b};
-
+    emp::vector<emp::BitArray<20>> needed_code_sites = {needed_code_sites_b};
 
     WHEN("The only reduced program that can do a task is needed_code_sites_b") {
       double test_phys_mod_a = GetPModularity(needed_code_sites);
       double found_value_a = 0.8333333;
 
-      THEN("The physical modularity will be high") { REQUIRE(test_phys_mod_a == Approx(found_value_a)); }
+      THEN("The physical modularity will be high") {
+        REQUIRE(test_phys_mod_a == Approx(found_value_a));
+      }
     }
 
     needed_code_sites.push_back(needed_code_sites_d);
@@ -169,8 +171,10 @@ TEST_CASE("GetPModularity", "[sgp]") {
 
       double test_phys_mod_b = GetPModularity(needed_code_sites);
       double found_value_b = 0.8666666667;
-      THEN("The physical modularity will inc as compared to first case due to n_c_s_d")
-       { REQUIRE(test_phys_mod_b == Approx(found_value_b)); }
+      THEN("The physical modularity will inc as compared to first case due to "
+           "n_c_s_d") {
+        REQUIRE(test_phys_mod_b == Approx(found_value_b));
+      }
     }
 
     needed_code_sites.pop_back();
@@ -180,7 +184,9 @@ TEST_CASE("GetPModularity", "[sgp]") {
       double test_phys_mod_c = GetPModularity(needed_code_sites);
       double found_value_c = 1.0;
 
-      THEN("There is perfect physical modularity") { REQUIRE(test_phys_mod_c == Approx(found_value_c)); }
+      THEN("There is perfect physical modularity") {
+        REQUIRE(test_phys_mod_c == Approx(found_value_c));
+      }
     }
 
     needed_code_sites.pop_back();
@@ -189,7 +195,9 @@ TEST_CASE("GetPModularity", "[sgp]") {
       double test_phys_mod_d = GetPModularity(needed_code_sites);
       double found_value_d = 0.0;
 
-      THEN("There is no physical modularity") { REQUIRE(test_phys_mod_d == Approx(found_value_d)); }
+      THEN("There is no physical modularity") {
+        REQUIRE(test_phys_mod_d == Approx(found_value_d));
+      }
     }
   }
 }
@@ -214,11 +222,15 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
     double expected_phys_mod = .94;
     double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-    THEN("Physical modularity is extremely high") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("Physical modularity is extremely high") {
+      REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
+    }
   }
 
   WHEN("It is a random genome and the host can do no task") {
     emp::Random random(5);
+    // It happens that using the default seed here accidentally completes NOT
+    sgpl::tlrand.Get().ResetSeed(5);
     SymConfigBase config;
     config.RANDOM_ANCESTOR(true);
     int world_size = 1;
@@ -233,7 +245,9 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
     double expected_phys_mod = -1.0;
     double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-    THEN("The method cannot take the program's physical modularity") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("The method cannot take the program's physical modularity") {
+      REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
+    }
   }
 
   WHEN("using logic tasks") {
@@ -256,32 +270,32 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       ProgramBuilder builder;
       builder.AddNand();
       sgpl::Program<Spec> test_program = builder.Build(length);
-      CPU temp_cpu =
-          CPU(test_sample->GetCPU().state.host,
-              test_sample->GetCPU().state.world, test_program);
+      CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+                         test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
       double expected_phys_mod = .94666667;
       double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-      THEN("The program has high physical modularity") 
-      { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+      THEN("The program has high physical modularity") {
+        REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
+      }
     }
 
     WHEN("The genome is one of the other logic tasks only") {
       ProgramBuilder builder;
       builder.AddOrn();
       sgpl::Program<Spec> test_program = builder.Build(length);
-      CPU temp_cpu =
-          CPU(test_sample->GetCPU().state.host,
-              test_sample->GetCPU().state.world,test_program);
+      CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+                         test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
       double expected_phys_mod = .9466667;
       double test_phys_mod = GetPMFromCPU(test_sample->GetCPU());
 
-      THEN("The physical modularity will be lower than the basic tasks'") 
-      { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+      THEN("The physical modularity will be lower than the basic tasks'") {
+        REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
+      }
     }
   }
 }
@@ -291,27 +305,29 @@ TEST_CASE("GetFModularity", "[sgp]") {
         "actual genome that is either"
         "necessary to perform the designated task or not necessary to perform "
         "the task, respectively") {
-    emp::vector<int> needed_code_sites_a = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::vector<int> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_c = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::vector<int> needed_code_sites_f = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                            0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_a = {0, 0, 0, 0, 1, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+    emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_c = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             1, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 1, 1, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    emp::BitArray<20> needed_code_sites_f = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    emp::vector<emp::vector<int>> needed_code_sites = {needed_code_sites_b,
-                                                       needed_code_sites_e};
+    emp::vector<emp::BitArray<20>> needed_code_sites = {needed_code_sites_b,
+                                                        needed_code_sites_e};
 
     WHEN("There is partial overlap between the two reduced programs") {
       double test_funct_mod_a = GetFModularity(needed_code_sites);
       double found_value_a = 0.05;
 
-      THEN("There is low functional modularity") { REQUIRE(test_funct_mod_a == Approx(found_value_a)); }
+      THEN("There is low functional modularity") {
+        REQUIRE(test_funct_mod_a == Approx(found_value_a));
+      }
     }
     // change to conceptual framework and add thens
     needed_code_sites.pop_back();
@@ -320,14 +336,18 @@ TEST_CASE("GetFModularity", "[sgp]") {
       double test_funct_mod_b = GetFModularity(needed_code_sites);
       double found_value_b = 0.15;
 
-      THEN("There is high functional modularity") { REQUIRE(test_funct_mod_b == Approx(found_value_b)); }
+      THEN("There is high functional modularity") {
+        REQUIRE(test_funct_mod_b == Approx(found_value_b));
+      }
     }
     needed_code_sites.push_back(needed_code_sites_d);
     WHEN("There are more than 2 succesful genomes, partial overlap") {
       double test_funct_mod_c = GetFModularity(needed_code_sites);
       double found_value_c = 0.1;
 
-      THEN("There is medium functional modularity") { REQUIRE(test_funct_mod_c == Approx(found_value_c)); }
+      THEN("There is medium functional modularity") {
+        REQUIRE(test_funct_mod_c == Approx(found_value_c));
+      }
     }
 
     needed_code_sites.pop_back();
@@ -341,7 +361,9 @@ TEST_CASE("GetFModularity", "[sgp]") {
       double test_funct_mod_d = GetFModularity(needed_code_sites);
       double found_value_d = 0.0;
 
-      THEN("The functional modularity is 0.0") { REQUIRE(test_funct_mod_d == Approx(found_value_d)); }
+      THEN("The functional modularity is 0.0") {
+        REQUIRE(test_funct_mod_d == Approx(found_value_d));
+      }
     }
   }
 }
@@ -368,13 +390,15 @@ TEST_CASE("GetFMFromCPU", "[sgp]") {
     builder.AddNand();
     builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
-    CPU temp_cpu =
-        CPU(test_sample->GetCPU().state.host, test_sample->GetCPU().state.world,test_program);
+    CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+                       test_sample->GetCPU().state.world, test_program);
     test_sample->GetCPU() = temp_cpu;
 
     double expected_phys_mod = 0.015;
     double test_phys_mod = GetFMFromCPU(test_sample->GetCPU());
 
-    THEN("Functional Modularity is very low") { REQUIRE(Approx(expected_phys_mod) == test_phys_mod); }
+    THEN("Functional Modularity is very low") {
+      REQUIRE(Approx(expected_phys_mod) == test_phys_mod);
+    }
   }
 }
