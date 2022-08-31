@@ -19,6 +19,10 @@ const size_t SYM_CHECK_UPDATES = 100;
  */
 double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
                      const SGPWorld &world) {
+  // Turn off limited resources for this method
+  int old_lim_res = world.GetConfig()->LIMITED_RES_TOTAL();
+  world.GetConfig()->LIMITED_RES_TOTAL(-1);
+
   host.ClearSyms();
   host.ClearReproSyms();
   host.SetPoints(0.0);
@@ -55,6 +59,10 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   double with_sym = host.GetPoints();
   // The host can't free the symbiont pointer because it's not heap-allocated
   host.ClearSyms();
+
+  // and reset limited resources to the previous value
+  world.GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
+
   double change = (with_sym - no_sym) / fmax(fmax(no_sym, with_sym), 1);
   return change;
 }
