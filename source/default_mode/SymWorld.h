@@ -261,7 +261,8 @@ public:
    * Purpose: To determine how many resources to distribute to each organism.
    */
   int PullResources(int desired_resources) {
-    if(total_res == -1) { //if LIMITED_RES_TOTAL == -1, unlimited
+    // if LIMITED_RES_TOTAL == -1, unlimited, even if limited resources was on before
+    if (total_res == -1 || my_config->LIMITED_RES_TOTAL() == -1) { 
       return desired_resources;
     } else {
       if (total_res>=desired_resources) {
