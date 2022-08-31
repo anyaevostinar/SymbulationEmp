@@ -48,9 +48,14 @@
 emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
   org_cpu.Reset();
   org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+  // Turn off limited resources for this method
+  int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
+  org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
 
   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
 
+  // and then reset it to the previous value
+  org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
   return *org_cpu.state.used_resources;
 }
 
