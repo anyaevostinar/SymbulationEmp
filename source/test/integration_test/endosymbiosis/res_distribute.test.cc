@@ -3,7 +3,7 @@
 #include "../../../default_mode/SymWorld.h"
 #include "../../../default_mode/WorldSetup.cc"
 
-TEST_CASE("Resource Distribution Results", "[integration][special]"){
+TEST_CASE("Resource Distribution Results", "[integration]"){
   emp::Random random(29);
   SymConfigBase config;
   SymWorld world(random, &config);
