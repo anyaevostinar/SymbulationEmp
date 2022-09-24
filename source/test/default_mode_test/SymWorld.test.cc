@@ -1432,3 +1432,51 @@ TEST_CASE( "IsInboundsPos", "[default]" ){
     REQUIRE(world.IsInboundsPos(invalid_pos) == false);
   }
 }
+
+TEST_CASE("InjectHost", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+
+    WHEN("Spatial structure is turned off") {
+      config.GRID(0);
+      THEN("Hosts are placed side-by-side in the world") {
+        REQUIRE(world.GetNumOrgs() == 0);
+
+        emp::Ptr<Organism> host0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+        world.InjectHost(host0);
+        world.InjectHost(host1);
+        world.InjectHost(host2);
+
+        REQUIRE(world.GetNumOrgs() == 3);
+        REQUIRE(world.GetPop()[0] == host0);
+        REQUIRE(world.GetPop()[1] == host1);
+        REQUIRE(world.GetPop()[2] == host2);
+      }
+    }
+    WHEN("Spatial structure is turned on") {
+      config.GRID(1);
+      world.Resize(9); // world should be resized before injecting hosts if spatial structure is on
+      THEN("Hosts are placed randomly in the world") {
+        REQUIRE(world.GetNumOrgs() == 0);
+
+        emp::Ptr<Organism> host0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+        world.InjectHost(host0);
+        world.InjectHost(host1);
+        world.InjectHost(host2);
+
+        REQUIRE(world.GetNumOrgs() == 3);
+        bool hosts_sequentially_placed = world.GetPop()[0] == host0 && world.GetPop()[1] == host1 && world.GetPop()[2] == host2;
+        REQUIRE(hosts_sequentially_placed == false);
+      }
+    }
+  }
+}
