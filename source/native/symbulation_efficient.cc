@@ -1,5 +1,6 @@
 #include "../efficient_mode/EfficientWorld.h"
 #include "../efficient_mode/EfficientWorldSetup.cc"
+#include "../default_mode/WorldSetup.cc"
 #include "symbulation.h"
 
 // This is the main function for the NATIVE version of this project.
@@ -14,7 +15,7 @@ int symbulation_main(int argc, char * argv[])
 
   EfficientWorld world(random, &config);
 
-  efficientWorldSetup(&world, &config);
+  world.Setup();
   world.CreateDateFiles();
   world.RunExperiment();
 

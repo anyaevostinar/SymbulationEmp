@@ -470,7 +470,7 @@ public:
   /**
    * Definitions of setup functions, expanded in WorldSetup.cc
    */
-  void Setup();
+  virtual void Setup();
   virtual void SetupHosts(long unsigned int* POP_SIZE, bool random_phen_host, double comp_host_1, double comp_host_2);
   virtual void SetupSymbionts(int* total_syms, bool random_phen_sym);
 

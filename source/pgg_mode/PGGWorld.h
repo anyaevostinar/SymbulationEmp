@@ -26,6 +26,14 @@ public:
       if (data_node_PGG) data_node_PGG.Delete();
   }
 
+
+  /**
+  * Definitions of setup functions, expanded in PGGWorldSetup.cc
+  */
+  void SetupHosts(long unsigned int* POP_SIZE, bool random_phen_host, double comp_host_1, double comp_host_2);
+  void SetupSymbionts(int* total_syms, bool random_phen_sym);
+
+
   /**
   * Input: None.
   *
