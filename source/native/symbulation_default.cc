@@ -14,7 +14,7 @@ int symbulation_main(int argc, char * argv[])
 
   SymWorld world(random, &config);
 
-  worldSetup(&world, &config);
+  world.Setup();
   world.CreateDateFiles();
   world.RunExperiment();
 
