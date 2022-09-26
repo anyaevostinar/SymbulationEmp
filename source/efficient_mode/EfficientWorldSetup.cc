@@ -4,7 +4,6 @@
 #include "EfficientWorld.h"
 #include "EfficientSymbiont.h"
 #include "EfficientHost.h"
-#include "../default_mode/WorldSetup.cc"
 
 /**
  * Input: The number of efficient hosts, whether the efficient hosts have random phenotypes, and the
