@@ -37,6 +37,14 @@ public:
     if (data_node_cfu) data_node_cfu.Delete();
   }
 
+
+  /**
+   * Definitions of setup functions, expanded in LysisWorldSetup.cc
+   */
+  void SetupHosts(long unsigned int* POP_SIZE, bool random_phen_host, double comp_host_1, double comp_host_2);
+  void SetupSymbionts(int* total_syms, bool random_phen_sym);
+
+
   /**
   * Input: None.
   *

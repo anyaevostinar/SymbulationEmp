@@ -468,13 +468,11 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
 
   /**
-   * Input: None.
-   *
-   * Output: None.
-   *
-   * Purpose: To set up the world.
+   * Definitions of setup functions, expanded in WorldSetup.cc
    */
   void Setup();
+  virtual void SetupHosts(long unsigned int* POP_SIZE, bool random_phen_host, double comp_host_1, double comp_host_2);
+  virtual void SetupSymbionts(int* total_syms, bool random_phen_sym);
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
