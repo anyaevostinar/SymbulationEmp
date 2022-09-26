@@ -14,7 +14,6 @@
  * Purpose: To populate the world with hosts with appropriate phenotypes. 
  */
 void SymWorld::SetupHosts(long unsigned int* POP_SIZE, bool random_phen_host, double comp_host_1, double comp_host_2){ 
-  std::cout << "symworld setup hosts" << std::endl;
   for (size_t i = 0; i < *POP_SIZE; i++) {
   emp::Ptr<Host> new_org;
   if (random_phen_host) {new_org.New(&GetRandom(), this, my_config, GetRandom().GetDouble(-1, 1));
