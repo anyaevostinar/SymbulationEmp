@@ -436,7 +436,7 @@ public:
   /**
    * Definitions of data node functions, expanded in DataNodes.h
    */
-  void CreateDateFiles();
+  virtual void CreateDateFiles();
   void WritePhylogenyFile(const std::string & filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
@@ -608,6 +608,19 @@ public:
       sym_pop[i] = nullptr;
       num_orgs--;
     }
+  }
+
+  /**
+  * Input: A size_t location to check in the symbiont population vector.
+  *
+  * Output: A boolean representing whether the the position is valid and 
+  * occupied by a free living symbiont/
+  *
+  * Purpose: To determine if a given index is valid and occipied in the symbiont
+  * population vector.
+  */
+  bool IsSymPopOccupied(size_t pos) {
+    return pos < sym_pop.size() && sym_pop[pos];
   }
 
   /**

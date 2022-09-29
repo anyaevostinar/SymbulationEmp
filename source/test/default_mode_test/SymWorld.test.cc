@@ -1432,3 +1432,36 @@ TEST_CASE( "IsInboundsPos", "[default]" ){
     REQUIRE(world.IsInboundsPos(invalid_pos) == false);
   }
 }
+
+TEST_CASE("IsSymPopOccupied", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int world_size = 4;
+    world.Resize(world_size);
+    bool is_sp_occupied;
+    int int_val = 0;
+
+    WHEN("The passed location is out of bounds") {
+      is_sp_occupied = world.IsSymPopOccupied(world_size);
+      THEN("Returns false") {
+        REQUIRE(is_sp_occupied == false);
+      }
+    }
+    WHEN("The passed location is in bounds but does not contain a symbiont") {
+      is_sp_occupied = world.IsSymPopOccupied(world_size - 1);
+      THEN("Returns false") {
+        REQUIRE(is_sp_occupied == false);
+      }
+    }
+    WHEN("The passed location is in bounds and contains a symbiont") {
+      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.AddOrgAt(symbiont, emp::WorldPosition(0, world_size - 1));
+      is_sp_occupied = world.IsSymPopOccupied(world_size - 1);
+      THEN("Returns true") {
+        REQUIRE(is_sp_occupied == true);
+      }
+    }
+  }
+}
