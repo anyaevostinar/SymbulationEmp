@@ -1368,8 +1368,8 @@ TEST_CASE( "No mutation updates", "[default] "){
     double int_val = 0.4;
     int world_size = 100;
     world.Resize(world_size);
-    emp::Ptr<Organism> symbiont = new Symbiont(&random, &world, &config, int_val);
-    emp::Ptr<Organism> host = new Host(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
     WHEN("A host and symbiont reproduce at first"){
       emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
@@ -1383,6 +1383,8 @@ TEST_CASE( "No mutation updates", "[default] "){
         REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
         REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
       }
+      mut_sym_baby.Delete();
+      mut_host_baby.Delete();
     }
     WHEN("The experiment runs and host and symbiont reproduce after"){
       world.RunExperiment(false);
@@ -1404,7 +1406,11 @@ TEST_CASE( "No mutation updates", "[default] "){
         REQUIRE(no_mut_host_baby->GetIntVal() < int_val + 0.00001);
         REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
       }
+      no_mut_sym_baby.Delete();
+      no_mut_host_baby.Delete();
     }
+    symbiont.Delete();
+    host.Delete();
   }
 }
 
