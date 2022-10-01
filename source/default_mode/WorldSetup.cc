@@ -13,17 +13,11 @@
  *
  * Purpose: To populate the world with hosts with appropriate phenotypes. 
  */
-void SymWorld::SetupHosts(long unsigned int* POP_SIZE, double comp_host_1, double comp_host_2){ 
+void SymWorld::SetupHosts(long unsigned int* POP_SIZE){ 
   for (size_t i = 0; i < *POP_SIZE; i++) {
   emp::Ptr<Host> new_org;
   //since competition is checked first, don't  need the && !competition part of  rand host phenotype
-  if (my_config->COMPETITION_MODE() && i%2==0) {
-       new_org.New(&GetRandom(), this, my_config, comp_host_1);
-   } else if (my_config->COMPETITION_MODE() && i%2==1) {
-       new_org.New(&GetRandom(), this, my_config, comp_host_2);
-   } else { new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
-   }
-
+  new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
   InjectHost(new_org);
   }
 
@@ -66,10 +60,7 @@ void SymWorld::Setup() {
   if (my_config->GRID() == 0) {SetPopStruct_Mixed(false);}
   else SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 
-  double comp_host_1 = 0;
-  double comp_host_2 = 0.95;
-
-  SetupHosts(&POP_SIZE, comp_host_1, comp_host_2);
+  SetupHosts(&POP_SIZE);
 
   Resize(my_config->GRID_X(), my_config->GRID_Y());
 

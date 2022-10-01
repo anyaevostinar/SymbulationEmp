@@ -13,18 +13,10 @@
  *
  * Purpose: To populate the world with efficient hosts with appropriate phenotypes.
  */
-void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE, double comp_host_1, double comp_host_2) {
+void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<EfficientHost> new_org;
-    if (my_config->COMPETITION_MODE() && i % 2 == 0) {
-      new_org.New(&GetRandom(), this, my_config, comp_host_1);
-    }
-    else if (my_config->COMPETITION_MODE() && i % 2 == 1) {
-      new_org.New(&GetRandom(), this, my_config, comp_host_2);
-    }
-    else {
-      new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
-    }
+    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
     InjectHost(new_org);
   }
 }

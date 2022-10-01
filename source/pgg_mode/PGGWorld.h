@@ -30,7 +30,7 @@ public:
   /**
   * Definitions of setup functions, expanded in PGGWorldSetup.cc
   */
-  void SetupHosts(long unsigned int* POP_SIZE, double comp_host_1, double comp_host_2);
+  void SetupHosts(long unsigned int* POP_SIZE);
   void SetupSymbionts(int* total_syms);
 
 
