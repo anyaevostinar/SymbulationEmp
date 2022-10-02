@@ -77,8 +77,8 @@ TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
       symbiont = world.GetSymAt(i);
       if (symbiont) {
         int sym_burst_timer = symbiont->GetBurstTimer();
-        REQUIRE(sym_burst_timer > -5);
-        REQUIRE(sym_burst_timer < 5);
+        REQUIRE(sym_burst_timer >= -5);
+        REQUIRE(sym_burst_timer <= 5);
         REQUIRE(sym_burst_timer != prev_burst_timer);
         prev_burst_timer = sym_burst_timer;
         REQUIRE(symbiont->GetName() == "Phage");
