@@ -31,10 +31,10 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
  *
  * Purpose: To populate the world with symbionts with appropriate phenotypes.
  */
-void SymWorld::SetupSymbionts(int *total_syms) {
+void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
   //This loop must be outside of the host generation loop since otherwise
   //syms try to inject into mostly empty spots at first
-  for (int j = 0; j < *total_syms; j++) {
+  for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
     InjectSymbiont(new_sym);
   }
@@ -63,8 +63,7 @@ void SymWorld::Setup() {
   SetupHosts(&POP_SIZE);
 
   Resize(my_config->GRID_X(), my_config->GRID_Y());
-
-  int total_syms = POP_SIZE * start_moi;
+  long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
 }
 #endif

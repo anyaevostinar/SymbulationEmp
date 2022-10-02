@@ -32,7 +32,7 @@ public:
   */
   void Setup();
   void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(int* total_syms);
+  void SetupSymbionts(long unsigned int* total_syms);
 
 
   /**

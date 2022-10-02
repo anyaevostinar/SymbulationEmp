@@ -28,8 +28,8 @@ void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
  *
  * Purpose: To populate the world with efficient symbionts with appropriate phenotypes.
  */
-void EfficientWorld::SetupSymbionts(int* total_syms) {
-  for (int j = 0; j < *total_syms; j++) {
+void EfficientWorld::SetupSymbionts(long unsigned int* total_syms) {
+  for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0, 1);
     InjectSymbiont(new_sym);
   }

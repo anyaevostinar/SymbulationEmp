@@ -472,7 +472,7 @@ public:
    */
   virtual void Setup();
   virtual void SetupHosts(long unsigned int* POP_SIZE);
-  virtual void SetupSymbionts(int* total_syms);
+  virtual void SetupSymbionts(long unsigned int* total_syms);
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its

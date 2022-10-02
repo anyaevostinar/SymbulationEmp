@@ -27,8 +27,8 @@ void PGGWorld::SetupHosts(long unsigned int* POP_SIZE){
  *
  * Purpose: To populate the world with PGG symbionts with appropriate phenotypes.
  */
-void PGGWorld::SetupSymbionts(int* total_syms){
-  for (int j = 0; j < *total_syms; j++) {
+void PGGWorld::SetupSymbionts(long unsigned int* total_syms){
+  for (size_t j = 0; j < *total_syms; j++) {
     double sym_donation = my_config->PGG_DONATE();
     emp::Ptr<PGGSymbiont> new_sym = emp::NewPtr<PGGSymbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), sym_donation, 0);
     InjectSymbiont(new_sym);

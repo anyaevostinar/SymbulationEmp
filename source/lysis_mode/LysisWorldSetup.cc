@@ -29,9 +29,9 @@ void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
  *
  * Purpose: To populate the world with phage with appropriate phenotypes.
  */
-void LysisWorld::SetupSymbionts(int* total_syms) {
+void LysisWorld::SetupSymbionts(long unsigned int* total_syms) {
   bool STAGGER_STARTING_BURST_TIMERS = true;
-  for (int j = 0; j < *total_syms; j++) {
+  for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config,
       my_config->SYM_INT(), 0);
     if (STAGGER_STARTING_BURST_TIMERS) {
