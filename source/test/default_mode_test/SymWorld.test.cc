@@ -1499,6 +1499,7 @@ TEST_CASE("Setup", "[default]") {
     config.GRID_Y(height);
 
     THEN("World is sized correctly") {
+      config.GRID(1);
       world.Setup();
       REQUIRE(world.GetWidth() == width);
       REQUIRE(world.GetHeight() == height);
