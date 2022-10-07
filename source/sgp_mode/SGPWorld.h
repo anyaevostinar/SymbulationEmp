@@ -90,9 +90,17 @@ public:
     }
 
     scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
-      org.Process(pos);
-      if (org.GetDead()) { // Check if the host died
-        DoDeath(pos);
+      if (org.IsHost()) {
+        org.Process(pos);
+        if (org.GetDead()) DoDeath(pos);
+      }
+      else {
+        //have to check for death first, because it might have moved
+       // process takes worldposition, dosymdeath takes popid
+        if (org.GetDead()) DoSymDeath(pos.GetPopID());
+        else org.Process(pos);
+        if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
+        
       }
     });
 
