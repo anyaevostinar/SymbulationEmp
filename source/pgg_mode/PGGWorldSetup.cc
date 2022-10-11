@@ -61,18 +61,20 @@ void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {
       else {sym_int = my_config->SYM_INT();}
       
       double sym_donation = 0;
+
+      //If the user wants the symbionts' donation rate to be randomly initialized
       if (my_config->PGG_DONATE_RANDOM())
       {
-	   //If the user wants the symbiont donation rate to be 
-	   //selected using a normal distribution,   
-	   if (my_config->PGG_NORMAL())
+	   //If the user wants the initialization of the symbionts' donation
+	   //rate to be selected using a normal distribution  
+	   if (my_config->PGG_DONATE_NORMAL())
 	   {   
-                double mean = my_config->PGG_NORMAL_MEAN();
-		double std = my_config->PGG_NORMAL_STD();
+                double mean = my_config->PGG_DONATE_NORMAL_MEAN();
+		double std = my_config->PGG_DONATE_NORMAL_STD();
 
 		sym_donation = random.GetRandNormal(mean, std);
 
-		//If selected value is out of range
+		//If selected value is out of the initialization range
 		if (sym_donation > my_config->PGG_DONATE_MAX())
 		{
 		     sym_donation = my_config->PGG_DONATE_MAX();
