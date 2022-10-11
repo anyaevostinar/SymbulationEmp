@@ -59,8 +59,40 @@ void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {
       double sym_int = 0;
       if (random_phen_sym) {sym_int = random.GetDouble(-1,1);}
       else {sym_int = my_config->SYM_INT();}
+      
+      double sym_donation = 0;
+      if (my_config->PGG_DONATE_RANDOM())
+      {
+	   //If the user wants the symbiont donation rate to be 
+	   //selected using a normal distribution,   
+	   if (my_config->PGG_NORMAL())
+	   {
+		//Calculate mean and standard deviation   
+                double mean = my_config->PGG_DONATE_MIN() + my_config->PGG_DONATE_MAX();
+		mean = mean/2;
+		double std = my_config->PGG_DONATE_MIN() + my_config->PGG_DONATE_MAX();
+		std = std/6;
+		sym_donation = random.GetRandNormal(mean, std);
 
-      double sym_donation = my_config->PGG_DONATE();
+		//If selected value is out of range
+		if (sym_donation > my_config->PGG_DONATE_MAX())
+		{
+		     sym_donation = my_config->PGG_DONATE_MAX();
+		}	
+		else if (sym_donation < my_config->PGG_DONATE_MIN())
+		{
+		     sym_donation = my_config->PGG_DONATE_MIN();
+		}	
+	   }
+	   else
+	   {	   
+                sym_donation = random.GetDouble(my_config->PGG_DONATE_MIN(), my_config->PGG_DONATE_MAX());
+           }
+      }	      
+      else
+      {
+           sym_donation = my_config->PGG_DONATE();
+      }	      
       emp::Ptr<PGGSymbiont> new_sym = emp::NewPtr<PGGSymbiont>(&random, world, my_config,
           sym_int,sym_donation,0);
       world->InjectSymbiont(new_sym);

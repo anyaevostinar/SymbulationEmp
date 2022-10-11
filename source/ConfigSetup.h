@@ -71,6 +71,12 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to PGG pool that experiment should start with"),
     VALUE(PGG, int, 0, "whether have social goods game among syms" ),
     VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG"),
+    
+    //Added values
+    VALUE(PGG_DONATE_RANDOM, bool, 0, "Make the ratio of symbionts' energy to PGG pool random for each organism at the start"),
+    VALUE(PGG_DONATE_MIN, double, 0.0, "The minimum value of the PGG Donate variable if they were randomly generated"),
+    VALUE(PGG_DONATE_MAX, double, 1.0, "The maximum value of the PGG Donate variable if they were randomly generated"),
+    VALUE(PGG_NORMAL, bool, 0, "Make the random selection be on a normal distribution"),
 
     GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
