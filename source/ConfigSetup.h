@@ -77,6 +77,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PGG_DONATE_MIN, double, 0.0, "The minimum value of the PGG Donate variable if they were randomly generated"),
     VALUE(PGG_DONATE_MAX, double, 1.0, "The maximum value of the PGG Donate variable if they were randomly generated"),
     VALUE(PGG_NORMAL, bool, 0, "Make the random selection be on a normal distribution"),
+    VALUE(PGG_NORMAL_MEAN, double, 0.5, "The mean of the normal distribution"),
+    VALUE(PGG_NORMAL_STD, double, 0.167, "The standard deviation of the normal distribution"),
 
     GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
     VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),

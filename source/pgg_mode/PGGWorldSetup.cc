@@ -66,12 +66,10 @@ void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {
 	   //If the user wants the symbiont donation rate to be 
 	   //selected using a normal distribution,   
 	   if (my_config->PGG_NORMAL())
-	   {
-		//Calculate mean and standard deviation   
-                double mean = my_config->PGG_DONATE_MIN() + my_config->PGG_DONATE_MAX();
-		mean = mean/2;
-		double std = my_config->PGG_DONATE_MIN() + my_config->PGG_DONATE_MAX();
-		std = std/6;
+	   {   
+                double mean = my_config->PGG_NORMAL_MEAN();
+		double std = my_config->PGG_NORMAL_STD();
+
 		sym_donation = random.GetRandNormal(mean, std);
 
 		//If selected value is out of range
