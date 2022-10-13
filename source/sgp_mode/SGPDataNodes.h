@@ -14,17 +14,17 @@ void SGPWorld::CreateDataFiles() {
   SetupSymDonatedFile(my_config->FILE_PATH() + "SymDonated" +
                       my_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(my_config->DATA_INT());
-  if(my_config->TASK_TYPE() == 1){
+  if (my_config->TASK_TYPE() == 1) {
     SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
-                 file_ending)
+                   file_ending)
         .SetTimingRepeat(my_config->DATA_INT());
-  }else if(my_config->TASK_TYPE() == 0){
-          SetupHostSquareFrequencyFile(my_config->FILE_PATH() + "Host_Square" + my_config->FILE_NAME() +
-                 file_ending)
-              .SetTimingRepeat(my_config->DATA_INT());
-          SetupSymSquareFrequencyFile(my_config->FILE_PATH() + "Sym_Square" + my_config->FILE_NAME() +
-                        file_ending)
-                .SetTimingRepeat(my_config->DATA_INT());
+  } else if (my_config->TASK_TYPE() == 0) {
+    SetupHostSquareFrequencyFile(my_config->FILE_PATH() + "Host_Square" +
+                                 my_config->FILE_NAME() + file_ending)
+        .SetTimingRepeat(my_config->DATA_INT());
+    SetupSymSquareFrequencyFile(my_config->FILE_PATH() + "Sym_Square" +
+                                my_config->FILE_NAME() + file_ending)
+        .SetTimingRepeat(my_config->DATA_INT());
   }
 }
 
@@ -45,44 +45,48 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-emp::DataFile &SGPWorld::SetupHostSquareFrequencyFile(const std::string &filename) {
+emp::DataFile &
+SGPWorld::SetupHostSquareFrequencyFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
-    std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
-    std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(1);
-    for (auto data : squareData){
-         os << data.first;
-        os << ": ";
-        os << data.second;
-        os << "; ";
+  std::function<void(std::ostream &)> in_fun = [this](std::ostream &os) {
+    std::map<uint32_t, uint32_t> squareData =
+        task_set.GetSquareFrequencyData(1);
+    for (auto data : squareData) {
+      os << data.first;
+      os << ": ";
+      os << data.second;
+      os << "; ";
     }
     task_set.ClearSquareFrequencyData(1);
   };
-  file.Add(in_fun, "host_square_frequencies", "Host number of repeats for each square");
+  file.Add(in_fun, "host_square_frequencies",
+           "Host number of repeats for each square");
   file.PrintHeaderKeys();
   return file;
 }
 
-emp::DataFile &SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename) {
+emp::DataFile &
+SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
-  std::function<void(std::ostream &)> in_fun = [this](std::ostream & os){
-      std::map<uint32_t, uint32_t>squareData = task_set.GetSquareFrequencyData(0);
-      for (auto data : squareData){
-         os << data.first;
-        os << ": ";
-        os << data.second;
-        os << "; ";
+  std::function<void(std::ostream &)> in_fun = [this](std::ostream &os) {
+    std::map<uint32_t, uint32_t> squareData =
+        task_set.GetSquareFrequencyData(0);
+    for (auto data : squareData) {
+      os << data.first;
+      os << ": ";
+      os << data.second;
+      os << "; ";
     }
     task_set.ClearSquareFrequencyData(0);
   };
-  file.Add(in_fun, "sym_square_frequencies", "Symbiont number of repeats for each square");
+  file.Add(in_fun, "sym_square_frequencies",
+           "Symbiont number of repeats for each square");
   file.PrintHeaderKeys();
-  
+
   return file;
 }
-
-
 
 emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   auto &file = SetupFile(filename);

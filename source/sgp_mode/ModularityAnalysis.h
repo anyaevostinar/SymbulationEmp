@@ -1,35 +1,8 @@
 #ifndef MODULARITY_ANALYSIS_H
 #define MODULARITY_ANALYSIS_H
 
-#include "../../Empirical/include/emp/Evolve/Systematics.hpp"
-#include "../../Empirical/include/emp/Evolve/World.hpp"
-#include "../../Empirical/include/emp/data/DataFile.hpp"
-#include "../../Empirical/include/emp/math/Random.hpp"
-#include "../../Empirical/include/emp/math/random_utils.hpp"
-#include "../Organism.h"
-#include "../default_mode/Host.h"
 #include "AnalysisTools.h"
 #include "CPU.h"
-#include "CPUState.h"
-#include "GenomeLibrary.h"
-#include "Instructions.h"
-#include "SGPHost.h"
-#include "SGPWorld.h"
-#include "Tasks.h"
-#include "sgpl/algorithm/execute_cpu.hpp"
-#include "sgpl/hardware/Cpu.hpp"
-#include "sgpl/library/OpLibraryCoupler.hpp"
-#include "sgpl/library/prefab/ArithmeticOpLibrary.hpp"
-#include "sgpl/library/prefab/ControlFlowOpLibrary.hpp"
-#include "sgpl/operations/flow_global/Anchor.hpp"
-#include "sgpl/operations/unary/Increment.hpp"
-#include "sgpl/operations/unary/Terminal.hpp"
-#include "sgpl/program/Program.hpp"
-#include "sgpl/spec/Spec.hpp"
-#include "sgpl/utility/ThreadLocalRandom.hpp"
-#include <math.h>
-#include <set>
-
 
 // Start of physicalModularityCode
 

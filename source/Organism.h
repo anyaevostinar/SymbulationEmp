@@ -3,6 +3,7 @@
 
 #include <string>
 #include "ConfigSetup.h"
+#include "emp/Evolve/Systematics.hpp"
 
 class Organism {
 

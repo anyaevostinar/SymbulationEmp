@@ -46,7 +46,6 @@ private:
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
-  
 
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
