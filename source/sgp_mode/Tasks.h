@@ -80,7 +80,7 @@ public:
 /**
  * An input task computes an expected output based on the inputs, and if the
  * organism's output matches, it gives it a certain reward:
- * `InputTask sum{ "SUM", 2, 1.0, [](auto &x) { return x[0] + x[1]; } };`
+ * `InputTask sum( "SUM", 2, 1.0, [](auto &x) { return x[0] + x[1]; } );`
  */
 class InputTask : public Task {
   size_t n_inputs;
@@ -114,7 +114,7 @@ public:
 
 /**
  * An output task returns a reward based on the output the organism produced:
- * `OutputTask is42{ "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+ * `OutputTask is42() "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } );`
  */
 class OutputTask : public Task {
   std::function<float(uint32_t)> task_fun;
@@ -309,6 +309,7 @@ public:
     }
     return myMap;
   }
+
   /**
    * Input: None
    *

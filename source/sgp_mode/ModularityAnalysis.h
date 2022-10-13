@@ -7,14 +7,12 @@
 // Start of physicalModularityCode
 
 /**
+ * Input: A vector of bit arrays representing necessary instructions
  *
- * Input: A vector of vectors of ints to represent modified program structures
+ * Output: The index of the first necessary instruction in each input array
  *
- * Output: A vector of the first non No-op instruction in each program structure
- *
- *Purpose: Get the first non No-op instruction in the modified genomes and adds
- *them to a vector for GetNumSiteDist() to use
- *
+ * Purpose: Get the index of the first necessary instruction in each genome and
+ * adds them to a vector for GetNumSiteDist() to use
  */
 template <const size_t length>
 emp::vector<size_t>
@@ -23,7 +21,7 @@ GetUsefulStarts(emp::vector<emp::BitArray<length>> task_programs) {
 
   for (size_t y = 0; y < task_programs.size(); y++) {
     for (size_t e = 0; e <= task_programs[y].size() - 1; e++) {
-      if (task_programs[y][e] == 1) {
+      if (task_programs[y][e]) {
         list_of_starts.push_back(e);
         break;
       }
@@ -38,14 +36,12 @@ GetUsefulStarts(emp::vector<emp::BitArray<length>> task_programs) {
 }
 
 /**
+ * Input: A vector of bit arrays representing necessary instructions
  *
- * Input:  A vector of vectors of ints to represent modified program structures
+ * Output: The index of the last necessary instruction in each input array
  *
- * Output:  A vector of the last non No-op instruction in each program structure
- *
- *Purpose: Get the last non No-op instruction in the modified programs and adds
- *them to a vector for GetNumSiteDist() to use
- *
+ * Purpose: Get the index of the last necessary instruction in each genome and
+ * adds them to a vector for GetNumSiteDist() to use
  */
 template <const size_t length>
 emp::vector<size_t>
@@ -68,18 +64,13 @@ GetUsefulEnds(emp::vector<emp::BitArray<length>> task_programs) {
 }
 
 /**
+ * Input: A bit array representing necessary instructions for a given task, and
+ * the start and end indices of the necessary segment of the genome
  *
- * Input: Takes in a vector of ints either 0 or 1 representing No-op or
- *necessary instructions respectively. the vector is a modified version of a
- *normal genome that has the positions of all the necessary and unnecessary
- *instructions for a task
+ * Output: Outputs the number of sites of useful instructions within a genome
  *
- * Output: Outputs an integer of the number of sites of useful instructions
- *within a modified program
- *
- *Purpose: Gets the total number of instruction, without no-ops inside
- *of them, and returns their total amount
- *unless there are no sites the method should always return at least 2
+ * Purpose: Gets the total number of necessary instructions; unless there are no
+ * sites the method should always return at least 2
  */
 template <const size_t length>
 int GetNumSites(int start_inst, int end_inst,
@@ -98,13 +89,12 @@ int GetNumSites(int start_inst, int end_inst,
 }
 
 /**
- *
  * Input: instruction i and instruction j positions
  *
  * Output: Returns an integer of the the distance between them
  *
- *Purpose: takes the distance between two sites and returns the value
- *
+ * Purpose: Calculate the distance between two instruction positions in a
+ * circular genome
  */
 int GetDistance(int i, int j, int length) {
   // return std::abs(i-j); // if we treat genome as non-circular
@@ -117,16 +107,13 @@ int GetDistance(int i, int j, int length) {
 }
 
 /**
+ * Input: A vector of bit arrays representing the necessary instructions for
+ * each task
  *
- * Input: Takes in the number of tasks and the 2d vector representing the
- *positions of all the tasks' sites
+ * Output: The physical modularity value as a number between 0 and 1
  *
- * Output: A number between 0 and 1 that, as the physical modularity value
- *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Physical Modularity from a 2d vector
- *of all the sites of the tasks it can do
- *
+ * Purpose: Top-level function to calculate physical modularity from necessary
+ * instructions
  */
 template <const size_t length>
 double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
@@ -169,16 +156,12 @@ double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
 }
 
 /**
+ * Input: The organism's CPU
  *
- * Input:Takes in the number of tasks in the taskset and a CPU reference
+ * Output: The physical modularity value as a number between 0 and 1
  *
- * Output: A number between 0 and 1 that, as the physical modularity value
- *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Physical Modularity
- *
+ * Purpose: Top-level function to calculate physical modularity from a CPU
  */
-
 double GetPMFromCPU(CPU org_cpu) {
   emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
@@ -202,16 +185,13 @@ double GetPMFromCPU(CPU org_cpu) {
 // start of functional modularity code
 
 /**
+ * Input: A vector of bit arrays representing the necessary instructions for
+ * each task
  *
- * Input: Takes in the number of tasks and the 2d vector representing the
- *positions of all the tasks' sites
+ * Output: The functional modularity value as a number between 0 and 1
  *
- * Output: A number between 0 and 1 that, as the functional modularity value
- *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Functional Modularity from a 2d vector
- *of all the sites of the tasks it can do
- *
+ * Purpose: Top-level function to calculate functional modularity from necessary
+ * instructions
  */
 template <const size_t length>
 double GetFModularity(emp::vector<emp::BitArray<length>> task_programs) {
@@ -238,14 +218,12 @@ double GetFModularity(emp::vector<emp::BitArray<length>> task_programs) {
 }
 
 /**
+ * Input: A vector of bit arrays representing the necessary instructions for
+ * each task
  *
- * Input:Takes in the number of tasks in the taskset and a CPU reference
+ * Output: The functional modularity value as a number between 0 and 1
  *
- * Output: A number between 0 and 1 that, as the funtional modularity value
- *
- *Purpose: Takes all the calculation methods and calls them in order of having a
- *simplified way of getting an organism's Functional Modularity
- *
+ * Purpose: Top-level function to calculate functional modularity from a CPU
  */
 double GetFMFromCPU(CPU org_cpu) {
   emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =

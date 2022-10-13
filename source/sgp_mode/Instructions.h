@@ -18,7 +18,7 @@ namespace inst {
  * `INST(MyInstruction, { *a = *b + 2;})`. In the code block, operand registers
  * are visible as `a`, `b`, and `c`, all of type `uint32_t *`. Instructions may
  * also access the `Core &core`, `Instruction &inst`, `Program &program`, and
- * `Avidastate &state`.
+ * `CPUState &state`.
  */
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
@@ -158,15 +158,15 @@ INST(Steal, {
       return;
     if (emp::Ptr<Organism> host = state.host->GetHost()) {
       // Steal 20% of the total points of the symbiont-host system
-      // This way, a sym can steal e.g. 40 or 60 percent of their points in a
-      // couple of instructions
-      // 10% of the stolen resources are lost
+      // This way, a sym can steal e.g. 40 or 60 percent of the host's points in
+      // a couple of instructions
       double to_steal =
           fmin(host->GetPoints(),
                (state.host->GetPoints() + host->GetPoints()) * 0.20);
       state.world->GetSymStolenDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(to_steal); });
       host->AddPoints(-to_steal);
+      // 10% of the stolen resources are lost
       state.host->AddPoints(to_steal *
                             (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
     }

@@ -4,14 +4,12 @@
 #include "CPU.h"
 
 /**
- *
  * Input: A cpu of an organism
  *
  * Output: A length 64 emp bitset which describes the phenotype of organism
- * such that the ith 1 in the bitset marks the completion of task i.
+ * such that the ith bit in the bitset marks the completion of task i.
  *
  * Purpose: Get the phenotype of an organism
- *
  */
 emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
   org_cpu.Reset();
@@ -28,30 +26,25 @@ emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
 }
 
 /*
- *
  * Input: Takes in a cpu and the identifier for a specific task
  *
- * Output: a boolean representing a program's ability to do a logic task
+ * Output: a boolean representing a program's ability to do a specific task
  *
  * Purpose: To return whether or not the organism can perform the given task
- *
- *
  */
 bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
   return ReturnTasksDone(org_cpu).Get(task_id);
 }
 
 /**
- *
  * Input: Takes in a CPU and the number identifying a given task
  *
- * Output: Returns a vector representing the full genome, reduced to 1s and 0s
- * to show either that an instruction is necessary to complete the task, or not
- * respectively
+ * Output: Returns a bit array representing the full genome, reduced to 1s and
+ * 0s to show either that an instruction is necessary to complete the task, or
+ * not respectively
  *
- * Purpose: Is to return a vector that acts as a reduced program representation
- * of the necessary code lines to complete the given task
- *
+ * Purpose: To return a bit array that acts as a reduced program
+ * representation of the necessary code lines to complete the given task
  */
 std::optional<emp::BitArray<100>>
 GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
@@ -88,7 +81,6 @@ GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
 }
 
 /**
- *
  * Input: Takes in an organism's CPU
  *
  * Output: Returns a vector with a reduced program representation taken from the
@@ -97,9 +89,7 @@ GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
  * Purpose: To cycle through all the tasks in the world's taskset
  * and return the necessary code sites within the original program
  * to complete each task. If the CPU does not have the necessary code,
- * then a (-1) is returned in the first and only position of the reduced program
- * representation.
- *
+ * the `std::optional` for that task will not have a value.
  */
 emp::vector<std::optional<emp::BitArray<100>>>
 GetReducedProgramRepresentations(CPU org_cpu) {

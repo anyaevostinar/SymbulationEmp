@@ -85,11 +85,11 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
-   * Input: The size_t value representing the location of the host.
+   * Input: The location of the host.
    *
    * Output: None
    *
-   * Purpose: To process the host, meaning running its program code, which can
+   * Purpose: To process the host, meaning: running its program code, which can
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */

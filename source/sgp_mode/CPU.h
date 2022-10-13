@@ -198,7 +198,7 @@ public:
    * Output: None
    *
    * Purpose: Prints out a human-readable representation of the program code of
-   * the organism's genome to standard output.
+   * the organism's genome to the given output stream or standard output.
    */
   void PrintCode(std::ostream &out = std::cout) {
     emp::map<std::string, size_t> arities{

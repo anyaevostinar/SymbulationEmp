@@ -106,14 +106,13 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
-   * Input: The size_t representing the location of the symbiont, and the size_t
-   * representation of the symbiont's position in the host (default -1 if it
-   * doesn't have a host)
+   * Input: The location of the symbiont, which includes the symbiont's position
+   * in the host (default -1 if it doesn't have a host)
    *
    * Output: None
    *
-   * Purpose: To process a symbiont, meaning running its program code, which can
-   * include reproduction and acquisition of resources; and to allow for
+   * Purpose: To process a symbiont, meaning running its program code, which
+   * can include reproduction and acquisition of resources; and to allow for
    * movement
    */
   void Process(emp::WorldPosition pos) {

@@ -5,14 +5,12 @@
 #include "CPU.h"
 
 /**
- *
  * Input: A vector of cpus of organisms
  *
  * Output: A map with keys being phenotypes and values being counts of organisms
  * with corresponding phenotypes
  *
  * Purpose: Get the count of phenotypes
- *
  */
 emp::unordered_map<emp::BitSet<64>, int>
 GetPhenotypeMap(emp::vector<CPU> organisms) {
@@ -31,14 +29,12 @@ GetPhenotypeMap(emp::vector<CPU> organisms) {
 }
 
 /**
- *
  * Input: A vector of cpus of organisms
  *
- * Output: A map with keys being phenotypes and values being counts of organisms
- * with corresponding phenotypes
+ * Output: A vector of the same length with the phenotype of each organism in
+ * the population
  *
- * Purpose: Get the count of phenotypes
- *
+ * Purpose: Get all phenotypes in the population
  */
 emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms) {
   emp::vector<emp::BitSet<64>> phenotypes;
@@ -51,13 +47,11 @@ emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms) {
 }
 
 /**
- *
  * Input: A vector of cpu of organisms
  *
  * Output: The species richness of the population
  *
- * Purpose: Returns the number of phenotypes of the population
- *
+ * Purpose: Returns the number of unique phenotypes in the population
  */
 int GetRichness(emp::vector<CPU> organisms) {
   emp::unordered_map<emp::BitSet<64>, int> phenotype_counts =
@@ -66,15 +60,13 @@ int GetRichness(emp::vector<CPU> organisms) {
 }
 
 /**
- *
- * Input: A random object (of the world), A map containing the count of
- * phenotypes, an optional integer indicating number of groups to split into, an
- * optional double indicating weight of proportional abundance
+ * Input: A random object (of the world), a vector with the phenotype of every
+ * organism in the population, an optional integer indicating number of groups
+ * to split into, an optional double indicating weight of proportional abundance
  *
  * Output: The alpha diversity of the population
  *
  * Purpose: Calculates the alpha diversity based on the formula
- *
  */
 double AlphaDiversityHelper(emp::Random random,
                             emp::vector<emp::BitSet<64>> phenotypes, int j = 9,
@@ -117,13 +109,11 @@ double AlphaDiversityHelper(emp::Random random,
 }
 
 /**
- *
  * Input: A random object (of the world), A vector of cpu of organisms
  *
  * Output: The alpha diversity of the population
  *
  * Purpose: Calls and integrates the helper functions
- *
  */
 double AlphaDiversity(emp::Random random, emp::vector<CPU> organisms) {
   if (organisms.size() == 0) {
@@ -137,13 +127,11 @@ double AlphaDiversity(emp::Random random, emp::vector<CPU> organisms) {
 }
 
 /**
- *
  * Input: A map containing the count of phenotypes
  *
  * Output: The shannon diversity of the population
  *
  * Purpose: Calculates the shannon diversity based on the formula
- *
  */
 double
 ShannonDiversityHelper(emp::unordered_map<emp::BitSet<64>, int> phenotype) {
