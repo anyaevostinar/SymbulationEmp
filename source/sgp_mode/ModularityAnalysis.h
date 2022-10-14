@@ -162,7 +162,7 @@ double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
  *
  * Purpose: Top-level function to calculate physical modularity from a CPU
  */
-double GetPMFromCPU(CPU org_cpu) {
+double GetPMFromCPU(const CPU &org_cpu) {
   emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 
@@ -225,7 +225,7 @@ double GetFModularity(emp::vector<emp::BitArray<length>> task_programs) {
  *
  * Purpose: Top-level function to calculate functional modularity from a CPU
  */
-double GetFMFromCPU(CPU org_cpu) {
+double GetFMFromCPU(const CPU &org_cpu) {
   emp::vector<std::optional<emp::BitArray<100>>> obtained_positions =
       GetReducedProgramRepresentations(org_cpu);
 

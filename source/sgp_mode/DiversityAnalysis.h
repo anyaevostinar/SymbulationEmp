@@ -13,10 +13,9 @@
  * Purpose: Get the count of phenotypes
  */
 emp::unordered_map<emp::BitSet<64>, int>
-GetPhenotypeMap(emp::vector<CPU> organisms) {
+GetPhenotypeMap(const emp::vector<CPU> &organisms) {
   emp::unordered_map<emp::BitSet<64>, int> phenotype_counts;
-  for (size_t i = 0; i < organisms.size(); i++) {
-    CPU org_cpu = organisms[i];
+  for (const CPU &org_cpu : organisms) {
     emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);
     if (phenotype_counts.count(managed_tasks)) {
       phenotype_counts[managed_tasks] += 1;
@@ -36,10 +35,10 @@ GetPhenotypeMap(emp::vector<CPU> organisms) {
  *
  * Purpose: Get all phenotypes in the population
  */
-emp::vector<emp::BitSet<64>> GetPhenotypeVector(emp::vector<CPU> organisms) {
+emp::vector<emp::BitSet<64>>
+GetPhenotypeVector(const emp::vector<CPU> &organisms) {
   emp::vector<emp::BitSet<64>> phenotypes;
-  for (size_t i = 0; i < organisms.size(); i++) {
-    CPU org_cpu = organisms[i];
+  for (const CPU &org_cpu : organisms) {
     emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);
     phenotypes.push_back(managed_tasks);
   }
@@ -69,8 +68,8 @@ int GetRichness(emp::vector<CPU> organisms) {
  * Purpose: Calculates the alpha diversity based on the formula
  */
 double AlphaDiversityHelper(emp::Random random,
-                            emp::vector<emp::BitSet<64>> phenotypes, int j = 9,
-                            double q = 0.0) {
+                            const emp::vector<emp::BitSet<64>> &phenotypes,
+                            int j = 9, double q = 0.0) {
 
   int org_count = phenotypes.size();
   double partial = 0.0;
@@ -115,7 +114,7 @@ double AlphaDiversityHelper(emp::Random random,
  *
  * Purpose: Calls and integrates the helper functions
  */
-double AlphaDiversity(emp::Random random, emp::vector<CPU> organisms) {
+double AlphaDiversity(emp::Random random, const emp::vector<CPU> &organisms) {
   if (organisms.size() == 0) {
     return 1.0;
   }
@@ -133,34 +132,28 @@ double AlphaDiversity(emp::Random random, emp::vector<CPU> organisms) {
  *
  * Purpose: Calculates the shannon diversity based on the formula
  */
-double
-ShannonDiversityHelper(emp::unordered_map<emp::BitSet<64>, int> phenotype) {
+double ShannonDiversityHelper(
+    const emp::unordered_map<emp::BitSet<64>, int> &phenotype) {
   int org_count = 0;
-  emp::vector<double> proportion;
   double h = 0;
   for (auto const &pair : phenotype) {
     org_count += pair.second;
   }
   for (auto const &pair : phenotype) {
     double prop = (double)pair.second / org_count;
-    proportion.push_back(prop);
-  }
-  for (auto const &i : proportion) {
-    h -= (log(i) / log(exp(1.0)) * i);
+    h -= log(prop) / log(exp(1.0)) * prop;
   }
   return h;
 }
 
 /**
- *
  * Input: A vector of cpu of organisms
  *
  * Output: The shannon diversity of the population
  *
  * Purpose: Calls and integrates the helper functions
- *
  */
-double ShannonDiversity(emp::vector<CPU> organisms) {
+double ShannonDiversity(const emp::vector<CPU> &organisms) {
   if (organisms.size() == 0) {
     return 0.0;
   }

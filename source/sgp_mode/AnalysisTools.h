@@ -33,7 +33,7 @@ emp::BitSet<64> ReturnTasksDone(CPU org_cpu) {
  * Purpose: To return whether or not the organism can perform the given task
  */
 bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
-  return ReturnTasksDone(org_cpu).Get(task_id);
+  return ReturnTasksDone(std::move(org_cpu)).Get(task_id);
 }
 
 /**
@@ -47,9 +47,9 @@ bool ReturnTaskDone(size_t task_id, CPU org_cpu) {
  * representation of the necessary code lines to complete the given task
  */
 std::optional<emp::BitArray<100>>
-GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
+GetNecessaryInstructions(const CPU &org_cpu, size_t test_task_id) {
   emp::Random random(-1);
-  sgpl::Program<Spec> const control_program = org_cpu.GetProgram();
+  const sgpl::Program<Spec> &control_program = org_cpu.GetProgram();
   sgpl::Program<Spec> test_program = control_program;
 
   emp::BitArray<100> reduced_position_guide;
@@ -60,12 +60,11 @@ GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
   if (!can_do_task) {
     return std::nullopt;
   } else {
-    for (size_t k = 0; k <= control_program.size() - 1; k++) {
-
+    for (size_t k = 0; k < control_program.size(); k++) {
       test_program[k].op_code = 0;
-      CPU temp_cpu = CPU(org_cpu.state.host, org_cpu.state.world, test_program);
+      CPU temp_cpu(org_cpu.state.host, org_cpu.state.world, test_program);
 
-      can_do_task = ReturnTaskDone(test_task_id, temp_cpu);
+      can_do_task = ReturnTaskDone(test_task_id, std::move(temp_cpu));
 
       if (!can_do_task) {
         reduced_position_guide.Set(k, 1);
@@ -73,7 +72,8 @@ GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
         reduced_position_guide.Set(k, 0);
       }
 
-      test_program = control_program;
+      // Only need to put back the instruction that was changed
+      test_program[k] = control_program[k];
     }
   }
 
@@ -92,7 +92,7 @@ GetNecessaryInstructions(CPU org_cpu, size_t test_task_id) {
  * the `std::optional` for that task will not have a value.
  */
 emp::vector<std::optional<emp::BitArray<100>>>
-GetReducedProgramRepresentations(CPU org_cpu) {
+GetReducedProgramRepresentations(const CPU &org_cpu) {
   const TaskSet &all_tasks = org_cpu.state.world->GetTaskSet();
   emp::vector<std::optional<emp::BitArray<100>>> map_of_guides;
 
