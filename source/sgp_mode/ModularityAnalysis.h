@@ -75,58 +75,32 @@ GetReducedProgramRepresentations(const CPU &org_cpu) {
 /**
  * Input: A vector of bit arrays representing necessary instructions
  *
- * Output: The index of the first necessary instruction in each input array
+ * Output: The index of the first and last necessary instructions in each input
+ * array
  *
- * Purpose: Get the index of the first necessary instruction in each genome and
+ * Purpose: Get the index of the necessary instruction ranges in each genome and
  * adds them to a vector for GetNumSiteDist() to use
  */
 template <const size_t length>
-emp::vector<size_t>
-GetUsefulStarts(emp::vector<emp::BitArray<length>> task_programs) {
-  emp::vector<size_t> list_of_starts = {};
+emp::vector<std::pair<size_t, size_t>>
+GetUsefulRanges(emp::vector<emp::BitArray<length>> task_programs) {
+  emp::vector<std::pair<size_t, size_t>> ranges = {};
 
   for (size_t y = 0; y < task_programs.size(); y++) {
-    for (size_t e = 0; e <= task_programs[y].size() - 1; e++) {
+    bool found = false;
+    size_t first, last;
+    for (size_t e = 0; e < task_programs[y].size(); e++) {
       if (task_programs[y][e]) {
-        list_of_starts.push_back(e);
-        break;
+        if (!found) {
+          first = e;
+        }
+        last = e;
       }
     }
-
-    // if ((list_of_starts.size() - 1) != y) {
-    //   list_of_starts.push_back(0);
-    // }
+    ranges.push_back(std::pair(first, last));
   }
 
-  return list_of_starts;
-}
-
-/**
- * Input: A vector of bit arrays representing necessary instructions
- *
- * Output: The index of the last necessary instruction in each input array
- *
- * Purpose: Get the index of the last necessary instruction in each genome and
- * adds them to a vector for GetNumSiteDist() to use
- */
-template <const size_t length>
-emp::vector<size_t>
-GetUsefulEnds(emp::vector<emp::BitArray<length>> task_programs) {
-  emp::vector<size_t> list_of_ends = {};
-  for (size_t y = 0; y < task_programs.size(); y++) {
-    for (size_t f = task_programs[y].size(); f > 0; f--) {
-      if (task_programs[y][f - 1] == 1) {
-        list_of_ends.push_back(f - 1);
-        break;
-      }
-    }
-
-    // if ((list_of_ends.size() - 1) != y) {
-    //   list_of_ends.push_back(0);
-    // }
-  }
-
-  return list_of_ends;
+  return ranges;
 }
 
 /**
@@ -184,25 +158,21 @@ int GetDistance(int i, int j, int length) {
 template <const size_t length>
 double GetPModularity(emp::vector<emp::BitArray<length>> task_programs) {
   double all_distance = 0.0;
-  emp::vector<size_t> useful_starts = GetUsefulStarts(task_programs);
-  emp::vector<size_t> useful_ends = GetUsefulEnds(task_programs);
+  emp::vector<std::pair<size_t, size_t>> useful_ranges =
+      GetUsefulRanges(task_programs);
 
-  for (size_t t = 0; t < task_programs.size();
-       t++) { // loop through different tasks
-
+  // loop through different tasks
+  for (size_t t = 0; t < task_programs.size(); t++) {
     emp::BitArray<length> program = task_programs[t];
+    auto [start, end] = useful_ranges[t];
     size_t size = program.size();
-    double nSt = GetNumSites(useful_starts[t], useful_ends[t], program);
+    double nSt = GetNumSites(start, end, program);
+
     if (nSt != 1) {
-
       double sum_distance = 0;
-
-      for (size_t i = useful_starts[t]; i <= useful_ends[t]; i++) {
-
+      for (size_t i = start; i <= end; i++) {
         if (program[i] == 1) {
-
-          for (size_t j = useful_starts[t]; j <= useful_ends[t]; j++) {
-
+          for (size_t j = start; j <= end; j++) {
             if ((i != j) && (program[j] == 1)) {
               sum_distance += GetDistance(i, j, size);
             }
