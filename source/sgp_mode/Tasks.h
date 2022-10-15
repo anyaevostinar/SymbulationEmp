@@ -33,7 +33,8 @@ public:
     if (dependencies.size()) {
       size_t actually_completed = std::reduce(
           dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
-            return acc + state.self_completed[i] + (*state.shared_completed)[i];
+            return acc + state.available_dependencies[i] +
+                   (*state.shared_available_dependencies)[i];
           });
       if (actually_completed < num_dep_completes) {
         return false;
@@ -53,13 +54,13 @@ public:
       for (size_t i : dependencies) {
         // Subtract just as much as needed from each dependency until we've
         // accumulated `num_dep_completes` completions
-        size_t subtract = std::min(state.self_completed[i], total);
+        size_t subtract = std::min(state.available_dependencies[i], total);
         total -= subtract;
-        state.self_completed[i] -= subtract;
+        state.available_dependencies[i] -= subtract;
 
-        subtract = std::min((*state.shared_completed)[i], total);
+        subtract = std::min((*state.shared_available_dependencies)[i], total);
         total -= subtract;
-        (*state.shared_completed)[i] -= subtract;
+        (*state.shared_available_dependencies)[i] -= subtract;
 
         if (total == 0) {
           break;
@@ -68,9 +69,9 @@ public:
     }
 
     if (shared) {
-      (*state.shared_completed)[task_id]++;
+      (*state.shared_available_dependencies)[task_id]++;
     } else {
-      state.self_completed[task_id]++;
+      state.available_dependencies[task_id]++;
     }
   }
 
@@ -146,7 +147,7 @@ public:
     OutputTask::MarkPerformed(state, output, task_id, shared);
     state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                       sqrt(output));
-    if (state.host->IsHost()) {
+    if (state.organism->IsHost()) {
       IncrementSquareMap(output, true);
     } else {
       IncrementSquareMap(output, false);
@@ -196,7 +197,7 @@ class TaskSet {
 
     tasks[task_id]->MarkPerformed(state, output, task_id, shared);
 
-    if (state.host->IsHost())
+    if (state.organism->IsHost())
       ++*n_succeeds_host[task_id];
     else
       ++*n_succeeds_sym[task_id];

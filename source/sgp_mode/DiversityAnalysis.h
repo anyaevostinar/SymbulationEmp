@@ -15,7 +15,7 @@ emp::unordered_map<emp::BitSet<64>, int>
 GetPhenotypeMap(const emp::vector<CPU> &organisms) {
   emp::unordered_map<emp::BitSet<64>, int> phenotype_counts;
   for (const CPU &org_cpu : organisms) {
-    emp::BitSet<64> managed_tasks = org_cpu.ReturnTasksDone();
+    emp::BitSet<64> managed_tasks = org_cpu.TasksPerformable();
     if (phenotype_counts.count(managed_tasks)) {
       phenotype_counts[managed_tasks] += 1;
     } else {
@@ -38,7 +38,7 @@ emp::vector<emp::BitSet<64>>
 GetPhenotypeVector(const emp::vector<CPU> &organisms) {
   emp::vector<emp::BitSet<64>> phenotypes;
   for (const CPU &org_cpu : organisms) {
-    emp::BitSet<64> managed_tasks = org_cpu.ReturnTasksDone();
+    emp::BitSet<64> managed_tasks = org_cpu.TasksPerformable();
     phenotypes.push_back(managed_tasks);
   }
   return phenotypes;

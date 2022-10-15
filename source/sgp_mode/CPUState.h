@@ -46,9 +46,8 @@ struct CPUState {
   IORingBuffer<4> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
-  // TODO revisit naming of `completed` fields
-  emp::vector<size_t> self_completed;
-  emp::Ptr<emp::vector<size_t>> shared_completed =
+  emp::vector<size_t> available_dependencies;
+  emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
@@ -57,13 +56,12 @@ struct CPUState {
       emp::NewPtr<emp::vector<uint32_t>>();
   emp::vector<size_t> jump_table;
 
-  // TODO: Change the name to something more general, like organism
-  emp::Ptr<Organism> host;
+  emp::Ptr<Organism> organism;
   emp::Ptr<SGPWorld> world;
   emp::WorldPosition location;
 
-  CPUState(emp::Ptr<Organism> host, emp::Ptr<SGPWorld> world)
-      : host(host), world(world) {}
+  CPUState(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
+      : organism(organism), world(world) {}
 };
 
 #endif

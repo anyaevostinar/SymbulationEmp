@@ -51,8 +51,9 @@ class CPU {
       idx++;
     }
 
-    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
-    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
+    state.available_dependencies.resize(state.world->GetTaskSet().NumTasks());
+    state.shared_available_dependencies->resize(
+        state.world->GetTaskSet().NumTasks());
   }
 
 public:
@@ -87,7 +88,7 @@ public:
    */
   void Reset() {
     cpu.Reset();
-    state = CPUState(state.host, state.world);
+    state = CPUState(state.organism, state.world);
     InitializeState();
   }
 
@@ -140,11 +141,11 @@ public:
    *
    * Purpose: Get the phenotype of an organism
    */
-  emp::BitSet<64> ReturnTasksDone() const {
+  emp::BitSet<64> TasksPerformable() const {
     // Make a temporary copy of this CPU so that its state isn't clobbered
     CPU org_cpu = *this;
     org_cpu.Reset();
-    org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    org_cpu.state.available_dependencies = {1, 1, 1, 1, 1, 1, 1, 1, 1};
     // Turn off limited resources for this method
     int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
     org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
@@ -164,7 +165,7 @@ public:
    * Purpose: To return whether or not the organism can perform the given task
    */
   bool CanPerformTask(size_t task_id) const {
-    return ReturnTasksDone().Get(task_id);
+    return TasksPerformable().Get(task_id);
   }
 
 private:

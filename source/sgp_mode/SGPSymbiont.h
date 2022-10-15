@@ -50,7 +50,7 @@ public:
   ~SGPSymbiont() {
     if (!my_host) {
       cpu.state.used_resources.Delete();
-      cpu.state.shared_completed.Delete();
+      cpu.state.shared_available_dependencies.Delete();
     }
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
@@ -85,13 +85,15 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     if (!my_host) {
       cpu.state.used_resources.Delete();
-      cpu.state.shared_completed.Delete();
+      cpu.state.shared_available_dependencies.Delete();
     }
     Symbiont::SetHost(host);
     cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    cpu.state.shared_completed =
-        host.DynamicCast<SGPHost>()->GetCPU().state.shared_completed;
+    cpu.state.shared_available_dependencies =
+        host.DynamicCast<SGPHost>()
+            ->GetCPU()
+            .state.shared_available_dependencies;
     cpu.state.internalEnvironment =
         host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
   }

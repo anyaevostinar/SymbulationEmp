@@ -29,7 +29,7 @@ GetNecessaryInstructions(const CPU &org_cpu, size_t test_task_id) {
   } else {
     for (size_t k = 0; k < control_program.size(); k++) {
       test_program[k].op_code = 0;
-      CPU temp_cpu(org_cpu.state.host, org_cpu.state.world, test_program);
+      CPU temp_cpu(org_cpu.state.organism, org_cpu.state.world, test_program);
 
       can_do_task = temp_cpu.CanPerformTask(test_task_id);
 
@@ -97,7 +97,9 @@ GetUsefulRanges(emp::vector<emp::BitArray<length>> task_programs) {
         last = e;
       }
     }
-    ranges.push_back(std::pair(first, last));
+    if (found) {
+      ranges.push_back(std::pair(first, last));
+    }
   }
 
   return ranges;
