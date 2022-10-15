@@ -132,6 +132,41 @@ public:
    */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
 
+  /**
+   * Input: None
+   *
+   * Output: A length 64 emp bitset which describes the phenotype of organism
+   * such that the ith bit in the bitset marks the completion of task i.
+   *
+   * Purpose: Get the phenotype of an organism
+   */
+  emp::BitSet<64> ReturnTasksDone() const {
+    // Make a temporary copy of this CPU so that its state isn't clobbered
+    CPU org_cpu = *this;
+    org_cpu.Reset();
+    org_cpu.state.self_completed = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    // Turn off limited resources for this method
+    int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
+    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
+
+    org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
+
+    // and then reset it to the previous value
+    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
+    return *org_cpu.state.used_resources;
+  }
+
+  /*
+   * Input: The identifier for a specific task
+   *
+   * Output: a boolean representing a program's ability to do a specific task
+   *
+   * Purpose: To return whether or not the organism can perform the given task
+   */
+  bool CanPerformTask(size_t task_id) const {
+    return ReturnTasksDone().Get(task_id);
+  }
+
 private:
   /**
    * Input: The instruction to print, and the context needed to print it.

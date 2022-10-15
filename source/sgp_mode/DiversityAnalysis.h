@@ -1,7 +1,6 @@
 #ifndef DIVERSITY_ANALYSIS_H
 #define DIVERSITY_ANALYSIS_H
 
-#include "AnalysisTools.h"
 #include "CPU.h"
 
 /**
@@ -16,7 +15,7 @@ emp::unordered_map<emp::BitSet<64>, int>
 GetPhenotypeMap(const emp::vector<CPU> &organisms) {
   emp::unordered_map<emp::BitSet<64>, int> phenotype_counts;
   for (const CPU &org_cpu : organisms) {
-    emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);
+    emp::BitSet<64> managed_tasks = org_cpu.ReturnTasksDone();
     if (phenotype_counts.count(managed_tasks)) {
       phenotype_counts[managed_tasks] += 1;
     } else {
@@ -39,7 +38,7 @@ emp::vector<emp::BitSet<64>>
 GetPhenotypeVector(const emp::vector<CPU> &organisms) {
   emp::vector<emp::BitSet<64>> phenotypes;
   for (const CPU &org_cpu : organisms) {
-    emp::BitSet<64> managed_tasks = ReturnTasksDone(org_cpu);
+    emp::BitSet<64> managed_tasks = org_cpu.ReturnTasksDone();
     phenotypes.push_back(managed_tasks);
   }
   return phenotypes;

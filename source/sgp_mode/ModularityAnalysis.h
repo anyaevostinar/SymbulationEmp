@@ -1,8 +1,74 @@
 #ifndef MODULARITY_ANALYSIS_H
 #define MODULARITY_ANALYSIS_H
 
-#include "AnalysisTools.h"
 #include "CPU.h"
+
+/**
+ * Input: Takes in a CPU and the number identifying a given task
+ *
+ * Output: Returns a bit array representing the full genome, reduced to 1s and
+ * 0s to show either that an instruction is necessary to complete the task, or
+ * not respectively
+ *
+ * Purpose: To return a bit array that acts as a reduced program
+ * representation of the necessary code lines to complete the given task
+ */
+std::optional<emp::BitArray<100>>
+GetNecessaryInstructions(const CPU &org_cpu, size_t test_task_id) {
+  emp::Random random(-1);
+  const sgpl::Program<Spec> &control_program = org_cpu.GetProgram();
+  sgpl::Program<Spec> test_program = control_program;
+
+  emp::BitArray<100> reduced_position_guide;
+
+  bool can_do_task = org_cpu.CanPerformTask(test_task_id);
+
+  // catches if a task cannot be done ever
+  if (!can_do_task) {
+    return std::nullopt;
+  } else {
+    for (size_t k = 0; k < control_program.size(); k++) {
+      test_program[k].op_code = 0;
+      CPU temp_cpu(org_cpu.state.host, org_cpu.state.world, test_program);
+
+      can_do_task = temp_cpu.CanPerformTask(test_task_id);
+
+      if (!can_do_task) {
+        reduced_position_guide.Set(k, 1);
+      } else {
+        reduced_position_guide.Set(k, 0);
+      }
+
+      // Only need to put back the instruction that was changed
+      test_program[k] = control_program[k];
+    }
+  }
+
+  return reduced_position_guide;
+}
+
+/**
+ * Input: Takes in an organism's CPU
+ *
+ * Output: Returns a vector with a reduced program representation taken from the
+ * organism for each task in the world's taskset
+ *
+ * Purpose: To cycle through all the tasks in the world's taskset
+ * and return the necessary code sites within the original program
+ * to complete each task. If the CPU does not have the necessary code,
+ * the `std::optional` for that task will not have a value.
+ */
+emp::vector<std::optional<emp::BitArray<100>>>
+GetReducedProgramRepresentations(const CPU &org_cpu) {
+  const TaskSet &all_tasks = org_cpu.state.world->GetTaskSet();
+  emp::vector<std::optional<emp::BitArray<100>>> map_of_guides;
+
+  for (size_t j = 0; j < all_tasks.NumTasks(); ++j) {
+    map_of_guides.push_back(GetNecessaryInstructions(org_cpu, j));
+  }
+
+  return map_of_guides;
+}
 
 // Start of physicalModularityCode
 
