@@ -32,10 +32,18 @@ protected:
 
   /**
     *
-    * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
+    * Purpose: Represents a standard function object which determines which taxon a host belongs to.
     *
   */
-  fun_calc_info_t calc_info_fun;
+  fun_calc_info_t calc_host_info_fun;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which determines which taxon a symbiont belongs to.
+    *
+  */
+  fun_calc_info_t calc_sym_info_fun;
+
 
   /**
     *
@@ -91,8 +99,8 @@ public:
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
     if (my_config->PHYLOGENY() == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcHostInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcSymInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
@@ -200,14 +208,14 @@ public:
   /**
    * Input: None
    *
-   * Output: The standard function object that determines which bin organisms
+   * Output: The standard function object that determines which bin hosts
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organsims based on their interaction value.
+   * Purpose: To classify hosts based on their interaction value.
    */
-  fun_calc_info_t GetCalcInfoFun() {
-    if (!calc_info_fun) {
-      calc_info_fun = [&](Organism & org){
+  fun_calc_info_t GetCalcHostInfoFun() {
+    if (!calc_host_info_fun) {
+      calc_host_info_fun = [&](Organism & org){
         size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
         //classify orgs into bins base on interaction values,
         //inclusive of lower bound, exclusive of upper
@@ -220,7 +228,25 @@ public:
         return bin;
       };
     }
-    return calc_info_fun;
+    return calc_host_info_fun;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin hosts
+   * should belong to depending on their interaction value
+   *
+   * Purpose: To classify hosts based on their interaction value.
+   */
+  fun_calc_info_t GetCalcSymInfoFun() {
+    // By default the sym info function is the same as the host one,
+    // but separating them allows us to change the sym info function
+    // to something else if we need to.
+    if (!calc_sym_info_fun) {
+      calc_sym_info_fun = GetCalcHostInfoFun();
+    }
+    return calc_sym_info_fun;
   }
 
   /**
