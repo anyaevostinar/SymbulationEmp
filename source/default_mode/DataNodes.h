@@ -10,7 +10,7 @@
 *
 * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
 */
-void SymWorld::CreateDateFiles(){
+void SymWorld::CreateDataFiles(){
   int TIMING_REPEAT = my_config->DATA_INT();
   std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
 
