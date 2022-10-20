@@ -73,6 +73,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -458,6 +460,7 @@ public:
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
   emp::DataFile & SetUpTransmissionFile(const std::string & filename);
+  emp::DataFile & SetupSymDiversityFile(const std::string & filename);  
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
@@ -474,6 +477,9 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostMeanDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostVarianceDataNode();
+
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
