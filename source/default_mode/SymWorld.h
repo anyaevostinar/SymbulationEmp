@@ -128,6 +128,8 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
+    if (data_node_within_host_mean) data_node_within_host_mean.Delete();
+    if (data_node_within_host_variance) data_node_within_host_variance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
