@@ -440,7 +440,7 @@ public:
   /**
    * Definitions of data node functions, expanded in DataNodes.h
    */
-  void CreateDateFiles();
+  virtual void CreateDataFiles();
   void WritePhylogenyFile(const std::string & filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();

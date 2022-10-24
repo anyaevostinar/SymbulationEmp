@@ -16,7 +16,8 @@ int symbulation_main(int argc, char * argv[])
   EfficientWorld world(random, &config);
 
   world.Setup();
-  world.CreateDateFiles();
+  world.CreateDataFiles();
+
   world.RunExperiment();
 
   return 0;
