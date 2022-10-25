@@ -134,8 +134,6 @@ public:
 
 class SquareTask : public OutputTask {
 public:
-  std::map<uint32_t, uint32_t> hostCalculationTable;
-  std::map<uint32_t, uint32_t> symCalculationTable;
   SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
              bool unlimited = true, emp::vector<size_t> dependencies = {},
              size_t num_dep_completes = 1)
@@ -143,42 +141,7 @@ public:
   }
 
   void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                     bool shared) override {
-    OutputTask::MarkPerformed(state, output, task_id, shared);
-    state.internalEnvironment->insert(state.internalEnvironment->begin(),
-                                      sqrt(output));
-    if (state.organism->IsHost()) {
-      IncrementSquareMap(output, true);
-    } else {
-      IncrementSquareMap(output, false);
-    }
-  }
-
-  /**
-   * Input: The value of the current output and a boolean indicating whether the
-   * organism is a host or symbiont
-   *
-   * Output: None
-   *
-   * Purpose: Adds the output to the SquareMap with a count of 1 if not already
-   * included; otherwise, increments the count for that output
-   */
-  void IncrementSquareMap(uint32_t output, bool isHost) {
-    std::map<uint32_t, uint32_t> &calculationMap =
-        isHost ? hostCalculationTable : symCalculationTable;
-    if (calculationMap.empty()) { // Base case for when the map is empty
-      calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-    } else {
-      std::map<uint32_t, uint32_t>::iterator placemark;
-      placemark = calculationMap.find(output);
-      if (placemark == calculationMap.end()) {
-        // If output does not exist in the map, add it with a count of 1
-        calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-      } else { // If output does exist in the map, increment its count
-        placemark->second++;
-      }
-    }
-  }
+                     bool shared) override;
 };
 
 class TaskSet {
@@ -289,42 +252,6 @@ public:
     for (size_t i = 0; i < tasks.size(); i++) {
       n_succeeds_host[i]->store(0);
       n_succeeds_sym[i]->store(0);
-    }
-  }
-  /**
-   * Input: A boolean identifying a given organism as a host or a symbiont
-   *
-   * Output: The map of square frequencies that matches the organism's type
-   *
-   * Purpose: Returns either hostCalculationTable or symCalculationTable,
-   * depending on whether the organism is a host or a symbiont.
-   */
-  std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost) {
-    std::map<uint32_t, uint32_t> myMap;
-    emp::Ptr<Task> curTask = tasks[0];
-    emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-    if (isHost) {
-      myMap = squareTask->hostCalculationTable;
-    } else {
-      myMap = squareTask->symCalculationTable;
-    }
-    return myMap;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: Empties the host and symbiont calculation tables
-   */
-  void ClearSquareFrequencyData(bool IsHost) {
-    emp::Ptr<Task> curTask = tasks[0];
-    emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-    if (IsHost) {
-      squareTask->hostCalculationTable.clear();
-    } else {
-      squareTask->symCalculationTable.clear();
     }
   }
 };

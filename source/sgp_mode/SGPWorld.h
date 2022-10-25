@@ -48,7 +48,12 @@ private:
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
 public:
+  std::map<uint32_t, size_t> data_node_host_squares;
+  std::map<uint32_t, size_t> data_node_sym_squares;
+  std::mutex squares_mutex;
+
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
+
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
       : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
         task_set(task_set) {}
