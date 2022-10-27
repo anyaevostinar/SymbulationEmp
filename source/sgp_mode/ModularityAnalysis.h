@@ -76,7 +76,8 @@ GetReducedProgramRepresentations(const CPU &org_cpu) {
  * Input: A vector of bit arrays representing necessary instructions
  *
  * Output: The index of the first and last necessary instructions in each input
- * array
+ * array. If an input array contained no necessary instructions, this will be
+ * {0,0}.
  *
  * Purpose: Get the index of the necessary instruction ranges in each genome and
  * adds them to a vector for GetNumSiteDist() to use
@@ -88,18 +89,17 @@ GetUsefulRanges(emp::vector<emp::BitArray<length>> task_programs) {
 
   for (size_t y = 0; y < task_programs.size(); y++) {
     bool found = false;
-    size_t first, last;
+    size_t first = 0, last = 0;
     for (size_t e = 0; e < task_programs[y].size(); e++) {
       if (task_programs[y][e]) {
         if (!found) {
           first = e;
         }
         last = e;
+        found = true;
       }
     }
-    if (found) {
-      ranges.push_back(std::pair(first, last));
-    }
+    ranges.push_back(std::pair(first, last));
   }
 
   return ranges;

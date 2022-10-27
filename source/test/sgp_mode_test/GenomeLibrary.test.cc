@@ -28,15 +28,15 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   (builder.*method)();
   CPU cpu(&organism, &world, builder.Build(100));
   // cpu.PrintCode();
-  cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
-  cpu.state.shared_completed->resize(LogicTasks.NumTasks());
+  cpu.state.shared_available_dependencies = emp::NewPtr<emp::vector<size_t>>();
+  cpu.state.shared_available_dependencies->resize(LogicTasks.NumTasks());
 
   cpu.RunCPUStep(0, 100);
   world.Update();
 
   REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
 
-  cpu.state.shared_completed.Delete();
+  cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internalEnvironment.Delete();
 }
@@ -95,8 +95,8 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   ProgramBuilder builder;
   CPU cpu(&organism, &world, builder.Build(100));
   // cpu.PrintCode();
-  cpu.state.shared_completed = emp::NewPtr<emp::vector<size_t>>();
-  cpu.state.shared_completed->resize(LogicTasks.NumTasks());
+  cpu.state.shared_available_dependencies = emp::NewPtr<emp::vector<size_t>>();
+  cpu.state.shared_available_dependencies->resize(LogicTasks.NumTasks());
 
   cpu.RunCPUStep(0, 100);
   world.Update();
@@ -105,7 +105,7 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
     REQUIRE(data.n_succeeds_host == 0);
   }
 
-  cpu.state.shared_completed.Delete();
+  cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internalEnvironment.Delete();
 }
