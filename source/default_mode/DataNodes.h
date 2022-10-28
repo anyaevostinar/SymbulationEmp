@@ -229,7 +229,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
     auto & file = SetupFile(filename);
     auto & node = GetWithinHostVarianceDataNode();
     auto & node1 = GetWithinHostMeanDataNode();
-    node.SetupBins(-0.1, 0.26, 11); //Necessary because range exclusive
+    node.SetupBins(-0.1, 1.1, 21); //Necessary because range exclusive
     node1.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddHistBin(node, 0, "Variance_Hist_0", "Count for histogram bin 0");
