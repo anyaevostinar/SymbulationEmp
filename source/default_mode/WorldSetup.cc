@@ -6,8 +6,7 @@
 #include "Symbiont.h"
 
 /**
- * Input: The number of hosts, whether the hosts have random phenotypes, and the 
- * interaction values for hosts if competition mode is on.
+ * Input: The number of hosts.
  *
  * Output: None.
  *
@@ -15,25 +14,22 @@
  */
 void SymWorld::SetupHosts(long unsigned int* POP_SIZE){ 
   for (size_t i = 0; i < *POP_SIZE; i++) {
-  emp::Ptr<Host> new_org;
-  //since competition is checked first, don't  need the && !competition part of  rand host phenotype
-  new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
-  InjectHost(new_org);
+    emp::Ptr<Host> new_org;
+    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+    InjectHost(new_org);
   }
 
 }
 
 
 /**
- * Input: The number of symbionts and whether the symbionts have random phenotypes.
+ * Input: The number of symbionts.
  *
  * Output: None.
  *
  * Purpose: To populate the world with symbionts with appropriate phenotypes.
  */
 void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
-  //This loop must be outside of the host generation loop since otherwise
-  //syms try to inject into mostly empty spots at first
   for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
     InjectSymbiont(new_sym);
@@ -45,7 +41,7 @@ void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
  *
  * Output: None.
  *
- * Purpose: Prepare the world for a simulation by applying the configuration settings 
+ * Purpose: Prepare the world for an experiment by applying the configuration settings 
  * and populating the world with hosts and symbionts.
  */
 void SymWorld::Setup() {
@@ -57,6 +53,7 @@ void SymWorld::Setup() {
     POP_SIZE = my_config->POP_SIZE();
   }
 
+  // set world structure (either mixed or a grid with some dimensions) and set synchronous generations to false
   if (my_config->GRID() == 0) {SetPopStruct_Mixed(false);}
   else SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
 

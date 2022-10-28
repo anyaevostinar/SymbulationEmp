@@ -6,8 +6,7 @@
 #include "Bacterium.h"
 
 /**
- * Input: The number of bacteria, whether the bacteria have random phenotypes, and the
- * interaction values for bacteria if competition mode is on.
+ * Input: The number of bacteria.
  *
  * Output: None.
  *
@@ -23,7 +22,7 @@ void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
 
 /**
- * Input: The number of phage and whether the phage have random phenotypes.
+ * Input: The number of phage.
  *
  * Output: None.
  *
@@ -32,8 +31,7 @@ void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
 void LysisWorld::SetupSymbionts(long unsigned int* total_syms) {
   bool STAGGER_STARTING_BURST_TIMERS = true;
   for (size_t j = 0; j < *total_syms; j++) {
-    emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config,
-      my_config->SYM_INT(), 0);
+    emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
     if (STAGGER_STARTING_BURST_TIMERS) {
       new_sym->SetBurstTimer(GetRandom().GetInt(-5, 5));
     }

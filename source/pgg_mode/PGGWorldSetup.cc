@@ -5,8 +5,7 @@
 #include "PGGHost.h"
 #include "PGGSymbiont.h"
 /**
- * Input: The number of PGG hosts, whether the PGG hosts have random phenotypes, and the
- * interaction values for PGG hosts if competition mode is on.
+ * Input: The number of PGG hosts.
  *
  * Output: None.
  *
@@ -22,7 +21,7 @@ void PGGWorld::SetupHosts(long unsigned int* POP_SIZE){
 
 
 /**
- * Input: The number of PGG symbionts and whether the PGG symbionts have random phenotypes.
+ * Input: The number of PGG symbionts.
  *
  * Output: None.
  *

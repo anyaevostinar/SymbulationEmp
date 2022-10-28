@@ -6,8 +6,7 @@
 #include "EfficientHost.h"
 
 /**
- * Input: The number of efficient hosts, whether the efficient hosts have random phenotypes, and the
- * interaction values for efficient hosts if competition mode is on.
+ * Input: The number of efficient hosts.
  *
  * Output: None.
  *
@@ -22,7 +21,7 @@ void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
 }
 
 /**
- * Input: The number of efficient symbionts and whether the efficient symbionts have random phenotypes.
+ * Input: The number of efficient symbionts.
  *
  * Output: None.
  *

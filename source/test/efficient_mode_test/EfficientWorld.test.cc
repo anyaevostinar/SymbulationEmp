@@ -10,18 +10,22 @@ TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
     world.Resize(world_size);
     config.FREE_LIVING_SYMS(1);
 
-    size_t num_to_add = 2;
-    world.SetupSymbionts(&num_to_add);
+    WHEN("SetupSymbionts is called") {
+      size_t num_to_add = 2;
+      world.SetupSymbionts(&num_to_add);
 
-    size_t num_added = world.GetNumOrgs();
-    REQUIRE(num_added == num_to_add);
+      THEN("The specified number of efficient symbionts are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
 
-    emp::Ptr<Organism> symbiont;
-    for (size_t i = 0; i < world_size; i++) {
-      symbiont = world.GetSymAt(i);
-      if (symbiont) {
-        REQUIRE(symbiont->GetEfficiency() == 1);
-        REQUIRE(symbiont->GetName() == "EfficientSymbiont");
+        emp::Ptr<Organism> symbiont;
+        for (size_t i = 0; i < world_size; i++) {
+          symbiont = world.GetSymAt(i);
+          if (symbiont) {
+            REQUIRE(symbiont->GetEfficiency() == 1);
+            REQUIRE(symbiont->GetName() == "EfficientSymbiont");
+          }
+        }
       }
     }
   }
@@ -33,14 +37,19 @@ TEST_CASE("Efficient SetupHosts", "[efficient]") {
     SymConfigBase config;
     EfficientWorld world(random, &config);
 
-    size_t num_to_add = 5;
-    world.SetupHosts(&num_to_add);
-    size_t num_added = world.GetNumOrgs();
-    REQUIRE(num_added == num_to_add);
+    WHEN("SetupHosts is called") {
+      size_t num_to_add = 5;
+      world.SetupHosts(&num_to_add);
 
-    emp::Ptr<Organism> host = world.GetPop()[0];
-    REQUIRE(host != nullptr);
-    REQUIRE(host->GetName() == "EfficientHost");
+      THEN("The specified number of efficient hosts are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        emp::Ptr<Organism> host = world.GetPop()[0];
+        REQUIRE(host != nullptr);
+        REQUIRE(host->GetName() == "EfficientHost");
+      }
+    }
   }
 }
 
