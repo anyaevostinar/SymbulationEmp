@@ -33,9 +33,9 @@ TEST_CASE("GetUsefulRanges", "[sgp]") {
         needed_code_sites_a, needed_code_sites_b, needed_code_sites_c,
         needed_code_sites_d, needed_code_sites_e};
 
-    emp::vector<std::pair<size_t, size_t>> calc_useful_ranges =
+    std::vector<std::pair<size_t, size_t>> calc_useful_ranges =
         GetUsefulRanges(needed_code_sites);
-    emp::vector<std::pair<size_t, size_t>> true_useful_ranges = {
+    std::vector<std::pair<size_t, size_t>> true_useful_ranges = {
         {0, needed_code_sites_a.size() - 1},
         {6, needed_code_sites_b.size() - 1},
         {needed_code_sites_c.size() - 5, needed_code_sites_c.size() - 3},
