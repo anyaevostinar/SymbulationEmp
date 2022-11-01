@@ -698,7 +698,13 @@ public:
       total_res += my_config->LIMITED_RES_INFLOW();
     }
 
-    if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+    if(my_config->PHYLOGENY()) {
+      sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+      if (update % 1000 == 0) {
+        std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
+        WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
+      }
+    }
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
