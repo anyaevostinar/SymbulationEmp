@@ -26,6 +26,15 @@ public:
       if (data_node_efficiency) data_node_efficiency.Delete();
   }
 
+
+  /**
+  * Definitions of setup functions, expanded in EfficientWorldSetup.cc
+  */
+  void Setup();
+  void SetupHosts(long unsigned int* POP_SIZE);
+  void SetupSymbionts(long unsigned int* total_syms);
+
+
   /**
   * Input: None.
   *

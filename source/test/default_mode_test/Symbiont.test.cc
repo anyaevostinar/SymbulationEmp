@@ -7,10 +7,24 @@ TEST_CASE("Symbiont Constructor", "[default]") {
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
+    double int_val; 
 
-    double int_val = -2;
-    REQUIRE_THROWS(emp::NewPtr<Symbiont>(random, world, &config, int_val) );
+    WHEN("An interaction value of -2 is passed") {
+      int_val = -2;
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+      THEN("The symbiont randomly determines its interaction value") {
+        REQUIRE(symbiont->GetIntVal() >= -1);
+        REQUIRE(symbiont->GetIntVal() <= 1);
+      }
+      symbiont.Delete();
+    }
 
+    WHEN("An interaction value < -1 other than -2 is passed") {
+      int_val = -1.5;
+      THEN("An excepton is thrown") {
+        REQUIRE_THROWS(emp::NewPtr<Symbiont>(random, world, &config, int_val));
+      }
+    }
     int_val = -1;
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     CHECK(sym1->GetIntVal() == int_val);

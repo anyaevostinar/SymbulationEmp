@@ -1368,8 +1368,8 @@ TEST_CASE( "No mutation updates", "[default] "){
     double int_val = 0.4;
     int world_size = 100;
     world.Resize(world_size);
-    emp::Ptr<Organism> symbiont = new Symbiont(&random, &world, &config, int_val);
-    emp::Ptr<Organism> host = new Host(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
     WHEN("A host and symbiont reproduce at first"){
       emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
@@ -1383,6 +1383,8 @@ TEST_CASE( "No mutation updates", "[default] "){
         REQUIRE(mut_sym_baby->GetIntVal() > int_val - 0.00001);
         REQUIRE(mut_host_baby->GetIntVal() > int_val - 0.00001);
       }
+      mut_sym_baby.Delete();
+      mut_host_baby.Delete();
     }
     WHEN("The experiment runs and host and symbiont reproduce after"){
       world.RunExperiment(false);
@@ -1404,7 +1406,11 @@ TEST_CASE( "No mutation updates", "[default] "){
         REQUIRE(no_mut_host_baby->GetIntVal() < int_val + 0.00001);
         REQUIRE(no_mut_host_baby->GetIntVal() > int_val - 0.00001);
       }
+      no_mut_sym_baby.Delete();
+      no_mut_host_baby.Delete();
     }
+    symbiont.Delete();
+    host.Delete();
   }
 }
 
@@ -1430,5 +1436,161 @@ TEST_CASE( "IsInboundsPos", "[default]" ){
 
     invalid_pos = emp::WorldPosition(0,4);
     REQUIRE(world.IsInboundsPos(invalid_pos) == false);
+  }
+}
+
+TEST_CASE("InjectHost", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+
+    WHEN("Spatial structure is turned off") {
+      config.GRID(0);
+      THEN("Hosts are placed side-by-side in the world") {
+        REQUIRE(world.GetNumOrgs() == 0);
+
+        emp::Ptr<Organism> host0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+        world.InjectHost(host0);
+        world.InjectHost(host1);
+        world.InjectHost(host2);
+
+        REQUIRE(world.GetNumOrgs() == 3);
+        REQUIRE(world.GetPop()[0] == host0);
+        REQUIRE(world.GetPop()[1] == host1);
+        REQUIRE(world.GetPop()[2] == host2);
+      }
+    }
+    WHEN("Spatial structure is turned on") {
+      config.GRID(1);
+      world.Resize(9); // world should be resized before injecting hosts if spatial structure is on
+      THEN("Hosts are placed randomly in the world") {
+        REQUIRE(world.GetNumOrgs() == 0);
+
+        emp::Ptr<Organism> host0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> host2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+        world.InjectHost(host0);
+        world.InjectHost(host1);
+        world.InjectHost(host2);
+
+        REQUIRE(world.GetNumOrgs() == 3);
+        bool hosts_sequentially_placed = world.GetPop()[0] == host0 && world.GetPop()[1] == host1 && world.GetPop()[2] == host2;
+        REQUIRE(hosts_sequentially_placed == false);
+      }
+    }
+  }
+}
+
+TEST_CASE("Setup", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+
+    size_t width = 10;
+    size_t height = 20;
+    config.GRID_X(width);
+    config.GRID_Y(height);
+
+    WHEN("Grid is on") {
+      config.GRID(1);
+      world.Setup();
+      THEN("World size, width, and height are set correctly") {
+        REQUIRE(world.GetWidth() == width);
+        REQUIRE(world.GetHeight() == height);
+        REQUIRE(world.GetSize() == width * height);
+      }
+    }
+
+    WHEN("Config option POP_SIZE is -1") {
+      config.POP_SIZE(-1);
+      world.Setup();
+      THEN("The world has full starting population") {
+        REQUIRE(world.GetNumOrgs() == width * height);
+      }
+    }
+
+    WHEN("Config option POP_SIZE is greater than -1") {
+      size_t pop_size = (width * height) / 2;
+      config.POP_SIZE(pop_size);
+      world.Setup();
+      THEN("The world has a partial starting population") {
+        REQUIRE(world.GetNumOrgs() == pop_size);
+      }
+    }
+
+    WHEN("A world is populated with hosts") {
+      double smoi = 0.02;
+      config.START_MOI(smoi);
+      config.SYM_LIMIT(10);
+      config.POP_SIZE(-1);
+      emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
+      world.Setup();
+      world.Update();
+
+      size_t num_syms = hosted_sym_count_node.GetTotal();
+      
+      THEN("The world is populated with a proportional number of symbionts") {
+        REQUIRE(world.GetNumOrgs() == width * height);
+        REQUIRE(num_syms == smoi * width * height);
+      }
+    }
+  }
+}
+
+TEST_CASE("SetupSymbionts", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+
+    size_t world_size = 6;
+    world.Resize(world_size);
+    config.FREE_LIVING_SYMS(1);
+
+    WHEN("SetupSymbionts is called") {
+      size_t num_to_add = 2;
+      world.SetupSymbionts(&num_to_add);
+
+      THEN("The specified number of symbionts are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        emp::Ptr<Organism> symbiont;
+        for (size_t i = 0; i < world_size; i++) {
+          symbiont = world.GetSymAt(i);
+          if (symbiont) break;
+        }
+        REQUIRE(symbiont->GetName() == "Symbiont");
+      }
+    }
+  }
+}
+
+TEST_CASE("SetupHosts", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+
+    WHEN("SetupHosts is called") {
+      size_t num_to_add = 5;
+      world.SetupHosts(&num_to_add);
+
+      THEN("The specified number of hosts are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        emp::Ptr<Organism> host = world.GetPop()[0];
+        REQUIRE(host != nullptr);
+        REQUIRE(host->GetName() == "Host");
+      }
+    }
   }
 }

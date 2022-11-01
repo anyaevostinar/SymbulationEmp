@@ -1,4 +1,5 @@
 #include "../lysis_mode/LysisWorld.h"
+#include "../default_mode/WorldSetup.cc"
 #include "../lysis_mode/LysisWorldSetup.cc"
 #include "symbulation.h"
 
@@ -29,8 +30,9 @@ int symbulation_main(int argc, char * argv[])
 
   LysisWorld world(random, &config);
 
-  worldSetup(&world, &config);
+  world.Setup();
   world.CreateDataFiles();
+  
   world.RunExperiment();
 
   return 0;

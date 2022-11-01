@@ -1,5 +1,6 @@
 #include "../pgg_mode/PGGWorld.h"
 #include "../pgg_mode/PGGWorldSetup.cc"
+#include "../default_mode/WorldSetup.cc"
 #include "symbulation.h"
 
 // This is the main function for the NATIVE version of this project.
@@ -14,8 +15,9 @@ int symbulation_main(int argc, char * argv[])
 
   PGGWorld world(random, &config);
 
-  worldSetup(&world, &config);
+  world.Setup();
   world.CreateDataFiles();
+  
   world.RunExperiment();
 
   return 0;

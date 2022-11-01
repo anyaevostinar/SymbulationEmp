@@ -95,8 +95,10 @@ public:
     infection_chance = my_config->SYM_INFECTION_CHANCE();
     if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
     if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
-
-    if ( _intval > 1 || _intval < -1) {
+    if (_intval == -2) {
+      interaction_val = random->GetDouble(-1, 1);
+    }
+   if (interaction_val > 1 || interaction_val < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
     };
   }

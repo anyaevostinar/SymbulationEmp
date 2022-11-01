@@ -238,9 +238,11 @@ emp::DataMonitor<int>& SymWorld::GetHostCountDataNode() {
     data_node_hostcount.New();
     OnUpdate([this](size_t){
       data_node_hostcount -> Reset();
-      for (size_t i = 0; i< pop.size(); i++)
-        if(IsOccupied(i))
+      for (size_t i = 0; i< pop.size(); i++){
+        if (IsOccupied(i)){
           data_node_hostcount->AddDatum(1);
+        }
+      }
     });
   }
   return *data_node_hostcount;
@@ -289,9 +291,11 @@ emp::DataMonitor<int>& SymWorld::GetCountHostedSymsDataNode(){
     data_node_hostedsymcount.New();
     OnUpdate([this](size_t){
       data_node_hostedsymcount->Reset();
-      for (size_t i = 0; i< pop.size(); i++)
-        if (IsOccupied(i))
+      for (size_t i = 0; i< pop.size(); i++){
+        if (IsOccupied(i)){
           data_node_hostedsymcount->AddDatum(pop[i]->GetSymbionts().size());
+        }
+      }
     });
   }
   return *data_node_hostedsymcount;
@@ -312,9 +316,11 @@ emp::DataMonitor<int>& SymWorld::GetCountFreeSymsDataNode(){
     data_node_freesymcount.New();
     OnUpdate([this](size_t){
       data_node_freesymcount->Reset();
-      for (size_t i = 0; i< pop.size(); i++)
-        if (sym_pop[i])
+      for (size_t i = 0; i< pop.size(); i++){
+        if (sym_pop[i]){
           data_node_freesymcount->AddDatum(1);
+        }
+      }
     });
   }
   return *data_node_freesymcount;
@@ -366,9 +372,11 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHostIntValDataNode(
     data_node_hostintval.New();
     OnUpdate([this](size_t){
       data_node_hostintval->Reset();
-      for (size_t i = 0; i< pop.size(); i++)
-        if (IsOccupied(i))
+      for (size_t i = 0; i< pop.size(); i++){
+        if (IsOccupied(i)){
           data_node_hostintval->AddDatum(pop[i]->GetIntVal());
+        }
+      }
     });
   }
   data_node_hostintval->SetupBins(-1.0, 1.1, 21);
