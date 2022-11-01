@@ -229,7 +229,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
     auto & file = SetupFile(filename);
     auto & node = GetWithinHostVarianceDataNode();
     auto & node1 = GetWithinHostMeanDataNode();
-    node.SetupBins(-0.1, 1.1, 21); //Necessary because range exclusive
+    node.SetupBins(-0.05, 1.5, 21); //Necessary because range exclusive
     node1.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
     file.AddVar(update, "update", "Update");
     file.AddHistBin(node, 0, "Variance_Hist_0", "Count for histogram bin 0");
@@ -242,6 +242,17 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
     file.AddHistBin(node, 7, "Variance_Hist_7", "Count for histogram bin 7");
     file.AddHistBin(node, 8, "Variance_Hist_8", "Count for histogram bin 8");
     file.AddHistBin(node, 9, "Variance_Hist_9", "Count for histogram bin 9");
+    file.AddHistBin(node, 10, "Variance_Hist_10", "Count for histogram bin 10");
+    file.AddHistBin(node, 11, "Variance_Hist_11", "Count for histogram bin 11");
+    file.AddHistBin(node, 12, "Variance_Hist_12", "Count for histogram bin 12");
+    file.AddHistBin(node, 13, "Variance_Hist_13", "Count for histogram bin 13");
+    file.AddHistBin(node, 14, "Variance_Hist_14", "Count for histogram bin 14");
+    file.AddHistBin(node, 15, "Variance_Hist_15", "Count for histogram bin 15");
+    file.AddHistBin(node, 16, "Variance_Hist_16", "Count for histogram bin 16");
+    file.AddHistBin(node, 17, "Variance_Hist_17", "Count for histogram bin 17");
+    file.AddHistBin(node, 18, "Variance_Hist_18", "Count for histogram bin 18");
+    file.AddHistBin(node, 19, "Variance_Hist_19", "Count for histogram bin 19");
+    file.AddHistBin(node, 20, "Variance_Hist_20", "Count for histogram bin 20");
 
     file.AddHistBin(node1, 0, "Mean_Hist_-1", "Count for histogram bin -1 to <-0.9");
     file.AddHistBin(node1, 1, "Mean_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
@@ -262,7 +273,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
     file.AddHistBin(node1, 16, "Mean_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
     file.AddHistBin(node1, 17, "Mean_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
     file.AddHistBin(node1, 18, "Mean_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-    file.AddHistBin(node1, 19, "Mean_Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
 
 
     file.PrintHeaderKeys();
