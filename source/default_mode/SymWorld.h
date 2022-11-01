@@ -408,11 +408,29 @@ public:
 
 
   /**
-   * Input: The pointer to an organism that will be injected into a host.
+     * Input: The pointer to a host that will be added to the world. This function assumes that the
+     * pop vector has not been resized to fit the world yet.
+     *
+     * Output: None
+     *
+     * Purpose: To add a host to the world.
+     */
+  void InjectHost(emp::Ptr<Organism> new_host) {
+    if (my_config->GRID()) {
+      AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
+    }
+    else {
+      AddOrgAt(new_host, pop.size());
+    }
+  }
+
+
+  /**
+   * Input: The pointer to an organism that will be injected into the world.
    *
    * Output: None
    *
-   * Purpose: To add a symbiont to a host's symbionts.
+   * Purpose: To add a symbiont to the world, either into a host or into a sym world cell.
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
@@ -436,7 +454,7 @@ public:
   /**
    * Definitions of data node functions, expanded in DataNodes.h
    */
-  void CreateDateFiles();
+  virtual void CreateDataFiles();
   void WritePhylogenyFile(const std::string & filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
@@ -463,6 +481,13 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
+
+  /**
+   * Definitions of setup functions, expanded in WorldSetup.cc
+   */
+  virtual void Setup();
+  virtual void SetupHosts(long unsigned int* POP_SIZE);
+  virtual void SetupSymbionts(long unsigned int* total_syms);
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
