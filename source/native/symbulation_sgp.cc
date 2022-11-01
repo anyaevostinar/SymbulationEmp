@@ -13,6 +13,7 @@
 
 // Empirical doesn't support more than one translation unit, so any CC files are
 // included last. It still fixes include issues, but doesn't improve build time.
+#include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Tasks.cc"
 
@@ -41,7 +42,7 @@ int symbulation_main(int argc, char *argv[]) {
 
   SGPWorld world(random, &config, task_set);
 
-  worldSetup(&world, &config);
+  world.Setup();
   world.CreateDataFiles();
 
   // Print some debug info for testing purposes
