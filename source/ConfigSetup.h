@@ -1,5 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <limits>
 #include "../Empirical/include/emp/config/config.hpp"
 
 EMP_BUILD_CONFIG(SymConfigBase,

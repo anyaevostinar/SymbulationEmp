@@ -51,8 +51,9 @@ class CPU {
       idx++;
     }
 
-    state.self_completed.resize(state.world->GetTaskSet().NumTasks());
-    state.shared_completed->resize(state.world->GetTaskSet().NumTasks());
+    state.available_dependencies.resize(state.world->GetTaskSet().NumTasks());
+    state.shared_available_dependencies->resize(
+        state.world->GetTaskSet().NumTasks());
   }
 
 public:
@@ -87,7 +88,7 @@ public:
    */
   void Reset() {
     cpu.Reset();
-    state = CPUState(state.host, state.world);
+    state = CPUState(state.organism, state.world);
     InitializeState();
   }
 
@@ -131,6 +132,41 @@ public:
    * Purpose: To Get the Program of an Organism from its CPU
    */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
+
+  /**
+   * Input: None
+   *
+   * Output: A length 64 emp bitset which describes the phenotype of organism
+   * such that the ith bit in the bitset marks the completion of task i.
+   *
+   * Purpose: Get the phenotype of an organism
+   */
+  emp::BitSet<64> TasksPerformable() const {
+    // Make a temporary copy of this CPU so that its state isn't clobbered
+    CPU org_cpu = *this;
+    org_cpu.Reset();
+    org_cpu.state.available_dependencies = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+    // Turn off limited resources for this method
+    int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
+    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
+
+    org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
+
+    // and then reset it to the previous value
+    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
+    return *org_cpu.state.used_resources;
+  }
+
+  /*
+   * Input: The identifier for a specific task
+   *
+   * Output: a boolean representing a program's ability to do a specific task
+   *
+   * Purpose: To return whether or not the organism can perform the given task
+   */
+  bool CanPerformTask(size_t task_id) const {
+    return TasksPerformable().Get(task_id);
+  }
 
 private:
   /**
@@ -198,7 +234,7 @@ public:
    * Output: None
    *
    * Purpose: Prints out a human-readable representation of the program code of
-   * the organism's genome to standard output.
+   * the organism's genome to the given output stream or standard output.
    */
   void PrintCode(std::ostream &out = std::cout) {
     emp::map<std::string, size_t> arities{

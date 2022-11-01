@@ -51,7 +51,7 @@ public:
    */
   ~SGPHost() {
     cpu.state.used_resources.Delete();
-    cpu.state.shared_completed.Delete();
+    cpu.state.shared_available_dependencies.Delete();
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
       my_world->to_reproduce[cpu.state.in_progress_repro].second =
@@ -85,11 +85,11 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
-   * Input: The size_t value representing the location of the host.
+   * Input: The location of the host.
    *
    * Output: None
    *
-   * Purpose: To process the host, meaning running its program code, which can
+   * Purpose: To process the host, meaning: running its program code, which can
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */

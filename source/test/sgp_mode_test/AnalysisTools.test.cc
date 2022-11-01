@@ -1,4 +1,3 @@
-#include "../../sgp_mode/AnalysisTools.h"
 #include "../../../Empirical/include/emp/config/ArgManager.hpp"
 #include "../../Organism.h"
 #include "../../default_mode/DataNodes.h"
@@ -18,7 +17,7 @@
 #include <iostream>
 #include <memory>
 
-TEST_CASE("ReturnTaskDone", "[sgp]") {
+TEST_CASE("CanPerformTask", "[sgp]") {
   emp::Random random(10);
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
@@ -38,7 +37,7 @@ TEST_CASE("ReturnTaskDone", "[sgp]") {
   WHEN("The only task is the basic Not-genome") {
     size_t test_id = 0;
 
-    task_done = ReturnTaskDone(test_id, test_sample->GetCPU());
+    task_done = test_sample->GetCPU().CanPerformTask(test_id);
 
     THEN("Task-0 (Not), can be done") { REQUIRE(task_done == true); }
   }

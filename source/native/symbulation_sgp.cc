@@ -3,14 +3,19 @@
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
+#include "../sgp_mode/DiversityAnalysis.h"
+#include "../sgp_mode/ModularityAnalysis.h"
 #include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/SGPWorld.h"
-#include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
-#include "../sgp_mode/ModularityAnalysis.h"
-#include "../sgp_mode/DiversityAnalysis.h"
 #include "symbulation.h"
+
+// Empirical doesn't support more than one translation unit, so any CC files are
+// included last. It still fixes include issues, but doesn't improve build time.
+#include "../sgp_mode/SGPWorldSetup.cc"
+#include "../sgp_mode/Tasks.cc"
+
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -38,64 +43,72 @@ int symbulation_main(int argc, char *argv[]) {
 
   worldSetup(&world, &config);
   world.CreateDataFiles();
-  
+
   // Print some debug info for testing purposes
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
-  world.OnAnalyzePopulation([&](){
+  world.OnAnalyzePopulation([&]() {
     emp::vector<CPU> host_cpus = {};
     emp::vector<CPU> sym_cpus = {};
     emp::World<Organism>::pop_t pop = world.GetPop();
-    for (size_t i = 0; i < pop.size(); i++){
+    for (size_t i = 0; i < pop.size(); i++) {
       auto sample = pop[i].DynamicCast<SGPHost>();
       host_cpus.push_back(sample->GetCPU());
-      if(sample->HasSym()){
-        for (auto sym: sample->GetSymbionts()){
+      if (sample->HasSym()) {
+        for (auto sym : sample->GetSymbionts()) {
           sym_cpus.push_back(sym.DynamicCast<SGPSymbiont>()->GetCPU());
         }
       }
     }
     double host_alpha = AlphaDiversity(random, host_cpus);
-    emp::unordered_map<emp::BitSet<64>, int> host_phenotype_map = GetPhenotypeMap(host_cpus);
+    emp::unordered_map<emp::BitSet<64>, int> host_phenotype_map =
+        GetPhenotypeMap(host_cpus);
     double host_shannon;
-    if (host_cpus.size() == 0){
-        host_shannon = 0.0;
+    if (host_cpus.size() == 0) {
+      host_shannon = 0.0;
     } else {
-        host_shannon = ShannonDiversityHelper(host_phenotype_map);
+      host_shannon = ShannonDiversityHelper(host_phenotype_map);
     }
     int host_richness = host_phenotype_map.size();
 
     double sym_alpha = AlphaDiversity(random, sym_cpus);
-    emp::unordered_map<emp::BitSet<64>, int> sym_phenotype_map = GetPhenotypeMap(sym_cpus);
+    emp::unordered_map<emp::BitSet<64>, int> sym_phenotype_map =
+        GetPhenotypeMap(sym_cpus);
     double sym_shannon;
-    if (sym_cpus.size() == 0){
-        sym_shannon = 0.0;
+    if (sym_cpus.size() == 0) {
+      sym_shannon = 0.0;
     } else {
-        sym_shannon = ShannonDiversityHelper(sym_phenotype_map);
+      sym_shannon = ShannonDiversityHelper(sym_phenotype_map);
     }
     int sym_richness = sym_phenotype_map.size();
 
     ofstream diversity_file;
     std::string diversity_path =
-        config.FILE_PATH()+ "_diversity_" + config.FILE_NAME() + file_ending;
+        config.FILE_PATH() + "_diversity_" + config.FILE_NAME() + file_ending;
     diversity_file.open(diversity_path);
 
-    diversity_file << "alpha_diversity, shannon_diversity, species_richness, partner" << std::endl;
-    diversity_file << host_alpha <<" " << host_shannon << " " << host_richness << " host" << std::endl;
-    diversity_file << sym_alpha <<" " << sym_shannon << " " << sym_richness << " symbiont" << std::endl;
-
+    diversity_file
+        << "alpha_diversity, shannon_diversity, species_richness, partner"
+        << std::endl;
+    diversity_file << host_alpha << " " << host_shannon << " " << host_richness
+                   << " host" << std::endl;
+    diversity_file << sym_alpha << " " << sym_shannon << " " << sym_richness
+                   << " symbiont" << std::endl;
 
     ofstream phenotype_counts_file;
-    std::string phenotype_counts_path =
-        config.FILE_PATH()+ "_phenotype_counts_" + config.FILE_NAME() + file_ending;
+    std::string phenotype_counts_path = config.FILE_PATH() +
+                                        "_phenotype_counts_" +
+                                        config.FILE_NAME() + file_ending;
     phenotype_counts_file.open(phenotype_counts_path);
-    
+
     phenotype_counts_file << "phenotype, count, partner" << std::endl;
-    for (auto const &pair : host_phenotype_map){
-      phenotype_counts_file << pair.first << " " << pair.second << " host" << std::endl;
+    for (auto const &pair : host_phenotype_map) {
+      phenotype_counts_file << pair.first << " " << pair.second << " host"
+                            << std::endl;
     }
-    for (auto const &pair : sym_phenotype_map){
-      phenotype_counts_file << pair.first << " " << pair.second << " sym" << std::endl;
+    for (auto const &pair : sym_phenotype_map) {
+      phenotype_counts_file << pair.first << " " << pair.second << " sym"
+                            << std::endl;
     }
   });
 
@@ -157,7 +170,7 @@ int symbulation_main(int argc, char *argv[]) {
   {
     ofstream modularity_file;
     std::string modularity_path =
-        config.FILE_PATH()+ "_modularity_" + config.FILE_NAME() + file_ending;
+        config.FILE_PATH() + "_modularity_" + config.FILE_NAME() + file_ending;
     modularity_file.open(modularity_path);
 
     modularity_file << "host_pm, host_fm, sym_pm, sym_fm" << std::endl;
@@ -167,10 +180,16 @@ int symbulation_main(int argc, char *argv[]) {
       modularity_file << GetPMFromCPU(sample->GetCPU()) << " ";
       modularity_file << GetFMFromCPU(sample->GetCPU()) << " ";
       if (sample->HasSym()) {
-        modularity_file
-            << GetPMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << " ";
-        modularity_file
-            << GetFMFromCPU(sample->GetSymbionts().front().DynamicCast<SGPSymbiont>()->GetCPU()) << std::endl;
+        modularity_file << GetPMFromCPU(sample->GetSymbionts()
+                                            .front()
+                                            .DynamicCast<SGPSymbiont>()
+                                            ->GetCPU())
+                        << " ";
+        modularity_file << GetFMFromCPU(sample->GetSymbionts()
+                                            .front()
+                                            .DynamicCast<SGPSymbiont>()
+                                            ->GetCPU())
+                        << std::endl;
 
       } else {
         modularity_file << "NA ";
@@ -178,8 +197,6 @@ int symbulation_main(int argc, char *argv[]) {
       }
     }
   }
-  
-
 
   // retrieve the dominant taxons for each organism and write them to a file
   if (config.PHYLOGENY() == 1) {

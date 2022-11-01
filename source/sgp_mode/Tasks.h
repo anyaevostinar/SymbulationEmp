@@ -4,8 +4,6 @@
 #include "../default_mode/SymWorld.h"
 #include "CPUState.h"
 #include <atomic>
-#include <variant>
-#include <map>
 #include <string>
 
 class Task {
@@ -35,7 +33,8 @@ public:
     if (dependencies.size()) {
       size_t actually_completed = std::reduce(
           dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
-            return acc + state.self_completed[i] + (*state.shared_completed)[i];
+            return acc + state.available_dependencies[i] +
+                   (*state.shared_available_dependencies)[i];
           });
       if (actually_completed < num_dep_completes) {
         return false;
@@ -45,36 +44,7 @@ public:
   }
 
   virtual void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                             bool shared) {
-    state.used_resources->Set(task_id);
-
-    if (dependencies.size()) {
-      // TODO does it make sense to reset to 0, or to let them accumulate
-      // resources?
-      size_t total = num_dep_completes;
-      for (size_t i : dependencies) {
-        // Subtract just as much as needed from each dependency until we've
-        // accumulated `num_dep_completes` completions
-        size_t subtract = std::min(state.self_completed[i], total);
-        total -= subtract;
-        state.self_completed[i] -= subtract;
-
-        subtract = std::min((*state.shared_completed)[i], total);
-        total -= subtract;
-        (*state.shared_completed)[i] -= subtract;
-
-        if (total == 0) {
-          break;
-        }
-      }
-    }
-
-    if (shared) {
-      (*state.shared_completed)[task_id]++;
-    } else {
-      state.self_completed[task_id]++;
-    }
-  }
+                             bool shared);
 
   virtual float CheckOutput(CPUState &state, uint32_t output) = 0;
 };
@@ -82,7 +52,7 @@ public:
 /**
  * An input task computes an expected output based on the inputs, and if the
  * organism's output matches, it gives it a certain reward:
- * `InputTask sum{ "SUM", 2, 1.0, [](auto &x) { return x[0] + x[1]; } };`
+ * `InputTask sum( "SUM", 2, 1.0, [](auto &x) { return x[0] + x[1]; } );`
  */
 class InputTask : public Task {
   size_t n_inputs;
@@ -116,7 +86,7 @@ public:
 
 /**
  * An output task returns a reward based on the output the organism produced:
- * `OutputTask is42{ "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } };`
+ * `OutputTask is42() "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } );`
  */
 class OutputTask : public Task {
   std::function<float(uint32_t)> task_fun;
@@ -135,8 +105,6 @@ public:
 
 class SquareTask : public OutputTask {
 public:
-  std::map<uint32_t, uint32_t> hostCalculationTable;
-  std::map<uint32_t, uint32_t> symCalculationTable;
   SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
              bool unlimited = true, emp::vector<size_t> dependencies = {},
              size_t num_dep_completes = 1)
@@ -144,41 +112,7 @@ public:
   }
 
   void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                     bool shared) override {
-    OutputTask::MarkPerformed(state, output, task_id, shared);
-    state.internalEnvironment->insert(state.internalEnvironment->begin(),
-                                      sqrt(output));
-    if(state.host->IsHost()){
-      IncrementSquareMap(output, true);
-    }
-    else{
-      IncrementSquareMap(output, false);
-    }
-  }
-
-   /**
-   * Input: The value of the current output and a boolean indicating whether the organism
-   is a host or symbiont
-   *
-   * Output: None
-   *
-   * Purpose: Adds the output to the SquareMap with a count of 1 if not already included; 
-   * otherwise, increments the count for that output
-   */
-  void IncrementSquareMap(uint32_t output, bool isHost){
-      std::map<uint32_t, uint32_t>& calculationMap = isHost ? hostCalculationTable : symCalculationTable;
-      if (calculationMap.empty()){//Base case for when the map is empty
-        calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-      }else{
-        std::map<uint32_t, uint32_t>::iterator placemark;
-        placemark = calculationMap.find(output);
-        if(placemark == calculationMap.end()){//If output does not exist in the map, add it with a count of 1
-          calculationMap.insert(std::pair<uint32_t, uint32_t>(output, 1));
-        }else{//If output does exist in the map, increment its count
-          placemark->second++;
-        }
-    }
-  }
+                     bool shared) override;
 };
 
 class TaskSet {
@@ -197,7 +131,7 @@ class TaskSet {
 
     tasks[task_id]->MarkPerformed(state, output, task_id, shared);
 
-    if (state.host->IsHost())
+    if (state.organism->IsHost())
       ++*n_succeeds_host[task_id];
     else
       ++*n_succeeds_sym[task_id];
@@ -215,7 +149,6 @@ public:
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
   }
-
 
   /**
    * A custom copy constructor so that task completions aren't shared between
@@ -292,48 +225,7 @@ public:
       n_succeeds_sym[i]->store(0);
     }
   }
-  /**
-   * Input: A boolean identifying a given organism as a host or a symbiont
-   *
-   * Output: The map of square frequencies that matches the organism's type
-   *
-   * Purpose: Returns either hostCalculationTable or symCalculationTable, depending
-   on whether the organism is a host or a symbiont. 
-   */
-  std::map<uint32_t, uint32_t> GetSquareFrequencyData(bool isHost){
-    std::map<uint32_t, uint32_t> myMap;
-    emp::Ptr<Task> curTask = tasks[0];
-    emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-    if (isHost){
-      myMap = squareTask->hostCalculationTable;
-    }
-    else {
-      myMap = squareTask->symCalculationTable;
-    }
-    return myMap;
-  }
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: Empties the host and symbiont calculation tables 
-   */
-  void ClearSquareFrequencyData(bool IsHost){
-      emp::Ptr<Task> curTask = tasks[0];
-      emp::Ptr<SquareTask> squareTask = curTask.DynamicCast<SquareTask>();
-      if (IsHost){
-          squareTask->hostCalculationTable.clear();
-      }
-      else{
-          squareTask->symCalculationTable.clear();
-      }
-      
-  }
 };
-
-
-
 
 // The 9 default logic tasks in Avida
 // These are checked top-to-bottom and the reward is given for the first one
@@ -359,19 +251,21 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
     emp::NewPtr<InputTask>(EQU)};
 
-  const SquareTask SQU = {"SQU", [](uint32_t x) {
-                    uint32_t largest_int = 4294967295;
-                    if (sqrt(x) - floor(sqrt(x)) == 0){
-                      if (x > (largest_int/2)){//Awards points based on a number's distance from 0 rather than absolute size
-                        return 0.5 * (0 - x);
-                      }else{
-                        return (0.5 * x);
-                      }
-                    }else{
-                      return 0.0;
-                    }
-                    return 0.0;
-                  }};
+const SquareTask SQU = {"SQU", [](uint32_t x) {
+                          uint32_t largest_int = 4294967295;
+                          if (sqrt(x) - floor(sqrt(x)) == 0) {
+                            if (x > (largest_int / 2)) {
+                              // Awards points based on a number's distance from
+                              // 0 rather than absolute size
+                              return 0.5 * (0 - x);
+                            } else {
+                              return (0.5 * x);
+                            }
+                          } else {
+                            return 0.0;
+                          }
+                          return 0.0;
+                        }};
 const TaskSet SquareTasks{emp::NewPtr<SquareTask>(SQU)};
 
 #endif

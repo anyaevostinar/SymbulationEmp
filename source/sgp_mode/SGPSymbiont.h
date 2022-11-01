@@ -50,7 +50,7 @@ public:
   ~SGPSymbiont() {
     if (!my_host) {
       cpu.state.used_resources.Delete();
-      cpu.state.shared_completed.Delete();
+      cpu.state.shared_available_dependencies.Delete();
     }
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
@@ -85,13 +85,15 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     if (!my_host) {
       cpu.state.used_resources.Delete();
-      cpu.state.shared_completed.Delete();
+      cpu.state.shared_available_dependencies.Delete();
     }
     Symbiont::SetHost(host);
     cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    cpu.state.shared_completed =
-        host.DynamicCast<SGPHost>()->GetCPU().state.shared_completed;
+    cpu.state.shared_available_dependencies =
+        host.DynamicCast<SGPHost>()
+            ->GetCPU()
+            .state.shared_available_dependencies;
     cpu.state.internalEnvironment =
         host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
   }
@@ -106,14 +108,13 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
-   * Input: The size_t representing the location of the symbiont, and the size_t
-   * representation of the symbiont's position in the host (default -1 if it
-   * doesn't have a host)
+   * Input: The location of the symbiont, which includes the symbiont's position
+   * in the host (default -1 if it doesn't have a host)
    *
    * Output: None
    *
-   * Purpose: To process a symbiont, meaning running its program code, which can
-   * include reproduction and acquisition of resources; and to allow for
+   * Purpose: To process a symbiont, meaning running its program code, which
+   * can include reproduction and acquisition of resources; and to allow for
    * movement
    */
   void Process(emp::WorldPosition pos) {

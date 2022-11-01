@@ -1,6 +1,5 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
-#include "../../sgp_mode/AnalysisTools.h"
 #include "../../sgp_mode/CPU.h"
 #include "../../sgp_mode/CPUState.h"
 #include "../../sgp_mode/GenomeLibrary.h"
@@ -14,9 +13,7 @@
 #include <iostream>
 #include <memory>
 
-
-
-TEST_CASE("GetUsefulStarts", "[sgp]") {
+TEST_CASE("GetUsefulRanges", "[sgp]") {
   GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
         "actual genome that is either"
         "necessary to perform the designated task or not necessary to perform "
@@ -26,7 +23,7 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
     emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
                                              0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
     emp::BitArray<20> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
+                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 0};
     emp::BitArray<20> needed_code_sites_d = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                                              0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
     emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -36,39 +33,16 @@ TEST_CASE("GetUsefulStarts", "[sgp]") {
         needed_code_sites_a, needed_code_sites_b, needed_code_sites_c,
         needed_code_sites_d, needed_code_sites_e};
 
-    emp::vector<size_t> calc_useful_starts = GetUsefulStarts(needed_code_sites);
-    emp::vector<size_t> true_useful_starts = {
-        0, 6, needed_code_sites_c.size() - 5, needed_code_sites_d.size() - 1};
+    std::vector<std::pair<size_t, size_t>> calc_useful_ranges =
+        GetUsefulRanges(needed_code_sites);
+    std::vector<std::pair<size_t, size_t>> true_useful_ranges = {
+        {0, needed_code_sites_a.size() - 1},
+        {6, needed_code_sites_b.size() - 1},
+        {needed_code_sites_c.size() - 5, needed_code_sites_c.size() - 3},
+        {needed_code_sites_d.size() - 1, needed_code_sites_d.size() - 1},
+        {0, 0}};
 
-    REQUIRE(calc_useful_starts == true_useful_starts);
-  }
-}
-
-TEST_CASE("GetUsefulEnds", "[sgp]") {
-  GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
-        "actual genome that is either"
-        "necessary to perform the designated task or not necessary to perform "
-        "the task, respectively") {
-    emp::BitArray<20> needed_code_sites_a = {1, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                             0, 0, 0, 0, 0, 1, 1, 1, 0, 1};
-    emp::BitArray<20> needed_code_sites_b = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
-                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::BitArray<20> needed_code_sites_c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 1, 0, 0, 1, 1, 1, 0, 0};
-    emp::BitArray<20> needed_code_sites_d = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    emp::BitArray<20> needed_code_sites_e = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    emp::vector<emp::BitArray<20>> needed_code_sites = {
-        needed_code_sites_a, needed_code_sites_b, needed_code_sites_c,
-        needed_code_sites_d, needed_code_sites_e};
-
-    emp::vector<size_t> calc_useful_ends = GetUsefulEnds(needed_code_sites);
-    emp::vector<size_t> true_useful_ends = {needed_code_sites_a.size() - 1, 9,
-                                            needed_code_sites_c.size() - 3, 0};
-
-    REQUIRE(calc_useful_ends == true_useful_ends);
+    REQUIRE(calc_useful_ranges == true_useful_ranges);
   }
 }
 
@@ -270,7 +244,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       ProgramBuilder builder;
       builder.AddNand();
       sgpl::Program<Spec> test_program = builder.Build(length);
-      CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+      CPU temp_cpu = CPU(test_sample->GetCPU().state.organism,
                          test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
@@ -286,7 +260,7 @@ TEST_CASE("GetPMFromCPU", "[sgp]") {
       ProgramBuilder builder;
       builder.AddOrn();
       sgpl::Program<Spec> test_program = builder.Build(length);
-      CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+      CPU temp_cpu = CPU(test_sample->GetCPU().state.organism,
                          test_sample->GetCPU().state.world, test_program);
       test_sample->GetCPU() = temp_cpu;
 
@@ -390,7 +364,7 @@ TEST_CASE("GetFMFromCPU", "[sgp]") {
     builder.AddNand();
     builder.AddNot();
     sgpl::Program<Spec> test_program = builder.Build(length);
-    CPU temp_cpu = CPU(test_sample->GetCPU().state.host,
+    CPU temp_cpu = CPU(test_sample->GetCPU().state.organism,
                        test_sample->GetCPU().state.world, test_program);
     test_sample->GetCPU() = temp_cpu;
 
