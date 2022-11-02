@@ -59,7 +59,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
 	WHEN("Horizontal transmission mutation rate is low") {
 	  config.HORIZ_MUTATION_RATE(0.1);
 	  world.RunExperiment(false);
-	  THEN("Symbionts evolve to be slightly parasitic and very efficient") {
+	  THEN("Symbionts evolve to be slightly parasitic and efficient") {
 		double sym_val_mean = sym_val_node.GetMean();
 		REQUIRE(sym_val_mean < 0);
 		REQUIRE(sym_val_mean > -0.7);
@@ -69,7 +69,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
 	WHEN("Horizontal transmission mutation rate is intermediate") {
 	  config.HORIZ_MUTATION_RATE(0.5);
 	  world.RunExperiment(false);
-	  THEN("Symbionts are evolve between slight parasitism and slight mutualism and evolve to be less efficient") {
+	  THEN("Symbionts are evolve between slight parasitism and slight mutualism and evolve to be efficient") {
 		double sym_val_mean = sym_val_node.GetMean();
 		REQUIRE(sym_val_mean < 0.5);
 		REQUIRE(sym_val_mean > -0.5);
@@ -79,7 +79,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
 	WHEN("Horizontal transmission mutation rate is high") {
 	  config.HORIZ_MUTATION_RATE(1);
 	  world.RunExperiment(false);
-	  THEN("Symbionts evolve to be slightly mutualistic and less efficient") {
+	  THEN("Symbionts evolve to be slightly mutualistic and efficient") {
 		double sym_val_mean = sym_val_node.GetMean();
 		REQUIRE(sym_val_mean > 0);
 		REQUIRE(sym_val_mean < 0.7);
