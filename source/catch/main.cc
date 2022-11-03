@@ -33,6 +33,7 @@
 #include "../test/integration_test/lysogeny/plr.test.cc"
 #include "../test/integration_test/endosymbiosis/res_distribute.test.cc"
 #include "../test/integration_test/dirty_transmission/hz_mut_rate.test.cc"
+#include "../test/integration_test/multi_infection/pgg.test.cc"
 
 //#include "../PGGendtoend.test.cc"
 //#include "../test/end_to_end.test.cc"

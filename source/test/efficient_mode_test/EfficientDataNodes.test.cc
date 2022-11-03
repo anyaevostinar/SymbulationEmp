@@ -1,7 +1,6 @@
 #include "../../efficient_mode/EfficientHost.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
 #include "../../efficient_mode/EfficientWorld.h"
-#include "../../efficient_mode/EfficientWorldSetup.cc"
 
 TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
   GIVEN("a world"){
