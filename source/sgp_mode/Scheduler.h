@@ -64,6 +64,9 @@ class Scheduler {
           if (world.IsOccupied(id)) {
             callback(id, world.GetOrg(id));
           }
+          if (world.IsSymPopOccupied(id)) { 
+            callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
+          }
         }
       }
 
@@ -114,6 +117,9 @@ public:
       if (world.IsOccupied(id)) {
         callback(id, world.GetOrg(id));
       }
+      if (world.IsSymPopOccupied(id)) {
+        callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
+      }
     }
   }
 
@@ -124,8 +130,7 @@ public:
    *
    * Purpose: Runs the provided callback on each organism in the world.
    */
-  void
-  ProcessOrgs(std::function<void(emp::WorldPosition, Organism &)> callback) {
+  void ProcessOrgs(std::function<void(emp::WorldPosition, Organism &)> callback) {
     // Special case so we don't start any threads when they're not needed
     if (thread_count == 1)
       return ProcessOrgsSync(callback);

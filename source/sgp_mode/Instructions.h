@@ -191,6 +191,29 @@ INST(Reuptake, {
   }
 });
 
+INST(Infect, {
+  if (state.world->GetConfig()->FREE_LIVING_SYMS()) {
+    // check that it is neither a host nor a hosted sym
+    if (state.host->IsHost() || state.host->GetHost() != nullptr) return;
+    int pop_index = state.location.GetPopID();
+    // check that there's an available host
+    if (state.world->IsOccupied(pop_index)) {
+      //check that there's enough space for infection
+      int syms_size = state.world->GetPop()[pop_index]->GetSymbionts().size();
+      if (syms_size < state.world->GetConfig()->SYM_LIMIT()) {
+        // extract the symbiont from the fls vector and decrement the free living org count, then
+        // add the sym to the host's sym list
+        state.world->GetPop()[pop_index]->AddSymbiont(state.world->ExtractSym(pop_index));
+        // change the location 
+        state.location = emp::WorldPosition(pop_index, syms_size);
+      }
+      else {
+        state.host->SetDead(); // infection failed, set it dead and do deletion next update 
+      }
+    }
+  }
+});
+
 } // namespace inst
 
 #endif
