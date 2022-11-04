@@ -136,7 +136,7 @@ INST(SharedIO, {
 });
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost())
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Donate 20% of the total points of the symbiont-host system
@@ -155,7 +155,7 @@ INST(Donate, {
 });
 INST(Steal, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost())
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Steal 20% of the total points of the symbiont-host system
@@ -194,7 +194,7 @@ INST(Reuptake, {
 INST(Infect, {
   if (state.world->GetConfig()->FREE_LIVING_SYMS()) {
     // check that it is neither a host nor a hosted sym
-    if (state.host->IsHost() || state.host->GetHost() != nullptr) return;
+    if (state.organism->IsHost() || state.organism->GetHost() != nullptr) return;
     int pop_index = state.location.GetPopID();
     // check that there's an available host
     if (state.world->IsOccupied(pop_index)) {
@@ -208,7 +208,7 @@ INST(Infect, {
         state.location = emp::WorldPosition(pop_index, syms_size);
       }
       else {
-        state.host->SetDead(); // infection failed, set it dead and do deletion next update 
+        state.organism->SetDead(); // infection failed, set it dead and do deletion next update 
       }
     }
   }
