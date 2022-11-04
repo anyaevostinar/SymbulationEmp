@@ -134,6 +134,8 @@ public:
     }
 
     if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
+      Clear(); // delete hosts here so that hosted symbionts get 
+      // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
   }
