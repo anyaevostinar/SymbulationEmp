@@ -135,6 +135,7 @@ public:
   SyncDataMonitor<double> &GetSymEarnedDataNode();
   void SetupTasksNodes();
 
+  emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
   emp::DataFile &SetupHostSquareFrequencyFile(const std::string &filename);
