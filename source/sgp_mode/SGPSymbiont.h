@@ -83,12 +83,9 @@ public:
    * Purpose: To set a symbiont's host
    */
   void SetHost(emp::Ptr<Organism> host) {
-    if (!my_host) {
-      cpu.state.used_resources.Delete();
-      cpu.state.shared_available_dependencies.Delete();
-    }
     Symbiont::SetHost(host);
-    cpu.state.used_resources =
+    if (my_host) {
+      cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
     cpu.state.shared_available_dependencies =
         host.DynamicCast<SGPHost>()
@@ -96,6 +93,7 @@ public:
             .state.shared_available_dependencies;
     cpu.state.internalEnvironment =
         host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
+    }
   }
 
   /**
@@ -118,17 +116,19 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
+    if (my_host == nullptr && my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+      cpu.state.used_resources->reset();
+    // Instead of calling Host::Process, do the important stuff here
+    // Our instruction handles reproduction
+    if (GetDead()) {
+      return;
+    }
+    
     cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
-
     // The parts of Symbiont::Process that don't use resources or reproduction
 
     // Age the organism
     GrowOlder();
-    // Check if the organism should move and do it
-    if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
-      // if the symbiont should move, and hasn't been killed
-      my_world->MoveFreeSym(pos);
-    }
   }
 
   /**
@@ -156,11 +156,11 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
-    emp::Ptr<SGPSymbiont> host_baby = emp::NewPtr<SGPSymbiont>(
+    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(
         random, my_world, my_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
-    return host_baby;
+    return sym_baby;
   }
 
   /**
