@@ -9,7 +9,7 @@
 #include <sstream> // stringstream
 
 
-class Symbiont: public Organism {
+class Symbiont: public virtual Organism {
 protected:
   /**
     *

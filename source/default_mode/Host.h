@@ -10,7 +10,7 @@
 #include "SymWorld.h"
 
 
-class Host: public Organism {
+class Host: public virtual Organism {
 
 
 protected:
