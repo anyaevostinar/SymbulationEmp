@@ -10,7 +10,7 @@
 #include "SymWorld.h"
 
 
-class Host: public virtual Organism {
+class Host: public BaseHost {
 
 
 protected:
@@ -34,20 +34,11 @@ protected:
 
   /**
     *
-    * Purpose: Represents the set of symbionts belonging to a host.
-    * This can be set with SetSymbionts(), and symbionts can be
-    * added with AddSymbiont(). This can be cleared with ClearSyms()
-    *
-  */
-  emp::vector<emp::Ptr<Organism>> syms = {};
-
-  /**
-    *
     * Purpose: Represents the set of in-progress "reproductive" symbionts belonging to a host. These are symbionts that aren't yet active.
     * Symbionts can be added with AddReproSymb(). This can be cleared with ClearSyms()
     *
   */
-  emp::vector<emp::Ptr<Organism>> repro_syms = {};
+  emp::vector<emp::Ptr<BaseSymbiont>> repro_syms = {};
 
   /**
     *
@@ -67,27 +58,6 @@ protected:
 
   /**
     *
-    * Purpose: Represents an instance of random.
-    *
-  */
-  emp::Ptr<emp::Random> random = NULL;
-
-  /**
-    *
-    * Purpose: Represents the world that the hosts are living in.
-    *
-  */
-  emp::Ptr<SymWorld> my_world = NULL;
-
-  /**
-    *
-    * Purpose: Represents the configuration settings for a particular run.
-    *
-  */
-  emp::Ptr<SymConfigBase> my_config = NULL;
-
-  /**
-    *
     * Purpose: Represents if a host is alive. This is set to true when a host is killed.
     *
   */
@@ -99,9 +69,12 @@ public:
    * The constructor for the host class
    */
   Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
-  double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms), points(_points), random(_random), my_world(_world), my_config(_config) {
+  double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
+  emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
+  double _points = 0.0) : interaction_val(_intval), repro_syms(_repro_syms), points(_points), Organism(_config, _world, _random) {
+    // Base class members can't be initialized in the initializer list; later should add BaseHost ctor or remove _syms
+    syms = _syms;
+
     if (_intval == -2) {
       interaction_val = random->GetDouble(-1, 1);
     }
@@ -226,7 +199,7 @@ public:
   *
   * Purpose: To get the vector containing pointers to the host's symbionts.
   */
-  emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
+  emp::vector<emp::Ptr<BaseSymbiont>>& GetSymbionts() {return syms;}
 
 
 /**
@@ -236,7 +209,7 @@ public:
  *
  * Purpose: To get the vector containing pointers to the host's repro syms.
  */
-  emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
+  emp::vector<emp::Ptr<BaseSymbiont>>& GetReproSymbionts() {return repro_syms;}
 
 
   /**
@@ -292,7 +265,7 @@ public:
    *
    * Purpose: To set a host's symbionts to the input vector of organisms.
    */
-  void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
+  void SetSymbionts(emp::vector<emp::Ptr<BaseSymbiont>> _in) {
     ClearSyms();
     for(size_t i = 0; i < _in.size(); i++){
       AddSymbiont(_in[i]);
@@ -431,58 +404,13 @@ public:
 
 
   /**
-   * Input: The pointer to the organism that is to be added to the host's symbionts.
-   *
-   * Output: The int describing the symbiont's position ID, or 0 if it did not successfully
-   * get added to the host's list of symbionts.
-   *
-   * Purpose: To add a symbionts to a host's symbionts
-   */
-  int AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
-      syms.push_back(_in);
-      _in->SetHost(this);
-      _in->UponInjection();
-      return syms.size();
-    } else {
-      _in.Delete();
-      return 0;
-    }
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: A bool representing if a symbiont will be allowed to enter a host.
-   *
-   * Purpose: To determine if a symbiont will be allowed into a host. If phage exclusion is off, this function will
-   * always return true. If phage exclusion is on, then there is a 1/2^n chance of a new phage being allowed in,
-   * where n is the number of existing phage.
-   */
-  bool SymAllowedIn(){
-    bool do_phage_exclusion = my_config->PHAGE_EXCLUDE();
-    if(!do_phage_exclusion){
-     return true;
-    }
-    else{
-     int num_syms = syms.size();
-     //essentially imitaties a 1/ 2^n chance, with n = number of symbionts
-     int enter_chance = random->GetUInt((int) pow(2.0, num_syms));
-     if(enter_chance == 0) { return true; }
-     return false;
-    }
-  }
-
-
-  /**
    * Input: A pointer to the organism to be added to the host's symbionts.
    *
    * Output: None
    *
    * Purpose: To add a repro sym to the host's symbionts.
    */
-  void AddReproSym(emp::Ptr<Organism> _in) {repro_syms.push_back(_in);}
+  void AddReproSym(emp::Ptr<BaseSymbiont> _in) {repro_syms.push_back(_in);}
 
 
   /**
@@ -620,7 +548,7 @@ public:
    *
    * Purpose: To distribute resources between sym and host depending on their interaction values.
    */
-  void DistribResToSym(emp::Ptr<Organism> sym, double sym_piece){
+  void DistribResToSym(emp::Ptr<BaseSymbiont> sym, double sym_piece){
     double hostIntVal = interaction_val;
     double hostDonation = 0;
     if(hostIntVal < 0){
@@ -662,7 +590,7 @@ public:
 
         //Now check if symbionts get to vertically transmit
         for(size_t j = 0; j< (GetSymbionts()).size(); j++){
-          emp::Ptr<Organism> parent = GetSymbionts()[j];
+          emp::Ptr<BaseSymbiont> parent = GetSymbionts()[j];
           parent->VerticalTransmission(host_baby);
         }
         my_world->DoBirth(host_baby, location); //Automatically deals with grid
@@ -671,7 +599,7 @@ public:
         return; //If host is dead, return
       }
     if (HasSym()) { //let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+        emp::vector<emp::Ptr<BaseSymbiont>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
           emp::Ptr<Organism> curSym = syms[j];
           if (GetDead()){

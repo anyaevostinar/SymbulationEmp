@@ -9,7 +9,7 @@
 #include <sstream> // stringstream
 
 
-class Symbiont: public virtual Organism {
+class Symbiont: public BaseSymbiont {
 protected:
   /**
     *
@@ -54,31 +54,10 @@ protected:
 
   /**
     *
-    * Purpose: Represents an instance of random.
-    *
-  */
-  emp::Ptr<emp::Random> random = NULL;
-
-  /**
-    *
-    * Purpose: Represents the world that the hosts are living in.
-    *
-  */
-  emp::Ptr<SymWorld> my_world = NULL;
-
-  /**
-    *
     * Purpose: Represents the symbiont's host.
     *
   */
   emp::Ptr<Organism> my_host = NULL;
-
-  /**
-    *
-    * Purpose: Represents the configuration settings for a particular run.
-    *
-  */
-  emp::Ptr<SymConfigBase> my_config = NULL;
 
   /**
     *
@@ -91,7 +70,7 @@ public:
   /**
    * The constructor for symbiont
    */
-  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), random(_random), my_world(_world), my_config(_config) {
+  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), points(_points), Organism(_config, _world, _random) {
     infection_chance = my_config->SYM_INFECTION_CHANCE();
     if (infection_chance == -2) infection_chance = random->GetDouble(0,1); //randomized starting infection chance
     if (infection_chance > 1 || infection_chance < 0) throw "Invalid infection chance. Must be between 0 and 1"; //exception for invalid infection chance
@@ -418,28 +397,8 @@ public:
    *
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
-    if(host == nullptr){
-      host = my_host;
-    }
-    double sym_int_val = GetIntVal();
-    double sym_portion = 0;
-    double host_portion = 0;
-    double synergy = my_config->SYNERGY();
-
-    if (sym_int_val<0){
-      double stolen = host->StealResources(sym_int_val);
-      host_portion = 0;
-      sym_portion = stolen + host_donation;
-    }
-    else if (sym_int_val >= 0){
-      host_portion = host_donation * sym_int_val;
-      sym_portion = host_donation - host_portion;
-    }
-    AddPoints(sym_portion);
-    return host_portion * synergy;
-  }
-
+  double ProcessResources(double host_donation,
+                          emp::Ptr<Organism> host = nullptr);
 
   /**
    * Input: None
@@ -528,7 +487,7 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<Organism> MakeNew() {
+  emp::Ptr<BaseSymbiont> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
     return new_sym;
@@ -541,8 +500,8 @@ public:
    *
    * Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function
    */
-  emp::Ptr<Organism> Reproduce() {
-    emp::Ptr<Organism> sym_baby = MakeNew();
+  emp::Ptr<BaseSymbiont> Reproduce() {
+    emp::Ptr<BaseSymbiont> sym_baby = MakeNew();
     sym_baby->Mutate();
 
     if(my_config->PHYLOGENY() == 1){
@@ -550,30 +509,6 @@ public:
       //baby's taxon will be set in AddSymToSystematic
     }
     return sym_baby;
-  }
-
-  /**
-   * Input: The pointer to the organism that is the new host baby
-   *
-   * Output: None
-   *
-   * Purpose: To allow for vertical transmission to occur
-   */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    if (my_world->WillTransmit()) {
-      // Vertical transmission data nodes
-      // Attempt vs success for vertical transmission is just whether it has enough resources
-      my_world->GetVerticalTransmissionAttemptCount().AddDatum(1);
-
-      // If the world permits vertical transmission and the sym has enough resources, transmit!
-      if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
-        emp::Ptr<Organism> sym_baby = Reproduce();
-        points -= my_config->SYM_VERT_TRANS_RES();
-        host_baby->AddSymbiont(sym_baby);
-
-        my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
-      }
-    }
   }
 
   /**
@@ -594,7 +529,7 @@ public:
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
-        emp::Ptr<Organism> sym_baby = Reproduce();
+        emp::Ptr<BaseSymbiont> sym_baby = Reproduce();
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

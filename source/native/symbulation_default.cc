@@ -1,7 +1,10 @@
 #include "../default_mode/SymWorld.h"
-#include "../default_mode/WorldSetup.cc"
 #include "../default_mode/DataNodes.h"
 #include "symbulation.h"
+
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
+#include "../default_mode/WorldSetup.cc"
 
 // This is the main function for the NATIVE version of this project.
 int symbulation_main(int argc, char * argv[])
