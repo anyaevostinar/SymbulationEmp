@@ -1252,6 +1252,26 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.DoSymDeath(0);
       REQUIRE(sym_sys->GetNumActive() == 0);
     }
+
+    THEN("hosted and free symbionts are deleted without a segmentation fault") {
+      world_size = 4;
+      world.Resize(world_size);
+
+      // add a free living sym to the world
+      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.InjectSymbiont(symbiont);
+      
+      // add a host to the world
+      emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      world.InjectHost(host);
+
+      // add a hosted sym to the host
+      emp::Ptr<Organism> hosted_sym = symbiont->Reproduce();
+      host->AddSymbiont(hosted_sym);
+
+      // check that free living organisms have properly been added to the world
+      REQUIRE(world.GetNumOrgs() == 2);
+    }
   }
 
   WHEN("generations pass"){
