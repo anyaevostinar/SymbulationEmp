@@ -444,7 +444,7 @@ TEST_CASE("Process", "[default]") {
     SymWorld w(*random, &config);
     SymWorld * world = &w;
 
-    //add new test for free living sym not moving when it shouldnt
+    //add new test for free living sym not moving when it shouldn't
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
         // double parent_orig_int_val = 1;
@@ -535,6 +535,68 @@ TEST_CASE("Process", "[default]") {
         }
 
         sym.Delete();
+    }
+
+    WHEN("The symbiont is free living and horizontal transmission is true") {
+      config.FREE_LIVING_SYMS(1);
+      config.SYM_HORIZ_TRANS_RES(140.0);
+      config.HORIZ_TRANS(true);
+      double int_val = 0;
+      int points = 0;
+
+      WHEN("Fls required reproduction resources is greater than -1") {
+        int free_sym_repro_res = 70;
+        config.FREE_SYM_REPRO_RES(free_sym_repro_res);
+        emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
+        emp::WorldPosition location = emp::WorldPosition(0, 10);
+
+        WHEN("Points is less than fls required repro res") {
+          int orig_points = free_sym_repro_res - 10;
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("Points does not change") {
+            REQUIRE(sym->GetPoints() == orig_points);
+          }
+
+        }
+        WHEN("Points is greater than fls required repro res") {
+          int orig_points = free_sym_repro_res + 10;
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("Points changes to 0") {
+            REQUIRE(sym->GetPoints() == 0);
+          }
+        }
+      }
+      WHEN("Fls required reproduction resources is equal to -1") {
+        int sym_h_res = 120;
+        config.SYM_HORIZ_TRANS_RES(sym_h_res);
+        config.FREE_SYM_REPRO_RES(-1);
+        emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
+        emp::WorldPosition location = emp::WorldPosition(0, 10);
+
+        WHEN("Points is less than sym_h_res") {
+          int orig_points = sym_h_res - 10;
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("Points does not change") {
+            REQUIRE(sym->GetPoints() == orig_points);
+          }
+
+        }
+        WHEN("Points is greater than sym_h_res") {
+          int orig_points = sym_h_res + 10;
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("Points changes to 0") {
+            REQUIRE(sym->GetPoints() == 0);
+          }
+        }
+      }
     }
 }
 
