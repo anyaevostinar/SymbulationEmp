@@ -6,6 +6,7 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "emp/Evolve/World_structure.hpp"
+#include "SGPHost.h"
 
 class SGPSymbiont : public Symbiont {
 private:
@@ -107,6 +108,24 @@ public:
    * Purpose: Allows accessing the symbiont's CPU.
    */
   CPU &GetCPU() { return cpu; }
+
+  /**
+   * Input: The index of the ecto host to be linked with.
+   *
+   * Output: None.
+   *
+   * Purpose: Sets the organism's internal environment up for ectosymbiosis
+   */
+  void LinkEctoHost(int pos) {
+    emp::Ptr<Organism> host = my_world->GetPop()[pos];
+
+    cpu.state.used_resources =
+      host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
+    cpu.state.shared_available_dependencies =
+      host.DynamicCast<SGPHost>()->GetCPU().state.shared_available_dependencies;
+    cpu.state.internalEnvironment =
+      host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
+  }
 
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
