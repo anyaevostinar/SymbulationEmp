@@ -85,13 +85,16 @@ public:
   void SetHost(emp::Ptr<Organism> host) {
     Symbiont::SetHost(host);
     if (my_host) {
+      if (cpu.state.used_resources) { cpu.state.used_resources.Delete(); }
+      if (cpu.state.shared_available_dependencies) {
+        cpu.state.shared_available_dependencies.Delete(); }
+      if (cpu.state.internalEnvironment) { cpu.state.internalEnvironment.Delete(); }
+
       cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    cpu.state.shared_available_dependencies =
-        host.DynamicCast<SGPHost>()
-            ->GetCPU()
-            .state.shared_available_dependencies;
-    cpu.state.internalEnvironment =
+      cpu.state.shared_available_dependencies =
+        host.DynamicCast<SGPHost>()->GetCPU().state.shared_available_dependencies;
+      cpu.state.internalEnvironment =
         host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
     }
   }
