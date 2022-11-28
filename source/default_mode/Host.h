@@ -285,7 +285,7 @@ public:
    *
    * Purpose: To create a new baby host and reset this host's points to 0.
    */
-  emp::Ptr<Organism> Reproduce(){
+  emp::Ptr<Organism> Reproduce() override {
     emp::Ptr<Organism> host_baby = MakeNew();
     host_baby->Mutate();
     SetPoints(0);

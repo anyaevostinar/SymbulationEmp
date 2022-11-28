@@ -261,7 +261,7 @@ public:
    *
    * Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function
    */
-  emp::Ptr<BaseSymbiont> Reproduce() override {
+  emp::Ptr<BaseSymbiont> ReproduceSym() override {
     emp::Ptr<BaseSymbiont> sym_baby = MakeNew();
     sym_baby->Mutate();
 
@@ -290,7 +290,7 @@ public:
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         SetPoints(0);
-        emp::Ptr<BaseSymbiont> sym_baby = Reproduce();
+        emp::Ptr<BaseSymbiont> sym_baby = ReproduceSym();
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

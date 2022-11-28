@@ -15,6 +15,8 @@
 // included last. It still fixes include issues, but doesn't improve build time.
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
 #include "../sgp_mode/Tasks.cc"
 
 #include <fstream>

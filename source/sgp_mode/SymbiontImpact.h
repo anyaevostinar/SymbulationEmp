@@ -24,7 +24,6 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   world.GetConfig()->LIMITED_RES_TOTAL(-1);
 
   host.ClearSyms();
-  host.ClearReproSyms();
   host.SetPoints(0.0);
   for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
     // world.GetUpdate() isn't changing since the whole world isn't being

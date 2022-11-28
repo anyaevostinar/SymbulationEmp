@@ -50,7 +50,7 @@ public:
     }
   }
 
-  bool operator<(const SGPOrganism &other) const {
+  bool operator<(const Organism &other) const override {
     if (const SGPOrganism *sgp = dynamic_cast<const SGPOrganism *>(&other)) {
       return cpu.GetProgram() < sgp->cpu.GetProgram();
     } else {
@@ -58,7 +58,7 @@ public:
     }
   }
 
-  bool operator==(const SGPOrganism &other) const {
+  bool operator==(const Organism &other) const override {
     if (const SGPOrganism *sgp = dynamic_cast<const SGPOrganism *>(&other)) {
       return cpu.GetProgram() == sgp->cpu.GetProgram();
     } else {
@@ -84,7 +84,7 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
-  void Process(emp::WorldPosition pos) {
+  void Process(emp::WorldPosition pos) override {
     cpu.RunCPUStep(pos, my_world->GetConfig()->CYCLES_PER_UPDATE());
   }
 
@@ -95,7 +95,7 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  void Mutate() {
+  void Mutate() override {
     cpu.Mutate();
   }
 };

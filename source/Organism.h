@@ -32,8 +32,7 @@ public:
 
   virtual ~Organism() {}
   virtual bool operator<(const Organism &other) const {
-    std::cout << "operator< called from Organism" << std::endl;
-    throw "Organism method called!";
+    return (this < &other);
   };
   virtual bool operator==(const Organism &other) const {
     return (this == &other);
@@ -51,6 +50,7 @@ public:
   virtual double GetPoints() const { return points; }
   virtual void AddPoints(double add) { points += add; }
   virtual void SetPoints(double set) { points = set; }
+  virtual emp::Ptr<Organism> Reproduce() = 0;
   /**
    * Input: None
    *
@@ -152,6 +152,7 @@ public:
   double GetInfectionChance() const { return infection_chance; }
 
   virtual void SetHost(emp::Ptr<BaseHost> _in) { my_host = _in; }
+  virtual emp::Ptr<BaseHost> GetHost() const { return my_host; }
   virtual emp::Ptr<emp::Taxon<int>> GetTaxon() { return my_taxon; }
   virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) { my_taxon = _in; }
   virtual double ProcessResources(double sym_piece, emp::Ptr<Organism> host) {
@@ -159,7 +160,8 @@ public:
     return 0;
   };
   virtual void VerticalTransmission(emp::Ptr<Organism> host_baby);
-  virtual emp::Ptr<BaseSymbiont> Reproduce() = 0;
+  virtual emp::Ptr<BaseSymbiont> ReproduceSym() = 0;
+  emp::Ptr<Organism> Reproduce() override { return ReproduceSym(); }
   virtual size_t AddSymbiont(emp::Ptr<BaseSymbiont> sym) override {
     // Symbionts can't have their own symbionts (but a subclass might)
     sym.Delete();

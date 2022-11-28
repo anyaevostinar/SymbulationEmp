@@ -80,11 +80,9 @@ INST(Reproduce, {
   double points; 
   if (state.organism->IsHost()) {
     points = state.world->GetConfig()->HOST_REPRO_RES();
-  }
-  else if (state.organism->GetHost() == nullptr && state.world->GetConfig()->FREE_SYM_REPRO_RES() != -1) {
+  } else if (state.organism.DynamicCast<BaseSymbiont>()->GetHost() == nullptr && state.world->GetConfig()->FREE_SYM_REPRO_RES() != -1) {
     points = state.world->GetConfig()->FREE_SYM_REPRO_RES();
-  }
-  else {
+  } else {
     points = state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
   }
   
@@ -144,40 +142,42 @@ INST(SharedIO, {
 });
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
-      return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-      // Donate 20% of the total points of the symbiont-host system
-      // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-      // couple of instructions
-      double to_donate =
-          fmin(state.organism->GetPoints(),
-               (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymDonatedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_donate); });
-      host->AddPoints(to_donate *
-                      (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
-      state.organism->AddPoints(-to_donate);
+    if (emp::Ptr<BaseSymbiont> sym =
+            state.organism.DynamicCast<BaseSymbiont>()) {
+      if (emp::Ptr<Organism> host = sym->GetHost()) {
+        // Donate 20% of the total points of the symbiont-host system
+        // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+        // couple of instructions
+        double to_donate =
+            fmin(state.organism->GetPoints(),
+                 (state.organism->GetPoints() + host->GetPoints()) * 0.20);
+        state.world->GetSymDonatedDataNode().WithMonitor(
+            [=](auto &m) { m.AddDatum(to_donate); });
+        host->AddPoints(to_donate *
+                        (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
+        state.organism->AddPoints(-to_donate);
+      }
     }
   }
 });
 INST(Steal, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
-      return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-      // Steal 20% of the total points of the symbiont-host system
-      // This way, a sym can steal e.g. 40 or 60 percent of the host's points in
-      // a couple of instructions
-      double to_steal =
-          fmin(host->GetPoints(),
-               (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymStolenDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_steal); });
-      host->AddPoints(-to_steal);
-      // 10% of the stolen resources are lost
-      state.organism->AddPoints(
-          to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+    if (emp::Ptr<BaseSymbiont> sym =
+            state.organism.DynamicCast<BaseSymbiont>()) {
+      if (emp::Ptr<Organism> host = sym->GetHost()) {
+        // Steal 20% of the total points of the symbiont-host system
+        // This way, a sym can steal e.g. 40 or 60 percent of the host's points
+        // in a couple of instructions
+        double to_steal =
+            fmin(host->GetPoints(),
+                 (state.organism->GetPoints() + host->GetPoints()) * 0.20);
+        state.world->GetSymStolenDataNode().WithMonitor(
+            [=](auto &m) { m.AddDatum(to_steal); });
+        host->AddPoints(-to_steal);
+        // 10% of the stolen resources are lost
+        state.organism->AddPoints(
+            to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+      }
     }
   }
 });
@@ -202,7 +202,7 @@ INST(Reuptake, {
 INST(Infect, {
   if (state.world->GetConfig()->FREE_LIVING_SYMS()) {
     // check that it is neither a host nor a hosted sym
-    if (state.organism->IsHost() || state.organism->GetHost() != nullptr) return;
+    if (state.organism->IsHost() || state.organism.DynamicCast<BaseSymbiont>()->GetHost() != nullptr) return;
     int pop_index = state.location.GetPopID();
     // check that there's an available host
     if (state.world->IsOccupied(pop_index)) {

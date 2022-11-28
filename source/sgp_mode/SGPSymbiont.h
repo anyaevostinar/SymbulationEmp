@@ -8,7 +8,7 @@
 #include "SGPWorld.h"
 #include "emp/Evolve/World_structure.hpp"
 
-class SGPSymbiont : public Symbiont, public SGPOrganism {
+class SGPSymbiont : public BaseSymbiont, public SGPOrganism {
 public:
   /**
    * Constructs a new SGPSymbiont as an ancestor organism, with either a random
@@ -16,9 +16,9 @@ public:
    * the config setting RANDOM_ANCESTOR.
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
+              emp::Ptr<SymConfigBase> _config,
               double _points = 0.0)
-      : Symbiont(_random, _world, _config, _intval, _points),
+      : Organism(_config, _world, _random, _points),
         SGPOrganism(_random, _world) {}
 
   /**
@@ -26,13 +26,13 @@ public:
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
               emp::Ptr<SymConfigBase> _config,
-              const sgpl::Program<Spec> &genome, double _intval = 0.0,
+              const sgpl::Program<Spec> &genome,
               double _points = 0.0)
-      : Symbiont(_random, _world, _config, _intval, _points),
+      : Organism(_config, _world, _random, _points),
         SGPOrganism(_random, _world, genome) {}
 
   SGPSymbiont(const SGPSymbiont &symbiont)
-      : Symbiont(symbiont), SGPOrganism(symbiont) {}
+      : BaseSymbiont(symbiont), Organism(symbiont), SGPOrganism(symbiont) {}
 
   /**
    * Input: None
@@ -58,17 +58,17 @@ public:
    *
    * Purpose: To set a symbiont's host
    */
-  void SetHost(emp::Ptr<Organism> host) {
-    Symbiont::SetHost(host);
+  void SetHost(emp::Ptr<BaseHost> host) override {
+    BaseSymbiont::SetHost(host);
     if (my_host) {
       cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    cpu.state.shared_available_dependencies =
-        host.DynamicCast<SGPHost>()
-            ->GetCPU()
-            .state.shared_available_dependencies;
-    cpu.state.internalEnvironment =
-        host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
+      cpu.state.shared_available_dependencies =
+          host.DynamicCast<SGPHost>()
+              ->GetCPU()
+              .state.shared_available_dependencies;
+      cpu.state.internalEnvironment =
+          host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
     }
   }
 
@@ -91,7 +91,7 @@ public:
    * can include reproduction and acquisition of resources; and to allow for
    * movement
    */
-  void Process(emp::WorldPosition pos) {
+  void Process(emp::WorldPosition pos) override {
     if (my_host == nullptr && SGPOrganism::my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
       cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
@@ -121,11 +121,11 @@ public:
    * bookkeeping on top of `Symbiont::VerticalTransmission()` to avoid messing
    * with the reproduction queue which is used for horizontal transmission.
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) override {
     // Save and restore the in-progress reproduction, since Reproduce() will be
     // called but it will still be on the queue for horizontal transmission
     size_t old = cpu.state.in_progress_repro;
-    Symbiont::VerticalTransmission(host_baby);
+    BaseSymbiont::VerticalTransmission(host_baby);
     cpu.state.in_progress_repro = old;
   }
 
@@ -136,12 +136,30 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<Organism> MakeNew() {
+  emp::Ptr<BaseSymbiont> MakeNew() {
     emp::Ptr<SGPSymbiont> sym_baby =
         emp::NewPtr<SGPSymbiont>(random, SGPOrganism::my_world, my_config,
-                                 cpu.GetProgram(), GetIntVal());
+                                 cpu.GetProgram());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
+    return sym_baby;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function
+   */
+  emp::Ptr<BaseSymbiont> ReproduceSym() override {
+    emp::Ptr<BaseSymbiont> sym_baby = MakeNew();
+    sym_baby->Mutate();
+
+    if(my_config->PHYLOGENY() == 1){
+      my_world->AddSymToSystematic(sym_baby, my_taxon);
+      //baby's taxon will be set in AddSymToSystematic
+    }
     return sym_baby;
   }
 
@@ -152,8 +170,8 @@ public:
    *
    * Purpose: To mutate the code in the genome of this symbiont.
    */
-  void Mutate() {
-    Symbiont::Mutate();
+  void Mutate() override {
+    BaseSymbiont::Mutate();
 
     cpu.Mutate();
   }

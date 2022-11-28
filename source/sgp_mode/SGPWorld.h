@@ -119,8 +119,8 @@ public:
           sym->VerticalTransmission(child);
         }
         DoBirth(child, org.second);
-      } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, org.second);
+      } else if (emp::Ptr<BaseSymbiont> sym = child.DynamicCast<BaseSymbiont>()) {
+        emp::WorldPosition new_pos = SymDoBirth(sym, org.second);
         // Because we're not calling HorizontalTransmission, we need to adjust
         // these data nodes here
         emp::DataMonitor<int> &data_node_attempts_horiztrans =
@@ -132,7 +132,7 @@ public:
         if (new_pos.IsValid()) {
           data_node_successes_horiztrans.AddDatum(1);
         }
-      }
+      } else throw "not a host or symbiont";
     }
     to_reproduce.clear();
   }

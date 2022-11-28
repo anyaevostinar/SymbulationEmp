@@ -38,7 +38,7 @@ void BaseSymbiont::VerticalTransmission(emp::Ptr<Organism> host_baby) {
     // If the world permits vertical transmission and the sym has enough
     // resources, transmit!
     if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
-      emp::Ptr<BaseSymbiont> sym_baby = Reproduce();
+      emp::Ptr<BaseSymbiont> sym_baby = ReproduceSym();
       points -= my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
 
