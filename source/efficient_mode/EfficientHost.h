@@ -2,9 +2,10 @@
 #define EFFHOST_H
 
 #include "../default_mode/Host.h"
+#include "EfficientOrganism.h"
 #include "EfficientWorld.h"
 
-class EfficientHost: public Host {
+class EfficientHost: public Host, public EfficientOrganism {
 protected:
 
   /**
@@ -25,10 +26,11 @@ public:
    * The constructor for efficient host
    */
   EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config,
-  double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+  double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
+  emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
   double _points = 0.0, double _efficient = 0.1) :
-  Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
+  Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+  Organism(_config, _world, _random, _points) {
     efficiency = _efficient;
     my_world = _world;
   }

@@ -3,6 +3,7 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "EfficientOrganism.h"
 
 class EfficientWorld : public SymWorld {
 private:
@@ -82,14 +83,18 @@ public:
         data_node_efficiency->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+            emp::vector<emp::Ptr<BaseSymbiont>> syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
-              data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
+              if (emp::Ptr<EfficientOrganism> sym = syms[j].DynamicCast<EfficientOrganism>()) {
+                data_node_efficiency->AddDatum(sym->GetEfficiency());
+              }
             }//close for
           }//close if
           if(sym_pop[i]) {
-            data_node_efficiency->AddDatum(sym_pop[i]->GetEfficiency());
+              if (emp::Ptr<EfficientOrganism> sym = sym_pop[i].DynamicCast<EfficientOrganism>()) {
+                data_node_efficiency->AddDatum(sym->GetEfficiency());
+              }
           }//close if
       }//close for
       });

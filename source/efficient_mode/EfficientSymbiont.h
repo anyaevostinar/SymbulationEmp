@@ -7,7 +7,7 @@
 
 
 
-class EfficientSymbiont: public Symbiont {
+class EfficientSymbiont: public Symbiont, public EfficientOrganism {
 protected:
 
   /**
@@ -53,7 +53,9 @@ public:
   /**
    * The constructor for efficient symbiont
    */
-  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
+  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) :
+  Symbiont(_random, _world, _config, _intval, _points),
+  Organism(_config, _world, _random, _points) {
     efficiency = _efficient;
     my_world = _world;
     if(my_config->HORIZ_MUTATION_RATE() < 0){
@@ -208,7 +210,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<EfficientSymbiont> MakeNew(){
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
@@ -224,8 +226,8 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  emp::Ptr<Organism> Reproduce(std::string mode) {
-    emp::Ptr<Organism> sym_baby = MakeNew();
+  emp::Ptr<BaseSymbiont> Reproduce(std::string mode) {
+    emp::Ptr<EfficientSymbiont> sym_baby = MakeNew();
     sym_baby->Mutate(mode);
     return sym_baby;
   }
@@ -241,7 +243,7 @@ public:
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = Reproduce("vertical");
+      emp::Ptr<BaseSymbiont> sym_baby = Reproduce("vertical");
       host_baby->AddSymbiont(sym_baby);
 
       //vertical transmission data node
@@ -263,7 +265,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Organism> sym_baby = Reproduce("horizontal");
+        emp::Ptr<BaseSymbiont> sym_baby = Reproduce("horizontal");
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes
