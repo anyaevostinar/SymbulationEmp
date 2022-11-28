@@ -16,17 +16,21 @@ protected:
   emp::Ptr<SymConfigBase> my_config;
   emp::Ptr<SymWorld> my_world;
   emp::Ptr<emp::Random> random;
-  bool dead;
+  bool dead = false;
   double points;
+  /**
+   * Purpose: Represents the number of updates the host
+   * has lived through; at birth is set to 0.
+   */
+  size_t age = 0;
 
 public:
   Organism(emp::Ptr<SymConfigBase> my_config, emp::Ptr<SymWorld> my_world,
-           emp::Ptr<emp::Random> random)
-      : my_config(my_config), my_world(my_world), random(random) {}
+           emp::Ptr<emp::Random> random, double points = 0.0)
+      : my_config(my_config), my_world(my_world), random(random),
+        points(points) {}
 
   virtual ~Organism() {}
-  Organism &operator=(const Organism &) = default;
-  Organism &operator=(Organism &&) = default;
   virtual bool operator<(const Organism &other) const {
     std::cout << "operator< called from Organism" << std::endl;
     throw "Organism method called!";
@@ -41,10 +45,36 @@ public:
   virtual size_t AddSymbiont(emp::Ptr<BaseSymbiont> sym) = 0;
   virtual emp::vector<emp::Ptr<BaseSymbiont>> GetSymbionts() const = 0;
   virtual void Process(emp::WorldPosition location) = 0;
-  virtual bool GetDead() const { return dead; };
+  virtual bool GetDead() const { return dead; }
+  virtual void SetDead() { dead = true; }
   virtual void Mutate() = 0;
   virtual double GetPoints() const { return points; }
   virtual void AddPoints(double add) { points += add; }
+  virtual void SetPoints(double set) { points = set; }
+  /**
+   * Input: None
+   *
+   * Output: an int representing the current age of the Host
+   *
+   * Purpose: To get the Host's age.
+   */
+  virtual int GetAge() { return age; }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Increments age by one and kills it if too old.
+   */
+  virtual void GrowOlder() {
+    age = age + 1;
+    size_t max =
+        IsHost() ? my_config->HOST_AGE_MAX() : my_config->SYM_AGE_MAX();
+    if (age > max && max > 0) {
+      SetDead();
+    }
+  }
 };
 
 class BaseHost : public virtual Organism {
@@ -72,6 +102,25 @@ public:
   /**
    * Input: None
    *
+   * Output: None
+   *
+   * Purpose: To clear a host's symbionts.
+   */
+  void ClearSyms() { syms.resize(0); }
+
+  /**
+   * Input: None
+   *
+   * Output: A bool representing if a host has any symbionts.
+   *
+   * Purpose: To determine if a host has any symbionts, though they might be
+   * corpses that haven't been removed yet.
+   */
+  bool HasSym() { return syms.size() != 0; }
+
+  /**
+   * Input: None
+   *
    * Output: A bool representing if a symbiont will be allowed to enter a host.
    *
    * Purpose: To determine if a symbiont will be allowed into a host. If phage
@@ -83,18 +132,28 @@ public:
 };
 
 class BaseSymbiont : public virtual Organism {
-private:
-  emp::Ptr<emp::Taxon<int>> taxon;
-  emp::Ptr<BaseHost> host;
+protected:
+  emp::Ptr<emp::Taxon<int>> my_taxon;
+  emp::Ptr<BaseHost> my_host;
   double infection_chance;
 
 public:
+  BaseSymbiont() {
+    infection_chance = my_config->SYM_INFECTION_CHANCE();
+    // randomized starting infection chance
+    if (infection_chance == -2)
+      infection_chance = random->GetDouble(0, 1);
+    // exception for invalid infection chance
+    if (infection_chance > 1 || infection_chance < 0)
+      throw "Invalid infection chance. Must be between 0 and 1";
+  }
+
   bool IsHost() const override { return false; }
   double GetInfectionChance() const { return infection_chance; }
 
-  virtual void SetHost(emp::Ptr<BaseHost> _in) { host = _in; }
-  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() { return taxon; }
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) { taxon = _in; }
+  virtual void SetHost(emp::Ptr<BaseHost> _in) { my_host = _in; }
+  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() { return my_taxon; }
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) { my_taxon = _in; }
   virtual double ProcessResources(double sym_piece, emp::Ptr<Organism> host) {
     AddPoints(sym_piece);
     return 0;
@@ -108,6 +167,33 @@ public:
   }
   emp::vector<emp::Ptr<BaseSymbiont>> GetSymbionts() const override {
     return {};
+  }
+
+  virtual void Mutate() override {
+    // modify infection chance, which is between 0 and 1
+    double local_size = my_config->MUTATION_SIZE();
+    if (my_config->FREE_LIVING_SYMS()) {
+      infection_chance += random->GetRandNormal(0.0, local_size);
+      if (infection_chance < 0)
+        infection_chance = 0;
+      else if (infection_chance > 1)
+        infection_chance = 1;
+    }
+  }
+
+  /**
+   * Input: The double that will be the symbiont's infection chance
+   *
+   * Output: None
+   *
+   * Purpose: To set a symbiont's infection host and check that the proposed
+   * value is valid.
+   */
+  void SetInfectionChance(double _in) {
+    if (_in > 1 || _in < 0)
+      throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
+    else
+      infection_chance = _in;
   }
 
   /**
