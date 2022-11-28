@@ -84,16 +84,16 @@ public:
     if(my_config->PHYLOGENY() == 1) {my_world->GetSymSys()->RemoveOrg(my_taxon, my_world->GetUpdate());}
   }
 
-    /**
-    * Input: None
-    * 
-    * Output: Name of class as string, Symbiont
-    *
-    * Purpose: To know which subclass the object is
-    */
-    std::string const GetName() {
-      return  "Symbiont";
-    }
+  /**
+  * Input: None
+  * 
+  * Output: Name of class as string, Symbiont
+  *
+  * Purpose: To know which subclass the object is
+  */
+  std::string const GetName() const override {
+    return "Symbiont";
+  }
 
 
   /**
@@ -169,6 +169,8 @@ public:
    * deviation.
    */
   void Mutate() override {
+    BaseSymbiont::Mutate();
+
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
 

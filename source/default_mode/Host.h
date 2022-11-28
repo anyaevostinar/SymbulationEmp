@@ -142,8 +142,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "Host";
+  std::string const GetName() const override {
+    return "Host";
   }
 
 /**

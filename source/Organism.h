@@ -39,7 +39,7 @@ public:
   }
   bool operator!=(const Organism &other) const { return !(*this == other); }
 
-  // virtual std::string const GetName() const = 0;
+  virtual std::string const GetName() const { return "Organism"; }
   virtual bool IsHost() const = 0;
   virtual size_t AddSymbiont(emp::Ptr<BaseSymbiont> sym) = 0;
   virtual emp::vector<emp::Ptr<BaseSymbiont>> GetSymbionts() const = 0;
@@ -58,7 +58,8 @@ public:
    *
    * Purpose: To get the Host's age.
    */
-  virtual int GetAge() { return age; }
+  virtual size_t GetAge() { return age; }
+  virtual void SetAge(size_t _age) { age = _age; }
 
   /**
    * Input: None

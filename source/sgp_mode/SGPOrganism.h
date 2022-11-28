@@ -25,7 +25,7 @@ public:
    * Constructs an SGPHost with a copy of the provided genome.
    */
   SGPOrganism(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          const sgpl::Program<Spec> &genome)
+              const sgpl::Program<Spec> &genome)
       : cpu(this, _world, genome), my_world(_world) {}
 
   SGPOrganism(const SGPOrganism &host)
@@ -95,9 +95,7 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  void Mutate() override {
-    cpu.Mutate();
-  }
+  void Mutate() override { cpu.Mutate(); }
 };
 
 #endif

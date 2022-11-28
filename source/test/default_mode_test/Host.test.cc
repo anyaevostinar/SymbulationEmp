@@ -35,8 +35,8 @@ TEST_CASE("Host Constructor", "[default]") {
     CHECK(host1->GetPoints() == 0);
 
     int_val = -1;
-    emp::vector<emp::Ptr<Organism>> syms = {};
-    emp::vector<emp::Ptr<Organism>> repro_syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> repro_syms = {};
     std::set<int> set = std::set<int>();
     double points = 10;
     emp::Ptr<Host> host2 = emp::NewPtr<Host>(random, world, &config, int_val, syms, repro_syms, points);
@@ -389,7 +389,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       config.ECTOSYMBIOTIC_IMMUNITY(1);
       emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
       emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> hosted_sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
       world.AddOrgAt(host, host_pos);
       world.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
@@ -403,7 +403,7 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
       config.ECTOSYMBIOTIC_IMMUNITY(0);
       emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
       emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-      emp::Ptr<Organism> hosted_sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> hosted_sym = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
       world.AddOrgAt(host, host_pos);
       world.AddOrgAt(sym, emp::WorldPosition(0, host_pos));
       host->AddSymbiont(hosted_sym);
@@ -457,9 +457,10 @@ TEST_CASE("Host MakeNew", "[default]"){
     SymWorld world(*random, &config);
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-    emp::Ptr<Organism> host2 = host1->MakeNew();
+    emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+    emp::Ptr<Host> host2 = host1->MakeNew().DynamicCast<Host>();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
+      REQUIRE(host2 != nullptr);
       REQUIRE(host1->GetIntVal() == host2->GetIntVal());
       REQUIRE(host2->GetPoints() == 0);
       REQUIRE(host2->GetAge() == 0);
@@ -477,9 +478,10 @@ TEST_CASE("Host Reproduce", "[default]"){
     SymWorld world(*random, &config);
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-    emp::Ptr<Organism> host2 = host1->Reproduce();
+    emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+    emp::Ptr<Host> host2 = host1->Reproduce().DynamicCast<Host>();
     THEN("The host baby has mutated interaction value"){
+      REQUIRE(host2 != nullptr);
       REQUIRE(host1->GetIntVal() != host2->GetIntVal());
     }
     THEN("The host parent's points are set to 0"){
@@ -496,11 +498,11 @@ TEST_CASE("AddSymbiont", "[default]"){
   SymWorld world(*random, &config);
   double int_val = 0;
   emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-  emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<BaseSymbiont> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
   WHEN("A symbiont successfully infects"){
     size_t pos = host->AddSymbiont(symbiont);
-    emp::vector<emp::Ptr<Organism>>& host_syms = host->GetSymbionts();
+    emp::vector<emp::Ptr<BaseSymbiont>> host_syms = host->GetSymbionts();
     THEN("It is added to the host sym vector and it's position is returned"){
       REQUIRE(host->HasSym() == true);
       REQUIRE(pos == host_syms.size());
