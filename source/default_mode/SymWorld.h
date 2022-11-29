@@ -146,6 +146,8 @@ public:
     }
 
     if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
+      Clear(); // delete hosts here so that hosted symbionts get 
+      // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
   }
@@ -424,11 +426,29 @@ public:
 
 
   /**
-   * Input: The pointer to an organism that will be injected into a host.
+     * Input: The pointer to a host that will be added to the world. This function assumes that the
+     * pop vector has not been resized to fit the world yet.
+     *
+     * Output: None
+     *
+     * Purpose: To add a host to the world.
+     */
+  void InjectHost(emp::Ptr<Organism> new_host) {
+    if (my_config->GRID()) {
+      AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
+    }
+    else {
+      AddOrgAt(new_host, pop.size());
+    }
+  }
+
+
+  /**
+   * Input: The pointer to an organism that will be injected into the world.
    *
    * Output: None
    *
-   * Purpose: To add a symbiont to a host's symbionts.
+   * Purpose: To add a symbiont to the world, either into a host or into a sym world cell.
    */
   void InjectSymbiont(emp::Ptr<Organism> new_sym){
     size_t new_loc;
@@ -482,6 +502,13 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostMeanDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostVarianceDataNode();
 
+
+  /**
+   * Definitions of setup functions, expanded in WorldSetup.cc
+   */
+  virtual void Setup();
+  virtual void SetupHosts(long unsigned int* POP_SIZE);
+  virtual void SetupSymbionts(long unsigned int* total_syms);
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its

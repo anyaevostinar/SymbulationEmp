@@ -1,6 +1,3 @@
-#include "../../../lysis_mode/Bacterium.h"
-#include "../../../lysis_mode/Phage.h"
-#include "../../../lysis_mode/LysisWorld.h"
 #include "../../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Prophage Loss Rate Results", "[integration]"){
@@ -36,7 +33,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         auto & node = world->GetLysisChanceDataNode();
 
-        worldSetup(world, &config);
+        world->Setup();
 
         world->RunExperiment(false);
 
@@ -54,7 +51,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         auto & node = world->GetLysisChanceDataNode();
 
-        worldSetup(world, &config);
+        world->Setup();
 
         world->RunExperiment(false);
 
@@ -73,7 +70,7 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
 
         auto & node = world->GetLysisChanceDataNode();
 
-        worldSetup(world, &config);
+        world->Setup();
 
         world->RunExperiment(false);
 
