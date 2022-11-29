@@ -41,6 +41,7 @@ public:
 
   virtual std::string const GetName() const { return "Organism"; }
   virtual bool IsHost() const = 0;
+  virtual bool HasSym() const { return false; }
   virtual size_t AddSymbiont(emp::Ptr<BaseSymbiont> sym) = 0;
   virtual emp::vector<emp::Ptr<BaseSymbiont>> GetSymbionts() const = 0;
   virtual void Process(emp::WorldPosition location) = 0;
@@ -117,7 +118,7 @@ public:
    * Purpose: To determine if a host has any symbionts, though they might be
    * corpses that haven't been removed yet.
    */
-  bool HasSym() { return syms.size() != 0; }
+  bool HasSym() const override { return syms.size() != 0; }
 
   /**
    * Input: None

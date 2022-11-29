@@ -1,7 +1,12 @@
 #include "../lysis_mode/LysisWorld.h"
+#include "symbulation.h"
+
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
+#include "../default_mode/WorldSetup.cc"
 #include "../default_mode/WorldSetup.cc"
 #include "../lysis_mode/LysisWorldSetup.cc"
-#include "symbulation.h"
+#include "../lysis_mode/LysisDataNodes.cc"
 
 /**
  * Input: The SymConfig object and the command line arguments.

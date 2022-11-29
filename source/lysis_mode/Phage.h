@@ -2,6 +2,7 @@
 #define PHAGE_H
 
 #include "../default_mode/Symbiont.h"
+#include "Bacterium.h"
 #include "LysisWorld.h"
 
 class Phage: public Symbiont {
@@ -48,12 +49,16 @@ protected:
   */
   emp::Ptr<LysisWorld> my_world = NULL;
 
+  emp::Ptr<Bacterium> my_host = NULL;
+
 
 public:
   /**
    * The constructor for phage
    */
-  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
+  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :
+  Symbiont(_random, _world, _config, _intval, _points),
+  Organism(_config, _world, _random) {
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
     incorporation_val = my_config->PHAGE_INC_VAL();
@@ -214,6 +219,12 @@ public:
    */
   bool IsPhage() {return true;}
 
+  void SetHost(emp::Ptr<BaseHost> host) override {
+    my_host = host.DynamicCast<Bacterium>();
+    if (host && !my_host) {
+      throw "Phage requires Bacterium host";
+    }
+  }
 
   /**
    * Input: None
@@ -245,7 +256,7 @@ public:
    * deviation that is equal to the mutation size. Phage mutation can be
    * on or off.
    */
-  void Mutate() {
+  void Mutate() override {
     Symbiont::Mutate();
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
@@ -293,8 +304,8 @@ public:
    *
    * Purpose: To burst host and release offspring
    */
-  void LysisBurst(emp::WorldPosition location){
-    emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
+  void LysisBurst(emp::WorldPosition location) {
+    emp::vector<emp::Ptr<BaseSymbiont>> &repro_syms = my_host->GetReproSymbionts();
     //Record the burst size and count
     emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
     data_node_burst_size.AddDatum(repro_syms.size());
@@ -332,7 +343,7 @@ public:
       std::exit(1);
     }
     while(GetPoints() >= my_config->SYM_LYSIS_RES()) {
-      emp::Ptr<Organism> sym_baby = Reproduce();
+      emp::Ptr<BaseSymbiont> sym_baby = ReproduceSym();
       my_host->AddReproSym(sym_baby);
       SetPoints(GetPoints() - my_config->SYM_LYSIS_RES());
     }
@@ -347,10 +358,10 @@ public:
    * phage have 100% chance of vertical transmission, lytic phage have
    * 0% chance
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby){
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) override {
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
-      emp::Ptr<Organism> phage_baby = Reproduce();
+      emp::Ptr<BaseSymbiont> phage_baby = ReproduceSym();
       host_baby->AddSymbiont(phage_baby);
 
       //vertical transmission data node
@@ -370,9 +381,16 @@ public:
    *
    * Purpose: To allow a phage to steal or use donated resources from their host.
    */
-  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
-    if(host == nullptr){
+  double ProcessResources(double host_donation,
+                          emp::Ptr<Organism> host_org = nullptr) override {
+    emp::Ptr<Bacterium> host;
+    if (host_org == nullptr) {
       host = my_host;
+    } else {
+      host = host_org.DynamicCast<Bacterium>();
+      if (host == nullptr) {
+        throw "Host organism is not a Bacterium";
+      }
     }
     if(lysogeny){
       if(my_config->BENEFIT_TO_HOST()){
@@ -393,7 +411,7 @@ public:
    *
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
-  void Process(emp::WorldPosition location) {
+  void Process(emp::WorldPosition location) override {
     if(my_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
         if(GetBurstTimer() >= my_config->BURST_TIME() ) { //time to lyse!
