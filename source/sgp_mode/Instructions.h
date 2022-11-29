@@ -136,9 +136,12 @@ INST(SharedIO, {
 });
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    // exit if org is a host or if it's a free living sym and ecto is off
-    if (state.organism->IsHost() || !(state.organism->GetHost() == nullptr && state.world->GetConfig()->ECTOSYMBIOSIS()))
+    // exit if org is a host OR 
+    // if it's a free living sym AND (ecto is off OR there is no parallel host)
+    bool ecto_conditions = !state.world->GetConfig()->ECTOSYMBIOSIS() || !state.world->IsOccupied(state.location.GetPopID());
+    if (state.organism->IsHost() || (state.organism->GetHost() == nullptr && ecto_conditions)) {
       return;
+    }
 
     // get the sym's host
     emp::Ptr<Organism> host = state.organism->GetHost();
@@ -149,7 +152,7 @@ INST(Donate, {
     emp::Ptr<emp::vector<uint32_t>> orig_internal_environment;
     bool linked = false;
     int pop_index = state.location.GetPopID();
-    if (state.world->IsOccupied(pop_index) && host == nullptr) {
+    if (host == nullptr) {
       // set the working host to be the parallel host
       host = state.world->GetPop()[pop_index];
       if (host->HasSym() && state.world->GetConfig()->ECTOSYMBIOTIC_IMMUNITY()) return;
@@ -191,9 +194,12 @@ INST(Donate, {
 
 INST(Steal, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    // exit if org is a host or if it's a free living sym and ecto is off
-    if (state.organism->IsHost() || !(state.organism->GetHost() == nullptr && state.world->GetConfig()->ECTOSYMBIOSIS()))
+    // exit if org is a host OR 
+      // if it's a free living sym AND (ecto is off OR there is no parallel host)
+    bool ecto_conditions = !state.world->GetConfig()->ECTOSYMBIOSIS() || !state.world->IsOccupied(state.location.GetPopID());
+    if (state.organism->IsHost() || (state.organism->GetHost() == nullptr && ecto_conditions)) {
       return;
+    }
 
     // get the sym's host
     emp::Ptr<Organism> host = state.organism->GetHost();
@@ -204,7 +210,7 @@ INST(Steal, {
     emp::Ptr<emp::vector<uint32_t>> orig_internal_environment;
     bool linked = false;
     int pop_index = state.location.GetPopID();
-    if (state.world->IsOccupied(pop_index) && host == nullptr) {
+    if (host == nullptr) {
       // set the working host to be the parallel host
       host = state.world->GetPop()[pop_index];
       if (host->HasSym() && state.world->GetConfig()->ECTOSYMBIOTIC_IMMUNITY()) return;
