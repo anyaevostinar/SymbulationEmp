@@ -1497,99 +1497,208 @@ TEST_CASE("Setup", "[default]") {
     size_t height = 20;
     config.GRID_X(width);
     config.GRID_Y(height);
+    size_t world_size = width * height;
 
-    WHEN("Grid is on") {
-      config.GRID(1);
-      world.Setup();
-      THEN("World size, width, and height are set correctly") {
-        REQUIRE(world.GetWidth() == width);
-        REQUIRE(world.GetHeight() == height);
-        REQUIRE(world.GetSize() == width * height);
-      }
-    }
-
-    WHEN("Config option POP_SIZE is -1") {
-      config.POP_SIZE(-1);
-      world.Setup();
-      THEN("The world has full starting population") {
-        REQUIRE(world.GetNumOrgs() == width * height);
-      }
-    }
-
-    WHEN("Config option POP_SIZE is greater than -1") {
-      size_t pop_size = (width * height) / 2;
-      config.POP_SIZE(pop_size);
-      world.Setup();
-      THEN("The world has a partial starting population") {
-        REQUIRE(world.GetNumOrgs() == pop_size);
-      }
-    }
-
-    WHEN("A world is populated with hosts") {
-      double smoi = 0.02;
-      config.START_MOI(smoi);
-      config.SYM_LIMIT(10);
-      config.POP_SIZE(-1);
-      emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
-      world.Setup();
-      world.Update();
-
-      size_t num_syms = hosted_sym_count_node.GetTotal();
-      
-      THEN("The world is populated with a proportional number of symbionts") {
-        REQUIRE(world.GetNumOrgs() == width * height);
-        REQUIRE(num_syms == smoi * width * height);
-      }
-    }
-  }
-}
-
-TEST_CASE("SetupSymbionts", "[default]") {
-  GIVEN("a world") {
-    emp::Random random(17);
-    SymConfigBase config;
-    SymWorld world(random, &config);
-
-    size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
-      size_t num_to_add = 2;
-      world.SetupSymbionts(&num_to_add);
-
-      THEN("The specified number of symbionts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> symbiont;
-        for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
-          if (symbiont) break;
+    WHEN("Random injection is on") {
+      WHEN("Grid is on") {
+        config.GRID(1);
+        world.Setup();
+        THEN("World size, width, and height are set correctly") {
+          REQUIRE(world.GetWidth() == width);
+          REQUIRE(world.GetHeight() == height);
+          REQUIRE(world.GetSize() == width * height);
         }
-        REQUIRE(symbiont->GetName() == "Symbiont");
+        THEN("Hosts are symbionts are randomly distributed throughout the world") {
+          REQUIRE(world.GetNumOrgs() < (world_size - 10));
+          size_t count_syms = 0;
+          for (size_t i = 0; i < world_size; i++) {
+            if (world.IsOccupied(i) && world.GetPop()[i]->HasSym()) {
+              count_syms++;
+            }
+          }
+          REQUIRE(count_syms < (world_size - 10));
+        }
+      }
+
+      WHEN("Config option POP_SIZE is -1") {
+        config.POP_SIZE(-1);
+        world.Setup();
+        THEN("The world has full starting population") {
+          REQUIRE(world.GetNumOrgs() == width * height);
+        }
+      }
+
+      WHEN("Config option POP_SIZE is greater than -1") {
+        size_t pop_size = (width * height) / 2;
+        config.POP_SIZE(pop_size);
+        world.Setup();
+        THEN("The world has a partial starting population") {
+          REQUIRE(world.GetNumOrgs() == pop_size);
+        }
+      }
+
+      WHEN("A world is populated with hosts") {
+        double smoi = 0.02;
+        config.START_MOI(smoi);
+        config.SYM_LIMIT(10);
+        config.POP_SIZE(-1);
+        emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
+        world.Setup();
+        world.Update();
+
+        size_t num_syms = hosted_sym_count_node.GetTotal();
+
+        THEN("The world is populated with a proportional number of symbionts") {
+          REQUIRE(world.GetNumOrgs() == width * height);
+          REQUIRE(num_syms == smoi * width * height);
+        }
+      }
+    }
+
+    WHEN("Random injection is off") {
+      config.RANDOM_INJECTION(0);
+      WHEN("Grid is on") {
+        config.GRID(1);
+        WHEN("Pop size is -1 (a full starting population)") {
+          config.POP_SIZE(-1);
+          THEN("There are hosts in every cell in the world") {
+            world.Setup();
+            REQUIRE(world.GetNumOrgs() == world_size);
+          }
+          WHEN("Free living symbionts are not permitted") {
+            config.FREE_LIVING_SYMS(0);
+            WHEN("Starting multiplicity of infection is 1") {
+              config.START_MOI(1);
+              world.Setup();
+              THEN("Every host has a symbiont") {
+                for (size_t i = 0; i < world_size; i++) {
+                  REQUIRE(world.GetPop()[i]->HasSym() == true);
+                }
+              }
+            }
+            WHEN("There are fewer than half as many symbionts as there are hosts") {
+              config.START_MOI(0.5);
+              world.Setup();
+              THEN("Symbionts are spaced between hosts") {
+                for (size_t i = 0; i < world_size - 1; i++) {
+                  if (i % 2 == 1) {
+                    REQUIRE(world.GetPop()[i]->HasSym() == false);
+                  }
+                  else {
+                    REQUIRE(world.GetPop()[i]->HasSym() == true);
+                  }
+                }
+              }
+            }
+            WHEN("There are more than half as many symbionts as there are hosts") {
+              double smoi = 0.7;
+              config.START_MOI(smoi);
+              world.Setup();
+              THEN("Symbionts are placed sequentially in hosts") {
+                for (size_t i = 0; i < world_size * smoi; i++) {
+                  REQUIRE(world.GetPop()[i]->HasSym() == true);
+                }
+              }
+            }
+          }
+          WHEN("Free living symbionts are permitted") {
+            config.FREE_LIVING_SYMS(1);
+            WHEN("Starting multiplicity of infection is 1") {
+              config.START_MOI(1);
+              world.Setup();
+              THEN("Free living symbionts fill their world") {
+                for (size_t i = 0; i < world_size; i++) {
+                  REQUIRE(world.GetSymPop()[i] != nullptr);
+                }
+              }
+            }
+            WHEN("Symbionts occupy less than half the spots in the world") {
+              config.START_MOI(0.5);
+              world.Setup();
+              THEN("Symbionts are spaced throughout the world") {
+                for (size_t i = 0; i < world_size - 1; i++) {
+                  if (i % 2 == 1) {
+                    REQUIRE(world.GetSymPop()[i] == nullptr);
+                  }
+                  else {
+                    REQUIRE(world.GetSymPop()[i] != nullptr);
+                  }
+                }
+              }
+            }
+            WHEN("Symbionts occupy more than half the spots in the world") {
+              double smoi = 0.7;
+              config.START_MOI(smoi);
+              world.Setup();
+              THEN("Symbionts are placed sequentially in the world") {
+                for (size_t i = 0; i < world_size * smoi; i++) {
+                  REQUIRE(world.GetSymPop()[i] != nullptr);
+                }
+              }
+            }
+          }
+        } 
+        WHEN("Hosts occupy less than half the spots in the world"){
+          config.POP_SIZE(world_size / 2);
+          world.Setup();
+          THEN("Hosts are spaced throughout the world"){
+            for (size_t i = 0; i < world_size - 1; i++) {
+              REQUIRE(world.IsOccupied(i) == (i % 2 == 0));
+            }
+          }
+        }
+        WHEN("Hosts occupy more than half the spots in the world"){
+          size_t num_hosts = (world_size * 3) / 4;
+          config.POP_SIZE(num_hosts);
+          world.Setup();
+          THEN("Hosts are placed sequentially in the world") {
+            for (size_t i = 0; i < num_hosts - 1; i++) {
+              REQUIRE(world.IsOccupied(i) == true);
+            }
+          }
+        }
+      }
+      WHEN("Grid is off") {
+        double smoi = 0.5;
+        size_t num_hosts = world_size / 2;
+        size_t num_syms = smoi * num_hosts;
+        config.POP_SIZE(num_hosts);
+        config.START_MOI(smoi);
+        world.Setup();
+        THEN("Hosts and symbionts are placed sequentially in the world"){
+          for (size_t i = 0; i < num_hosts - 1; i++) {
+            REQUIRE(world.IsOccupied(i) == true);
+            REQUIRE(world.GetPop()[i]->HasSym() == (i < num_syms));
+          }
+        }
       }
     }
   }
 }
 
-TEST_CASE("SetupHosts", "[default]") {
+TEST_CASE("GetNewSym", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+      
+    WHEN("GetNewSym is called") {
+      THEN("It returns an object of type Symbiont") {
+        REQUIRE(world.GetNewSym()->GetName() == "Symbiont");
+      }
+    }
+  }
+}
+
+TEST_CASE("GetNewHost", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     SymWorld world(random, &config);
 
-    WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
-
-      THEN("The specified number of hosts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> host = world.GetPop()[0];
-        REQUIRE(host != nullptr);
-        REQUIRE(host->GetName() == "Host");
+    WHEN("GetNewHost is called") {
+      THEN("It returns an object of type Host") {
+        REQUIRE(world.GetNewHost()->GetName() == "Host");
       }
     }
   }
