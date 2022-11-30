@@ -553,7 +553,7 @@ TEST_CASE("Process", "[default]") {
 
         WHEN("The free living symbiont does not have enough resources to reproduce") {
           int orig_points = free_sym_repro_res - 10;
-          int orig_num_orgs = world->GetNumOrgs();
+          size_t orig_num_orgs = world->GetNumOrgs();
           sym->AddPoints(orig_points);
           sym->Process(location);
 
@@ -565,7 +565,7 @@ TEST_CASE("Process", "[default]") {
         }
         WHEN("The free living symbiont has enough resources to reproduce") {
           int orig_points = free_sym_repro_res + 10;
-          int orig_num_orgs = world->GetNumOrgs();
+          size_t orig_num_orgs = world->GetNumOrgs();
           sym->AddPoints(orig_points);
           sym->Process(location);
 
@@ -585,7 +585,7 @@ TEST_CASE("Process", "[default]") {
 
         WHEN("The free living symbiont does not have enough resources to reproduce") {
           int orig_points = sym_h_res - 10;
-          int orig_num_orgs = world->GetNumOrgs();
+          size_t orig_num_orgs = world->GetNumOrgs();
           sym->AddPoints(orig_points);
           sym->Process(location);
 
@@ -597,7 +597,7 @@ TEST_CASE("Process", "[default]") {
         }
         WHEN("The free living symbiont has enough resources to reproduce") {
           int orig_points = sym_h_res + 10;
-          int orig_num_orgs = world->GetNumOrgs();
+          size_t orig_num_orgs = world->GetNumOrgs();
           sym->AddPoints(orig_points);
           sym->Process(location);
 
