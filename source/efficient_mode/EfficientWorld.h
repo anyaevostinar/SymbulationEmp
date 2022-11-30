@@ -31,8 +31,8 @@ public:
   * Definitions of setup functions, expanded in EfficientWorldSetup.cc
   */
   void Setup();
-  void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(long unsigned int* total_syms);
+  emp::Ptr<Organism> GetNewHost();
+  emp::Ptr<Organism> GetNewSym();
 
 
   /**

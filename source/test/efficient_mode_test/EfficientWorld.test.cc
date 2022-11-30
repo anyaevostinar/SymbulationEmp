@@ -1,53 +1,29 @@
 #include "../../efficient_mode/EfficientWorld.h"
 
-TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
+TEST_CASE("Efficient GetNewSym", "[efficient]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     EfficientWorld world(random, &config);
 
-    size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
-      size_t num_to_add = 2;
-      world.SetupSymbionts(&num_to_add);
-
-      THEN("The specified number of efficient symbionts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> symbiont;
-        for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
-          if (symbiont) {
-            REQUIRE(symbiont->GetEfficiency() == 1);
-            REQUIRE(symbiont->GetName() == "EfficientSymbiont");
-          }
-        }
+    WHEN("GetNewSym is called") {
+      THEN("It returns an object of type EfficientSymbiont") {
+        REQUIRE(symbiont->GetEfficiency() == 1);
+        REQUIRE(world.GetNewSym()->GetName() == "EfficientSymbiont");
       }
     }
   }
 }
 
-TEST_CASE("Efficient SetupHosts", "[efficient]") {
+TEST_CASE("Efficient GetNewHost", "[efficient]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     EfficientWorld world(random, &config);
 
-    WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
-
-      THEN("The specified number of efficient hosts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> host = world.GetPop()[0];
-        REQUIRE(host != nullptr);
-        REQUIRE(host->GetName() == "EfficientHost");
+    WHEN("GetNewHost is called") {
+      THEN("It returns an object of type EfficientHost") {
+        REQUIRE(world.GetNewHost()->GetName() == "EfficientHost");
       }
     }
   }

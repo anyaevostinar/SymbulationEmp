@@ -55,59 +55,37 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
   }
 }
 
-TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
+
+TEST_CASE("Lysis GetNewSym", "[lysis]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     LysisWorld world(random, &config);
 
-    size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
+    WHEN("GetNewSym is called") {
+      THEN("It returns an object of type Phage") {
+        emp::Ptr<Organism> phage_1 = world.GetNewSym();
+        emp::Ptr<Organism> phage_2 = world.GetNewSym();
 
-    WHEN("SetupSymbionts is called") {
-      size_t num_to_add = 2;
-      world.SetupSymbionts(&num_to_add);
-
-      THEN("The specified number of phage are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> symbiont;
-        int prev_burst_timer = -6;
-        for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
-          if (symbiont) {
-            int sym_burst_timer = symbiont->GetBurstTimer();
-            REQUIRE(sym_burst_timer >= -5);
-            REQUIRE(sym_burst_timer <= 5);
-            REQUIRE(sym_burst_timer != prev_burst_timer);
-            prev_burst_timer = sym_burst_timer;
-            REQUIRE(symbiont->GetName() == "Phage");
-          }
-        }
+        REQUIRE(phage_1->GetBurstTimer() >= -5);
+        REQUIRE(phage_1->GetBurstTimer() <= 5);
+        REQUIRE(phage_1->GetBurstTimer() != phage_2->GetBurstTimer());
+        
+        REQUIRE(phage_1->GetName() == "Phage");
       }
     }
   }
 }
 
-TEST_CASE("Lysis SetupHosts", "[lysis]") {
+TEST_CASE("Lysis GetNewHost", "[lysis]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     LysisWorld world(random, &config);
 
-    WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
-
-      THEN("The specified number of bacteria are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> host = world.GetPop()[0];
-        REQUIRE(host != nullptr);
-        REQUIRE(host->GetName() == "Bacterium");
+    WHEN("GetNewHost is called") {
+      THEN("It returns an object of type Bacterium") {
+        REQUIRE(world.GetNewHost()->GetName() == "Bacterium");
       }
     }
   }

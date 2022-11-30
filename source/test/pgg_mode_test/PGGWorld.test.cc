@@ -83,54 +83,32 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
   }
 }
 
-TEST_CASE("PGG SetupSymbionts", "[pgg]") {
+
+TEST_CASE("PGG GetNewSym", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     PGGWorld world(random, &config);
 
-    size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
-      size_t num_to_add = 2;
-      world.SetupSymbionts(&num_to_add);
-
-      THEN("The specified number of PGG symbionts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> symbiont;
-        for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
-          if (symbiont) {
-            REQUIRE(symbiont->GetName() == "PGGSymbiont");
-            REQUIRE(symbiont->GetDonation() == config.PGG_DONATE());
-          }
-        }
+    WHEN("GetNewSym is called") {
+      THEN("It returns an object of type PGGSymbiont") {
+        emp::Ptr<Organism> symbiont = world.GetNewSym();
+        REQUIRE(symbiont->GetName() == "PGGSymbiont");
+        REQUIRE(symbiont->GetDonation() == config.PGG_DONATE());
       }
     }
   }
 }
 
-TEST_CASE("PGG SetupHosts", "[pgg]") {
+TEST_CASE("PGG GetNewHost", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     PGGWorld world(random, &config);
 
-    WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
-
-      THEN("The specified number of PGG hosts are added to the world") {
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        emp::Ptr<Organism> host = world.GetPop()[0];
-        REQUIRE(host != nullptr);
-        REQUIRE(host->GetName() == "PGGHost");
+    WHEN("GetNewHost is called") {
+      THEN("It returns an object of type PGGHost") {
+        REQUIRE(world.GetNewHost()->GetName() == "PGGHost");
       }
     }
   }
