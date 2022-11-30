@@ -145,6 +145,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
     world.Setup();
 
     WHEN("Vertical transmission rate is high-intermediate (0.7)"){
+      config.UPDATES(2001);
       config.VERTICAL_TRANSMISSION(0.7);
       world.RunExperiment(false);
       
