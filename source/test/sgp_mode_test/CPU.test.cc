@@ -9,6 +9,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     int reproduce_count = 0;
     double points = 0.0;
     bool IsHost() override { return false; }
+    emp::Ptr<Organism> GetHost() override { return nullptr; }
     void AddPoints(double p) override { points += p; }
     double GetPoints() override { return points; }
     emp::Ptr<Organism> Reproduce() override {
