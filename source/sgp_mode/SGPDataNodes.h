@@ -121,6 +121,9 @@ SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename) {
 emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
+  GetHostEarnedDataNode();
+  file.AddTotal(data_node_host_earned->UnsynchronizedGetMonitor(),
+    "host_points_earned", "Points earned by hosts", true);
   GetSymEarnedDataNode();
   file.AddTotal(data_node_sym_earned->UnsynchronizedGetMonitor(),
                 "sym_points_earned", "Points earned by symbionts", true);
@@ -158,6 +161,13 @@ void SGPWorld::SetupTasksNodes() {
       task_set.ResetTaskData();
     });
   }
+}
+
+SyncDataMonitor<double> &SGPWorld::GetHostEarnedDataNode() {
+  if (!data_node_host_earned) {
+    data_node_host_earned.New();
+  }
+  return *data_node_host_earned;
 }
 
 SyncDataMonitor<double> &SGPWorld::GetSymEarnedDataNode() {

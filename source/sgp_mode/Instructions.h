@@ -100,6 +100,8 @@ INST(PrivateIO, {
     } else {
       // A host loses 25% of points when performing private IO operations
       score *= 0.75;
+      state.world->GetHostEarnedDataNode().WithMonitor(
+        [=](auto& m) { m.AddDatum(score); });
     }
     state.organism->AddPoints(score);
   }
@@ -119,6 +121,10 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
     if (!state.organism->IsHost()) {
       state.world->GetSymEarnedDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(score); });
+    }
+    else {
+      state.world->GetHostEarnedDataNode().WithMonitor(
+        [=](auto& m) { m.AddDatum(score); });
     }
   }
 }
