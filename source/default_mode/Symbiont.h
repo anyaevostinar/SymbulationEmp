@@ -127,6 +127,18 @@ public:
 
   //  std::set<int> GetResTypes() const {return res_types;}
 
+  int GetPhyloBin() const override {
+    size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
+    //classify orgs into bins base on interaction values,
+    //inclusive of lower bound, exclusive of upper
+    float size_of_bin = 2.0 / num_phylo_bins;
+    double int_val = GetIntVal();
+    float prog = (int_val + 1);
+    prog = (prog/size_of_bin) + (0.0000000000001);
+    size_t bin = (size_t) prog;
+    if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
+    return bin;
+  }
 
   /**
    * Input: The double representing the new interaction value of a symbiont

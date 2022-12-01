@@ -65,6 +65,17 @@ public:
   /**
    * Input: None
    *
+   * Output: Which of the NUM_PHYLO_BINS this organism should belong to.
+   *
+   * Purpose: Provides a mode-neutral way to classify organisms for phylogeny.
+   * The default implementation puts every organism in bin 0, but it can be
+   * overridden to add phylogeny support to an Organism subclass.
+   */
+  virtual int GetPhyloBin() const { return 0; }
+
+  /**
+   * Input: None
+   *
    * Output: None
    *
    * Purpose: Increments age by one and kills it if too old.

@@ -93,8 +93,8 @@ public:
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
     if (my_config->PHYLOGENY() == true) {
-      // host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      // sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
@@ -221,23 +221,14 @@ public:
    * Purpose: To classify organisms based on their interaction value.
    */
    // TODO put this back somewhere where it makes sense
-  // fun_calc_info_t GetCalcInfoFun() {
-  //   if (!calc_info_fun) {
-  //     calc_info_fun = [&](Organism & org){
-  //       size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
-  //       //classify orgs into bins base on interaction values,
-  //       //inclusive of lower bound, exclusive of upper
-  //       float size_of_bin = 2.0 / num_phylo_bins;
-  //       double int_val = org.GetIntVal();
-  //       float prog = (int_val + 1);
-  //       prog = (prog/size_of_bin) + (0.0000000000001);
-  //       size_t bin = (size_t) prog;
-  //       if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-  //       return bin;
-  //     };
-  //   }
-  //   return calc_info_fun;
-  // }
+  fun_calc_info_t GetCalcInfoFun() {
+    if (!calc_info_fun) {
+      calc_info_fun = [&](Organism & org){
+        return org.GetPhyloBin();
+      };
+    }
+    return calc_info_fun;
+  }
 
   /**
    * Input: The symbiont to be added to the systematic

@@ -175,6 +175,18 @@ public:
    */
   double GetResInProcess() { return res_in_process;}
 
+  int GetPhyloBin() const override {
+    size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
+    //classify orgs into bins base on interaction values,
+    //inclusive of lower bound, exclusive of upper
+    float size_of_bin = 2.0 / num_phylo_bins;
+    double int_val = GetIntVal();
+    float prog = (int_val + 1);
+    prog = (prog/size_of_bin) + (0.0000000000001);
+    size_t bin = (size_t) prog;
+    if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
+    return bin;
+  }
 
   /**
    * Input: A double representing the host's new interaction value.
