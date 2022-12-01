@@ -3,35 +3,20 @@
 
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/tools/string_utils.hpp"
+#include "DefaultOrganism.h"
 #include "SymWorld.h"
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
 
 
-class Symbiont: public BaseSymbiont {
-protected:
-  /**
-    *
-    * Purpose: Represents the interaction value between the host and symbiont.
-    * A negative interaction value represent antagonism, while a positive
-    * one represents mutualism. Zero is a neutral value.
-    *
-  */
-  double interaction_val = 0;
-
+class Symbiont: public BaseSymbiont, public DefaultOrganism {
 public:
   /**
    * The constructor for symbiont
    */
-  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :  interaction_val(_intval), Organism(_config, _world, _random, _points) {
-    if (_intval == -2) {
-      interaction_val = random->GetDouble(-1, 1);
-    }
-   if (interaction_val > 1 || interaction_val < -1) {
-       throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
-    };
-  }
+  Symbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) :
+  DefaultOrganism(_intval), Organism(_config, _world, _random, _points) {}
 
 
   /**
@@ -99,16 +84,6 @@ public:
   /**
    * Input: None
    *
-   * Output: The double representing the symbiont's interaction value
-   *
-   * Purpose: To get a symbiont's interaction value.
-   */
-  double GetIntVal() const {return interaction_val;}
-
-
-  /**
-   * Input: None
-   *
    * Output: The bool representing if a symbiont is a phage
    *
    * Purpose: To determine if a symbiont is a phage
@@ -126,35 +101,6 @@ public:
   emp::Ptr<BaseHost> GetHost() {return my_host;}
 
   //  std::set<int> GetResTypes() const {return res_types;}
-
-  int GetPhyloBin() const override {
-    size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
-    //classify orgs into bins base on interaction values,
-    //inclusive of lower bound, exclusive of upper
-    float size_of_bin = 2.0 / num_phylo_bins;
-    double int_val = GetIntVal();
-    float prog = (int_val + 1);
-    prog = (prog/size_of_bin) + (0.0000000000001);
-    size_t bin = (size_t) prog;
-    if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-    return bin;
-  }
-
-  /**
-   * Input: The double representing the new interaction value of a symbiont
-   *
-   * Output: None
-   *
-   * Purpose: To set a symbiont's interaction value
-   */
-  void SetIntVal(double _in) {
-    if ( _in > 1 || _in < -1) {
-       throw "Invalid interaction value. Must be between -1 and 1";   // Exception for invalid interaction value
-     }
-     else {
-        interaction_val = _in;
-     }
-  }
 
   //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
@@ -182,15 +128,7 @@ public:
    */
   void Mutate() override {
     BaseSymbiont::Mutate();
-
-    double local_rate = my_config->MUTATION_RATE();
-    double local_size = my_config->MUTATION_SIZE();
-
-    if (random->GetDouble(0.0, 1.0) <= local_rate) {
-      interaction_val += random->GetRandNormal(0.0, local_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
-    }
+    DefaultOrganism::Mutate();
   }
 
   /**

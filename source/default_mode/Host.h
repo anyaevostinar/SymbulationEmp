@@ -7,20 +7,12 @@
 #include <sstream> // stringstream
 #include <string>
 #include "../Organism.h"
+#include "DefaultOrganism.h"
 #include "SymWorld.h"
 
 
-class Host: public BaseHost {
+class Host: public BaseHost, public DefaultOrganism {
 protected:
-  /**
-    *
-    * Purpose: Represents the interaction value between the host and symbiont.
-    * A negative interaction value represent antagonism, while a positive
-    * one represents mutualism. Zero is a neutral value.
-    *
-  */
-  double interaction_val = 0;
-
   /**
     *
     * Purpose: Represents the set of in-progress "reproductive" symbionts belonging to a host. These are symbionts that aren't yet active.
@@ -45,16 +37,9 @@ public:
   Host(emp::Ptr<emp::Random> _random, emp::Ptr<SymWorld> _world, emp::Ptr<SymConfigBase> _config,
   double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
   emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
-  double _points = 0.0) : interaction_val(_intval), repro_syms(_repro_syms), Organism(_config, _world, _random, _points) {
+  double _points = 0.0) : DefaultOrganism(_intval), repro_syms(_repro_syms), Organism(_config, _world, _random, _points) {
     // Base class members can't be initialized in the initializer list; later should add BaseHost ctor or remove _syms
     syms = _syms;
-
-    if (_intval == -2) {
-      interaction_val = random->GetDouble(-1, 1);
-    }
-    if (interaction_val > 1 || interaction_val < -1) {
-       throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
-     };
    }
 
   /**
@@ -146,15 +131,6 @@ public:
     return "Host";
   }
 
-/**
-  * Input: None
-  *
-  * Output: The double representing host's interaction value
-  *
-  * Purpose: To get the double representing host's interaction value
-  */
-  double GetIntVal() const { return interaction_val;}
-
 
 /**
  * Input: None
@@ -174,35 +150,6 @@ public:
    * Purpose: To get the value of res_in_process
    */
   double GetResInProcess() { return res_in_process;}
-
-  int GetPhyloBin() const override {
-    size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
-    //classify orgs into bins base on interaction values,
-    //inclusive of lower bound, exclusive of upper
-    float size_of_bin = 2.0 / num_phylo_bins;
-    double int_val = GetIntVal();
-    float prog = (int_val + 1);
-    prog = (prog/size_of_bin) + (0.0000000000001);
-    size_t bin = (size_t) prog;
-    if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-    return bin;
-  }
-
-  /**
-   * Input: A double representing the host's new interaction value.
-   *
-   * Output: None
-   *
-   * Purpose: To set a host's interaction value.
-   */
-  void SetIntVal(double _in) {
-    if ( _in > 1 || _in < -1) {
-       throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
-     }
-     else {
-       interaction_val = _in;
-     }
-  }
 
 
   /**
@@ -302,27 +249,6 @@ public:
     host_baby->Mutate();
     SetPoints(0);
     return host_baby;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: To mutate a host's interaction value. This is called on newly generated
-   * hosts to allow for evolution to occur.
-   */
-  void Mutate() override {
-    double mutation_size = my_config->HOST_MUTATION_SIZE();
-    if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
-    double mutation_rate = my_config->HOST_MUTATION_RATE();
-    if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
-
-    if(random->GetDouble(0.0, 1.0) <= mutation_rate){
-      interaction_val += random->GetRandNormal(0.0, mutation_size);
-      if(interaction_val < -1) interaction_val = -1;
-      else if (interaction_val > 1) interaction_val = 1;
-    }
   }
 
 
