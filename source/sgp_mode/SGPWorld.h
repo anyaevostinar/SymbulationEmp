@@ -41,9 +41,12 @@ class SGPWorld : public SymWorld {
 private:
   Scheduler scheduler;
   TaskSet task_set;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
+  emp::Ptr<SyncDataMonitor<double>> data_node_hosted_sym_donated;
+  emp::Ptr<SyncDataMonitor<double>> data_node_hosted_sym_stolen;
+  emp::Ptr<SyncDataMonitor<double>> data_node_hosted_sym_earned;
+  emp::Ptr<SyncDataMonitor<double>> data_node_free_sym_donated;
+  emp::Ptr<SyncDataMonitor<double>> data_node_free_sym_stolen;
+  emp::Ptr<SyncDataMonitor<double>> data_node_free_sym_earned;
   emp::Ptr<SyncDataMonitor<double>> data_node_host_earned;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
@@ -60,9 +63,12 @@ public:
         task_set(task_set) {}
 
   ~SGPWorld() {
-    data_node_sym_donated.Delete();
-    data_node_sym_stolen.Delete();
-    data_node_sym_earned.Delete();
+    data_node_hosted_sym_donated.Delete();
+    data_node_hosted_sym_stolen.Delete();
+    data_node_hosted_sym_earned.Delete();
+    data_node_free_sym_donated.Delete();
+    data_node_free_sym_stolen.Delete();
+    data_node_free_sym_earned.Delete();
     data_node_host_earned.Delete();
     // The vectors will delete themselves automatically
   }
@@ -140,9 +146,12 @@ public:
   }
 
   // Prototypes for data node methods
-  SyncDataMonitor<double> &GetSymDonatedDataNode();
-  SyncDataMonitor<double> &GetSymStolenDataNode();
-  SyncDataMonitor<double> &GetSymEarnedDataNode();
+  SyncDataMonitor<double> &GetHostedSymDonatedDataNode();
+  SyncDataMonitor<double> &GetHostedSymStolenDataNode();
+  SyncDataMonitor<double> &GetHostedSymEarnedDataNode();
+  SyncDataMonitor<double> &GetFreeSymDonatedDataNode();
+  SyncDataMonitor<double> &GetFreeSymStolenDataNode();
+  SyncDataMonitor<double> &GetFreeSymEarnedDataNode();
   SyncDataMonitor<double> &GetHostEarnedDataNode();
   void SetupTasksNodes();
 

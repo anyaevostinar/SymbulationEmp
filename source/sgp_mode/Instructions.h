@@ -95,8 +95,13 @@ INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
+      if(state.organism->GetHost() != nullptr){
+        state.world->GetHostedSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      } else {
+        state.world->GetFreeSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      }
     } else {
       // A host loses 25% of points when performing private IO operations
       score *= 0.75;
@@ -119,10 +124,14 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
   if (score != 0.0) {
     state.organism->AddPoints(score);
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
-    }
-    else {
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      } else {
+        state.world->GetFreeSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      }
+    } else {
       state.world->GetHostEarnedDataNode().WithMonitor(
         [=](auto& m) { m.AddDatum(score); });
     }
@@ -151,8 +160,14 @@ INST(Donate, {
       double to_donate =
           fmin(state.organism->GetPoints(),
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymDonatedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_donate); });
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymDonatedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_donate); });
+      } else {
+        state.world->GetFreeSymDonatedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_donate); });
+      }
+      
       host->AddPoints(to_donate *
                       (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
       state.organism->AddPoints(-to_donate);
@@ -170,8 +185,13 @@ INST(Steal, {
       double to_steal =
           fmin(host->GetPoints(),
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymStolenDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_steal); });
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymStolenDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_steal); });
+      } else {
+        state.world->GetFreeSymStolenDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_steal); });
+      }
       host->AddPoints(-to_steal);
       // 10% of the stolen resources are lost
       state.organism->AddPoints(
