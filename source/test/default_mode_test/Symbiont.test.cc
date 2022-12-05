@@ -444,7 +444,7 @@ TEST_CASE("Process", "[default]") {
     SymWorld w(*random, &config);
     SymWorld * world = &w;
 
-    //add new test for free living sym not moving when it shouldnt
+    //add new test for free living sym not moving when it shouldn't
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
         // double parent_orig_int_val = 1;
@@ -535,6 +535,78 @@ TEST_CASE("Process", "[default]") {
         }
 
         sym.Delete();
+    }
+
+    WHEN("The symbiont is free living and horizontal transmission is true") {
+      config.FREE_LIVING_SYMS(1);
+      config.SYM_HORIZ_TRANS_RES(140.0);
+      config.HORIZ_TRANS(true);
+      double int_val = 0;
+      int points = 0;
+
+      WHEN("Free living symbionts have a different reproductive resource threshold than hosted symbionts") {
+        int free_sym_repro_res = 70;
+        config.FREE_SYM_REPRO_RES(free_sym_repro_res);
+        emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
+        emp::WorldPosition location = emp::WorldPosition(0, 10);
+        world->AddOrgAt(sym, location);
+
+        WHEN("The free living symbiont does not have enough resources to reproduce") {
+          int orig_points = free_sym_repro_res - 10;
+          size_t orig_num_orgs = world->GetNumOrgs();
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("The free living symbiont does not reproduce") {
+            REQUIRE(world->GetNumOrgs() == orig_num_orgs);
+            REQUIRE(sym->GetPoints() == orig_points);
+          }
+
+        }
+        WHEN("The free living symbiont has enough resources to reproduce") {
+          int orig_points = free_sym_repro_res + 10;
+          size_t orig_num_orgs = world->GetNumOrgs();
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("The free living symbiont reproduces and sets its points to 0") {
+            REQUIRE(world->GetNumOrgs() == (orig_num_orgs + 1));
+            REQUIRE(sym->GetPoints() == 0);
+          }
+        }
+      }
+      WHEN("Free living symbionts have the same reproductive resource threshold as hosted symbionts do for horizontal transmission") {
+        int sym_h_res = 120;
+        config.SYM_HORIZ_TRANS_RES(sym_h_res);
+        config.FREE_SYM_REPRO_RES(-1);
+        emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
+        emp::WorldPosition location = emp::WorldPosition(0, 10);
+        world->AddOrgAt(sym, location);
+
+        WHEN("The free living symbiont does not have enough resources to reproduce") {
+          int orig_points = sym_h_res - 10;
+          size_t orig_num_orgs = world->GetNumOrgs();
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("The free living symbiont does not reproduce") {
+            REQUIRE(world->GetNumOrgs() == orig_num_orgs);
+            REQUIRE(sym->GetPoints() == orig_points);
+          }
+
+        }
+        WHEN("The free living symbiont has enough resources to reproduce") {
+          int orig_points = sym_h_res + 10;
+          size_t orig_num_orgs = world->GetNumOrgs();
+          sym->AddPoints(orig_points);
+          sym->Process(location);
+
+          THEN("The free living symbiont reproduces and sets its points to 0") {
+            REQUIRE(world->GetNumOrgs() == (orig_num_orgs + 1));
+            REQUIRE(sym->GetPoints() == 0);
+          }
+        }
+      }
     }
 }
 
