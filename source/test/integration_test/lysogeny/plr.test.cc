@@ -1,7 +1,9 @@
+
 #include "../../../lysis_mode/Bacterium.h"
 #include "../../../lysis_mode/Phage.h"
 #include "../../../lysis_mode/LysisWorld.h"
 #include "../../../default_mode/WorldSetup.cc"
+
 #include "../../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Prophage Loss Rate Results", "[integration]"){

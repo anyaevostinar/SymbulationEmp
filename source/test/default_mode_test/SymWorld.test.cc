@@ -1252,6 +1252,26 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.DoSymDeath(0);
       REQUIRE(sym_sys->GetNumActive() == 0);
     }
+
+    THEN("hosted and free symbionts are deleted without a segmentation fault") {
+      world_size = 4;
+      world.Resize(world_size);
+
+      // add a free living sym to the world
+      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.InjectSymbiont(symbiont);
+      
+      // add a host to the world
+      emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      world.InjectHost(host);
+
+      // add a hosted sym to the host
+      emp::Ptr<Organism> hosted_sym = symbiont->Reproduce();
+      host->AddSymbiont(hosted_sym);
+
+      // check that free living organisms have properly been added to the world
+      REQUIRE(world.GetNumOrgs() == 2);
+    }
   }
 
   WHEN("generations pass"){
@@ -1590,6 +1610,39 @@ TEST_CASE("SetupHosts", "[default]") {
         emp::Ptr<Organism> host = world.GetPop()[0];
         REQUIRE(host != nullptr);
         REQUIRE(host->GetName() == "Host");
+      }
+    }
+  }
+}
+
+TEST_CASE("IsSymPopOccupied", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int world_size = 4;
+    world.Resize(world_size);
+    bool is_sp_occupied;
+    int int_val = 0;
+
+    WHEN("The passed location is out of bounds") {
+      is_sp_occupied = world.IsSymPopOccupied(world_size);
+      THEN("Returns false") {
+        REQUIRE(is_sp_occupied == false);
+      }
+    }
+    WHEN("The passed location is in bounds but does not contain a symbiont") {
+      is_sp_occupied = world.IsSymPopOccupied(world_size - 1);
+      THEN("Returns false") {
+        REQUIRE(is_sp_occupied == false);
+      }
+    }
+    WHEN("The passed location is in bounds and contains a symbiont") {
+      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.AddOrgAt(symbiont, emp::WorldPosition(0, world_size - 1));
+      is_sp_occupied = world.IsSymPopOccupied(world_size - 1);
+      THEN("Returns true") {
+        REQUIRE(is_sp_occupied == true);
       }
     }
   }

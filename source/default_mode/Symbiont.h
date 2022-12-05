@@ -585,7 +585,11 @@ public:
    */
   void HorizontalTransmission(emp::WorldPosition location) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
+      double required_points = my_config->SYM_HORIZ_TRANS_RES();
+      if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
+        required_points = my_config->FREE_SYM_REPRO_RES();
+      }
+      if (GetPoints() >= required_points) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();

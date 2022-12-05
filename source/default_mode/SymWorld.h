@@ -137,6 +137,8 @@ public:
     }
 
     if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
+      Clear(); // delete hosts here so that hosted symbionts get 
+      // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
   }
@@ -633,6 +635,19 @@ public:
       sym_pop[i] = nullptr;
       num_orgs--;
     }
+  }
+
+  /**
+  * Input: A size_t location to check in the symbiont population vector.
+  *
+  * Output: A boolean representing whether the the position is valid and 
+  * occupied by a free living symbiont/
+  *
+  * Purpose: To determine if a given index is valid and occipied in the symbiont
+  * population vector.
+  */
+  bool IsSymPopOccupied(size_t pos) {
+    return pos < sym_pop.size() && sym_pop[pos];
   }
 
   /**
