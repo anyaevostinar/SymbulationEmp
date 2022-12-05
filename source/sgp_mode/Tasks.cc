@@ -6,8 +6,6 @@ void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
   state.used_resources->Set(task_id);
 
   if (dependencies.size()) {
-    // TODO does it make sense to reset to 0, or to let them accumulate
-    // resources?
     size_t total = num_dep_completes;
     for (size_t i : dependencies) {
       // Subtract just as much as needed from each dependency until we've
@@ -38,7 +36,6 @@ void SquareTask::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
   OutputTask::MarkPerformed(state, output, task_id, shared);
   state.internalEnvironment->insert(state.internalEnvironment->begin(),
                                     sqrt(output));
-  // oh no, include cycle issues 😔
   auto &data_node = state.organism->IsHost()
                         ? state.world->data_node_host_squares
                         : state.world->data_node_sym_squares;
