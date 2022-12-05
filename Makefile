@@ -37,6 +37,9 @@ all: default-mode efficient-mode lysis-mode pgg-mode sgp-mode symbulation.js
 default-mode:	source/native/symbulation_default.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
 
+parasite-mode:	source/native/symbulation_parasite.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_parasite.cc -o symbulation_parasite
+
 efficient-mode:	source/native/symbulation_efficient.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
 
