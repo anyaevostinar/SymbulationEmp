@@ -77,9 +77,17 @@ INST(Reproduce, {
   // Only one reproduction is allowed per update
   if (state.in_progress_repro != -1 || !state.location.IsValid())
     return;
-  double points = state.organism->IsHost()
-                      ? state.world->GetConfig()->HOST_REPRO_RES()
-                      : state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
+  double points; 
+  if (state.organism->IsHost()) {
+    points = state.world->GetConfig()->HOST_REPRO_RES();
+  }
+  else if (state.organism->GetHost() == nullptr && state.world->GetConfig()->FREE_SYM_REPRO_RES() != -1) {
+    points = state.world->GetConfig()->FREE_SYM_REPRO_RES();
+  }
+  else {
+    points = state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
+  }
+  
   if (state.organism->GetPoints() > points) {
     state.organism->AddPoints(-points);
     // Add this organism to the queue to reproduce, using the mutex to avoid a
