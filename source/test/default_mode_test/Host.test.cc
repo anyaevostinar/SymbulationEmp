@@ -9,9 +9,24 @@ TEST_CASE("Host Constructor", "[default]") {
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
+    double int_val;
 
-    double int_val = -2;
-    REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val) );
+    WHEN("An interaction value of -2 is passed") {
+      int_val = -2;
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, int_val);
+      THEN("The host randomly determines its interaction value") {
+        REQUIRE(host->GetIntVal() >= -1);
+        REQUIRE(host->GetIntVal() <= 1);
+      }
+      host.Delete();
+    }
+    
+    WHEN("An interaction value < -1 other than -2 is passed") {
+      int_val = -1.5;
+      THEN("An excepton is thrown") {
+        REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val));
+      }
+    }
 
     int_val = -1;
     emp::Ptr<Host> host1 = emp::NewPtr<Host>(random, world, &config, int_val);

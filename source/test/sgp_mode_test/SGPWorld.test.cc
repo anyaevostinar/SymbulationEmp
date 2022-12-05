@@ -1,5 +1,6 @@
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPHost.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
 
 #include "../../catch/catch.hpp"
 
