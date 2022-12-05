@@ -99,7 +99,7 @@ INST(PrivateIO, {
           [=](auto &m) { m.AddDatum(score); });
     } else {
       // A host loses 25% of points when performing private IO operations
-      score *= 0.75;
+      score *= 1; //turning off penalty for now
     }
     state.organism->AddPoints(score);
   }
@@ -124,6 +124,7 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
 }
 // Set output to value of register and set register to new input
 INST(SharedIO, {
+  std::cout << "shared io" << std::endl;
   AddOrganismPoints(state, *a);
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {

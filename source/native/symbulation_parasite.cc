@@ -13,6 +13,7 @@
 
 // Empirical doesn't support more than one translation unit, so any CC files are
 // included last. It still fixes include issues, but doesn't improve build time.
+#include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Tasks.cc"
 
@@ -33,10 +34,15 @@ int symbulation_main(int argc, char *argv[]) {
   emp::Random random(config.SEED());
 
   TaskSet task_set = LogicTasks;
+  if (config.TASK_TYPE() == 0) {
+    task_set = SquareTasks;
+  } else if (config.TASK_TYPE() == 1) {
+    task_set = LogicTasks;
+  }
 
   SGPWorld world(random, &config, task_set);
 
-  worldSetup(&world, &config);
+  world.Setup();
   world.CreateDataFiles();
 
   // Print some debug info for testing purposes
@@ -71,29 +77,6 @@ int symbulation_main(int argc, char *argv[]) {
       }
 
       idx++;
-    }
-  }
-
-  {
-    ofstream mutualism_file;
-    std::string mutualism_path =
-        config.FILE_PATH() + "SymImpact" + config.FILE_NAME() + file_ending;
-    mutualism_file.open(mutualism_path);
-
-    for (auto pair : dominant_organisms) {
-      auto sample = pair.first.DynamicCast<SGPHost>();
-      if (sample->HasSym()) {
-        mutualism_file
-            << CheckSymbiont(
-                   *sample,
-                   *sample->GetSymbionts().front().DynamicCast<SGPSymbiont>(),
-                   world)
-            << std::endl;
-      } else {
-        // We want something in the file so it overwrites previous data, and NA
-        // is something R generally understands
-        mutualism_file << "NA" << std::endl;
-      }
     }
   }
 

@@ -96,6 +96,14 @@ public:
     }
   }
 
+
+  void AddPoints(double _in) {
+    _in = 2* _in;
+    if(my_host) {
+      my_host->AddPoints(-_in);
+    }
+    points += _in;
+  }
   /**
    * Input: None
    *

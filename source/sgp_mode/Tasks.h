@@ -27,9 +27,22 @@ public:
   }
 
   virtual bool CanPerform(const CPUState &state, size_t task_id) {
+    if (!state.organism->IsHost()){
+      //if this is a symbiont 
+      if (state.used_resources->Get(task_id)) {
+        //and the task has been performed (therefore must be by host)
+        //symbiont gets the points from the host
+        return true;
+      } else {
+        //symbionts can't get credit for task if host hasn't done it first
+        return false;
+      }
+    }
+    
     if (state.used_resources->Get(task_id) && !unlimited) {
       return false;
-    }
+    } 
+
     if (dependencies.size()) {
       size_t actually_completed = std::reduce(
           dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
@@ -124,7 +137,9 @@ class TaskSet {
 
   float MarkPerformedTask(CPUState &state, uint32_t output, size_t task_id,
                           bool shared, float score) {
-    score = state.world.Cast<SymWorld>()->PullResources(score);
+    if (state.organism->IsHost()){
+      score = state.world.Cast<SymWorld>()->PullResources(score);
+    }
     if (score == 0.0) {
       return score;
     }
@@ -177,6 +192,9 @@ public:
     if (output == 0 || output == 1) {
       return 0.0;
     }
+    //hacky flag for detecting parasite did a task but host hadn't done it
+    bool sym_special = false;
+
     for (size_t i = 0; i < tasks.size(); i++) {
       if (tasks[i]->CanPerform(state, i)) {
         float score = tasks[i]->CheckOutput(state, output);
@@ -184,8 +202,16 @@ public:
           score = MarkPerformedTask(state, output, i, shared, score);
           return score;
         }
+      } else if(!state.organism->IsHost()) {
+        float score = tasks[i]->CheckOutput(state, output);
+        if (score > 0.0) {
+          //pity points for symbiont that did a task, but didn't match host
+          sym_special = true;
+          //MarkPerformedTask(state, output, i, shared, score);
+        }
       }
     }
+    if (sym_special) return 2.5;
     return 0.0f;
   }
 
@@ -231,19 +257,18 @@ public:
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 const InputTask
-    NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }, false},
-    NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }, false},
-    AND = {"AND", 2, 40.0, [](auto &x) { return x[0] & x[1]; }, true, {0, 1}},
-    ORN = {"ORN", 2, 40.0, [](auto &x) { return x[0] | ~x[1]; }, true, {0, 1}},
-    OR = {"OR", 2, 80.0, [](auto &x) { return x[0] | x[1]; }, true, {0, 1}},
-    ANDN = {"ANDN", 2,        80.0, [](auto &x) { return x[0] & ~x[1]; },
-            true,   {2, 3, 4}},
-    NOR = {"NOR", 2,        160.0, [](auto &x) { return ~(x[0] | x[1]); },
-           true,  {2, 3, 4}},
-    XOR = {"XOR", 2,        160.0, [](auto &x) { return x[0] ^ x[1]; },
-           true,  {2, 3, 4}},
-    EQU = {"EQU", 2,        320.0, [](auto &x) { return ~(x[0] ^ x[1]); },
-           true,  {5, 6, 7}};
+    NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }, true},
+    NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }, true},
+    AND = {"AND", 2, 5.0, [](auto &x) { return x[0] & x[1]; }, true},
+    ORN = {"ORN", 2, 5.0, [](auto &x) { return x[0] | ~x[1]; }, true},
+    OR = {"OR", 2, 5.0, [](auto &x) { return x[0] | x[1]; }, true},
+    ANDN = {"ANDN", 2,        5.0, [](auto &x) { return x[0] & ~x[1]; }, true},
+    NOR = {"NOR", 2,        5.0, [](auto &x) { return ~(x[0] | x[1]); },
+           true},
+    XOR = {"XOR", 2,        5.0, [](auto &x) { return x[0] ^ x[1]; },
+           true},
+    EQU = {"EQU", 2,        50.0, [](auto &x) { return ~(x[0] ^ x[1]); },
+           true};
 const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(NOT), emp::NewPtr<InputTask>(NAND),
     emp::NewPtr<InputTask>(AND), emp::NewPtr<InputTask>(ORN),

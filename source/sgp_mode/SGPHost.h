@@ -94,8 +94,8 @@ public:
    * processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
-    if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      cpu.state.used_resources->reset();
+    //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+      //cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {
@@ -103,7 +103,7 @@ public:
     }
 
     // Randomly decide whether to run before or after the symbiont
-    bool run_before = random->P(0.5);
+    bool run_before = random->P(1);
     if (run_before) {
       cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
     }

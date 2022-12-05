@@ -15,18 +15,23 @@ using Library = sgpl::OpLibrary<
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
     // no copy or alloc
-    inst::Reproduce, inst::PrivateIO, inst::SharedIO,
+    inst::Reproduce, inst::PrivateIO, 
+    //inst::SharedIO,
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    inst::Donate, inst::JumpIfNEq, inst::JumpIfLess, inst::Reuptake,
+    //inst::Donate, 
+    inst::JumpIfNEq, inst::JumpIfLess, 
+    //inst::Reuptake,
     //fls basics
-    inst::Infect,
+    //inst::Infect,
     // if-label doesn't make sense for SGP, same with *-head
     // and set-flow but this is required
-    sgpl::global::Anchor, inst::Steal>;
+    sgpl::global::Anchor 
+    //inst::Steal
+    >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
 
@@ -74,6 +79,15 @@ public:
     Add("SharedIO");
     Add("Nand");
     Add("SharedIO");
+  }
+
+  void AddPrivateNot() {
+    // privateio   r0
+    // nand       r0, r0, r0
+    // privateio   r0
+    Add("PrivateIO");
+    Add("Nand");
+    Add("PrivateIO");
   }
 
   void AddSquare() {
@@ -244,6 +258,13 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
   return program.Build(length);
 }
 
+
+sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
+  ProgramBuilder program;
+  program.AddPrivateNot();
+  return program.Build(length);
+}
+
 sgpl::Program<Spec> CreateSquareProgram(size_t length) {
   ProgramBuilder program;
   program.AddSquare();
@@ -259,7 +280,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-    return CreateNotProgram(PROGRAM_LENGTH);
+    return CreatePrivateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateSquareProgram(PROGRAM_LENGTH);
   }
