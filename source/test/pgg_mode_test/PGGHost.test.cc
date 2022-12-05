@@ -7,8 +7,13 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
-    double int_val = -2;
-    REQUIRE_THROWS(emp::NewPtr<PGGHost>(random, world, &config, int_val) );
+    double int_val = -1.5;
+    REQUIRE_THROWS(emp::NewPtr<PGGHost>(random, world, &config, int_val));
+
+    int_val = -2;
+    emp::Ptr< PGGHost> host = emp::NewPtr<PGGHost>(random, world, &config, int_val);
+    REQUIRE(host->GetIntVal() >= -1);
+    REQUIRE(host->GetIntVal() <= 1);
 
     int_val = -1;
     emp::Ptr<PGGHost> host1 = emp::NewPtr<PGGHost>(random, world, &config, int_val);
@@ -34,6 +39,7 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     int_val = 2;
     REQUIRE_THROWS(emp::NewPtr<PGGHost>(random, world, &config, int_val) );
 
+    host.Delete();
     host1.Delete();
     host2.Delete();
     host3.Delete();
