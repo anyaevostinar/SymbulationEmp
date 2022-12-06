@@ -90,7 +90,7 @@ public:
    * Purpose: To simulate a timestep in the world, which includes calling the
    * process functions for hosts and symbionts and updating the data nodes.
    */
-  void Update() {
+  void Update() override {
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future
     emp::World<Organism>::Update();
@@ -145,6 +145,10 @@ public:
     to_reproduce.clear();
   }
 
+  // Prototypes for setup methods
+  void SetupHosts(long unsigned int *POP_SIZE) override;
+  void SetupSymbionts(long unsigned int *total_syms) override;
+
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetHostedSymDonatedDataNode();
   SyncDataMonitor<double> &GetHostedSymStolenDataNode();
@@ -161,7 +165,7 @@ public:
   emp::DataFile &SetupHostSquareFrequencyFile(const std::string &filename);
   emp::DataFile &SetupSymSquareFrequencyFile(const std::string &filename);
 
-  void CreateDataFiles();
+  void CreateDataFiles() override;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 
-TEST_CASE("Lysis mode Update()", "lysis"){
+TEST_CASE("Lysis mode Update()", "[lysis]") {
   emp::Random random(17);
   SymConfigBase config;
   int int_val = 0;
@@ -51,6 +51,64 @@ TEST_CASE("Lysis mode Update()", "lysis"){
       }
 
       REQUIRE(world.GetNumOrgs() == 2);
+    }
+  }
+}
+
+TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    LysisWorld world(random, &config);
+
+    size_t world_size = 6;
+    world.Resize(world_size);
+    config.FREE_LIVING_SYMS(1);
+
+    WHEN("SetupSymbionts is called") {
+      size_t num_to_add = 2;
+      world.SetupSymbionts(&num_to_add);
+
+      THEN("The specified number of phage are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        emp::Ptr<Organism> symbiont;
+        int prev_burst_timer = -6;
+        for (size_t i = 0; i < world_size; i++) {
+          symbiont = world.GetSymAt(i);
+          if (symbiont) {
+            int sym_burst_timer = symbiont->GetBurstTimer();
+            REQUIRE(sym_burst_timer >= -5);
+            REQUIRE(sym_burst_timer <= 5);
+            REQUIRE(sym_burst_timer != prev_burst_timer);
+            prev_burst_timer = sym_burst_timer;
+            REQUIRE(symbiont->GetName() == "Phage");
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("Lysis SetupHosts", "[lysis]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    LysisWorld world(random, &config);
+
+    WHEN("SetupHosts is called") {
+      size_t num_to_add = 5;
+      world.SetupHosts(&num_to_add);
+
+      THEN("The specified number of bacteria are added to the world") {
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        emp::Ptr<Organism> host = world.GetPop()[0];
+        REQUIRE(host != nullptr);
+        REQUIRE(host->GetName() == "Bacterium");
+      }
     }
   }
 }

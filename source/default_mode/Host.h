@@ -102,7 +102,10 @@ public:
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0) : interaction_val(_intval), syms(_syms), repro_syms(_repro_syms), points(_points), random(_random), my_world(_world), my_config(_config) {
-    if ( _intval > 1 || _intval < -1) {
+    if (_intval == -2) {
+      interaction_val = random->GetDouble(-1, 1);
+    }
+    if (interaction_val > 1 || interaction_val < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
    }

@@ -188,7 +188,7 @@ public:
     random.ResetSeed(config.SEED());
     world.SetRandom(random);
 
-    worldSetup(&world, &config);
+    world.Setup();
 
     p = world.GetPop();
 
