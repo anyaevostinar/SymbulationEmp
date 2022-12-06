@@ -1072,8 +1072,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
   }
 }
 
-// TODO re-enable phylogeny tests when CalcInfoFun is replaced
-TEST_CASE( "Host Phylogeny", "[default-disabled]" ){
+TEST_CASE( "Host Phylogeny", "[default]" ){
   emp::Random random(17);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
@@ -1205,8 +1204,8 @@ TEST_CASE( "Host Phylogeny", "[default-disabled]" ){
   }
 }
 
-TEST_CASE( "Symbiont Phylogeny", "[default-disabled]" ){
-  emp::Random random(17);
+TEST_CASE( "Symbiont Phylogeny", "[default]" ){
+  emp::Random random(18);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
   config.MUTATION_RATE(1);
@@ -1291,7 +1290,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default-disabled]" ){
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
                              "Lineage:\n19\n16\n10\n",
-                             "Lineage:\n16\n19\n16\n10\n",
+                             "Lineage:\n4\n19\n16\n10\n",
                            };
 
       for(size_t i = 0; i < num_syms; i++){
