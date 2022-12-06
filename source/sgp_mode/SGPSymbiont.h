@@ -6,7 +6,6 @@
 #include "SGPHost.h"
 #include "SGPWorld.h"
 #include "emp/Evolve/World_structure.hpp"
-#include "SGPHost.h"
 
 class SGPSymbiont : public Symbiont {
 private:

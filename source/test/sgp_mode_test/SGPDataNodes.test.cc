@@ -47,11 +47,11 @@ TEST_CASE("GetHostedSymStolenDataNode", "[sgp]") {
     emp::Random random(44);
     SymConfigBase config;
     SGPWorld world(random, &config, SquareTasks);
-    int side = 10;
+    int side = 100;
     config.GRID_X(side);
     config.GRID_Y(side);
     config.SYM_HORIZ_TRANS_RES(10);
-    config.UPDATES(201);
+    config.UPDATES(501);
 
     SyncDataMonitor<double>& data_node_hosted_sym_stolen = world.GetHostedSymStolenDataNode();
     emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
@@ -132,7 +132,7 @@ TEST_CASE("GetFreeSymDonatedDataNode", "[sgp]") {
     config.GRID_X(side);
     config.GRID_Y(side);
     config.SYM_HORIZ_TRANS_RES(10);
-    config.UPDATES(201);
+    config.UPDATES(501);
 
     SyncDataMonitor<double>& data_node_free_sym_donated = world.GetFreeSymDonatedDataNode();
     emp::DataMonitor<int>& free_sym_count_node = world.GetCountFreeSymsDataNode();
@@ -166,11 +166,11 @@ TEST_CASE("GetFreeSymStolenDataNode", "[sgp]") {
     emp::Random random(44);
     SymConfigBase config;
     SGPWorld world(random, &config, SquareTasks);
-    int side = 10;
+    int side = 100;
     config.GRID_X(side);
     config.GRID_Y(side);
     config.SYM_HORIZ_TRANS_RES(10);
-    config.UPDATES(201);
+    config.UPDATES(501);
 
     SyncDataMonitor<double>& data_node_free_sym_stolen = world.GetFreeSymStolenDataNode();
     emp::DataMonitor<int>& free_sym_count_node = world.GetCountFreeSymsDataNode();
