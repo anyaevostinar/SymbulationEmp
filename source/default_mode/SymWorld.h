@@ -220,7 +220,6 @@ public:
    *
    * Purpose: To classify organisms based on their interaction value.
    */
-   // TODO put this back somewhere where it makes sense
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
       calc_info_fun = [&](Organism & org){

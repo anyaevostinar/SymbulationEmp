@@ -95,6 +95,13 @@ protected:
   emp::vector<emp::Ptr<BaseSymbiont>> syms;
 
 public:
+  ~BaseHost() {
+    for (auto p : syms) {
+      p.Delete();
+    }
+    ClearSyms();
+  }
+
   bool IsHost() const override { return true; }
 
   /**

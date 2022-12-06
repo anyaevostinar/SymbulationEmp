@@ -13,7 +13,7 @@ protected:
   double interaction_val = 0;
 
 public:
-  DefaultOrganism(double interaction_val) : interaction_val(interaction_val) {
+  DefaultOrganism(double int_val) : interaction_val(int_val) {
     if (interaction_val == -2) {
       interaction_val = random->GetDouble(-1, 1);
     }
@@ -74,6 +74,12 @@ public:
   void Mutate() override {
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
+    if (IsHost()) {
+      if (my_config->HOST_MUTATION_RATE() != -1)
+        local_rate = my_config->HOST_MUTATION_RATE();
+      if (my_config->HOST_MUTATION_SIZE() != -1)
+        local_size = my_config->HOST_MUTATION_SIZE();
+    }
 
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       interaction_val += random->GetRandNormal(0.0, local_size);

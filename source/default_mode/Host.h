@@ -50,9 +50,6 @@ public:
    * Purpose: To delete the memory used by a host's symbionts when the host is deleted.
    */
   ~Host(){
-    for(size_t i=0; i<syms.size(); i++){
-      syms[i].Delete();
-    }
     for(size_t j=0; j<repro_syms.size(); j++){
       repro_syms[j].Delete();
     }
