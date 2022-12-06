@@ -48,6 +48,7 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
+    cpu.state.tasks_performed.Delete();
     if (!my_host) {
       cpu.state.used_resources.Delete();
       cpu.state.shared_available_dependencies.Delete();
@@ -98,9 +99,9 @@ public:
 
 
   void AddPoints(double _in) {
-    _in = 2* _in;
-    if(my_host) {
-      my_host->AddPoints(-_in);
+    if(my_host && _in == 5.0) {
+      //Would need to check 5.0 check to check if sym actually did same task as host somehow
+      my_host->AddPoints(-_in * 0.5);
     }
     points += _in;
   }

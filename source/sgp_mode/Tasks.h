@@ -27,6 +27,11 @@ public:
   }
 
   virtual bool CanPerform(const CPUState &state, size_t task_id) {
+    //only let organisms do one task during lifetime
+    for(int i=0; i<state.tasks_performed->size(); i++){
+      if(i==task_id) continue; //skip this task
+      if(state.tasks_performed->Get(i)) return false; //if any other task has been performed, can't do this one
+    }
     if (!state.organism->IsHost()){
       //if this is a symbiont 
       if (state.used_resources->Get(task_id)) {
@@ -39,20 +44,20 @@ public:
       }
     }
     
-    if (state.used_resources->Get(task_id) && !unlimited) {
-      return false;
-    } 
+    // if (state.used_resources->Get(task_id) && !unlimited) {
+    //   return false;
+    // } 
 
-    if (dependencies.size()) {
-      size_t actually_completed = std::reduce(
-          dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
-            return acc + state.available_dependencies[i] +
-                   (*state.shared_available_dependencies)[i];
-          });
-      if (actually_completed < num_dep_completes) {
-        return false;
-      }
-    }
+    // if (dependencies.size()) {
+    //   size_t actually_completed = std::reduce(
+    //       dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
+    //         return acc + state.available_dependencies[i] +
+    //                (*state.shared_available_dependencies)[i];
+    //       });
+    //   if (actually_completed < num_dep_completes) {
+    //     return false;
+    //   }
+    // }
     return true;
   }
 
@@ -148,8 +153,10 @@ class TaskSet {
 
     if (state.organism->IsHost())
       ++*n_succeeds_host[task_id];
-    else
+    else{
       ++*n_succeeds_sym[task_id];
+    }
+      
 
     return score;
   }
@@ -207,11 +214,14 @@ public:
         if (score > 0.0) {
           //pity points for symbiont that did a task, but didn't match host
           sym_special = true;
-          //MarkPerformedTask(state, output, i, shared, score);
+          //also mark that task is performed in used_resources so offspring have chance of ending up in host that does the task (but don't use MarkPerformedTask since that messes up data collection)
+          state.tasks_performed->Set(i);
         }
       }
     }
-    if (sym_special) return 2.5;
+    if (sym_special){
+      return 2.5;
+    } 
     return 0.0f;
   }
 
@@ -267,7 +277,7 @@ const InputTask
            true},
     XOR = {"XOR", 2,        5.0, [](auto &x) { return x[0] ^ x[1]; },
            true},
-    EQU = {"EQU", 2,        50.0, [](auto &x) { return ~(x[0] ^ x[1]); },
+    EQU = {"EQU", 2,        5.0, [](auto &x) { return ~(x[0] ^ x[1]); },
            true};
 const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(NOT), emp::NewPtr<InputTask>(NAND),

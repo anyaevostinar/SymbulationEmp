@@ -51,6 +51,7 @@ public:
    */
   ~SGPHost() {
     cpu.state.used_resources.Delete();
+    cpu.state.tasks_performed.Delete();
     cpu.state.shared_available_dependencies.Delete();
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
@@ -103,7 +104,7 @@ public:
     }
 
     // Randomly decide whether to run before or after the symbiont
-    bool run_before = random->P(1);
+    bool run_before = random->P(1.0);
     if (run_before) {
       cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
     }

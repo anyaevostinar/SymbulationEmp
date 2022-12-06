@@ -46,6 +46,7 @@ struct CPUState {
   IORingBuffer<4> input_buf;
 
   emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
+  emp::Ptr<emp::BitSet<64>> tasks_performed = emp::NewPtr<emp::BitSet<64>>();
   emp::vector<size_t> available_dependencies;
   emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();

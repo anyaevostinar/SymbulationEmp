@@ -141,6 +141,10 @@ public:
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
 
+  
+  emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
+  int GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>>);
+
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetSymDonatedDataNode();
   SyncDataMonitor<double> &GetSymStolenDataNode();

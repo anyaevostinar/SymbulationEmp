@@ -547,7 +547,7 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);

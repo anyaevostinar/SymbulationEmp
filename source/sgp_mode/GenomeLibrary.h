@@ -115,6 +115,17 @@ public:
     Add("SharedIO");
   }
 
+  void AddPrivateNand() {
+    // sharedio   r0
+    // sharedio   r1
+    // nand       r0, r1, r0
+    // sharedio   r0
+    Add("PrivateIO");
+    Add("PrivateIO", 1);
+    Add("Nand", 0, 1, 0);
+    Add("PrivateIO");
+  }
+
   void AddAnd() {
     // ~(a nand b)
     // sharedio   r0
@@ -262,6 +273,13 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddPrivateNot();
+  return program.Build(length);
+}
+
+sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
+  ProgramBuilder program;
+  program.AddPrivateNot();
+  program.AddPrivateNand();
   return program.Build(length);
 }
 

@@ -4,6 +4,7 @@
 void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
                          bool shared) {
   state.used_resources->Set(task_id);
+  state.tasks_performed->Set(task_id);
 
   if (dependencies.size()) {
     size_t total = num_dep_completes;
