@@ -473,6 +473,8 @@ public:
    * Definitions of setup functions, expanded in WorldSetup.cc
    */
   virtual void Setup();
+  virtual void SetupHosts(long unsigned int* POP_SIZE);
+  virtual void SetupSymbionts(long unsigned int* total_syms, long unsigned int* POP_SIZE);
   virtual emp::Ptr<Organism> GetNewHost();
   virtual emp::Ptr<Organism> GetNewSym();
 
