@@ -1,4 +1,5 @@
 #include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientSymbiont.h"
 
 TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
   GIVEN("a world") {
@@ -18,9 +19,9 @@ TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
-        emp::Ptr<Organism> symbiont;
+        emp::Ptr<EfficientSymbiont> symbiont;
         for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
+          symbiont = world.GetSymAt(i).DynamicCast<EfficientSymbiont>();
           if (symbiont) {
             REQUIRE(symbiont->GetEfficiency() == 1);
             REQUIRE(symbiont->GetName() == "EfficientSymbiont");

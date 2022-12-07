@@ -2,6 +2,7 @@
 #define EFFSYM_H
 
 #include "../default_mode/Symbiont.h"
+#include "EfficientOrganism.h"
 #include "EfficientWorld.h"
 #include "EfficientHost.h"
 
@@ -9,15 +10,6 @@
 
 class EfficientSymbiont: public Symbiont, public EfficientOrganism {
 protected:
-
-  /**
-    *
-    * Purpose: Represents the efficiency of a symbiont. This has a multiplicable impact on a
-    * symbiont's resource collection.
-    *
-  */
-  double efficiency;
-
   /**
     *
     * Purpose: Represents the standard deviation of the values
@@ -55,8 +47,8 @@ public:
    */
   EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) :
   Symbiont(_random, _world, _config, _intval, _points),
-  Organism(_config, _world, _random, _points) {
-    efficiency = _efficient;
+  Organism(_config, _world, _random, _points),
+  EfficientOrganism(_efficient) {
     my_world = _world;
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = my_config->MUTATION_RATE();
@@ -111,27 +103,6 @@ public:
     return  "EfficientSymbiont";
   }
 
-  /**
-   * Input: Efficiency value
-   *
-   * Output: None
-   *
-   * Purpose: Setting an efficient symbiont's efficiency value.
-   */
-  void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
-    efficiency = _in;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: A double representing the symbiont's efficiency.
-   *
-   * Purpose: Getting an efficient symbiont's efficiency value.
-   */
-  double GetEfficiency() {return efficiency;}
-
 
   /**
    * Input: A double representing the amount to be incremented to a symbiont's points.
@@ -141,7 +112,7 @@ public:
    * Purpose: Incrementing an efficient symbiont's points.
    * The points are adjusted by the efficiency of the symbiont.
    */
-  void AddPoints(double _in) {points += (_in * efficiency);}
+  void AddPoints(double _in) override {points += (_in * efficiency);}
 
 
   /**
@@ -241,7 +212,7 @@ public:
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) override {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<BaseSymbiont> sym_baby = Reproduce("vertical");
       host_baby->AddSymbiont(sym_baby);
@@ -259,7 +230,7 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
+  void HorizontalTransmission(emp::WorldPosition location) override {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources

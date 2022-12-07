@@ -16,9 +16,9 @@
 #include "../test/default_mode_test/HostSymbiontInteraction.test.cc"
 #include "../test/default_mode_test/HostSymbiontUnitTest.test.cc"
 
-// #include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
-// #include "../test/efficient_mode_test/EfficientHost.test.cc"
-// #include "../test/efficient_mode_test/EfficientDataNodes.test.cc"
+#include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
+#include "../test/efficient_mode_test/EfficientHost.test.cc"
+#include "../test/efficient_mode_test/EfficientDataNodes.test.cc"
 
 // #include "../test/lysis_mode_test/Bacterium.test.cc"
 // #include "../test/lysis_mode_test/Phage.test.cc"

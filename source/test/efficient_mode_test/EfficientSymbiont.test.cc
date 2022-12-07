@@ -248,7 +248,7 @@ TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
         emp::Ptr<EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, parent_orig_efficiency);
         symbiont->SetAge(10);
 
-        emp::Ptr<Organism> sym_baby = symbiont->Reproduce("vertical");
+        emp::Ptr<EfficientSymbiont> sym_baby = symbiont->Reproduce("vertical").DynamicCast<EfficientSymbiont>();
 
 
         THEN("Offspring's efficiency equals parent's efficiency") {
@@ -281,7 +281,7 @@ TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
         config.MUTATION_SIZE(0.01);
         emp::Ptr<EfficientSymbiont> symbiont2 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val, points, efficiency);
 
-        emp::Ptr<Organism> sym_baby = symbiont2->Reproduce("vertical");
+        emp::Ptr<EfficientSymbiont> sym_baby = symbiont2->Reproduce("vertical").DynamicCast<EfficientSymbiont>();
 
 
         THEN("Offspring's efficiency value does not equal parent's efficiency value") {
@@ -431,7 +431,7 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             }
             REQUIRE(new_infected != nullptr);
             REQUIRE(new_infected->HasSym());
-            REQUIRE(new_infected->GetSymbionts()[0]->GetEfficiency() == efficiency);
+            REQUIRE(new_infected->GetSymbionts()[0].DynamicCast<EfficientSymbiont>()->GetEfficiency() == efficiency);
         }
     }
 
@@ -469,8 +469,8 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
             }
             REQUIRE(new_infected != nullptr);
             REQUIRE(new_infected->HasSym());
-            REQUIRE(new_infected->GetSymbionts()[0]->GetEfficiency() != efficiency);
-            REQUIRE(new_infected->GetSymbionts()[0]->GetIntVal() != int_val);
+            REQUIRE(new_infected->GetSymbionts()[0].DynamicCast<EfficientSymbiont>()->GetEfficiency() != efficiency);
+            REQUIRE(new_infected->GetSymbionts()[0].DynamicCast<EfficientSymbiont>()->GetIntVal() != int_val);
         }
 
     }
@@ -482,8 +482,8 @@ TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
     EfficientWorld world(*random, &config);
 
     double sym_int_val = 0.2;
-    emp::Ptr<Organism> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
-    emp::Ptr<Organism> symbiont2 = symbiont1->MakeNew();
+    emp::Ptr<EfficientSymbiont> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<EfficientSymbiont> symbiont2 = symbiont1->MakeNew();
 
     THEN("The new efficient symbiont has the same genome as its parent, but age and points 0"){
         REQUIRE(symbiont2->GetIntVal() == symbiont1->GetIntVal());
@@ -524,7 +524,7 @@ TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   config.SYM_VERT_TRANS_RES(points_to_transmit);
 
 
-  emp::Ptr<Organism> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, &world, &config, int_val);
   emp::Ptr<Organism> host = emp::NewPtr<EfficientHost>(random, &world, &config, int_val);
   REQUIRE(host->HasSym() == false);
 

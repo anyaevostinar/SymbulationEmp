@@ -7,14 +7,6 @@
 
 class EfficientHost: public Host, public EfficientOrganism {
 protected:
-
-  /**
-    *
-    * Purpose: Represents the efficiency of a host.
-    *
-  */
-  double efficiency;
-
   /**
     *
     * Purpose: Represents the world that the efficient hosts are living in.
@@ -30,8 +22,8 @@ public:
   emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
   double _points = 0.0, double _efficient = 0.1) :
   Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-  Organism(_config, _world, _random, _points) {
-    efficiency = _efficient;
+  Organism(_config, _world, _random, _points),
+  EfficientOrganism(_efficient) {
     my_world = _world;
   }
 
@@ -75,27 +67,6 @@ public:
   std::string const GetName() {
     return  "EfficientHost";
   }
-
-  /**
-   * Input: Efficiency value
-   *
-   * Output: None
-   *
-   * Purpose: Setting an efficient symbiont's efficiency value.
-   */
-  void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
-    efficiency = _in;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: A double representing the symbiont's efficiency.
-   *
-   * Purpose: Getting an efficient symbiont's efficiency value.
-   */
-  double GetEfficiency() {return efficiency;}
 
   /**
    * Input: None.

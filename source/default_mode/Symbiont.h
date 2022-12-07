@@ -231,7 +231,7 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
+  virtual void HorizontalTransmission(emp::WorldPosition location) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       double required_points = my_config->SYM_HORIZ_TRANS_RES();
       if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
