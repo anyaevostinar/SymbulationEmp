@@ -125,15 +125,15 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  void Mutate(std::string mode){
+  void Mutate(TransmissionMode mode){
     double local_size;
     double local_rate;
     double int_rate;
 
-    if(mode == "vertical"){
+    if(mode == TransmissionMode::Vertical){
       local_rate = my_config->MUTATION_RATE();
       local_size = my_config->MUTATION_SIZE();
-    } else if(mode == "horizontal") {
+    } else if(mode == TransmissionMode::Horizontal) {
       local_rate = ht_mut_rate;
       local_size = ht_mut_size;
     } else {
@@ -197,7 +197,7 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  emp::Ptr<BaseSymbiont> Reproduce(std::string mode) {
+  emp::Ptr<BaseSymbiont> Reproduce(TransmissionMode mode) {
     emp::Ptr<EfficientSymbiont> sym_baby = MakeNew();
     sym_baby->Mutate(mode);
     return sym_baby;
@@ -214,7 +214,7 @@ public:
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) override {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<BaseSymbiont> sym_baby = Reproduce("vertical");
+      emp::Ptr<BaseSymbiont> sym_baby = Reproduce(TransmissionMode::Vertical);
       host_baby->AddSymbiont(sym_baby);
 
       //vertical transmission data node
@@ -236,7 +236,7 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<BaseSymbiont> sym_baby = Reproduce("horizontal");
+        emp::Ptr<BaseSymbiont> sym_baby = Reproduce(TransmissionMode::Horizontal);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

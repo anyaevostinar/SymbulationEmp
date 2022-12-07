@@ -3,6 +3,8 @@
 
 #include "../Organism.h"
 
+enum class TransmissionMode { Vertical, Horizontal };
+
 class EfficientOrganism : public virtual Organism {
 protected:
   double efficiency;
@@ -18,7 +20,8 @@ public:
    * Purpose: Setting an efficient symbiont's efficiency value.
    */
   void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
+    if (_in > 1 || _in < 0)
+      throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
     efficiency = _in;
   }
 
@@ -29,7 +32,7 @@ public:
    *
    * Purpose: Getting an efficient symbiont's efficiency value.
    */
-  double GetEfficiency() {return efficiency;}
+  double GetEfficiency() { return efficiency; }
 };
 
 #endif
