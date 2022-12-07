@@ -41,8 +41,8 @@ public:
   /**
    * Definitions of setup functions, expanded in LysisWorldSetup.cc
    */
-  void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(long unsigned int* total_syms);
+  emp::Ptr<Organism> GetNewSym();
+  emp::Ptr<Organism> GetNewHost();
 
 
   /**

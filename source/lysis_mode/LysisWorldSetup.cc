@@ -6,37 +6,33 @@
 #include "Bacterium.h"
 
 /**
- * Input: The number of bacteria.
+ * Input: None.
  *
- * Output: None.
+ * Output: A pointer to a new bacterium.
  *
- * Purpose: To populate the world with bacteria with appropriate phenotypes.
+ * Purpose: To create and get the pointer to a new bacterium.
  */
-void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
-  for (size_t i = 0; i < *POP_SIZE; i++) {
-    emp::Ptr<Bacterium> new_org;
-    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
-    InjectHost(new_org);
-  }
+emp::Ptr<Organism> LysisWorld::GetNewHost() {
+  emp::Ptr<Bacterium> new_org;
+  new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+  return new_org;
 }
 
 
 /**
- * Input: The number of phage.
+ * Input: None.
  *
- * Output: None.
+ * Output: A pointer to a new phage.
  *
- * Purpose: To populate the world with phage with appropriate phenotypes.
+ * Purpose: To create and get the pointer to a new phage.
  */
-void LysisWorld::SetupSymbionts(long unsigned int* total_syms) {
+emp::Ptr<Organism> LysisWorld::GetNewSym() {
   bool STAGGER_STARTING_BURST_TIMERS = true;
-  for (size_t j = 0; j < *total_syms; j++) {
-    emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
-    if (STAGGER_STARTING_BURST_TIMERS) {
-      new_sym->SetBurstTimer(GetRandom().GetInt(-5, 5));
-    }
-    InjectSymbiont(new_sym);
-  }
+  emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
+  if (STAGGER_STARTING_BURST_TIMERS) {
+    new_sym->SetBurstTimer(GetRandom().GetInt(-5, 5));
+  }  
+  return new_sym;
 }
 
 #endif

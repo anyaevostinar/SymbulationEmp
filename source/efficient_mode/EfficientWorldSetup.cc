@@ -6,32 +6,28 @@
 #include "EfficientHost.h"
 
 /**
- * Input: The number of efficient hosts.
+ * Input: None.
  *
- * Output: None.
+ * Output: A pointer to a new efficient host.
  *
- * Purpose: To populate the world with efficient hosts with appropriate phenotypes.
+ * Purpose: To create and get the pointer to a new efficient host.
  */
-void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
-  for (size_t i = 0; i < *POP_SIZE; i++) {
-    emp::Ptr<EfficientHost> new_org;
-    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
-    InjectHost(new_org);
-  }
+emp::Ptr<Organism> EfficientWorld::GetNewHost() {
+  emp::Ptr<EfficientHost> new_org;
+  new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+  return new_org;
 }
 
 /**
- * Input: The number of efficient symbionts.
+ * Input: None.
  *
- * Output: None.
+ * Output: A pointer to a new efficient symbiont.
  *
- * Purpose: To populate the world with efficient symbionts with appropriate phenotypes.
+ * Purpose: To create and get the pointer to a new efficient symbiont.
  */
-void EfficientWorld::SetupSymbionts(long unsigned int* total_syms) {
-  for (size_t j = 0; j < *total_syms; j++) {
-    emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0, 1);
-    InjectSymbiont(new_sym);
-  }
+emp::Ptr<Organism> EfficientWorld::GetNewSym() {
+  emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0, 1);
+  return new_sym;
 }
 
 /**

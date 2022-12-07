@@ -474,7 +474,9 @@ public:
    */
   virtual void Setup();
   virtual void SetupHosts(long unsigned int* POP_SIZE);
-  virtual void SetupSymbionts(long unsigned int* total_syms);
+  virtual void SetupSymbionts(long unsigned int* total_syms, long unsigned int* POP_SIZE);
+  virtual emp::Ptr<Organism> GetNewHost();
+  virtual emp::Ptr<Organism> GetNewSym();
 
   /**
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
