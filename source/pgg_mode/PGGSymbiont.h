@@ -21,9 +21,18 @@ protected:
   */
   emp::Ptr<PGGWorld> my_world = NULL;
 
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigPGG> my_config = NULL;
+
 public:
-  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),PGG_donate(_donation)
-  {my_world = _world;}
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
+    my_config = _config; 
+    my_world = _world;
+  }
 
 
   /**

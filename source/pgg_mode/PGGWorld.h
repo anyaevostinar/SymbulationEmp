@@ -3,9 +3,17 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "PGGConfigSetup.h"
 
 class PGGWorld : public SymWorld {
 private:
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigPGG> my_config = NULL;
+
   /**
     *
     * Purpose: Data node tracking the pgg donation rate.
@@ -13,7 +21,12 @@ private:
   */
   emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_PGG;
 public:
-  using SymWorld::SymWorld;
+  /**
+   * The constructor for PGGWorld
+   */
+  PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
+    my_config = _config;
+  }
 
   /**
    * Input: None
