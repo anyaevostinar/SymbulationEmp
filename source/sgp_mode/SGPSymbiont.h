@@ -101,7 +101,7 @@ public:
   void AddPoints(double _in) {
     if(my_host && _in == 5.0) {
       //Would need to check 5.0 check to check if sym actually did same task as host somehow
-      my_host->AddPoints(-_in * 0.5);
+      //my_host->AddPoints(-_in * 0.5);
     }
     points += _in;
   }

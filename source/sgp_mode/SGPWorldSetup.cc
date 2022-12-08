@@ -28,18 +28,18 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>> parent_tasks
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
-      //check if neighbor host does lowest (or highest?) task that parent sym did
+      //check if neighbor host does any task that parent sym did
       emp::Ptr<emp::BitSet<64>> host_tasks = GetOrgPtr(neighbor.GetIndex()).DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
       for(int i =host_tasks->size()-1; i>-1; i--){
         if(parent_tasks->Get(i) && host_tasks->Get(i)) {
-          //both parent sym and host can do this task, so good match
+          //both parent sym and host can do this task, parasite can infect
           return neighbor.GetIndex();
         }
       }
     }
   }
-  //Otherwise just find any available host organism to inject into
-  return SymWorld::GetNeighborHost(id);
+  //Otherwise parasite can't infect host
+  return -1;
 }
 
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {

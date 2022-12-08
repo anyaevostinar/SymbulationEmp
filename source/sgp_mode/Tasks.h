@@ -28,21 +28,21 @@ public:
 
   virtual bool CanPerform(const CPUState &state, size_t task_id) {
     //only let organisms do one task during lifetime
-    for(int i=0; i<state.tasks_performed->size(); i++){
-      if(i==task_id) continue; //skip this task
-      if(state.tasks_performed->Get(i)) return false; //if any other task has been performed, can't do this one
-    }
-    if (!state.organism->IsHost()){
-      //if this is a symbiont 
-      if (state.used_resources->Get(task_id)) {
-        //and the task has been performed (therefore must be by host)
-        //symbiont gets the points from the host
-        return true;
-      } else {
-        //symbionts can't get credit for task if host hasn't done it first
-        return false;
-      }
-    }
+    // for(int i=0; i<state.tasks_performed->size(); i++){
+    //   if(i==task_id) continue; //skip this task
+    //   if(state.tasks_performed->Get(i)) return false; //if any other task has been performed, can't do this one
+    // }
+    // if (!state.organism->IsHost()){
+    //   //if this is a symbiont 
+    //   if (state.used_resources->Get(task_id)) {
+    //     //and the task has been performed (therefore must be by host)
+    //     //symbiont gets the points from the host
+    //     return true;
+    //   } else {
+    //     //symbionts can't get credit for task if host hasn't done it first
+    //     return false;
+    //   }
+    // }
     
     // if (state.used_resources->Get(task_id) && !unlimited) {
     //   return false;
@@ -209,14 +209,14 @@ public:
           score = MarkPerformedTask(state, output, i, shared, score);
           return score;
         }
-      } else if(!state.organism->IsHost()) {
-        float score = tasks[i]->CheckOutput(state, output);
-        if (score > 0.0) {
-          //pity points for symbiont that did a task, but didn't match host
-          sym_special = true;
-          //also mark that task is performed in used_resources so offspring have chance of ending up in host that does the task (but don't use MarkPerformedTask since that messes up data collection)
-          state.tasks_performed->Set(i);
-        }
+      // } else if(!state.organism->IsHost()) {
+      //   float score = tasks[i]->CheckOutput(state, output);
+      //   if (score > 0.0) {
+      //     //pity points for symbiont that did a task, but didn't match host
+      //     sym_special = true;
+      //     //also mark that task is performed in used_resources so offspring have chance of ending up in host that does the task (but don't use MarkPerformedTask since that messes up data collection)
+      //     state.tasks_performed->Set(i);
+      //   }
       }
     }
     if (sym_special){
