@@ -11,7 +11,7 @@
  * Purpose: To validate the passed config settings and throw appropriate error messages,
  * including unique lysis mode checks.
  */
-void LysisCheckConfigFile(SymConfigBase& config, int argc, char * argv[]){
+void LysisCheckConfigFile(SymConfigLysis& config, int argc, char * argv[]){
   CheckConfigFile(config, argc, argv);
   if (config.BURST_SIZE()%config.BURST_TIME() != 0 && config.BURST_SIZE() < 999999999) {
   	std::cerr << "BURST_SIZE must be an integer multiple of BURST_TIME." << std::endl;
@@ -22,7 +22,7 @@ void LysisCheckConfigFile(SymConfigBase& config, int argc, char * argv[]){
 // This is the main function for the NATIVE version of this project.
 int symbulation_main(int argc, char * argv[])
 {
-  SymConfigBase config;
+  SymConfigLysis config;
   LysisCheckConfigFile(config, argc, argv);
 
   config.Write(std::cout);

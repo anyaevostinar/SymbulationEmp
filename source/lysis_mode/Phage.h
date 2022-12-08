@@ -48,12 +48,20 @@ protected:
   */
   emp::Ptr<LysisWorld> my_world = NULL;
 
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigLysis> my_config = NULL;
+
 
 public:
   /**
    * The constructor for phage
    */
-  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
+  Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigLysis> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
+    my_config = _config;
     chance_of_lysis = my_config->LYSIS_CHANCE();
     induction_chance = my_config->CHANCE_OF_INDUCTION();
     incorporation_val = my_config->PHAGE_INC_VAL();

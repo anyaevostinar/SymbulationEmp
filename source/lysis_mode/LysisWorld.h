@@ -3,9 +3,18 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "LysisConfigSetup.h"
 
 class LysisWorld : public SymWorld {
 private:
+
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigLysis> my_config = NULL;
+
   /**
     *
     * Purpose: Data nodes tracking lysis chance, induction chance, incorporation difference, lytic burst size, and lytic burst count.
@@ -19,7 +28,12 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 public:
-  using SymWorld::SymWorld;
+  /**
+   * The constructor for LysisWorld
+   */
+  LysisWorld(emp::Random& _random, emp::Ptr<SymConfigLysis> _config) : SymWorld(_random, _config) {
+    my_config = _config;
+  }
 
   /**
    * Input: None

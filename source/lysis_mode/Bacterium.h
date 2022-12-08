@@ -26,15 +26,23 @@ protected:
   */
   emp::Ptr<LysisWorld> my_world = NULL;
 
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigLysis> my_config = NULL;
+
 public:
 
   /**
    * The constructor for the bacterium class
    */
-  Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config,
+  Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigLysis> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points)  {
+    my_config = _config;
     host_incorporation_val = my_config->HOST_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);

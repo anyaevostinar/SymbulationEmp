@@ -2,7 +2,7 @@
 
 TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = -1;
@@ -27,7 +27,7 @@ TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
 
 TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(4);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = -1;
@@ -43,7 +43,7 @@ TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
 
 TEST_CASE("Bacterium mutate", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = 0;
@@ -113,7 +113,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
 
 TEST_CASE("ProcessLysogenResources", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     config.HOST_INC_VAL(0);
@@ -160,7 +160,7 @@ TEST_CASE("ProcessLysogenResources", "[lysis]"){
 
 TEST_CASE("Bacterium Process", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     size_t location = 0;
@@ -200,7 +200,7 @@ TEST_CASE("Bacterium Process", "[lysis]"){
 }
 
 TEST_CASE("Phage Exclude", "[lysis]") {
-    SymConfigBase config;
+    SymConfigLysis config;
     int sym_limit = 4;
     config.SYM_LIMIT(sym_limit);
 
@@ -252,7 +252,7 @@ TEST_CASE("Phage Exclude", "[lysis]") {
 
 TEST_CASE("Bacterium MakeNew", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(*random, &config);
 
     double host_int_val = 0.2;
@@ -275,7 +275,7 @@ TEST_CASE("Bacterium MakeNew", "[lysis]"){
 
 TEST_CASE("Bacterium reproduce", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(*random, &config);
     config.MUTATION_SIZE(0.002);
     config.MUTATION_RATE(1);
