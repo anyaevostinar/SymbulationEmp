@@ -218,6 +218,8 @@ public:
       infection_chance = _in;
   }
 
+  virtual void UponInjection() {}
+
   /**
    * Input: None
    *

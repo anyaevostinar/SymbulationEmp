@@ -6,7 +6,7 @@
 #include "sanity_check.test.cc"
 
 // Include the entry point to include all cc files
-#include "../native/symbulation_default.cc"
+#include "../native/symbulation_lysis.cc"
 
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
@@ -20,11 +20,11 @@
 #include "../test/efficient_mode_test/EfficientHost.test.cc"
 #include "../test/efficient_mode_test/EfficientDataNodes.test.cc"
 
-// #include "../test/lysis_mode_test/Bacterium.test.cc"
-// #include "../test/lysis_mode_test/Phage.test.cc"
-// #include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
-// #include "../test/lysis_mode_test/LysisDataNodes.test.cc"
-// #include "../test/lysis_mode_test/LysisWorld.test.cc"
+#include "../test/lysis_mode_test/Bacterium.test.cc"
+#include "../test/lysis_mode_test/Phage.test.cc"
+#include "../test/lysis_mode_test/BacteriumPhageUnitTest.test.cc"
+#include "../test/lysis_mode_test/LysisDataNodes.test.cc"
+#include "../test/lysis_mode_test/LysisWorld.test.cc"
 
 // #include "../test/pgg_mode_test/PGGSymbiont.test.cc"
 // #include "../test/pgg_mode_test/PGGHost.test.cc"

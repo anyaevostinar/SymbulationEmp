@@ -140,7 +140,7 @@ TEST_CASE("Phage Reproduce", "[lysis]") {
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
         emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        emp::Ptr<Organism> phage_baby = phage->Reproduce();
+        emp::Ptr<Phage> phage_baby = phage->Reproduce().DynamicCast<Phage>();
 
         THEN("Offspring's interaction value and lysis chance equals parent's interaction value and lysis chance") {
             int phage_baby_int_val = 0;
@@ -169,7 +169,7 @@ TEST_CASE("Phage Reproduce", "[lysis]") {
         config.MUTATION_RATE(1);
         config.MUTATION_SIZE(0.002);
         emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
-        emp::Ptr<Organism> phage_baby = phage->Reproduce();
+        emp::Ptr<Phage> phage_baby = phage->Reproduce().DynamicCast<Phage>();
 
         THEN("Offspring's interaction value and lysis chance does not equal parent's interaction value and lysis chance") {
             REQUIRE( phage_baby->GetIntVal() != parent_orig_int_val);
@@ -313,7 +313,7 @@ TEST_CASE("Phage Mutate", "[lysis]"){
         config.MUTATE_INDUCTION_CHANCE(1);
         config.MUTATE_INC_VAL(1);
 
-        emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
         phage->Mutate();
         THEN("Mutation occurs and chance of lysis changes") {
             REQUIRE(phage->GetLysisChance() != 0.5);
@@ -335,7 +335,7 @@ TEST_CASE("Phage Mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
         phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
@@ -355,7 +355,7 @@ TEST_CASE("Phage Mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(1);
         config.MUTATE_INDUCTION_CHANCE(1);
         config.MUTATE_INC_VAL(1);
-        emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
         phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
@@ -375,7 +375,7 @@ TEST_CASE("Phage Mutate", "[lysis]"){
         config.MUTATE_LYSIS_CHANCE(0);
         config.MUTATE_INDUCTION_CHANCE(0);
         config.MUTATE_INC_VAL(0);
-        emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+        emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
         phage->Mutate();
         double lysis_chance_post_mutation = 0.5;
         double induction_chance_post_mutation = 0.5;
@@ -504,8 +504,8 @@ TEST_CASE("Phage process", "[lysis]"){
             world.AddOrgAt(new_bacterium, 1);
 
             //add phage offspring to the original host's repro syms
-            emp::Ptr<Organism> p_baby1 = phage->Reproduce();
-            emp::Ptr<Organism> p_baby2 = phage->Reproduce();
+            emp::Ptr<BaseSymbiont> p_baby1 = phage->ReproduceSym();
+            emp::Ptr<BaseSymbiont> p_baby2 = phage->ReproduceSym();
             orig_bacterium->AddReproSym(p_baby1);
             orig_bacterium->AddReproSym(p_baby2);
 
@@ -669,8 +669,8 @@ TEST_CASE("Phage MakeNew", "[lysis]"){
     LysisWorld world(*random, &config);
 
     double phage_int_val = 0.2;
-    emp::Ptr<Organism> phage = emp::NewPtr<Phage>(random, &world, &config, phage_int_val);
-    emp::Ptr<Organism> new_phage = phage->MakeNew();
+    emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, phage_int_val);
+    emp::Ptr<Phage> new_phage = phage->MakeNew().DynamicCast<Phage>();
 
     THEN("The new phage has the same genome as its parent, but age and points 0"){
         REQUIRE(new_phage->GetIntVal() == phage->GetIntVal());

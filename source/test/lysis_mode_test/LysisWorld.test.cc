@@ -73,10 +73,11 @@ TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
-        emp::Ptr<Organism> symbiont;
+        emp::Ptr<Phage> symbiont;
         int prev_burst_timer = -6;
         for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
+          symbiont = world.GetSymAt(i).DynamicCast<Phage>();
+          REQUIRE((!world.GetSymAt(i) || symbiont));
           if (symbiont) {
             int sym_burst_timer = symbiont->GetBurstTimer();
             REQUIRE(sym_burst_timer >= -5);

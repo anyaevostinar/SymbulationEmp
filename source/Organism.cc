@@ -5,7 +5,7 @@ size_t BaseHost::AddSymbiont(emp::Ptr<BaseSymbiont> _in) {
   if ((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()) {
     syms.push_back(_in);
     _in->SetHost(this);
-    // _in->UponInjection();
+    _in->UponInjection();
     return syms.size();
   } else {
     _in.Delete();

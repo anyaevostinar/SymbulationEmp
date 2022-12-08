@@ -181,7 +181,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<EfficientSymbiont> MakeNew(){
+  emp::Ptr<BaseSymbiont> MakeNew() override {
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
@@ -198,7 +198,7 @@ public:
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
   emp::Ptr<BaseSymbiont> Reproduce(TransmissionMode mode) {
-    emp::Ptr<EfficientSymbiont> sym_baby = MakeNew();
+    emp::Ptr<EfficientSymbiont> sym_baby = MakeNew().DynamicCast<EfficientSymbiont>();
     sym_baby->Mutate(mode);
     return sym_baby;
   }

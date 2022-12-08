@@ -110,18 +110,6 @@ public:
    *
    * Output: None
    *
-   * Purpose: Does nothing for now, added for backwards compatibility from phage to symbiont
-   */
-  void UponInjection(){
-    //does nothing for now, added for backwards compatibility from phage to symbiont
-  }
-
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
    * Purpose: To mutate a symbiont's interaction value. The mutation value is chosen
    * from a normal distribution centered on 0 with the mutation size as the standard
    * deviation.
@@ -200,7 +188,7 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<BaseSymbiont> MakeNew() {
+  virtual emp::Ptr<BaseSymbiont> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
     return new_sym;

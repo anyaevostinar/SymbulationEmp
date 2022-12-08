@@ -78,7 +78,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "Bacterium";
   }
 
@@ -108,7 +108,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
     host_baby->SetIncVal(GetIncVal());
     return host_baby;
@@ -123,7 +123,7 @@ public:
    * chosen from a normal distribution centered at 0, with a standard deviation that
    * is equal to the mutation size. Bacterium mutation can be turned on or off.
    */
-  void Mutate() {
+  void Mutate() override {
     Host::Mutate();
 
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){

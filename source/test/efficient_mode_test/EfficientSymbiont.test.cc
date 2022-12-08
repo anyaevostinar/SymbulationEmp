@@ -483,7 +483,7 @@ TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
 
     double sym_int_val = 0.2;
     emp::Ptr<EfficientSymbiont> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, &world, &config, sym_int_val);
-    emp::Ptr<EfficientSymbiont> symbiont2 = symbiont1->MakeNew();
+    emp::Ptr<EfficientSymbiont> symbiont2 = symbiont1->MakeNew().DynamicCast<EfficientSymbiont>();
 
     THEN("The new efficient symbiont has the same genome as its parent, but age and points 0"){
         REQUIRE(symbiont2->GetIntVal() == symbiont1->GetIntVal());

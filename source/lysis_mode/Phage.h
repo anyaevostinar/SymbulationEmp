@@ -111,7 +111,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "Phage";
   }
 
@@ -220,6 +220,7 @@ public:
   bool IsPhage() {return true;}
 
   void SetHost(emp::Ptr<BaseHost> host) override {
+    Symbiont::SetHost(host);
     my_host = host.DynamicCast<Bacterium>();
     if (host && !my_host) {
       throw "Phage requires Bacterium host";
@@ -236,7 +237,7 @@ public:
    * If a phage chooses to be lysogenic, their interaction value will be 0 to represent
    * them being neutral.
    */
-  void UponInjection() {
+  void UponInjection() override {
     double rand_chance = random->GetDouble(0.0, 1.0);
     if (rand_chance <= chance_of_lysis){
       lysogeny = false;
@@ -287,7 +288,7 @@ public:
    *
    * Purpose: To produce a new symbiont, identical to the original
    */
-  emp::Ptr<Organism> MakeNew() {
+  emp::Ptr<BaseSymbiont> MakeNew() override {
     emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
     // pass down parent's genome
     sym_baby->SetIncVal(GetIncVal());
