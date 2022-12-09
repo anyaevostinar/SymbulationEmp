@@ -214,6 +214,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
+  auto & node4 = GetFreeLivingSymReproAttemptCount();
 
   file.AddVar(update, "update", "Update");
 
@@ -223,6 +224,11 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
 
   //vertical transmission
   file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
+
+  //free living symbiont transmission
+  if (my_config->FREE_LIVING_SYMS() == 1) {
+    file.AddTotal(node4, "attempts_freesymrepro", "Total number of attempted free living symbiont births", true);
+  }
 
   file.PrintHeaderKeys();
 
@@ -599,6 +605,23 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
     data_node_successes_horiztrans.New();
   }
   return *data_node_successes_horiztrans;
+}
+
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts were made by free living symbionts to reproduce.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * number of attempted free living symbiont reproductions.
+ */
+emp::DataMonitor<int>& SymWorld::GetFreeLivingSymReproAttemptCount() {
+  if (!data_node_attempts_flsrepro) {
+    data_node_attempts_flsrepro.New();
+  }
+  return *data_node_attempts_flsrepro;
 }
 
 

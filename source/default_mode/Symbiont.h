@@ -581,7 +581,7 @@ public:
   void HorizontalTransmission(emp::WorldPosition location) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       double required_points = my_config->SYM_HORIZ_TRANS_RES();
-      if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
+      if (my_config->FREE_LIVING_SYMS() && my_host.IsNull() && my_config->FREE_SYM_REPRO_RES() > -1) {
         required_points = my_config->FREE_SYM_REPRO_RES();
       }
       if (GetPoints() >= required_points) {
@@ -592,13 +592,19 @@ public:
         emp::Ptr<Organism> sym_baby = Reproduce();
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
-        //horizontal transmission data nodes
-        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
+        if (my_config->FREE_LIVING_SYMS() && my_host.IsNull()) {
+          //free living symbiont birth data nodes
+          emp::DataMonitor<int>& data_node_attempts_flsrepro = my_world->GetFreeLivingSymReproAttemptCount();
+          data_node_attempts_flsrepro.AddDatum(1);
+        } else {
+          //horizontal transmission data nodes
+          emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+          data_node_attempts_horiztrans.AddDatum(1);
 
-        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
-        if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(1);
+          emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+          if (new_pos.IsValid()) {
+            data_node_successes_horiztrans.AddDatum(1);
+          }
         }
       }
     }
