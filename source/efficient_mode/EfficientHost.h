@@ -20,17 +20,25 @@ protected:
     *
   */
   emp::Ptr<EfficientWorld> my_world = NULL;
+
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> my_config = NULL;
 public:
   /**
    * The constructor for efficient host
    */
-  EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config,
+  EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigEfficient> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0, double _efficient = 0.1) :
   Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
     efficiency = _efficient;
     my_world = _world;
+    my_config = _config;
   }
 
 

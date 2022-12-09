@@ -49,13 +49,21 @@ protected:
     *
   */
   emp::Ptr<EfficientWorld> my_world = NULL;
+
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> my_config = NULL;
 public:
   /**
    * The constructor for efficient symbiont
    */
-  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
+  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigEfficient> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
     efficiency = _efficient;
     my_world = _world;
+    my_config = _config;
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = my_config->MUTATION_RATE();
     } else {

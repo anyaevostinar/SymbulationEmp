@@ -3,9 +3,17 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "EfficientConfigSetup.h"
 
 class EfficientWorld : public SymWorld {
 private:
+  /**
+    *
+    * Purpose: Represents the configuration settings for a particular run.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> my_config = NULL;
+
   /**
     *
     * Purpose: Data node tracking the average efficiency of efficient symbionts.
@@ -13,7 +21,12 @@ private:
   */
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
 public:
-  using SymWorld::SymWorld;
+  /**
+   * The constructor for PGGWorld
+   */
+  EfficientWorld(emp::Random& _random, emp::Ptr<SymConfigEfficient> _config) : SymWorld(_random, _config) {
+    my_config = _config;
+  }
 
   /**
    * Input: None

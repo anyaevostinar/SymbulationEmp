@@ -55,13 +55,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 0, "Number of resources to give to each free-living symbiont each update if they are available"),
     VALUE(FREE_SYM_REPRO_RES, double, -1, "How many resources required for free living symbiont reproduction. If -1, use the horizontal transmission required point value."),
 
-    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
-    
-
-    GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
-    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-    VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)"),
-
-
+    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?")
 )
 #endif
