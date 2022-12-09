@@ -741,3 +741,93 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     }
   }
 }
+
+TEST_CASE("GetInfectionAttemptCount", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+    int world_size = 4;
+    world.Resize(world_size);
+
+    config.SYM_LIMIT(0);
+    config.FREE_LIVING_SYMS(1);
+    
+    emp::DataMonitor<int>& data_node_attempts_infection = world.GetInfectionAttemptCount();
+    REQUIRE(data_node_attempts_infection.GetTotal() == 0);
+
+    size_t host_pos = 1;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+
+    world.AddOrgAt(symbiont, sym_pos);
+    world.AddOrgAt(host, host_pos);
+
+    REQUIRE(world.GetSymPop()[host_pos] == symbiont);
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("A symbiont tries and fails to infect a host") {
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of attempted infections increments") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == false);
+        REQUIRE(data_node_attempts_infection.GetTotal() == 1);
+      }
+    }
+  }
+}
+
+TEST_CASE("GetInfectionSuccessCount", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+    int world_size = 4;
+    world.Resize(world_size);
+    
+    config.FREE_LIVING_SYMS(1);
+
+    emp::DataMonitor<int>& data_node_successes_infection = world.GetInfectionSuccessCount();
+    REQUIRE(data_node_successes_infection.GetTotal() == 0);
+
+    size_t host_pos = 1;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+
+    world.AddOrgAt(symbiont, sym_pos);
+    world.AddOrgAt(host, host_pos);
+
+    REQUIRE(world.GetSymPop()[host_pos] == symbiont);
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("A symbiont tries and fails to infect a host") {
+      config.SYM_LIMIT(0);
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of successful infections does not increment") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == false);
+        REQUIRE(data_node_successes_infection.GetTotal() == 0);
+      }
+    }
+
+    WHEN("A symbiont tries and succeeds in infecting a host") {
+      config.SYM_LIMIT(1);
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of successful infections increments") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == true);
+        REQUIRE(data_node_successes_infection.GetTotal() == 1);
+      }
+    }
+  }
+}

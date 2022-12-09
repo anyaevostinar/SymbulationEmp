@@ -155,6 +155,8 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   auto & node7 = GetSymInfectChanceDataNode(); //infect chance
   auto & node8 = GetFreeSymInfectChanceDataNode();
   auto & node9 = GetHostedSymInfectChanceDataNode();
+  auto & node10 = GetInfectionAttemptCount(); //infection rate
+  auto & node11 = GetInfectionSuccessCount();
 
   file.AddVar(update, "update", "Update");
 
@@ -173,6 +175,10 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
   file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
   file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
+
+  //infection rate
+  file.AddTotal(node10, "attempted_infections", "Number of attempted infections of a host by a symbiont since last recorded", true);
+  file.AddTotal(node11, "successful_infections", "Number of successful infections of a host by a symbiont since last recorded", true);
 
   file.PrintHeaderKeys();
 
@@ -610,6 +616,38 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
     data_node_attempts_verttrans.New();
   }
   return *data_node_attempts_verttrans;
+}
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many attempts were made by a symbiont to infect a host.
+ *
+ * Purpose: To retrieve the data node that is tracking the
+ * number of attempted symbiont infections of a host.
+ */
+emp::DataMonitor<int>& SymWorld::GetInfectionAttemptCount() {
+  if (!data_node_attempts_infection) {
+    data_node_attempts_infection.New();
+  }
+  return *data_node_attempts_infection;
+}
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<int>& that has the information representing
+ * how many successful attempts were made by a symbiont to infect a host.
+ *
+ * Purpose: To retrieve the data node that is tracking the
+ * number of successful symbiont infections of a host.
+ */
+emp::DataMonitor<int>& SymWorld::GetInfectionSuccessCount() {
+  if (!data_node_successes_infection) {
+    data_node_successes_infection.New();
+  }
+  return *data_node_successes_infection;
 }
 
 #endif
