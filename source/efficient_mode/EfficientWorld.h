@@ -12,7 +12,7 @@ private:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigEfficient> my_config = NULL;
+  emp::Ptr<SymConfigEfficient> efficient_config = NULL;
 
   /**
     *
@@ -25,7 +25,7 @@ public:
    * The constructor for PGGWorld
    */
   EfficientWorld(emp::Random& _random, emp::Ptr<SymConfigEfficient> _config) : SymWorld(_random, _config) {
-    my_config = _config;
+    efficient_config = _config;
   }
 
   /**
@@ -56,9 +56,9 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the efficient condition experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(efficient_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupEfficiencyFile(my_config->FILE_PATH()+"Efficiency"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupEfficiencyFile(efficient_config->FILE_PATH()+"Efficiency"+efficient_config->FILE_NAME()+file_ending).SetTimingRepeat(efficient_config->DATA_INT());
   }
 
   /**

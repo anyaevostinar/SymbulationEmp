@@ -26,7 +26,7 @@ protected:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigEfficient> my_config = NULL;
+  emp::Ptr<SymConfigEfficient> efficient_config = NULL;
 public:
   /**
    * The constructor for efficient host
@@ -38,7 +38,7 @@ public:
   Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
     efficiency = _efficient;
     my_world = _world;
-    my_config = _config;
+    efficient_config = _config;
   }
 
 
@@ -111,7 +111,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew(){
-    emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, efficient_config, GetIntVal());
     host_baby->SetEfficiency(GetEfficiency());
     return host_baby;
   }

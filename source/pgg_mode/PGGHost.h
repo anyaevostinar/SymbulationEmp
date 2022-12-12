@@ -27,14 +27,14 @@ protected:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigPGG> my_config = NULL;
+  emp::Ptr<SymConfigPGG> pgg_config = NULL;
 
 public:
   PGGHost(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points) {
-    my_config = _config;
+    pgg_config = _config;
     my_world = _world;
   }
 
@@ -139,7 +139,7 @@ public:
   void DistribPool(){
     //to do: marginal return
     int num_sym = syms.size();
-    double bonus = my_config->PGG_SYNERGY();
+    double bonus = pgg_config->PGG_SYNERGY();
     double sym_piece = (double) sourcepool / num_sym;
     for(size_t i=0; i < syms.size(); i++){
         syms[i]->AddPoints(sym_piece*bonus);
@@ -155,7 +155,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew(){
-    emp::Ptr<PGGHost> host_baby = emp::NewPtr<PGGHost>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<PGGHost> host_baby = emp::NewPtr<PGGHost>(random, my_world, pgg_config, GetIntVal());
     return host_baby;
   }
 

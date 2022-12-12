@@ -13,7 +13,7 @@ private:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigLysis> my_config = NULL;
+  emp::Ptr<SymConfigLysis> lysis_config = NULL;
 
   /**
     *
@@ -32,7 +32,7 @@ public:
    * The constructor for LysisWorld
    */
   LysisWorld(emp::Random& _random, emp::Ptr<SymConfigLysis> _config) : SymWorld(_random, _config) {
-    my_config = _config;
+    lysis_config = _config;
   }
 
   /**
@@ -67,11 +67,11 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(lysis_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupLysisChanceFile(my_config->FILE_PATH()+"LysisChance"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
-    SetupInductionChanceFile(my_config->FILE_PATH()+"InductionChance"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
-    SetupIncorporationDifferenceFile(my_config->FILE_PATH()+"IncValDifferences"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupLysisChanceFile(lysis_config->FILE_PATH()+"LysisChance"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
+    SetupInductionChanceFile(lysis_config->FILE_PATH()+"InductionChance"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
+    SetupIncorporationDifferenceFile(lysis_config->FILE_PATH()+"IncValDifferences"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
   }
 
   /**

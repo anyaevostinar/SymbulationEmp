@@ -12,7 +12,7 @@ private:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigPGG> my_config = NULL;
+  emp::Ptr<SymConfigPGG> pgg_config = NULL;
 
   /**
     *
@@ -25,7 +25,7 @@ public:
    * The constructor for PGGWorld
    */
   PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
-    my_config = _config;
+    pgg_config = _config;
   }
 
   /**
@@ -55,9 +55,9 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(pgg_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupPGGSymIntValFile(my_config->FILE_PATH()+"PGGSymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupPGGSymIntValFile(pgg_config->FILE_PATH()+"PGGSymVals"+pgg_config->FILE_NAME()+file_ending).SetTimingRepeat(pgg_config->DATA_INT());
   }
 
 

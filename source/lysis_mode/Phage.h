@@ -53,7 +53,7 @@ protected:
     * Purpose: Represents the configuration settings for a particular run.
     *
   */
-  emp::Ptr<SymConfigLysis> my_config = NULL;
+  emp::Ptr<SymConfigLysis> lysis_config = NULL;
 
 
 public:
@@ -61,10 +61,10 @@ public:
    * The constructor for phage
    */
   Phage(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigLysis> _config, double _intval=0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points) {
-    my_config = _config;
-    chance_of_lysis = my_config->LYSIS_CHANCE();
-    induction_chance = my_config->CHANCE_OF_INDUCTION();
-    incorporation_val = my_config->PHAGE_INC_VAL();
+    lysis_config = _config;
+    chance_of_lysis = lysis_config->LYSIS_CHANCE();
+    induction_chance = lysis_config->CHANCE_OF_INDUCTION();
+    incorporation_val = lysis_config->PHAGE_INC_VAL();
     if(chance_of_lysis == -1){
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
@@ -255,21 +255,21 @@ public:
    */
   void Mutate() {
     Symbiont::Mutate();
-    double local_rate = my_config->MUTATION_RATE();
-    double local_size = my_config->MUTATION_SIZE();
+    double local_rate = lysis_config->MUTATION_RATE();
+    double local_size = lysis_config->MUTATION_SIZE();
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
-      if(my_config->MUTATE_LYSIS_CHANCE()){
+      if(lysis_config->MUTATE_LYSIS_CHANCE()){
         chance_of_lysis += random->GetRandNormal(0.0, local_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
-      if(my_config->MUTATE_INDUCTION_CHANCE()){
+      if(lysis_config->MUTATE_INDUCTION_CHANCE()){
         induction_chance += random->GetRandNormal(0.0, local_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
-      if(my_config->MUTATE_INC_VAL()){
+      if(lysis_config->MUTATE_INC_VAL()){
         incorporation_val += random->GetRandNormal(0.0, local_size);
         if(incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
@@ -285,7 +285,7 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
-    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<Phage> sym_baby = emp::NewPtr<Phage>(random, my_world, lysis_config, GetIntVal());
     // pass down parent's genome
     sym_baby->SetIncVal(GetIncVal());
     sym_baby->SetLysisChance(GetLysisChance());
@@ -334,15 +334,15 @@ public:
    */
   void LysisStep(){
     IncBurstTimer();
-    if(my_config->SYM_LYSIS_RES() == 0) {
+    if(lysis_config->SYM_LYSIS_RES() == 0) {
       std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
       infinite loop, please change" << std::endl;
       std::exit(1);
     }
-    while(GetPoints() >= my_config->SYM_LYSIS_RES()) {
+    while(GetPoints() >= lysis_config->SYM_LYSIS_RES()) {
       emp::Ptr<Organism> sym_baby = Reproduce();
       my_host->AddReproSym(sym_baby);
-      SetPoints(GetPoints() - my_config->SYM_LYSIS_RES());
+      SetPoints(GetPoints() - lysis_config->SYM_LYSIS_RES());
     }
   }
 
@@ -383,7 +383,7 @@ public:
       host = my_host;
     }
     if(lysogeny){
-      if(my_config->BENEFIT_TO_HOST()){
+      if(lysis_config->BENEFIT_TO_HOST()){
         return host->ProcessLysogenResources(incorporation_val);
       } else{
         return 0;
@@ -402,9 +402,9 @@ public:
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
   void Process(emp::WorldPosition location) {
-    if(my_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
+    if(lysis_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
       if(!lysogeny){ //phage has chosen lysis
-        if(GetBurstTimer() >= my_config->BURST_TIME() ) { //time to lyse!
+        if(GetBurstTimer() >= lysis_config->BURST_TIME() ) { //time to lyse!
           LysisBurst(location);
         }
         else { //not time to lyse
@@ -416,13 +416,13 @@ public:
         if (rand_chance <= induction_chance){//phage has chosen to induce and turn lytic
           lysogeny = false;
         }
-        else if(random->GetDouble(0.0, 1.0) <= my_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
+        else if(random->GetDouble(0.0, 1.0) <= lysis_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
           SetDead();
         }
       }
     }
 
-    else if (GetHost().IsNull() && my_config->FREE_LIVING_SYMS()) { //phage is free living
+    else if (GetHost().IsNull() && lysis_config->FREE_LIVING_SYMS()) { //phage is free living
       my_world->MoveFreeSym(location);
     }
   }
