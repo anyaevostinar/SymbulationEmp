@@ -3,6 +3,7 @@
 #define SYM_ANIMATE_H
 
 #include <iostream>
+#include "Organism.h"
 #include "default_mode/SymWorld.h"
 #include "default_mode/DataNodes.h"
 #include "ConfigSetup.h"
@@ -225,10 +226,12 @@ public:
         //bool temp_passed = true;
         for (int x = 0; x < config.GRID_X(); x++){
             for (int y = 0; y < config.GRID_Y(); y++){
-                emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
+                emp::vector<emp::Ptr<BaseSymbiont>> syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
 
-                std::string color_host = matchColor(p[i]->GetIntVal());
+                std::string color_host = "#595959";
+                if (emp::Ptr<Host> host = p[i].DynamicCast<Host>())
+                  color_host = matchColor(host->GetIntVal());
 
 
 
@@ -236,10 +239,13 @@ public:
                 can.Rect(x * RECT_WIDTH, y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, color_host, "black");
                 int radius = RECT_WIDTH / 4;
                 if(syms.size() == 1) {
-                  std::string color_sym = matchColor(syms[0]->GetIntVal());
-                  // while drawing, test whether every organism is mutualistic
-                  if (syms[0]->GetIntVal() <= 0) num_parasitic++;
-                  else num_mutualistic++;
+                  std::string color_sym = "#a3a3a3";
+                  if (emp::Ptr<Symbiont> sym = syms[0].DynamicCast<Symbiont>()) {
+                    color_sym = matchColor(sym->GetIntVal());
+                    // while drawing, test whether every organism is mutualistic
+                    if (sym->GetIntVal() <= 0) num_parasitic++;
+                    else num_mutualistic++;
+                  }
                   can.Circle(x * RECT_WIDTH + RECT_WIDTH/2, y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
                 }
                 i++;
