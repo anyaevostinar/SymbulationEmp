@@ -99,7 +99,7 @@ INST(PrivateIO, {
           [=](auto &m) { m.AddDatum(score); });
     } else {
       // A host loses 25% of points when performing private IO operations
-      score *= 1; //turning off penalty for now
+      score *= 1.0; //turning off penalty for now
     }
     state.organism->AddPoints(score);
   }

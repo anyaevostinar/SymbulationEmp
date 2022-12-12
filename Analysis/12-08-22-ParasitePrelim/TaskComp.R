@@ -36,8 +36,9 @@ para_limited_tasks <- subset(parasite_over_time, task=="NOT" | task=="NAND" | ta
 
 ggplot(data=para_limited_tasks, aes(x=update, y=count, group=treatment, colour=treatment)) + ylab("Task count") + xlab("Updates") + stat_summary(aes(color=treatment, fill=treatment),fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) +scale_colour_manual(name = "Parasites", values=viridis(3)) + scale_fill_manual(values=viridis(3)) + facet_grid(task ~ ., scales='free')
 
-#Nand over time by replicate
+#Tasks over time by replicate
 NAND <- subset(initial_data, task=="NAND")
 NOT <- subset(initial_data, task=="NOT")
+AND <- subset(initial_data, task=="AND")
 
 ggplot(data=NAND, aes(x=update, y=count, group=treatment, colour=treatment)) + ylab("Task count") + xlab("Updates") + stat_summary(aes(color=treatment, fill=treatment),fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) +scale_colour_manual(values=viridis(3)) + scale_fill_manual(values=viridis(3)) + facet_grid(partner~rep, scales='free')

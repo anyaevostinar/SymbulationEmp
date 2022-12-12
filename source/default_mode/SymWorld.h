@@ -262,7 +262,7 @@ public:
    *
    * Purpose: To determine how many resources to distribute to each organism.
    */
-  int PullResources(int desired_resources) {
+  float PullResources(float desired_resources) {
     // if LIMITED_RES_TOTAL == -1, unlimited, even if limited resources was on before
     if (total_res == -1 || my_config->LIMITED_RES_TOTAL() == -1) { 
       return desired_resources;
@@ -271,11 +271,11 @@ public:
         total_res = total_res - desired_resources;
         return desired_resources;
       } else if (total_res>0) {
-        int resources_to_return = total_res;
-        total_res = 0;
+        float resources_to_return = total_res;
+        total_res = 0.0;
         return resources_to_return;
       } else {
-        return 0;
+        return 0.0;
       }
     }
   }

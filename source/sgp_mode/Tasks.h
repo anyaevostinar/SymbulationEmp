@@ -142,6 +142,10 @@ class TaskSet {
 
   float MarkPerformedTask(CPUState &state, uint32_t output, size_t task_id,
                           bool shared, float score) {
+    if (state.tasks_performed->Get(task_id)){
+      //Half points if they did the task before, pushing them to do more tasks instead of cycling
+      score = score/2.0;
+    }
     if (state.organism->IsHost()){
       score = state.world.Cast<SymWorld>()->PullResources(score);
     }
