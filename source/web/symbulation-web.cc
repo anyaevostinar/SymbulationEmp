@@ -4,6 +4,10 @@
 #include "../SymAnimate.h"
 //#include "../SymConfig.h"
 
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
+#include "../default_mode/WorldSetup.cc"
+
 using namespace std;
 
 namespace UI = emp::web;
