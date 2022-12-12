@@ -31,6 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be sepeated into if phylogeny is on?"),
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
+    VALUE(SYM_EXCLUDE, bool, 0, "Do symbionts have a decreasing chance of getting into the host the more symbionts are already infecting it? (0 for no, 1 for yes)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
 
@@ -55,6 +56,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 0, "Number of resources to give to each free-living symbiont each update if they are available"),
     VALUE(FREE_SYM_REPRO_RES, double, -1, "How many resources required for free living symbiont reproduction. If -1, use the horizontal transmission required point value."),
 
-    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?")
+    
 )
 #endif
