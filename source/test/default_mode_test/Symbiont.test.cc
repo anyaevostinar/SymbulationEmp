@@ -440,7 +440,7 @@ TEST_CASE("reproduce", "[default]") {
 
 TEST_CASE("Process", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(42);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
