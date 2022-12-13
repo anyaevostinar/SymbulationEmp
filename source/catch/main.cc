@@ -26,11 +26,11 @@
 #include "../test/lysis_mode_test/LysisDataNodes.test.cc"
 #include "../test/lysis_mode_test/LysisWorld.test.cc"
 
-// #include "../test/pgg_mode_test/PGGSymbiont.test.cc"
-// #include "../test/pgg_mode_test/PGGHost.test.cc"
-// #include "../test/pgg_mode_test/PGGHostPGGSymbiontUnitTest.test.cc"
-// #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
-// #include "../test/pgg_mode_test/PGGWorld.test.cc"
+#include "../test/pgg_mode_test/PGGSymbiont.test.cc"
+#include "../test/pgg_mode_test/PGGHost.test.cc"
+#include "../test/pgg_mode_test/PGGHostPGGSymbiontUnitTest.test.cc"
+#include "../test/pgg_mode_test/PGGDataNodes.test.cc"
+#include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 // #include "../test/sgp_mode_test/SGPModularity.test.cc"
 // #include "../test/sgp_mode_test/CPU.test.cc"

@@ -8,7 +8,7 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
     PGGWorld world(*random, &config);
     double int_val = 1;
 
-    emp::Ptr<Organism> host = emp::NewPtr<PGGHost>(random, &world, &config);
+    emp::Ptr<BaseHost> host = emp::NewPtr<PGGHost>(random, &world, &config);
     emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, &world, &config, int_val);
 
     symbiont->SetHost(host);
@@ -37,7 +37,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
+        emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
         double resources = 120;
@@ -80,7 +80,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
-            emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
+            emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2, symbiont3};
             host->SetSymbionts(syms);
 
             double resources = 120;
@@ -114,7 +114,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
             emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
             emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
-            emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
+            emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2, symbiont3};
             host->SetSymbionts(syms);
 
             double resources = 120;
@@ -176,7 +176,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
         emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
         emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val, sym_orig_points);
-        emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
+        emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
         double resources = 120;
@@ -222,7 +222,7 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
         emp::Ptr<PGGSymbiont> symbiont3 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2, symbiont3};
+        emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2, symbiont3};
         host->SetSymbionts(syms);
 
         double resources = 120;
@@ -316,7 +316,7 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
 
     emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val,donation);
     emp::Ptr<PGGSymbiont> symbiont2 = emp::NewPtr<PGGSymbiont>(random, &world, &config, sym_int_val,donation2);
-    emp::vector<emp::Ptr<Organism>> syms = {symbiont1, symbiont2};
+    emp::vector<emp::Ptr<BaseSymbiont>> syms = {symbiont1, symbiont2};
     host->SetSymbionts(syms);
     double resources = 120;
     host->DistribResources(resources);

@@ -28,7 +28,7 @@ public:
   double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
   emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points),
-  Organism(_config, _world, _random) {my_world = _world;}
+  Organism(_config, _world, _random, _points) {my_world = _world;}
 
 
   /**
@@ -67,7 +67,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "PGGHost";
   }
 
@@ -150,7 +150,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<PGGHost> host_baby = emp::NewPtr<PGGHost>(random, my_world, my_config, GetIntVal());
     return host_baby;
   }

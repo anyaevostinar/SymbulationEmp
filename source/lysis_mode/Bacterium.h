@@ -34,7 +34,7 @@ public:
   emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
   double _points = 0.0) :
   Host(_random, _world, _config, _intval,_syms, _repro_syms, _points),
-  Organism(_config, _world, _random) {
+  Organism(_config, _world, _random, _points) {
     host_incorporation_val = my_config->HOST_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);

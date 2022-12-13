@@ -41,7 +41,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         double int_val = 0;
         double donation = 0.01;
         config.MUTATION_SIZE(0.002);
-        emp::Ptr<Organism> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
+        emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val,donation);
 
         symbiont->Mutate();
 
@@ -59,7 +59,7 @@ TEST_CASE("PGGmutate", "[pgg]") {
         config.HORIZ_TRANS(true);
         config.MUTATION_RATE(0);
         config.MUTATION_SIZE(0);
-        emp::Ptr<Organism> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, donation);
+        emp::Ptr<PGGSymbiont> symbiont = emp::NewPtr<PGGSymbiont>(random, world, &config, int_val, donation);
 
         symbiont->Mutate();
 
@@ -286,8 +286,8 @@ TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
     PGGWorld world(*random, &config);
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, host_int_val);
-    emp::Ptr<Organism> symbiont2 = symbiont1->MakeNew();
+    emp::Ptr<PGGSymbiont> symbiont1 = emp::NewPtr<PGGSymbiont>(random, &world, &config, host_int_val);
+    emp::Ptr<PGGSymbiont> symbiont2 = symbiont1->MakeNew().DynamicCast<PGGSymbiont>();
     THEN("The new symbiont has properties of the original symbiont and has 0 points and 0 age"){
       REQUIRE(symbiont1->GetIntVal() == symbiont2->GetIntVal());
       REQUIRE(symbiont1->GetInfectionChance() == symbiont2->GetInfectionChance());
