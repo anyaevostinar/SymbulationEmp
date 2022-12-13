@@ -497,7 +497,7 @@ public:
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
-    if(IsInboundsPos(new_pos)){
+    if (IsInboundsPos(new_pos) && new_pos.GetPopID() != parent_pos.GetPopID()) {
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
       return new_pos;
