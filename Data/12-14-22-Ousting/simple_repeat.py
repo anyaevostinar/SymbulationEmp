@@ -20,7 +20,7 @@ def silent_cmd(command):
     R script calls unitl all neccesary data is created.'''
     return subprocess.Popen(command, shell=True, stdout=subprocess.PIPE).wait()
 
-start_range = 16
+start_range = 10
 end_range = 21
 
 #collect optional command line arguments
@@ -44,7 +44,6 @@ print("Using seeds", start_range, "through", end_range-1)
 
 for a in seeds:
     for b in mois:
-        #command_str = './symbulation_parasite -SEED '+str(a)+ ' -START_MOI ' +str(b)+ ' -FILE_NAME _MOI'+str(b)
         command_str = './symbulation_parasite -SEED '+str(a)+ ' -START_MOI ' +str(b)+ ' -FILE_NAME _MOI'+str(b)
         settings_filename = "Output_MOI"+str(b)+"_SEED"+str(a)+".data"
 

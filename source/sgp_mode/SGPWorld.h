@@ -109,7 +109,7 @@ public:
     });
 
     for (auto org : to_reproduce) {
-      if (!org.second.IsValid())
+      if (!org.second.IsValid() || org.first->GetDead())
         continue;
       emp::Ptr<Organism> child = org.first->Reproduce();
       if (child->IsHost()) {
