@@ -18,6 +18,7 @@
 #include "../Organism.cc"
 #include "../default_mode/Symbiont.cc"
 #include "../sgp_mode/Tasks.cc"
+#include "../sgp_mode/Instructions.cc"
 
 #include <fstream>
 #include <iostream>

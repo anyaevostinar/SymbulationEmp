@@ -39,3 +39,96 @@ TEST_CASE("GetDominantInfo", "[sgp]") {
     }
   }
 }
+
+TEST_CASE("Free living sgp symbiont dynamics", "[sgp]") {
+  GIVEN("A world and free living symbionts") {
+    emp::Random random(61);
+    SymConfigBase config;
+    SGPWorld world(random, &config, SquareTasks);
+    size_t world_size = 1000;
+    world.Resize(world_size);
+
+    config.SYM_HORIZ_TRANS_RES(10);
+    config.FREE_LIVING_SYMS(1);
+
+    for (size_t i = 0; i < world_size; i++) {
+      world.AddOrgAt(emp::NewPtr<SGPHost>(&random, &world, &config), i);
+      world.AddOrgAt(emp::NewPtr<SGPSymbiont>(&random, &world, &config, 0, 0), emp::WorldPosition(0, i));
+    }
+
+    emp::DataMonitor<int>& free_sym_count_node = world.GetCountFreeSymsDataNode();
+    emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
+    SyncDataMonitor<double>& data_node_free_sym_donated = world.GetFreeSymDonatedDataNode();
+    SyncDataMonitor<double>& data_node_hosted_sym_donated = world.GetHostedSymDonatedDataNode();
+
+    WHEN("Endosymbiosis is permitted") {
+      config.SYM_LIMIT(1);
+      THEN("Symbionts eventually infect hosts") {
+        world.Update();
+        REQUIRE(free_sym_count_node.GetTotal() > 10);
+        REQUIRE(hosted_sym_count_node.GetTotal() == 0);
+
+        world.RunExperiment(false);
+        REQUIRE(free_sym_count_node.GetTotal() > 10);
+        REQUIRE(hosted_sym_count_node.GetTotal() > 0);
+      }
+      WHEN("Ectosymbiosis is not permitted") {
+        config.ECTOSYMBIOSIS(0);
+        world.Update();
+        REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        world.RunExperiment(false);
+        THEN("Hosts only interact with hosted symbionts") {
+          REQUIRE(hosted_sym_count_node.GetTotal() > 0);
+          REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+          REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() > 0);
+        }
+      }
+      WHEN("Ectosymbiosis is permitted") {
+        config.ECTOSYMBIOSIS(1);
+        world.Update();
+        REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        world.RunExperiment(false);
+        THEN("Hosts interact with both hosted and free living symbionts") {
+          REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() > 0);
+          REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() > 0);
+        }
+      }
+    }
+    WHEN("Endosymbiosis is not permitted") {
+      config.SYM_LIMIT(0);
+      THEN("Symbionts never infect hosts") {
+        world.Update();
+        REQUIRE(free_sym_count_node.GetTotal() > 10);
+        REQUIRE(hosted_sym_count_node.GetTotal() == 0);
+
+        world.RunExperiment(false);
+        REQUIRE(free_sym_count_node.GetTotal() > 10);
+        REQUIRE(hosted_sym_count_node.GetTotal() == 0);
+      }
+      WHEN("Ectosymbiosis is not permitted") {
+        config.ECTOSYMBIOSIS(0);
+        world.Update();
+        REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        world.RunExperiment(false);
+        THEN("Hosts and symbionts never interact") {
+          REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+          REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        }
+      }
+      WHEN("Ectosymbiosis is permitted") {
+        config.ECTOSYMBIOSIS(1);
+        world.Update();
+        REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        world.RunExperiment(false);
+        THEN("Hosts only interact with free living symbionts") {
+          REQUIRE(data_node_free_sym_donated.UnsynchronizedGetMonitor().GetCount() > 0);
+          REQUIRE(data_node_hosted_sym_donated.UnsynchronizedGetMonitor().GetCount() == 0);
+        }
+      }
+    }
+  }
+}
