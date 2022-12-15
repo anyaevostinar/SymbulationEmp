@@ -239,5 +239,10 @@ class Organism {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
 
+
+  // SGPSymbiont functions
+  virtual void LinkEctoHost(int pos) {
+    std::cout << "LinkEctoHost called from Organism" << std::endl;
+    throw "Organism method called!";}
 };
 #endif

@@ -103,11 +103,18 @@ INST(PrivateIO, {
   float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
   if (score != 0.0) {
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
+      if(state.organism->GetHost() != nullptr){
+        state.world->GetHostedSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      } else {
+        state.world->GetFreeSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      }
     } else {
       // A host loses 25% of points when performing private IO operations
       score *= 0.75;
+      state.world->GetHostEarnedDataNode().WithMonitor(
+        [=](auto& m) { m.AddDatum(score); });
     }
     state.organism->AddPoints(score);
   }
@@ -125,8 +132,16 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
   if (score != 0.0) {
     state.organism->AddPoints(score);
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      } else {
+        state.world->GetFreeSymEarnedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(score); });
+      }
+    } else {
+      state.world->GetHostEarnedDataNode().WithMonitor(
+        [=](auto& m) { m.AddDatum(score); });
     }
   }
 }
@@ -144,40 +159,128 @@ INST(SharedIO, {
 });
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+    // exit if org is a host OR 
+    // if it's a free living sym AND (ecto is off OR there is no parallel host)
+    bool ecto_conditions = !state.world->GetConfig()->ECTOSYMBIOSIS() || !state.world->IsOccupied(state.location.GetPopID());
+    if (state.organism->IsHost() || (state.organism->GetHost() == nullptr && ecto_conditions)) {
       return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
+    }
+
+    // get the sym's host
+    emp::Ptr<Organism> host = state.organism->GetHost();
+
+    // ecto link
+    emp::Ptr<emp::BitSet<64>> orig_used_resources;
+    emp::Ptr<emp::vector<size_t>> orig_shared_available_dependencies;
+    emp::Ptr<emp::vector<uint32_t>> orig_internal_environment;
+    bool linked = false;
+    int pop_index = state.location.GetPopID();
+    if (host == nullptr) {
+      // set the working host to be the parallel host
+      host = state.world->GetPop()[pop_index];
+      if (host->HasSym() && state.world->GetConfig()->ECTOSYMBIOTIC_IMMUNITY()) return;
+
+      // store old sym env variables
+      orig_used_resources = state.used_resources;
+      orig_shared_available_dependencies = state.shared_available_dependencies;
+      orig_internal_environment = state.internalEnvironment;
+
+      // set environment variables to that of the host's
+      state.organism->LinkEctoHost(pop_index);
+      linked = true;
+    }
+
+    if (host) {
       // Donate 20% of the total points of the symbiont-host system
       // This way, a sym can donate e.g. 40 or 60 percent of their points in a
       // couple of instructions
       double to_donate =
           fmin(state.organism->GetPoints(),
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymDonatedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_donate); });
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymDonatedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_donate); });
+      } else {
+        state.world->GetFreeSymDonatedDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_donate); });
+      }
+      
       host->AddPoints(to_donate *
                       (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
       state.organism->AddPoints(-to_donate);
     }
+
+    // ecto unlink 
+    if (linked) {
+      // state.org->Host is still nullptr; it's just the variable "host" that was 
+      // relinked to the parallel host
+      state.used_resources = orig_used_resources;
+      state.shared_available_dependencies = orig_shared_available_dependencies;
+      state.internalEnvironment = orig_internal_environment;
+    }
   }
 });
+
 INST(Steal, {
   if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+    // exit if org is a host OR 
+      // if it's a free living sym AND (ecto is off OR there is no parallel host)
+    bool ecto_conditions = !state.world->GetConfig()->ECTOSYMBIOSIS() || !state.world->IsOccupied(state.location.GetPopID());
+    if (state.organism->IsHost() || (state.organism->GetHost() == nullptr && ecto_conditions)) {
       return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
+    }
+
+    // get the sym's host
+    emp::Ptr<Organism> host = state.organism->GetHost();
+
+    // ecto link
+    emp::Ptr<emp::BitSet<64>> orig_used_resources;
+    emp::Ptr<emp::vector<size_t>> orig_shared_available_dependencies;
+    emp::Ptr<emp::vector<uint32_t>> orig_internal_environment;
+    bool linked = false;
+    int pop_index = state.location.GetPopID();
+    if (host == nullptr) {
+      // set the working host to be the parallel host
+      host = state.world->GetPop()[pop_index];
+      if (host->HasSym() && state.world->GetConfig()->ECTOSYMBIOTIC_IMMUNITY()) return;
+
+      // store old sym env variables
+      orig_used_resources = state.used_resources;
+      orig_shared_available_dependencies = state.shared_available_dependencies;
+      orig_internal_environment = state.internalEnvironment;
+
+      // set environment variables to that of the host's
+      state.organism->LinkEctoHost(pop_index);
+      linked = true;
+    }
+
+    if (host) {
       // Steal 20% of the total points of the symbiont-host system
       // This way, a sym can steal e.g. 40 or 60 percent of the host's points in
       // a couple of instructions
       double to_steal =
           fmin(host->GetPoints(),
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymStolenDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_steal); });
+      if (state.organism->GetHost() != nullptr) {
+        state.world->GetHostedSymStolenDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_steal); });
+      } else {
+        state.world->GetFreeSymStolenDataNode().WithMonitor(
+          [=](auto& m) { m.AddDatum(to_steal); });
+      }
       host->AddPoints(-to_steal);
       // 10% of the stolen resources are lost
       state.organism->AddPoints(
           to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+    }
+
+    // ecto unlink 
+    if (linked) {
+      // state.org->Host is still nullptr; it's just the variable "host" that was 
+      // relinked to the parallel host
+      state.used_resources = orig_used_resources;
+      state.shared_available_dependencies = orig_shared_available_dependencies;
+      state.internalEnvironment = orig_internal_environment;
     }
   }
 });

@@ -83,15 +83,22 @@ public:
    * Purpose: To set a symbiont's host
    */
   void SetHost(emp::Ptr<Organism> host) {
+    // if a free living sym gets a host, delete its local pointers before
+    // setting them to track the host's 
+    if (!my_host && host) {
+      if (cpu.state.used_resources) { cpu.state.used_resources.Delete(); }
+      if (cpu.state.shared_available_dependencies) {
+        cpu.state.shared_available_dependencies.Delete();
+      }
+      if (cpu.state.internalEnvironment) { cpu.state.internalEnvironment.Delete(); }
+    }
     Symbiont::SetHost(host);
     if (my_host) {
       cpu.state.used_resources =
         host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    cpu.state.shared_available_dependencies =
-        host.DynamicCast<SGPHost>()
-            ->GetCPU()
-            .state.shared_available_dependencies;
-    cpu.state.internalEnvironment =
+      cpu.state.shared_available_dependencies =
+        host.DynamicCast<SGPHost>()->GetCPU().state.shared_available_dependencies;
+      cpu.state.internalEnvironment =
         host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
     }
   }
@@ -104,6 +111,24 @@ public:
    * Purpose: Allows accessing the symbiont's CPU.
    */
   CPU &GetCPU() { return cpu; }
+
+  /**
+   * Input: The index of the ecto host to be linked with.
+   *
+   * Output: None.
+   *
+   * Purpose: Sets the organism's internal environment up for ectosymbiosis
+   */
+  void LinkEctoHost(int pos) {
+    emp::Ptr<Organism> host = my_world->GetPop()[pos];
+
+    cpu.state.used_resources =
+      host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
+    cpu.state.shared_available_dependencies =
+      host.DynamicCast<SGPHost>()->GetCPU().state.shared_available_dependencies;
+    cpu.state.internalEnvironment =
+      host.DynamicCast<SGPHost>()->GetCPU().state.internalEnvironment;
+  }
 
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
