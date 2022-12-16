@@ -1,21 +1,20 @@
 #include "../../sgp_mode/CPU.h"
 #include "../../sgp_mode/SGPDataNodes.h"
+#include "../../sgp_mode/SGPOrganism.h"
 #include "../../sgp_mode/SGPWorld.h"
 
 TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   // Mock Organism to check reproduction
-  class TestOrg : public Organism {
+  class TestOrg : public BaseSymbiont {
   public:
+    TestOrg(emp::Ptr<SymConfigBase> config) : Organism(config, nullptr, nullptr) {}
     int reproduce_count = 0;
-    double points = 0.0;
-    bool IsHost() override { return false; }
-    emp::Ptr<Organism> GetHost() override { return nullptr; }
-    void AddPoints(double p) override { points += p; }
-    double GetPoints() override { return points; }
-    emp::Ptr<Organism> Reproduce() override {
+    emp::Ptr<BaseSymbiont> ReproduceSym() override {
       reproduce_count++;
-      return emp::NewPtr<TestOrg>();
+      return emp::NewPtr<TestOrg>(my_config);
     }
+    void Process(emp::WorldPosition) override {}
+    void Mutate() override {}
   };
 
   emp::Random random(61);
@@ -29,7 +28,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     TaskSet task_set{emp::NewPtr<InputTask>(NOT)};
     SGPWorld world(random, &config, task_set);
 
-    TestOrg organism;
+    TestOrg organism(&config);
     CPU cpu(&organism, &world);
     cpu.state.shared_available_dependencies =
         emp::NewPtr<emp::vector<size_t>>();
@@ -51,7 +50,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     TaskSet task_set{emp::NewPtr<SquareTask>(SQU)};
     SGPWorld world(random, &config, task_set);
 
-    TestOrg organism;
+    TestOrg organism(&config);
     CPU cpu(&organism, &world);
     cpu.state.shared_available_dependencies =
         emp::NewPtr<emp::vector<size_t>>();

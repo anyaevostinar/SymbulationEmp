@@ -2,6 +2,9 @@
 #include "../../lysis_mode/Bacterium.h"
 #include "../../lysis_mode/LysisWorld.h"
 
+#include "../../lysis_mode/LysisWorldSetup.cc"
+#include "../../lysis_mode/LysisDataNodes.cc"
+
 
 TEST_CASE("GetCFUDataNode", "[lysis]"){
   GIVEN( "a world" ) {

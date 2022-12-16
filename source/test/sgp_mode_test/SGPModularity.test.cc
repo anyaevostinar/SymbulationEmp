@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 
+#include "../../catch/catch.hpp"
 TEST_CASE("GetUsefulRanges", "[sgp]") {
   GIVEN("A vector of 1s and 0s representing every site (instruction) in the "
         "actual genome that is either"

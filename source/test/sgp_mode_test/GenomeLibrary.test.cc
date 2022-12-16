@@ -1,7 +1,6 @@
 #include "../../sgp_mode/GenomeLibrary.h"
 #include "../../sgp_mode/CPU.h"
-
-#include "../../catch/catch.hpp"
+#include "../../sgp_mode/SGPOrganism.h"
 
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   emp::Random random(61);
@@ -15,11 +14,12 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   SGPWorld world(random, &config, TaskSet{task});
 
   // Mock Organism to check reproduction
-  class TestOrg : public Organism {
+  class TestOrg : public BaseHost {
   public:
-    bool IsHost() override { return true; }
-    void AddPoints(double p) override {}
-    double GetPoints() override { return 0; }
+    TestOrg() : Organism(nullptr, nullptr, nullptr) {}
+    emp::Ptr<Organism> Reproduce() override { return nullptr; }
+    void Process(emp::WorldPosition) override {}
+    void Mutate() override {}
   };
 
   TestOrg organism;
@@ -83,11 +83,12 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   SGPWorld world(random, &config, LogicTasks);
 
   // Mock Organism to check reproduction
-  class TestOrg : public Organism {
+  class TestOrg : public BaseHost {
   public:
-    bool IsHost() override { return true; }
-    void AddPoints(double p) override {}
-    double GetPoints() override { return 0; }
+    TestOrg() : Organism(nullptr, nullptr, nullptr) {}
+    emp::Ptr<Organism> Reproduce() override { return nullptr; }
+    void Process(emp::WorldPosition) override {}
+    void Mutate() override {}
   };
 
   TestOrg organism;

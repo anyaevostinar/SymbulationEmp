@@ -6,7 +6,7 @@
 #include "sanity_check.test.cc"
 
 // Include the entry point to include all cc files
-#include "../native/symbulation_lysis.cc"
+#include "../native/symbulation_sgp.cc"
 
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
@@ -32,16 +32,16 @@
 #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
-// #include "../test/sgp_mode_test/SGPModularity.test.cc"
-// #include "../test/sgp_mode_test/CPU.test.cc"
-// #include "../test/sgp_mode_test/AnalysisTools.test.cc"
-// #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
-// #include "../test/sgp_mode_test/SymbiontImpact.test.cc"
-// #include "../test/sgp_mode_test/SquareFrequencyMap.test.cc"
-// #include "../test/sgp_mode_test/SGPDiversity.test.cc"
-// #include "../test/sgp_mode_test/SGPWorld.test.cc"
-// #include "../test/sgp_mode_test/SGPHost.test.cc"
-// #include "../test/sgp_mode_test/SGPDataNodes.test.cc"
+#include "../test/sgp_mode_test/SGPModularity.test.cc"
+#include "../test/sgp_mode_test/CPU.test.cc"
+#include "../test/sgp_mode_test/AnalysisTools.test.cc"
+#include "../test/sgp_mode_test/GenomeLibrary.test.cc"
+#include "../test/sgp_mode_test/SymbiontImpact.test.cc"
+#include "../test/sgp_mode_test/SquareFrequencyMap.test.cc"
+#include "../test/sgp_mode_test/SGPDiversity.test.cc"
+#include "../test/sgp_mode_test/SGPWorld.test.cc"
+#include "../test/sgp_mode_test/SGPHost.test.cc"
+#include "../test/sgp_mode_test/SGPDataNodes.test.cc"
 
 // #include "../test/integration_test/spatial_structure/vt.test.cc"
 // #include "../test/integration_test/lysogeny/plr.test.cc"
