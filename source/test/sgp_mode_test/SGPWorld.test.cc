@@ -50,6 +50,9 @@ TEST_CASE("Free living sgp symbiont dynamics", "[sgp]") {
 
     config.SYM_HORIZ_TRANS_RES(10);
     config.FREE_LIVING_SYMS(1);
+    // With the default infection chance of 1, all free living symbionts immediately find hosts
+    // so the tests use infection chance 0 (and were written when SGP mode didn't have infection)
+    config.SYM_INFECTION_CHANCE(0);
 
     for (size_t i = 0; i < world_size; i++) {
       world.AddOrgAt(emp::NewPtr<SGPHost>(&random, &world, &config), i);

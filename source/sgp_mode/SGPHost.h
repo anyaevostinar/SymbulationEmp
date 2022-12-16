@@ -113,15 +113,6 @@ public:
     SetPoints(0);
     return host_baby;
   }
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: To mutate the code in the genome of this host.
-   */
-  void Mutate() override { cpu.Mutate(); }
 };
 
 #endif

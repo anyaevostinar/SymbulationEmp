@@ -46,22 +46,6 @@ template <typename F> void inst::TryEctoLink(CPUState &state, F &&closure) {
 
     if (host) {
       closure(host);
-      // Donate 20% of the total points of the symbiont-host system
-      // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-      // couple of instructions
-      double to_donate =
-          fmin(sym->GetPoints(), (sym->GetPoints() + host->GetPoints()) * 0.20);
-      if (sym->GetHost() != nullptr) {
-        state.world->GetHostedSymDonatedDataNode().WithMonitor(
-            [=](auto &m) { m.AddDatum(to_donate); });
-      } else {
-        state.world->GetFreeSymDonatedDataNode().WithMonitor(
-            [=](auto &m) { m.AddDatum(to_donate); });
-      }
-
-      host->AddPoints(to_donate *
-                      (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
-      sym->AddPoints(-to_donate);
     }
 
     // ecto unlink

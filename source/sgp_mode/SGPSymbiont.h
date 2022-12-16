@@ -181,8 +181,7 @@ public:
    */
   void Mutate() override {
     BaseSymbiont::Mutate();
-
-    cpu.Mutate();
+    SGPOrganism::Mutate();
   }
 };
 

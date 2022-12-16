@@ -193,13 +193,16 @@ public:
 
   virtual void Mutate() override {
     // modify infection chance, which is between 0 and 1
-    double local_size = my_config->MUTATION_SIZE();
     if (my_config->FREE_LIVING_SYMS()) {
-      infection_chance += random->GetRandNormal(0.0, local_size);
-      if (infection_chance < 0)
-        infection_chance = 0;
-      else if (infection_chance > 1)
-        infection_chance = 1;
+      double local_rate = my_config->MUTATION_RATE();
+      double local_size = my_config->MUTATION_SIZE();
+      if (random->GetDouble(0.0, 1.0) <= local_rate) {
+        infection_chance += random->GetRandNormal(0.0, local_size);
+        if (infection_chance < 0)
+          infection_chance = 0;
+        else if (infection_chance > 1)
+          infection_chance = 1;
+      }
     }
   }
 
