@@ -566,7 +566,7 @@ public:
       host_baby->AddSymbiont(sym_baby);
 
       //vertical transmission data node
-      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCountDataNode();
       data_node_attempts_verttrans.AddDatum(1);
     }
   }
@@ -594,14 +594,14 @@ public:
 
         if (my_config->FREE_LIVING_SYMS() && my_host.IsNull()) {
           //free living symbiont birth data nodes
-          emp::DataMonitor<int>& data_node_attempts_flsrepro = my_world->GetFreeLivingSymReproAttemptCount();
+          emp::DataMonitor<int>& data_node_attempts_flsrepro = my_world->GetFreeLivingSymReproAttemptCountDataNode();
           data_node_attempts_flsrepro.AddDatum(1);
         } else {
           //horizontal transmission data nodes
-          emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+          emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCountDataNode();
           data_node_attempts_horiztrans.AddDatum(1);
 
-          emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+          emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCountDataNode();
           if (new_pos.IsValid()) {
             data_node_successes_horiztrans.AddDatum(1);
           }

@@ -36,34 +36,34 @@ void SymWorld::CreateDataFiles(){
  */
 emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
   auto & file = SetupFile(filename);
-  auto & node = GetSymIntValDataNode();
-  auto & node1 = GetSymCountDataNode();
+  auto & sym_intval_node = GetSymIntValDataNode();
+  auto & sym_count_node = GetSymCountDataNode();
 
   file.AddVar(update, "update", "Update");
-  file.AddMean(node, "mean_intval", "Average symbiont interaction value");
-  file.AddTotal(node1, "count", "Total number of symbionts");
+  file.AddMean(sym_intval_node, "mean_intval", "Average symbiont interaction value");
+  file.AddTotal(sym_count_node, "count", "Total number of symbionts");
 
   //interaction val histogram
-  file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-  file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-  file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-  file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-  file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-  file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-  file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-  file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-  file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-  file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-  file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-  file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-  file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-  file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-  file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-  file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-  file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-  file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-  file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-  file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+  file.AddHistBin(sym_intval_node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
+  file.AddHistBin(sym_intval_node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+  file.AddHistBin(sym_intval_node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+  file.AddHistBin(sym_intval_node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+  file.AddHistBin(sym_intval_node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+  file.AddHistBin(sym_intval_node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+  file.AddHistBin(sym_intval_node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+  file.AddHistBin(sym_intval_node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+  file.AddHistBin(sym_intval_node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+  file.AddHistBin(sym_intval_node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+  file.AddHistBin(sym_intval_node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+  file.AddHistBin(sym_intval_node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+  file.AddHistBin(sym_intval_node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+  file.AddHistBin(sym_intval_node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+  file.AddHistBin(sym_intval_node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+  file.AddHistBin(sym_intval_node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+  file.AddHistBin(sym_intval_node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+  file.AddHistBin(sym_intval_node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+  file.AddHistBin(sym_intval_node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+  file.AddHistBin(sym_intval_node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 
   file.PrintHeaderKeys();
 
@@ -99,34 +99,34 @@ emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
  * what columns should be called.
  */
 void SymWorld::SetupHostFileColumns(emp::DataFile & file){
-  auto & node = GetHostIntValDataNode();
-  auto & node1 = GetHostCountDataNode();
+  auto & host_intval_node = GetHostIntValDataNode();
+  auto & host_count_node = GetHostCountDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();
 
   file.AddVar(update, "update", "Update");
-  file.AddMean(node, "mean_intval", "Average host interaction value");
-  file.AddTotal(node1, "count", "Total number of hosts");
+  file.AddMean(host_intval_node, "mean_intval", "Average host interaction value");
+  file.AddTotal(host_count_node, "count", "Total number of hosts");
   file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
-  file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
-  file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
-  file.AddHistBin(node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
-  file.AddHistBin(node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
-  file.AddHistBin(node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
-  file.AddHistBin(node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
-  file.AddHistBin(node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
-  file.AddHistBin(node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
-  file.AddHistBin(node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
-  file.AddHistBin(node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
-  file.AddHistBin(node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
-  file.AddHistBin(node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
-  file.AddHistBin(node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
-  file.AddHistBin(node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
-  file.AddHistBin(node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
-  file.AddHistBin(node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
-  file.AddHistBin(node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
-  file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
-  file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
-  file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+  file.AddHistBin(host_intval_node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
+  file.AddHistBin(host_intval_node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+  file.AddHistBin(host_intval_node, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+  file.AddHistBin(host_intval_node, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+  file.AddHistBin(host_intval_node, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+  file.AddHistBin(host_intval_node, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+  file.AddHistBin(host_intval_node, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+  file.AddHistBin(host_intval_node, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+  file.AddHistBin(host_intval_node, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+  file.AddHistBin(host_intval_node, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+  file.AddHistBin(host_intval_node, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+  file.AddHistBin(host_intval_node, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+  file.AddHistBin(host_intval_node, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+  file.AddHistBin(host_intval_node, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+  file.AddHistBin(host_intval_node, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+  file.AddHistBin(host_intval_node, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+  file.AddHistBin(host_intval_node, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+  file.AddHistBin(host_intval_node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+  file.AddHistBin(host_intval_node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+  file.AddHistBin(host_intval_node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 }
 
 
@@ -146,39 +146,39 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
  */
 emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   auto & file = SetupFile(filename);
-  auto & node1 = GetSymCountDataNode(); //count
-  auto & node2 = GetCountFreeSymsDataNode();
-  auto & node3 = GetCountHostedSymsDataNode();
-  auto & node4 = GetSymIntValDataNode(); //interaction_val
-  auto & node5 = GetFreeSymIntValDataNode();
-  auto & node6 = GetHostedSymIntValDataNode();
-  auto & node7 = GetSymInfectChanceDataNode(); //infect chance
-  auto & node8 = GetFreeSymInfectChanceDataNode();
-  auto & node9 = GetHostedSymInfectChanceDataNode();
-  auto & node10 = GetInfectionAttemptCount(); //infection rate
-  auto & node11 = GetInfectionSuccessCount();
+  auto & all_sym_count_node = GetSymCountDataNode(); //count
+  auto & free_sym_count_node = GetCountFreeSymsDataNode();
+  auto & hosteed_sym_count_node = GetCountHostedSymsDataNode();
+  auto & all_sym_intval_node = GetSymIntValDataNode(); //interaction_val
+  auto & free_sym_intval_node = GetFreeSymIntValDataNode();
+  auto & hosted_sym_intval_node = GetHostedSymIntValDataNode();
+  auto & all_sym_infect_chance_node = GetSymInfectChanceDataNode(); //infect chance
+  auto & free_sym_infect_chance_node = GetFreeSymInfectChanceDataNode();
+  auto & hosted_sym_infect_chance_node = GetHostedSymInfectChanceDataNode();
+  auto & infection_attempt_count_node = GetInfectionAttemptCountDataNode(); //infection rate
+  auto & infection_success_count_node = GetInfectionSuccessCountDataNode();
 
   file.AddVar(update, "update", "Update");
 
   //count
-  file.AddTotal(node1, "count", "Total number of symbionts");
-  file.AddTotal(node2, "free_syms", "Total number of free syms");
-  file.AddTotal(node3, "hosted_syms", "Total number of syms in a host");
+  file.AddTotal(all_sym_count_node, "count", "Total number of symbionts");
+  file.AddTotal(free_sym_count_node, "free_syms", "Total number of free syms");
+  file.AddTotal(hosteed_sym_count_node, "hosted_syms", "Total number of syms in a host");
 
 
   //interaction val
-  file.AddMean(node4, "mean_intval", "Average symbiont interaction value");
-  file.AddMean(node5, "mean_freeintval", "Average free symbiont interaction value");
-  file.AddMean(node6, "mean_hostedintval", "Average hosted symbiont interaction value");
+  file.AddMean(all_sym_intval_node, "mean_intval", "Average symbiont interaction value");
+  file.AddMean(free_sym_intval_node, "mean_freeintval", "Average free symbiont interaction value");
+  file.AddMean(hosted_sym_intval_node, "mean_hostedintval", "Average hosted symbiont interaction value");
 
   //infection chance
-  file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
-  file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
-  file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
+  file.AddMean(all_sym_infect_chance_node, "mean_infectchance", "Average symbiont infection chance");
+  file.AddMean(free_sym_infect_chance_node, "mean_freeinfectchance", "Average free symbiont infection chance");
+  file.AddMean(hosted_sym_infect_chance_node, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
 
   //infection rate
-  file.AddTotal(node10, "attempted_infections", "Number of attempted infections of a host by a symbiont since last recorded", true);
-  file.AddTotal(node11, "successful_infections", "Number of successful infections of a host by a symbiont since last recorded", true);
+  file.AddTotal(infection_attempt_count_node, "attempted_infections", "Number of attempted infections of a host by a symbiont since last recorded", true);
+  file.AddTotal(infection_success_count_node, "successful_infections", "Number of successful infections of a host by a symbiont since last recorded", true);
 
   file.PrintHeaderKeys();
 
@@ -211,23 +211,23 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
 
 emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & file = SetupFile(filename);
-  auto & node1 = GetHorizontalTransmissionAttemptCount();
-  auto & node2 = GetHorizontalTransmissionSuccessCount();
-  auto & node3 = GetVerticalTransmissionAttemptCount();
-  auto & node4 = GetFreeLivingSymReproAttemptCount();
-
+  auto & horiz_trans_attempt_node = GetHorizontalTransmissionAttemptCountDataNode();
+  auto & horiz_trans_success_node = GetHorizontalTransmissionSuccessCountDataNode();
+  auto & vert_trans_attempt_node = GetVerticalTransmissionAttemptCountDataNode();
+  
   file.AddVar(update, "update", "Update");
 
   //horizontal transmission
-  file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts", true);
-  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes", true);
+  file.AddTotal(horiz_trans_attempt_node, "attempts_horiztrans", "Total number of horizontal transmission attempts", true);
+  file.AddTotal(horiz_trans_success_node, "successes_horiztrans", "Total number of horizontal transmission successes", true);
 
   //vertical transmission
-  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
+  file.AddTotal(vert_trans_attempt_node, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
 
   //free living symbiont transmission
   if (my_config->FREE_LIVING_SYMS() == 1) {
-    file.AddTotal(node4, "attempts_freesymrepro", "Total number of attempted free living symbiont births", true);
+    auto& free_sym_birth_attempt_node = GetFreeLivingSymReproAttemptCountDataNode();
+    file.AddTotal(free_sym_birth_attempt_node, "attempts_freesymrepro", "Total number of attempted free living symbiont births", true);
   }
 
   file.PrintHeaderKeys();
@@ -583,7 +583,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
  * Purpose: To retrieve the data nodes that is tracking the
  * number of attempted horizontal transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
+emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCountDataNode() {
   if (!data_node_attempts_horiztrans) {
     data_node_attempts_horiztrans.New();
   }
@@ -600,7 +600,7 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
  * Purpose: To retrieve the data nodes that is tracking the
  * number of successful horizontal transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
+emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCountDataNode() {
   if (!data_node_successes_horiztrans) {
     data_node_successes_horiztrans.New();
   }
@@ -617,7 +617,7 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
  * Purpose: To retrieve the data nodes that is tracking the
  * number of attempted free living symbiont reproductions.
  */
-emp::DataMonitor<int>& SymWorld::GetFreeLivingSymReproAttemptCount() {
+emp::DataMonitor<int>& SymWorld::GetFreeLivingSymReproAttemptCountDataNode() {
   if (!data_node_attempts_flsrepro) {
     data_node_attempts_flsrepro.New();
   }
@@ -634,7 +634,7 @@ emp::DataMonitor<int>& SymWorld::GetFreeLivingSymReproAttemptCount() {
  * Purpose: To retrieve the data nodes that is tracking the
  * number of attempted vertical transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
+emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCountDataNode() {
   if (!data_node_attempts_verttrans) {
     data_node_attempts_verttrans.New();
   }
@@ -650,7 +650,7 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
  * Purpose: To retrieve the data node that is tracking the
  * number of attempted symbiont infections of a host.
  */
-emp::DataMonitor<int>& SymWorld::GetInfectionAttemptCount() {
+emp::DataMonitor<int>& SymWorld::GetInfectionAttemptCountDataNode() {
   if (!data_node_attempts_infection) {
     data_node_attempts_infection.New();
   }
@@ -666,7 +666,7 @@ emp::DataMonitor<int>& SymWorld::GetInfectionAttemptCount() {
  * Purpose: To retrieve the data node that is tracking the
  * number of successful symbiont infections of a host.
  */
-emp::DataMonitor<int>& SymWorld::GetInfectionSuccessCount() {
+emp::DataMonitor<int>& SymWorld::GetInfectionSuccessCountDataNode() {
   if (!data_node_successes_infection) {
     data_node_successes_infection.New();
   }

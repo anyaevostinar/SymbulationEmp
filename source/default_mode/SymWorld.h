@@ -464,12 +464,12 @@ public:
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
-  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
-  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetFreeLivingSymReproAttemptCount();
-  emp::DataMonitor<int>& GetInfectionAttemptCount();
-  emp::DataMonitor<int>& GetInfectionSuccessCount();
+  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCountDataNode();
+  emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCountDataNode();
+  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCountDataNode();
+  emp::DataMonitor<int>& GetFreeLivingSymReproAttemptCountDataNode();
+  emp::DataMonitor<int>& GetInfectionAttemptCountDataNode();
+  emp::DataMonitor<int>& GetInfectionSuccessCountDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
@@ -573,12 +573,12 @@ public:
     size_t i = pos.GetPopID();
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
-      GetInfectionAttemptCount().AddDatum(1);
+      GetInfectionAttemptCountDataNode().AddDatum(1);
       emp::Ptr<Organism> sym = ExtractSym(i);
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies
       else {
         bool infected = pop[i]->AddSymbiont(sym);
-        if(infected) GetInfectionSuccessCount().AddDatum(1);
+        if(infected) GetInfectionSuccessCountDataNode().AddDatum(1);
       }
     }
     else if(my_config->MOVE_FREE_SYMS()) {

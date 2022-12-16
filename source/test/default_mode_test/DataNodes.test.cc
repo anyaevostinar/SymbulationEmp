@@ -583,7 +583,7 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
   }
 }
 
-TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
+TEST_CASE("GetHorizontalTransmissionAttemptCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -593,7 +593,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCountDataNode();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
     REQUIRE(data_node_attempts_horiztrans.GetTotal() == 0);
 
@@ -647,7 +647,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
   }
 }
 
-TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
+TEST_CASE("GetHorizontalTransmissionSuccessCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -657,7 +657,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCount();
+    emp::DataMonitor<int>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCountDataNode();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
     REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
 
@@ -711,7 +711,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
   }
 }
 
-TEST_CASE("GetFreeLivingSymReproAttemptCount", "[default]") {
+TEST_CASE("GetFreeLivingSymReproAttemptCountDataNode", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
@@ -721,7 +721,7 @@ TEST_CASE("GetFreeLivingSymReproAttemptCount", "[default]") {
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_attempts_flsrepro = world.GetFreeLivingSymReproAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_flsrepro = world.GetFreeLivingSymReproAttemptCountDataNode();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
     REQUIRE(data_node_attempts_flsrepro.GetTotal() == 0);
 
@@ -775,7 +775,7 @@ TEST_CASE("GetFreeLivingSymReproAttemptCount", "[default]") {
   }
 }
 
-TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
+TEST_CASE("GetVerticalTransmissionAttemptCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -786,7 +786,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
 
-    emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCountDataNode();
     REQUIRE(data_node_attempts_verttrans.GetTotal() == 0);
 
     WHEN("A symbiont baby gets vertically transmitted into a host baby"){
@@ -806,7 +806,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
   }
 }
 
-TEST_CASE("GetInfectionAttemptCount", "[default]") {
+TEST_CASE("GetInfectionAttemptCountDataNode", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
@@ -818,7 +818,7 @@ TEST_CASE("GetInfectionAttemptCount", "[default]") {
     config.SYM_LIMIT(0);
     config.FREE_LIVING_SYMS(1);
     
-    emp::DataMonitor<int>& data_node_attempts_infection = world.GetInfectionAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_infection = world.GetInfectionAttemptCountDataNode();
     REQUIRE(data_node_attempts_infection.GetTotal() == 0);
 
     size_t host_pos = 1;
@@ -845,7 +845,7 @@ TEST_CASE("GetInfectionAttemptCount", "[default]") {
   }
 }
 
-TEST_CASE("GetInfectionSuccessCount", "[default]") {
+TEST_CASE("GetInfectionSuccessCountDataNode", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
@@ -856,7 +856,7 @@ TEST_CASE("GetInfectionSuccessCount", "[default]") {
     
     config.FREE_LIVING_SYMS(1);
 
-    emp::DataMonitor<int>& data_node_successes_infection = world.GetInfectionSuccessCount();
+    emp::DataMonitor<int>& data_node_successes_infection = world.GetInfectionSuccessCountDataNode();
     REQUIRE(data_node_successes_infection.GetTotal() == 0);
 
     size_t host_pos = 1;
