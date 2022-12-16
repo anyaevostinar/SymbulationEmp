@@ -5,8 +5,7 @@
 
 EMP_EXTEND_CONFIG(SymConfigEfficient, SymConfigBase,
   GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
-  VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-  VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)")
+  VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves")
 )
 
 #endif

@@ -9,7 +9,8 @@ class EfficientWorld : public SymWorld {
 private:
   /**
     *
-    * Purpose: Represents the configuration settings for a particular run.
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
     *
   */
   emp::Ptr<SymConfigEfficient> efficient_config = NULL;
@@ -22,7 +23,9 @@ private:
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
 public:
   /**
-   * The constructor for PGGWorld
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   *
+   * Purpose: The constructor for EfficientWorld
    */
   EfficientWorld(emp::Random& _random, emp::Ptr<SymConfigEfficient> _config) : SymWorld(_random, _config) {
     efficient_config = _config;

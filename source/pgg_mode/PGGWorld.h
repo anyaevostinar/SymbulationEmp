@@ -9,7 +9,8 @@ class PGGWorld : public SymWorld {
 private:
   /**
     *
-    * Purpose: Represents the configuration settings for a particular run.
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
     *
   */
   emp::Ptr<SymConfigPGG> pgg_config = NULL;
@@ -22,7 +23,9 @@ private:
   emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_PGG;
 public:
   /**
-   * The constructor for PGGWorld
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   * 
+   * Purpose: The constructor for PGGWorld
    */
   PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
     pgg_config = _config;

@@ -23,7 +23,8 @@ protected:
 
   /**
     *
-    * Purpose: Represents the configuration settings for a particular run.
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
     *
   */
   emp::Ptr<SymConfigEfficient> efficient_config = NULL;

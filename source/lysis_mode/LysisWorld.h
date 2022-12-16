@@ -10,7 +10,8 @@ private:
 
   /**
     *
-    * Purpose: Represents the configuration settings for a particular run.
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
     *
   */
   emp::Ptr<SymConfigLysis> lysis_config = NULL;
@@ -29,7 +30,9 @@ private:
 
 public:
   /**
-   * The constructor for LysisWorld
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   *
+   * Purpose: The constructor for LysisWorld
    */
   LysisWorld(emp::Random& _random, emp::Ptr<SymConfigLysis> _config) : SymWorld(_random, _config) {
     lysis_config = _config;
