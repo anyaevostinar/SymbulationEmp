@@ -540,7 +540,7 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
     world.Resize(world_size);
     int res_per_update = 10;
     config.RES_DISTRIBUTE(res_per_update);
-    int num_updates = 5;
+    int num_updates = 8;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
@@ -1288,9 +1288,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
 
     THEN("Their lineages are tracked"){
       char lineages[][30] = {"Lineage:\n10\n",
-                             "Lineage:\n16\n10\n",
-                             "Lineage:\n19\n16\n10\n",
-                             "Lineage:\n4\n19\n16\n10\n",
+                             "Lineage:\n0\n10\n",
+                             "Lineage:\n4\n0\n10\n",
+                             "Lineage:\n13\n4\n0\n10\n",
                            };
 
       for(size_t i = 0; i < num_syms; i++){
