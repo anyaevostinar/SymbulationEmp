@@ -101,9 +101,10 @@ TEST_CASE("PGG SetupSymbionts", "[pgg]") {
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
-        emp::Ptr<Organism> symbiont;
+        emp::Ptr<PGGSymbiont> symbiont;
         for (size_t i = 0; i < world_size; i++) {
-          symbiont = world.GetSymAt(i);
+          symbiont = world.GetSymAt(i).DynamicCast<PGGSymbiont>();
+          REQUIRE((symbiont || !world.GetSymAt(i)));
           if (symbiont) {
             REQUIRE(symbiont->GetName() == "PGGSymbiont");
             REQUIRE(symbiont->GetDonation() == config.PGG_DONATE());

@@ -22,8 +22,8 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
     CHECK(host1->GetPoints() == 0);
 
     int_val = -1;
-    emp::vector<emp::Ptr<Organism>> syms = {};
-    emp::vector<emp::Ptr<Organism>> repro_syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> repro_syms = {};
     double points = 10;
     double efficiency = 0.5;
     emp::Ptr<EfficientHost> host2 = emp::NewPtr<EfficientHost>(random, world, &config, int_val, syms, repro_syms, points, efficiency);
@@ -54,9 +54,9 @@ TEST_CASE("EfficientHost MakeNew", "[efficient]"){
 
     double parent_int_val = 0.2;
     double parent_efficiency = 0.5;
-    emp::Ptr<Organism> host1 = emp::NewPtr<EfficientHost>(random, &world, &config, parent_int_val);
+    emp::Ptr<EfficientHost> host1 = emp::NewPtr<EfficientHost>(random, &world, &config, parent_int_val);
     host1->SetEfficiency(parent_efficiency);
-    emp::Ptr<Organism> host2 = host1->MakeNew();
+    emp::Ptr<EfficientHost> host2 = host1->MakeNew().DynamicCast<EfficientHost>();
 
     THEN("The new host has properties of the original host, and has 0 points and 0 age"){
         REQUIRE(host2->GetIntVal() == host1->GetIntVal());

@@ -35,7 +35,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
       THEN( "the host gains that symbiont" ) {
         REQUIRE( host.GetSymbionts().size() == 1 );
-        REQUIRE( host.GetSymbionts()[0]->GetIntVal() == .6 );
+        REQUIRE( host.GetSymbionts()[0].DynamicCast<Symbiont>()->GetIntVal() == .6 );
       }
       THEN( "the host receives more resources than without the symbiont" ) {
         REQUIRE( host.GetPoints() > 117 );
@@ -62,7 +62,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
       THEN( "the host gains that symbiont" ) {
         REQUIRE( host.GetSymbionts().size() == 1 );
-        REQUIRE( host.GetSymbionts()[0]->GetIntVal() == -.65 );
+        REQUIRE( host.GetSymbionts()[0].DynamicCast<Symbiont>()->GetIntVal() == -.65 );
       }
       THEN( "the host receives less than a quarter of the resources" ) {
         REQUIRE( host.GetPoints() < 17+25 );
@@ -123,7 +123,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
       THEN( "the host gains that repro symbiont" ) {
         REQUIRE( host.GetReproSymbionts().size() == 1 );
-        REQUIRE( host.GetReproSymbionts()[0]->GetIntVal() == -.7 );
+        REQUIRE( host.GetReproSymbionts()[0].DynamicCast<Symbiont>()->GetIntVal() == -.7 );
         REQUIRE( host.GetReproSymbionts()[0]->GetPoints() == 37 );
       }
       THEN( "the host receives all resources" ) {

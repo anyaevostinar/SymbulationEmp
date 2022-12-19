@@ -1,7 +1,5 @@
 #include "../../default_mode/SymWorld.h"
 #include "../../default_mode/Symbiont.h"
-#include "../../lysis_mode/Phage.h"
-#include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
 
 
@@ -205,7 +203,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
       THEN( "the symbionts all die" ) {
 
         for(size_t i = 0; i < world.GetPop().size(); i++)
-          REQUIRE( !(world.GetPop()[i] && world.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
+          REQUIRE( !(world.GetPop()[i] && world.GetPop()[i].DynamicCast<BaseHost>()->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
   }
@@ -270,7 +268,7 @@ TEST_CASE( "Hosts injected correctly", "[default]" ) {
       world.AddOrgAt(new_org1, 0);
 
       THEN( "host has interaction value of 1" ) {
-        REQUIRE( world.GetOrg(0).GetIntVal() == 1 );
+        REQUIRE( world.GetOrgPtr(0).DynamicCast<Host>()->GetIntVal() == 1 );
       }
     }
     WHEN( "host added with interaction value -1" ) {
@@ -280,7 +278,7 @@ TEST_CASE( "Hosts injected correctly", "[default]" ) {
       world.AddOrgAt(new_org1, 0);
 
       THEN( "host has interaction value of -1" ) {
-        REQUIRE( world.GetOrg(0).GetIntVal() == -1 );
+        REQUIRE( world.GetOrgPtr(0).DynamicCast<Host>()->GetIntVal() == -1 );
       }
     }
     WHEN( "host added with interaction value 0" ) {
@@ -290,7 +288,7 @@ TEST_CASE( "Hosts injected correctly", "[default]" ) {
       world.AddOrgAt(new_org1, 0);
 
       THEN( "host has interaction value of 0" ) {
-        REQUIRE( world.GetOrg(0).GetIntVal() == 0 );
+        REQUIRE( world.GetOrgPtr(0).DynamicCast<Host>()->GetIntVal() == 0 );
       }
     }
   }
@@ -310,11 +308,11 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
 
       emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       world.AddOrgAt(host, 0);
-      emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
       THEN( "syms are injected into a random host" ){
         world.InjectSymbiont(sym);
-        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+        emp::vector<emp::Ptr<BaseSymbiont>> host_syms = host->GetSymbionts();
 
         REQUIRE(host_syms.size() == 1);
         REQUIRE(host_syms.at(0) == sym);
@@ -416,11 +414,11 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
         emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
         world.AddOrgAt(host, host_pos);
 
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<BaseSymbiont> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         new_pos = world.SymDoBirth(new_symbiont, 1);
 
-        emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
-        emp::Ptr<Organism> host_sym = syms[0];
+        emp::vector<emp::Ptr<BaseSymbiont>> syms = host->GetSymbionts();
+        emp::Ptr<BaseSymbiont> host_sym = syms[0];
 
         THEN( "the sym is inserted into the valid neighbouring host" ){
           REQUIRE(host_sym == new_symbiont);
@@ -468,7 +466,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
         REQUIRE(world.GetNumOrgs() == world_size);
 
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<BaseSymbiont> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         new_pos = world.SymDoBirth(new_symbiont, parent_pos);
 
         bool new_sym_born = false;
@@ -488,7 +486,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
         world_size = 0;
         world.Resize(0);
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<BaseSymbiont> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         new_pos = world.SymDoBirth(new_symbiont, parent_pos);
 
         REQUIRE(new_pos.IsValid() == false);
@@ -542,7 +540,7 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
     world.Resize(world_size);
     int res_per_update = 10;
     config.RES_DISTRIBUTE(res_per_update);
-    int num_updates = 5;
+    int num_updates = 8;
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
@@ -569,7 +567,7 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
       world_size = 9;
       world.Resize(world_size);
       THEN("if only syms in the world they can get resources and reproduce"){
-        emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         world.SymDoBirth(sym, 0);
         REQUIRE(world.GetNumOrgs() == 1);
 
@@ -636,10 +634,10 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
     size_t host_pos = 0;
     emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
 
-    emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
     world.AddOrgAt(sym, sym_pos);
     WHEN("there is a parallel host and the sym wants to infect"){
-      emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<BaseHost> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       world.AddOrgAt(host, host_pos);
       REQUIRE(world.GetNumOrgs() == 2);
       REQUIRE(host->HasSym() == false);
@@ -674,7 +672,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
           world.MoveFreeSym(sym_pos);
 
           size_t new_sym_id = 2;
-          emp::Ptr<Organism> new_sym = world.GetSymPop()[new_sym_id];
+          emp::Ptr<BaseSymbiont> new_sym = world.GetSymPop()[new_sym_id];
           REQUIRE(sym == new_sym);
           REQUIRE(world.GetSymPop()[sym_id] == nullptr);
         }
@@ -684,7 +682,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
         THEN("the sym doesn't move"){
           REQUIRE(world.GetSymPop()[sym_id] == sym);
           world.MoveFreeSym(sym_pos);
-          emp::Ptr<Organism> new_sym = world.GetSymPop()[sym_id];
+          emp::Ptr<BaseSymbiont> new_sym = world.GetSymPop()[sym_id];
           REQUIRE(sym == new_sym);
         }
       }
@@ -702,13 +700,13 @@ TEST_CASE( "ExtractSym", "[default]" ){
     world.Resize(world_size);
     size_t sym_index = 1;
     emp::WorldPosition sym_pos = emp::WorldPosition(0, sym_index);
-    emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
     world.AddOrgAt(sym, sym_pos);
     REQUIRE(world.GetSymPop()[sym_index] == sym);
     REQUIRE(world.GetNumOrgs() == 1);
 
-    emp::Ptr<Organism> new_org = world.ExtractSym(sym_index);
+    emp::Ptr<BaseSymbiont> new_org = world.ExtractSym(sym_index);
     REQUIRE(sym == new_org);
     REQUIRE(world.GetNumOrgs() == 0);
     REQUIRE(world.GetSymPop()[sym_index] == nullptr);
@@ -726,7 +724,7 @@ TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ){
     int world_size = 4;
     world.Resize(world_size);
 
-    emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
     size_t orig_pos = 3;
     emp::WorldPosition orig_sym_pos = emp::WorldPosition(0, orig_pos);
@@ -795,7 +793,7 @@ TEST_CASE( "AddOrgAt", "[default]" ){
     SymWorld world(random, &config);
     int world_size = 4;
     world.Resize(world_size);
-    emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<BaseSymbiont> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
     WHEN("a sym is added into an empty spot"){
       THEN("it occupies that spot"){
@@ -808,7 +806,7 @@ TEST_CASE( "AddOrgAt", "[default]" ){
     }
     WHEN("a sym is added into an occupied spot"){
       THEN("it replaces the occupying sym"){
-        emp::Ptr<Organism> old_sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<BaseSymbiont> old_sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         world.AddOrgAt(old_sym, 0);
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(world.GetSymPop()[0] == old_sym);
@@ -840,8 +838,8 @@ TEST_CASE( "GetSymAt", "[default]" ){
 
 
     WHEN("a request is made for an in-bounds sym"){
-      emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-      emp::Ptr<Organism> sym2 = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> sym1 = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> sym2 = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       world.AddOrgAt(sym1, 0);
       world.AddOrgAt(sym2, emp::WorldPosition(0,1));
       THEN("the sym at that position is returned"){
@@ -932,7 +930,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
       }
       WHEN("Free living symbionts are permitted"){
         THEN("Symbiont babies are horizontally transmitted to a position near their parents"){
-          emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<Symbiont> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition sym_parent_pos = emp::WorldPosition(0, 250);
           world.AddOrgAt(sym_parent, sym_parent_pos);
 
@@ -942,7 +940,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           int possible_indices[8] = {149, 150, 151, 249, 251, 349, 350, 351};
           bool found_baby = false;
           for(int i = 0; i < 8; i++){
-            if(world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent){
+            if(world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent.Cast<BaseSymbiont>()){
               found_baby = true;
             }
           }
@@ -950,7 +948,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           REQUIRE(found_baby == true);
         }
         THEN("Symbionts randomly move to cells near their old position"){
-          emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<BaseSymbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition original_position = emp::WorldPosition(0, 898);
           world.AddOrgAt(symbiont, original_position);
           world.MoveFreeSym(original_position);
@@ -971,8 +969,8 @@ TEST_CASE( "Spatial structure", "[default]" ){
         THEN("Symbionts are horizontally transmitted into a neighboring host"){
           emp::Ptr<Organism> host_parent = emp::NewPtr<Host>(&random, &world, &config, 1);
           emp::Ptr<Organism> neighboring_host = emp::NewPtr<Host>(&random, &world, &config, 1);
-          emp::Ptr<Organism> distant_host = emp::NewPtr<Host>(&random, &world, &config, 1);
-          emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<BaseHost> distant_host = emp::NewPtr<Host>(&random, &world, &config, 1);
+          emp::Ptr<Symbiont> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
 
           size_t host_parent_pos = 99;
           world.AddOrgAt(host_parent, host_parent_pos);
@@ -1014,7 +1012,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
       }
       WHEN("Free living symbionts are permitted"){
         THEN("Symbiont babies are horizontally transmitted to a random position anywhere in the world"){
-          emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<Symbiont> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition sym_parent_pos = emp::WorldPosition(0, 250);
           world.AddOrgAt(sym_parent, sym_parent_pos);
 
@@ -1024,7 +1022,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           int possible_indices[8] = {149, 150, 151, 249, 251, 349, 350, 351};
           bool found_baby = false;
           for(int i = 0; i < 8; i++){
-            if(world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent){
+            if(world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent.Cast<BaseSymbiont>()){
               found_baby = true;
             }
           }
@@ -1032,7 +1030,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           REQUIRE(found_baby == false);
         }
         THEN("Symbionts randomly move to cells anywhere in the world"){
-          emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<BaseSymbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
           emp::WorldPosition original_position = emp::WorldPosition(0, 898);
           world.AddOrgAt(symbiont, original_position);
           world.MoveFreeSym(original_position);
@@ -1052,9 +1050,9 @@ TEST_CASE( "Spatial structure", "[default]" ){
         config.FREE_LIVING_SYMS(0);
         THEN("Symbionts are horizontally transmitted into hosts anywhere in the world"){
           emp::Ptr<Organism> host_parent = emp::NewPtr<Host>(&random, &world, &config, 1);
-          emp::Ptr<Organism> neighboring_host = emp::NewPtr<Host>(&random, &world, &config, 1);
-          emp::Ptr<Organism> distant_host = emp::NewPtr<Host>(&random, &world, &config, 1);
-          emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
+          emp::Ptr<BaseHost> neighboring_host = emp::NewPtr<Host>(&random, &world, &config, 1);
+          emp::Ptr<BaseHost> distant_host = emp::NewPtr<Host>(&random, &world, &config, 1);
+          emp::Ptr<Symbiont> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, 1);
 
           size_t host_parent_pos = 99;
           world.AddOrgAt(host_parent, host_parent_pos);
@@ -1207,7 +1205,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
 }
 
 TEST_CASE( "Symbiont Phylogeny", "[default]" ){
-  emp::Random random(17);
+  emp::Random random(18);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
   config.MUTATION_RATE(1);
@@ -1231,7 +1229,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
 
       emp::Ptr<Organism> syms[count];
-      emp::Ptr<Organism> sym;
+      emp::Ptr<BaseSymbiont> sym;
 
       for(size_t i = 0; i < count; i++){
         sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_vals[i]);
@@ -1246,7 +1244,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world_size = 1;
       world.Resize(world_size);
       REQUIRE(sym_sys->GetNumActive() == 0);
-      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       world.InjectSymbiont(symbiont);
       REQUIRE(sym_sys->GetNumActive() == 1);
       world.DoSymDeath(0);
@@ -1258,7 +1256,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.Resize(world_size);
 
       // add a free living sym to the world
-      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<BaseSymbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       world.InjectSymbiont(symbiont);
       
       // add a host to the world
@@ -1266,7 +1264,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.InjectHost(host);
 
       // add a hosted sym to the host
-      emp::Ptr<Organism> hosted_sym = symbiont->Reproduce();
+      emp::Ptr<BaseSymbiont> hosted_sym = symbiont->ReproduceSym();
       host->AddSymbiont(hosted_sym);
 
       // check that free living organisms have properly been added to the world
@@ -1280,19 +1278,19 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     config.PHYLOGENY(1);
     size_t num_syms = 4;
 
-    emp::Ptr<Organism> syms[num_syms];
+    emp::Ptr<BaseSymbiont> syms[num_syms];
     syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
     world.AddSymToSystematic(syms[0]);
 
     for(size_t i = 1; i < num_syms; i++){
-      syms[i] = syms[i-1]->Reproduce();
+      syms[i] = syms[i-1]->ReproduceSym();
     }
 
     THEN("Their lineages are tracked"){
       char lineages[][30] = {"Lineage:\n10\n",
-                             "Lineage:\n16\n10\n",
-                             "Lineage:\n19\n16\n10\n",
-                             "Lineage:\n16\n19\n16\n10\n",
+                             "Lineage:\n0\n10\n",
+                             "Lineage:\n4\n0\n10\n",
+                             "Lineage:\n13\n4\n0\n10\n",
                            };
 
       for(size_t i = 0; i < num_syms; i++){
@@ -1392,8 +1390,8 @@ TEST_CASE( "No mutation updates", "[default] "){
     emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
     WHEN("A host and symbiont reproduce at first"){
-      emp::Ptr<Organism> mut_sym_baby = symbiont->Reproduce();
-      emp::Ptr<Organism> mut_host_baby = host->Reproduce();
+      emp::Ptr<Symbiont> mut_sym_baby = symbiont->Reproduce().DynamicCast<Symbiont>();
+      emp::Ptr<Host> mut_host_baby = host->Reproduce().DynamicCast<Host>();
 
       THEN("Mutation rate and size are still 1"){
         REQUIRE(config.MUTATION_RATE() == 1);
@@ -1408,8 +1406,8 @@ TEST_CASE( "No mutation updates", "[default] "){
     }
     WHEN("The experiment runs and host and symbiont reproduce after"){
       world.RunExperiment(false);
-      emp::Ptr<Organism> no_mut_sym_baby = symbiont->Reproduce();
-      emp::Ptr<Organism> no_mut_host_baby = host->Reproduce();
+      emp::Ptr<Symbiont> no_mut_sym_baby = symbiont->Reproduce().DynamicCast<Symbiont>();
+      emp::Ptr<Host> no_mut_host_baby = host->Reproduce().DynamicCast<Host>();
 
       THEN("Mutation sizes and rates are all 0"){
         REQUIRE(config.MUTATION_RATE() == 0);

@@ -184,43 +184,22 @@ public:
    * Purpose: To collect data on the chance of lysis for each symbiont to be saved to the
    * data file that is tracking the chance of lysis for each symbiont.
    */
-  emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
-    if (!data_node_lysischance) {
-      data_node_lysischance.New();
-      OnUpdate([this](size_t){
-        data_node_lysischance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
-            }//close for
-          }//close if
-          if (sym_pop[i]){
-            data_node_lysischance->AddDatum(sym_pop[i]->GetLysisChance());
-          }
-        }//close for
-      });
-    }
-    data_node_lysischance->SetupBins(0, 1.1, 11);
-    return *data_node_lysischance;
-  }
+   emp::DataMonitor<double, emp::data::Histogram> &GetLysisChanceDataNode();
 
-  /**
-   * Input: None
-   *
-   * Output: The DataMonitor<double>& that has the information representing
-   * the lysis burst size.
-   *
-   * Purpose: To collect data on the lysis burst size to be saved to the
-   * data file that is tracking lysis burst size.
-   */
-  emp::DataMonitor<double>& GetBurstSizeDataNode() {
-    if (!data_node_burst_size) {
-      data_node_burst_size.New();
-    }
-    return *data_node_burst_size;
+   /**
+    * Input: None
+    *
+    * Output: The DataMonitor<double>& that has the information representing
+    * the lysis burst size.
+    *
+    * Purpose: To collect data on the lysis burst size to be saved to the
+    * data file that is tracking lysis burst size.
+    */
+   emp::DataMonitor<double> &GetBurstSizeDataNode() {
+     if (!data_node_burst_size) {
+       data_node_burst_size.New();
+     }
+     return *data_node_burst_size;
   }
 
 
@@ -249,28 +228,7 @@ public:
    * Purpose: To collect data on the chance of induction for each symbiont to be saved to the
    * data file that is tracking chance of induction for each symbiont.
    */
-  emp::DataMonitor<double,emp::data::Histogram>& GetInductionChanceDataNode() {
-    if (!data_node_inductionchance) {
-      data_node_inductionchance.New();
-      OnUpdate([this](size_t){
-        data_node_inductionchance->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              data_node_inductionchance->AddDatum(syms[j]->GetInductionChance());
-            }//close for
-          }//close if
-          if (sym_pop[i]){
-            data_node_inductionchance->AddDatum(sym_pop[i]->GetInductionChance());
-          }
-        }//close for
-      });
-    }
-    data_node_inductionchance->SetupBins(0, 1.1, 11);
-    return *data_node_inductionchance;
-  }
+  emp::DataMonitor<double, emp::data::Histogram> &GetInductionChanceDataNode();
 
   /**
    * Input: None
@@ -281,28 +239,8 @@ public:
    * Purpose: To collect data on the difference between incorporation vals for each bacteria and their phage
    * to be saved to the data file that is tracking incorporation val differences.
    */
-  emp::DataMonitor<double,emp::data::Histogram>& GetIncorporationDifferenceDataNode() {
-    if (!data_node_incorporation_difference) {
-      data_node_incorporation_difference.New();
-      OnUpdate([this](size_t){
-        data_node_incorporation_difference->Reset();
-        for (size_t i = 0; i< pop.size(); i++) {
-          if (IsOccupied(i)) {
-            double host_inc_val = pop[i]->GetIncVal();
-
-            emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-            long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
-              double inc_val_difference = abs(host_inc_val - syms[j]->GetIncVal());
-              data_node_incorporation_difference->AddDatum(inc_val_difference);
-            }
-          }//close if
-        }//close for
-      });
-    }
-    data_node_incorporation_difference->SetupBins(0, 1.1, 11);
-    return *data_node_incorporation_difference;
-  }
+  emp::DataMonitor<double, emp::data::Histogram> &
+  GetIncorporationDifferenceDataNode();
 
   /**
    * Input: None
@@ -313,40 +251,7 @@ public:
    * Purpose: To collect data on the CFU count to be saved to the
    * data file that is tracking CFU
    */
-  emp::DataMonitor<int>& GetCFUDataNode() {
-    //keep track of host organisms that are uninfected or infected with only lysogenic phage
-    if(!data_node_cfu) {
-      data_node_cfu.New();
-      OnUpdate([this](size_t){
-        data_node_cfu -> Reset();
-
-        for (size_t i = 0; i < pop.size(); i++) {
-          if(IsOccupied(i)) {
-            //uninfected hosts
-            if((pop[i]->GetSymbionts()).empty()) {
-              data_node_cfu->AddDatum(1);
-            }
-
-            //infected hosts, check if all symbionts are lysogenic
-            if(pop[i]->HasSym()) {
-              emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
-              bool all_lysogenic = true;
-              for(long unsigned int j = 0; j < syms.size(); j++){
-                if(syms[j]->IsPhage() && syms[j]->GetLysogeny() == false){
-                  all_lysogenic = false;
-                }
-              }
-              if(all_lysogenic){
-                data_node_cfu->AddDatum(1);
-              }
-            }
-          } //endif
-        } //end for
-      }); //end OnUpdate
-    } //end if
-    return *data_node_cfu;
-  }
-
+  emp::DataMonitor<int> &GetCFUDataNode();
 
 }; //end of LysisWorld class
 #endif

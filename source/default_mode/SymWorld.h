@@ -28,7 +28,7 @@ protected:
     * Purpose: Represents the free living sym environment, parallel to "pop" for hosts
     *
   */
-  pop_t sym_pop;
+  emp::vector<emp::Ptr<BaseSymbiont>> sym_pop;
 
   /**
     *
@@ -92,7 +92,7 @@ public:
     };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
-    if (my_config->PHYLOGENY() == true){
+    if (my_config->PHYLOGENY() == true) {
       host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
       sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
 
@@ -162,7 +162,7 @@ public:
    *
    * Purpose: To get the world's symbiont population.
    */
-  emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
+  emp::vector<emp::Ptr<BaseSymbiont>> GetSymPop() { return sym_pop; }
 
 
   /**
@@ -218,21 +218,12 @@ public:
    * Output: The standard function object that determines which bin organisms
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organsims based on their interaction value.
+   * Purpose: To classify organisms based on their interaction value.
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
       calc_info_fun = [&](Organism & org){
-        size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
-        //classify orgs into bins base on interaction values,
-        //inclusive of lower bound, exclusive of upper
-        float size_of_bin = 2.0 / num_phylo_bins;
-        double int_val = org.GetIntVal();
-        float prog = (int_val + 1);
-        prog = (prog/size_of_bin) + (0.0000000000001);
-        size_t bin = (size_t) prog;
-        if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-        return bin;
+        return org.GetPhyloBin();
       };
     }
     return calc_info_fun;
@@ -245,7 +236,7 @@ public:
    *
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
-  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
+  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<BaseSymbiont> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
     emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
     sym->SetTaxon(taxon);
     return taxon;
@@ -335,11 +326,11 @@ public:
       else Resize(pos.GetIndex() + 1);
     }
 
-    if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
+    if (new_org->IsHost()) { //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
-
-    } else { //if it is not a host, then add it to the sym population
-      //for symbionts, their place in their host's world is indicated by their ID
+    } else if (auto sym = new_org.DynamicCast<BaseSymbiont>()) {
+      // If it is not a host, then add it to the sym population
+      // For symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
       if(!sym_pop[pos_id]) {
         ++num_orgs;
@@ -348,7 +339,9 @@ public:
       }
 
       //set the cell to point to the new sym
-      sym_pop[pos_id] = new_org;
+      sym_pop[pos_id] = sym;
+    } else {
+      throw "Not a host or a BaseSymbiont"; // TODO another way to do this?
     }
   }
 
@@ -434,13 +427,13 @@ public:
    *
    * Purpose: To add a symbiont to the world, either into a host or into a sym world cell.
    */
-  void InjectSymbiont(emp::Ptr<Organism> new_sym){
+  void InjectSymbiont(emp::Ptr<BaseSymbiont> new_sym){
     size_t new_loc;
     if (my_config->PHYLOGENY()) AddSymToSystematic(new_sym);
     if(my_config->FREE_LIVING_SYMS() == 0){
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
-      if(IsOccupied(new_loc)) {
+      if (IsOccupied(new_loc)) {
         pop[new_loc]->AddSymbiont(new_sym);
       } else new_sym.Delete();
     } else {
@@ -500,11 +493,11 @@ public:
    *
    * Purpose: To move a symbiont into a new world position.
    */
-  emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
+  emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<BaseSymbiont> sym, emp::WorldPosition parent_pos){
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
-    if(IsInboundsPos(new_pos)){
+    if (IsInboundsPos(new_pos) && new_pos.GetPopID() != parent_pos.GetPopID()) {
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
       return new_pos;
@@ -517,7 +510,7 @@ public:
   /**
    * Input: The WorldPosition object to be checked.
    *
-   * Output: Wether the input object is within world bounds.
+   * Output: Whether the input object is within world bounds.
    *
    * Purpose: To determine whether the location of free-living organisms
    * is within the bounds of the free-living worlds (the size of the pop and
@@ -547,7 +540,7 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   emp::WorldPosition SymDoBirth(emp::Ptr<BaseSymbiont> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
@@ -579,7 +572,7 @@ public:
     size_t i = pos.GetPopID();
     //the sym can either move into a parallel sym or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
-      emp::Ptr<Organism> sym = ExtractSym(i);
+      emp::Ptr<BaseSymbiont> sym = ExtractSym(i);
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies
       else pop[i]->AddSymbiont(sym);
     }
@@ -595,7 +588,7 @@ public:
   *
   * Purpose: To allow access to syms at a specified location in the sym_pop.
   */
-  emp::Ptr<Organism> GetSymAt(size_t location){
+  emp::Ptr<BaseSymbiont> GetSymAt(size_t location){
     if (location >= 0 && location < sym_pop.size()){
       return sym_pop[location];
     } else {
@@ -611,8 +604,8 @@ public:
    *
    * Purpose: To extract a symbiont from the world without deleting it.
    */
-  emp::Ptr<Organism> ExtractSym(size_t i){
-    emp::Ptr<Organism> sym;
+  emp::Ptr<BaseSymbiont> ExtractSym(size_t i){
+    emp::Ptr<BaseSymbiont> sym;
     if(sym_pop[i]){
       sym = sym_pop[i];
       num_orgs--;

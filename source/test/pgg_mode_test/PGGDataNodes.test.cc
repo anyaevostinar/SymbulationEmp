@@ -2,6 +2,7 @@
 #include "../../pgg_mode/PGGSymbiont.h"
 #include "../../pgg_mode/PGGWorld.h"
 #include "../../pgg_mode/PGGWorldSetup.cc"
+#include "../../pgg_mode/PGGDataNodes.cc"
 
 TEST_CASE("GetPGGDataNode", "[pgg]"){
   GIVEN("a world"){

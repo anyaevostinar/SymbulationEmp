@@ -1,7 +1,10 @@
 #include "../efficient_mode/EfficientWorld.h"
-#include "../efficient_mode/EfficientWorldSetup.cc"
-#include "../default_mode/WorldSetup.cc"
 #include "symbulation.h"
+
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
+#include "../default_mode/WorldSetup.cc"
+#include "../efficient_mode/EfficientWorldSetup.cc"
 
 // This is the main function for the NATIVE version of this project.
 

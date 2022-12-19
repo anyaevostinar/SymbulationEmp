@@ -38,7 +38,7 @@ TEST_CASE("Phage Process", "[lysis]") {
                 phage->Process(location);
 
                 bool host_dead = true;
-                std::vector<emp::Ptr<Organism>> empty_syms = {};
+                std::vector<emp::Ptr<BaseSymbiont>> empty_syms = {};
                 REQUIRE(bacterium->GetDead() == host_dead);
                 REQUIRE(bacterium->GetReproSymbionts() == empty_syms);
             }
@@ -73,7 +73,7 @@ TEST_CASE("Phage Process", "[lysis]") {
 
                 REQUIRE(bacterium->GetDead() == false);
 
-                std::vector<emp::Ptr<Organism>> updated_repro_syms = bacterium->GetReproSymbionts();
+                std::vector<emp::Ptr<BaseSymbiont>> updated_repro_syms = bacterium->GetReproSymbionts();
 
                 REQUIRE( (int) updated_repro_syms.size() > num_host_orig_syms); // host gained repro syms
 
@@ -220,8 +220,8 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         double sym_int_val = -.5;
 
         emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, host_int_val);
-        emp::Ptr<Organism> phage1 = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
-        emp::Ptr<Organism> phage2 = emp::NewPtr<Phage>(random, world, &config, 0.0);
+        emp::Ptr<Symbiont> phage1 = emp::NewPtr<Phage>(random, world, &config, sym_int_val);
+        emp::Ptr<Symbiont> phage2 = emp::NewPtr<Phage>(random, world, &config, 0.0);
 
         bacterium->AddSymbiont(phage1);
         bacterium->AddSymbiont(phage2);
@@ -233,7 +233,7 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         THEN("Only the dead phage is removed from the syms list"){
             REQUIRE(bacterium->GetSymbionts().size() == expected_sym_size);
 
-            emp::Ptr<Organism> curSym = bacterium->GetSymbionts()[0];
+            emp::Ptr<Symbiont> curSym = bacterium->GetSymbionts()[0].DynamicCast<Symbiont>();
             REQUIRE(curSym->GetIntVal() == phage2->GetIntVal());
             REQUIRE(curSym == phage2);
         }
@@ -263,8 +263,8 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
         world->AddOrgAt(orig_bacterium, 0);
         world->AddOrgAt(new_bacterium, 1);
 
-        emp::Ptr<Organism> p_baby1 = phage->Reproduce();
-        emp::Ptr<Organism> p_baby2 = phage->Reproduce();
+        emp::Ptr<BaseSymbiont> p_baby1 = phage->ReproduceSym();
+        emp::Ptr<BaseSymbiont> p_baby2 = phage->ReproduceSym();
         orig_bacterium->AddReproSym(p_baby1);
         orig_bacterium->AddReproSym(p_baby2);
 

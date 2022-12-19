@@ -3,15 +3,12 @@
 
 #include "../default_mode/Host.h"
 #include "CPU.h"
+#include "SGPOrganism.h"
 #include "SGPWorld.h"
 #include "emp/base/Ptr.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
-class SGPHost : public Host {
-private:
-  CPU cpu;
-  const emp::Ptr<SGPWorld> my_world;
-
+class SGPHost : public BaseHost, public SGPOrganism {
 public:
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
@@ -19,70 +16,21 @@ public:
    * the config setting RANDOM_ANCESTOR.
    */
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
-          emp::vector<emp::Ptr<Organism>> _syms = {},
-          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-          double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world), my_world(_world) {}
+          emp::Ptr<SymConfigBase> _config, double _points = 0.0)
+      : Organism(_config, _world, _random, _points),
+        SGPOrganism(_random, _world) {}
 
   /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
           emp::Ptr<SymConfigBase> _config, const sgpl::Program<Spec> &genome,
-          double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, genome), my_world(_world) {}
+      : Organism(_config, _world, _random, _points),
+        SGPOrganism(_random, _world, genome) {}
 
   SGPHost(const SGPHost &host)
-      : Host(host), cpu(this, host.my_world, host.cpu.GetProgram()),
-        my_world(host.my_world) {}
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: Perform necessary cleanup when a host dies, freeing heap-allocated
-   * state and canceling any in-progress reproduction.
-   */
-  ~SGPHost() {
-    cpu.state.used_resources.Delete();
-    cpu.state.shared_available_dependencies.Delete();
-    // Invalidate any in-progress reproduction
-    if (cpu.state.in_progress_repro != -1) {
-      my_world->to_reproduce[cpu.state.in_progress_repro].second =
-          emp::WorldPosition::invalid_id;
-    }
-  }
-
-  bool operator<(const Organism &other) const {
-    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
-      return cpu.GetProgram() < sgp->cpu.GetProgram();
-    } else {
-      return false;
-    }
-  }
-
-  bool operator==(const Organism &other) const {
-    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
-      return cpu.GetProgram() == sgp->cpu.GetProgram();
-    } else {
-      return false;
-    }
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: The CPU associated with this host.
-   *
-   * Purpose: Allows accessing the host's CPU.
-   */
-  CPU &GetCPU() { return cpu; }
+      : BaseHost(host), Organism(host), SGPOrganism(host) {}
 
   /**
    * Input: The location of the host.
@@ -93,8 +41,10 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
-  void Process(emp::WorldPosition pos) {
-    if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+  void Process(emp::WorldPosition pos) override {
+    if (SGPOrganism::my_world->GetUpdate() %
+            my_config->LIMITED_TASK_RESET_INTERVAL() ==
+        0)
       cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
@@ -105,11 +55,10 @@ public:
     // Randomly decide whether to run before or after the symbiont
     bool run_before = random->P(0.5);
     if (run_before) {
-      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+      SGPOrganism::Process(pos);
     }
 
     if (HasSym()) { // let each sym do whatever they need to do
-      emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
       for (size_t j = 0; j < syms.size(); j++) {
         emp::Ptr<Organism> curSym = syms[j];
         if (GetDead()) {
@@ -130,7 +79,7 @@ public:
     }   // if org has syms
 
     if (!run_before) {
-      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+      SGPOrganism::Process(pos);
     }
 
     GrowOlder();
@@ -145,23 +94,24 @@ public:
    */
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
-        random, my_world, my_config, cpu.GetProgram(), GetIntVal());
+        random, SGPOrganism::my_world, my_config, cpu.GetProgram());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     return host_baby;
   }
 
   /**
-   * Input: None
+   * Input: None.
    *
-   * Output: None
+   * Output: A new host baby of the current host, mutated.
    *
-   * Purpose: To mutate the code in the genome of this host.
+   * Purpose: To create a new baby host and reset this host's points to 0.
    */
-  void Mutate() {
-    Host::Mutate();
-
-    cpu.Mutate();
+  emp::Ptr<Organism> Reproduce() override {
+    emp::Ptr<Organism> host_baby = MakeNew();
+    host_baby->Mutate();
+    SetPoints(0);
+    return host_baby;
   }
 };
 

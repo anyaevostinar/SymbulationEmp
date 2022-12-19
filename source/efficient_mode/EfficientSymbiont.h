@@ -2,22 +2,14 @@
 #define EFFSYM_H
 
 #include "../default_mode/Symbiont.h"
+#include "EfficientOrganism.h"
 #include "EfficientWorld.h"
 #include "EfficientHost.h"
 
 
 
-class EfficientSymbiont: public Symbiont {
+class EfficientSymbiont: public Symbiont, public EfficientOrganism {
 protected:
-
-  /**
-    *
-    * Purpose: Represents the efficiency of a symbiont. This has a multiplicable impact on a
-    * symbiont's resource collection.
-    *
-  */
-  double efficiency;
-
   /**
     *
     * Purpose: Represents the standard deviation of the values
@@ -53,8 +45,10 @@ public:
   /**
    * The constructor for efficient symbiont
    */
-  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
-    efficiency = _efficient;
+  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) :
+  Symbiont(_random, _world, _config, _intval, _points),
+  Organism(_config, _world, _random, _points),
+  EfficientOrganism(_efficient) {
     my_world = _world;
     if(my_config->HORIZ_MUTATION_RATE() < 0){
       ht_mut_rate = my_config->MUTATION_RATE();
@@ -109,27 +103,6 @@ public:
     return  "EfficientSymbiont";
   }
 
-  /**
-   * Input: Efficiency value
-   *
-   * Output: None
-   *
-   * Purpose: Setting an efficient symbiont's efficiency value.
-   */
-  void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
-    efficiency = _in;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: A double representing the symbiont's efficiency.
-   *
-   * Purpose: Getting an efficient symbiont's efficiency value.
-   */
-  double GetEfficiency() {return efficiency;}
-
 
   /**
    * Input: A double representing the amount to be incremented to a symbiont's points.
@@ -139,7 +112,7 @@ public:
    * Purpose: Incrementing an efficient symbiont's points.
    * The points are adjusted by the efficiency of the symbiont.
    */
-  void AddPoints(double _in) {points += (_in * efficiency);}
+  void AddPoints(double _in) override {points += (_in * efficiency);}
 
 
   /**
@@ -152,15 +125,15 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  void Mutate(std::string mode){
+  void Mutate(TransmissionMode mode){
     double local_size;
     double local_rate;
     double int_rate;
 
-    if(mode == "vertical"){
+    if(mode == TransmissionMode::Vertical){
       local_rate = my_config->MUTATION_RATE();
       local_size = my_config->MUTATION_SIZE();
-    } else if(mode == "horizontal") {
+    } else if(mode == TransmissionMode::Horizontal) {
       local_rate = ht_mut_rate;
       local_size = ht_mut_size;
     } else {
@@ -208,7 +181,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<BaseSymbiont> MakeNew() override {
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
@@ -224,8 +197,8 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  emp::Ptr<Organism> Reproduce(std::string mode) {
-    emp::Ptr<Organism> sym_baby = MakeNew();
+  emp::Ptr<BaseSymbiont> Reproduce(TransmissionMode mode) {
+    emp::Ptr<EfficientSymbiont> sym_baby = MakeNew().DynamicCast<EfficientSymbiont>();
     sym_baby->Mutate(mode);
     return sym_baby;
   }
@@ -239,9 +212,9 @@ public:
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) override {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = Reproduce("vertical");
+      emp::Ptr<BaseSymbiont> sym_baby = Reproduce(TransmissionMode::Vertical);
       host_baby->AddSymbiont(sym_baby);
 
       //vertical transmission data node
@@ -257,13 +230,13 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
+  void HorizontalTransmission(emp::WorldPosition location) override {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
-        emp::Ptr<Organism> sym_baby = Reproduce("horizontal");
+        emp::Ptr<BaseSymbiont> sym_baby = Reproduce(TransmissionMode::Horizontal);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

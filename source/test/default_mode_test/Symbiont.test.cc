@@ -233,10 +233,10 @@ TEST_CASE("InfectionFails", "[default]"){
 
     WHEN("sym infection failure rate is between 0 and 1"){
         config.SYM_INFECTION_FAILURE_RATE(0.5);
-        emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-        emp::Ptr<Organism> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-        emp::Ptr<Organism> sym3 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
-        emp::Ptr<Organism> sym4 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+        emp::Ptr<BaseSymbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+        emp::Ptr<BaseSymbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+        emp::Ptr<BaseSymbiont> sym3 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+        emp::Ptr<BaseSymbiont> sym4 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
         size_t failed_infection_count = 0;
         size_t total_possible = 4;
 
@@ -273,7 +273,7 @@ TEST_CASE("InfectionFails", "[default]"){
 
 TEST_CASE("mutate", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(37);
+    emp::Ptr<emp::Random> random = new emp::Random(38);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -359,8 +359,8 @@ TEST_CASE("reproduce", "[default]") {
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
         sym->SetAge(10);
 
-        emp::Ptr<Organism> sym_baby = sym->Reproduce();
-
+        emp::Ptr<Symbiont> sym_baby = sym->Reproduce().DynamicCast<Symbiont>();
+        REQUIRE( sym_baby != nullptr );
 
         THEN("Offspring's interaction value equals parent's interaction value") {
             double sym_baby_int_val = 0;
@@ -404,7 +404,8 @@ TEST_CASE("reproduce", "[default]") {
         config.SYM_INFECTION_CHANCE(inf_chance);
         emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
 
-        emp::Ptr<Organism> sym_baby = sym2->Reproduce();
+        emp::Ptr<Symbiont> sym_baby = sym2->Reproduce().DynamicCast<Symbiont>();
+        REQUIRE( sym_baby != nullptr );
 
 
         THEN("Offspring's interaction value does not equal parent's interaction value") {
@@ -439,7 +440,7 @@ TEST_CASE("reproduce", "[default]") {
 
 TEST_CASE("Process", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = new emp::Random(42);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -756,10 +757,11 @@ TEST_CASE("Symbiont MakeNew", "[default]"){
     SymWorld world(*random, &config);
 
     double sym_int_val = 0.2;
-    emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-    emp::Ptr<Organism> sym2 = sym1->MakeNew();
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Symbiont> sym2 = sym1->MakeNew().DynamicCast<Symbiont>();
 
     THEN("The new symbiont has the same genome as its parent, but age and points 0"){
+        REQUIRE(sym2 != nullptr);
         REQUIRE(sym2->GetIntVal() == sym1->GetIntVal());
         REQUIRE(sym2->GetInfectionChance() == sym1->GetInfectionChance());
         REQUIRE(sym2->GetAge() == 0);

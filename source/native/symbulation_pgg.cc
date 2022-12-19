@@ -1,7 +1,11 @@
 #include "../pgg_mode/PGGWorld.h"
+#include "symbulation.h"
+
+#include "../Organism.cc"
+#include "../default_mode/Symbiont.cc"
+#include "../pgg_mode/PGGDataNodes.cc"
 #include "../pgg_mode/PGGWorldSetup.cc"
 #include "../default_mode/WorldSetup.cc"
-#include "symbulation.h"
 
 // This is the main function for the NATIVE version of this project.
 

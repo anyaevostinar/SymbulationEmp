@@ -2,6 +2,7 @@
 #define PGGHOST_H
 
 #include "../default_mode/Host.h"
+#include "PGGSymbiont.h"
 #include "PGGWorld.h"
 
 
@@ -24,9 +25,10 @@ protected:
 
 public:
   PGGHost(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config,
-  double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points) {my_world = _world;}
+  double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
+  emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
+  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points),
+  Organism(_config, _world, _random, _points) {my_world = _world;}
 
 
   /**
@@ -65,7 +67,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "PGGHost";
   }
 
@@ -111,7 +113,11 @@ public:
     Host::DistribResources(resources);
 
     for(size_t i=0; i < syms.size(); i++){
-      double hostPool = syms[i]->ProcessPool();
+      emp::Ptr<PGGSymbiont> sym = syms[i].DynamicCast<PGGSymbiont>();
+      if (sym == nullptr) {
+        throw "Non-PGG symbiont in PGG host";
+      }
+      double hostPool = sym->ProcessPool();
       this->AddPool(hostPool);
     }
     if(syms.size()>0){this->DistribPool();}
@@ -144,7 +150,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<PGGHost> host_baby = emp::NewPtr<PGGHost>(random, my_world, my_config, GetIntVal());
     return host_baby;
   }

@@ -5,6 +5,9 @@
 
 #include "sanity_check.test.cc"
 
+// Include the entry point to include all cc files
+#include "../native/symbulation_sgp.cc"
+
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
 

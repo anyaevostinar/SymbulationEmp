@@ -22,8 +22,8 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     CHECK(host1->GetPoints() == 0);
 
     int_val = -1;
-    emp::vector<emp::Ptr<Organism>> syms = {};
-    emp::vector<emp::Ptr<Organism>> repro_syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> syms = {};
+    emp::vector<emp::Ptr<BaseSymbiont>> repro_syms = {};
     double points = 10;
     emp::Ptr<PGGHost> host2 = emp::NewPtr<PGGHost>(random, world, &config, int_val, syms, repro_syms, points);
     CHECK(host2->GetIntVal() == int_val);
@@ -136,8 +136,8 @@ TEST_CASE("PGGHost MakeNew", "[pgg]"){
     PGGWorld world(*random, &config);
 
     double host_int_val = 0.2;
-    emp::Ptr<Organism> host1 = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
-    emp::Ptr<Organism> host2 = host1->MakeNew();
+    emp::Ptr<Host> host1 = emp::NewPtr<PGGHost>(random, &world, &config, host_int_val);
+    emp::Ptr<Host> host2 = host1->MakeNew().DynamicCast<Host>();
     THEN("The new host has properties of the original host and has 0 points and 0 age"){
       REQUIRE(host1->GetIntVal() == host2->GetIntVal());
       REQUIRE(host2->GetPoints() == 0);

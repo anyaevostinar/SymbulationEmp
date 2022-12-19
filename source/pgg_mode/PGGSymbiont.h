@@ -22,7 +22,8 @@ protected:
   emp::Ptr<PGGWorld> my_world = NULL;
 
 public:
-  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),PGG_donate(_donation)
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),
+  Organism(_config, _world, _random, _points), PGG_donate(_donation)
   {my_world = _world;}
 
 
@@ -82,7 +83,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "PGGSymbiont";
   }
 
@@ -115,7 +116,7 @@ public:
    * value chosen from a normal distribution centered at 0, with a standard
    * deviation that is equal to the mutation size.
    */
-  void Mutate(){
+  void Mutate() override {
     Symbiont::Mutate();
     if (random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()) {
       PGG_donate += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
@@ -149,7 +150,7 @@ public:
    *
    * Purpose: To produce a new PGGSymbiont, identical to the original
    */
-  emp::Ptr<Organism> MakeNew() {
+  emp::Ptr<BaseSymbiont> MakeNew() override {
     emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(random, my_world, my_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetDonation(GetDonation());

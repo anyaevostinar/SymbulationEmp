@@ -2,18 +2,11 @@
 #define EFFHOST_H
 
 #include "../default_mode/Host.h"
+#include "EfficientOrganism.h"
 #include "EfficientWorld.h"
 
-class EfficientHost: public Host {
+class EfficientHost: public Host, public EfficientOrganism {
 protected:
-
-  /**
-    *
-    * Purpose: Represents the efficiency of a host.
-    *
-  */
-  double efficiency;
-
   /**
     *
     * Purpose: Represents the world that the efficient hosts are living in.
@@ -25,11 +18,12 @@ public:
    * The constructor for efficient host
    */
   EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config,
-  double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+  double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
+  emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
   double _points = 0.0, double _efficient = 0.1) :
-  Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
-    efficiency = _efficient;
+  Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+  Organism(_config, _world, _random, _points),
+  EfficientOrganism(_efficient) {
     my_world = _world;
   }
 
@@ -73,27 +67,6 @@ public:
   std::string const GetName() {
     return  "EfficientHost";
   }
-
-  /**
-   * Input: Efficiency value
-   *
-   * Output: None
-   *
-   * Purpose: Setting an efficient symbiont's efficiency value.
-   */
-  void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
-    efficiency = _in;
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: A double representing the symbiont's efficiency.
-   *
-   * Purpose: Getting an efficient symbiont's efficiency value.
-   */
-  double GetEfficiency() {return efficiency;}
 
   /**
    * Input: None.

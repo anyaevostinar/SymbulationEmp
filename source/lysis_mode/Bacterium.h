@@ -6,8 +6,6 @@
 
 
 class Bacterium : public Host {
-
-
 protected:
 
   /**
@@ -32,9 +30,11 @@ public:
    * The constructor for the bacterium class
    */
   Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config,
-  double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-  emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-  double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points)  {
+  double _intval =0.0, emp::vector<emp::Ptr<BaseSymbiont>> _syms = {},
+  emp::vector<emp::Ptr<BaseSymbiont>> _repro_syms = {},
+  double _points = 0.0) :
+  Host(_random, _world, _config, _intval,_syms, _repro_syms, _points),
+  Organism(_config, _world, _random, _points) {
     host_incorporation_val = my_config->HOST_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);
@@ -78,7 +78,7 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
+  std::string const GetName() const override {
     return  "Bacterium";
   }
 
@@ -108,7 +108,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
     host_baby->SetIncVal(GetIncVal());
     return host_baby;
@@ -123,7 +123,7 @@ public:
    * chosen from a normal distribution centered at 0, with a standard deviation that
    * is equal to the mutation size. Bacterium mutation can be turned on or off.
    */
-  void Mutate() {
+  void Mutate() override {
     Host::Mutate();
 
     if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){

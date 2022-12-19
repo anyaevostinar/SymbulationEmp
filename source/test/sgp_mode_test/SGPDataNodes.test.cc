@@ -151,6 +151,7 @@ TEST_CASE("GetFreeSymDonatedDataNode", "[sgp]") {
     WHEN("There are free symbionts in the world and ectosymbiosis is permitted") {
       config.FREE_LIVING_SYMS(1);
       config.ECTOSYMBIOSIS(1);
+      config.SYM_INFECTION_CHANCE(0);
       world.Setup();
       world.RunExperiment(false);
       REQUIRE(free_sym_count_node.GetTotal() > 0);
@@ -224,6 +225,7 @@ TEST_CASE("GetFreeSymEarnedDataNode", "[sgp]") {
     WHEN("There are free living symbionts in the world") {
       config.UPDATES(101);
       config.FREE_LIVING_SYMS(1);
+      config.SYM_INFECTION_CHANCE(0);
       world.Setup();
       world.RunExperiment(false);
       REQUIRE(free_sym_count_node.GetTotal() > 0);
