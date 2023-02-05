@@ -148,7 +148,7 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   auto & file = SetupFile(filename);
   auto & all_sym_count_node = GetSymCountDataNode(); //count
   auto & free_sym_count_node = GetCountFreeSymsDataNode();
-  auto & hosteed_sym_count_node = GetCountHostedSymsDataNode();
+  auto & hosted_sym_count_node = GetCountHostedSymsDataNode();
   auto & all_sym_intval_node = GetSymIntValDataNode(); //interaction_val
   auto & free_sym_intval_node = GetFreeSymIntValDataNode();
   auto & hosted_sym_intval_node = GetHostedSymIntValDataNode();
@@ -163,7 +163,7 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   //count
   file.AddTotal(all_sym_count_node, "count", "Total number of symbionts");
   file.AddTotal(free_sym_count_node, "free_syms", "Total number of free syms");
-  file.AddTotal(hosteed_sym_count_node, "hosted_syms", "Total number of syms in a host");
+  file.AddTotal(hosted_sym_count_node, "hosted_syms", "Total number of syms in a host");
 
 
   //interaction val
