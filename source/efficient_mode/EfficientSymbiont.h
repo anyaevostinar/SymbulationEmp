@@ -245,7 +245,7 @@ public:
       host_baby->AddSymbiont(sym_baby);
 
       //vertical transmission data node
-      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCountDataNode();
       data_node_attempts_verttrans.AddDatum(1);
     }
   }
@@ -267,10 +267,10 @@ public:
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes
-        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCountDataNode();
         data_node_attempts_horiztrans.AddDatum(1);
 
-        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCountDataNode();
         if(new_pos.IsValid()){
           data_node_successes_horiztrans.AddDatum(1);
         }

@@ -583,7 +583,7 @@ TEST_CASE("GetHostedSymInfectChanceDataNode", "[default]"){
   }
 }
 
-TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
+TEST_CASE("GetHorizontalTransmissionAttemptCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -593,7 +593,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCountDataNode();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
     REQUIRE(data_node_attempts_horiztrans.GetTotal() == 0);
 
@@ -606,16 +606,16 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
-        THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+        THEN("The count of attempted horizontal transmissions does not increment"){
+          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 0);
         }
       }
         WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
         world.Resize(0);
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);
-        THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+        THEN("The count of attempted horizontal transmissions does not increment"){
+          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 0);
         }
         symbiont.Delete(); // won't be caught by symworld destructor due to resize
       }
@@ -647,7 +647,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
   }
 }
 
-TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
+TEST_CASE("GetHorizontalTransmissionSuccessCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -657,7 +657,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCount();
+    emp::DataMonitor<int>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCountDataNode();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
     REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
 
@@ -670,8 +670,8 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
-        THEN("The count of successful horizontal transmissions increments"){
-          REQUIRE(data_node_successes_horiztrans.GetTotal() == 1);
+        THEN("The count of successful horizontal transmissions does not increment"){
+          REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
         }
       }
       WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
@@ -711,7 +711,71 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
   }
 }
 
-TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
+TEST_CASE("GetFreeLivingSymReproAttemptCountDataNode", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld world(random, &config);
+    size_t world_size = 4;
+    world.Resize(world_size);
+    config.SYM_HORIZ_TRANS_RES(0);
+
+    emp::DataMonitor<int>& data_node_attempts_flsrepro = world.GetFreeLivingSymReproAttemptCountDataNode();
+    emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
+    REQUIRE(data_node_attempts_flsrepro.GetTotal() == 0);
+
+    WHEN("Free living symbionts are allowed") {
+      config.FREE_LIVING_SYMS(1);
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      world.AddOrgAt(symbiont, parent_pos);
+
+      WHEN("A symbiont successfully transmits into a free living cell") {
+        symbiont->HorizontalTransmission(parent_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+
+        THEN("The count of attempted free living symbiont births increments") {
+          REQUIRE(data_node_attempts_flsrepro.GetTotal() == 1);
+        }
+      }
+      WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit") {
+        world.Resize(0);
+        symbiont->HorizontalTransmission(parent_pos);
+        REQUIRE(world.GetNumOrgs() == 1);
+        THEN("The count of attempted free living symbiont births increments") {
+          REQUIRE(data_node_attempts_flsrepro.GetTotal() == 1);
+        }
+        symbiont.Delete(); // won't be caught by symworld destructor due to resize
+      }
+    }
+    WHEN("Free living symbionts are not allowed") {
+      config.FREE_LIVING_SYMS(0);
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      world.AddOrgAt(host, 1);
+
+      WHEN("A symbiont successfully horizontally transmits into a host") {
+        symbiont->HorizontalTransmission(parent_pos);
+        REQUIRE(host->HasSym() == true);
+        THEN("The count of attempted free living symbiont births does not increment") {
+          REQUIRE(data_node_attempts_flsrepro.GetTotal() == 0);
+        }
+      }
+      WHEN("A symbiont dies trying to horizontally transmit into a host") {
+        config.SYM_LIMIT(0);
+        symbiont->HorizontalTransmission(parent_pos);
+        REQUIRE(host->HasSym() == false);
+        THEN("The count of attempted free living symbiont births does not increment") {
+          REQUIRE(data_node_attempts_flsrepro.GetTotal() == 0);
+        }
+      }
+      symbiont.Delete();
+    }
+
+  }
+}
+
+TEST_CASE("GetVerticalTransmissionAttemptCountDataNode", "[default]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
@@ -722,7 +786,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
 
-    emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
+    emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCountDataNode();
     REQUIRE(data_node_attempts_verttrans.GetTotal() == 0);
 
     WHEN("A symbiont baby gets vertically transmitted into a host baby"){
@@ -738,6 +802,96 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
 
       symbiont.Delete();
       host_baby.Delete();
+    }
+  }
+}
+
+TEST_CASE("GetInfectionAttemptCountDataNode", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+    int world_size = 4;
+    world.Resize(world_size);
+
+    config.SYM_LIMIT(0);
+    config.FREE_LIVING_SYMS(1);
+    
+    emp::DataMonitor<int>& data_node_attempts_infection = world.GetInfectionAttemptCountDataNode();
+    REQUIRE(data_node_attempts_infection.GetTotal() == 0);
+
+    size_t host_pos = 1;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+
+    world.AddOrgAt(symbiont, sym_pos);
+    world.AddOrgAt(host, host_pos);
+
+    REQUIRE(world.GetSymPop()[host_pos] == symbiont);
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("A symbiont tries and fails to infect a host") {
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of attempted infections increments") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == false);
+        REQUIRE(data_node_attempts_infection.GetTotal() == 1);
+      }
+    }
+  }
+}
+
+TEST_CASE("GetInfectionSuccessCountDataNode", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    int int_val = 0;
+    int world_size = 4;
+    world.Resize(world_size);
+    
+    config.FREE_LIVING_SYMS(1);
+
+    emp::DataMonitor<int>& data_node_successes_infection = world.GetInfectionSuccessCountDataNode();
+    REQUIRE(data_node_successes_infection.GetTotal() == 0);
+
+    size_t host_pos = 1;
+    emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+
+    world.AddOrgAt(symbiont, sym_pos);
+    world.AddOrgAt(host, host_pos);
+
+    REQUIRE(world.GetSymPop()[host_pos] == symbiont);
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("A symbiont tries and fails to infect a host") {
+      config.SYM_LIMIT(0);
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of successful infections does not increment") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == false);
+        REQUIRE(data_node_successes_infection.GetTotal() == 0);
+      }
+    }
+
+    WHEN("A symbiont tries and succeeds in infecting a host") {
+      config.SYM_LIMIT(1);
+      world.MoveFreeSym(sym_pos);
+
+      THEN("The count of successful infections increments") {
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.GetSymPop()[host_pos] == false);
+        REQUIRE(host->HasSym() == true);
+        REQUIRE(data_node_successes_infection.GetTotal() == 1);
+      }
     }
   }
 }
