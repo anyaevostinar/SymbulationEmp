@@ -1,6 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include "../../Empirical/include/emp/io/File.hpp"
+
 #include "SymWorld.h"
 
 /**
@@ -192,8 +194,69 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
+
+  MapPhylogenyInteractions();
+
+  emp::File interaction_file;
+  interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first->GetID()) + "," + 
+                          emp::to_string(t->GetInfo()) + "," + 
+                          emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first->GetID()) + "," + 
+                          emp::to_string(t->GetInfo()) + "," + 
+                          emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  interaction_file.Write("InteractionSnapshot_" + filename);
+
 }
 
+/**
+ * Input: None.
+ *
+ * Output: None.
+ *
+ * Purpose: Helper function that makes map of all the symbiont taxa associated with each host taxon,
+ * (including counts of how common each interaction is)
+ */
+void SymWorld::MapPhylogenyInteractions() {
+  // for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+  //   t->GetData().ClearInteractions();
+  // }
+
+  for (size_t pos = 0; pos < pop.size(); pos++) {
+    if (!IsOccupied(pos)) {
+      continue;
+    }
+    datastruct::HostTaxonData & host_data = host_sys->GetTaxonAt(pos)->GetData();
+    for (emp::Ptr<Organism> sym : pop[pos]->GetSymbionts()) {
+      host_data.AddInteraction(sym->GetTaxon());
+    }
+
+  }
+
+}
 
 /**
  * Input: The address of the string representing the suffixes for the files to be created.

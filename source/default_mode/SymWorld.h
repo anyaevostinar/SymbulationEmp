@@ -10,11 +10,33 @@
 #include <set>
 #include <math.h>
 
+namespace datastruct {
+
+  struct HostTaxonData {
+        using has_fitness_t = std::false_type;
+        using has_mutations_t = std::false_type;
+        using has_phen_t = std::false_type;
+        using taxon_info_t = double;
+
+        std::unordered_map<emp::Ptr<emp::Taxon<taxon_info_t>>, int, emp::Ptr<emp::Taxon<taxon_info_t>>::hash_t> associated_syms;
+        void ClearInteractions() {associated_syms.clear();}
+        void AddInteraction(emp::Ptr<emp::Taxon<taxon_info_t>> sym) {
+          if (emp::Has(associated_syms, sym)){
+            associated_syms[sym]++;
+          } else {
+            associated_syms[sym] = 1;
+          }
+        }
+  };
+
+}
 
 class SymWorld : public emp::World<Organism>{
+public:
+  using taxon_info_t = double;
 protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
-  using fun_calc_info_t = std::function<int(Organism &)>;
+  using fun_calc_info_t = std::function<taxon_info_t(Organism &)>;
 
   /**
     *
@@ -57,14 +79,14 @@ protected:
     * Purpose: Represents the systematics object tracking hosts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> host_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys;
 
   /**
     *
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t>> sym_sys;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -101,14 +123,24 @@ public:
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
     if (my_config->PHYLOGENY() == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcHostInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcSymInfoFun());
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
+        calc_host_info_fun = [&](Organism & org){
+          return org.GetIntVal();
+        };
+
+        calc_sym_info_fun = [&](Organism & org){
+          return org.GetIntVal();
+        };
+      }
+
+      host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t>>(GetCalcSymInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData> & t){return std::to_string(t.GetInfo());}, "info");
     }
   }
 
@@ -194,7 +226,7 @@ public:
    *
    * Purpose: To retrieve the host systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetHostSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> GetHostSys(){
     return host_sys;
   }
 
@@ -206,7 +238,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetSymSys(){
+  emp::Ptr<emp::Systematics<Organism,taxon_info_t>> GetSymSys(){
     return sym_sys;
   }
 
@@ -262,8 +294,8 @@ public:
    *
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
-  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
+  emp::Ptr<emp::Taxon<taxon_info_t>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<taxon_info_t>> parent_taxon=nullptr){
+    emp::Ptr<emp::Taxon<taxon_info_t>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -473,11 +505,12 @@ public:
    * Definitions of data node functions, expanded in DataNodes.h
    */
   virtual void CreateDataFiles();
+  void MapPhylogenyInteractions();
   void WritePhylogenyFile(const std::string & filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
-  emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
-  emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
-  emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_info_t>> GetDominantSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_info_t>> GetDominantHostTaxon();
+  emp::vector<emp::Ptr<emp::Taxon<taxon_info_t>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
@@ -727,10 +760,11 @@ public:
 
     if(my_config->PHYLOGENY()) {
       sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
-      if (update % 1000 == 0) {
+      // MapPhylogenyInteractions();
+      // if (update % 1000 == 0) {
         std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
         WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
-      }
+      // }
     }
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell

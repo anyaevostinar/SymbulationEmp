@@ -7,6 +7,7 @@
 class Organism {
 
   public:
+  using taxon_info_t = double;
 
   Organism() = default;
   Organism(const Organism &) = default;
@@ -109,10 +110,10 @@ class Organism {
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
+  virtual emp::Ptr<emp::Taxon<taxon_info_t>> GetTaxon() {
     std::cout << "GetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t>> _in) {
     std::cout << "SetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
 
