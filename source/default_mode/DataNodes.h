@@ -198,7 +198,8 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
   MapPhylogenyInteractions();
 
   emp::File interaction_file;
-  interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
+  // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
+  interaction_file << "host, symbiont, count";
 
   for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
     for (auto interaction : t->GetData().associated_syms) {
@@ -207,26 +208,26 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
       // numerical type, which doesn't end well (since they're a mix of large
       // integers and small floating points)
       interaction_file << emp::to_string(t->GetID()) + "," + 
-                          emp::to_string(interaction.first->GetID()) + "," + 
-                          emp::to_string(t->GetInfo()) + "," + 
-                          emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
                           emp::to_string(interaction.second);
     }
   }
 
-  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
-    for (auto interaction : t->GetData().associated_syms) {
-      // It feels like there should be a better way to do this, but all the
-      // obvious solutions involved converting all these values to the same
-      // numerical type, which doesn't end well (since they're a mix of large
-      // integers and small floating points)
-      interaction_file << emp::to_string(t->GetID()) + "," + 
-                          emp::to_string(interaction.first->GetID()) + "," + 
-                          emp::to_string(t->GetInfo()) + "," + 
-                          emp::to_string(interaction.first->GetInfo()) + "," + 
-                          emp::to_string(interaction.second);
-    }
-  }
+  // for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+  //   for (auto interaction : t->GetData().associated_syms) {
+  //     // It feels like there should be a better way to do this, but all the
+  //     // obvious solutions involved converting all these values to the same
+  //     // numerical type, which doesn't end well (since they're a mix of large
+  //     // integers and small floating points)
+  //     interaction_file << emp::to_string(t->GetID()) + "," + 
+  //                         emp::to_string(interaction.first) + "," + 
+  //                         // emp::to_string(t->GetInfo()) + "," + 
+  //                         // emp::to_string(interaction.first->GetInfo()) + "," + 
+  //                         emp::to_string(interaction.second);
+  //   }
+  // }
 
   interaction_file.Write("InteractionSnapshot_" + filename);
 
@@ -241,9 +242,9 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
  * (including counts of how common each interaction is)
  */
 void SymWorld::MapPhylogenyInteractions() {
-  // for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
-  //   t->GetData().ClearInteractions();
-  // }
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+    t->GetData().ClearInteractions();
+  }
 
   for (size_t pos = 0; pos < pop.size(); pos++) {
     if (!IsOccupied(pos)) {

@@ -18,13 +18,13 @@ namespace datastruct {
         using has_phen_t = std::false_type;
         using taxon_info_t = double;
 
-        std::unordered_map<emp::Ptr<emp::Taxon<taxon_info_t>>, int, emp::Ptr<emp::Taxon<taxon_info_t>>::hash_t> associated_syms;
+        std::unordered_map<unsigned long long int, int> associated_syms;
         void ClearInteractions() {associated_syms.clear();}
         void AddInteraction(emp::Ptr<emp::Taxon<taxon_info_t>> sym) {
-          if (emp::Has(associated_syms, sym)){
-            associated_syms[sym]++;
+          if (emp::Has(associated_syms, sym->GetID())){
+            associated_syms[sym->GetID()]++;
           } else {
-            associated_syms[sym] = 1;
+            associated_syms[sym->GetID()] = 1;
           }
         }
   };
@@ -762,8 +762,8 @@ public:
       sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
       // MapPhylogenyInteractions();
       // if (update % 1000 == 0) {
-        std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
-        WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
+        // std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
+        // WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
       // }
     }
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
