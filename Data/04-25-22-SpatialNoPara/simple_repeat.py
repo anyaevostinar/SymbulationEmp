@@ -41,8 +41,8 @@ seeds = range(start_range, end_range)
 print("Using seeds", start_range, "through", end_range-1)
 
 for a in seeds:
-    command_str = './symbulation_parasite -SEED '+str(a)+ ' -FILE_NAME _Grid0_Para0'
-    settings_filename = "Output_Grid0_Para0"+"_SEED"+str(a)+".data"
+    command_str = './symbulation_parasite -SEED '+str(a)+ ' -FILE_NAME _Grid1_Para0'
+    settings_filename = "Output_Grid1_Para0"+"_SEED"+str(a)+".data"
 
     print(command_str)
     cmd(command_str+" > "+settings_filename)
