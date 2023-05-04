@@ -6,20 +6,11 @@ library(scales)
 #Set your working directory to the Analysis folder for your project
 
 #Read in the data
-para_spatial_exp <- read.table("04-25-22-ParaSpatial/munged_basic.dat", h=T)
-no_para_spatial <- read.table("04-25-22-SpatialNoPara/munged_basic.dat", h=T)
-mixed <- read.table("12-14-22-Ousting/munged_basic.dat", h=T)
-
-#Grab the four treatments to compare and neaten them up
-para_mixed <- cbind(subset(para_spatial_exp, treatment=="Grid0"), Structure="Mixed", Parasites="Present", Treatment="MP")
-para_spatial <- cbind(subset(para_spatial_exp, treatment=="Grid1"), Structure="Structured", Parasites="Present", Treatment="SP")
-no_para_spatial <- cbind(no_para_spatial, Structure="Structured", Parasites="Absent", Treatment="SA")
-no_para_mixed <- cbind(subset(mixed, treatment=="MOI0.0"), Structure="Mixed", Parasites="Absent", Treatment="MA")
-
-combined <- rbind(para_mixed, para_spatial, no_para_spatial, no_para_mixed)
-
-combined$task <- factor(combined$task, levels=c("NOT", "NAND", "AND", "ORN", "OR", "ANDN", "NOR", "XOR", "EQU"))
-final_update <- subset(combined, update == "40000")
+initial_data <- read.table("05-02-23-ParasitesLongSpatial/munged_basic.dat", h=T)
+initial_data$task <- factor(initial_data$task, levels=c("NOT", "NAND", "AND", "ORN", "OR", "ANDN", "NOR", "XOR", "EQU"))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid0", "Well-mixed", x)}))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid1", "Structured", x)}))
+final_update <- subset(initial_data, update == "40000")
 
 host_data <- subset(final_update, partner == "Host")
 
@@ -29,7 +20,7 @@ host_data <- subset(final_update, partner == "Host")
 ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_violin() + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free") + geom_boxplot(alpha=0.5, outlier.size=0, width=0.1) 
 
 #regular box plot
-ggplot(data=host_data, aes(x=Treatment, y=count, color=Treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Task Count Final Update") + xlab("Parasites and Structure Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Treatment", values=viridis(4)) + facet_wrap(~task, scales = "free")
+ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free")
 
 
 
