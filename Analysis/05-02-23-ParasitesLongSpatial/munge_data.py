@@ -3,7 +3,7 @@ import gzip
 
 folder = '../../Data/05-02-23-ParasitesLongSpatial/'
 
-treatment_postfixes = ["Grid0_MOI0.0", "Grid1_MOI1.0", "Grid1_MOI0.0", "Grid1_MOI1.0"]
+treatment_postfixes = ["Grid0_MOI0.0", "Grid0_MOI1.0", "Grid1_MOI0.0", "Grid1_MOI1.0"]
 partners = ["Host", "Sym"]
 tasks = ["NOT", "NAND", "AND", "ORN", "OR", "ANDN", "NOR", "XOR", "EQU"]
 reps = range(16,41)
