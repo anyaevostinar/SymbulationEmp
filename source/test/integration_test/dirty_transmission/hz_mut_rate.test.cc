@@ -2,7 +2,7 @@
 
 TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
   emp::Random random(14);
-  SymConfigBase config;
+  SymConfigEfficient config;
   EfficientWorld world(random, &config);
 
   config.HOST_INT(-2);

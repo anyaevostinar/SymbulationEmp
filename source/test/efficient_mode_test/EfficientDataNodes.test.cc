@@ -5,7 +5,7 @@
 TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
   GIVEN("a world"){
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigEfficient config;
     int int_val = 0;
     double points = 10;
     EfficientWorld world(random, &config);

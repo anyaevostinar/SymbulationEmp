@@ -3,7 +3,7 @@
 
 TEST_CASE("Lysis mode Update()", "[lysis]") {
   emp::Random random(17);
-  SymConfigBase config;
+  SymConfigLysis config;
   int int_val = 0;
   int world_size = 4;
   int res_per_update = 10;
@@ -58,7 +58,7 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
 TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(random, &config);
 
     size_t world_size = 6;
@@ -94,7 +94,7 @@ TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
 TEST_CASE("Lysis SetupHosts", "[lysis]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(random, &config);
 
     WHEN("SetupHosts is called") {

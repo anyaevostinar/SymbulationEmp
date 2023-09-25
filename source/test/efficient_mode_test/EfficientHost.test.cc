@@ -3,7 +3,7 @@
 
 TEST_CASE("EfficientHost Constructor", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
@@ -49,7 +49,7 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
 
 TEST_CASE("EfficientHost MakeNew", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld world(*random, &config);
 
     double parent_int_val = 0.2;
@@ -72,7 +72,7 @@ TEST_CASE("EfficientHost MakeNew", "[efficient]"){
 
 TEST_CASE("EfficientHost SetEfficiency and GetEfficiency", "[efficient]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
     double int_val = -1;

@@ -6,7 +6,7 @@
 TEST_CASE("GetCFUDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     int int_val = 0;
     LysisWorld world(random, &config);
     config.SYM_LIMIT(4);
@@ -64,7 +64,7 @@ TEST_CASE("GetCFUDataNode", "[lysis]"){
 TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     int int_val = 0;
     LysisWorld world(random, &config);
     world.Resize(4);
@@ -122,7 +122,7 @@ TEST_CASE("GetLysisChanceDataNode", "[lysis]"){
 TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     int int_val = 0;
     LysisWorld world(random, &config);
     world.Resize(4);
@@ -180,7 +180,7 @@ TEST_CASE("GetInductionChanceDataNode", "[lysis]"){
 TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     int int_val = 0;
     size_t burst_time = 3;
     LysisWorld world(random, &config);
@@ -223,7 +223,7 @@ TEST_CASE("GetBurstSizeDataNode", "[lysis]"){
 TEST_CASE("GetBurstCountDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     int int_val = 0;
     size_t burst_time = 3;
     LysisWorld world(random, &config);
@@ -265,7 +265,7 @@ TEST_CASE("GetBurstCountDataNode", "[lysis]"){
 TEST_CASE("GetIncorporationDifferenceDataNode", "[lysis]"){
   GIVEN( "a world" ) {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigLysis config;
     config.SYM_LIMIT(4);
     int int_val = 0;
     size_t num_bins = 11;

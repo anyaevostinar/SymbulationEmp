@@ -2,7 +2,7 @@
 
 TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymConfigBase config;
+    SymConfigLysis config;
 
     //smaller world than actual experiment, starting with full population
     config.GRID_X(100);

@@ -15,7 +15,7 @@
 void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<Bacterium> new_org;
-    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+    new_org.New(&GetRandom(), this, lysis_config, lysis_config->HOST_INT());
     InjectHost(new_org);
   }
 }
@@ -31,7 +31,7 @@ void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
 void LysisWorld::SetupSymbionts(long unsigned int* total_syms) {
   bool STAGGER_STARTING_BURST_TIMERS = true;
   for (size_t j = 0; j < *total_syms; j++) {
-    emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
+    emp::Ptr<Phage> new_sym = emp::NewPtr<Phage>(&GetRandom(), this, lysis_config, lysis_config->SYM_INT(), 0);
     if (STAGGER_STARTING_BURST_TIMERS) {
       new_sym->SetBurstTimer(GetRandom().GetInt(-5, 5));
     }

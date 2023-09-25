@@ -5,7 +5,7 @@
 TEST_CASE("GetPGGDataNode", "[pgg]"){
   GIVEN("a world"){
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigPGG config;
     int int_val = 0;
     PGGWorld world(random, &config);
     world.Resize(4);

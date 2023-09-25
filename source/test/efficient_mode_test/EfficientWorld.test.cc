@@ -3,7 +3,7 @@
 TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld world(random, &config);
 
     size_t world_size = 6;
@@ -34,7 +34,7 @@ TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
 TEST_CASE("Efficient SetupHosts", "[efficient]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld world(random, &config);
 
     WHEN("SetupHosts is called") {
@@ -56,7 +56,7 @@ TEST_CASE("Efficient SetupHosts", "[efficient]") {
 TEST_CASE("Efficient Setup", "[efficient]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigEfficient config;
     EfficientWorld world(random, &config);
     config.GRID_X(1);
     config.GRID_Y(1);
