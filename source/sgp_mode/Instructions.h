@@ -124,7 +124,6 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
 }
 // Set output to value of register and set register to new input
 INST(SharedIO, {
-  std::cout << "shared io" << std::endl;
   AddOrganismPoints(state, *a);
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {

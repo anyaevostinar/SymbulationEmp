@@ -8,9 +8,12 @@ library(scales)
 #Read in the data
 initial_data <- read.table("05-02-23-ParasitesLongSpatial/munged_basic.dat", h=T)
 initial_data$task <- factor(initial_data$task, levels=c("NOT", "NAND", "AND", "ORN", "OR", "ANDN", "NOR", "XOR", "EQU"))
-initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid0", "Well-mixed", x)}))
-initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid1", "Structured", x)}))
-final_update <- subset(initial_data, update == "40000")
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid0", "SA", x)}))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("Grid1", "SP", x)}))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("MOI0.0", "PA", x)}))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("MOI1.0", "PP", x)}))
+initial_data[2] <- data.frame(lapply(initial_data[2], function(x) {gsub("_", " ", x)}))
+final_update <- subset(initial_data, update == "120000")
 
 host_data <- subset(final_update, partner == "Host")
 
@@ -20,7 +23,7 @@ host_data <- subset(final_update, partner == "Host")
 ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_violin() + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free") + geom_boxplot(alpha=0.5, outlier.size=0, width=0.1) 
 
 #regular box plot
-ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free")
+ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Operation Count Final Update") + xlab("Structure and Parasites Absent or Present") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Treatment", values=viridis(4), labels=c("\nStructure Absent,\nParasites Absent\n", "\nStructure Absent,\nParasites Present\n", "\nStructure Present,\nParasites Absent\n", "\nStructure Present,\nParasites Present\n")) + facet_wrap(~task, scales = "free")+ scale_x_discrete(guide = guide_axis(angle = -20))
 
 
 
@@ -38,7 +41,7 @@ median(subset(host_data, treatment=="Present" & task=="OR")$count)
 wilcox.test(subset(host_data, treatment=="Absent" & task=="ORN")$count, subset(host_data, treatment=="Present" & task=="ORN")$count)
 
 #All tasks over time
-ggplot(data=initial_data, aes(x=update, y=count, group=treatment, colour=treatment)) + ylab("Task count") + xlab("Updates") + stat_summary(aes(color=treatment, fill=treatment),fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) +scale_colour_manual(values=viridis(3)) + scale_fill_manual(values=viridis(3)) + facet_grid(task ~ partner, scales='free')
+ggplot(data=initial_data, aes(x=update, y=count, group=treatment, colour=treatment)) + ylab("Task count") + xlab("Updates") + stat_summary(aes(color=treatment, fill=treatment),fun.data="mean_cl_boot", geom=c("smooth"), se=TRUE) + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) +scale_colour_manual(values=viridis(4)) + scale_fill_manual(values=viridis(4)) + facet_grid(task ~ partner, scales='free')
 
 # Specific host tasks over time
 host_over_time <- subset(initial_data, partner=="Host")

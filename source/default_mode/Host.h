@@ -439,11 +439,12 @@ public:
    * Purpose: To add a symbionts to a host's symbionts
    */
   int AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() >= my_config->SYM_LIMIT()){
-      emp::Ptr<Organism> last_sym = syms.back();
-      syms.pop_back();
-      last_sym->SetDead();
-    }
+    // Ousting code:
+    // if((int)syms.size() >= my_config->SYM_LIMIT()){
+    //   emp::Ptr<Organism> last_sym = syms.back();
+    //   syms.pop_back();
+    //   last_sym->SetDead();
+    // }
 
     if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
       syms.push_back(_in);

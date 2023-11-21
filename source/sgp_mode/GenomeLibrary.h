@@ -15,14 +15,15 @@ using Library = sgpl::OpLibrary<
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
     // no copy or alloc
-    inst::Reproduce, inst::PrivateIO, 
-    //inst::SharedIO,
+    inst::Reproduce, 
+    //inst::PrivateIO, 
+    inst::SharedIO,
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    //inst::Donate, 
+    inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
     //inst::Reuptake,
     //fls basics
@@ -60,6 +61,24 @@ public:
   sgpl::Program<Spec> Build(size_t length) {
     Add("Reproduce");
 
+    sgpl::Program<Spec> program;
+    // Set everything to 0 - this makes them no-ops since that's the first
+    // inst in the library
+    program.resize(length - size());
+    program[0].op_code = Library::GetOpCode("Global Anchor");
+    program[0].tag = START_TAG;
+
+    program.insert(program.end(), begin(), end());
+
+    return program;
+  }
+
+  sgpl::Program<Spec> BuildNoRepro(size_t length) {
+    Add("Donate");
+    Add("Donate");
+    Add("Donate");
+    Add("Donate");
+    Add("Donate");
     sgpl::Program<Spec> program;
     // Set everything to 0 - this makes them no-ops since that's the first
     // inst in the library
@@ -289,6 +308,12 @@ sgpl::Program<Spec> CreateSquareProgram(size_t length) {
   return program.Build(length);
 }
 
+sgpl::Program<Spec> CreateMutualistStart(size_t length) {
+  ProgramBuilder program;
+  program.AddNand();
+  return program.BuildNoRepro(length);
+}
+
 /**
  * Picks what type of starting program should be created based on the config and
  * creates it. It will be either random, a program that does NOT, or a program
@@ -298,7 +323,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-    return CreatePrivateNotProgram(PROGRAM_LENGTH);
+    return CreateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateSquareProgram(PROGRAM_LENGTH);
   }
