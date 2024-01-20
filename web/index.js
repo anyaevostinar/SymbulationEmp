@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Tutorial from './tutorial';
+import Tutorial from './Copilot';
 import ReactDOM from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
 
-function App() {
+function ReactApp() {
   const [count, setCount] = useState(0);
 
   return (
@@ -14,5 +14,5 @@ function App() {
 }
 
 //ReactDOM.render(<ReactApp />, document.getElementById('reactApp'));
-const root = ReactDOM.createRoot(document.getElementById('app'));
-root.render(<App />);
+const root = ReactDOM.createRoot(document.getElementById('reactApp'));
+root.render(<ReactApp />);
