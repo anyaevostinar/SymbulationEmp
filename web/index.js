@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
+import Tutorial from './tutorial';
 import ReactDOM from 'react-dom';
 
-function Counter() {
+function ReactApp() {
   const [count, setCount] = useState(0);
 
   return (
-    <div>
-      <p>Count: {count}</p>
-      <button onClick={() => setCount(count + 1)}>
-        Increment
-      </button>
+    <div id="reactAppRendered">
+      <Tutorial />
     </div>
   );
 }
 
-ReactDOM.render(<Counter />, document.getElementById('react'));
+ReactDOM.render(<ReactApp />, document.getElementById('reactApp'));
