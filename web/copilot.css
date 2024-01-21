@@ -2,4 +2,32 @@
   color: blue;
 }
 
+#openBtnTrigger {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 0;
+  background-color: #e9ecef;
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+}
+#openBtnTrigger:hover #openBtn {
+  background-color: #cbd3da;
+  transform: scale(1.1);
+}
+
+#openBtn {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  background-color: #e9ecef;
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
 /*# sourceMappingURL=copilot.css.map */

@@ -1,3 +1,33 @@
+$mainGrey: #e9ecef;
 .test{
   color: blue;
+}
+#openBtnTrigger{
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 0;
+  background-color: $mainGrey;
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+
+  &:hover{
+    #openBtn{
+      background-color: darken($mainGrey, 10%);
+      transform: scale(1.1);
+    }
+  }
+}
+#openBtn{
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+  background-color: $mainGrey;
+  height: 64px;
+  width: 64px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out; // Moved here
 }

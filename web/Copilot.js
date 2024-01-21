@@ -18,6 +18,11 @@ export default function Copilot() {
     <div id='copilotParent'>
       <p className="test">hi</p>
       {hasToggleBeenClicked && <p>Toggle has been clicked!</p>}
+      <div id="openBtnTrigger">
+        <div id="openBtn">
+          ?
+        </div>
+      </div>
     </div>
   );
 }
