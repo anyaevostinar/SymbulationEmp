@@ -1,9 +1,13 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import OpenButton from './components/OpenButton';
+import { ThemeProvider } from '@mui/material/styles';
+import muiTheme from './muiTheme';
 import "./copilot.css";
 
 export default function Copilot() {
-  const [count, setCount] = useState(0);
-  const [hasToggleBeenClicked, setHasToggleBeenClicked] = useState(false);
+  const [copOpen, setCopOpen] = useState(false);
+  const [displayOpenBtn, setDisplayOpenBtn] = useState(true);
+  //const [hasToggleBeenClicked, setHasToggleBeenClicked] = useState(false);
   useEffect(() => {
     let toggleButton;
     setTimeout(() => {
@@ -13,16 +17,21 @@ export default function Copilot() {
       });
     }, 100);
   }, []);
+  function handleOpen() {
+    setCopOpen(true);
+    setTimeout(() => {
+      setDisplayOpenBtn(false);
+    }, 75); // change from 150 to whatever the transition time is in copilot.scss
+  }
+
 
   return (
-    <div id='copilotParent'>
-      <p className="test">hi</p>
-      {hasToggleBeenClicked && <p>Toggle has been clicked!</p>}
-      <div id="openBtnTrigger">
-        <div id="openBtn">
-          ?
-        </div>
+    <ThemeProvider theme={muiTheme}>
+      <div id='copilotParent'>
+        {
+          displayOpenBtn && <OpenButton handleOpen={handleOpen} copOpen={copOpen} />
+        }
       </div>
-    </div>
+    </ThemeProvider>
   );
 }
