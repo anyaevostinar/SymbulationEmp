@@ -7,6 +7,7 @@ import "./copilot.css";
 export default function Copilot() {
   const [copOpen, setCopOpen] = useState(false);
   const [displayOpenBtn, setDisplayOpenBtn] = useState(true);
+  const [displayCopWindow, setDisplayCopWindow] = useState(false);
   //const [hasToggleBeenClicked, setHasToggleBeenClicked] = useState(false);
   useEffect(() => {
     let toggleButton;
@@ -21,7 +22,8 @@ export default function Copilot() {
     setCopOpen(true);
     setTimeout(() => {
       setDisplayOpenBtn(false);
-    }, 75); // change from 150 to whatever the transition time is in copilot.scss
+      setDisplayCopWindow(true);
+    }, 150); // change from 150 to whatever the transition time is in copilot.scss
   }
 
 
@@ -30,6 +32,12 @@ export default function Copilot() {
       <div id='copilotParent'>
         {
           displayOpenBtn && <OpenButton handleOpen={handleOpen} copOpen={copOpen} />
+        }
+        {
+          displayCopWindow && 
+          <div id="copWindow" className='fade-in'>
+            <p>test test test</p>
+          </div>
         }
       </div>
     </ThemeProvider>

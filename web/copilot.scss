@@ -1,16 +1,38 @@
 $mainGrey: #e9ecef;
 $mainBlack: #212529;
-.test{
+
+.test {
   color: blue;
 }
+
 .fade-out {
-  animation: fadeOut 0.075s forwards;
+  animation: fadeOut 0.15s forwards;
 }
+
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
-#openBtnTrigger{
+.fade-in {
+  animation: fadeIn 0.15s forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+#openBtnTrigger {
   position: fixed;
   left: 16px;
   bottom: 16px;
@@ -20,24 +42,38 @@ $mainBlack: #212529;
   width: 64px;
   border-radius: 50%;
 
-  &:hover{
-    #openBtn{
+  &:hover {
+    #openBtn {
       background-color: darken($mainGrey, 10%);
       transform: scale(1.1);
     }
   }
 }
-#openBtn{
+
+#openBtn {
   position: fixed;
   display: grid;
   place-items: center;
   left: 16px;
   bottom: 16px;
-  z-index: 9999;
+  z-index: 9998;
   background-color: $mainGrey;
   height: 64px;
   width: 64px;
   border-radius: 50%;
   cursor: pointer;
-  transition: background-color 0.2s ease-out, transform 0.2s ease-out; // Moved here
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+}
+
+#copWindow {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 42vw;
+  height: 38vh;
+  border-radius: 18px;
+  background-color: $mainGrey;
+  box-shadow: 0 0 40px -10px rgba(0, 0, 0, .3), //Bulk of the shadow
+    0 0 25px -15px rgba(0, 0, 0, .2);
+  z-index: 9999;
 }
