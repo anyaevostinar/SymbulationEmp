@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import OpenButton from './components/OpenButton';
 import { ThemeProvider } from '@mui/material/styles';
 import muiTheme from './muiTheme';
+import CopilotWindow from './CopilotWindow';
 import "./copilot.css";
 
 export default function Copilot() {
@@ -31,13 +32,12 @@ export default function Copilot() {
     <ThemeProvider theme={muiTheme}>
       <div id='copilotParent'>
         {
-          displayOpenBtn && <OpenButton handleOpen={handleOpen} copOpen={copOpen} />
+          displayOpenBtn && 
+          <OpenButton handleOpen={handleOpen} copOpen={copOpen} />
         }
         {
           displayCopWindow && 
-          <div id="copWindow" className='fade-in'>
-            <p>test test test</p>
-          </div>
+          <CopilotWindow copOpen={copOpen} />
         }
       </div>
     </ThemeProvider>
