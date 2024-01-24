@@ -26,7 +26,13 @@ export default function Copilot() {
       setDisplayCopWindow(true);
     }, 150); // change from 150 to whatever the transition time is in copilot.scss
   }
-
+  function handleClose(){
+    setCopOpen(false);
+    setTimeout(() => {
+      setDisplayOpenBtn(true);
+      setDisplayCopWindow(false);
+    }, 150)
+  }
 
   return (
     <ThemeProvider theme={muiTheme}>
@@ -37,7 +43,7 @@ export default function Copilot() {
         }
         {
           displayCopWindow && 
-          <CopilotWindow copOpen={copOpen} />
+          <CopilotWindow copOpen={copOpen} handleClose={handleClose}/>
         }
       </div>
     </ThemeProvider>

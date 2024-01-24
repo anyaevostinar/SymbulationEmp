@@ -65,7 +65,34 @@
   border-radius: 18px;
   background-color: #e9ecef;
   box-shadow: 0 0 40px -10px rgba(0, 0, 0, 0.3), 0 0 25px -15px rgba(0, 0, 0, 0.2);
+  z-index: 9998;
+}
+
+#copCloseBtnTrigger {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #dadfe4;
   z-index: 9999;
+  display: grid;
+  place-items: center;
+}
+#copCloseBtnTrigger:hover #copCloseBtn {
+  background-color: #c4ccd4;
+  transform: scale(1.1);
+}
+
+#copCloseBtn {
+  cursor: pointer;
+  transition: background-color 0.2s ease-out, transform 0.2s ease-out;
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+  display: grid;
+  place-items: center;
 }
 
 /*# sourceMappingURL=copilot.css.map */
