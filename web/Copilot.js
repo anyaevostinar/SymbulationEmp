@@ -19,6 +19,8 @@ export default function Copilot() {
       });
     }, 100);
   }, []);
+  
+
   function handleOpen() {
     setCopOpen(true);
     setTimeout(() => {
@@ -33,6 +35,7 @@ export default function Copilot() {
       setDisplayCopWindow(false);
     }, 150)
   }
+
 
   return (
     <ThemeProvider theme={muiTheme}>
