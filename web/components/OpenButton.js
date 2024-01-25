@@ -8,6 +8,9 @@ export default function OpenButton({ copOpen, handleOpen }) {
     if (copOpen) {
       setBtnClass('fade-out');
     }
+    else {
+      setBtnClass('fade-in');
+    }
     }, [copOpen])
   return (
     <div id="openBtnTrigger" onClick={() => handleOpen()}>

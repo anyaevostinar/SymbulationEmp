@@ -8,12 +8,12 @@ export default function CopilotWindow({ copOpen, handleClose }) {
       {copOpen ? (
         <div id="copWindow" className='fade-in'>
           <p>i am the copwindow component</p>
-          <CloseButton handleClose={handleClose} />
+          <CloseButton handleClose={handleClose} copOpen={copOpen}/>
         </div>
       ) : (
         <div id="copWindow" className='fade-out'>
           <p>i am the copwindow component</p>
-          <CloseButton handleClose={handleClose} />
+          <CloseButton handleClose={handleClose} copOpen={copOpen} />
         </div>
       )}
     </>
