@@ -8,11 +8,23 @@ import { tutorials } from './tutorials';
 import OneContained from './components/OneContained';
 import None from './components/None';
 
+
 export default function CopilotWindow({ copOpen, handleClose }) {
   const animationClass = copOpen ? 'fade-in' : 'fade-out';
   const [tutorialTracker, setTutorialTracker] = useAtom(tutorialTrackerAtom);
   const curTutorial = tutorials[tutorialTracker.currentTutorialId];
   const curStepContent = curTutorial.steps[tutorialTracker.step];
+
+  useEffect(() =>{
+    if(curStepContent.advanceOn){
+      curStepContent.advanceOn.then(() => {
+        setTutorialTracker((prev) => ({
+          ...prev,
+          step: prev.step + 1
+        }));
+      })
+    }
+  }, [curStepContent.advanceOn])
 
   let TutorialComponent;
   if (curStepContent.buttonLayout == 'oneContained') {
@@ -24,6 +36,8 @@ export default function CopilotWindow({ copOpen, handleClose }) {
   else{
     console.log('¯\\_(ツ)_/¯');
   }
+
+  
 
   return (
     <div id="copWindow" className={animationClass}>

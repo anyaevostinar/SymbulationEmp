@@ -10,7 +10,7 @@ export default function Copilot() {
   const [displayOpenBtn, setDisplayOpenBtn] = useState(true);
   const [displayCopWindow, setDisplayCopWindow] = useState(false);
   //const [hasToggleBeenClicked, setHasToggleBeenClicked] = useState(false);
-  useEffect(() => {
+  /*useEffect(() => {
     let toggleButton;
     setTimeout(() => {
       toggleButton = document.getElementById('toggle');
@@ -18,7 +18,7 @@ export default function Copilot() {
         setHasToggleBeenClicked(true);
       });
     }, 100);
-  }, []);
+  }, []);*/
   
 
   function handleOpen() {
