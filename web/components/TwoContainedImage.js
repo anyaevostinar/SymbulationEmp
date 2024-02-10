@@ -28,10 +28,10 @@ export default function OneContained({ content }) {
       </div>
 
       <div className="btns">
-        <Button variant="contained" color="primary" className='tutorialBtnOne' onClick={() => advanceStep()}>
+        <Button variant="contained" color="primary" className='tutorialBtnOne' onClick={() => retreatStep()}>
           {content.buttonLabels[0] /* probably something like "next" or "start"*/}
         </Button>
-        <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => retreatStep()}>
+        <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => advanceStep()}>
           {content.buttonLabels[1] /* back button, so something like "back"*/}
         </Button>
       </div>

@@ -19,6 +19,13 @@ export const tutorials = [
         buttonLayout: 'twoContained',
       },
       {
+        titleText: 'Endosymbiosis',
+        bodyText: 'The symbionts are endosymbionts, meaning they live and reproduce inside of a host. Hosts can collect resources and invest them into defense against their symbionts or donation to their symbionts.',
+        imgSrc: './assets/sym-img-1.png',
+        buttonLabels: ['Back', 'Next'],
+        buttonLayout: 'twoContained',
+      },
+      {
         titleText: 'Welcome!',
         bodyText: 'Try clicking the "Start" button.',
         buttonLayout: 'none',
