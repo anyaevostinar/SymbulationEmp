@@ -6,6 +6,7 @@ import { useAtom } from 'jotai';
 import { tutorialTrackerAtom } from './atoms';
 import { tutorials } from './tutorials';
 import OneContained from './components/OneContained';
+import TwoContainedImage from './components/TwoContainedImage';
 import None from './components/None';
 
 
@@ -30,6 +31,9 @@ export default function CopilotWindow({ copOpen, handleClose }) {
   if (curStepContent.buttonLayout == 'oneContained') {
     TutorialComponent = OneContained;
   }
+  else if(curStepContent.buttonLayout == 'twoContained'){
+    TutorialComponent = TwoContainedImage;
+  }
   else if(curStepContent.buttonLayout == 'none'){
     TutorialComponent = None;
   }
@@ -42,8 +46,6 @@ export default function CopilotWindow({ copOpen, handleClose }) {
   return (
     <div id="copWindow" className={animationClass}>
       <TutorialComponent content={curStepContent}/>
-
-
 
       <CloseButton handleClose={handleClose} copOpen={copOpen}/>
     </div>

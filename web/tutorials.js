@@ -13,6 +13,13 @@ export const tutorials = [
       },
       {
         titleText: 'Welcome!',
+        bodyText: 'Symbulation is a platform for simulating the evolution of symbionts and hosts.',
+        imgSrc: './assets/sym-img-0.png',
+        buttonLabels: ['Back', 'Next'],
+        buttonLayout: 'twoContained',
+      },
+      {
+        titleText: 'Welcome!',
         bodyText: 'Try clicking the "Start" button.',
         buttonLayout: 'none',
         advanceOn: getToggleClickPromise()
