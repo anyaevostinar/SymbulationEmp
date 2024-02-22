@@ -1,4 +1,6 @@
+import getSettingsClickPromise from "./utilities/getSettingsClickPromise"
 import getToggleClickPromise from "./utilities/getToggleClickPromise"
+
 // advanceOn is a promise that, when resolved, will advance the tutorial to the next step.
 // https://zhixingj.github.io/SymbulationEmp/web/symbulation.html
 // ^^ that's the old tutorial with info to make steps out of.
@@ -62,17 +64,24 @@ export const tutorials = [
         titleText: 'Symulation Setup',
         bodyText: 'Let\'s try a simulation! First, click \"Settings\" tab to open the settings.',
         buttonLayout: 'none',
-        //TODO: make a promise that resolves when the settings tab is clicked
+        advanceOn: getSettingsClickPromise()
       },
       {
-        titleText: 'Welcome!',
-        bodyText: 'Try clicking the "Start" button.',
-        buttonLayout: 'none',
+        titleText: 'Synergy',
+        bodyText: 'Take a look at \"Synergy\" under the global settings. When a Symbiont donates resources back to its host, those resources are multiplied by the synergy value. Try setting it to 10 and click \"Start\" to start the simulation.',
+        imgSrc: './assets/sym-img-4.png',
+        buttonLayout: 'imgOnly',
         advanceOn: getToggleClickPromise()
       },
+      /*
+      TODO:
+        -fix settings
+        -make a promise that resolves when the simulation is done (get updates value somehow?)
+
+      */
       {
-        titleText: 'You did it!',
-        bodyText: 'You clicked the "Start" button.',
+        titleText: 'End',
+        bodyText: 'End of tutorial',
         buttonLayout: 'none',
       }
     ]

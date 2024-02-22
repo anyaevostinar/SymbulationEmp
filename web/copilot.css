@@ -137,4 +137,30 @@
   margin-right: 25px;
 }
 
+.imgOnly {
+  overflow: auto;
+  max-height: 100%;
+  max-width: 100%;
+  display: grid;
+  grid-template-rows: 40px 52px calc(100% - 152px);
+  grid-template-columns: 100%;
+}
+.imgOnly .titleText {
+  grid-row: 1;
+}
+.imgOnly .bodyText {
+  grid-row: 2;
+}
+.imgOnly .imgHolder {
+  grid-row: 3;
+  max-width: 100%;
+  max-height: 100%;
+  display: grid;
+  place-items: center;
+}
+.imgOnly .imgHolder img {
+  width: 67.5%;
+  object-fit: scale-down;
+}
+
 /*# sourceMappingURL=copilot.css.map */
