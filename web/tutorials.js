@@ -21,6 +21,7 @@ import getUpdatesThresholdPromise from "./utilities/getUpdatesThresholdPromise"
     -an imgSrc string. This is the path to the image that is displayed in components that use images
     -an advanceOn promise. This is a promise that, when resolved, will advance the tutorial to the next step
       -see ./utilities for the different ways to create promises. They should be imported at the top of this file
+    -an onAdvance function. This is a function that is called when the step is advanced. It is optional.
 */
 export const tutorials = [
   {
@@ -78,14 +79,9 @@ export const tutorials = [
         titleText: 'Simulating...',
         bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
         buttonLayout: 'none',
-        advanceOn: getUpdatesThresholdPromise(150) // should advance after 150 updates
+        advanceOn: getUpdatesThresholdPromise(150), // should advance after 150 updates
+        onAdvance: () => { document.getElementById('toggle').click() } 
       },
-      /*
-      TODO:
-        -fix settings
-        -make a promise that resolves when the simulation is done (get updates value somehow?)
-
-      */
       {
         titleText: 'End',
         bodyText: 'End of tutorial',

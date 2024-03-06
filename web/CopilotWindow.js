@@ -22,6 +22,14 @@ export default function CopilotWindow({ copOpen, handleClose }) {
     if (curStepContent.advanceOn) {
       curStepContent.advanceOn.then(() => {
 
+        if(typeof curStepContent.onAdvance === 'function'){
+          console.log('onAdvance is a function');
+          curStepContent.onAdvance();
+        }
+        else{
+          console.log('onAdvance is not a function');
+        }
+
         setTutorialTracker((prev) => ({
           ...prev,
           step: prev.step + 1
