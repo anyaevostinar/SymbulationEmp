@@ -1,5 +1,6 @@
 import getSettingsClickPromise from "./utilities/getSettingsClickPromise"
 import getToggleClickPromise from "./utilities/getToggleClickPromise"
+import getUpdatesThresholdPromise from "./utilities/getUpdatesThresholdPromise"
 
 // advanceOn is a promise that, when resolved, will advance the tutorial to the next step.
 // https://zhixingj.github.io/SymbulationEmp/web/symbulation.html
@@ -72,6 +73,12 @@ export const tutorials = [
         imgSrc: './assets/sym-img-4.png',
         buttonLayout: 'imgOnly',
         advanceOn: getToggleClickPromise()
+      },
+      {
+        titleText: 'Simulating...',
+        bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
+        buttonLayout: 'none',
+        advanceOn: getUpdatesThresholdPromise(150) // should advance after 150 updates
       },
       /*
       TODO:
