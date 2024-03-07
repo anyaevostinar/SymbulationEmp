@@ -31,7 +31,18 @@ export default function OneContained({ content }) {
         <Button variant="contained" color="primary" className='tutorialBtnOne' onClick={() => retreatStep()}>
           {content.buttonLabels[0] /* probably something like "next" or "start"*/}
         </Button>
-        <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => advanceStep()}>
+        <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => {
+          
+          if(typeof content.onAdvance === 'function'){
+            console.log('onAdvance is a function');
+            content.onAdvance();
+          }
+          else{
+            console.log('onAdvance is not a function');
+          }
+          advanceStep();
+          
+          }}>
           {content.buttonLabels[1] /* back button, so something like "back"*/}
         </Button>
       </div>

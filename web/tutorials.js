@@ -21,7 +21,7 @@ import getUpdatesThresholdPromise from "./utilities/getUpdatesThresholdPromise"
     -an imgSrc string. This is the path to the image that is displayed in components that use images
     -an advanceOn promise. This is a promise that, when resolved, will advance the tutorial to the next step
       -see ./utilities for the different ways to create promises. They should be imported at the top of this file
-    -an onAdvance function. This is a function that is called when the step is advanced. It is optional.
+    -an onAdvance function. This is a function that is called after onAdvance but before curStep is actually incremented. It is optional.
 */
 export const tutorials = [
   {
@@ -79,9 +79,22 @@ export const tutorials = [
         titleText: 'Simulating...',
         bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
         buttonLayout: 'none',
-        advanceOn: getUpdatesThresholdPromise(150), // should advance after 150 updates
-        onAdvance: () => { document.getElementById('toggle').click() } 
+        advanceOn: getUpdatesThresholdPromise(150), 
+        onAdvance: () => { 
+          document.getElementById('toggle').click() // stop the simulation
+          document.getElementById('emp__517_card_header').click() // close the settings so the user can see the antagonism to mutualism spectrum
+        } 
       },
+      {
+        titleText: 'Results',
+        bodyText: 'Look at the antagonism to mutualism color spectrum. It looks like the synergy value caused lots of mutualism!',
+        buttonLayout: 'oneContained',
+        buttonLabels: ['Next'],
+        // TODO: next step
+      },
+      /*{
+        bodyText: 'Press the \"Reset\" button, and try changing the synergy value to make the organisms more antagonistic.'
+      }*/
       {
         titleText: 'End',
         bodyText: 'End of tutorial',

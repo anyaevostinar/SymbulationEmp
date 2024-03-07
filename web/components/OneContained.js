@@ -17,7 +17,20 @@ export default function OneContained({ content }) {
     <div className="oneContained">
       <h2 className="tutorialTitle">{content.titleText}</h2>
       <p className="tutorialDescription">{content.bodyText}</p>
-      <Button variant="contained" color="primary" className='tutorialPrimaryBtn' onClick={() => advanceStep()}>
+      <Button variant="contained" color="primary" className='tutorialPrimaryBtn' onClick={
+        () => {
+          if(typeof content.onAdvance === 'function'){
+            console.log('onAdvance is a function');
+            content.onAdvance();
+          }
+          else{
+            console.log('onAdvance is not a function');
+          }
+          advanceStep();
+          
+        }
+        
+        }>
         {content.buttonLabels[0]}
       </Button>
     </div>
