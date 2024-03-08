@@ -1,6 +1,7 @@
 import getSettingsClickPromise from "./utilities/getSettingsClickPromise"
 import getToggleClickPromise from "./utilities/getToggleClickPromise"
 import getUpdatesThresholdPromise from "./utilities/getUpdatesThresholdPromise"
+import getResetClickPromise from "./utilities/getResetClickPromise"
 
 // advanceOn is a promise that, when resolved, will advance the tutorial to the next step.
 // https://zhixingj.github.io/SymbulationEmp/web/symbulation.html
@@ -92,9 +93,12 @@ export const tutorials = [
         buttonLabels: ['Next'],
         // TODO: next step
       },
-      /*{
-        bodyText: 'Press the \"Reset\" button, and try changing the synergy value to make the organisms more antagonistic.'
-      }*/
+      {
+        titleText: 'New Simulation',
+        bodyText: 'Let\'s try another simulation. Press the \"Reset\" button.',
+        buttonLayout: 'none',
+        advanceOn: getResetClickPromise()
+      },
       {
         titleText: 'End',
         bodyText: 'End of tutorial',
