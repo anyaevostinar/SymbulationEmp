@@ -25,6 +25,7 @@ import getSynergyCheckPromise from "./utilities/getSynergyCheckPromise"
       -see ./utilities for the different ways to create promises. They should be imported at the top of this file
     -an onAdvance function. This is a function that is called after onAdvance but before curStep is actually incremented. It is optional.
 */
+//TODO: update above because advanceOn is now a function that returns a promise, not a promise itself
 export const tutorials = [
   {
     id: 0,
@@ -68,20 +69,26 @@ export const tutorials = [
         titleText: 'Symulation Setup',
         bodyText: 'Let\'s try a simulation! First, click \"Settings\" tab to open the settings.',
         buttonLayout: 'none',
-        advanceOn: getSettingsClickPromise()
+        advanceOn: () => new Promise((resolve, reject) => {
+          getSettingsClickPromise().then(resolve).catch(reject);
+        })
       },
       {
         titleText: 'Synergy',
         bodyText: 'Take a look at \"Synergy\" under the global settings. When a Symbiont donates resources back to its host, those resources are multiplied by the synergy value. Try setting it to 10 and click \"Start\" to start the simulation.',
         imgSrc: './assets/sym-img-4.png',
         buttonLayout: 'imgOnly',
-        advanceOn: getToggleClickPromise()
+        advanceOn: () => new Promise((resolve, reject) => {
+          getToggleClickPromise().then(resolve).catch(reject);
+        })
       },
       {
         titleText: 'Simulating...',
         bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
         buttonLayout: 'none',
-        advanceOn: getUpdatesThresholdPromise(150), 
+        advanceOn: () => new Promise((resolve, reject) => {
+          getUpdatesThresholdPromise(150).then(resolve).catch(reject);
+        }), 
         onAdvance: () => { 
           document.getElementById('toggle').click() // stop the simulation
           document.getElementById('emp__517_card_header').click() // close the settings so the user can see the antagonism to mutualism spectrum
@@ -92,19 +99,53 @@ export const tutorials = [
         bodyText: 'Look at the antagonism to mutualism color spectrum. It looks like the synergy value caused lots of mutualism!',
         buttonLayout: 'oneContained',
         buttonLabels: ['Next'],
-        // TODO: next step
       },
       {
         titleText: 'New Simulation',
         bodyText: 'Let\'s try another simulation. Press the \"Reset\" button.',
         buttonLayout: 'none',
-        advanceOn: getResetClickPromise()
+        advanceOn: () => new Promise((resolve, reject) => {
+          getResetClickPromise().then(resolve).catch(reject);
+        })
+        
       },
       {
         titleText: 'Antagonism',
         bodyText: 'Open the settings again and try lowering the synergy value down to 0.',
         buttonLayout: 'none',
-        advanceOn: getSynergyCheckPromise(0)
+        //advanceOn: getSynergyCheckPromise(0)
+        advanceOn: () => new Promise((resolve, reject) => {
+          getSynergyCheckPromise(0).then(resolve).catch(reject);
+        })
+      },
+      {
+        titleText: "Start New Simulation",
+        bodyText: "Now, press start and watch the simulation.",
+        buttonLayout: 'none',
+        //advanceOn: getToggleClickPromise()
+        advanceOn: () => new Promise((resolve, reject) => {
+          getToggleClickPromise().then(resolve).catch(reject);
+        })
+      },
+      // TODO: fix the jump bug that happens here
+      {
+        titleText: 'Simulating...',
+        bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
+        buttonLayout: 'none',
+        //advanceOn: getUpdatesThresholdPromise(150),
+        advanceOn: () => new Promise((resolve, reject) => {
+          getUpdatesThresholdPromise(150).then(resolve).catch(reject);
+        }),
+        onAdvance: () => { 
+          document.getElementById('toggle').click() // stop the simulation
+          document.getElementById('emp__517_card_header').click() // close the settings so the user can see the antagonism to mutualism spectrum
+        } 
+      },
+      {
+        titleText: 'Results',
+        bodyText: 'Look at the antagonism to mutualism color spectrum. It looks like the synergy value caused lots of antagonism!',
+        buttonLayout: 'oneContained',
+        buttonLabels: ['Next'],
       },
       {
         titleText: 'End',

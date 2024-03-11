@@ -20,7 +20,7 @@ export default function CopilotWindow({ copOpen, handleClose }) {
 
   useEffect(() => {
     if (curStepContent.advanceOn) {
-      curStepContent.advanceOn.then(() => {
+      curStepContent.advanceOn().then(() => {
 
         if(typeof curStepContent.onAdvance === 'function'){
           console.log('onAdvance is a function');
