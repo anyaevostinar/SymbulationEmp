@@ -103,9 +103,34 @@
   overflow: auto;
   max-height: 100%;
   max-width: 100%;
+  height: 100%;
   display: grid;
-  grid-template-rows: 40px 52px calc(100% - 152px) 60px;
+  grid-template-rows: 40px auto 1fr;
   grid-template-columns: 100%;
+  /*
+  .imgHolder{
+    grid-row: 3;
+    max-width: 100%;
+    max-height: 100%;
+    display: grid;
+    place-items: center;
+    img{
+      width: 50%;
+      object-fit: scale-down;
+    }
+  }
+  .btns{
+    grid-row: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    >*{
+      margin-bottom: auto;
+      margin-left: 25px;
+      margin-right: 25px;
+    }
+
+  } */
 }
 .twoContainedImage .titleText {
   grid-row: 1;
@@ -113,28 +138,39 @@
 .twoContainedImage .bodyText {
   grid-row: 2;
 }
-.twoContainedImage .imgHolder {
+.twoContainedImage .imgAndBtns {
   grid-row: 3;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  place-items: center;
   max-width: 100%;
   max-height: 100%;
+}
+.twoContainedImage .imgAndBtns .imgHolder {
+  grid-row: 1;
+  grid-column: 1;
+  padding: 8px;
+  padding-bottom: 32px;
   display: grid;
   place-items: center;
+  max-width: 100%;
+  max-height: 100%;
 }
-.twoContainedImage .imgHolder img {
-  width: 50%;
-  object-fit: scale-down;
+.twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+  object-fit: contain;
+  max-width: 70%;
+  max-height: 100%;
 }
-.twoContainedImage .btns {
-  grid-row: 4;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  /*background-color: red !important;*/
+.twoContainedImage .imgAndBtns .tutorialBtnOne {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
 }
-.twoContainedImage .btns > * {
-  margin-bottom: auto;
-  margin-left: 25px;
-  margin-right: 25px;
+.twoContainedImage .imgAndBtns .tutorialBtnTwo {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
 }
 
 .imgOnly {

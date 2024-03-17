@@ -4,7 +4,7 @@ import { useSetAtom } from 'jotai';
 import { tutorialTrackerAtom } from '../atoms';
 
 
-export default function OneContained({ content }) {
+export default function TwoContainedImage({ content }) {
   //const advanceStep = useAdvanceStep();
   const setTutorialTracker = useSetAtom(tutorialTrackerAtom);
   function advanceStep() {
@@ -22,30 +22,58 @@ export default function OneContained({ content }) {
   return (
     <div className="twoContainedImage">
       <h2 className="titleText">{content.titleText}</h2>
+
       <p className="bodyText">{content.bodyText}</p>
+
+      <div className="imgAndBtns">
+        <div className="imgHolder">
+          <img src={content.imgSrc} className='tutorialImg' />
+        </div>
+
+          <Button variant="contained" color="primary" className='tutorialBtnOne' onClick={() => retreatStep()}>
+            {content.buttonLabels[0] /* probably something like "next" or "start"*/}
+          </Button>
+          <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => {
+
+            if (typeof content.onAdvance === 'function') {
+              console.log('onAdvance is a function');
+              content.onAdvance();
+            }
+            else {
+              console.log('onAdvance is not a function');
+            }
+            advanceStep();
+
+          }}>
+            {content.buttonLabels[1] /* back button, so something like "back"*/}
+          </Button>
+      </div>
+
+
+      {/* 
       <div className="imgHolder">
         <img src={content.imgSrc} className='tutorialImg' />
       </div>
 
       <div className="btns">
         <Button variant="contained" color="primary" className='tutorialBtnOne' onClick={() => retreatStep()}>
-          {content.buttonLabels[0] /* probably something like "next" or "start"*/}
+          {content.buttonLabels[0] }
         </Button>
         <Button variant="contained" color="primary" className='tutorialBtnTwo' onClick={() => {
-          
-          if(typeof content.onAdvance === 'function'){
+
+          if (typeof content.onAdvance === 'function') {
             console.log('onAdvance is a function');
             content.onAdvance();
           }
-          else{
+          else {
             console.log('onAdvance is not a function');
           }
           advanceStep();
-          
-          }}>
-          {content.buttonLabels[1] /* back button, so something like "back"*/}
+
+        }}>
+          {content.buttonLabels[1]}
         </Button>
-      </div>
+      </div> */}
 
     </div>
   );

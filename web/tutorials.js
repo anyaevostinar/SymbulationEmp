@@ -46,7 +46,7 @@ export const tutorials = [
       },
       {
         titleText: 'Endosymbiosis',
-        bodyText: 'The symbionts are endosymbionts, meaning they live and reproduce inside of a host. Hosts collect resources and invest them into either defense against their symbionts (antagonism) or donation to their symbionts (mutualism).',
+        bodyText: 'The symbionts are endosymbionts, meaning they live and reproduce inside of a host. Hosts collect resources and invest them into either defense (antagonism) or donation (mutualism) to their symbionts.',
         imgSrc: './assets/sym-img-1.png',
         buttonLabels: ['Back', 'Next'],
         buttonLayout: 'twoContained',
