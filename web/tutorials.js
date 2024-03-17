@@ -29,11 +29,11 @@ import getSynergyCheckPromise from "./utilities/getSynergyCheckPromise"
 export const tutorials = [
   {
     id: 0,
-    name: 'Placeholder',
+    name: 'MainTutorial',
     steps: [
       {
-        titleText: 'Lorem Ipsum',
-        bodyText: 'Select a tutorial or lab.',
+        titleText: 'Tutorial',
+        bodyText: 'Need help getting started? Try this tutorial!',
         buttonLayout: 'oneContained',
         buttonLabels: ['Start Tutorial'],
       },
@@ -127,7 +127,6 @@ export const tutorials = [
           getToggleClickPromise().then(resolve).catch(reject);
         })
       },
-      // TODO: fix the jump bug that happens here
       {
         titleText: 'Simulating...',
         bodyText: 'Watch the simulation and see what happens. You can pause and resume the simulation at any time.',
