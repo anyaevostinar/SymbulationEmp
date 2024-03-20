@@ -162,6 +162,56 @@
   max-width: 70%;
   max-height: 100%;
 }
+@media screen and (max-height: 970px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 60%;
+  }
+}
+@media screen and (max-height: 890px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 55%;
+  }
+}
+@media screen and (max-height: 845px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 50%;
+  }
+}
+@media screen and (max-height: 800px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 48%;
+  }
+}
+@media screen and (max-height: 770px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 42%;
+  }
+}
+@media screen and (max-height: 970px) and (min-width: 1380px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 52%;
+  }
+}
+@media screen and (max-height: 890px) and (min-width: 1380px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 48%;
+  }
+}
+@media screen and (max-height: 845px) and (min-width: 1380px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 42%;
+  }
+}
+@media screen and (max-height: 800px) and (min-width: 1380px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 38%;
+  }
+}
+@media screen and (max-height: 770px) and (min-width: 1380px) {
+  .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
+    max-width: 32%;
+  }
+}
 .twoContainedImage .imgAndBtns .tutorialBtnTwo {
   position: absolute;
   right: 16px;

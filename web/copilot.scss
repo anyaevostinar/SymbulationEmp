@@ -155,6 +155,36 @@ $mainBlack: #212529;
         object-fit: contain;
         max-width: 70%;
         max-height: 100%;
+        @media screen and (max-height: 970px) {
+          max-width: 60%; 
+        }
+        @media screen and (max-height: 890px) {
+          max-width: 55%;
+        }
+        @media screen and (max-height: 845px) {
+          max-width: 50%;
+        }
+        @media screen and (max-height: 800px) {
+          max-width: 48%;
+        }
+        @media screen and (max-height: 770px) {
+          max-width: 42%;
+        }
+        @media screen and (max-height: 970px) and (min-width: 1380px) {
+          max-width: 52%; 
+        }
+        @media screen and (max-height: 890px) and (min-width: 1380px) {
+          max-width: 48%;
+        }
+        @media screen and (max-height: 845px) and (min-width: 1380px) {
+          max-width: 42%;
+        }
+        @media screen and (max-height: 800px) and (min-width: 1380px) {
+          max-width: 38%;
+        }
+        @media screen and (max-height: 770px) and (min-width: 1380px) {
+          max-width: 32%;
+        }
       }
     }
 
