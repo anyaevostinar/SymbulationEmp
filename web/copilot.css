@@ -162,12 +162,12 @@
   max-width: 70%;
   max-height: 100%;
 }
-.twoContainedImage .imgAndBtns .tutorialBtnOne {
+.twoContainedImage .imgAndBtns .tutorialBtnTwo {
   position: absolute;
   right: 16px;
   bottom: 16px;
 }
-.twoContainedImage .imgAndBtns .tutorialBtnTwo {
+.twoContainedImage .imgAndBtns .tutorialBtnOne {
   position: absolute;
   left: 16px;
   bottom: 16px;

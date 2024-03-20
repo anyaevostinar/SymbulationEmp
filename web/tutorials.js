@@ -60,7 +60,7 @@ export const tutorials = [
       },
       {
         titleText: 'Reproduction',
-        bodyText: 'The more resources an organism has, the more it can reproduce. Organisms pass on just one gene: the interaction value. It ranges from -1 (most antagonistic) to 1 (most mutualistic).',
+        bodyText: 'The faster an organism collects resources, the faster it can reproduce. Organisms pass on just one gene: the interaction value. It ranges from -1 (most antagonistic) to 1 (most mutualistic).',
         imgSrc: './assets/sym-img-3.png',
         buttonLabels: ['Back', 'Next'],
         buttonLayout: 'twoContained',
