@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { startTransition, useEffect, useState } from 'react';
 import { Button } from '@mui/material';
 import { useSetAtom } from 'jotai';
 import { tutorialTrackerAtom } from '../atoms';
@@ -8,10 +8,12 @@ export default function OneContained({ content }) {
   //const advanceStep = useAdvanceStep();
   const setTutorialTracker = useSetAtom(tutorialTrackerAtom);
   function advanceStep(){
-    setTutorialTracker((prev) => ({
-      ...prev,
-      step: prev.step + 1
-    }));
+    startTransition(() => {
+      setTutorialTracker((prev) => ({
+        ...prev,
+        step: prev.step + 1
+      }));
+    })
   }
   return (
     <div className="oneContained">
