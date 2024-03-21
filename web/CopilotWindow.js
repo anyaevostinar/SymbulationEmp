@@ -41,25 +41,11 @@ export default function CopilotWindow({ copOpen, handleClose }) {
 
 
   let TutorialComponent;
-  console.log(`curStepContent.buttonLayout: ${curStepContent.buttonLayout}`);
-  if (curStepContent.buttonLayout == 'oneContained') {
-    TutorialComponent = OneContained;
-  }
-  else if (curStepContent.buttonLayout == 'twoContained') {
-    TutorialComponent = TwoContainedImage;
-  }
-  else if (curStepContent.buttonLayout == 'none') {
-    TutorialComponent = None;
-  }
-  else if (curStepContent.buttonLayout == 'imgOnly') {
-    TutorialComponent = ImgOnly;
-  }
-  else if(curStepContent.buttonLayout == 'noneInnerHTML'){
-    TutorialComponent = NoneInnerHTML;
-  }
-  else {
+  TutorialComponent = curStepContent.component;
+  if(!TutorialComponent){
     console.error('Tutorial component not found.');
   }
+
 
 
 

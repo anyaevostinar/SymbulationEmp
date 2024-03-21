@@ -10,8 +10,7 @@ const muiTheme = createTheme({
     },
     primary: {
       main: '#d3a1d6',
-    },
-    // Add more colors here
+    }
   },
 });
 
