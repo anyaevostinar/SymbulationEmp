@@ -148,9 +148,9 @@ export const tutorials = [
       },
       {
         titleText: 'End',
-        bodyText: 'End of tutorial',
-        buttonLayout: 'none',
-      }
+        bodyText: 'That\'s all for this tutorial! For more information, check out the <a href=https://symbulation.readthedocs.io/en/latest/>documentation</a>.',
+        buttonLayout: 'noneInnerHTML',
+      },
     ]
   }
 ]

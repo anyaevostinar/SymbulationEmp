@@ -9,6 +9,7 @@ import OneContained from './components/OneContained';
 import TwoContainedImage from './components/TwoContainedImage';
 import None from './components/None';
 import ImgOnly from './components/ImgOnly';
+import NoneInnerHTML from './components/NoneInnerHTML';
 
 
 export default function CopilotWindow({ copOpen, handleClose }) {
@@ -40,6 +41,7 @@ export default function CopilotWindow({ copOpen, handleClose }) {
 
 
   let TutorialComponent;
+  console.log(`curStepContent.buttonLayout: ${curStepContent.buttonLayout}`);
   if (curStepContent.buttonLayout == 'oneContained') {
     TutorialComponent = OneContained;
   }
@@ -52,8 +54,11 @@ export default function CopilotWindow({ copOpen, handleClose }) {
   else if (curStepContent.buttonLayout == 'imgOnly') {
     TutorialComponent = ImgOnly;
   }
+  else if(curStepContent.buttonLayout == 'noneInnerHTML'){
+    TutorialComponent = NoneInnerHTML;
+  }
   else {
-    console.log('¯\\_(ツ)_/¯');
+    console.error('Tutorial component not found.');
   }
 
 

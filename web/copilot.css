@@ -164,12 +164,12 @@
 }
 @media screen and (max-height: 970px) {
   .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
-    max-width: 60%;
+    max-width: 55%;
   }
 }
 @media screen and (max-height: 890px) {
   .twoContainedImage .imgAndBtns .imgHolder .tutorialImg {
-    max-width: 55%;
+    max-width: 53%;
   }
 }
 @media screen and (max-height: 845px) {
