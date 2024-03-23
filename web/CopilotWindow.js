@@ -36,19 +36,14 @@ export default function CopilotWindow({ copOpen, handleClose }) {
 
       })
     }
-  }, [curStepContent.advanceOn])
-
-
+  }, [curStepContent.advanceOn]);
 
   let TutorialComponent;
   TutorialComponent = curStepContent.component;
   if(!TutorialComponent){
     console.error('Tutorial component not found.');
   }
-
-
-
-
+  
   return (
     <div id="copWindow" className={animationClass}>
       <TutorialComponent content={curStepContent} />
