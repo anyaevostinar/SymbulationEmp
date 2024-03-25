@@ -761,7 +761,7 @@ public:
     if(my_config->PHYLOGENY()) {
       sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
 
-      if (update % 10000 == 0) {
+      if (update % my_config->PHYLOGENY_SNAPSHOT_INTERVAL() == 0) {
         MapPhylogenyInteractions();
         std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
         WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
