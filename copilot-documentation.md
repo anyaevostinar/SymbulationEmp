@@ -10,13 +10,17 @@ Copilot is an add-on to Symbulation's Web GUI used to make tutorials and other g
 
 [How to Make Tutorials](#How-to-Make-Tutorials)
 
+[Pre-made Components](#Pre-made-Components)
+
+[Utility Functions](#Utility-Functions)
+
 ## Overview
 
 Copilot lives in the `web` folder. The top-level component is Copilot (`Copilot.js`). It renders a ThemeProvider div that lets its children access the [Material UI](https://mui.com/material-ui/) theme. It also imports Copilot's [Sass](https://sass-lang.com) stylesheet.
 
 Copilot displays a question mark icon when Copilot is closed, or the Copilot window when it's opened. The Copilot window fetches the tutorial content, renders it, and handles state using a [Jotai](https://jotai.org) atom. It gets the tutorial content from `tutorials.js`, which contains arrays of JavaScript objects that make up the steps of  the tutorials. The Copilot window grabs the attributes of the current tutorial step and decides which tutorial component to render based on the step's `component` attribute. Once it knows which component to render, it passes all the attributes of the current step as props into that component.
 
-Most tutorial components have buttons that let the user advance to the next step of the tutorial by updating the `tutorialTrackerAtom` atom. When the Copilot window sees that `tutorialTrackerAtom` has changed, it'll render the next step. Some tutorial components don't have buttons to advance the tutorial. Instead, the step has an `advanceOn` attribute. See the [How to Make Tutorials](#How to Make Tutorials) section for a full explanation, but, to put it briefly, once `advanceOn` happens, the Copilot window will automatically advance to the next step.
+Most tutorial components have buttons that let the user advance to the next step of the tutorial by updating the `tutorialTrackerAtom` atom. When the Copilot window sees that `tutorialTrackerAtom` has changed, it'll render the next step. Some tutorial components don't have buttons to advance the tutorial. Instead, the step has an `advanceOn` attribute. See the [How to Make Tutorials](#How-to-Make-Tutorials) section for a full explanation, but, to put it briefly, once `advanceOn` happens, the Copilot window will automatically advance to the next step.
 
 "Utilities" are functions stored in the `utilities` folder. They are asynchronous functions used to interface between Copilot and Empirical and are designed to be used as `advanceOn`s.
 
@@ -40,9 +44,31 @@ Tutorials are stored in the `tutorials.js` file. It exports one gigantic array c
 
 **3:** `steps` is an array of objects that make up the steps of the tutorial. The Copilot window will load and display these.
 
-Steps, the objects that make up the `steps` array, can have up to 5 parts. 
 
-**1:** `titleText` is
+
+Steps, the objects that make up the `steps` array, can have up to 7 parts. 
+
+**1:** `titleText` is the large title that will be displayed at the top of the tutorial component. It's used on all of the pre-made components.
+
+**2:** `bodyText` is smaller text displayed in the body of the tutorial component. It is also used on all of the pre-made components.
+
+**3:** `imgSrc` is a string with the path to the image that will be displayed. Tutorial images are stored in the `web/assets` folder. Not all components use images, so this part is optional.
+
+**4:** `buttonLabels` is an array of 1 or more strings. These strings will be displayed on the buttons in the corner of components that use buttons. Typically they'll be something like "Next" or "Back." Some components have two buttons; some have one; and some have none. So, button labels are optional too.
+
+**5:** `advanceOn` is an asynchronous function. If a step has an `advanceOn`, the Copilot window will run it as soon as the user is on that step. It returns a promise, and once that promise is resolved, Copilot will automatically advance to the next step. `advanceOn` is made to be used with utility functions. The format used is as follows:
+
+```javascript
+advanceOn: () => new Promise((resolve, reject) => {
+  getACoolPromise().then(resolve).catch(reject);
+})
+```
+
+Whenever the promise that the utility function `getACoolPromise()` resolves, Copilot will advance to the next step. See the section on utility functions for more information on how these functions work. `advanceOn` is optional.
+
+**6:** `onAdvance` is a function that will automatically run once the user advances past the tutorial step. It's also optional.
+
+**7:** `component` is a React function component. The Copilot window will render whatever the current step's `component` is, and pass everything else about the step into it as props. There are several pre-made components: one with an image and two buttons, one with text and one button, etc. See the section on pre-made components. Instead of those pre-made components, new ones can be made as long as they're imported at the top of `tutorials.js`.
 
 Here's an example of a step:
 
@@ -58,11 +84,19 @@ Here's an example of a step:
 
 And here's how it looks:
 
-<img src="https://p.ipic.vip/v6jwyb.png" alt="Screenshot 2024-03-25 at 7.09.09 AM" style="zoom:50%;" />
+<img src="https://p.ipic.vip/v6jwyb.png" alt="Screenshot 2024-03-25 at 7.09.09 AM" style="zoom:35%;" />
+
+## Pre-made Components
 
 
 
 
+
+
+
+
+
+## Utility Functions
 
 Todo:
 
