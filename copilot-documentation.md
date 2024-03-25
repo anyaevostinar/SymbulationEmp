@@ -6,9 +6,9 @@ Copilot is an add-on to Symbulation's Web GUI used to make tutorials and other g
 
 [Overview](#overview)
 
-[State Management](#State Management)
+[State Management](#State-Management)
 
-[How to Make Tutorials](#How to Make Tutorials)
+[How to Make Tutorials](#How-to-Make-Tutorials)
 
 ## Overview
 
