@@ -11,29 +11,6 @@ import NoneInnerHTML from "./components/NoneInnerHTML"
 import None from "./components/None"
 import TwoContainedImage from "./components/TwoContainedImage"
 
-
-// advanceOn is a promise that, when resolved, will advance the tutorial to the next step.
-// https://zhixingj.github.io/SymbulationEmp/web/symbulation.html
-// ^^ that's the old tutorial with info to make steps out of.
-
-/*
-  This is where the tutorial objects are stored. 
-  Tutorials have...
-    -an id (in case we use tutorials.map to display them) 
-    -a name that is displayed when the copilot menu is first opened
-    -an array of steps
-  Steps have...
-    -a titleText string that is displayed at the top of the step
-    -a bodyText string that is displayed below the title
-    -a buttonLayout string. This is how CopilotWindow.js knows which component to use to display the step. 
-      -see ./components for the different components
-    -a buttonLabels array of strings. This is the text that is displayed on the buttons
-    -an imgSrc string. This is the path to the image that is displayed in components that use images
-    -an advanceOn promise. This is a promise that, when resolved, will advance the tutorial to the next step
-      -see ./utilities for the different ways to create promises. They should be imported at the top of this file
-    -an onAdvance function. This is a function that is called after onAdvance but before curStep is actually incremented. It is optional.
-*/
-//TODO: update above because advanceOn is now a function that returns a promise, not a promise itself
 export const tutorials = [
   {
     id: 0,

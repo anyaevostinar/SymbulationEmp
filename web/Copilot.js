@@ -9,6 +9,11 @@ export default function Copilot() {
   const [copOpen, setCopOpen] = useState(false);
   const [displayOpenBtn, setDisplayOpenBtn] = useState(true);
   const [displayCopWindow, setDisplayCopWindow] = useState(false);
+
+  useEffect(() => {
+    console.log = () => {};
+    // making sure no stray console logs are left in the final product
+  });
   
 
   function handleOpen() {
