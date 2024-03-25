@@ -5,11 +5,12 @@ import getResetClickPromise from "./utilities/getResetClickPromise"
 import getSynergyCheckPromise from "./utilities/getSynergyCheckPromise"
 
 import OneContained from "./components/OneContained"
-import TwoContained from "./components/TwoContainedImage"
+import TwoContainedImage from "./components/TwoContainedImage"
 import ImgOnly from "./components/ImgOnly"
 import NoneInnerHTML from "./components/NoneInnerHTML"
 import None from "./components/None"
-import TwoContainedImage from "./components/TwoContainedImage"
+
+
 
 export const tutorials = [
   {
@@ -30,32 +31,61 @@ export const tutorials = [
         component: TwoContained,
       },*/
       {
+        titleText: 'I\'m the OneContained component',
+        bodyText: 'I have one button. It displays the first (and only) button label.',
+        buttonLabels: ['Onward!'],
+        component: OneContained,
+      },
+      {
+        titleText: 'I\'m the TwoContainedImage component',
+        bodyText: 'I have two buttons. The first button displays the first button label, and the second button displays the second button label. I also have an image.',
+        imgSrc: './assets/tut-img.png',
+        buttonLabels: ['Back', 'Next'],
+        component: TwoContainedImage,
+      },/*
+      {
+        titleText: 'I\'m the ImgOnly component',
+        bodyText: 'No buttons no problem. I just display an image and body text. You\'ll probably want to use an advanceOn function with me.',
+        imgSrc: './assets/tut-img.png',
+        component: ImgOnly,
+      },*//*
+      {
+        titleText: 'I\'m the None component',
+        bodyText: 'I don\'t have any buttons or images. I\'m just here to display text. You\'ll probably want to use an advanceOn function with me too.',
+        component: None,
+      },*/
+      {
+        titleText: 'I\'m the NoneInnerHTML component.',
+        bodyText: 'I display the bodyText as innerHTML using React\'s dangerouslySetInnerHTML prop—I like to live on the edge. I can do things like <a href="https://www.google.com">anchor tags</a>.',
+        component: NoneInnerHTML,
+      },
+      {
         titleText: 'Welcome!',
         bodyText: 'Symbulation is a platform for simulating the evolution of symbionts and hosts.',
         imgSrc: './assets/sym-img-0.png',
         buttonLabels: ['Back', 'Next'],
-        component: TwoContained,
+        component: TwoContainedImage,
       },
       {
         titleText: 'Endosymbiosis',
         bodyText: 'The symbionts are endosymbionts, meaning they live and reproduce inside of a host. Hosts collect resources and invest them into either defense (antagonism) or donation (mutualism) to their symbionts.',
         imgSrc: './assets/sym-img-1.png',
         buttonLabels: ['Back', 'Next'],
-        component: TwoContained,
+        component: TwoContainedImage,
       },
       {
         titleText: 'Symbionts',
         bodyText: 'Symbionts can then either steal resources from their host (antagonism) or donate resources back to their host (mutualism).',
         imgSrc: './assets/sym-img-2-recropped.png',
         buttonLabels: ['Back', 'Next'],
-        component: TwoContained,
+        component: TwoContainedImage,
       },
       {
         titleText: 'Reproduction',
         bodyText: 'The faster an organism collects resources, the faster it can reproduce. Organisms pass on just one gene: the interaction value. It ranges from -1 (most antagonistic) to 1 (most mutualistic).',
         imgSrc: './assets/sym-img-3.png',
         buttonLabels: ['Back', 'Next'],
-        component: TwoContained,
+        component: TwoContainedImage,
       },
       {
         titleText: 'Symulation Setup',

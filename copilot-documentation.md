@@ -68,7 +68,7 @@ Whenever the promise that the utility function `getACoolPromise()` resolves, Cop
 
 **6:** `onAdvance` is a function that will automatically run once the user advances past the tutorial step. It's also optional.
 
-**7:** `component` is a React function component. The Copilot window will render whatever the current step's `component` is, and pass everything else about the step into it as props. There are several pre-made components: one with an image and two buttons, one with text and one button, etc. See the section on pre-made components. Instead of those pre-made components, new ones can be made as long as they're imported at the top of `tutorials.js`.
+**7:** `component` is a React function component. The Copilot window will render whatever the current step's `component` is, and pass everything else about the step into it as props. There are several pre-made components: one with an image and two buttons, one with text and one button, etc. See the [section on pre-made components](#Pre-made-components). Instead of those pre-made components, new ones can be made as long as they're imported at the top of `tutorials.js`.
 
 Here's an example of a step:
 
@@ -88,11 +88,47 @@ And here's how it looks:
 
 ## Pre-made Components
 
+Any valid React function component can be set as a step's `component`, but there are several pre-made components that can cover most scenarios. They are named based on their button/image layout. So, "OneContained" means there is one ["contained" MUI button](https://mui.com/material-ui/react-button/#contained-button).
 
+#### OneContained
 
+`OneContained` displays a title and one left-justified button right below the body text. The button will advance to the next step.
 
+Requirements: `titleText`, `bodyText`, and one string in `buttonLabels`
 
+<img src="https://p.ipic.vip/s2ufkq.png" alt="Screenshot 2024-03-25 at 2.31.07 PM" style="zoom:33%;" />
 
+#### TwoContainedImage
+
+`TwoContainedImage` displays a title, body text, one image, and two buttons in the bottom left and bottom right corners. The first button (bottom left) retreats back a step, and the second button (bottom right) advances to the next step.
+
+Requirements: `titleText`, `bodyText`, `imgSrc`, and two strings in `buttonLabels`
+
+<img src="https://p.ipic.vip/fm7029.png" alt="Screenshot 2024-03-25 at 2.31.10 PM" style="zoom:33%;" />
+
+#### ImgOnly
+
+`ImgOnly` displays a title, body text, and one image.
+
+Requirements: `titleText`, `bodyText`, and `imgSrc`. It's also recommended to use an `advanceOn` since there are no buttons to advance to the next step.
+
+<img src="https://p.ipic.vip/t76mu2.png" alt="Screenshot 2024-03-25 at 2.31.14 PM" style="zoom:33%;" />
+
+#### None
+
+`None` just displays a title and body text.
+
+Requirements: `titleText` and `bodyText`. Using an `advanceOn` is recommended.
+
+<img src="https://p.ipic.vip/u8ixdm.png" alt="Screenshot 2024-03-25 at 2.36.06 PM" style="zoom:33%;" />
+
+#### NoneInnerHTML
+
+`NoneInnerHTML` displays a title and body text just like `None`, but instead of just displaying the body text, it will set the body's inner HTML to whatever is in `bodyText`. This is useful for displaying links with anchor tags, using spans, etc.
+
+Requirements: `titleText` and `bodyText`. Using an `advanceOn` is recommended.
+
+<img src="https://p.ipic.vip/nv2mza.png" alt="Screenshot 2024-03-25 at 2.40.45 PM" style="zoom:33%;" />
 
 
 
@@ -102,11 +138,5 @@ Todo:
 
 
 
--explanation of tutorials.js steps
-
 -explain all the different promise utilities
-
--exaplanation of the different premade components
-
-​    -with images
 
