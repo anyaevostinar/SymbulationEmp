@@ -53,6 +53,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(ECTOSYMBIOSIS, bool, 0, "Do free-living syms and parallel hosts interact? (0 for no, 1 for yes)"),
     VALUE(ECTOSYMBIOTIC_IMMUNITY, bool, 0, "Does a hosted sym confer immunity to ectosymbiosis? (0 for no, 1 for yes)"),
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 0, "Number of resources to give to each free-living symbiont each update if they are available"),
+    VALUE(FREE_SYM_REPRO_RES, double, -1, "How many resources required for free living symbiont reproduction. If -1, use the horizontal transmission required point value."),
 
     GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
     VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),

@@ -7,8 +7,13 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
-    double int_val = -2;
+    double int_val = -1.5;
     REQUIRE_THROWS( emp::NewPtr<EfficientHost>(random, world, &config, int_val) );
+
+    int_val = -2;
+    emp::Ptr< EfficientHost> host = emp::NewPtr<EfficientHost>(random, world, &config, int_val);
+    REQUIRE(host->GetIntVal() >= -1);
+    REQUIRE(host->GetIntVal() <= 1);
 
     int_val = -1;
     emp::Ptr<EfficientHost> host1 = emp::NewPtr<EfficientHost>(random, world, &config, int_val);
@@ -36,6 +41,7 @@ TEST_CASE("EfficientHost Constructor", "[efficient]"){
     int_val = 2;
     REQUIRE_THROWS(emp::NewPtr<EfficientHost>(random, world, &config, int_val) );
 
+    host.Delete();
     host1.Delete();
     host2.Delete();
     host3.Delete();

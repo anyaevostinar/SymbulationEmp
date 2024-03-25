@@ -7,8 +7,13 @@ TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
 
-    double int_val = -2;
-    REQUIRE_THROWS( emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val) );
+    double int_val = -1.5;
+    REQUIRE_THROWS(emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val));
+
+    int_val = -2;
+    emp::Ptr< EfficientSymbiont> symbiont = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
+    REQUIRE(symbiont->GetIntVal() >= -1);
+    REQUIRE(symbiont->GetIntVal() <= 1);
 
     int_val = -1;
     emp::Ptr<EfficientSymbiont> symbiont1 = emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val);
@@ -35,6 +40,7 @@ TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     int_val = 2;
     REQUIRE_THROWS(emp::NewPtr<EfficientSymbiont>(random, world, &config, int_val) );
 
+    symbiont.Delete();
     symbiont1.Delete();
     symbiont2.Delete();
     symbiont3.Delete();
