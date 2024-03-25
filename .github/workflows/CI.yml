@@ -16,7 +16,7 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Symbulation
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           path: SymbulationEmp
           submodules: "recursive"
@@ -35,6 +35,6 @@ jobs:
         run: cd SymbulationEmp && gcov -abcfu main.cc
         
       - name: Upload coverage
-        uses: codecov/codecov-action@v1.5.2
+        uses: codecov/codecov-action@v3
         with:
           root_dir: SymbulationEmp
