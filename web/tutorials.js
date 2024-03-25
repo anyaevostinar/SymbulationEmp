@@ -44,7 +44,14 @@ export const tutorials = [
         bodyText: 'Need help getting started? Try this tutorial!',
         buttonLabels: ['Start Tutorial'],
         component: OneContained,
-      },
+      },/*
+      {
+        titleText: 'I am the titleText!',
+        bodyText: 'I am the bodyText. Lorem ipsum dolor sit amet.',
+        imgSrc: './assets/tut-img.png',
+        buttonLabels: ['Label', '2nd Label'],
+        component: TwoContained,
+      },*/
       {
         titleText: 'Welcome!',
         bodyText: 'Symbulation is a platform for simulating the evolution of symbionts and hosts.',
