@@ -118,7 +118,7 @@ public:
   void Mutate(){
     Symbiont::Mutate();
     if (random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()) {
-      PGG_donate += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
+      PGG_donate += random->GetNormal(0.0, my_config->MUTATION_SIZE());
       if(PGG_donate < 0) PGG_donate = 0;
       else if (PGG_donate > 1) PGG_donate = 1;
     }

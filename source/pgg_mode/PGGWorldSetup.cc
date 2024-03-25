@@ -72,7 +72,7 @@ void worldSetup(emp::Ptr<PGGWorld> world, emp::Ptr<SymConfigBase> my_config) {
                 double mean = my_config->PGG_DONATE_NORMAL_MEAN();
 		double std = my_config->PGG_DONATE_NORMAL_STD();
 
-		sym_donation = random.GetRandNormal(mean, std);
+		sym_donation = random.GetNormal(mean, std);
 
 		//If selected value is out of the initialization range
 		if (sym_donation > my_config->PGG_DONATE_MAX())
