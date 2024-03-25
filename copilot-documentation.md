@@ -58,7 +58,7 @@ Here's an example of a step:
 
 And here's how it looks:
 
-<img src="/Users/bennett/Desktop/Screenshot 2024-03-25 at 7.09.09 AM.png" alt="Screenshot 2024-03-25 at 7.09.09 AM" style="zoom:40%;" />
+<img src="https://p.ipic.vip/v6jwyb.png" alt="Screenshot 2024-03-25 at 7.09.09 AM" style="zoom:50%;" />
 
 
 
