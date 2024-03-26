@@ -41,6 +41,8 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average symbiont interaction value");
+  file.AddMax(node, "max_intval", "Maximum symbiont interaction value");
+  file.AddMin(node, "min_intval", "Minimum symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
 
   //interaction val histogram
@@ -105,6 +107,8 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average host interaction value");
+  file.AddMax(node, "max_intval", "Maximum host interaction value");
+  file.AddMin(node, "min_intval", "Minimum host interaction value");
   file.AddTotal(node1, "count", "Total number of hosts");
   file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
