@@ -22,42 +22,6 @@ export const tutorials = [
         bodyText: 'Need help getting started? Try this tutorial!',
         buttonLabels: ['Start Tutorial'],
         component: OneContained,
-      },/*
-      {
-        titleText: 'I am the titleText!',
-        bodyText: 'I am the bodyText. Lorem ipsum dolor sit amet.',
-        imgSrc: './assets/tut-img.png',
-        buttonLabels: ['Label', '2nd Label'],
-        component: TwoContained,
-      },*/
-      {
-        titleText: 'I\'m the OneContained component',
-        bodyText: 'I have one button. It displays the first (and only) button label.',
-        buttonLabels: ['Onward!'],
-        component: OneContained,
-      },
-      {
-        titleText: 'I\'m the TwoContainedImage component',
-        bodyText: 'I have two buttons. The first button displays the first button label, and the second button displays the second button label. I also have an image.',
-        imgSrc: './assets/tut-img.png',
-        buttonLabels: ['Back', 'Next'],
-        component: TwoContainedImage,
-      },/*
-      {
-        titleText: 'I\'m the ImgOnly component',
-        bodyText: 'No buttons no problem. I just display an image and body text. You\'ll probably want to use an advanceOn function with me.',
-        imgSrc: './assets/tut-img.png',
-        component: ImgOnly,
-      },*//*
-      {
-        titleText: 'I\'m the None component',
-        bodyText: 'I don\'t have any buttons or images. I\'m just here to display text. You\'ll probably want to use an advanceOn function with me too.',
-        component: None,
-      },*/
-      {
-        titleText: 'I\'m the NoneInnerHTML component.',
-        bodyText: 'I display the bodyText as innerHTML using React\'s dangerouslySetInnerHTML prop—I like to live on the edge. I can do things like <a href="https://www.google.com">anchor tags</a>.',
-        component: NoneInnerHTML,
       },
       {
         titleText: 'Welcome!',

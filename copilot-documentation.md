@@ -134,9 +134,29 @@ Requirements: `titleText` and `bodyText`. Using an `advanceOn` is recommended.
 
 ## Utility Functions
 
-Todo:
+Utility functions live in the `web/utilities` folder. These are asynchronous functions that return a promise that resolves when something in Symbulation happens, hence the "getPromise()" naming scheme. These are useful because they allow the Copilot window to react to what's happening outside of Copilot in Symbulation via its DOM elements. They're intended to be used as the `advanceOn` for tutorial steps. 
 
+The utility functions are all on a 200ms `setTimeout` delay. This means that for the first 200ms after the function is called (i.e., first thing when the Copilot window loads the step), the promise that they return won't do anything. The reason for this delay is because Symbulation's DOM elements often update *slightly* later than Copilot, meaning there is a brief period of time where Copilot's utility functions get either nothing or outdated information from Symbulation's DOM. This delay is unnoticeable unless a user were to both begin a step and interact with Symbulation in less than 200ms.
 
+Below is a brief description of each of the utility functions.
 
--explain all the different promise utilities
+**getToggleClickPromise**
+
+`getResetClickPromise()` returns a promise that resolves when Symbulation's toggle button (that displays either "Start" or Pause") is clicked. 
+
+**getSettingsClickPromise**
+
+`getSettingsClickPromise()` returns a promise that resolves when Symbulation's settings card header is clicked. Note that this function works regardless of if the settings tab is open, so it can be used to advance either when the user opens the settings tab or closes it.
+
+**getSynergyCheckPromise**
+
+`getSynergyCheckPromise()` accepts one argument, `goalValue`, and returns a promise that resolves once the synergy value in Symbulation's settings has been set to the `goalValue`.
+
+**getResetClickPromise**
+
+`getResetClickPromise()` returns a promise that resolves when Symbulation's "Reset" button has been clicked.
+
+**getUpdatesThresholdPromise**
+
+`getUpdatesThresholdPromise()` accepts one argument, `threshold` and returns a promise that resolves once the number of updates in the current Symbulation simulation is greater than or equal to the `threshold` value.
 
