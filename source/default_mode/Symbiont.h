@@ -516,7 +516,12 @@ public:
     HorizontalTransmission(location);
     //Age the organism
     GrowOlder();
-    //Check if the organism should move and do it
+    if (my_config->SYM_WITHIN_LIFETIME_MUTATION_RATE()) {
+      if (random->P(my_config->SYM_WITHIN_LIFETIME_MUTATION_RATE())) {
+        Mutate();
+      }
+    }
+    //Check if the organism should move and do it 
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
       //if the symbiont should move, and hasn't been killed
       my_world->MoveFreeSym(location);

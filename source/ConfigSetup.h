@@ -48,6 +48,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
     VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
     VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
+    VALUE(SYM_WITHIN_LIFETIME_MUTATION_RATE, double, 0, "Value 0 to 1 of probability of mutation for symbiont every time step"),
 
     GROUP(ECTOSYMBIOSIS, "Settings for ectosymbiosis and free-living symbionts"),
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
