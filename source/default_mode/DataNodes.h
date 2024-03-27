@@ -199,7 +199,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
 
-  MapPhylogenyInteractions();
+  // MapPhylogenyInteractions();
 
   emp::File interaction_file;
   // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";

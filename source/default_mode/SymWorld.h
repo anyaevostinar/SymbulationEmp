@@ -10,27 +10,6 @@
 #include <set>
 #include <math.h>
 
-namespace datastruct {
-
-  struct HostTaxonData {
-        using has_fitness_t = std::false_type;
-        using has_mutations_t = std::false_type;
-        using has_phen_t = std::false_type;
-        using taxon_info_t = double;
-
-        std::unordered_map<unsigned long long int, int> associated_syms;
-        void ClearInteractions() {associated_syms.clear();}
-        void AddInteraction(emp::Ptr<emp::Taxon<taxon_info_t>> sym) {
-          if (emp::Has(associated_syms, sym->GetID())){
-            associated_syms[sym->GetID()]++;
-          } else {
-            associated_syms[sym->GetID()] = 1;
-          }
-        }
-  };
-
-}
-
 class SymWorld : public emp::World<Organism>{
 public:
   using taxon_info_t = double;
@@ -86,7 +65,7 @@ protected:
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, taxon_info_t>> sym_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -134,12 +113,12 @@ public:
       }
 
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t>>(GetCalcSymInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t> & t){return std::to_string(t.GetInfo());}, "info");
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase> & t){return std::to_string(t.GetInfo());}, "info");
       host_sys->AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData> & t){return std::to_string(t.GetInfo());}, "info");
     }
   }
@@ -238,7 +217,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<emp::Systematics<Organism,taxon_info_t>> GetSymSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> GetSymSys(){
     return sym_sys;
   }
 
@@ -294,8 +273,8 @@ public:
    *
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
-  emp::Ptr<emp::Taxon<taxon_info_t>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<taxon_info_t>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<taxon_info_t>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> parent_taxon=nullptr){
+    emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
