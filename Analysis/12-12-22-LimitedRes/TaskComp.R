@@ -21,7 +21,7 @@ host_data <- subset(final_update, partner == "Host")
 ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_violin() + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free") + geom_boxplot(alpha=0.5, outlier.size=0, width=0.1) 
 
 #regular box plot
-ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Task Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free")
+ggplot(data=host_data, aes(x=treatment, y=count, color=treatment)) + geom_boxplot(alpha=0.5, outlier.size=1) + ylab("Boolean Logic Operation Count Final Update") + xlab("Parasites Present or Absent") + theme(panel.background = element_rect(fill='white', colour='black')) + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + guides(fill=FALSE) + scale_color_manual(name="Parasites", values=viridis(3)) + facet_wrap(~task, scales = "free") + scale_x_discrete(guide=guide_axis(angle=-20))
 
 
 
