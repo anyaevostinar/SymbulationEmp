@@ -233,7 +233,7 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
