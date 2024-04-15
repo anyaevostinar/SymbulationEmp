@@ -219,19 +219,33 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
     }
   }
 
-  // for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
-  //   for (auto interaction : t->GetData().associated_syms) {
-  //     // It feels like there should be a better way to do this, but all the
-  //     // obvious solutions involved converting all these values to the same
-  //     // numerical type, which doesn't end well (since they're a mix of large
-  //     // integers and small floating points)
-  //     interaction_file << emp::to_string(t->GetID()) + "," + 
-  //                         emp::to_string(interaction.first) + "," + 
-  //                         // emp::to_string(t->GetInfo()) + "," + 
-  //                         // emp::to_string(interaction.first->GetInfo()) + "," + 
-  //                         emp::to_string(interaction.second);
-  //   }
-  // }
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetOutside()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
 
   interaction_file.Write("InteractionSnapshot_" + filename);
 

@@ -459,9 +459,6 @@ public:
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
-      if (my_config->PHYLOGENY()) {
-        static_cast<datastruct::HostTaxonData>(my_taxon->GetData()).AddInteraction(_in->GetTaxon());
-      }
       return syms.size();
     } else {
       _in.Delete();

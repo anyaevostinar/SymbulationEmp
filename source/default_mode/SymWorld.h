@@ -85,6 +85,8 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
 
+  uint64_t first_mut_sym = 0;
+  uint64_t first_mut_host = 0;
 
 public:
   /**
@@ -115,11 +117,19 @@ public:
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
       sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
 
+      host_sys->SetStoreOutside(true);
+      sym_sys->SetStoreOutside(true);
+
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
       sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase> & t){return std::to_string(t.GetInfo());}, "info");
       host_sys->AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData> & t){return std::to_string(t.GetInfo());}, "info");
+    
+      on_placement_sig.AddAction([this](emp::WorldPosition pos){
+        GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
+      });
+
     }
   }
 
@@ -132,6 +142,7 @@ public:
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   ~SymWorld() {
+    std::cout << first_mut_host << " " << first_mut_sym << std::endl;
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
@@ -400,6 +411,19 @@ public:
     if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
+      if (my_config->PHYLOGENY()) {
+        datastruct::TaxonDataBase & my_data = new_org->GetTaxon()->GetData();
+        datastruct::HostTaxonData * d = static_cast<datastruct::HostTaxonData*>(&my_data);
+
+        for (auto sym : new_org->GetSymbionts()) {
+          d->AddInteraction(sym->GetTaxon());
+          if (first_mut_host == 0 && new_org->GetIntVal() > 0 && sym->GetIntVal() > 0) {
+            first_mut_host = new_org->GetTaxon()->GetID();
+            first_mut_sym = sym->GetTaxon()->GetID();
+          }
+        }
+
+      }
     }
     else {
       new_org.Delete();
@@ -585,6 +609,7 @@ public:
       if (new_host_pos > -1) { //-1 means no living neighbors
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
         if(new_index > 0){ //sym successfully infected
+          pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
           return emp::WorldPosition(new_index, new_host_pos);
         } else { //sym got killed trying to infect
           return emp::WorldPosition();
@@ -741,7 +766,7 @@ public:
       sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
 
       if (update % my_config->PHYLOGENY_SNAPSHOT_INTERVAL() == 0) {
-        MapPhylogenyInteractions();
+        // MapPhylogenyInteractions();
         std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
         WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
       }
