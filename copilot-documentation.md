@@ -158,4 +158,4 @@ Below is a brief description of each of the utility functions.
 
 **getUpdatesThresholdPromise**
 
-`getUpdatesThresholdPromise()` accepts one argument, `threshold` and returns a promise that resolves once the number of updates in the current Symbulation simulation is greater than or equal to the `threshold` value.
+`getUpdatesThresholdPromise()` accepts one argument, `threshold`, and returns a promise that resolves once the number of updates in the current Symbulation simulation is greater than or equal to the `threshold` value.
