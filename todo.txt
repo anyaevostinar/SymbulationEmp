@@ -1,0 +1,5 @@
+my main request would be documentation inside the 
+code files in addition to the md file for each of
+ the functions describing what they generally do,
+  and what information is needed to use them 
+(parameters, return types if relevant, etc)
