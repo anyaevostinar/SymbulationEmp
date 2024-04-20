@@ -4,8 +4,6 @@ import ReactDOM from 'react-dom/client';
 import { createRoot } from 'react-dom/client';
 
 function ReactApp() {
-  const [count, setCount] = useState(0);
-
   return (
     <div id="appRendered">
       <Tutorial />

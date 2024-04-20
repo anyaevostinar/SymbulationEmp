@@ -1,3 +1,9 @@
+/**
+ * @name muiTheme
+ * @description Material-UI theme for Copilot
+ * @returns {object} a Material-UI theme object
+ * This does not affect anything outside of Copilot, but it can be used to change the color of the buttons in Copilot
+ */
 import { createTheme } from '@mui/material/styles';
 
 const muiTheme = createTheme({
