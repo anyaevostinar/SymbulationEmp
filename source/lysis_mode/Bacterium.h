@@ -130,7 +130,7 @@ public:
 
       //mutate host genome if enabled
       if(my_config->MUTATE_INC_VAL()){
-        host_incorporation_val += random->GetNormal(0.0, my_config->MUTATION_SIZE());
+        host_incorporation_val += random->GetRandNormal(0.0, my_config->MUTATION_SIZE());
 
         if(host_incorporation_val < 0) host_incorporation_val = 0;
 
