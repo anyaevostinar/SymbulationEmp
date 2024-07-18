@@ -6,4 +6,4 @@
 	url = https://github.com/emscripten-core/emsdk
 [submodule "signalgp-lite"]
 	path = signalgp-lite
-	url = https://github.com/anyaevostinar/signalgp-lite
+	url = https://github.com/tolziplohu/signalgp-lite
