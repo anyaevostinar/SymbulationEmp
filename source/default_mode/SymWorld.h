@@ -126,7 +126,7 @@ public:
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
-    if (data_node_attempts_horiztrans) data_node_successes_horiztrans.Delete();
+    if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
@@ -246,7 +246,7 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -643,7 +643,7 @@ public:
   * Output: A boolean representing whether the the position is valid and 
   * occupied by a free living symbiont/
   *
-  * Purpose: To determine if a given index is valid and occipied in the symbiont
+  * Purpose: To determine if a given index is valid and occupied in the symbiont
   * population vector.
   */
   bool IsSymPopOccupied(size_t pos) {
