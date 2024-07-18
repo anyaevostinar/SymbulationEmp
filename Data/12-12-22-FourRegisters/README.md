@@ -1,1 +1,0 @@
-Trying out with four registers and penalty for doing the same task repeatedly
