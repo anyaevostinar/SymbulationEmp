@@ -36,5 +36,9 @@ Main things:
 * Hosts always lose CPU cycles to symbionts
 * Tasks are set in a specific way
 
+Anya's Todo:
+* Actually delete things that aren't relevant to this project
+* Get the code back to a point of parasite prelim data
+
 ### Don't lose the ecto code
 Kai Johnson implemented support for ectosymbionts with complex genomes in the branch `complex-genomes`, which isn't currently compatible with this branch, but shouldn't be forgotten since it's good stuff.
