@@ -16,14 +16,14 @@ using Library = sgpl::OpLibrary<
     // biological operations
     // no copy or alloc
     inst::Reproduce, 
-    //inst::PrivateIO, 
-    inst::SharedIO,
+    inst::PrivateIO, 
+    //inst::SharedIO,
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    inst::Donate, 
+    //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
     //inst::Reuptake,
     //fls basics
@@ -74,6 +74,7 @@ public:
   }
 
   sgpl::Program<Spec> BuildNoRepro(size_t length) {
+    //For making an obligate mutualist
     Add("Donate");
     Add("Donate");
     Add("Donate");
@@ -323,7 +324,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-    return CreateNotProgram(PROGRAM_LENGTH);
+    return CreatePrivateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateSquareProgram(PROGRAM_LENGTH);
   }
