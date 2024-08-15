@@ -42,6 +42,10 @@ Anya's Todo:
     * [Plot from proposal 1](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/12-12-22-LimitedRes/HostTasksLong.png) - from experiment folder [12-12-22-LimitedRes](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/12-12-22-LimitedRes)
     * [Plot from proposal 2](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/05-02-23-ParasitesLongSpatial/FinalUpdateHost.png) - from experiment folder [05-02-23-ParasitesLongSpatial](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/05-02-23-ParasitesLongSpatial)
     * [Magical compare URL](https://github.com/anyaevostinar/SymbulationEmp/compare/b9fd9f7a46c39206b4b7208ad7dcaa8830ed7d0d...complex-syms-clean)
+    * Settings different than default: -LIMITED_RES_TOTAL 10 -LIMITED_RES_INFLOW 500
 
 ### Don't lose the ecto code
 Kai Johnson implemented support for ectosymbionts with complex genomes in the branch `complex-genomes`, which isn't currently compatible with this branch, but shouldn't be forgotten since it's good stuff.
+
+## Tests to write
+* (with Data interval at 50) When parasites absent, hosts do NOT 7k-8k in Tasks file, when parasites present, hosts drop down below 7k by update 5000
