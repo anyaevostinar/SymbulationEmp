@@ -110,20 +110,6 @@ public:
     Add("PrivateIO");
   }
 
-  void AddSquare() {
-    // Always output 4:
-    // pop        r0
-    // increment  r0          -> 1
-    // add        r0, r0, r0  -> 2
-    // add        r0, r0, r0  -> 4
-    // sharedio   r0
-    Add("Pop");
-    Add("Increment");
-    Add("Add");
-    Add("Add");
-    Add("SharedIO");
-  }
-
   void AddNand() {
     // sharedio   r0
     // sharedio   r1
@@ -283,6 +269,11 @@ sgpl::Program<Spec> CreateRandomProgram(size_t length) {
   return sgpl::Program<Spec>(length);
 }
 
+sgpl::Program<Spec> CreateReproProgram(size_t length) {
+  ProgramBuilder program;
+  return program.Build(length);
+}
+
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
@@ -303,12 +294,6 @@ sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
   return program.Build(length);
 }
 
-sgpl::Program<Spec> CreateSquareProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddSquare();
-  return program.Build(length);
-}
-
 sgpl::Program<Spec> CreateMutualistStart(size_t length) {
   ProgramBuilder program;
   program.AddNand();
@@ -317,8 +302,7 @@ sgpl::Program<Spec> CreateMutualistStart(size_t length) {
 
 /**
  * Picks what type of starting program should be created based on the config and
- * creates it. It will be either random, a program that does NOT, or a program
- * that does SQUARE (which always outputs 4).
+ * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
@@ -326,7 +310,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   } else if (config->TASK_TYPE() == 1) {
     return CreatePrivateNotProgram(PROGRAM_LENGTH);
   } else {
-    return CreateSquareProgram(PROGRAM_LENGTH);
+    return CreateReproProgram(PROGRAM_LENGTH);
   }
 }
 

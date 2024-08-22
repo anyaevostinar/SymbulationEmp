@@ -11,7 +11,7 @@ On 7/18/24, Anya tried to merge in changes from main, but everything broke horri
 Much of the disease parasite implementation was hacked in and so needs to be written more modularly to allow for the different kinds of parasitism and mutualism, how to best go about doing this both efficiently and modularly?
 * First step: make a list of the hacky functionality here:
     * [DiversityAnalysis.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/DiversityAnalysis.h) and [ModularityAnalysis.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/ModularityAnalysis.h) can probably be scrapped for now
-    * [SGPWorldSetup.cc](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/SGPWorldSetup.cc) is injecting a full population of hosts that can do NOT and symbionts that complement (currently `CreateMutualistStart`); this file also has the checking for infection via task matching code `GetNeighborHost`
+    * [SGPWorldSetup.cc](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/SGPWorldSetup.cc) is injecting a full population of hosts that can do NOT and symbionts that complement; this file also has the checking for infection via task matching code `GetNeighborHost`
     * In [GenomeLibrary.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/GenomeLibrary.h) I commented out instructions: `PrivateIO`, `Reuptake`, `Infect`, `Steal` to have the syms behave as just disease parasites/health mutualists
     * The penalty for `PrivateIO` is turned off currently in `Instructions.h`
     * Big thing: In [SGPHost.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/SGPHost.h) is where the disease parasite functionality is hard coded (and the comment is wrong lol):
@@ -49,3 +49,4 @@ Kai Johnson implemented support for ectosymbionts with complex genomes in the br
 
 ## Tests to write
 * (with Data interval at 50) When parasites absent, hosts do NOT 7k-8k in Tasks file, when parasites present, hosts drop down below 7k by update 5000
+* Something also with the spatial structure results probably?
