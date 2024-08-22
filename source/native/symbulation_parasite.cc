@@ -3,8 +3,6 @@
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
-#include "../sgp_mode/DiversityAnalysis.h"
-#include "../sgp_mode/ModularityAnalysis.h"
 #include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/SGPWorld.h"
 #include "../sgp_mode/Scheduler.h"
