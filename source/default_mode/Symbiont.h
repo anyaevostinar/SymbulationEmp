@@ -87,6 +87,13 @@ protected:
   */
   emp::Ptr<emp::Taxon<int>> my_taxon = NULL;
 
+  /**
+    *
+    * Purpose: Represents the tag for this organism
+    *
+  */
+  int tag;
+
 public:
   /**
    * The constructor for symbiont
@@ -257,6 +264,23 @@ public:
 
   //  std::set<int> GetResTypes() const {return res_types;}
 
+   /**
+   * Input: The new tag
+   *
+   * Output: None
+   *
+   * Purpose: To set a symbiont's tag.
+   */
+   void SetTag(int _in) { tag = _in; }
+
+   /**
+   * Input: None
+   *
+   * Output: The symbiont's tag.
+   *
+   * Purpose: To get a symbiont's tag.
+   */
+   int GetTag() { return tag; }
 
   /**
    * Input: None
@@ -531,6 +555,7 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
+    new_sym->SetTag(GetTag());
     return new_sym;
   }
 
@@ -562,6 +587,13 @@ public:
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = Reproduce();
+      if (my_config->TAG_MATCHING()) {
+        double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag());
+        if (tag_distance > my_config->TAG_DISTANCE()) {
+          sym_baby.Delete();
+          return;
+        }
+      }
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
 
@@ -588,8 +620,14 @@ public:
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
-        SetPoints(0);
+        
+        
+        if(!my_config->TAG_MATCHING()) SetPoints(0);
+        // removing the above for tag matching--sym parent points are 
+        // now set to 0 in symdobirth (todo: test)
+        
         emp::Ptr<Organism> sym_baby = Reproduce();
+        if (my_config->TAG_MATCHING()) sym_baby->SetPoints(0);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

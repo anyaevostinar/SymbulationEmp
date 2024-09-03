@@ -93,6 +93,13 @@ protected:
   */
   bool dead = false;
 
+  /**
+    *
+    * Purpose: Represents the tag for this organism
+    *
+  */
+  int tag;
+
 public:
 
   /**
@@ -329,6 +336,23 @@ public:
    */
   void ClearReproSyms() {repro_syms.resize(0);}
 
+  /**
+   * Input: The new tag
+   *
+   * Output: None
+   *
+   * Purpose: To set a host's tag.
+   */
+  void SetTag(int _in) { tag = _in; }
+  
+  /**
+   * Input: None
+   *
+   * Output: The host's tag.
+   *
+   * Purpose: To get a host's tag.
+   */
+  int GetTag() { return tag; }
 
   /**
    * Input: None
@@ -505,6 +529,7 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+    new_host->SetTag(GetTag());
     return new_host;
   }
 

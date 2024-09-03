@@ -1614,3 +1614,101 @@ TEST_CASE("SetupHosts", "[default]") {
     }
   }
 }
+
+TEST_CASE("Tag matching", "[default]") {
+  GIVEN("A world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    int trans_res = 10;
+    int starting_res = 15;
+    config.SYM_HORIZ_TRANS_RES(trans_res);
+    config.SYM_VERT_TRANS_RES(trans_res);
+    config.TAG_MATCHING(1);
+    double int_val = 0;
+    
+    WHEN("A symbiont tries to vertically transmit offspring into a host child") {
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      symbiont->SetTag(0);
+      symbiont->AddPoints(starting_res);
+
+      WHEN("Their tags are sufficiently close") {
+        host->SetTag(1);
+        symbiont->VerticalTransmission(host);
+
+        THEN("The symbiont suceeds") {
+          REQUIRE(host->HasSym() == true);
+        }
+        THEN("The parent symbiont spends points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res-trans_res);
+        }
+        THEN("The child symbiont starts with 0 points") {
+          REQUIRE(host->GetSymbionts().at(0)->GetPoints() == 0);
+        }
+      }
+      WHEN("Their tags are too dissimilar") {
+        host->SetTag(10);
+        symbiont->VerticalTransmission(host);
+
+        THEN("The symbiont fails") {
+          REQUIRE(host->HasSym() == false);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
+        }
+      }
+
+      host.Delete();
+      symbiont.Delete();
+    }
+    
+    WHEN("A symbiont tries to horizontally transmit offspring into a host") {
+      emp::Ptr<Host> host_1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host_0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      symbiont->SetTag(0);
+
+      world.AddOrgAt(host_1, 1);
+      host_1->AddSymbiont(symbiont);
+      symbiont->AddPoints(starting_res);
+      
+      REQUIRE(world.GetNumOrgs() == 1);
+      REQUIRE(world.IsOccupied(1));
+
+      world.AddOrgAt(host_0, 0);
+      REQUIRE(world.GetNumOrgs() == 2);
+
+      WHEN("Their tags are sufficiently close") {
+        host_0->SetTag(2);
+        
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
+
+        THEN("The symbiont suceeds") {
+          REQUIRE(host_0->HasSym() == true);
+        }
+        THEN("The parent symbiont spends points on reproduction"){
+          // horiz trans sets points to 0, rather than subtracting
+          REQUIRE(symbiont->GetPoints() == 0);
+        }
+        THEN("The child symbiont starts with 0 points"){
+          REQUIRE(host_0->GetSymbionts().at(0)->GetPoints() == 0);
+        }
+      }
+      WHEN("Their tags are too dissimilar") {
+        host_0->SetTag(3);
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
+
+        THEN("The symbiont fails") {
+          REQUIRE(host_0->HasSym() == false);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
+        }
+      }
+    }
+    // NOTE: tag matching is NOT SUPPORTED by FREE LIVING SYMBIONTS
+  }
+}

@@ -70,6 +70,10 @@ class Organism {
     std::cout << "MakeNew called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual int GetTag() {
+    std::cout << "GetTag called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 

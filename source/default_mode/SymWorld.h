@@ -6,6 +6,8 @@
 #include "../../Empirical/include/emp/Evolve/Systematics.hpp"
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
+#include "../../Empirical/include/emp/matching/MatchBin.hpp"
+
 #include "../Organism.h"
 #include <set>
 #include <math.h>
@@ -58,6 +60,13 @@ protected:
   */
   emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
 
+  /**
+    *
+    * Purpose: Represents the tag distance calculator.
+    *
+  */
+  emp::Ptr<emp::AbsDiffMetric> abs_distance;
+
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesymintval;
@@ -100,6 +109,10 @@ public:
       sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
       host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
     }
+
+    if (my_config->TAG_MATCHING()) {
+      abs_distance = emp::NewPtr<emp::AbsDiffMetric>();
+    }
   }
 
 
@@ -138,6 +151,10 @@ public:
       // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
+
+    if (my_config->TAG_MATCHING()) {
+      abs_distance.Delete();
+    }
   }
 
 
@@ -161,6 +178,16 @@ public:
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
+  /**
+   * Input: None
+   *
+   * Output: A pointer to the tag distance metric object
+   *
+   * Purpose: To get the world's tag distance calculator
+   */
+  emp::Ptr<emp::AbsDiffMetric> GetTagMetric() {
+    return abs_distance;
+  }
 
   /**
    * Input: None
@@ -537,6 +564,21 @@ public:
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
+        if (my_config->TAG_MATCHING()) {
+          if (abs_distance->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag())
+              > my_config->TAG_DISTANCE()) {
+            sym_baby.Delete();
+            return emp::WorldPosition();
+          }
+          else {
+            // set parent points to 0
+            if (pop[i]->HasSym() && pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)) {
+              pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)->SetPoints(0);
+            }
+          }
+        }
+        
+
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
         if(new_index > 0){ //sym successfully infected
           return emp::WorldPosition(new_index, new_host_pos);
