@@ -1627,16 +1627,22 @@ TEST_CASE("Tag matching", "[default]") {
     config.SYM_HORIZ_TRANS_RES(trans_res);
     config.SYM_VERT_TRANS_RES(trans_res);
     config.TAG_MATCHING(1);
+    config.TAG_DISTANCE(0.25);
     double int_val = 0;
-    
+   
     WHEN("A symbiont tries to vertically transmit offspring into a host child") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      symbiont->SetTag(0);
+      
+      // symbiont tag is all 0s
+      emp::BitSet<16> bit_set_0 = emp::BitSet<16>();
+      symbiont->SetTag(bit_set_0);
       symbiont->AddPoints(starting_res);
 
       WHEN("Their tags are sufficiently close") {
-        host->SetTag(1);
+        // host tag has 4 1s
+        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 4);
+        host->SetTag(bit_set_1);
         symbiont->VerticalTransmission(host);
 
         THEN("The symbiont suceeds") {
@@ -1650,7 +1656,9 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
-        host->SetTag(10);
+        // host tag has 5 1s
+        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 5);
+        host->SetTag(bit_set_1);
         symbiont->VerticalTransmission(host);
 
         THEN("The symbiont fails") {
@@ -1669,7 +1677,9 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Host> host_1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-      symbiont->SetTag(0);
+      // symbiont tag is all 0s
+      emp::BitSet<16> bit_set_0 = emp::BitSet<16>();
+      symbiont->SetTag(bit_set_0);
 
       world.AddOrgAt(host_1, 1);
       host_1->AddSymbiont(symbiont);
@@ -1682,7 +1692,9 @@ TEST_CASE("Tag matching", "[default]") {
       REQUIRE(world.GetNumOrgs() == 2);
 
       WHEN("Their tags are sufficiently close") {
-        host_0->SetTag(2);
+        // host tag has 4 1s
+        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 4);
+        host_0->SetTag(bit_set_1);
         
         symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
 
@@ -1698,7 +1710,10 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
-        host_0->SetTag(3);
+        // host tag has 5 1s
+        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 5);
+        host_0->SetTag(bit_set_1);
+
         symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
 
         THEN("The symbiont fails") {

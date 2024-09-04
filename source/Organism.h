@@ -70,7 +70,7 @@ class Organism {
     std::cout << "MakeNew called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual int GetTag() {
+  virtual emp::BitSet<16> & GetTag() {
     std::cout << "GetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }

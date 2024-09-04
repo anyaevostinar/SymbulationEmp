@@ -17,7 +17,8 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
     emp::Ptr<Host> new_org;
     new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
     if (my_config->TAG_MATCHING()) {
-      new_org->SetTag(0);
+      emp::BitSet<16> new_tag = emp::BitSet<16>();
+      new_org->SetTag(new_tag);
     }
     InjectHost(new_org);
   }
@@ -36,7 +37,8 @@ void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
   for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
     if (my_config->TAG_MATCHING()) {
-      new_sym->SetTag(0);
+      emp::BitSet<16> new_tag = emp::BitSet<16>();
+      new_sym->SetTag(new_tag);
     }
     InjectSymbiont(new_sym);
   }

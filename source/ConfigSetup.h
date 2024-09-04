@@ -32,7 +32,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be sepeated into if phylogeny is on?"),
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
     VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts"),
-    VALUE(TAG_DISTANCE, double, 0.00000000094, "What is the maximum divergence allowed between tags for a sucessful match"),
+    VALUE(TAG_DISTANCE, double, 0.25, "What is the maximum divergence allowed between tags for a sucessful infection (1 = perfect mismatch, 0 = perfect match)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
 

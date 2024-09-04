@@ -65,7 +65,7 @@ protected:
     * Purpose: Represents the tag distance calculator.
     *
   */
-  emp::Ptr<emp::AbsDiffMetric> abs_distance;
+  emp::Ptr<emp::HammingMetric<16>> hamming_metric;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -111,7 +111,7 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      abs_distance = emp::NewPtr<emp::AbsDiffMetric>();
+      hamming_metric = emp::NewPtr<emp::HammingMetric<16>>();
     }
   }
 
@@ -153,7 +153,7 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      abs_distance.Delete();
+      hamming_metric.Delete();
     }
   }
 
@@ -185,8 +185,8 @@ public:
    *
    * Purpose: To get the world's tag distance calculator
    */
-  emp::Ptr<emp::AbsDiffMetric> GetTagMetric() {
-    return abs_distance;
+  emp::Ptr<emp::HammingMetric<16>> GetTagMetric() {
+    return hamming_metric;
   }
 
   /**
@@ -565,7 +565,7 @@ public:
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
         if (my_config->TAG_MATCHING()) {
-          if (abs_distance->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag())
+          if (hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag())
               > my_config->TAG_DISTANCE()) {
             sym_baby.Delete();
             return emp::WorldPosition();
