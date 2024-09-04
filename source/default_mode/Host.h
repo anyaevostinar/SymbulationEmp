@@ -566,6 +566,10 @@ public:
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
     }
+
+    if (my_config->TAG_MATCHING()) {
+      tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
+    }
   }
 
 

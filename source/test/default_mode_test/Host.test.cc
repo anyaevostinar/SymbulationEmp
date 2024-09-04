@@ -200,6 +200,25 @@ TEST_CASE("Host Mutate", "[default]") {
         host.Delete();
       }
     }
+
+    //TAG MUTATION SIZE
+    WHEN("Tag matching is on") {
+      THEN("Tags mutate according to tag mutation rate") {
+        emp::HammingMetric<16> metric = emp::HammingMetric<16>();
+        config.TAG_MATCHING(1);
+        config.TAG_MUTATION_SIZE(0.1);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+        emp::BitSet<16> bit_set = emp::BitSet<16>();
+        host->SetTag(bit_set);
+
+        REQUIRE(metric.calculate(host->GetTag(), bit_set) == 0);
+        host->Mutate();
+        REQUIRE(metric.calculate(host->GetTag(), bit_set) > 0);
+        REQUIRE(metric.calculate(host->GetTag(), bit_set) <= 1);
+
+        host.Delete();
+      }
+    }
 }
 
 TEST_CASE("DistributeResources", "[default]") {

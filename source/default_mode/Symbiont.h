@@ -431,6 +431,9 @@ public:
         else if (infection_chance > 1) infection_chance = 1;
       }
     }
+    if (my_config->TAG_MATCHING()) {
+      tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
+    }
   }
 
   /**

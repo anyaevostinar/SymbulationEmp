@@ -335,6 +335,25 @@ TEST_CASE("mutate", "[default]") {
 
         sym.Delete();
     }
+
+    //TAG MUTATION SIZE
+    WHEN("Tag matching is on") {
+      THEN("Tags mutate according to tag mutation rate") {
+        emp::HammingMetric<16> metric = emp::HammingMetric<16>();
+        config.TAG_MATCHING(1);
+        config.TAG_MUTATION_SIZE(0.1);
+        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, 0);
+        emp::BitSet<16> bit_set = emp::BitSet<16>();
+        symbiont->SetTag(bit_set);
+
+        REQUIRE(metric.calculate(symbiont->GetTag(), bit_set) == 0);
+        symbiont->Mutate();
+        REQUIRE(metric.calculate(symbiont->GetTag(), bit_set) > 0);
+        REQUIRE(metric.calculate(symbiont->GetTag(), bit_set) <= 1);
+
+        symbiont.Delete();
+      }
+    }
 }
 
 TEST_CASE("reproduce", "[default]") {
