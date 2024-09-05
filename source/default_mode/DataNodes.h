@@ -42,7 +42,9 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
-
+  if (my_config->TAG_MATCHING()) {
+    file.AddMean(GetTagDistanceDataNode(), "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
+  }
   //interaction val histogram
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
   file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
@@ -643,6 +645,36 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
     data_node_attempts_verttrans.New();
   }
   return *data_node_attempts_verttrans;
+}
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<double>& that has the information representing
+ * the average tag distance between hosts and their symbionts.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * average tag distance between hosts and their symbionts.
+ */
+emp::DataMonitor<double>& SymWorld::GetTagDistanceDataNode() {
+  if (!data_node_tag_dist) {
+    data_node_tag_dist.New();
+    OnUpdate([this](size_t) {
+      data_node_tag_dist->Reset();
+      for (size_t i = 0; i < pop.size(); i++) {
+        if (IsOccupied(i)) {
+          if (pop[i]->HasSym()) {
+            emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
+            for (size_t j = 0; j < symbionts.size(); j++) {
+              double distance = hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+              data_node_tag_dist->AddDatum(distance);
+            }
+          }
+        } //endif
+      } //end for
+    }); //end OnUpdate
+  } //end if
+  return *data_node_tag_dist;
 }
 
 #endif

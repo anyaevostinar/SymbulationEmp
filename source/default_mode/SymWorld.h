@@ -74,6 +74,7 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
+  emp::Ptr<emp::DataMonitor<double>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -133,6 +134,7 @@ public:
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
+    if (data_node_tag_dist) data_node_tag_dist.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
@@ -489,6 +491,7 @@ public:
   emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
   emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
+  emp::DataMonitor<double>& GetTagDistanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
