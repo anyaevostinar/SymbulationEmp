@@ -223,6 +223,39 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   return file;
 }
 
+/**
+ * Input: The address of the string representing the suffixes for the files to be created.
+ *
+ * Output: None.
+ *
+ * Purpose: To write the tags of hosts and symbionts to a data file after an experiment is 
+ * concluded
+ */
+void SymWorld::WriteTagsFile(const std::string& filename) {
+  std::ofstream out_file(filename);
+
+  std::string header = "host_tag,sym_tag,tag_distance\n";
+  out_file << header;
+
+  for (size_t i = 0; i < size(); i++) {
+    if (IsOccupied(i)) {
+      std::string host_tag = pop[i]->GetTag().ToBinaryString();
+
+      if (pop[i]->HasSym()) {
+        emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
+        for (size_t j = 0; j < symbionts.size(); j++) {
+          out_file << host_tag + "," + symbionts[j]->GetTag().ToBinaryString() + ",";
+          out_file << hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+          out_file << "\n";
+        }
+      }
+      else {
+        out_file << host_tag + ",,\n";
+      }
+    }
+  }
+  out_file.close();
+}
 
 /**
  * Input: None
