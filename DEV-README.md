@@ -38,6 +38,7 @@ Main things:
 
 Anya's Todo:
 * Actually delete things that aren't relevant to this project
+    * Including tests for code that doesn't exist anymore
 * Get the code back to a point of parasite prelim data
     * [Plot from proposal 1](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/12-12-22-LimitedRes/HostTasksLong.png) - from experiment folder [12-12-22-LimitedRes](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/12-12-22-LimitedRes)
     * [Plot from proposal 2](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/05-02-23-ParasitesLongSpatial/FinalUpdateHost.png) - from experiment folder [05-02-23-ParasitesLongSpatial](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/05-02-23-ParasitesLongSpatial)
