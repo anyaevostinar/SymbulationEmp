@@ -45,6 +45,8 @@ Anya's Todo:
     * [Magical compare URL](https://github.com/anyaevostinar/SymbulationEmp/compare/b9fd9f7a46c39206b4b7208ad7dcaa8830ed7d0d...complex-syms-clean)
     * Settings different than default: -LIMITED_RES_TOTAL 10 -LIMITED_RES_INFLOW 500
 
+* Wrap ousting in config option
+
 ### Don't lose the ecto code
 Kai Johnson implemented support for ectosymbionts with complex genomes in the branch `complex-genomes`, which isn't currently compatible with this branch, but shouldn't be forgotten since it's good stuff.
 
