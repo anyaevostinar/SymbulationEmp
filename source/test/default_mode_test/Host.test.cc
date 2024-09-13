@@ -517,3 +517,45 @@ TEST_CASE("AddSymbiont", "[default]"){
   }
   host.Delete();
 }
+
+TEST_CASE("SymAllowedIn", "[default]") {
+  SymConfigBase config;
+  double int_val = 0;
+  
+  int sym_limit = 4;
+  config.SYM_LIMIT(sym_limit);
+
+  WHEN("Symbiont exclude is set to false") {
+    config.PHAGE_EXCLUDE(0);
+    THEN("Symbionts are added without issue") {
+      emp::Ptr<emp::Random> random = new emp::Random(3);
+      SymWorld world(*random, &config);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+      for (int i = 0; i < sym_limit; i++) {
+        host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
+      }
+      int num_syms = (host->GetSymbionts()).size();
+      REQUIRE(num_syms == sym_limit);
+      host.Delete();
+    }
+  }
+
+  WHEN("Symbiont exclude is set to true") {
+    config.PHAGE_EXCLUDE(1);
+    THEN("Symbionts have a decreasing change of entering the host") {
+      int goal_num_syms[] = { 3,3,3,3 };
+      for (int i = 0; i < 4; i++) {
+        emp::Ptr<emp::Random> random = new emp::Random(i + 1);
+        SymWorld world(*random, &config);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+
+        for (double i = 0; i < 10; i++) {
+          host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
+        }
+        int host_num_syms = (host->GetSymbionts()).size();
+        REQUIRE(goal_num_syms[i] == host_num_syms);
+        host.Delete();
+      }
+    }
+  } 
+}

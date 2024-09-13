@@ -15,7 +15,7 @@
 void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<EfficientHost> new_org;
-    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+    new_org.New(&GetRandom(), this, efficient_config, efficient_config->HOST_INT());
     InjectHost(new_org);
   }
 }
@@ -29,7 +29,7 @@ void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
  */
 void EfficientWorld::SetupSymbionts(long unsigned int* total_syms) {
   for (size_t j = 0; j < *total_syms; j++) {
-    emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0, 1);
+    emp::Ptr<EfficientSymbiont> new_sym = emp::NewPtr<EfficientSymbiont>(&GetRandom(), this, efficient_config, efficient_config->SYM_INT(), 0, 1);
     InjectSymbiont(new_sym);
   }
 }
@@ -43,7 +43,7 @@ void EfficientWorld::SetupSymbionts(long unsigned int* total_syms) {
  * and populating the world with efficient hosts and efficient symbionts.
  */
 void EfficientWorld::Setup() {
-  if (my_config->EFFICIENCY_MUT_RATE() == -1) my_config->EFFICIENCY_MUT_RATE(my_config->HORIZ_MUTATION_RATE());
+  if (efficient_config->EFFICIENCY_MUT_RATE() == -1) efficient_config->EFFICIENCY_MUT_RATE(efficient_config->HORIZ_MUTATION_RATE());
   SymWorld::Setup();
 }
 #endif

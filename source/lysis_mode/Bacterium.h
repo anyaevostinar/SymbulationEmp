@@ -26,16 +26,25 @@ protected:
   */
   emp::Ptr<LysisWorld> my_world = NULL;
 
+  /**
+    * 
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigLysis> lysis_config = NULL;
+
 public:
 
   /**
    * The constructor for the bacterium class
    */
-  Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigBase> _config,
+  Bacterium(emp::Ptr<emp::Random> _random, emp::Ptr<LysisWorld> _world, emp::Ptr<SymConfigLysis> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0) : Host(_random, _world, _config, _intval,_syms, _repro_syms, _points)  {
-    host_incorporation_val = my_config->HOST_INC_VAL();
+    lysis_config = _config;
+    host_incorporation_val = lysis_config->HOST_INC_VAL();
     if(host_incorporation_val == -1){
       host_incorporation_val = random->GetDouble(0.0, 1.0);
     }
@@ -109,7 +118,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew(){
-    emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<Bacterium> host_baby = emp::NewPtr<Bacterium>(random, my_world, lysis_config, GetIntVal());
     host_baby->SetIncVal(GetIncVal());
     return host_baby;
   }
@@ -126,11 +135,11 @@ public:
   void Mutate() {
     Host::Mutate();
 
-    if(random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()){
+    if(random->GetDouble(0.0, 1.0) <= lysis_config->MUTATION_RATE()){
 
       //mutate host genome if enabled
-      if(my_config->MUTATE_INC_VAL()){
-        host_incorporation_val += random->GetNormal(0.0, my_config->MUTATION_SIZE());
+      if(lysis_config->MUTATE_INC_VAL()){
+        host_incorporation_val += random->GetNormal(0.0, lysis_config->MUTATION_SIZE());
 
         if(host_incorporation_val < 0) host_incorporation_val = 0;
 
@@ -141,7 +150,7 @@ public:
 
   double ProcessLysogenResources(double phage_inc_val){
     double incorporation_success = 1 - abs(GetIncVal() - phage_inc_val);
-    double processed_resources = GetResInProcess() * incorporation_success * my_config->SYNERGY();
+    double processed_resources = GetResInProcess() * incorporation_success * lysis_config->SYNERGY();
     SetResInProcess(0);
     return processed_resources;
   }

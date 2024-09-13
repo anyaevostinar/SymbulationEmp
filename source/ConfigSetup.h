@@ -31,6 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be sepeated into if phylogeny is on?"),
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
+    VALUE(PHAGE_EXCLUDE, bool, 0, "Do symbionts have a decreasing chance of getting into the host the more symbionts are already infecting it? (0 for no, 1 for yes)"), // todo: alias phage_exclude, and change name to sym_exclude
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
 
@@ -55,34 +56,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 0, "Number of resources to give to each free-living symbiont each update if they are available"),
     VALUE(FREE_SYM_REPRO_RES, double, -1, "How many resources required for free living symbiont reproduction. If -1, use the horizontal transmission required point value."),
 
-    GROUP(LYSIS, "Lysis Settings, coming soon to the GUI!"),
-    VALUE(LYSIS_CHANCE, double, -1, "Chance of lysis vs. lysogeny for starting population of phage, -1 for random distribution"),
-    VALUE(CHANCE_OF_INDUCTION, double, 0, "Chance of induction for starting lysogenic phage, -1 for random distribution"),
-    VALUE(LYSIS, bool, 0, "Should lysis occur? 0 for no, 1 for yes"),
-    VALUE(BURST_SIZE, int, 10, "If there is lysis, this is how many symbionts should be produced during lysis. This will be divided by burst_time and that many symbionts will be produced every update"),
-    VALUE(BURST_TIME, int, 10, "If lysis enabled, this is how many updates will pass before lysis occurs"),
-    VALUE(PROPHAGE_LOSS_RATE, double, 0, "Rate at which infected lysogens become re-susceptible to new phage"),
-    VALUE(BENEFIT_TO_HOST, bool, 0, "Should lysogenic phage give a benefit to their hosts? 0 for no, 1 for yes"),
-    VALUE(PHAGE_INC_VAL, double, 0, "The compatibility of the prophage to its placement within the bacterium's genome, from 0 to 1, -1 for random distribution"),
-    VALUE(HOST_INC_VAL, double, 0, "The compatibility of the bacterium for the phage's placement in its genome, from 0 to 1, -1 for random distribution"),
-    VALUE(SYM_LYSIS_RES, double, 1, "How many resources required for symbiont to create offspring for lysis each update"),
-    VALUE(PHAGE_EXCLUDE, bool, 0, "Do phage have a decreased chance of getting into the host if there is already a lytic phage?"),
-
-    GROUP(PGG,"Public Goods Game Settings"),
-    VALUE(PGG_DONATE, double, 0, "Ratio of symbionts‘ energy to PGG pool that experiment should start with"),
-    VALUE(PGG, int, 0, "whether have social goods game among syms" ),
-    VALUE(PGG_SYNERGY, double, 1.1, "Amount symbiont's returned resources should be multiplied by when doing PGG"),
-    VALUE(PGG_DONATE_RANDOM, bool, 0, "Make the ratio of symbionts' energy to PGG pool be random for each organism at the start of the experiment"),
-    VALUE(PGG_DONATE_MIN, double, 0.0, "The minimum value of the symbionts' donation rate, if randomly selected, at initialization"),
-    VALUE(PGG_DONATE_MAX, double, 1.0, "The maximum value of the symbionts' donation rate, if randomly selected, at initialization"),
-    VALUE(PGG_DONATE_NORMAL, bool, 0, "Make the random initialization of the symbionts' donation rate be initialized using a normal distribution"),
-    VALUE(PGG_DONATE_NORMAL_MEAN, double, 0.5, "The mean of the normal distribution of the initialization of the symbionts' donation rate"),
-    VALUE(PGG_DONATE_NORMAL_STD, double, 0.167, "The standard deviation of the normal distribution of the initialization of the symbionts' donation rate"),
-
-    GROUP(DTH, "Settings for the Dirty Transmission Hypothesis"),
-    VALUE(EFFICIENT_SYM, bool, 0, "Do you want symbionts that also have an efficiency value that evolves"),
-    VALUE(COMPETITION_MODE, bool, 0, "Should a competition between two types be conducted? (Which is specified in the code)"),
-
-
+    
 )
 #endif
