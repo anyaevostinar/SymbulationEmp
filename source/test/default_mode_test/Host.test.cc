@@ -526,7 +526,7 @@ TEST_CASE("SymAllowedIn", "[default]") {
   config.SYM_LIMIT(sym_limit);
 
   WHEN("Symbiont exclude is set to false") {
-    config.SYM_EXCLUDE(0);
+    config.PHAGE_EXCLUDE(0);
     THEN("Symbionts are added without issue") {
       emp::Ptr<emp::Random> random = new emp::Random(3);
       SymWorld world(*random, &config);
@@ -541,7 +541,7 @@ TEST_CASE("SymAllowedIn", "[default]") {
   }
 
   WHEN("Symbiont exclude is set to true") {
-    config.SYM_EXCLUDE(1);
+    config.PHAGE_EXCLUDE(1);
     THEN("Symbionts have a decreasing change of entering the host") {
       int goal_num_syms[] = { 3,3,3,3 };
       for (int i = 0; i < 4; i++) {

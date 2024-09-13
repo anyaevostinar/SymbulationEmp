@@ -25,7 +25,9 @@ public:
   /**
    * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
    * 
-   * Purpose: The constructor for PGGWorld
+   * Output: None
+   *
+   * Purpose: To construct an instance of PGGWorld
    */
   PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
     pgg_config = _config;

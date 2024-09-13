@@ -461,7 +461,7 @@ public:
    * where n is the number of existing phage.
    */
   bool SymAllowedIn(){
-    if(!my_config->SYM_EXCLUDE()){
+    if(!my_config->PHAGE_EXCLUDE()){
      return true;
     }
     else{

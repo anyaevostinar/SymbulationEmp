@@ -32,7 +32,9 @@ public:
   /**
    * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
    *
-   * Purpose: The constructor for LysisWorld
+   * Output: None
+   *
+   * Purpose: To construct an instance of LysisWorld
    */
   LysisWorld(emp::Random& _random, emp::Ptr<SymConfigLysis> _config) : SymWorld(_random, _config) {
     lysis_config = _config;

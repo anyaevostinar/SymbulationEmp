@@ -24,8 +24,10 @@ private:
 public:
   /**
    * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   * 
+   * Output: None
    *
-   * Purpose: The constructor for EfficientWorld
+   * Purpose: To construct an instance of EfficientWorld
    */
   EfficientWorld(emp::Random& _random, emp::Ptr<SymConfigEfficient> _config) : SymWorld(_random, _config) {
     efficient_config = _config;
