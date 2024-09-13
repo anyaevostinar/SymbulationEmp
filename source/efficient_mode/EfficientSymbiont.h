@@ -189,7 +189,7 @@ public:
     }
 
     if (random->GetDouble(0.0, 1.0) <= int_rate) {
-      interaction_val += random->GetRandNormal(0.0, local_size);
+      interaction_val += random->GetNormal(0.0, local_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
@@ -201,7 +201,7 @@ public:
       }
     }
     if (random->GetDouble(0.0, 1.0) <= eff_mut_rate) {
-      efficiency += random->GetRandNormal(0.0, local_size);
+      efficiency += random->GetNormal(0.0, local_size);
       if(efficiency < 0) efficiency = 0;
       else if (efficiency > 1) efficiency = 1;
     }

@@ -135,7 +135,7 @@ public:
    *
    * Purpose: To increment a phage's burst timer.
    */
-  void IncBurstTimer() {burst_timer += random->GetRandNormal(1.0, 1.0);}
+  void IncBurstTimer() {burst_timer += random->GetNormal(1.0, 1.0);}
 
 
   /**

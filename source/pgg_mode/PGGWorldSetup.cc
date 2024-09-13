@@ -39,7 +39,7 @@ void PGGWorld::SetupSymbionts(long unsigned int* total_syms) {
 		double mean = pgg_config->PGG_DONATE_NORMAL_MEAN();
 		double std = pgg_config->PGG_DONATE_NORMAL_STD();
 
-		sym_donation = random_ptr->GetRandNormal(mean, std);
+		sym_donation = random_ptr->GetNormal(mean, std);
 
 		//If selected value is out of the initialization range
 		if (sym_donation > pgg_config->PGG_DONATE_MAX()) {
