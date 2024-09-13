@@ -195,7 +195,7 @@ public:
 
       //also modify infection chance, which is between 0 and 1
       if(efficient_config->FREE_LIVING_SYMS()){
-        infection_chance += random->GetRandNormal(0.0, local_size);
+        infection_chance += random->GetNormal(0.0, local_size);
         if (infection_chance < 0) infection_chance = 0;
         else if (infection_chance > 1) infection_chance = 1;
       }
