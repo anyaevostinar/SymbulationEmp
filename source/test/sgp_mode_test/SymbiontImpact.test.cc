@@ -6,6 +6,7 @@ TEST_CASE("Parasitic sym is parasitic", "[sgp]") {
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
+  config.LIMIT_TASKS(1);
 
   SGPWorld world(random, &config, LogicTasks);
 
@@ -30,6 +31,7 @@ TEST_CASE("Mutualistic sym is mutualistic", "[sgp]") {
   SymConfigBase config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
+  config.LIMIT_TASKS(1);
 
   SGPWorld world(random, &config, LogicTasks);
 
