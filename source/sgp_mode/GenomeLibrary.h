@@ -16,8 +16,8 @@ using Library = sgpl::OpLibrary<
     // biological operations
     // no copy or alloc
     inst::Reproduce, 
-    inst::PrivateIO, 
-    //inst::SharedIO,
+    //inst::PrivateIO, 
+    inst::SharedIO,
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
@@ -308,7 +308,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-    return CreatePrivateNotProgram(PROGRAM_LENGTH);
+    return CreateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
   }

@@ -95,8 +95,8 @@ public:
    * processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
-    //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      //cpu.state.used_resources->reset();
+    if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+      cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {
@@ -105,9 +105,9 @@ public:
 
     //Host with parasite loses 80% of CPU to parasite
     bool host_cycle = true;
-    if (HasSym()) {
+    /*if (HasSym()) {
       host_cycle = random->P(0.5);
-    }
+    }*/
 
     // Randomly decide whether to run before or after the symbiont
     bool run_before = random->P(1.0);
