@@ -27,20 +27,6 @@ public:
   }
 
   virtual bool CanPerform(const CPUState &state, size_t task_id) {
-    if (!state.world.Cast<SymWorld>()->GetConfig()->LIMIT_TASKS()) return true;
-    if (state.used_resources->Get(task_id) && !unlimited) {
-      return false;
-    }
-    if (dependencies.size()) {
-      size_t actually_completed = std::reduce(
-        dependencies.begin(), dependencies.end(), 0, [&](auto acc, auto i) {
-          return acc + state.available_dependencies[i] +
-            (*state.shared_available_dependencies)[i];
-        });
-      if (actually_completed < num_dep_completes) {
-        return false;
-      }
-    }
     //only let organisms do one task during lifetime
     // for(int i=0; i<state.tasks_performed->size(); i++){
     //   if(i==task_id) continue; //skip this task

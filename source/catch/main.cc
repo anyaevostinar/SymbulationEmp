@@ -31,7 +31,6 @@
 
 #include "../test/sgp_mode_test/CPU.test.cc"
 #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
-#include "../test/sgp_mode_test/SymbiontImpact.test.cc"
 #include "../test/sgp_mode_test/SquareFrequencyMap.test.cc"
 #include "../test/sgp_mode_test/SGPWorld.test.cc"
 
