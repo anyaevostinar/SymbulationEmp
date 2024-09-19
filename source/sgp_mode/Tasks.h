@@ -271,9 +271,9 @@ public:
 // These are checked top-to-bottom and the reward is given for the first one
 // that matches
 const InputTask
-    NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }, false},
-    NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }, false},
-    AND = {"AND", 2, 5.0, [](auto &x) { return x[0] & x[1]; }, true, {0, 1}},
+    NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }, true },
+    NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }, true },
+    AND = {"AND", 2, 5.0, [](auto &x) { return x[0] & x[1]; }, true},
     ORN = {"ORN", 2, 5.0, [](auto &x) { return x[0] | ~x[1]; }, true},
     OR = {"OR", 2, 5.0, [](auto &x) { return x[0] | x[1]; }, true},
     ANDN = {"ANDN", 2,        5.0, [](auto &x) { return x[0] & ~x[1]; }, true},
