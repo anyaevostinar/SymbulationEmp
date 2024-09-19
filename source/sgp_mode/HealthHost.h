@@ -6,6 +6,31 @@
 class HealthHost : public SGPHost {
 
     public:
+
+      /**
+   * Constructs a new SGPHost as an ancestor organism, with either a random
+   * genome or a blank genome that knows how to do a simple task depending on
+   * the config setting RANDOM_ANCESTOR.
+   */
+  HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+          emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
+          emp::vector<emp::Ptr<Organism>> _syms = {},
+          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+          double _points = 0.0)
+      : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points){}
+
+        /**
+   * Constructs an SGPHost with a copy of the provided genome.
+   */
+  HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+          emp::Ptr<SymConfigBase> _config, const sgpl::Program<Spec> &genome,
+          double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
+          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+          double _points = 0.0)
+      : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points) {}
+
+  HealthHost(const SGPHost &host)
+      : SGPHost(host) {}
     /**
      * Input: None.
      *
