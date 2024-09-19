@@ -86,6 +86,15 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
+   * Input: None
+   * 
+   * Output: A pointer to the world this host belongs to.
+   * 
+   * Purpose: Allows accessing the host's world.
+   */
+  emp::Ptr<SGPWorld> GetWorld() { return my_world; }
+
+  /**
    * Input: The location of the host.
    *
    * Output: None
@@ -103,19 +112,10 @@ public:
       return;
     }
 
-    //Host with parasite loses 80% of CPU to parasite
-    bool host_cycle = true;
-    if (HasSym()) {
-      host_cycle = random->P(0.5);
-    }
+    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    
 
-    // Randomly decide whether to run before or after the symbiont
-    bool run_before = random->P(1.0);
-    if (host_cycle && run_before) {
-      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
-    }
-
-    if (HasSym() && !host_cycle) { // let each sym do whatever they need to do
+    if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
       for (size_t j = 0; j < syms.size(); j++) {
         emp::Ptr<Organism> curSym = syms[j];
@@ -135,10 +135,6 @@ public:
         }
       } // for each sym in syms
     }   // if org has syms
-
-    if (host_cycle && !run_before) {
-      cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
-    }
 
     GrowOlder();
   }
