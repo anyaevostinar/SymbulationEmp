@@ -1,3 +1,4 @@
+#include "../../source/sgp_mode/Tasks.cc"
 #include "../../sgp_mode/CPU.h"
 #include "../../sgp_mode/SGPDataNodes.h"
 #include "../../sgp_mode/SGPWorld.h"
@@ -25,7 +26,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   WHEN("logic tasks are used") {
-    // Make the ancestor genome do NOT instead of SQUARE
+    // Make the ancestor genome do NOT
     config.TASK_TYPE(1);
 
     TaskSet task_set{ emp::NewPtr<InputTask>(NOT) };

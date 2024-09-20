@@ -48,10 +48,6 @@ private:
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
 public:
-  std::map<uint32_t, size_t> data_node_host_squares;
-  std::map<uint32_t, size_t> data_node_sym_squares;
-  std::mutex squares_mutex;
-
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
@@ -154,8 +150,6 @@ public:
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
-  emp::DataFile &SetupHostSquareFrequencyFile(const std::string &filename);
-  emp::DataFile &SetupSymSquareFrequencyFile(const std::string &filename);
 
   void CreateDataFiles() override;
 };
