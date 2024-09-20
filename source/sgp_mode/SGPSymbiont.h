@@ -12,6 +12,13 @@ private:
   CPU cpu;
   const emp::Ptr<SGPWorld> my_world;
 
+  /**
+*
+* Purpose: Holds all configuration settings and points to same configuration
+* object as my_config from superclass, but with the correct subtype.
+*
+*/
+  emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
    * Constructs a new SGPSymbiont as an ancestor organism, with either a random
@@ -19,20 +26,24 @@ public:
    * the config setting RANDOM_ANCESTOR.
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
+              emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
               double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points), cpu(this, _world),
-        my_world(_world) {}
+        my_world(_world) {
+    sgp_config = _config;
+  }
 
   /**
    * Constructs an SGPSymbiont with a copy of the provided genome.
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigBase> _config,
+              emp::Ptr<SymConfigSGP> _config,
               const sgpl::Program<Spec> &genome, double _intval = 0.0,
               double _points = 0.0)
       : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _world, genome), my_world(_world) {}
+        cpu(this, _world, genome), my_world(_world) {
+    sgp_config = _config;
+  }
 
   SGPSymbiont(const SGPSymbiont &symbiont)
       : Symbiont(symbiont),
@@ -125,7 +136,7 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
-    if (my_host == nullptr && my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+    if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
       cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
@@ -133,7 +144,7 @@ public:
       return;
     }
     
-    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
     // The parts of Symbiont::Process that don't use resources or reproduction
 
     // Age the organism
@@ -166,7 +177,7 @@ public:
    */
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(
-        random, my_world, my_config, cpu.GetProgram(), GetIntVal());
+        random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     return sym_baby;

@@ -8,23 +8,23 @@
 
 void SGPWorld::CreateDataFiles() {
   std::string file_ending =
-      "_SEED" + std::to_string(my_config->SEED()) + ".data";
+      "_SEED" + std::to_string(sgp_config->SEED()) + ".data";
   // track the number of each organism type
-  SetUpOrgCountFile(my_config->FILE_PATH() + "OrganismCounts" +
-    my_config->FILE_NAME() + file_ending)
-    .SetTimingRepeat(my_config->DATA_INT());
+  SetUpOrgCountFile(sgp_config->FILE_PATH() + "OrganismCounts" +
+    sgp_config->FILE_NAME() + file_ending)
+    .SetTimingRepeat(sgp_config->DATA_INT());
 
   // SGP mode doesn't need int val files, and they have significant performance
   // overhead. Only the transmission file needs to be created for this mode.  
-  SetUpTransmissionFile(my_config->FILE_PATH() + "TransmissionRates" +
-                        my_config->FILE_NAME() + file_ending)
-      .SetTimingRepeat(my_config->DATA_INT());
-  SetupSymDonatedFile(my_config->FILE_PATH() + "SymDonated" +
-                      my_config->FILE_NAME() + file_ending)
-      .SetTimingRepeat(my_config->DATA_INT());
-  SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
+  SetUpTransmissionFile(sgp_config->FILE_PATH() + "TransmissionRates" +
+                        sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
+  SetupSymDonatedFile(sgp_config->FILE_PATH() + "SymDonated" +
+                      sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
+  SetupTasksFile(sgp_config->FILE_PATH() + "Tasks" + sgp_config->FILE_NAME() +
                   file_ending)
-      .SetTimingRepeat(my_config->DATA_INT());
+      .SetTimingRepeat(sgp_config->DATA_INT());
 }
 
 
@@ -49,7 +49,7 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
   file.AddTotal(host_count, "count", "Total number of hosts");
   file.AddTotal(endo_sym_count, "hosted_syms", "Total number of syms in a host");
   
-  if (my_config->FREE_LIVING_SYMS()) {
+  if (sgp_config->FREE_LIVING_SYMS()) {
     auto& free_sym_count = GetCountFreeSymsDataNode();
     file.AddTotal(free_sym_count, "free_syms", "Total number of free syms");
   }

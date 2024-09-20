@@ -304,7 +304,7 @@ sgpl::Program<Spec> CreateMutualistStart(size_t length) {
  * Picks what type of starting program should be created based on the config and
  * creates it.
  */
-sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigBase> config) {
+sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {

@@ -1,7 +1,7 @@
 #ifndef SGP_WORLD_SETUP_C
 #define SGP_WORLD_SETUP_C
 
-#include "../ConfigSetup.h"
+#include "SGPConfigSetup.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
@@ -9,10 +9,10 @@
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org = emp::NewPtr<SGPHost>(
-        &GetRandom(), this, my_config, CreateNotProgram(100), my_config->HOST_INT());
-    if(my_config->START_MOI()==1){
+        &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+    if(sgp_config->START_MOI()==1){
       emp::Ptr<SGPSymbiont> new_sym = emp::NewPtr<SGPSymbiont>(
-          &GetRandom(), this, my_config, my_config->SYM_INT());
+          &GetRandom(), this, sgp_config, sgp_config->SYM_INT());
       new_org->AddSymbiont(new_sym);
     }
     InjectHost(new_org);
@@ -46,7 +46,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
    size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
     emp::Ptr<emp::BitSet<64>> parent_tasks = parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-    if(my_config->FREE_LIVING_SYMS() == 0){
+    if(sgp_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i, parent_tasks);
       if (new_host_pos > -1) { //-1 means no living neighbors
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
