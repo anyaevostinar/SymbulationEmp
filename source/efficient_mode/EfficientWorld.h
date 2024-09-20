@@ -3,9 +3,18 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "EfficientConfigSetup.h"
 
 class EfficientWorld : public SymWorld {
 private:
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> efficient_config = NULL;
+
   /**
     *
     * Purpose: Data node tracking the average efficiency of efficient symbionts.
@@ -13,7 +22,16 @@ private:
   */
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
 public:
-  using SymWorld::SymWorld;
+  /**
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   * 
+   * Output: None
+   *
+   * Purpose: To construct an instance of EfficientWorld
+   */
+  EfficientWorld(emp::Random& _random, emp::Ptr<SymConfigEfficient> _config) : SymWorld(_random, _config) {
+    efficient_config = _config;
+  }
 
   /**
    * Input: None
@@ -43,9 +61,9 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the efficient condition experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(efficient_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupEfficiencyFile(my_config->FILE_PATH()+"Efficiency"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupEfficiencyFile(efficient_config->FILE_PATH()+"Efficiency"+efficient_config->FILE_NAME()+file_ending).SetTimingRepeat(efficient_config->DATA_INT());
   }
 
   /**
