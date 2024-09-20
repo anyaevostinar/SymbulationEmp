@@ -5,7 +5,7 @@
 
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   emp::Random random(61);
-  SymConfigBase config;
+  SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
@@ -72,7 +72,7 @@ TEST_CASE("Generate EQU program", "[sgp]") {
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   emp::Random random(61);
-  SymConfigBase config;
+  SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 

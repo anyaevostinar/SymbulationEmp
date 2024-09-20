@@ -6,7 +6,7 @@
 
 TEST_CASE("GetDominantInfo", "[sgp]") {
   emp::Random random(61);
-  SymConfigBase config;
+  SymConfigSGP config;
   config.DOMINANT_COUNT(10);
 
   SGPWorld world(random, &config, TaskSet{});
