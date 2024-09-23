@@ -2,7 +2,7 @@
 
 TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(5);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = -1;
@@ -27,7 +27,7 @@ TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
 
 TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(4);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = -1;
@@ -43,7 +43,7 @@ TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
 
 TEST_CASE("Bacterium mutate", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = 0;
@@ -113,7 +113,7 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
 
 TEST_CASE("ProcessLysogenResources", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     config.HOST_INC_VAL(0);
@@ -160,7 +160,7 @@ TEST_CASE("ProcessLysogenResources", "[lysis]"){
 
 TEST_CASE("Bacterium Process", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(12);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     size_t location = 0;
@@ -199,60 +199,9 @@ TEST_CASE("Bacterium Process", "[lysis]"){
     }
 }
 
-TEST_CASE("Phage Exclude", "[lysis]") {
-    SymConfigBase config;
-    int sym_limit = 4;
-    config.SYM_LIMIT(sym_limit);
-
-    double int_val = 0;
-
-    WHEN("Phage exclude is set to false"){
-      emp::Ptr<emp::Random> random = new emp::Random(3);
-      LysisWorld world(*random, &config);
-
-      bool phage_exclude = 0;
-      config.PHAGE_EXCLUDE(phage_exclude);
-      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
-
-      THEN("syms are added without issue"){
-        for(int i = 0; i < sym_limit; i++){
-          bacterium->AddSymbiont(emp::NewPtr<Phage>(random, &world, &config, int_val));
-        }
-        int num_syms = (bacterium->GetSymbionts()).size();
-
-        REQUIRE(num_syms==sym_limit);
-
-        bacterium.Delete();
-      }
-    }
-
-    WHEN("Phage exclude is set to true"){
-      bool phage_exclude = 1;
-      config.PHAGE_EXCLUDE(phage_exclude);
-
-      THEN("syms have a decreasing change of entering the host"){
-        int goal_num_syms[] = {3,3,3,3};
-
-        for(int i = 0; i < 4; i ++){
-          emp::Ptr<emp::Random> random = new emp::Random(i+1);
-          LysisWorld world(*random, &config);
-
-          emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-          for(double i = 0; i < 10; i++){
-            host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
-          }
-          int host_num_syms = (host->GetSymbionts()).size();
-
-          REQUIRE(goal_num_syms[i] == host_num_syms);
-          host.Delete();
-        }
-      }
-    }
-}
-
 TEST_CASE("Bacterium MakeNew", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(*random, &config);
 
     double host_int_val = 0.2;
@@ -275,7 +224,7 @@ TEST_CASE("Bacterium MakeNew", "[lysis]"){
 
 TEST_CASE("Bacterium reproduce", "[lysis]"){
     emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    SymConfigLysis config;
     LysisWorld world(*random, &config);
     config.MUTATION_SIZE(0.002);
     config.MUTATION_RATE(1);

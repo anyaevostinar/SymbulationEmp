@@ -3,9 +3,19 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "LysisConfigSetup.h"
 
 class LysisWorld : public SymWorld {
 private:
+
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigLysis> lysis_config = NULL;
+
   /**
     *
     * Purpose: Data nodes tracking lysis chance, induction chance, incorporation difference, lytic burst size, and lytic burst count.
@@ -19,7 +29,16 @@ private:
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
 
 public:
-  using SymWorld::SymWorld;
+  /**
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   *
+   * Output: None
+   *
+   * Purpose: To construct an instance of LysisWorld
+   */
+  LysisWorld(emp::Random& _random, emp::Ptr<SymConfigLysis> _config) : SymWorld(_random, _config) {
+    lysis_config = _config;
+  }
 
   /**
    * Input: None
@@ -53,11 +72,11 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(lysis_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupLysisChanceFile(my_config->FILE_PATH()+"LysisChance"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
-    SetupInductionChanceFile(my_config->FILE_PATH()+"InductionChance"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
-    SetupIncorporationDifferenceFile(my_config->FILE_PATH()+"IncValDifferences"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupLysisChanceFile(lysis_config->FILE_PATH()+"LysisChance"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
+    SetupInductionChanceFile(lysis_config->FILE_PATH()+"InductionChance"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
+    SetupIncorporationDifferenceFile(lysis_config->FILE_PATH()+"IncValDifferences"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
   }
 
   /**

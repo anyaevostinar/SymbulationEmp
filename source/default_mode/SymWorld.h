@@ -87,7 +87,7 @@ protected:
 
 public:
   /**
-   * Input: The world's random seed
+   * Input: The world's random seed and a pointer to this world's config object
    *
    * Output: None
    *
