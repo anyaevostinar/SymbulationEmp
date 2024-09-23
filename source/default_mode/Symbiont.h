@@ -92,7 +92,7 @@ protected:
     * Purpose: Represents the tag for this organism
     *
   */
-  emp::BitSet<16> tag;
+  emp::BitSet<32> tag;
 
 public:
   /**
@@ -271,7 +271,7 @@ public:
    *
    * Purpose: To set a symbiont's tag.
    */
-   void SetTag(emp::BitSet<16> & _in) { tag.Import(_in); }
+   void SetTag(emp::BitSet<32> & _in) { tag.Import(_in); }
 
    /**
    * Input: None
@@ -280,7 +280,7 @@ public:
    *
    * Purpose: To get a symbiont's tag.
    */
-   emp::BitSet<16> & GetTag() { return tag; }
+   emp::BitSet<32> & GetTag() { return tag; }
 
   /**
    * Input: None

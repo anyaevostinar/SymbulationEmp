@@ -1626,8 +1626,9 @@ TEST_CASE("Tag matching", "[default]") {
     int starting_res = 15;
     config.SYM_HORIZ_TRANS_RES(trans_res);
     config.SYM_VERT_TRANS_RES(trans_res);
+    double tag_distance_limit = 0.25;
     config.TAG_MATCHING(1);
-    config.TAG_DISTANCE(0.25);
+    config.TAG_DISTANCE(tag_distance_limit);
     config.TAG_MUTATION_SIZE(0.0);
     double int_val = 0;
     
@@ -1636,14 +1637,16 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       
       // symbiont tag is all 0s
-      emp::BitSet<16> bit_set_0 = emp::BitSet<16>();
+      emp::BitSet<32> bit_set_0 = emp::BitSet<32>();
       symbiont->SetTag(bit_set_0);
       symbiont->AddPoints(starting_res);
 
       WHEN("Their tags are sufficiently close") {
-        // host tag has 4 1s
-        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 4);
+        // host tag has 8 1s
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 8);
         host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+
         symbiont->VerticalTransmission(host);
 
         THEN("The symbiont suceeds") {
@@ -1657,9 +1660,11 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
-        // host tag has 5 1s
-        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 5);
+        // host tag has 9 1s
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 9);
         host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
+
         symbiont->VerticalTransmission(host);
 
         THEN("The symbiont fails") {
@@ -1682,12 +1687,12 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       // symbiont tag is all 0s
-      emp::BitSet<16> bit_set_0 = emp::BitSet<16>();
+      emp::BitSet<32> bit_set_0 = emp::BitSet<32>();
       symbiont->SetTag(bit_set_0);
       
       WHEN("Their tags are sufficiently close") {
-        size_t source_pos = 0;
-        size_t target_pos = 1;
+        size_t source_pos = 1;
+        size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
         source_host->AddSymbiont(symbiont);
         symbiont->AddPoints(starting_res);
@@ -1698,10 +1703,11 @@ TEST_CASE("Tag matching", "[default]") {
         world.AddOrgAt(target_host, target_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
-        // host tag has 4 1s
-        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 4);
+        // host tag has 8 1s
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 8);
         target_host->SetTag(bit_set_1);
-        
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
         
         THEN("The symbiont suceeds") {
@@ -1728,9 +1734,10 @@ TEST_CASE("Tag matching", "[default]") {
         world.AddOrgAt(target_host, target_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
-        // host tag has 5 1s
-        emp::BitSet<16> bit_set_1 = emp::BitSet<16>(16, random, 5);
+        // host tag has 9 1s
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 9);
         target_host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
 
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
 

@@ -65,7 +65,7 @@ protected:
     * Purpose: Represents the tag distance calculator.
     *
   */
-  emp::Ptr<emp::HammingMetric<16>> hamming_metric;
+  emp::Ptr<emp::HammingMetric<32>> hamming_metric;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -112,7 +112,7 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      hamming_metric = emp::NewPtr<emp::HammingMetric<16>>();
+      hamming_metric = emp::NewPtr<emp::HammingMetric<32>>();
     }
   }
 
@@ -187,7 +187,7 @@ public:
    *
    * Purpose: To get the world's tag distance calculator
    */
-  emp::Ptr<emp::HammingMetric<16>> GetTagMetric() {
+  emp::Ptr<emp::HammingMetric<32>> GetTagMetric() {
     return hamming_metric;
   }
 
