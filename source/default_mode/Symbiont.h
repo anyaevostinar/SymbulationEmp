@@ -591,8 +591,9 @@ public:
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING()) {
-        double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag());
-        if (tag_distance > my_config->TAG_DISTANCE()) {
+        double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())*32;
+        double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * 32);
+        if (tag_distance > cutoff) {
           sym_baby.Delete();
           return;
         }

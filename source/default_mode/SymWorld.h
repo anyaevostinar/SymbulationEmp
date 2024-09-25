@@ -569,8 +569,9 @@ public:
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
         if (my_config->TAG_MATCHING()) {
-          if (hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag())
-              > my_config->TAG_DISTANCE()) {
+          double tag_distance = hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * 32;
+          double cutoff = GetRandom().GetPoisson(my_config->TAG_DISTANCE() * 32);
+          if (tag_distance > cutoff) {
             sym_baby.Delete();
             return emp::WorldPosition();
           }

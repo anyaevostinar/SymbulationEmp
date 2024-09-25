@@ -1626,7 +1626,7 @@ TEST_CASE("Tag matching", "[default]") {
     int starting_res = 15;
     config.SYM_HORIZ_TRANS_RES(trans_res);
     config.SYM_VERT_TRANS_RES(trans_res);
-    double tag_distance_limit = 0.25;
+    double tag_distance_limit = 0.125;
     config.TAG_MATCHING(1);
     config.TAG_DISTANCE(tag_distance_limit);
     config.TAG_MUTATION_SIZE(0.0);
@@ -1643,7 +1643,7 @@ TEST_CASE("Tag matching", "[default]") {
 
       WHEN("Their tags are sufficiently close") {
         // host tag has 8 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 8);
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
         host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
 
@@ -1704,7 +1704,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(world.GetNumOrgs() == 2);
 
         // host tag has 8 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 8);
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
         target_host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
 
