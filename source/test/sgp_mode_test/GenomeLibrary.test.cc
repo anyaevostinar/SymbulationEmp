@@ -45,10 +45,6 @@ TEST_CASE("Generate NOT program", "[sgp]") {
   TestGenome(emp::NewPtr<InputTask>(NOT), &ProgramBuilder::AddNot);
 }
 
-TEST_CASE("Generate SQUARE program", "[sgp]") {
-  TestGenome(emp::NewPtr<SquareTask>(SQU), &ProgramBuilder::AddSquare);
-}
-
 TEST_CASE("Generate NAND program", "[sgp]") {
   TestGenome(emp::NewPtr<InputTask>(NAND), &ProgramBuilder::AddNand);
 }

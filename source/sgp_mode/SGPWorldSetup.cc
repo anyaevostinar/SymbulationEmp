@@ -9,9 +9,8 @@
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
-    //TODO: make a config option to decide which type of host to create?
     emp::Ptr<HealthHost> new_org = emp::NewPtr<HealthHost>(
-        &GetRandom(), this, my_config, CreatePrivateNotProgram(100), my_config->HOST_INT());
+        &GetRandom(), this, my_config, CreateNotProgram(100), my_config->HOST_INT());
     if(my_config->START_MOI()==1){
       emp::Ptr<SGPSymbiont> new_sym = emp::NewPtr<SGPSymbiont>(
           &GetRandom(), this, my_config, my_config->SYM_INT());

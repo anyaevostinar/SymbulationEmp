@@ -61,7 +61,7 @@ public:
     return true;
   }
 
-  virtual void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
+  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
                              bool shared);
 
   virtual float CheckOutput(CPUState &state, uint32_t output) = 0;
@@ -84,7 +84,7 @@ public:
             size_t num_dep_completes = 1)
       : Task(name, unlimited, dependencies, num_dep_completes),
         n_inputs(n_inputs), task_fun(task_fun), value(value) {}
-
+  
   float CheckOutput(CPUState &state, uint32_t output) override {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
       if (state.input_buf[i] == 0)
@@ -102,36 +102,6 @@ public:
   }
 };
 
-/**
- * An output task returns a reward based on the output the organism produced:
- * `OutputTask is42() "IS42", [](uint32_t x) { return x == 42 ? 2.0 : 0.0; } );`
- */
-class OutputTask : public Task {
-  std::function<float(uint32_t)> task_fun;
-
-public:
-  OutputTask(std::string name, std::function<float(uint32_t)> task_fun,
-             bool unlimited = true, emp::vector<size_t> dependencies = {},
-             size_t num_dep_completes = 1)
-      : Task(name, unlimited, dependencies, num_dep_completes),
-        task_fun(task_fun) {}
-
-  float CheckOutput(CPUState &state, uint32_t output) override {
-    return task_fun(output);
-  }
-};
-
-class SquareTask : public OutputTask {
-public:
-  SquareTask(std::string name, std::function<float(uint32_t)> task_fun,
-             bool unlimited = true, emp::vector<size_t> dependencies = {},
-             size_t num_dep_completes = 1)
-      : OutputTask(name, task_fun, unlimited, dependencies, num_dep_completes) {
-  }
-
-  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                     bool shared) override;
-};
 
 class TaskSet {
   emp::vector<emp::Ptr<Task>> tasks;
@@ -289,22 +259,5 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(OR),  emp::NewPtr<InputTask>(ANDN),
     emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
     emp::NewPtr<InputTask>(EQU)};
-
-const SquareTask SQU = {"SQU", [](uint32_t x) {
-                          uint32_t largest_int = 4294967295;
-                          if (sqrt(x) - floor(sqrt(x)) == 0) {
-                            if (x > (largest_int / 2)) {
-                              // Awards points based on a number's distance from
-                              // 0 rather than absolute size
-                              return 0.5 * (0 - x);
-                            } else {
-                              return (0.5 * x);
-                            }
-                          } else {
-                            return 0.0;
-                          }
-                          return 0.0;
-                        }};
-const TaskSet SquareTasks{emp::NewPtr<SquareTask>(SQU)};
 
 #endif
