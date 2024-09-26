@@ -13,7 +13,7 @@ class HealthHost : public SGPHost {
    * the config setting RANDOM_ANCESTOR.
    */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
+          emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
           emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
@@ -23,7 +23,7 @@ class HealthHost : public SGPHost {
    * Constructs an SGPHost with a copy of the provided genome.
    */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, const sgpl::Program<Spec> &genome,
+          emp::Ptr<SymConfigSGP> _config, const sgpl::Program<Spec> &genome,
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
@@ -40,7 +40,7 @@ class HealthHost : public SGPHost {
      */
     emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<HealthHost>(
-        random, GetWorld(), my_config, GetCPU().GetProgram(), GetIntVal());
+        random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     GetCPU().state.in_progress_repro = -1;
     return host_baby;
@@ -93,7 +93,7 @@ class HealthHost : public SGPHost {
 
         
         if (host_cycle) {
-        GetCPU().RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+        GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
         }
 
         if (HasSym() && !host_cycle) { // let each sym do whatever they need to do

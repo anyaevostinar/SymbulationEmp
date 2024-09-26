@@ -20,17 +20,26 @@ protected:
     *
   */
   emp::Ptr<EfficientWorld> my_world = NULL;
+
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> efficient_config = NULL;
 public:
   /**
    * The constructor for efficient host
    */
-  EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config,
+  EfficientHost(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigEfficient> _config,
   double _intval =0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
   emp::vector<emp::Ptr<Organism>> _repro_syms = {},
   double _points = 0.0, double _efficient = 0.1) :
   Host(_random, _world, _config, _intval, _syms, _repro_syms, _points) {
     efficiency = _efficient;
     my_world = _world;
+    efficient_config = _config;
   }
 
 
@@ -103,7 +112,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew(){
-    emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, efficient_config, GetIntVal());
     host_baby->SetEfficiency(GetEfficiency());
     return host_baby;
   }

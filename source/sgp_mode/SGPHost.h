@@ -12,6 +12,14 @@ private:
   CPU cpu;
   const emp::Ptr<SGPWorld> my_world;
 
+protected:
+  /**
+   *
+   * Purpose: Holds all configuration settings and points to same configuration
+   * object as my_config from superclass, but with the correct subtype.
+   *
+   */
+  emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
@@ -19,23 +27,27 @@ public:
    * the config setting RANDOM_ANCESTOR.
    */
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, double _intval = 0.0,
+          emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
           emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world), my_world(_world) {}
+    cpu(this, _world), my_world(_world) {
+    sgp_config = _config;
+  }
 
   /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigBase> _config, const sgpl::Program<Spec> &genome,
+          emp::Ptr<SymConfigSGP> _config, const sgpl::Program<Spec> &genome,
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
       : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, genome), my_world(_world) {}
+        cpu(this, _world, genome), my_world(_world) {
+    sgp_config = _config;
+  }
 
   SGPHost(const SGPHost &host)
       : Host(host), cpu(this, host.my_world, host.cpu.GetProgram()),
@@ -112,7 +124,7 @@ public:
       return;
     }
 
-    cpu.RunCPUStep(pos, my_config->CYCLES_PER_UPDATE());
+    cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
     
 
     if (HasSym()) { // let each sym do whatever they need to do
@@ -148,7 +160,7 @@ public:
    */
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
-        random, my_world, my_config, cpu.GetProgram(), GetIntVal());
+        random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     return host_baby;

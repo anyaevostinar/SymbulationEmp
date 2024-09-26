@@ -22,7 +22,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   };
 
   emp::Random random(61);
-  SymConfigBase config;
+  SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   WHEN("logic tasks are used") {

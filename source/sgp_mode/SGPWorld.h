@@ -6,6 +6,7 @@
 #include "Tasks.h"
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
+#include "SGPConfigSetup.h"
 
 /// Helper which synchronizes access to the DataMonitor with a mutex
 template <typename T, emp::data... MODS> class SyncDataMonitor {
@@ -47,12 +48,21 @@ private:
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
+  /**
+  *
+  * Purpose: Holds all configuration settings and points to same configuration
+  * object as my_config from superclass, but with the correct subtype.
+  *
+  */
+  emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
-  SGPWorld(emp::Random &r, emp::Ptr<SymConfigBase> _config, TaskSet task_set)
+  SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
-        task_set(task_set) {}
+    task_set(task_set) {
+    sgp_config = _config;
+  }
 
   ~SGPWorld() {
     data_node_sym_donated.Delete();
@@ -73,6 +83,15 @@ public:
   /**
    * Input: None
    *
+   * Output: The sgp configuration used for this world.
+   *
+   * Purpose: Allows accessing the world's sgp config.
+   */
+  const emp::Ptr<SymConfigSGP> GetConfig() const { return sgp_config; }
+
+  /**
+   * Input: None
+   *
    * Output: None
    *
    * Purpose: To simulate a timestep in the world, which includes calling the
@@ -82,11 +101,11 @@ public:
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future
     emp::World<Organism>::Update();
-    if (my_config->PHYLOGENY())
+    if (sgp_config->PHYLOGENY())
       sym_sys->Update();
     // Handle resource inflow
     if (total_res != -1) {
-      total_res += my_config->LIMITED_RES_INFLOW();
+      total_res += sgp_config->LIMITED_RES_INFLOW();
     }
 
     scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
