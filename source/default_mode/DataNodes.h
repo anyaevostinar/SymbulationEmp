@@ -21,6 +21,9 @@ void SymWorld::CreateDataFiles(){
   if(my_config->FREE_LIVING_SYMS() == 1){
     SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
+  if (my_config->TAG_MATCHING()) {
+    SetUpTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+  }
 }
 
 /**
@@ -42,9 +45,7 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
-  if (my_config->TAG_MATCHING()) {
-    file.AddMean(GetTagDistanceDataNode(), "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
-  }
+  
   //interaction val histogram
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
   file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
@@ -230,10 +231,39 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
  *
  * Output: None.
  *
+ * Purpose: To write the tag distances of host-symbionts over time.
+ */
+emp::DataFile& SymWorld::SetUpTagDistFile(const std::string& filename) {
+  auto& file = SetupFile(filename);
+  auto& tag_dist_node = GetTagDistanceDataNode();
+
+  file.AddVar(update, "update", "Update");
+  file.AddMean(tag_dist_node, "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
+  file.AddHistBin(tag_dist_node, 0, "tag_0.1", "Count for tag distance histogram bin 0 to <0.1");
+  file.AddHistBin(tag_dist_node, 1, "tag_0.2", "Count for tag distance histogram bin 0.1 to <0.2");
+  file.AddHistBin(tag_dist_node, 2, "tag_0.3", "Count for tag distance histogram bin 0.2 to <0.3");
+  file.AddHistBin(tag_dist_node, 3, "tag_0.4", "Count for tag distance histogram bin 0.3 to <0.4");
+  file.AddHistBin(tag_dist_node, 4, "tag_0.5", "Count for tag distance histogram bin 0.4 to <0.5");
+  file.AddHistBin(tag_dist_node, 5, "tag_0.6", "Count for tag distance histogram bin 0.5 to <0.6");
+  file.AddHistBin(tag_dist_node, 6, "tag_0.7", "Count for tag distance histogram bin 0.6 to <0.7");
+  file.AddHistBin(tag_dist_node, 7, "tag_0.8", "Count for tag distance histogram bin 0.7 to <0.8");
+  file.AddHistBin(tag_dist_node, 8, "tag_0.9", "Count for tag distance histogram bin 0.8 to <0.9");
+  file.AddHistBin(tag_dist_node, 9, "tag_1.0", "Count for tag distance histogram bin 0.9 to 1.0");
+  
+  file.PrintHeaderKeys();
+
+  return file;
+}
+
+/**
+ * Input: The address of the string representing the suffixes for the files to be created.
+ *
+ * Output: None.
+ *
  * Purpose: To write the tags of hosts and symbionts to a data file after an experiment is 
  * concluded
  */
-void SymWorld::WriteTagsFile(const std::string& filename) {
+void SymWorld::WriteTagDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
 
   std::string header = "host_tag,sym_tag,tag_distance\n";
@@ -656,7 +686,7 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
  * Purpose: To retrieve the data nodes that is tracking the
  * average tag distance between hosts and their symbionts.
  */
-emp::DataMonitor<double>& SymWorld::GetTagDistanceDataNode() {
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode() {
   if (!data_node_tag_dist) {
     data_node_tag_dist.New();
     OnUpdate([this](size_t) {
@@ -674,6 +704,7 @@ emp::DataMonitor<double>& SymWorld::GetTagDistanceDataNode() {
       } //end for
     }); //end OnUpdate
   } //end if
+  data_node_tag_dist->SetupBins(0, 1.1, 11);
   return *data_node_tag_dist;
 }
 

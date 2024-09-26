@@ -74,7 +74,7 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
-  emp::Ptr<emp::DataMonitor<double>> data_node_tag_dist;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -473,7 +473,7 @@ public:
    */
   virtual void CreateDataFiles();
   void WritePhylogenyFile(const std::string & filename);
-  void WriteTagsFile(const std::string& filename);
+  void WriteTagDumpFile(const std::string& filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
   emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
@@ -482,6 +482,7 @@ public:
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
   emp::DataFile & SetUpTransmissionFile(const std::string & filename);
+  emp::DataFile & SetUpTagDistFile(const std::string& filename);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
@@ -491,7 +492,7 @@ public:
   emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
   emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
-  emp::DataMonitor<double>& GetTagDistanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetTagDistanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
