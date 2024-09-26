@@ -27,9 +27,6 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   // Call the provided method reference
   (builder.*method)();
   CPU cpu(&organism, &world, builder.Build(100));
-  // cpu.PrintCode();
-  cpu.state.shared_available_dependencies = emp::NewPtr<emp::vector<size_t>>();
-  cpu.state.shared_available_dependencies->resize(LogicTasks.NumTasks());
 
   cpu.RunCPUStep(0, 100);
   world.Update();
@@ -39,6 +36,7 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internalEnvironment.Delete();
+  cpu.state.tasks_performed.Delete();
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
@@ -90,9 +88,6 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   // Empty builder
   ProgramBuilder builder;
   CPU cpu(&organism, &world, builder.Build(100));
-  // cpu.PrintCode();
-  cpu.state.shared_available_dependencies = emp::NewPtr<emp::vector<size_t>>();
-  cpu.state.shared_available_dependencies->resize(LogicTasks.NumTasks());
 
   cpu.RunCPUStep(0, 100);
   world.Update();
@@ -104,4 +99,5 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internalEnvironment.Delete();
+  cpu.state.tasks_performed.Delete();
 }
