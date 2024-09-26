@@ -20,7 +20,7 @@ public:
        emp::vector<size_t> dependencies = {}, size_t num_dep_completes = 1)
       : unlimited(unlimited), dependencies(dependencies),
         num_dep_completes(num_dep_completes), name(name) {}
-
+  
   virtual ~Task(){}
 
   virtual void MarkAlwaysPerformable() {
@@ -154,8 +154,10 @@ public:
    * A custom copy constructor so that task completions aren't shared between
    * TaskSets, which would be a problem for tests
    */
-  TaskSet(const TaskSet &other) : tasks(other.tasks) {
-    for (size_t i = 0; i < tasks.size(); i++) {
+  TaskSet(const TaskSet &other){
+    tasks = emp::vector<emp::Ptr<Task>>();
+    for (size_t i = 0; i < other.tasks.size(); i++) {
+      tasks.push_back(emp::NewPtr<InputTask>(*other.tasks[i].DynamicCast<InputTask>()));
       n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
     }
