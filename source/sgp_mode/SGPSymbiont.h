@@ -12,12 +12,13 @@ private:
   CPU cpu;
   const emp::Ptr<SGPWorld> my_world;
 
+protected:
   /**
-*
-* Purpose: Holds all configuration settings and points to same configuration
-* object as my_config from superclass, but with the correct subtype.
-*
-*/
+   * 
+   * Purpose: Holds all configuration settings and points to same configuration
+   * object as my_config from superclass, but with the correct subtype.
+   * 
+   */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
