@@ -22,18 +22,9 @@ void SGPWorld::CreateDataFiles() {
   SetupSymDonatedFile(my_config->FILE_PATH() + "SymDonated" +
                       my_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(my_config->DATA_INT());
-  if (my_config->TASK_TYPE() == 1) {
-    SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
-                   file_ending)
-        .SetTimingRepeat(my_config->DATA_INT());
-  } else if (my_config->TASK_TYPE() == 0) {
-    SetupHostSquareFrequencyFile(my_config->FILE_PATH() + "Host_Square" +
-                                 my_config->FILE_NAME() + file_ending)
-        .SetTimingRepeat(my_config->DATA_INT());
-    SetupSymSquareFrequencyFile(my_config->FILE_PATH() + "Sym_Square" +
-                                my_config->FILE_NAME() + file_ending)
-        .SetTimingRepeat(my_config->DATA_INT());
-  }
+  SetupTasksFile(my_config->FILE_PATH() + "Tasks" + my_config->FILE_NAME() +
+                  file_ending)
+      .SetTimingRepeat(my_config->DATA_INT());
 }
 
 
@@ -80,39 +71,6 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
                   "Symbiont completions of " + data.task.name, true);
     i++;
   }
-  file.PrintHeaderKeys();
-
-  return file;
-}
-
-emp::DataFile &
-SGPWorld::SetupHostSquareFrequencyFile(const std::string &filename) {
-  auto &file = SetupFile(filename);
-  file.AddVar(update, "update", "Update");
-  file.Add(
-      [&](std::ostream &os) {
-        for (auto [val, count] : data_node_host_squares) {
-          os << val << ": " << count << "; ";
-        }
-        data_node_host_squares.clear();
-      },
-      "host_square_frequencies", "Host number of repeats for each square");
-  file.PrintHeaderKeys();
-  return file;
-}
-
-emp::DataFile &
-SGPWorld::SetupSymSquareFrequencyFile(const std::string &filename) {
-  auto &file = SetupFile(filename);
-  file.AddVar(update, "update", "Update");
-  file.Add(
-      [&](std::ostream &os) {
-        for (auto [val, count] : data_node_sym_squares) {
-          os << val << ": " << count << "; ";
-        }
-        data_node_sym_squares.clear();
-      },
-      "sym_square_frequencies", "Sym number of repeats for each square");
   file.PrintHeaderKeys();
 
   return file;
