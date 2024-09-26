@@ -38,13 +38,37 @@ class HealthHost : public SGPHost {
      *
      * Purpose: To avoid creating an organism via constructor in other methods.
      */
-    emp::Ptr<Organism> MakeNew() {
+    emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<HealthHost>(
         random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     GetCPU().state.in_progress_repro = -1;
     return host_baby;
   }
+
+    //TODO: this is just copied from host for the purpose of getting the tests back to passing
+    //Ousting should probably be a config option in Host since ousting is a useful thing
+  int AddSymbiont(emp::Ptr<Organism> _in) override {
+
+    // Ousting code:
+    if((int)syms.size() >= my_config->SYM_LIMIT()){
+      emp::Ptr<Organism> last_sym = syms.back();
+      syms.pop_back();
+      last_sym->SetDead(); //TODO: this isn't ever cleaned up? 
+    }//end ousting code
+
+    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+      syms.push_back(_in);
+      _in->SetHost(this);
+      _in->UponInjection();
+      return syms.size();
+    } else {
+      _in.Delete();
+      return 0;
+    }
+  }
+
+
 
     /** 
      * Input: The location of the host.
