@@ -65,9 +65,9 @@ public:
   }
 
   ~SGPWorld() {
-    data_node_sym_donated.Delete();
-    data_node_sym_stolen.Delete();
-    data_node_sym_earned.Delete();
+    if(data_node_sym_donated) data_node_sym_donated.Delete();
+    if(data_node_sym_stolen) data_node_sym_stolen.Delete();
+    if(data_node_sym_earned) data_node_sym_earned.Delete();
     // The vectors will delete themselves automatically
   }
 

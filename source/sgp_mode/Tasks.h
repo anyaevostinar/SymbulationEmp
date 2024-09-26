@@ -21,6 +21,8 @@ public:
       : unlimited(unlimited), dependencies(dependencies),
         num_dep_completes(num_dep_completes), name(name) {}
 
+  virtual ~Task(){}
+
   virtual void MarkAlwaysPerformable() {
     dependencies.clear();
     unlimited = true;
@@ -85,6 +87,8 @@ public:
       : Task(name, unlimited, dependencies, num_dep_completes),
         n_inputs(n_inputs), task_fun(task_fun), value(value) {}
   
+  ~InputTask(){}
+
   float CheckOutput(CPUState &state, uint32_t output) override {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
       if (state.input_buf[i] == 0)
@@ -154,6 +158,17 @@ public:
     for (size_t i = 0; i < tasks.size(); i++) {
       n_succeeds_host.push_back(emp::NewPtr<std::atomic<size_t>>(0));
       n_succeeds_sym.push_back(emp::NewPtr<std::atomic<size_t>>(0));
+    }
+  }
+
+  /**
+  * A destructor to clean up the task pointers
+  */
+  ~TaskSet() {
+    for (size_t i = 0; i < tasks.size(); i++) {
+      if (tasks[i]) tasks[i].Delete();
+      if (n_succeeds_host[i]) n_succeeds_host[i].Delete();
+      if (n_succeeds_sym[i]) n_succeeds_sym[i].Delete();
     }
   }
 
