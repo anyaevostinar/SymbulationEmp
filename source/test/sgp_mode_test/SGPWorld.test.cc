@@ -39,3 +39,37 @@ TEST_CASE("GetDominantInfo", "[sgp]") {
     }
   }
 }
+
+TEST_CASE("Baseline function", "[sgp]") {
+  emp::Random random(61);
+  SymConfigSGP config;
+  config.FREE_LIVING_SYMS(1);
+  config.GRID_X(2);
+  config.GRID_Y(2);
+
+
+  SGPWorld world(random, &config, LogicTasks);
+  world.Resize(2,2);
+
+  emp::Ptr<SGPHost> infected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
+  emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
+  emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+  emp::Ptr<SGPSymbiont> free_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+
+  infected_host->AddSymbiont(hosted_symbiont);
+  world.AddOrgAt(infected_host, 0);
+  world.AddOrgAt(uninfected_host, 1);
+  world.AddOrgAt(free_symbiont, emp::WorldPosition(0, 0));
+  
+  THEN("Organisms can be added to the world") {
+    REQUIRE(world.GetNumOrgs() == 3);
+  }
+
+  for (int i = 0; i < 10; i++) {
+    world.Update();
+  }
+
+  THEN("Organisms persist and are managed by the world") {
+    REQUIRE(world.GetNumOrgs() == 3);
+  }
+}
