@@ -65,7 +65,7 @@ public:
     cpu.state.used_resources.Delete();
     cpu.state.tasks_performed.Delete();
     cpu.state.shared_available_dependencies.Delete();
-    cpu.state.internalEnvironment.Delete();
+    cpu.state.internal_environment.Delete();
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
       my_world->to_reproduce[cpu.state.in_progress_repro].second =

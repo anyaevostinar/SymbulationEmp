@@ -178,11 +178,11 @@ INST(Reuptake, {
   uint32_t next;
   AddOrganismPoints(state, *a);
   // Only get resources if the organism has values in their internal environment
-  if (state.internalEnvironment->size() > 0) {
+  if (state.internal_environment->size() > 0) {
     // Take a resource from back of internal environment vector
-    next = state.internalEnvironment->back();
+    next = state.internal_environment->back();
     // Clear out the selected resource from Internal Environment
-    state.internalEnvironment->pop_back();
+    state.internal_environment->pop_back();
     *a = next;
     state.input_buf.push(next);
   } else {
