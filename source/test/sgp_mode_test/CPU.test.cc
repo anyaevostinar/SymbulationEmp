@@ -34,9 +34,6 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
 
     TestOrg organism;
     CPU cpu(&organism, &world);
-    cpu.state.shared_available_dependencies =
-      emp::NewPtr<emp::vector<size_t>>();
-    cpu.state.shared_available_dependencies->resize(1);
 
     // It should reproduce at the end of its program, which has length 100
     cpu.RunCPUStep(0, 100);
@@ -47,5 +44,6 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     cpu.state.shared_available_dependencies.Delete();
     cpu.state.used_resources.Delete();
     cpu.state.internalEnvironment.Delete();
+    cpu.state.tasks_performed.Delete();
   }
 }

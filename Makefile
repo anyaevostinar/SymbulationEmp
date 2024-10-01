@@ -68,6 +68,10 @@ debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
 debug-default: default-mode 
 default-debug: debug-default
 
+debug-parasite: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-parasite: parasite-mode 
+parasite-debug: debug-parasite
+
 debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
 debug-efficient: efficient-mode 
 efficient-debug: debug-efficient
