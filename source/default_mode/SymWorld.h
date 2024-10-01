@@ -32,6 +32,14 @@ protected:
 
   /**
     *
+    * Purpose: Represents the set of symbionts which have been thrown out of
+    * their hosts and need to be deleted at the end of every update.
+    *
+  */
+  emp::vector<emp::Ptr<Organism>> graveyard = {};
+
+  /**
+    *
     * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
     *
   */
@@ -164,6 +172,14 @@ public:
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
+   /**
+   * Input: None
+   *
+   * Output: A reference to the world graveyard.
+   *
+   * Purpose: To get the world's graveyard.
+   */
+  emp::vector<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
 
   /**
    * Input: None
@@ -789,6 +805,12 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
+  
+    // clean up the graveyard
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
   } // Update()
 };// SymWorld class
 #endif
