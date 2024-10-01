@@ -439,7 +439,15 @@ public:
    * Purpose: To add a symbionts to a host's symbionts
    */
   int AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+    bool allowed_in = SymAllowedIn();
+    if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
+      emp::Ptr<Organism> old_sym = syms.back();
+      old_sym->SetDead();
+      old_sym->SetHost(nullptr);
+      my_world->GetGraveyard().push_back(old_sym);
+      syms.pop_back();
+    }
+    if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
@@ -682,8 +690,10 @@ public:
           if(!curSym->GetDead()){
             curSym->Process(sym_pos);
           }
-          if(curSym->GetDead()){
-            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+          if(curSym->GetDead() && curSym->GetHost()!=nullptr) {
+            //if the symbiont dies during their process, remove from syms list
+            //UNLESS they died by getting ousted
+            syms.erase(syms.begin() + j); 
             curSym.Delete();
           }
         } //for each sym in syms
