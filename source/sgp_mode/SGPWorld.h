@@ -150,6 +150,12 @@ public:
       }
     }
     to_reproduce.clear();
+
+    // clean up the graveyard
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
   }
 
   // Prototypes for setup methods

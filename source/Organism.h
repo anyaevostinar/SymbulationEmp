@@ -239,5 +239,9 @@ class Organism {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
 
+  virtual void TurnOffRepro() {
+    std::cout << "TurnOffRepro called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 };
 #endif

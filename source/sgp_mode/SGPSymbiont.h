@@ -67,10 +67,7 @@ public:
       cpu.state.shared_available_dependencies.Delete();
     }
     // Invalidate any in-progress reproduction
-    if (cpu.state.in_progress_repro != -1) {
-      my_world->to_reproduce[cpu.state.in_progress_repro].second =
-          emp::WorldPosition::invalid_id;
-    }
+    TurnOffRepro();
   }
 
   bool operator<(const Organism &other) const {
@@ -129,6 +126,20 @@ public:
    * Purpose: Allows accessing the symbiont's CPU.
    */
   CPU &GetCPU() { return cpu; }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Halts any in-progress reproduction.
+   */
+  void TurnOffRepro() {
+    if (cpu.state.in_progress_repro != -1) {
+      my_world->to_reproduce[cpu.state.in_progress_repro].second =
+        emp::WorldPosition::invalid_id;
+    }
+  }
 
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
