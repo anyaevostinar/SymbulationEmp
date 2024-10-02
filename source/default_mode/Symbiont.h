@@ -175,6 +175,14 @@ public:
       return  "Symbiont";
     }
 
+  /**
+    * Input: None
+    *
+    * Output: None
+    *
+    * Purpose: A code stub necessary for SGPSymbiont ousting
+    */
+  void TurnOffRepro() {}
 
   /**
    * Input: None

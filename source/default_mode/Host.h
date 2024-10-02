@@ -443,6 +443,7 @@ public:
     if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
       emp::Ptr<Organism> old_sym = syms.back();
       my_world->GetGraveyard().push_back(old_sym);
+      old_sym->TurnOffRepro();
       syms.pop_back();
     }
     if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
