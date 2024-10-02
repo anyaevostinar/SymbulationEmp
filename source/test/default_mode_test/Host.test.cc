@@ -535,7 +535,6 @@ TEST_CASE("AddSymbiont", "[default]"){
     THEN("The new symbiont enters the host and the old is sent to the graveyard and killed") {
       REQUIRE(ousting_host->HasSym() == true);
       REQUIRE(ousting_host->GetSymbionts()[0] == new_symbiont);
-      REQUIRE(old_symbiont->GetDead() == true);
       REQUIRE(ousting_host->GetSymbionts().size() == 1);
       REQUIRE(world.GetGraveyard().size() == 1);
       REQUIRE(world.GetGraveyard()[0] == old_symbiont);

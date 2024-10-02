@@ -442,8 +442,6 @@ public:
     bool allowed_in = SymAllowedIn();
     if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
       emp::Ptr<Organism> old_sym = syms.back();
-      old_sym->SetDead();
-      old_sym->SetHost(nullptr);
       my_world->GetGraveyard().push_back(old_sym);
       syms.pop_back();
     }
@@ -690,7 +688,7 @@ public:
           if(!curSym->GetDead()){
             curSym->Process(sym_pos);
           }
-          if(curSym->GetDead() && curSym->GetHost()!=nullptr) {
+          if(curSym->GetDead()) {
             //if the symbiont dies during their process, remove from syms list
             //UNLESS they died by getting ousted
             syms.erase(syms.begin() + j); 
