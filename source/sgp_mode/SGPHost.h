@@ -10,9 +10,15 @@
 class SGPHost : public Host {
 private:
   CPU cpu;
+  
+protected:
+  /**
+    *
+    * Purpose: Represents the SGPWorld that the hosts are living in.
+    *
+  */
   const emp::Ptr<SGPWorld> my_world;
 
-protected:
   /**
    *
    * Purpose: Holds all configuration settings and points to same configuration

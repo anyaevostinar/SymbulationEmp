@@ -1,0 +1,55 @@
+#include "../../sgp_mode/StressHost.h"
+
+TEST_CASE("Extinction event", "[sgp]") {
+  emp::Random random(61);
+  SymConfigSGP config;
+  config.ORGANISM_TYPE(2);
+  config.EXTINCTION_FREQUENCY(10);
+  config.GRID_X(10);
+  config.GRID_Y(10);
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  WHEN("There are stress symbionts in the world"){
+    config.START_MOI(1);
+    world.SetupHosts(&world_size);
+    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+    REQUIRE(world.GetNumOrgs() == world_size);
+    WHEN("Stress symbionts are mutualists"){
+      config.STRESS_TYPE(0);
+      world.Update();
+      THEN("Hosts are less likely to die during the extinction event") {
+        REQUIRE(world.GetNumOrgs() < world_size * 0.875 + 10);
+        REQUIRE(world.GetNumOrgs() > world_size * 0.875 - 10);
+      }
+    }
+    WHEN("Stress symbionts are parasites") {
+      config.STRESS_TYPE(1);
+      world.Update();
+      THEN("Hosts are more likely to die during the extinction event") {        
+        REQUIRE(world.GetNumOrgs() < world_size * 0.5 + 10);
+        REQUIRE(world.GetNumOrgs() > world_size * 0.5 - 10);
+      }
+    }
+    WHEN("Stress symbionts are neutrals"){
+      config.STRESS_TYPE(2);
+      world.Update();
+      THEN("Hosts die according to the default extinction probability during the extinction event") {        
+        REQUIRE(world.GetNumOrgs() < world_size * 0.75 + 10);
+        REQUIRE(world.GetNumOrgs() > world_size * 0.75 - 10);
+      }
+    }
+  }
+  WHEN("There are no stress symbionts in the world") {
+    config.START_MOI(0);
+    world.SetupHosts(&world_size);
+    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+    REQUIRE(world.GetNumOrgs() == world_size);
+    world.Update();
+    THEN("Hosts die according to the default extinction probability during the extinction event") {
+      REQUIRE(world.GetNumOrgs() < world_size * 0.75 + 10);
+      REQUIRE(world.GetNumOrgs() > world_size * 0.75 - 10);
+    }
+  }
+}

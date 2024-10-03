@@ -14,7 +14,13 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
 
   VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
-  VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host")
+  VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
+
+  VALUE(ORGANISM_TYPE, size_t, 0, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
+
+  GROUP(STRESS, "Stress Settings"),
+  VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorportated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
+  VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?")
 )
 
 #endif

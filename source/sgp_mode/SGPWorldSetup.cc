@@ -2,15 +2,32 @@
 #define SGP_WORLD_SETUP_C
 
 #include "SGPConfigSetup.h"
-#include "SGPHost.h"
 #include "HealthHost.h"
+#include "StressHost.h"
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
-    emp::Ptr<HealthHost> new_org = emp::NewPtr<HealthHost>(
-        &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+    emp::Ptr<SGPHost> new_org;
+    switch (sgp_config->ORGANISM_TYPE()) {
+      case 0:
+        new_org = emp::NewPtr<SGPHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+        break;
+      case 1:
+        new_org = emp::NewPtr<HealthHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+        break;
+      case 2:
+        new_org = emp::NewPtr<StressHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+        break;
+      default:
+        std::cout << "Please request a supported sgp organism type" << std::endl;
+        break;
+    }
+    
     if(sgp_config->START_MOI()==1){
 
       emp::Ptr<SGPSymbiont> new_sym = emp::NewPtr<SGPSymbiont>(
