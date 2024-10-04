@@ -441,11 +441,15 @@ public:
   int AddSymbiont(emp::Ptr<Organism> _in) {
     bool allowed_in = SymAllowedIn();
     if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
-      emp::Ptr<Organism> old_sym = syms.back();
+      int new_sym_pos = (syms.size() > 1) ? random->GetInt(syms.size()) : syms.size()-1;
+      emp::Ptr<Organism> old_sym = syms[new_sym_pos];
       my_world->GetGraveyard().push_back(old_sym);
-      syms.pop_back();
+      syms[new_sym_pos] = _in;
+      _in->SetHost(this);
+      _in->UponInjection();
+      return new_sym_pos+1;
     }
-    if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
+    else if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
