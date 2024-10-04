@@ -32,8 +32,9 @@ protected:
 
   /**
     *
-    * Purpose: Represents the set of symbionts which have been thrown out of
-    * their hosts and need to be deleted at the end of every update.
+    * Purpose: Represents the set of organisms which have been unlinked from 
+    * their standard managing structures and need to be deleted at the end 
+    * of every update.
     *
   */
   emp::vector<emp::Ptr<Organism>> graveyard = {};
