@@ -316,6 +316,16 @@ public:
     pop_sizes.resize(2);
   }
 
+  /**
+   * Input: An organism pointer to add to the graveyard
+   *
+   * Output: None
+   *
+   * Purpose: To add organisms to the graveyard
+   */
+  void SendToGraveyard(emp::Ptr<Organism> org) {
+    graveyard.push_back(org);
+  }
 
   /**
    * Input: The pointer to the new organism;
