@@ -443,7 +443,7 @@ public:
     if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
       int new_sym_pos = (syms.size() > 1) ? random->GetInt(syms.size()) : syms.size()-1;
       emp::Ptr<Organism> old_sym = syms[new_sym_pos];
-      my_world->GetGraveyard().push_back(old_sym);
+      my_world->SendToGraveyard(old_sym);
       syms[new_sym_pos] = _in;
       _in->SetHost(this);
       _in->UponInjection();
