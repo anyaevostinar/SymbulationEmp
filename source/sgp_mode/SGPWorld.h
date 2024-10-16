@@ -160,7 +160,7 @@ public:
 
   
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>>);
+  int GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont);
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
 
   // Prototypes for data node methods
