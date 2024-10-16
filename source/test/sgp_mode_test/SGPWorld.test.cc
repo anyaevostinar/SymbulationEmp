@@ -73,3 +73,41 @@ TEST_CASE("Baseline function", "[sgp]") {
     REQUIRE(world.GetNumOrgs() == 3);
   }
 }
+
+TEST_CASE("TaskMatchCheck", "[sgp]") {
+  emp::Random random(61);
+  SymConfigSGP config;
+  SGPWorld world(random, &config, LogicTasks);
+  config.SYM_LIMIT(2);
+
+  ProgramBuilder builder;
+  builder.AddNand();
+
+  emp::Ptr<SGPHost> NOT_host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+  emp::Ptr<SGPSymbiont> NOT_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  emp::Ptr<SGPSymbiont> NAND_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, builder.Build(100));
+  
+  NOT_host->AddSymbiont(NOT_symbiont);
+  NOT_host->AddSymbiont(NAND_symbiont);
+  world.AddOrgAt(NOT_host, 0);
+
+
+  bool not_not_matched = false;
+  bool not_nand_matched = false;
+  for (int i = 0; i < 100; i++) {
+    world.Update();
+    if (world.TaskMatchCheck(NOT_symbiont, NOT_host)) not_not_matched = true;
+    if (world.TaskMatchCheck(NAND_symbiont, NOT_host)) not_nand_matched = true;
+  }
+
+  WHEN("A host and symbiont can both do at least one same task") {
+    THEN("TaskMatchCheck returns true"){
+      REQUIRE(not_not_matched == true);
+    }
+  }
+  WHEN("A host and symbiont have no tasks they can both do") {
+    THEN("TaskMatchCheck returns false") {
+      REQUIRE(not_nand_matched == false);
+    }
+  }
+}

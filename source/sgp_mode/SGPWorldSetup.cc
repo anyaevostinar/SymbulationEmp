@@ -61,6 +61,28 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>> parent_tasks
   return -1;
 }
 
+ /**
+  * Input: Pointers to a host and to a symbiont
+  *
+  * Output: Whether host and symbion parent are able to accomplish
+  * at least one task in common
+  *
+  * Purpose: To check for task matching before vertical transmission
+  */
+bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
+  emp::Ptr<emp::BitSet<64>> parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+  emp::Ptr<emp::BitSet<64>> host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
+  for (int i = host_tasks->size() - 1; i > -1; i--) {
+    if (parent_tasks->Get(i) && host_tasks->Get(i)) {
+      //both parent sym and host can do this task, symbiont baby can infect
+      return true;
+    }
+  }
+  return false;
+}
+
+
+
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
    size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
@@ -82,5 +104,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
       return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
     }
   }
+
+
 
 #endif

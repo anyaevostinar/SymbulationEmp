@@ -17,6 +17,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
 
   VALUE(ORGANISM_TYPE, size_t, 0, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
+  VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorportated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
