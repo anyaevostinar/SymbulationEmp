@@ -28,6 +28,20 @@ int symbulation_main(int argc, char *argv[]) {
   SymConfigSGP config;
   CheckConfigFile(config, argc, argv);
 
+  // stress hard-coded transmission modes
+  if (config.ORGANISM_TYPE() == 2) {
+    if (config.STRESS_TYPE() == 0) {
+      // mutualists
+      config.VERTICAL_TRANSMISSION(1.0);
+      config.HORIZ_TRANS(0);
+    }
+    else if (config.STRESS_TYPE() == 1) {
+      // parasites
+      config.VERTICAL_TRANSMISSION(0);
+      config.HORIZ_TRANS(1);
+    }
+  }
+
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
