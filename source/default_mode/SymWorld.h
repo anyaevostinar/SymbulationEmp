@@ -336,7 +336,7 @@ public:
    *
    * Purpose: To add organisms to the graveyard
    */
-  void SendToGraveyard(emp::Ptr<Organism> org) {
+  virtual void SendToGraveyard(emp::Ptr<Organism> org) {
     graveyard.push_back(org);
   }
 

@@ -165,6 +165,7 @@ public:
   
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
   int GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>>);
+  void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetSymDonatedDataNode();
