@@ -20,10 +20,10 @@ protected:
     *
   */
   emp::Ptr<PGGWorld> my_world = NULL;
-  
+
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -31,7 +31,7 @@ protected:
 
 public:
   PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
-    pgg_config = _config; 
+    pgg_config = _config;
     my_world = _world;
   }
 
@@ -86,7 +86,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, PGGSymbiont
   *
   * Purpose: To know which subclass the object is
@@ -127,7 +127,7 @@ public:
   void Mutate(){
     Symbiont::Mutate();
     if (random->GetDouble(0.0, 1.0) <= pgg_config->MUTATION_RATE()) {
-      PGG_donate += random->GetRandNormal(0.0, pgg_config->MUTATION_SIZE());
+      PGG_donate += random->GetNormal(0.0, pgg_config->MUTATION_SIZE());
       if(PGG_donate < 0) PGG_donate = 0;
       else if (PGG_donate > 1) PGG_donate = 1;
     }

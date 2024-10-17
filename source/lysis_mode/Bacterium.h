@@ -27,8 +27,8 @@ protected:
   emp::Ptr<LysisWorld> my_world = NULL;
 
   /**
-    * 
-    * Purpose: Holds all configuration settings and points to same configuration 
+    *
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -82,7 +82,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, Bacterium
   *
   * Purpose: To know which subclass the object is
@@ -139,7 +139,7 @@ public:
 
       //mutate host genome if enabled
       if(lysis_config->MUTATE_INC_VAL()){
-        host_incorporation_val += random->GetRandNormal(0.0, lysis_config->MUTATION_SIZE());
+        host_incorporation_val += random->GetNormal(0.0, lysis_config->MUTATION_SIZE());
 
         if(host_incorporation_val < 0) host_incorporation_val = 0;
 
