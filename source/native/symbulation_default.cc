@@ -29,6 +29,9 @@ int symbulation_main(int argc, char * argv[])
   if (config.TAG_MATCHING() == 1) {
     std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
     world.WriteTagDumpFile(config.FILE_PATH() + "TagDump" + config.FILE_NAME() + file_ending);
+    if (config.TAG_MATRIX() == 1) {
+      world.WriteTagMatrixFile(config.FILE_PATH() + "TagMatrix" + config.FILE_NAME() + file_ending);
+    }
   }
   return 0;
 }

@@ -474,6 +474,7 @@ public:
   virtual void CreateDataFiles();
   void WritePhylogenyFile(const std::string & filename);
   void WriteTagDumpFile(const std::string& filename);
+  void WriteTagMatrixFile(const std::string& filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
   emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();

@@ -60,5 +60,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
   VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
   VALUE(TAG_DISTANCE, double, 0.125, "What is the poisson mean for divergence allowed between tags for a sucessful infection (1 = perfect mismatch, 0 = perfect match)"),
   VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bistring tag flips during mutation?"),
+  VALUE(TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
   )
 #endif
