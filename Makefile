@@ -4,7 +4,8 @@ EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
 
 # Flags to use regardless of compiler
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ -DUIT_VENDORIZE_EMP -w
+VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++
