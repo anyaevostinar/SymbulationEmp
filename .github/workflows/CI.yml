@@ -24,16 +24,16 @@ jobs:
       - name: run symbulation
         run: cd SymbulationEmp && make debug-default && ./symbulation_default -GRID_X 5 -GRID_Y 5
 
-      - name: test web build
-        run: cd SymbulationEmp/emsdk && ./emsdk install 1.38.48 && ./emsdk activate 1.38.48 && source ./emsdk_env.sh && cd .. && make web
-
       # Runs a single command using the runners shell
       - name: Make tests
         run: cd SymbulationEmp && make coverage
-        
+
+      - name: test web build
+        run: cd SymbulationEmp/emsdk && ./emsdk install 1.38.48 && ./emsdk activate 1.38.48 && source ./emsdk_env.sh && cd .. && make web
+
       - name: Generate coverage
         run: cd SymbulationEmp && gcov -abcfu main.cc
-        
+
       - name: Upload coverage
         uses: codecov/codecov-action@v1.5.2
         with:

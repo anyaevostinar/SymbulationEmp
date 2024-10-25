@@ -50,7 +50,7 @@ protected:
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -110,7 +110,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, Phage
   *
   * Purpose: To know which subclass the object is
@@ -135,7 +135,7 @@ public:
    *
    * Purpose: To increment a phage's burst timer.
    */
-  void IncBurstTimer() {burst_timer += random->GetRandNormal(1.0, 1.0);}
+  void IncBurstTimer() {burst_timer += random->GetNormal(1.0, 1.0);}
 
 
   /**
@@ -261,17 +261,17 @@ public:
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
       if(lysis_config->MUTATE_LYSIS_CHANCE()){
-        chance_of_lysis += random->GetRandNormal(0.0, local_size);
+        chance_of_lysis += random->GetNormal(0.0, local_size);
         if(chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
       if(lysis_config->MUTATE_INDUCTION_CHANCE()){
-        induction_chance += random->GetRandNormal(0.0, local_size);
+        induction_chance += random->GetNormal(0.0, local_size);
         if(induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
       if(lysis_config->MUTATE_INC_VAL()){
-        incorporation_val += random->GetRandNormal(0.0, local_size);
+        incorporation_val += random->GetNormal(0.0, local_size);
         if(incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
       }
