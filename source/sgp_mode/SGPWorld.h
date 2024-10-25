@@ -150,6 +150,12 @@ public:
       }
     }
     to_reproduce.clear();
+
+    // clean up the graveyard
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
   }
 
   // Prototypes for setup methods
@@ -159,6 +165,7 @@ public:
   
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
   int GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>>);
+  void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetSymDonatedDataNode();

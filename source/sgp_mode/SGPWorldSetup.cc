@@ -25,6 +25,21 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
 
 }
 
+/**
+ * Input: An organism pointer to add to the graveyard
+ *
+ * Output: None
+ *
+ * Purpose: To add organisms to the graveyard
+ */
+void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
+  if (org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro != -1) {
+    to_reproduce[org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro].second =
+      emp::WorldPosition::invalid_id;
+  }
+  SymWorld::SendToGraveyard(org);
+}
+
 int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>> parent_tasks){
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
