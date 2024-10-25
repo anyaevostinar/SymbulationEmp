@@ -3,7 +3,7 @@
 
 TEST_CASE("Symbiont Constructor", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -54,7 +54,7 @@ TEST_CASE("Symbiont Constructor", "[default]") {
 
 TEST_CASE("SetIntVal, GetIntVal", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -97,7 +97,7 @@ TEST_CASE("SetIntVal, GetIntVal", "[default]") {
 
 TEST_CASE("SetInfectionChance, GetInfectionChance", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -124,7 +124,7 @@ TEST_CASE("SetInfectionChance, GetInfectionChance", "[default]") {
 
 TEST_CASE("SetPoints, GetPoints", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -154,7 +154,7 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
 }
 
 TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -175,7 +175,7 @@ TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
 }
 
 TEST_CASE("WantsToInfect", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(17);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -211,7 +211,7 @@ TEST_CASE("WantsToInfect", "[default]"){
 }
 
 TEST_CASE("InfectionFails", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(17);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -273,7 +273,7 @@ TEST_CASE("InfectionFails", "[default]"){
 
 TEST_CASE("mutate", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(37);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(37);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -339,7 +339,7 @@ TEST_CASE("mutate", "[default]") {
 
 TEST_CASE("reproduce", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(3);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -439,7 +439,7 @@ TEST_CASE("reproduce", "[default]") {
 
 TEST_CASE("Process", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -611,7 +611,7 @@ TEST_CASE("Process", "[default]") {
 }
 
 TEST_CASE("Symbiont ProcessResources", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -708,7 +708,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 }
 
 TEST_CASE("Symbiont GrowOlder", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld world(*random, &config);
     world.Resize(2,2);
@@ -751,7 +751,7 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
 }
 
 TEST_CASE("Symbiont MakeNew", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
     SymWorld world(*random, &config);
 
