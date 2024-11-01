@@ -224,7 +224,7 @@ public:
    * Output: The standard function object that determines which bin organisms
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organsims based on their interaction value.
+   * Purpose: To classify organisms based on their interaction value.
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {

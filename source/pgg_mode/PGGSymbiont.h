@@ -140,16 +140,16 @@ public:
    *
    * Output: The double representation of resources to be given to the host.
    *
-   * Purpose: Deteremines the resources that the symbiont is contributing
+   * Purpose: Determines the resources that the symbiont is contributing
    * to the host's resource pool, and decriments them from the symbiont's own
    * own resource collection.
    */
   double ProcessPool(){
-    double symdonation = GetDonation();
-    double symPortion = GetPoints();
-    double hostreturn = symdonation*symPortion;
-    SetPoints(symPortion-hostreturn);
-    return hostreturn;
+    double sym_donation = GetDonation();
+    double sym_portion = GetPoints();
+    double host_return = sym_donation * sym_portion;
+    SetPoints(sym_portion - host_return);
+    return host_return;
   }
 
   /**
