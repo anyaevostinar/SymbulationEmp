@@ -88,7 +88,7 @@ protected:
 
 public:
   /**
-   * Input: The world's random seed
+   * Input: The world's random seed and a pointer to this world's config object
    *
    * Output: None
    *
@@ -190,6 +190,7 @@ public:
    * Purpose: Allows accessing the world's config.
    */
   const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
+
 
 
   /**

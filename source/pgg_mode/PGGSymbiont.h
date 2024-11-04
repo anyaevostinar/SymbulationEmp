@@ -31,9 +31,10 @@ protected:
 
 public:
   PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
-    pgg_config = _config;
+    pgg_config = _config; 
     my_world = _world;
   }
+
 
   /**
    * Input: None
