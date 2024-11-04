@@ -4,7 +4,8 @@ EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
 
 # Flags to use regardless of compiler
-CFLAGS_all := -Wall -Wno-unused-function -std=c++17 -I$(EMP_DIR)/ -I$(SGP_DIR)/
+VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++
@@ -65,27 +66,27 @@ debug:
 	@echo SGP mode: make debug-sgp
 
 debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-default: default-mode 
+debug-default: default-mode
 default-debug: debug-default
 
 debug-parasite: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-parasite: parasite-mode 
+debug-parasite: parasite-mode
 parasite-debug: debug-parasite
 
 debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-efficient: efficient-mode 
+debug-efficient: efficient-mode
 efficient-debug: debug-efficient
 
 debug-lysis: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-lysis: lysis-mode 
+debug-lysis: lysis-mode
 lysis-debug: debug-lysis
 
 debug-pgg: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-pgg: pgg-mode 
+debug-pgg: pgg-mode
 pgg-debug: debug-pgg
 
 debug-sgp: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-sgp: sgp-mode 
+debug-sgp: sgp-mode
 sgp-debug: debug-sgp
 
 debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
@@ -102,7 +103,7 @@ test:
 	@echo To run only the tests for each mode, use the following:
 	@echo Default mode testing: make test-default
 	@echo Efficient mode testing: make test-efficient
-	@echo Lysis mode testing: make test-lysis 
+	@echo Lysis mode testing: make test-lysis
 	@echo PGG mode testing: make test-pgg
 	@echo SGP mode testing: make test-sgp
 
@@ -112,7 +113,7 @@ test-debug:
 	@echo To debug and test for each mode, use the following:
 	@echo Default mode: make test-debug-default
 	@echo Efficient mode: make test-debug-efficient
-	@echo Lysis mode: make test-debug-lysis 
+	@echo Lysis mode: make test-debug-lysis
 	@echo PGG mode: make test-debug-pgg
 	@echo SGP mode: make test-debug-sgp
 
@@ -146,7 +147,7 @@ test-debug-pgg:
 
 test-sgp:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp] 
+	./symbulation.test [sgp]
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp]

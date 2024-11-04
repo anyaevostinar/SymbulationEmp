@@ -32,6 +32,15 @@ protected:
 
   /**
     *
+    * Purpose: Represents the set of organisms which have been unlinked from 
+    * their standard managing structures and need to be deleted at the end 
+    * of every update.
+    *
+  */
+  emp::vector<emp::Ptr<Organism>> graveyard = {};
+
+  /**
+    *
     * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
     *
   */
@@ -79,7 +88,7 @@ protected:
 
 public:
   /**
-   * Input: The world's random seed
+   * Input: The world's random seed and a pointer to this world's config object
    *
    * Output: None
    *
@@ -137,7 +146,7 @@ public:
     }
 
     if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
-      Clear(); // delete hosts here so that hosted symbionts get 
+      Clear(); // delete hosts here so that hosted symbionts get
       // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
@@ -164,6 +173,14 @@ public:
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
+   /**
+   * Input: None
+   *
+   * Output: A reference to the world graveyard.
+   *
+   * Purpose: To get the world's graveyard.
+   */
+  emp::vector<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
 
   /**
    * Input: None
@@ -173,6 +190,7 @@ public:
    * Purpose: Allows accessing the world's config.
    */
   const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
+
 
 
   /**
@@ -246,7 +264,7 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon, GetUpdate());
+    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -264,7 +282,7 @@ public:
    */
   float PullResources(float desired_resources) {
     // if LIMITED_RES_TOTAL == -1, unlimited, even if limited resources was on before
-    if (total_res == -1 || my_config->LIMITED_RES_TOTAL() == -1) { 
+    if (total_res == -1 || my_config->LIMITED_RES_TOTAL() == -1) {
       return desired_resources;
     } else {
       if (total_res>=desired_resources) {
@@ -309,6 +327,18 @@ public:
     pop.resize(new_size);
     sym_pop.resize(new_size);
     pop_sizes.resize(2);
+  }
+
+
+  /**
+   * Input: An organism pointer to add to the graveyard
+   *
+   * Output: None
+   *
+   * Purpose: To add organisms to the graveyard
+   */
+  virtual void SendToGraveyard(emp::Ptr<Organism> org) {
+    graveyard.push_back(org);
   }
 
 
@@ -495,7 +525,7 @@ public:
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
    * current location.
    *
-   * Output: The WorldPosition object describing the symbiont's new location (it describes an 
+   * Output: The WorldPosition object describing the symbiont's new location (it describes an
    * invalid position if the symbiont is deleted during movement)
    *
    * Purpose: To move a symbiont into a new world position.
@@ -640,7 +670,7 @@ public:
   /**
   * Input: A size_t location to check in the symbiont population vector.
   *
-  * Output: A boolean representing whether the the position is valid and 
+  * Output: A boolean representing whether the the position is valid and
   * occupied by a free living symbiont/
   *
   * Purpose: To determine if a given index is valid and occipied in the symbiont
@@ -752,7 +782,7 @@ public:
     if (counts.size() <= result.size()) {
       result.resize(counts.size());
     }
-  
+
     return result;
   }
 
@@ -789,6 +819,12 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
+  
+    // clean up the graveyard
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
   } // Update()
 };// SymWorld class
 #endif

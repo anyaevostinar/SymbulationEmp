@@ -111,3 +111,34 @@ TEST_CASE("TaskMatchCheck", "[sgp]") {
     }
   }
 }
+
+TEST_CASE("Ousting is permitted", "[sgp]") {
+  emp::Random random(61);
+  SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.OUSTING(1);
+  config.SYM_LIMIT(1);
+
+  SGPWorld world(random, &config, LogicTasks);
+  world.Resize(2, 2);
+
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
+  emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+
+  host->AddSymbiont(old_symbiont);
+  world.AddOrgAt(host, 0);
+
+  REQUIRE(host->GetSymbionts().size() == 1);
+  REQUIRE(world.GetGraveyard().size() == 0);
+
+  host->AddSymbiont(new_symbiont);
+
+  REQUIRE(host->GetSymbionts().size() == 1);
+  REQUIRE(world.GetGraveyard().size() == 1);
+
+  world.Update(); // clean up the graveyard
+
+  REQUIRE(world.GetGraveyard().size() == 0);
+}

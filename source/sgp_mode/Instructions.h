@@ -105,7 +105,7 @@ INST(PrivateIO, {
   }
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
-    next = sgpl::tlrand.Get().GetBits50();
+    next = sgpl::tlrand.Get().GetUInt();
   } else {
     next = 1;
   }
@@ -127,7 +127,7 @@ INST(SharedIO, {
   AddOrganismPoints(state, *a);
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
-    next = sgpl::tlrand.Get().GetBits50();
+    next = sgpl::tlrand.Get().GetUInt();
   } else {
     next = 1;
   }

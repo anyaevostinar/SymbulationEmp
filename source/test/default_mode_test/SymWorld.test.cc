@@ -1647,3 +1647,20 @@ TEST_CASE("IsSymPopOccupied", "[default]") {
     }
   }
 }
+
+TEST_CASE("SendToGraveyard", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    SymWorld world(random, &config);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, 0);
+    WHEN("SendToGraveyard is called") {
+      REQUIRE(world.GetGraveyard().size() == 0);
+      THEN("The graveyard increases in size") {
+        world.SendToGraveyard(host);
+        REQUIRE(world.GetGraveyard().size() == 1);
+      }
+    }
+    host.Delete();
+  }
+}
