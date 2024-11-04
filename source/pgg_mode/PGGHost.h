@@ -122,8 +122,8 @@ public:
     Host::DistribResources(resources);
 
     for(size_t i=0; i < syms.size(); i++){
-      double hostPool = syms[i]->ProcessPool();
-      this->AddPool(hostPool);
+      double host_pool = syms[i]->ProcessPool();
+      this->AddPool(host_pool);
     }
     if(syms.size()>0){this->DistribPool();}
   } //end DistribResources
