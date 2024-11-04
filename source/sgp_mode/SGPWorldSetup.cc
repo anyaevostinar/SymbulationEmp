@@ -75,7 +75,7 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
  /**
   * Input: Pointers to a host and to a symbiont
   *
-  * Output: Whether host and symbion parent are able to accomplish
+  * Output: Whether host and symbiont parent are able to accomplish
   * at least one task in common
   *
   * Purpose: To check for task matching before vertical transmission
