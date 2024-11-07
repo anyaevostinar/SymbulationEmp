@@ -463,7 +463,18 @@ public:
    * Purpose: To add a symbionts to a host's symbionts
    */
   int AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+    bool allowed_in = SymAllowedIn();
+    if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
+      // if there's more than one sym, randomly choose one to replace, otherwise replace the one sym
+      const int new_sym_pos = (syms.size() > 1) ? random->GetInt(syms.size()) : 0;
+      emp::Ptr<Organism> old_sym = syms[new_sym_pos];
+      my_world->SendToGraveyard(old_sym);
+      syms[new_sym_pos] = _in;
+      _in->SetHost(this);
+      _in->UponInjection();
+      return new_sym_pos+1;
+    }
+    else if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
@@ -711,8 +722,10 @@ public:
           if(!curSym->GetDead()){
             curSym->Process(sym_pos);
           }
-          if(curSym->GetDead()){
-            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
+          if(curSym->GetDead()) {
+            //if the symbiont dies during their process, remove from syms list
+            //UNLESS they died by getting ousted
+            syms.erase(syms.begin() + j); 
             curSym.Delete();
           }
         } //for each sym in syms
