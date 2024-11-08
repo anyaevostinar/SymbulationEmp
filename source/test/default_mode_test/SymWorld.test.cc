@@ -3,7 +3,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-
+#include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
@@ -1086,9 +1086,9 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   int world_size = 4;
   world.Resize(world_size);
 
-
+  using taxon_info_t = double;
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-  emp::Ptr<emp::Systematics<Organism,int>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
 
   //ORGANISMS ADDED TO SYSTEMATICS
   WHEN("an organism is added to the world"){
@@ -1218,8 +1218,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   SymWorld world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
-
-  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = world.GetSymSys();
+  
+  using taxon_info_t = double;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
 
   WHEN("symbionts are added to the world"){
     THEN("they get added to the correct taxonomic bins"){
@@ -1273,7 +1274,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       REQUIRE(world.GetNumOrgs() == 2);
     }
   }
-
+  
   WHEN("generations pass"){
     config.MUTATION_SIZE(1);
     config.MUTATION_RATE(1);
@@ -1283,11 +1284,11 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     emp::Ptr<Organism> syms[num_syms];
     syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
     world.AddSymToSystematic(syms[0]);
-
+    
     for(size_t i = 1; i < num_syms; i++){
       syms[i] = syms[i-1]->Reproduce();
     }
-
+    
     THEN("Their lineages are tracked"){
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
@@ -1303,7 +1304,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       syms[0].Delete();
       syms[1].Delete();
     }
-
+    
     THEN("Their birth and destruction dates are tracked"){
       //all curr syms should have orig times of 0
       for(size_t i = 0; i < num_syms; i++){
@@ -1312,7 +1313,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.Update();
 
       //after update, times should now be 1
-      emp::Ptr<emp::Taxon<int>> dest_tax = syms[0]->GetTaxon();
+      emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> dest_tax = syms[0]->GetTaxon();
       syms[0].Delete();
       REQUIRE(dest_tax->GetDestructionTime() == 1);
 
@@ -1324,7 +1325,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     }
 
     syms[2].Delete();
-    syms[3].Delete();
+    syms[3].Delete(); 
   }
 }
 

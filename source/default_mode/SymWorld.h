@@ -85,6 +85,8 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
 
+
+  // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
   uint64_t first_mut_host = 0;
 
@@ -142,7 +144,7 @@ public:
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   ~SymWorld() {
-    std::cout << first_mut_host << " " << first_mut_sym << std::endl;
+    //std::cout << first_mut_host << " " << first_mut_sym << std::endl;
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
@@ -262,10 +264,10 @@ public:
   /**
    * Input: None
    *
-   * Output: The standard function object that determines which bin hosts
+   * Output: The standard function object that determines which bin symbionts
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify hosts based on their interaction value.
+   * Purpose: To classify symbionts based on their interaction value.
    */
   fun_calc_info_t GetCalcSymInfoFun() {
     // By default the sym info function is the same as the host one,
@@ -609,7 +611,9 @@ public:
       if (new_host_pos > -1) { //-1 means no living neighbors
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
         if(new_index > 0){ //sym successfully infected
-          pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+          if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+            pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+          }
           return emp::WorldPosition(new_index, new_host_pos);
         } else { //sym got killed trying to infect
           return emp::WorldPosition();
