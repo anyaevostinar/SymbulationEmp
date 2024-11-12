@@ -1367,10 +1367,11 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
     REQUIRE(expected_host_taxon_info == taxon_info);
     REQUIRE(host->GetSymbionts().size() == 1);
 
-    WHEN("Symbiont-host interaction is not tracked") {
+    WHEN("Symbiont-host interaction is tracked") {
       // Check that host and symbiont are not marked as interacting
       datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&host->GetTaxon()->GetData());
-      REQUIRE(!emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
+      REQUIRE(emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[symbiont->GetTaxon()->GetID()] == 1);
     }
   }
 

@@ -494,7 +494,12 @@ public:
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
-        pop[new_loc]->AddSymbiont(new_sym);
+        int sucess = pop[new_loc]->AddSymbiont(new_sym);
+        if(sucess && my_config->PHYLOGENY()) {
+          datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
+          d->AddInteraction(new_sym->GetTaxon());
+        }
+
       } else new_sym.Delete();
     } else {
       new_loc = GetRandomCellID();
