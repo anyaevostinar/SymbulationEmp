@@ -1329,6 +1329,98 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   }
 }
 
+TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
+  emp::Random random(17);
+  SymConfigBase config;
+  config.PHYLOGENY(1);
+  config.NUM_PHYLO_BINS(20);
+  config.TRACK_PHYLOGENY_INTERACTIONS(1);
+  int int_val = -1;
+  SymWorld world(random, &config);
+  size_t grid_side = 4;
+  config.GRID_X(grid_side);
+  config.GRID_Y(grid_side);
+
+  using taxon_info_t = double;
+  emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
+
+
+  WHEN("A symbiont is injected into a host (at the beginning of runs)") {
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+    world.InjectHost(host);
+    world.Resize(grid_side, grid_side);
+    world.InjectSymbiont(symbiont);
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host->HasSym());
+
+    size_t expected_host_taxon_info = 0;
+    size_t taxon_info = host->GetTaxon()->GetInfo();
+
+    // Check normal phylogeny function
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host_sys->GetNumActive() == 1);
+    REQUIRE(sym_sys->GetNumActive() == 1);
+    REQUIRE(expected_host_taxon_info == taxon_info);
+    REQUIRE(host->GetSymbionts().size() == 1);
+
+    WHEN("Symbiont-host interaction is not tracked") {
+      // Check that host and symbiont are not marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&host->GetTaxon()->GetData());
+      REQUIRE(!emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
+    }
+  }
+
+
+  WHEN("A symbiont is born into a host (symdobirth or dobirth--HT or VT)") {
+    config.VERTICAL_TRANSMISSION(1);
+    config.SYM_VERT_TRANS_RES(0);
+    world.Resize(grid_side, grid_side);
+
+    size_t pos = 2;
+
+    // set up parents
+    emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    world.AddSymToSystematic(parent_symbiont);
+    host->AddSymbiont(parent_symbiont);
+    world.AddOrgAt(parent_host, pos);
+    
+    // set up children
+    emp::Ptr<Organism> child_host = parent_host->Reproduce();
+    parent_symbiont->VerticalTransmission(child_host);
+    emp::Ptr<Organism> child_symbiont = child_host->GetSymbionts()[0];
+
+    // call DoBirth
+    emp::WorldPosition child_pos = world.DoBirth(child_host, pos);
+
+    THEN("Symbiont-host interaction is tracked") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&child_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, child_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[child_symbiont->GetTaxon()->GetID()] == 1);
+    }
+
+
+    // do another generation
+    emp::Ptr<Organism> grandchild_host = child_host->Reproduce();
+    child_symbiont->VerticalTransmission(grandchild_host);
+    emp::Ptr<Organism> grandchild_symbiont = grandchild_host->GetSymbionts()[0];
+
+    world.DoBirth(grandchild_host, child_pos);
+
+    THEN("Symbiont-host interactions are counted") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&grandchild_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, grandchild_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[grandchild_symbiont->GetTaxon()->GetID()] == 2);
+    }
+  }
+}
+
 TEST_CASE( "SetMutationZero", "[default]") {
   GIVEN("World first created with all mutation settings at 1") {
     emp::Random random(17);
