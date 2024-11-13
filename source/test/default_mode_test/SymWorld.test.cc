@@ -1342,7 +1342,6 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
   config.GRID_Y(grid_side);
 
   using taxon_info_t = double;
-  emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
   emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
   emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
 
@@ -1367,15 +1366,15 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
     REQUIRE(expected_host_taxon_info == taxon_info);
     REQUIRE(host->GetSymbionts().size() == 1);
 
-    WHEN("Symbiont-host interaction is tracked") {
+    THEN("Symbiont-host interaction is tracked") {
       // Check that host and symbiont are not marked as interacting
       datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&host->GetTaxon()->GetData());
       REQUIRE(emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
       REQUIRE(data->associated_syms[symbiont->GetTaxon()->GetID()] == 1);
     }
   }
-
-
+  
+  
   WHEN("A symbiont is born into a host (symdobirth or dobirth--HT or VT)") {
     config.VERTICAL_TRANSMISSION(1);
     config.SYM_VERT_TRANS_RES(0);
@@ -1387,9 +1386,8 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
     emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
     emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
     world.AddSymToSystematic(parent_symbiont);
-    host->AddSymbiont(parent_symbiont);
     world.AddOrgAt(parent_host, pos);
-    
+
     // set up children
     emp::Ptr<Organism> child_host = parent_host->Reproduce();
     parent_symbiont->VerticalTransmission(child_host);
@@ -1419,6 +1417,7 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
       REQUIRE(emp::Has(data->associated_syms, grandchild_symbiont->GetTaxon()->GetID()));
       REQUIRE(data->associated_syms[grandchild_symbiont->GetTaxon()->GetID()] == 2);
     }
+    parent_symbiont.Delete();
   }
 }
 
