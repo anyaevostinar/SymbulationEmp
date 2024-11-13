@@ -29,13 +29,9 @@ public:
    *
    * Purpose: To construct an instance of PGGWorld
    */
-  PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
-    pgg_config = _config;
-  }
-
-  PGGWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : 
+  PGGWorld(emp::Random & _random, emp::Ptr<SymConfigPGG> _config) :
     SymWorld(_random, _config) {
-
+      pgg_config = _config;
       if (my_config->PHYLOGENY()) {
         emp_assert(my_config->NUM_PHYLO_BINS() <= 100 &&
           "PGG taxon calculation assumes you're using <= phylo bins");
