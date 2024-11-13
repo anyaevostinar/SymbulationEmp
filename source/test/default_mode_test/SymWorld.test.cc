@@ -100,7 +100,7 @@ TEST_CASE( "Vertical Transmission", "[default]" ) {
     SymConfigBase config;
     SymWorld world(random, &config);
 
-    WHEN( "the vertical taransmission rate is 0" ) {
+    WHEN( "the vertical transmission rate is 0" ) {
       config.VERTICAL_TRANSMISSION(0);
 
       THEN( "there is never vertical transmission" ) {
@@ -112,7 +112,7 @@ TEST_CASE( "Vertical Transmission", "[default]" ) {
       }
     }
 
-    WHEN( "the vertical taransmission rate is 1" ) {
+    WHEN( "the vertical transmission rate is 1" ) {
       config.VERTICAL_TRANSMISSION(1);
 
       THEN( "there is always vertical transmission" ) {
@@ -124,7 +124,7 @@ TEST_CASE( "Vertical Transmission", "[default]" ) {
       }
     }
 
-    WHEN( "the vertical taransmission rate is .5" ) {
+    WHEN( "the vertical transmission rate is .5" ) {
       config.VERTICAL_TRANSMISSION(.5);
 
       THEN( "there is sometimes vertical transmission" ) {
@@ -171,7 +171,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
   SymConfigBase config;
 
   GIVEN( "a world without vertical transmission" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(17);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymWorld world(*random, &config);
     config.VERTICAL_TRANSMISSION(0);
     config.VERTICAL_TRANSMISSION(0);
@@ -208,6 +208,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
           REQUIRE( !(world.GetPop()[i] && world.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
+    random.Delete();
   }
 
 

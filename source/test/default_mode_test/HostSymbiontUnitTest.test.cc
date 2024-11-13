@@ -3,7 +3,7 @@
 
 TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -17,10 +17,11 @@ TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 
     symbiont.Delete();
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host SetSymbionts", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -50,11 +51,12 @@ TEST_CASE("Host SetSymbionts", "[default]") {
     REQUIRE(host->HasSym() == has_sym);
 
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host SymLimit", "[default]") {
     emp::Ptr<emp::Random> random;
-    random.New(-1);
+    random.New(1);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -86,7 +88,7 @@ TEST_CASE("Host SymLimit", "[default]") {
 }
 
 TEST_CASE("Host AddSymbiont", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     SymWorld world(*random, &config);
@@ -111,10 +113,11 @@ TEST_CASE("Host AddSymbiont", "[default]") {
     REQUIRE(host->GetSymbionts() == syms);
 
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     config.SYM_LIMIT(6);
     SymWorld world(*random, &config);
@@ -144,10 +147,11 @@ TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
     host.Delete();
     sym1.Delete();
     sym2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host DistribResources", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     config.SYM_LIMIT(6);
@@ -376,10 +380,11 @@ TEST_CASE("Host DistribResources", "[default]") {
         }
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -456,6 +461,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
         host.Delete();
         host_baby.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("HandleEctosymbiosis"){
@@ -578,7 +584,7 @@ TEST_CASE("HandleEctosymbiosis"){
       double leftover_res = host->HandleEctosymbiosis(res, 0);
       host->DistribResources(leftover_res);
 
-      THEN("The parallel symbiont does not recieve resources"){
+      THEN("The parallel symbiont does not receive resources"){
         REQUIRE(hosted_sym->GetPoints() == hosted_sym_res);
         REQUIRE(parallel_sym->GetPoints() == 0);
         REQUIRE(host->GetPoints() == host_res);
