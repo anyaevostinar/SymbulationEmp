@@ -3,7 +3,7 @@
 
 TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(12);
     SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
@@ -28,11 +28,12 @@ TEST_CASE("PGGSymbiont Constructor", "[pgg]") {
 
     symbiont.Delete();
     symbiont2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGmutate", "[pgg]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(37);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(37);
     SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
@@ -69,10 +70,11 @@ TEST_CASE("PGGmutate", "[pgg]") {
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(15);
     SymConfigPGG config;
     PGGWorld world(*random, &config);
     config.SYNERGY(5);
@@ -91,11 +93,12 @@ TEST_CASE("PGGSymbiont ProcessPool", "[pgg]"){
     CHECK(host->GetPoints() == 0);
 
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGProcess", "[pgg]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
     SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
@@ -184,11 +187,11 @@ TEST_CASE("PGGProcess", "[pgg]") {
         }
         symbiont.Delete();
     }
-
+    random.Delete();
 }
 
 TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(18);
     SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
@@ -278,10 +281,11 @@ TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
         }
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigPGG config;
     PGGWorld world(*random, &config);
 
@@ -299,4 +303,5 @@ TEST_CASE("PGGSymbiont MakeNew", "[pgg]"){
     }
     symbiont1.Delete();
     symbiont2.Delete();
+    random.Delete();
 }

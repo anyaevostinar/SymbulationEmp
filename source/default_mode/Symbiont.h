@@ -320,7 +320,7 @@ public:
 
 
   /**
-   * Input: The double representing the points to be set as a symbinot's points
+   * Input: The double representing the points to be set as a symbiont's points
    *
    * Output: None
    *
@@ -330,7 +330,7 @@ public:
 
 
   /**
-   * Input: The double representing the points to be added to a symbinot's points
+   * Input: The double representing the points to be added to a symbiont's points
    *
    * Output: None
    *
@@ -357,7 +357,7 @@ public:
   void SetAge(int _in) {age = _in;}
 
   /**
-   * Input: The pointer to an organism that will be set as the symbinot's host
+   * Input: The pointer to an organism that will be set as the symbiont's host
    *
    * Output: None
    *
@@ -376,8 +376,6 @@ public:
     if(_in > 1 || _in < 0) throw "Invalid infection chance. Must be between 0 and 1 (inclusive)";
     else infection_chance = _in;
   }
-
-  //void SetResTypes(std::set<int> _in) {res_types = _in;}
 
 
   /**
@@ -530,7 +528,6 @@ public:
    * Purpose: To process a symbiont, meaning to check for reproduction, distribute resources,
    * and to allow for movement
    */
-   //size_t rank=-1
   void Process(emp::WorldPosition location) {
     //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
