@@ -7,7 +7,7 @@
 
 int symbulation_main(int argc, char * argv[])
 {
-  SymConfigBase config;
+  SymConfigPGG config;
   CheckConfigFile(config, argc, argv);
 
   config.Write(std::cout);

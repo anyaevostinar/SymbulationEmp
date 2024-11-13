@@ -3,9 +3,18 @@
 
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
+#include "PGGConfigSetup.h"
 
 class PGGWorld : public SymWorld {
 private:
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigPGG> pgg_config = NULL;
+
   /**
     *
     * Purpose: Data node tracking the pgg donation rate.
@@ -13,7 +22,16 @@ private:
   */
   emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_PGG;
 public:
-  using SymWorld::SymWorld;
+  /**
+   * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
+   * 
+   * Output: None
+   *
+   * Purpose: To construct an instance of PGGWorld
+   */
+  PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
+    pgg_config = _config;
+  }
 
   PGGWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : 
     SymWorld(_random, _config) {
@@ -75,9 +93,9 @@ public:
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
   void CreateDataFiles(){
-    std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+    std::string file_ending = "_SEED"+std::to_string(pgg_config->SEED())+".data";
     SymWorld::CreateDataFiles();
-    SetupPGGSymIntValFile(my_config->FILE_PATH()+"PGGSymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(my_config->DATA_INT());
+    SetupPGGSymIntValFile(pgg_config->FILE_PATH()+"PGGSymVals"+pgg_config->FILE_NAME()+file_ending).SetTimingRepeat(pgg_config->DATA_INT());
   }
 
 
