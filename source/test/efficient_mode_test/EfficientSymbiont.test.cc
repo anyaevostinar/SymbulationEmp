@@ -2,7 +2,7 @@
 #include "../../efficient_mode/EfficientSymbiont.h"
 
 TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -44,11 +44,12 @@ TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     symbiont1.Delete();
     symbiont2.Delete();
     symbiont3.Delete();
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -89,10 +90,11 @@ TEST_CASE("EfficientSymbiont Mutate", "[efficient]") {
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(3);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -137,10 +139,11 @@ TEST_CASE("EfficientSymbiont AddPoints", "[efficient]") {
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(11);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(11);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -225,13 +228,12 @@ TEST_CASE("INT_VAL_MUT_RATE", "[efficient]") {
         symbiont.Delete();
 
     }
-
-
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(3);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -303,11 +305,11 @@ TEST_CASE("EfficientSymbiont Reproduce", "[efficient]") {
         sym_baby.Delete();
 
     }
-
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -330,10 +332,11 @@ TEST_CASE("EfficientSymbiont HorizMutate", "[efficient]") {
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -356,10 +359,11 @@ TEST_CASE("EfficientSymbiont Mutate with horizontal transmission", "[efficient]"
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont Mutate with vertical transmission", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(10);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -382,10 +386,11 @@ TEST_CASE("EfficientSymbiont Mutate with vertical transmission", "[efficient]") 
         }
         symbiont.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and size are zero", "[efficient]") {
-    emp::Ptr<emp::Random> random = new emp::Random(25);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(25);
     random->GetUInt(0, 1); //issue with random number generator led to location 0 being picked for most random seeds on the first random number
     SymConfigEfficient config;
     config.SYM_HORIZ_TRANS_RES(10);
@@ -474,10 +479,11 @@ TEST_CASE("EfficientSymbiont's Process called from Host when mutation rate and s
         }
 
     }
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigEfficient config;
     EfficientWorld world(*random, &config);
 
@@ -496,10 +502,11 @@ TEST_CASE("EfficientSymbiont MakeNew", "[efficient]"){
     }
     symbiont1.Delete();
     symbiont2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigEfficient config;
     EfficientWorld w(*random, &config);
     EfficientWorld * world = &w;
@@ -512,11 +519,12 @@ TEST_CASE("EfficientSymbiont SetEfficiency and GetEfficiency", "[efficient]"){
     REQUIRE(symbiont->GetEfficiency() == expected_efficieny);
 
     symbiont.Delete();
+    random.Delete();
 }
 
 TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   double int_val = 0;
-  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
   SymConfigEfficient config;
   EfficientWorld world(*random, &config);
   int points_to_transmit = 100;
@@ -561,4 +569,5 @@ TEST_CASE("EfficientSymbiont VerticalTransmission", "[efficient]"){
   }
   host.Delete();
   symbiont.Delete();
+  random.Delete();
 }
