@@ -358,6 +358,8 @@ TEST_CASE("mutate", "[default]") {
         REQUIRE(metric.calculate(symbiont->GetTag(), bit_set) <= 1);
 
         symbiont.Delete();
+        config.TAG_MATCHING(0); // don't try to delete a non-existent
+        // SymWorld metric
       }
     }
     world.Delete();

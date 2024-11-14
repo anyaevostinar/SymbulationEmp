@@ -221,6 +221,8 @@ TEST_CASE("Host Mutate", "[default]") {
         REQUIRE(metric.calculate(host->GetTag(), bit_set) <= 1);
 
         host.Delete();
+        config.TAG_MATCHING(0); // don't try to delete a non-existent
+        // SymWorld metric
       }
     }
     random.Delete();

@@ -1620,7 +1620,6 @@ TEST_CASE("Tag matching", "[default]") {
   GIVEN("A world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
     config.GRID_X(2);
     config.GRID_Y(2);
     int trans_res = 10;
@@ -1632,6 +1631,8 @@ TEST_CASE("Tag matching", "[default]") {
     config.TAG_DISTANCE(tag_distance_limit);
     config.TAG_MUTATION_SIZE(0.0);
     double int_val = 0;
+
+    SymWorld world(random, &config);
     
     WHEN("A symbiont tries to vertically transmit offspring into a host child") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
@@ -1650,7 +1651,7 @@ TEST_CASE("Tag matching", "[default]") {
 
         symbiont->VerticalTransmission(host);
 
-        THEN("The symbiont suceeds") {
+        THEN("The symbiont succeeds") {
           REQUIRE(host->HasSym() == true);
         }
         THEN("The parent symbiont spends points on reproduction") {
