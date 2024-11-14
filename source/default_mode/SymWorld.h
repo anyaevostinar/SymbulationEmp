@@ -12,11 +12,12 @@
 #include <set>
 #include <math.h>
 
-
 class SymWorld : public emp::World<Organism>{
+public:
+  using taxon_info_t = double;
 protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
-  using fun_calc_info_t = std::function<int(Organism &)>;
+  using fun_calc_info_t = std::function<taxon_info_t(Organism &)>;
 
   /**
     *
@@ -46,7 +47,15 @@ protected:
     * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
     *
   */
-  fun_calc_info_t calc_info_fun;
+  fun_calc_info_t calc_host_info_fun;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which determines which taxon a symbiont belongs to.
+    *
+  */
+  fun_calc_info_t calc_sym_info_fun;
+
 
   /**
     *
@@ -60,14 +69,14 @@ protected:
     * Purpose: Represents the systematics object tracking hosts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> host_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys;
 
   /**
     *
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys;
 
   /**
     *
@@ -84,6 +93,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -93,6 +104,10 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
 
+
+  // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
+  uint64_t first_mut_sym = 0;
+  uint64_t first_mut_host = 0;
 
 public:
   /**
@@ -110,14 +125,32 @@ public:
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
     if (my_config->PHYLOGENY() == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
+        calc_host_info_fun = [&](Organism & org){
+          return org.GetIntVal();
+        };
+
+        calc_sym_info_fun = [&](Organism & org){
+          return org.GetIntVal();
+        };
+      }
+
+      host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
+
+      host_sys->SetStoreOutside(true);
+      sym_sys->SetStoreOutside(true);
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase> & t){return std::to_string(t.GetInfo());}, "info");
+      host_sys->AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData> & t){return std::to_string(t.GetInfo());}, "info");
+    
+      on_placement_sig.AddAction([this](emp::WorldPosition pos){
+        GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
+      });
+
     }
 
     if (my_config->TAG_MATCHING()) {
@@ -134,6 +167,7 @@ public:
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   virtual ~SymWorld() {
+    //std::cout << first_mut_host << " " << first_mut_sym << std::endl;
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
@@ -141,6 +175,8 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
+    if (data_node_within_host_mean) data_node_within_host_mean.Delete();
+    if (data_node_within_host_variance) data_node_within_host_variance.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_tag_dist) data_node_tag_dist.Delete();
@@ -230,7 +266,7 @@ public:
    *
    * Purpose: To retrieve the host systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetHostSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> GetHostSys(){
     return host_sys;
   }
 
@@ -242,7 +278,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetSymSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> GetSymSys(){
     return sym_sys;
   }
 
@@ -250,14 +286,14 @@ public:
   /**
    * Input: None
    *
-   * Output: The standard function object that determines which bin organisms
+   * Output: The standard function object that determines which bin hosts
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organisms based on their interaction value.
+   * Purpose: To classify hosts based on their interaction value.
    */
-  fun_calc_info_t GetCalcInfoFun() {
-    if (!calc_info_fun) {
-      calc_info_fun = [&](Organism & org){
+  fun_calc_info_t GetCalcHostInfoFun() {
+    if (!calc_host_info_fun) {
+      calc_host_info_fun = [&](Organism & org){
         size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
         //classify orgs into bins base on interaction values,
         //inclusive of lower bound, exclusive of upper
@@ -270,7 +306,25 @@ public:
         return bin;
       };
     }
-    return calc_info_fun;
+    return calc_host_info_fun;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin symbionts
+   * should belong to depending on their interaction value
+   *
+   * Purpose: To classify symbionts based on their interaction value.
+   */
+  fun_calc_info_t GetCalcSymInfoFun() {
+    // By default the sym info function is the same as the host one,
+    // but separating them allows us to change the sym info function
+    // to something else if we need to.
+    if (!calc_sym_info_fun) {
+      calc_sym_info_fun = GetCalcHostInfoFun();
+    }
+    return calc_sym_info_fun;
   }
 
   /**
@@ -280,8 +334,8 @@ public:
    *
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
-  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> parent_taxon=nullptr){
+    emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -417,6 +471,19 @@ public:
     if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
+      if (my_config->PHYLOGENY()) {
+        datastruct::TaxonDataBase & my_data = new_org->GetTaxon()->GetData();
+        datastruct::HostTaxonData * d = static_cast<datastruct::HostTaxonData*>(&my_data);
+
+        for (auto sym : new_org->GetSymbionts()) {
+          d->AddInteraction(sym->GetTaxon());
+          if (first_mut_host == 0 && new_org->GetIntVal() > 0 && sym->GetIntVal() > 0) {
+            first_mut_host = new_org->GetTaxon()->GetID();
+            first_mut_sym = sym->GetTaxon()->GetID();
+          }
+        }
+
+      }
     }
     else {
       new_org.Delete();
@@ -485,7 +552,12 @@ public:
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
-        pop[new_loc]->AddSymbiont(new_sym);
+        int sucess = pop[new_loc]->AddSymbiont(new_sym);
+        if(sucess && my_config->PHYLOGENY()) {
+          datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
+          d->AddInteraction(new_sym->GetTaxon());
+        }
+
       } else new_sym.Delete();
     } else {
       new_loc = GetRandomCellID();
@@ -501,18 +573,20 @@ public:
    * Definitions of data node functions, expanded in DataNodes.h
    */
   virtual void CreateDataFiles();
+  void MapPhylogenyInteractions();
   void WritePhylogenyFile(const std::string & filename);
   void WriteTagDumpFile(const std::string& filename);
   void WriteTagMatrixFile(const std::string& filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
-  emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
-  emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
-  emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_info_t>> GetDominantSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_info_t>> GetDominantHostTaxon();
+  emp::vector<emp::Ptr<emp::Taxon<taxon_info_t>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
   emp::DataFile & SetUpTransmissionFile(const std::string & filename);
   emp::DataFile & SetUpTagDistFile(const std::string& filename);
+  emp::DataFile & SetupSymDiversityFile(const std::string & filename);  
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
@@ -530,6 +604,9 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostMeanDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostVarianceDataNode();
+
 
   /**
    * Definitions of setup functions, expanded in WorldSetup.cc
@@ -617,6 +694,9 @@ public:
 
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
         if(new_index > 0){ //sym successfully infected
+          if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+            pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+          }
           return emp::WorldPosition(new_index, new_host_pos);
         } else { //sym got killed trying to infect
           return emp::WorldPosition();
@@ -769,7 +849,15 @@ public:
       total_res += my_config->LIMITED_RES_INFLOW();
     }
 
-    if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+    if(my_config->PHYLOGENY()) {
+      sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+
+      if (update % my_config->PHYLOGENY_SNAPSHOT_INTERVAL() == 0) {
+        // MapPhylogenyInteractions();
+        std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
+        WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
+      }
+    }
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {

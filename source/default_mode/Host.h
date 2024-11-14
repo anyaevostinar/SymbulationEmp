@@ -15,6 +15,8 @@ class Host: public Organism {
 
 protected:
 
+  using taxon_info_t = double;
+
   /**
     *
     * Purpose: Represents the interaction value between the host and symbiont.
@@ -99,6 +101,13 @@ protected:
     *
   */
   emp::BitSet<32> tag;
+  
+  /**
+    * 
+    * Purpose: Tracks the taxon of this organism.
+    *
+  */
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
 
 public:
 
@@ -225,6 +234,13 @@ public:
   */
   double GetIntVal() const { return interaction_val;}
 
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
+    return my_taxon;
+  }
+
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
+    my_taxon = _in;
+  }
 
 /**
   * Input: None

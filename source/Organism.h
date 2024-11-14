@@ -4,9 +4,33 @@
 #include <string>
 #include "ConfigSetup.h"
 
+namespace datastruct {
+
+  struct TaxonDataBase {
+      using has_fitness_t = std::false_type;
+      using has_mutations_t = std::false_type;
+      using has_phen_t = std::false_type;
+      using taxon_info_t = double;
+  };
+
+  struct HostTaxonData : TaxonDataBase {
+        std::unordered_map<unsigned long long int, int> associated_syms;
+        void ClearInteractions() {associated_syms.clear();}
+        void AddInteraction(emp::Ptr<emp::Taxon<taxon_info_t, TaxonDataBase>> sym) {
+          if (emp::Has(associated_syms, sym->GetID())){
+            associated_syms[sym->GetID()]++;
+          } else {
+            associated_syms[sym->GetID()] = 1;
+          }
+        }
+  };
+
+}
+
 class Organism {
 
   public:
+  using taxon_info_t = double;
 
   Organism() = default;
   Organism(const Organism &) = default;
@@ -113,10 +137,10 @@ class Organism {
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
+  virtual emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
     std::cout << "GetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
     std::cout << "SetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
 

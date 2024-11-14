@@ -1,6 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include "../../Empirical/include/emp/io/File.hpp"
+
 #include "SymWorld.h"
 
 /**
@@ -17,6 +19,7 @@ void SymWorld::CreateDataFiles(){
   SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetUpTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
 
   if(my_config->FREE_LIVING_SYMS() == 1){
     SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
@@ -44,6 +47,8 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average symbiont interaction value");
+  file.AddMax(node, "max_intval", "Maximum symbiont interaction value");
+  file.AddMin(node, "min_intval", "Minimum symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
   
   //interaction val histogram
@@ -108,6 +113,8 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
 
   file.AddVar(update, "update", "Update");
   file.AddMean(node, "mean_intval", "Average host interaction value");
+  file.AddMax(node, "max_intval", "Maximum host interaction value");
+  file.AddMin(node, "min_intval", "Minimum host interaction value");
   file.AddTotal(node1, "count", "Total number of hosts");
   file.AddTotal(uninf_hosts_node, "uninfected_host_count", "Total number of hosts that are uninfected");
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
@@ -194,8 +201,84 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
+
+  // MapPhylogenyInteractions();
+
+  emp::File interaction_file;
+  // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
+  interaction_file << "host, symbiont, count";
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetOutside()) {
+    for (auto interaction : t->GetData().associated_syms) {
+      // It feels like there should be a better way to do this, but all the
+      // obvious solutions involved converting all these values to the same
+      // numerical type, which doesn't end well (since they're a mix of large
+      // integers and small floating points)
+      interaction_file << emp::to_string(t->GetID()) + "," + 
+                          emp::to_string(interaction.first) + "," + 
+                          // emp::to_string(t->GetInfo()) + "," + 
+                          // emp::to_string(interaction.first->GetInfo()) + "," + 
+                          emp::to_string(interaction.second);
+    }
+  }
+
+  interaction_file.Write("InteractionSnapshot_" + filename);
+
 }
 
+/**
+ * Input: None.
+ *
+ * Output: None.
+ *
+ * Purpose: Helper function that makes map of all the symbiont taxa associated with each host taxon,
+ * (including counts of how common each interaction is)
+ */
+void SymWorld::MapPhylogenyInteractions() {
+  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+    t->GetData().ClearInteractions();
+  }
+
+  for (size_t pos = 0; pos < pop.size(); pos++) {
+    if (!IsOccupied(pos)) {
+      continue;
+    }
+    datastruct::HostTaxonData & host_data = host_sys->GetTaxonAt(pos)->GetData();
+    for (emp::Ptr<Organism> sym : pop[pos]->GetSymbionts()) {
+      host_data.AddInteraction(sym->GetTaxon());
+    }
+
+  }
+
+}
 
 /**
  * Input: The address of the string representing the suffixes for the files to be created.
@@ -329,6 +412,62 @@ void SymWorld::WriteTagMatrixFile(const std::string& filename) {
   }
   out_file.close();
 }
+
+  emp::DataFile & SymWorld::SetupSymDiversityFile(const std::string & filename) {
+    auto & file = SetupFile(filename);
+    auto & node = GetWithinHostVarianceDataNode();
+    auto & node1 = GetWithinHostMeanDataNode();
+    node.SetupBins(-0.05, 1.5, 21); //Necessary because range exclusive
+    node1.SetupBins(-1.0, 1.1, 21); //Necessary because range exclusive
+    file.AddVar(update, "update", "Update");
+    file.AddHistBin(node, 0, "Variance_Hist_0", "Count for histogram bin 0");
+    file.AddHistBin(node, 1, "Variance_Hist_1", "Count for histogram bin 1");
+    file.AddHistBin(node, 2, "Variance_Hist_2", "Count for histogram bin 2");
+    file.AddHistBin(node, 3, "Variance_Hist_3", "Count for histogram bin 3");
+    file.AddHistBin(node, 4, "Variance_Hist_4", "Count for histogram bin 4");
+    file.AddHistBin(node, 5, "Variance_Hist_5", "Count for histogram bin 5");
+    file.AddHistBin(node, 6, "Variance_Hist_6", "Count for histogram bin 6");
+    file.AddHistBin(node, 7, "Variance_Hist_7", "Count for histogram bin 7");
+    file.AddHistBin(node, 8, "Variance_Hist_8", "Count for histogram bin 8");
+    file.AddHistBin(node, 9, "Variance_Hist_9", "Count for histogram bin 9");
+    file.AddHistBin(node, 10, "Variance_Hist_10", "Count for histogram bin 10");
+    file.AddHistBin(node, 11, "Variance_Hist_11", "Count for histogram bin 11");
+    file.AddHistBin(node, 12, "Variance_Hist_12", "Count for histogram bin 12");
+    file.AddHistBin(node, 13, "Variance_Hist_13", "Count for histogram bin 13");
+    file.AddHistBin(node, 14, "Variance_Hist_14", "Count for histogram bin 14");
+    file.AddHistBin(node, 15, "Variance_Hist_15", "Count for histogram bin 15");
+    file.AddHistBin(node, 16, "Variance_Hist_16", "Count for histogram bin 16");
+    file.AddHistBin(node, 17, "Variance_Hist_17", "Count for histogram bin 17");
+    file.AddHistBin(node, 18, "Variance_Hist_18", "Count for histogram bin 18");
+    file.AddHistBin(node, 19, "Variance_Hist_19", "Count for histogram bin 19");
+    file.AddHistBin(node, 20, "Variance_Hist_20", "Count for histogram bin 20");
+
+    file.AddHistBin(node1, 0, "Mean_Hist_-1", "Count for histogram bin -1 to <-0.9");
+    file.AddHistBin(node1, 1, "Mean_Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+    file.AddHistBin(node1, 2, "Mean_Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+    file.AddHistBin(node1, 3, "Mean_Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+    file.AddHistBin(node1, 4, "Mean_Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+    file.AddHistBin(node1, 5, "Mean_Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+    file.AddHistBin(node1, 6, "Mean_Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+    file.AddHistBin(node1, 7, "Mean_Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+    file.AddHistBin(node1, 8, "Mean_Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+    file.AddHistBin(node1, 9, "Mean_Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+    file.AddHistBin(node1, 10, "Mean_Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+    file.AddHistBin(node1, 11, "Mean_Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+    file.AddHistBin(node1, 12, "Mean_Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+    file.AddHistBin(node1, 13, "Mean_Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+    file.AddHistBin(node1, 14, "Mean_Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+    file.AddHistBin(node1, 15, "Mean_Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+    file.AddHistBin(node1, 16, "Mean_Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+    file.AddHistBin(node1, 17, "Mean_Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+    file.AddHistBin(node1, 18, "Mean_Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+
+
+
+    file.PrintHeaderKeys();
+
+    return file;
+  }
 
 /**
  * Input: None
@@ -748,5 +887,52 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   data_node_tag_dist->SetupBins(0, 1.1, 11);
   return *data_node_tag_dist;
 }
+
+  emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetWithinHostVarianceDataNode() {
+    if (!data_node_within_host_variance) {
+      data_node_within_host_variance.New();
+      OnUpdate([this](size_t){
+        data_node_within_host_variance->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i) && pop[i]->IsHost() && pop[i]->HasSym()) {
+	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+	          size_t sym_size = syms.size();
+            if (sym_size > 1) { // Can't take the variance of 1 thing
+              emp::vector<double> int_vals(sym_size);
+              for(size_t j=0; j< sym_size; j++){
+                int_vals[j] = syms[j]->GetIntVal();
+              }//close for
+              data_node_within_host_variance->AddDatum(emp::Variance(int_vals));
+  	        } else {
+              data_node_within_host_variance->AddDatum(0);
+            }
+
+          } //close if
+	      }//close for
+      });
+    }
+    return *data_node_within_host_variance;
+  }
+
+  emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetWithinHostMeanDataNode() {
+    if (!data_node_within_host_mean) {
+      data_node_within_host_mean.New();
+      OnUpdate([this](size_t){
+        data_node_within_host_mean->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i) && pop[i]->IsHost() && pop[i]->HasSym()) {
+	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
+	          size_t sym_size = syms.size();
+	          emp::vector<double> int_vals(sym_size);
+            for(size_t j=0; j< sym_size; j++){
+	            int_vals[j] = syms[j]->GetIntVal();
+	          }//close for
+            data_node_within_host_mean->AddDatum(emp::Mean(int_vals));
+	        }//close if
+	      }//close for
+      });
+    }
+    return *data_node_within_host_mean;
+  }
 
 #endif

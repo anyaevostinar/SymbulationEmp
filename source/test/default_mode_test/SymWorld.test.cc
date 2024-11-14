@@ -3,7 +3,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-
+#include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
@@ -1087,9 +1087,9 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   int world_size = 4;
   world.Resize(world_size);
 
-
+  using taxon_info_t = double;
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-  emp::Ptr<emp::Systematics<Organism,int>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
 
   //ORGANISMS ADDED TO SYSTEMATICS
   WHEN("an organism is added to the world"){
@@ -1219,8 +1219,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   SymWorld world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
-
-  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = world.GetSymSys();
+  
+  using taxon_info_t = double;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
 
   WHEN("symbionts are added to the world"){
     THEN("they get added to the correct taxonomic bins"){
@@ -1274,7 +1275,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       REQUIRE(world.GetNumOrgs() == 2);
     }
   }
-
+  
   WHEN("generations pass"){
     config.MUTATION_SIZE(1);
     config.MUTATION_RATE(1);
@@ -1284,11 +1285,11 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     emp::Ptr<Organism> syms[num_syms];
     syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
     world.AddSymToSystematic(syms[0]);
-
+    
     for(size_t i = 1; i < num_syms; i++){
       syms[i] = syms[i-1]->Reproduce();
     }
-
+    
     THEN("Their lineages are tracked"){
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
@@ -1304,7 +1305,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       syms[0].Delete();
       syms[1].Delete();
     }
-
+    
     THEN("Their birth and destruction dates are tracked"){
       //all curr syms should have orig times of 0
       for(size_t i = 0; i < num_syms; i++){
@@ -1313,7 +1314,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.Update();
 
       //after update, times should now be 1
-      emp::Ptr<emp::Taxon<int>> dest_tax = syms[0]->GetTaxon();
+      emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> dest_tax = syms[0]->GetTaxon();
       syms[0].Delete();
       REQUIRE(dest_tax->GetDestructionTime() == 1);
 
@@ -1325,7 +1326,99 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     }
 
     syms[2].Delete();
-    syms[3].Delete();
+    syms[3].Delete(); 
+  }
+}
+
+TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
+  emp::Random random(17);
+  SymConfigBase config;
+  config.PHYLOGENY(1);
+  config.NUM_PHYLO_BINS(20);
+  config.TRACK_PHYLOGENY_INTERACTIONS(1);
+  int int_val = -1;
+  SymWorld world(random, &config);
+  size_t grid_side = 4;
+  config.GRID_X(grid_side);
+  config.GRID_Y(grid_side);
+
+  using taxon_info_t = double;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
+
+
+  WHEN("A symbiont is injected into a host (at the beginning of runs)") {
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+    world.InjectHost(host);
+    world.Resize(grid_side, grid_side);
+    world.InjectSymbiont(symbiont);
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host->HasSym());
+
+    size_t expected_host_taxon_info = 0;
+    size_t taxon_info = host->GetTaxon()->GetInfo();
+
+    // Check normal phylogeny function
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host_sys->GetNumActive() == 1);
+    REQUIRE(sym_sys->GetNumActive() == 1);
+    REQUIRE(expected_host_taxon_info == taxon_info);
+    REQUIRE(host->GetSymbionts().size() == 1);
+
+    THEN("Symbiont-host interaction is tracked") {
+      // Check that host and symbiont are not marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[symbiont->GetTaxon()->GetID()] == 1);
+    }
+  }
+  
+  
+  WHEN("A symbiont is born into a host (symdobirth or dobirth--HT or VT)") {
+    config.VERTICAL_TRANSMISSION(1);
+    config.SYM_VERT_TRANS_RES(0);
+    world.Resize(grid_side, grid_side);
+
+    size_t pos = 2;
+
+    // set up parents
+    emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    world.AddSymToSystematic(parent_symbiont);
+    world.AddOrgAt(parent_host, pos);
+
+    // set up children
+    emp::Ptr<Organism> child_host = parent_host->Reproduce();
+    parent_symbiont->VerticalTransmission(child_host);
+    emp::Ptr<Organism> child_symbiont = child_host->GetSymbionts()[0];
+
+    // call DoBirth
+    emp::WorldPosition child_pos = world.DoBirth(child_host, pos);
+
+    THEN("Symbiont-host interaction is tracked") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&child_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, child_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[child_symbiont->GetTaxon()->GetID()] == 1);
+    }
+
+
+    // do another generation
+    emp::Ptr<Organism> grandchild_host = child_host->Reproduce();
+    child_symbiont->VerticalTransmission(grandchild_host);
+    emp::Ptr<Organism> grandchild_symbiont = grandchild_host->GetSymbionts()[0];
+
+    world.DoBirth(grandchild_host, child_pos);
+
+    THEN("Symbiont-host interactions are counted") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&grandchild_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, grandchild_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[grandchild_symbiont->GetTaxon()->GetID()] == 2);
+    }
+    parent_symbiont.Delete();
   }
 }
 
