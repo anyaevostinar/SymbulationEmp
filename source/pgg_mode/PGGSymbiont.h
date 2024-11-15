@@ -31,9 +31,10 @@ protected:
 
 public:
   PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
-    pgg_config = _config;
+    pgg_config = _config; 
     my_world = _world;
   }
+
 
   /**
    * Input: None
@@ -139,16 +140,16 @@ public:
    *
    * Output: The double representation of resources to be given to the host.
    *
-   * Purpose: Deteremines the resources that the symbiont is contributing
+   * Purpose: Determines the resources that the symbiont is contributing
    * to the host's resource pool, and decriments them from the symbiont's own
    * own resource collection.
    */
   double ProcessPool(){
-    double symdonation = GetDonation();
-    double symPortion = GetPoints();
-    double hostreturn = symdonation*symPortion;
-    SetPoints(symPortion-hostreturn);
-    return hostreturn;
+    double sym_donation = GetDonation();
+    double sym_portion = GetPoints();
+    double host_return = sym_donation * sym_portion;
+    SetPoints(sym_portion - host_return);
+    return host_return;
   }
 
   /**

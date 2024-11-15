@@ -88,7 +88,7 @@ protected:
 
 public:
   /**
-   * Input: The world's random seed
+   * Input: The world's random seed and a pointer to this world's config object
    *
    * Output: None
    *
@@ -121,7 +121,7 @@ public:
    *
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
-  ~SymWorld() {
+  virtual ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
@@ -192,6 +192,7 @@ public:
   const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
 
 
+
   /**
    * Input: None
    *
@@ -235,7 +236,7 @@ public:
    * Output: The standard function object that determines which bin organisms
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organsims based on their interaction value.
+   * Purpose: To classify organisms based on their interaction value.
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
