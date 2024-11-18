@@ -20,8 +20,11 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
 
   GROUP(STRESS, "Stress Settings"),
-  VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorportated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
-  VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?")
+  VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
+  VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
+  VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
+  VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
+  VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?")
 )
 
 #endif

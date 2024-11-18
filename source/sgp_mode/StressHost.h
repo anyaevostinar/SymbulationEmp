@@ -57,10 +57,10 @@ public:
    */
   void Process(emp::WorldPosition pos) override {
     if (my_world->GetUpdate() % sgp_config->EXTINCTION_FREQUENCY() == 0) {
-      double death_chance = 0.25;
+      double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
-        if (sgp_config->STRESS_TYPE() == 0) death_chance = 0.125;
-        else if (sgp_config->STRESS_TYPE() == 1) death_chance = 0.5;
+        if (sgp_config->STRESS_TYPE() == 0) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
+        else if (sgp_config->STRESS_TYPE() == 1) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
         SetDead();
