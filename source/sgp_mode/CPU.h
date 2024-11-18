@@ -141,7 +141,7 @@ public:
    *
    * Purpose: Get the phenotype of an organism
    */
-  emp::BitSet<64> TasksPerformable() const {
+  emp::BitSet<CPU_BITSET_LENGTH> TasksPerformable() const {
     // Make a temporary copy of this CPU so that its state isn't clobbered
     CPU org_cpu = *this;
     org_cpu.Reset();

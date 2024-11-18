@@ -81,8 +81,8 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   * Purpose: To check for task matching before vertical transmission
   */
 bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
-  emp::Ptr<emp::BitSet<64>> parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-  emp::Ptr<emp::BitSet<64>> host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
   for (int i = host_tasks->size() - 1; i > -1; i--) {
     if (parent_tasks->Get(i) && host_tasks->Get(i)) {
       //both parent sym and host can do this task, symbiont baby can infect
