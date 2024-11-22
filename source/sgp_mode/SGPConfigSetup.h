@@ -3,6 +3,9 @@
 #include "../../Empirical/include/emp/config/config.hpp"
 #include "../ConfigSetup.h"
 
+enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS};
+enum StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
+
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
@@ -16,12 +19,12 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
   VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
 
-  VALUE(ORGANISM_TYPE, size_t, 0, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
+  VALUE(ORGANISM_TYPE, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
 
   GROUP(STRESS, "Stress Settings"),
-  VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
+  VALUE(STRESS_TYPE, size_t, MUTUALIST, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
