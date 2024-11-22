@@ -3,7 +3,7 @@
 TEST_CASE("Extinction event", "[sgp]") {
   emp::Random random(61);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(2);
+  config.ORGANISM_TYPE(STRESS);
   config.EXTINCTION_FREQUENCY(10);
   config.GRID_X(10);
   config.GRID_Y(10);

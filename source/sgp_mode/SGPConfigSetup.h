@@ -3,6 +3,8 @@
 #include "../../Empirical/include/emp/config/config.hpp"
 #include "../ConfigSetup.h"
 
+enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS};
+
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
@@ -16,7 +18,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
   VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
 
-  VALUE(ORGANISM_TYPE, size_t, 0, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
+  VALUE(ORGANISM_TYPE, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
 
   GROUP(STRESS, "Stress Settings"),
