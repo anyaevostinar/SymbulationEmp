@@ -4,6 +4,7 @@
 #include "../ConfigSetup.h"
 
 enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS};
+enum StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
@@ -22,7 +23,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
 
   GROUP(STRESS, "Stress Settings"),
-  VALUE(STRESS_TYPE, size_t, 0, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
+  VALUE(STRESS_TYPE, size_t, MUTUALIST, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),

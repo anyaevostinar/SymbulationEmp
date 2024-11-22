@@ -24,7 +24,7 @@ TEST_CASE("Extinction event", "[sgp]") {
     for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
     REQUIRE(world.GetNumOrgs() == world_size);
     WHEN("Stress symbionts are mutualists"){
-      config.STRESS_TYPE(0);
+      config.STRESS_TYPE(MUTUALIST);
       world.Update();
       THEN("Hosts are less likely to die during the extinction event") {
         REQUIRE(world.GetNumOrgs() < world_size * (1 - mutualist_death_chance) + 10);
@@ -32,7 +32,7 @@ TEST_CASE("Extinction event", "[sgp]") {
       }
     }
     WHEN("Stress symbionts are parasites") {
-      config.STRESS_TYPE(1);
+      config.STRESS_TYPE(PARASITE);
       world.Update();
       THEN("Hosts are more likely to die during the extinction event") {        
         REQUIRE(world.GetNumOrgs() < world_size * (1 - parasite_death_chance) + 10);
@@ -40,7 +40,7 @@ TEST_CASE("Extinction event", "[sgp]") {
       }
     }
     WHEN("Stress symbionts are neutrals"){
-      config.STRESS_TYPE(2);
+      config.STRESS_TYPE(NEUTRAL);
       world.Update();
       THEN("Hosts die according to the default extinction probability during the extinction event") {        
         REQUIRE(world.GetNumOrgs() < world_size * (1 - base_death_chance) + 10);
