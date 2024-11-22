@@ -56,6 +56,9 @@ int symbulation_main(int argc, char *argv[]) {
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
   world.RunExperiment();
+ 
+  world.WriteTaskCombinationsFile(config.FILE_PATH() + "EndingTaskCombinations" + config.FILE_NAME() +
+    file_ending);
 
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
       world.GetDominantInfo();

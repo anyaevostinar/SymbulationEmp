@@ -179,6 +179,7 @@ public:
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
+  void WriteTaskCombinationsFile(const std::string& filename);
 
   void CreateDataFiles() override;
 };

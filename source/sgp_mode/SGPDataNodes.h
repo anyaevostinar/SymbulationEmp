@@ -2,6 +2,8 @@
 #define SGP_DATA_NODES_H
 
 #include "SGPWorld.h"
+#include "SGPHost.h"
+#include "SGPSymbiont.h"
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -100,6 +102,53 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
                 "sym_points_stolen", "Points stolen by symbionts", true);
   file.PrintHeaderKeys();
   return file;
+}
+
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: None
+ *
+ * Purpose: To write the count of organisms whose parents achieved
+ * each combination of tasks.
+ */
+void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
+  std::ofstream out_file(filename);
+
+  // loop through the whole population and keep track of the count of parents
+  // who satisfy each tag combination
+  std::unordered_map<std::string, std::pair<int, int>> parent_task_counts;
+  for (size_t i = 0; i < pop.size(); i++) {
+    if (!IsOccupied(i)) continue;
+    emp::Ptr<SGPHost> host = pop[i].DynamicCast<SGPHost>();
+    std::string host_parent_tasks = host->GetCPU().state.parent_tasks_performed->ToBinaryString();
+    if (emp::Has(parent_task_counts, host_parent_tasks)) {
+      parent_task_counts[host_parent_tasks].first++;
+    }
+    else {
+      parent_task_counts[host_parent_tasks] = std::pair<int, int>(1, 0);
+    }
+    emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
+    for (size_t j = 0; j < syms.size(); j++) {
+      std::string sym_parent_tasks = syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->ToBinaryString();
+      if (emp::Has(parent_task_counts, sym_parent_tasks)) {
+        parent_task_counts[sym_parent_tasks].second++;
+      }
+      else {
+        parent_task_counts[sym_parent_tasks] = std::pair<int, int>(0, 1);
+      }
+    }
+  }
+
+  // write all the combinations and counts to the data file
+  out_file << "parent_task_completions,host_count,symbiont_count\n";
+  for (auto& key_value : parent_task_counts) {
+    // each "key_value" is a bitstring key with a pair (int,int) value
+    out_file << key_value.first << "," << std::to_string(key_value.second.first) << "," << std::to_string(key_value.second.second) << "\n";
+  }
+
+  out_file.close();
 }
 
 void SGPWorld::SetupTasksNodes() {
