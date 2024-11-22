@@ -9,7 +9,7 @@
 #include "emp/bits/BitSet.hpp"
 #include <cstdint>
 
-const int CPU_BITSET_LENGTH = 64;
+const int CPU_BITSET_LENGTH = 16;
 
 /// A helper class for a ring buffer that keeps the latest `len` inputs and
 /// discards the rest.
