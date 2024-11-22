@@ -69,7 +69,6 @@ public:
    */
   ~SGPHost() {
     cpu.state.used_resources.Delete();
-    cpu.state.tasks_performed.Delete();
     cpu.state.shared_available_dependencies.Delete();
     cpu.state.internal_environment.Delete();
     // Invalidate any in-progress reproduction
@@ -170,6 +169,9 @@ public:
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed); 
+    }
     return host_baby;
   }
 

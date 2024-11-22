@@ -60,7 +60,6 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
-    cpu.state.tasks_performed.Delete();
     if (!my_host) {
       cpu.state.internal_environment.Delete();
       cpu.state.used_resources.Delete();
@@ -185,6 +184,9 @@ public:
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+    }
     return sym_baby;
   }
 

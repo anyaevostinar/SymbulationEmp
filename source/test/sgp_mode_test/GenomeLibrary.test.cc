@@ -36,7 +36,6 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internal_environment.Delete();
-  cpu.state.tasks_performed.Delete();
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
@@ -99,5 +98,4 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   cpu.state.shared_available_dependencies.Delete();
   cpu.state.used_resources.Delete();
   cpu.state.internal_environment.Delete();
-  cpu.state.tasks_performed.Delete();
 }

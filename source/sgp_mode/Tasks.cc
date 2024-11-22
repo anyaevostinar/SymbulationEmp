@@ -1,3 +1,6 @@
+#ifndef TASKS_C
+#define TASKS_C
+
 #include "Tasks.h"
 #include "SGPWorld.h"
 
@@ -31,3 +34,5 @@ void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
     state.available_dependencies[task_id]++;
   }
 }
+
+#endif
