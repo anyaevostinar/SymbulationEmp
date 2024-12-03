@@ -43,11 +43,6 @@ public:
   emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<StressHost>(
       random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    GetCPU().state.in_progress_repro = -1;
-    if (sgp_config->TRACK_PARENT_TASKS()) {
-      host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
-    }
     return host_baby;
   }
 

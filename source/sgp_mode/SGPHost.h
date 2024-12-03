@@ -11,6 +11,12 @@ class SGPHost : public Host {
 private:
   CPU cpu;
   
+  /**
+   *
+   * Purpose: Tracks the number of reproductive events in this host's lineage.
+   *
+   */
+  unsigned int reproductions = 0;
 protected:
   /**
     *
@@ -95,6 +101,24 @@ public:
   }
 
   /**
+   * Input: Increment the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To increase the count of reproductions in this lineage by one.
+   */
+  void IncrementReproCount() { reproductions++; }
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
+
+  /**
    * Input: None
    *
    * Output: The CPU associated with this host.
@@ -158,6 +182,24 @@ public:
   }
 
   /**
+  * Input: None.
+  *
+  * Output: A new host baby of the current host, mutated.
+  *
+  * Purpose: To create a new baby host and reset this host's points to 0.
+  */
+  emp::Ptr<Organism> Reproduce() {
+    emp::Ptr<SGPHost> host_baby = Host::Reproduce().DynamicCast<SGPHost>();
+    host_baby->IncrementReproCount();
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+    }
+    return host_baby;
+  }
+
+  /**
    * Input: None.
    *
    * Output: A new host with same properties as this host.
@@ -167,11 +209,7 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    cpu.state.in_progress_repro = -1;
-    if (sgp_config->TRACK_PARENT_TASKS()) {
-      host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed); 
-    }
+    
     return host_baby;
   }
 

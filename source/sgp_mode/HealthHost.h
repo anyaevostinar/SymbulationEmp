@@ -41,8 +41,6 @@ class HealthHost : public SGPHost {
     emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<HealthHost>(
         random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    GetCPU().state.in_progress_repro = -1;
     return host_baby;
   }
 

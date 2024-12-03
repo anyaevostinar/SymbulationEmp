@@ -3,7 +3,7 @@
 #include "../../sgp_mode/SGPWorldSetup.cc"
 #include "../../sgp_mode/SGPDataNodes.h"
 
-TEST_CASE("SGPHost MakeNew parental task tracking", "[sgp]") {
+TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
   emp::Random random(31);
   SymConfigSGP config;
   SGPWorld world(random, &config, LogicTasks);
@@ -11,6 +11,7 @@ TEST_CASE("SGPHost MakeNew parental task tracking", "[sgp]") {
   WHEN("Parental task tracking is on") {
     config.HOST_REPRO_RES(5000);
     config.MUTATION_RATE(0);
+    config.MUTATION_SIZE(0);
     config.TRACK_PARENT_TASKS(1);
     WHEN("A host can only perform NOT") {
       WHEN("It is of the first generation (does not have parents)") {
@@ -44,7 +45,7 @@ TEST_CASE("SGPHost MakeNew parental task tracking", "[sgp]") {
         for (int i = 0; i < 25; i++) {
           world.Update();
         }
-        emp::Ptr<SGPHost> host = (parent_host->MakeNew()).DynamicCast<SGPHost>();
+        emp::Ptr<SGPHost> host = (parent_host->Reproduce()).DynamicCast<SGPHost>();
 
         world.AddOrgAt(host, 0);
         REQUIRE(world.GetNumOrgs() == 1);
@@ -74,3 +75,31 @@ TEST_CASE("SGPHost MakeNew parental task tracking", "[sgp]") {
     }
   }
 }
+
+TEST_CASE("SGPHost Reproduce", "[sgp]") {
+  emp::Random random(31);
+  SymConfigSGP config;
+  SGPWorld world(random, &config, LogicTasks);
+  emp::Ptr<SGPHost> host_parent = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+  
+
+  THEN("Host child increases its lineage reproduction count") {
+    emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
+    REQUIRE(host_parent->GetReproCount() == host_baby->GetReproCount() - 1);
+    host_baby.Delete();
+  }
+
+  WHEN("Parental task tracking is on") {
+    config.TRACK_PARENT_TASKS(1);
+    emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
+    THEN("Host child inherits its parent's completed task bitset") {
+      REQUIRE(host_parent->GetCPU().state.parent_tasks_performed->All());
+      REQUIRE(host_parent->GetCPU().state.tasks_performed->None());
+      REQUIRE(host_baby->GetCPU().state.parent_tasks_performed->None());
+    }
+    host_baby.Delete();
+  }
+
+  host_parent.Delete();
+}
+

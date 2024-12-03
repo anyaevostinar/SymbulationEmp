@@ -12,6 +12,13 @@ private:
   CPU cpu;
   const emp::Ptr<SGPWorld> my_world;
 
+  /**
+   *
+   * Purpose: Tracks the number of reproductive events in this symbiont's lineage.
+   *
+   */
+  unsigned int reproductions = 0;
+
 protected:
   /**
    * 
@@ -89,7 +96,25 @@ public:
   }
 
   /**
-   * Input: The pointer to an organism that will be set as the symbinot's host
+   * Input: Increment the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To increase the count of reproductions in this lineage by one.
+   */
+  void IncrementReproCount() { reproductions++; }
+ 
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
+
+  /**
+   * Input: The pointer to an organism that will be set as the symbiont's host
    *
    * Output: None
    *
@@ -172,6 +197,26 @@ public:
     cpu.state.in_progress_repro = old;
   }
 
+
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new SGPSymbiont
+   */
+  emp::Ptr<Organism> Reproduce() {
+    emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
+    sym_baby->IncrementReproCount();
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+    }
+    return sym_baby;
+  }
+
+
   /**
    * Input: None
    *
@@ -182,11 +227,6 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    cpu.state.in_progress_repro = -1;
-    if (sgp_config->TRACK_PARENT_TASKS()) {
-      sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
-    }
     return sym_baby;
   }
 
