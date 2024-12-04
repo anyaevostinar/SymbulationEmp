@@ -180,6 +180,7 @@ public:
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
   void WriteTaskCombinationsFile(const std::string& filename);
+  void WriteOrgReproHistFile(const std::string& filename);
 
   void CreateDataFiles() override;
 };

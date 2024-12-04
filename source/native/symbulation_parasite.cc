@@ -57,6 +57,8 @@ int symbulation_main(int argc, char *argv[]) {
 
   world.RunExperiment();
  
+  world.WriteOrgReproHistFile(config.FILE_PATH() + "OrgReproHist" + config.FILE_NAME() +
+    file_ending);
   world.WriteTaskCombinationsFile(config.FILE_PATH() + "EndingTaskCombinations" + config.FILE_NAME() +
     file_ending);
 

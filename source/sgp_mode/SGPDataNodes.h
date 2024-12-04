@@ -184,6 +184,34 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
   out_file.close();
 }
 
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: None
+ *
+ * Purpose: To write the reproductive and mutation history 
+ * of all hosts and symbionts
+ */
+void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
+  std::ofstream out_file(filename);
+  out_file << "org_type,repro_count\n";
+  for (int i = 0; i < size(); i++) {
+    if (IsOccupied(i)) {
+      out_file << "host," << pop[i].DynamicCast<SGPHost>()->GetReproCount() << "\n";
+      if (pop[i]->HasSym()) {
+        emp::vector<emp::Ptr<Organism>> syms = pop[i]->GetSymbionts();
+        for (size_t j = 0; j < syms.size(); j++) {
+          out_file << "sym," << syms[j].DynamicCast<SGPSymbiont>()->GetReproCount() << "\n";
+        }
+      }
+    }
+  }
+
+  out_file.close();
+}
+
+
 void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());
