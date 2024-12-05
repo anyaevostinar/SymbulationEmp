@@ -156,7 +156,6 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
 
       for (int i = CPU_BITSET_LENGTH - 1; i >= 0 && !can_infect; i--) {
         if (it->first[i] == interior_it->first[i] && interior_it->first[i] == '1') {
-          std::cout << interior_it->first[i] << " , i: " << i << " , bitstring " << interior_it->first[i] << std::endl;
           can_infect = true;
         }
       }
@@ -195,14 +194,34 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
  */
 void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   std::ofstream out_file(filename);
-  out_file << "org_type,repro_count\n";
+  out_file << "org_type,repro_count";
+  for (auto task : task_set) {
+    out_file << ",gained_count_" << task.task.name << ",lost_count_" << task.task.name;
+  }
+  out_file << "\n";
+
+  emp::Ptr<SGPHost> host;
+  emp::Ptr<SGPSymbiont> symbiont;
+
   for (int i = 0; i < size(); i++) {
     if (IsOccupied(i)) {
-      out_file << "host," << pop[i].DynamicCast<SGPHost>()->GetReproCount() << "\n";
-      if (pop[i]->HasSym()) {
-        emp::vector<emp::Ptr<Organism>> syms = pop[i]->GetSymbionts();
+      host = pop[i].DynamicCast<SGPHost>();
+      out_file << "host," << host->GetReproCount();
+      for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
+        out_file << "," << host->GetCPU().state.task_change_gain[k] << "," << host->GetCPU().state.task_change_lose[k];
+      }
+      out_file << "\n";
+
+      if (host->HasSym()) {
+        emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
         for (size_t j = 0; j < syms.size(); j++) {
-          out_file << "sym," << syms[j].DynamicCast<SGPSymbiont>()->GetReproCount() << "\n";
+          symbiont = syms[j].DynamicCast<SGPSymbiont>();
+
+          out_file << "sym," << symbiont->GetReproCount();
+          for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
+            out_file << "," << symbiont->GetCPU().state.task_change_gain[k] << "," << symbiont->GetCPU().state.task_change_lose[k];
+          }
+          out_file << "\n";
         }
       }
     }

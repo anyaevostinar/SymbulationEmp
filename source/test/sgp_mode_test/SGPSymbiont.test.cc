@@ -30,3 +30,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 	sym_parent.Delete();
 	
 }
+
+TEST_CASE("SGPSymbiont track divergence from parent & from parent's partner") {
+	REQUIRE(1 == 0);
+}

@@ -103,3 +103,6 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   host_parent.Delete();
 }
 
+TEST_CASE("SGPHost track divergence from parent & from parent's partner") {
+  REQUIRE(1 == 0);
+}
