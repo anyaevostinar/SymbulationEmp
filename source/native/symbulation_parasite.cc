@@ -14,6 +14,7 @@
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Tasks.cc"
+#include "../sgp_mode/SGPHost.cc"
 
 #include <fstream>
 #include <iostream>

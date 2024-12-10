@@ -52,6 +52,10 @@ struct CPUState {
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(true);
   int task_change_lose[CPU_BITSET_LENGTH] = { 0 };
   int task_change_gain[CPU_BITSET_LENGTH] = { 0 };
+
+  int task_toward_partner[CPU_BITSET_LENGTH] = { 0 };
+  int task_from_partner[CPU_BITSET_LENGTH] = { 0 };
+
   emp::vector<size_t> available_dependencies;
   emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();

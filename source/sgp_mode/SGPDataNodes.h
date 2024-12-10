@@ -196,7 +196,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   std::ofstream out_file(filename);
   out_file << "org_type,repro_count";
   for (auto task : task_set) {
-    out_file << ",gained_count_" << task.task.name << ",lost_count_" << task.task.name;
+    out_file << ",lineage_gained_count_" << task.task.name << ",lineage_lost_count_" << task.task.name << ",toward_partner_count_" << task.task.name << ",toward_partner_count_" << task.task.name;
   }
   out_file << "\n";
 
@@ -208,7 +208,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
       host = pop[i].DynamicCast<SGPHost>();
       out_file << "host," << host->GetReproCount();
       for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
-        out_file << "," << host->GetCPU().state.task_change_gain[k] << "," << host->GetCPU().state.task_change_lose[k];
+        out_file << "," << host->GetCPU().state.task_change_gain[k] << "," << host->GetCPU().state.task_change_lose[k] << "," << host->GetCPU().state.task_toward_partner[k] << "," << host->GetCPU().state.task_from_partner[k];
       }
       out_file << "\n";
 
@@ -219,7 +219,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
 
           out_file << "sym," << symbiont->GetReproCount();
           for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
-            out_file << "," << symbiont->GetCPU().state.task_change_gain[k] << "," << symbiont->GetCPU().state.task_change_lose[k];
+            out_file << "," << symbiont->GetCPU().state.task_change_gain[k] << "," << symbiont->GetCPU().state.task_change_lose[k] << "," << symbiont->GetCPU().state.task_toward_partner[k] << "," << symbiont->GetCPU().state.task_from_partner[k];
           }
           out_file << "\n";
         }

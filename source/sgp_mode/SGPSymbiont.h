@@ -214,6 +214,8 @@ public:
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
       //inherit towards-from tracking
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+
+        // lineage task gain / loss
         if (cpu.state.tasks_performed->Get(i) && !cpu.state.parent_tasks_performed->Get(i)) {
           // child gains the ability to infect hosts whose parents have done this task
           sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
@@ -227,6 +229,28 @@ public:
         else {
           sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
           sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
+        }
+
+        // divergence from/convergence towards parent's partner
+        emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+        if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
+          cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
+          // parent != partner and child == partner
+          // toward partner
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
+        }
+        else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
+          cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
+          // parent == partner and child != partner
+          // away from partner
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
+        }
+        else {
+          // no change
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
         }
       }
     }
