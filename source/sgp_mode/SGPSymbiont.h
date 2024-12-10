@@ -227,19 +227,21 @@ public:
           sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
         }
 
-        // divergence from/convergence towards parent's partner
-        emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
-        sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
-        sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
-        if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
-          cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
-          // parent != partner and child == partner
-          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
-        }
-        else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
-          cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
-          // parent == partner and child != partner
-          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+        if (my_host) {
+          // divergence from/convergence towards parent's partner
+          emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
+          if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
+            // parent != partner and child == partner
+            sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
+          }
+          else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
+            // parent == partner and child != partner
+            sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+          }
         }
       }
     }

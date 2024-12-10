@@ -203,7 +203,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   emp::Ptr<SGPHost> host;
   emp::Ptr<SGPSymbiont> symbiont;
 
-  for (int i = 0; i < size(); i++) {
+  for (size_t i = 0; i < size(); i++) {
     if (IsOccupied(i)) {
       host = pop[i].DynamicCast<SGPHost>();
       out_file << "host," << host->GetReproCount();
