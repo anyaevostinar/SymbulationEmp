@@ -96,13 +96,13 @@ public:
   }
 
   /**
-   * Input: Increment the reproduction counter
+   * Input: Set the reproduction counter
    *
    * Output: None
    *
-   * Purpose: To increase the count of reproductions in this lineage by one.
+   * Purpose: To set the count of reproductions in this lineage.
    */
-  void IncrementReproCount() { reproductions++; }
+  void SetReproCount(int _in) { reproductions = _in; }
  
   /**
    * Input: None.
@@ -207,7 +207,7 @@ public:
    */
   emp::Ptr<Organism> Reproduce() {
     emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
-    sym_baby->IncrementReproCount();
+    sym_baby->SetReproCount(reproductions + 1);
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     if (sgp_config->TRACK_PARENT_TASKS()) {

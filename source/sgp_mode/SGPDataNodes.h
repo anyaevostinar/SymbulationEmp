@@ -196,7 +196,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   std::ofstream out_file(filename);
   out_file << "org_type,repro_count";
   for (auto task : task_set) {
-    out_file << ",lineage_gained_count_" << task.task.name << ",lineage_lost_count_" << task.task.name << ",toward_partner_count_" << task.task.name << ",toward_partner_count_" << task.task.name;
+    out_file << ",lineage_gained_count_" << task.task.name << ",lineage_lost_count_" << task.task.name << ",toward_partner_count_" << task.task.name << ",from_partner_count_" << task.task.name;
   }
   out_file << "\n";
 

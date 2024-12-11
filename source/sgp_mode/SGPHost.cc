@@ -14,7 +14,7 @@
 */
 emp::Ptr<Organism> SGPHost::Reproduce() {
   emp::Ptr<SGPHost> host_baby = Host::Reproduce().DynamicCast<SGPHost>();
-  host_baby->IncrementReproCount();
+  host_baby->SetReproCount(reproductions + 1);
   // This organism is reproducing, so it must have gotten off the queue
   cpu.state.in_progress_repro = -1;
   if (sgp_config->TRACK_PARENT_TASKS()) {

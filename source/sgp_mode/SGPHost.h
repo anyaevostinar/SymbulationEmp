@@ -101,13 +101,13 @@ public:
   }
 
   /**
-   * Input: Increment the reproduction counter
+   * Input: Set the reproduction counter
    *
    * Output: None
    *
-   * Purpose: To increase the count of reproductions in this lineage by one.
+   * Purpose: To set the count of reproductions in this lineage.
    */
-  void IncrementReproCount() { reproductions++; }
+  void SetReproCount(int _in) { reproductions = _in; }
 
   /**
    * Input: None.
