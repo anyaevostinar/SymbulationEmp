@@ -28,9 +28,9 @@ public:
     double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
     emp::vector<emp::Ptr<Organism>> _repro_syms = {},
     double _points = 0.0)
-    : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points) {}
+    : SGPHost(_random, _world, _config, genome, _intval, _syms, _repro_syms, _points) {}
 
-  StressHost(const SGPHost& host)
+  StressHost(const StressHost& host)
     : SGPHost(host) {}
 
   /**
@@ -41,7 +41,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew() override {
-    emp::Ptr<SGPHost> host_baby = emp::NewPtr<StressHost>(
+    emp::Ptr<StressHost> host_baby = emp::NewPtr<StressHost>(
       random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
     return host_baby;
   }

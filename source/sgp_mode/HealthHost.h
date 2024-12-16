@@ -27,7 +27,7 @@ class HealthHost : public SGPHost {
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
-      : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points) {}
+      : SGPHost(_random, _world, _config, genome, _intval, _syms, _repro_syms, _points) {}
 
   HealthHost(const SGPHost &host)
       : SGPHost(host) {}
