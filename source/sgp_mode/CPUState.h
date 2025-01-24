@@ -9,6 +9,8 @@
 #include "emp/bits/BitSet.hpp"
 #include <cstdint>
 
+const int CPU_BITSET_LENGTH = 64;
+
 /// A helper class for a ring buffer that keeps the latest `len` inputs and
 /// discards the rest.
 template <const size_t len> class IORingBuffer {
@@ -45,8 +47,8 @@ struct CPUState {
 
   IORingBuffer<4> input_buf;
 
-  emp::Ptr<emp::BitSet<64>> used_resources = emp::NewPtr<emp::BitSet<64>>();
-  emp::Ptr<emp::BitSet<64>> tasks_performed = emp::NewPtr<emp::BitSet<64>>();
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> used_resources = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
   emp::vector<size_t> available_dependencies;
   emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();

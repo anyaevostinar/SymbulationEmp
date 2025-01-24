@@ -131,6 +131,8 @@ public:
         // Host::Reproduce() doesn't take care of vertical transmission, that
         // happens here
         for (auto &sym : org.first->GetSymbionts()) {
+          // don't vertically transmit if they must task match but don't
+          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org.first)) continue;
           sym->VerticalTransmission(child);
         }
         DoBirth(child, org.second);
@@ -164,7 +166,8 @@ public:
 
   
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost (size_t id, emp::Ptr<emp::BitSet<64>>);
+  int GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont);
+  bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
