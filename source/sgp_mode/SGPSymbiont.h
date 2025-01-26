@@ -12,6 +12,13 @@ private:
   CPU cpu;
   const emp::Ptr<SGPWorld> my_world;
 
+  /**
+   *
+   * Purpose: Tracks the number of reproductive events in this symbiont's lineage.
+   *
+   */
+  unsigned int reproductions = 0;
+
 protected:
   /**
    * 
@@ -60,7 +67,6 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
-    cpu.state.tasks_performed.Delete();
     if (!my_host) {
       cpu.state.internal_environment.Delete();
       cpu.state.used_resources.Delete();
@@ -90,7 +96,25 @@ public:
   }
 
   /**
-   * Input: The pointer to an organism that will be set as the symbinot's host
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(int _in) { reproductions = _in; }
+ 
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
+
+  /**
+   * Input: The pointer to an organism that will be set as the symbiont's host
    *
    * Output: None
    *
@@ -173,6 +197,58 @@ public:
     cpu.state.in_progress_repro = old;
   }
 
+
+  /**
+   * Input: None
+   *
+   * Output: The pointer to the newly created organism
+   *
+   * Purpose: To produce a new SGPSymbiont
+   */
+  emp::Ptr<Organism> Reproduce() {
+    emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
+    sym_baby->SetReproCount(reproductions + 1);
+    // This organism is reproducing, so it must have gotten off the queue
+    cpu.state.in_progress_repro = -1;
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+      //inherit towards-from tracking
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+
+        // lineage task gain / loss
+        sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
+        sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
+        if (cpu.state.tasks_performed->Get(i) && !cpu.state.parent_tasks_performed->Get(i)) {
+          // child gains the ability to infect hosts whose parents have done this task
+          sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
+        }
+        else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
+          // child loses the ability to infect hosts with whom this parent had only this task in common 
+          sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
+        }
+
+        if (my_host) {
+          // divergence from/convergence towards parent's partner
+          emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
+          if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
+            // parent != partner and child == partner
+            sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
+          }
+          else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
+            // parent == partner and child != partner
+            sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+          }
+        }
+      }
+    }
+    return sym_baby;
+  }
+
+
   /**
    * Input: None
    *
@@ -183,8 +259,6 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    cpu.state.in_progress_repro = -1;
     return sym_baby;
   }
 

@@ -164,10 +164,12 @@ public:
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
 
-  
+  // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont);
+  int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
+
+  // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
@@ -179,6 +181,8 @@ public:
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
+  void WriteTaskCombinationsFile(const std::string& filename);
+  void WriteOrgReproHistFile(const std::string& filename);
 
   void CreateDataFiles() override;
 };
