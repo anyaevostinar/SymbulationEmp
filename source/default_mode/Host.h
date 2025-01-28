@@ -36,6 +36,13 @@ protected:
 
   /**
     *
+    * Purpose: Tracks the number of reproductive events in this host's lineage.
+    *
+  */
+  unsigned int reproductions = 0;
+
+  /**
+    *
     * Purpose: Represents the set of symbionts belonging to a host.
     * This can be set with SetSymbionts(), and symbionts can be
     * added with AddSymbiont(). This can be cleared with ClearSyms()
@@ -224,6 +231,27 @@ public:
   std::string const GetName() {
     return  "Host";
   }
+
+
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(unsigned int _in) { reproductions = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
+
 
 /**
   * Input: None
@@ -569,6 +597,7 @@ public:
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
     host_baby->Mutate();
+    host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
     return host_baby;
   }

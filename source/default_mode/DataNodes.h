@@ -20,7 +20,7 @@ void SymWorld::CreateDataFiles(){
   SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetUpTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-
+  SetUpReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   if(my_config->FREE_LIVING_SYMS() == 1){
     SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
@@ -183,6 +183,32 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
   file.AddMean(node7, "mean_infectchance", "Average symbiont infection chance");
   file.AddMean(node8, "mean_freeinfectchance", "Average free symbiont infection chance");
   file.AddMean(node9, "mean_hostedinfectchance", "Average hosted symbiont infection chance");
+
+  file.PrintHeaderKeys();
+
+  return file;
+}
+
+
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track mean
+ * information about the number of reproductions in the world.[
+ * If tag matching is on, this file also tracks tag similarity / 
+ * dissimilarity to parents / partners. 
+ */
+emp::DataFile& SymWorld::SetUpReproHistFile(const std::string& filename) {
+  auto& file = SetupFile(filename);
+  auto& host_repro_count_node = GetHostReproCountDataNode();
+  auto& sym_repro_count_node = GetSymReproCountDataNode();
+
+  file.AddVar(update, "update", "Update");
+  file.AddMean(host_repro_count_node, "host_mean_repro_count", "Average host lineage reproduction count");
+  file.AddMean(sym_repro_count_node, "sym_mean_repro_count", "Average symbiont lineage reproduction count");
 
   file.PrintHeaderKeys();
 
@@ -933,6 +959,51 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
       });
     }
     return *data_node_within_host_mean;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the average number of reproductions each host lineage has accumulated.
+   *
+   * Purpose: To retrieve the data nodes that is tracking the
+   * average number of reproductions each host lineage has accumulated.
+   */
+  emp::DataMonitor<unsigned int>& SymWorld::GetHostReproCountDataNode() {
+    if (!data_node_host_repro_count) {
+      data_node_host_repro_count.New();
+      OnUpdate([this](size_t) {
+        data_node_host_repro_count->Reset();
+        for (size_t i = 0; i < pop.size(); i++) {
+          if (IsOccupied(i) && pop[i]->IsHost()) {
+            data_node_host_repro_count->AddDatum(pop[i]->GetReproCount());
+            for (emp::Ptr<Organism> sym : pop[i]->GetSymbionts()) {
+              data_node_sym_repro_count->AddDatum(sym->GetReproCount());
+            }
+          }
+        }
+      });
+    }
+    return *data_node_host_repro_count;
+  }
+
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the average number of reproductions each symbiont lineage has accumulated.
+   *
+   * Purpose: To retrieve the data nodes that is tracking the
+   * average number of reproductions each symbiont lineage has accumulated.
+   */
+  emp::DataMonitor<unsigned int>& SymWorld::GetSymReproCountDataNode() {
+    if (!data_node_sym_repro_count) {
+      data_node_sym_repro_count.New();
+    }
+    return *data_node_sym_repro_count;
   }
 
 #endif

@@ -56,6 +56,13 @@ protected:
 
   /**
     *
+    * Purpose: Tracks the number of reproductive events in this symbiont's lineage.
+    *
+  */
+  unsigned int reproductions = 0;
+
+  /**
+    *
     * Purpose: Represents an instance of random.
     *
   */
@@ -183,6 +190,25 @@ public:
     std::string const GetName() {
       return  "Symbiont";
     }
+
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(unsigned int _in) { reproductions = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
 
 
   /**
@@ -576,7 +602,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
-
+    sym_baby->SetReproCount(reproductions + 1);
     if(my_config->PHYLOGENY() == 1){
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic

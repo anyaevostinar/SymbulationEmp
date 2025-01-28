@@ -98,7 +98,14 @@ class Organism {
     std::cout << "GetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }
-
+  virtual unsigned int GetReproCount() {
+    std::cout << "GetReproCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetReproCount(unsigned int _in) {
+    std::cout << "SetReproCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   //Symbiont functions
 
   virtual void Mutate() {
