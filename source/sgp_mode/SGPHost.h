@@ -19,6 +19,7 @@ private:
    *
    */
   unsigned int reproductions = 0;
+
 protected:
   /**
     *
@@ -33,39 +34,54 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  emp::Ptr<SymConfigSGP> sgp_config = NULL;
+  emp::Ptr<SymConfigSGP> sgp_config;
+
 public:
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
    * the config setting RANDOM_ANCESTOR.
    */
-  SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
-          emp::vector<emp::Ptr<Organism>> _syms = {},
-          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-          double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-    cpu(this, _world), my_world(_world) {
-    sgp_config = _config;
-  }
+  SGPHost(
+    emp::Ptr<emp::Random> _random,
+    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<SymConfigSGP> _config,
+    double _intval = 0.0, /* Interaction value */
+    emp::vector<emp::Ptr<Organism>> _syms = {},
+    emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+    double _points = 0.0
+  ) :
+    Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+    cpu(this, _world),
+    my_world(_world),
+    sgp_config(_config)
+  { }
 
   /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
-  SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-          emp::Ptr<SymConfigSGP> _config, const sgpl::Program<Spec> &genome,
-          double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
-          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
-          double _points = 0.0)
-      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-        cpu(this, _world, genome), my_world(_world) {
-    sgp_config = _config;
-  }
+  SGPHost(
+    emp::Ptr<emp::Random> _random,
+    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<SymConfigSGP> _config,
+    const sgpl::Program<Spec>& genome,
+    double _intval = 0.0, /* Interaction value */
+    emp::vector<emp::Ptr<Organism>> _syms = {},
+    emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+    double _points = 0.0
+  ) :
+    Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+    cpu(this, _world, genome),
+    my_world(_world),
+    sgp_config(_config)
+  { }
 
-  SGPHost(const SGPHost &host)
-      : Host(host), cpu(this, host.my_world, host.cpu.GetProgram()),
-        my_world(host.my_world) {}
+  SGPHost(const SGPHost &host) :
+    Host(host),
+    cpu(this, host.my_world,
+    host.cpu.GetProgram()),
+    my_world(host.my_world)
+  { }
 
   /**
    * Input: None
