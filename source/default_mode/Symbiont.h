@@ -62,6 +62,20 @@ protected:
   unsigned int reproductions = 0;
 
   /**
+   *
+   * Purpose: Tracks the number of tag flips towards partner in this symbiont's lineage.
+   *
+ */
+  unsigned int towards_partner_count = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips away from partner in this symbiont's lineage.
+    *
+  */
+
+  unsigned int from_partner_count = 0;
+  /**
     *
     * Purpose: Represents an instance of random.
     *
@@ -210,6 +224,44 @@ public:
    */
   unsigned int GetReproCount() { return reproductions; }
 
+  /**
+   * Input: Set the flips towards a partner counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of flips towards a partner in this lineage.
+   */
+  void SetTowardsPartnerCount(unsigned int _in) { towards_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips towards a partner count
+   *
+   * Purpose: To get the count of flips towards a partner in this lineage.
+   */
+  unsigned int GetTowardsPartnerCount() { return towards_partner_count; }
+
+
+  /**
+   * Input: Set the flips from a partner counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of flips from a partner in this lineage.
+   */
+  void SetFromPartnerCount(unsigned int _in) { from_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips from a partner count
+   *
+   * Purpose: To get the count of flips from a partner in this lineage.
+   */
+  unsigned int GetFromPartnerCount() { return from_partner_count; }
 
   /**
    * Input: None
@@ -607,6 +659,22 @@ public:
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic
     }
+
+    if (my_config->TAG_MATCHING()) {
+      // do not xor to get 1 where bits are matching
+      emp::BitSet<32> host_sym_parent_matching = my_host->GetTag().XOR(tag).NOT();
+      emp::BitSet<32> host_sym_baby_matching = my_host->GetTag().XOR(sym_baby->GetTag()).NOT();
+
+      // difference in matching-ness, with match in child
+      emp::BitSet<32> child_towards = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_baby_matching);
+      
+      // difference in matching-ness, with match in parent
+      emp::BitSet<32> child_from = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_parent_matching);
+
+      sym_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
+      sym_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
+    }
+
     return sym_baby;
   }
 

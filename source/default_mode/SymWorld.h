@@ -95,8 +95,12 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_repro_count;
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_repro_count; 
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_repro_count;
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_towards_partner_count;
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_from_partner_count;
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_towards_partner_count;
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_from_partner_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -181,6 +185,10 @@ public:
     if (data_node_within_host_variance) data_node_within_host_variance.Delete();
     if (data_node_host_repro_count) data_node_host_repro_count.Delete();
     if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
+    if (data_node_host_towards_partner_count) data_node_host_towards_partner_count.Delete();
+    if (data_node_host_from_partner_count) data_node_host_from_partner_count.Delete();
+    if (data_node_sym_towards_partner_count) data_node_sym_towards_partner_count.Delete();
+    if (data_node_sym_from_partner_count) data_node_sym_from_partner_count.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_tag_dist) data_node_tag_dist.Delete();
@@ -603,6 +611,10 @@ public:
   emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<unsigned int>& GetHostReproCountDataNode();
   emp::DataMonitor<unsigned int>& GetSymReproCountDataNode();
+  emp::DataMonitor<unsigned int>& GetSymTowardsPartnerCountDataNode();
+  emp::DataMonitor<unsigned int>& GetSymFromPartnerCountDataNode();
+  emp::DataMonitor<unsigned int>& GetHostTowardsPartnerCountDataNode();
+  emp::DataMonitor<unsigned int>& GetHostFromPartnerCountDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetTagDistanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();

@@ -106,6 +106,23 @@ class Organism {
     std::cout << "SetReproCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void SetTowardsPartnerCount(unsigned int _in) {
+    std::cout << "SetTowardsPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual unsigned int GetTowardsPartnerCount() {
+    std::cout << "GetTowardsPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetFromPartnerCount(unsigned int _in) {
+    std::cout << "SetFromPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual unsigned int GetFromPartnerCount() {
+    std::cout << "GetFromPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+
   //Symbiont functions
 
   virtual void Mutate() {
