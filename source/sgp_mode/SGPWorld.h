@@ -31,6 +31,9 @@ private:
   SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
   StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
 
+  // Internal helper function to configure scheduler.
+  // Called internally on world setup.
+  void SetupScheduler();
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
@@ -79,25 +82,15 @@ public:
     emp::World<Organism>::Update();
     if (sgp_config->PHYLOGENY())
       sym_sys->Update();
+
     // Handle resource inflow
+    // NOTE - Why magic number?
     if (total_res != -1) {
       total_res += sgp_config->LIMITED_RES_INFLOW();
     }
 
-    scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
-      if (org.IsHost()) {
-        org.Process(pos);
-        if (org.GetDead()) DoDeath(pos);
-      }
-      else {
-        //have to check for death first, because it might have moved
-       // process takes worldposition, dosymdeath takes popid
-        if (org.GetDead()) DoSymDeath(pos.GetPopID());
-        else org.Process(pos);
-        if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
-
-      }
-    });
+    // Run scheduler to process orgs.
+    scheduler.ProcessOrgs();
 
     for (auto org : to_reproduce) {
       if (!org.second.IsValid() || org.first->GetDead())
@@ -154,14 +147,14 @@ public:
   StressSymbiontType GetStressSymType() const { return stress_sym_type; }
 
   // Prototypes for data node methods
-  SyncDataMonitor<double> &GetSymDonatedDataNode();
-  SyncDataMonitor<double> &GetSymStolenDataNode();
-  SyncDataMonitor<double> &GetSymEarnedDataNode();
+  SyncDataMonitor<double>& GetSymDonatedDataNode();
+  SyncDataMonitor<double>& GetSymStolenDataNode();
+  SyncDataMonitor<double>& GetSymEarnedDataNode();
   void SetupTasksNodes();
 
-  emp::DataFile &SetUpOrgCountFile(const std::string &filename);
-  emp::DataFile &SetupSymDonatedFile(const std::string &filename);
-  emp::DataFile &SetupTasksFile(const std::string &filename);
+  emp::DataFile& SetUpOrgCountFile(const std::string& filename);
+  emp::DataFile& SetupSymDonatedFile(const std::string& filename);
+  emp::DataFile& SetupTasksFile(const std::string& filename);
   void WriteTaskCombinationsFile(const std::string& filename);
   void WriteOrgReproHistFile(const std::string& filename);
 

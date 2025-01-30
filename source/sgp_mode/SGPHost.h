@@ -1,11 +1,17 @@
 #ifndef SGPHOST_H
 #define SGPHOST_H
 
+#include <functional>
+
+#include "emp/base/Ptr.hpp"
+#include "emp/control/Signal.hpp"
+
+#include "sgpl/utility/ThreadLocalRandom.hpp"
+
 #include "../default_mode/Host.h"
 #include "CPU.h"
 #include "SGPWorld.h"
-#include "emp/base/Ptr.hpp"
-#include "sgpl/utility/ThreadLocalRandom.hpp"
+
 
 namespace sgpmode {
 
@@ -35,6 +41,27 @@ protected:
    *
    */
   emp::Ptr<SymConfigSGP> sgp_config;
+
+  // Signals that can be configured
+  // NOTE - Don't want to copy signals over and over again on reproduction.
+  //  - These are things that don't change per-organism; they change per-run.
+  emp::Signal<void(const emp::WorldPosition&)> process_sig_before_cpu_step;
+  emp::Signal<void(const emp::WorldPosition&)> process_sig_before_syms;
+  emp::Signal<void(const emp::WorldPosition&)> process_sig_after_syms;
+  emp::Signal<void(const emp::WorldPosition&)> process_sig_end;
+
+  std::function<void(const emp::WorldPosition&)> process_syms;
+
+  // // Function to configure functionality.
+  // void ConfigureDefaults() {
+  //   // Clear signals.
+  //   process_sig_before_cpu_step.Clear();
+  //   process_sig_before_syms.Clear();
+  //   process_sig_after_syms.Clear();
+  //   process_sig_end.Clear();
+  //   // Set process syms to default behavior.
+  //   process_syms =
+  // }
 
 public:
   /**
@@ -78,8 +105,7 @@ public:
 
   SGPHost(const SGPHost &host) :
     Host(host),
-    cpu(this, host.my_world,
-    host.cpu.GetProgram()),
+    cpu(this, host.my_world, host.cpu.GetProgram()),
     my_world(host.my_world)
   { }
 
@@ -163,19 +189,27 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
-  void Process(emp::WorldPosition pos) {
-    //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      //cpu.state.used_resources->reset();
+  void Process(const emp::WorldPosition& pos) {
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
+
+    // Check if this organism is dead; if so, no need to continue.
     if (GetDead()) {
       return;
     }
 
+    process_sig_before_cpu_step.Trigger(pos);
+
     cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
 
+    process_sig_before_syms.Trigger(pos);
+
+    // if (HasSym()) {
+    //   process_syms(pos);
+    // }
 
     if (HasSym()) { // let each sym do whatever they need to do
+      // TODO - make this a configurable "process syms function"
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
       for (size_t j = 0; j < syms.size(); j++) {
         emp::Ptr<Organism> curSym = syms[j];
@@ -196,7 +230,11 @@ public:
       } // for each sym in syms
     }   // if org has syms
 
+    process_sig_after_syms.Trigger(pos);
+
     GrowOlder();
+
+    process_sig_end.Trigger(pos);
   }
 
   // Prototype for this host's reproduce method

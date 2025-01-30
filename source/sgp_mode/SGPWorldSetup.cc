@@ -44,8 +44,12 @@ void SGPWorld::Setup() {
     SetPopStruct_Grid(sgp_config->GRID_X(), sgp_config->GRID_Y(), false);
   }
 
-  SetupHosts(&POP_SIZE);
+  // Setup scheduler
+  SetupScheduler();
 
+  // Setup host population
+  SetupHosts(&POP_SIZE);
+  // QUESTION - Why does resize happen after setuphosts?
   Resize(sgp_config->GRID_X(), sgp_config->GRID_Y());
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
@@ -83,6 +87,37 @@ void SGPWorld::SetupOrgMode() {
       sgp_config->HORIZ_TRANS(1);
     }
   }
+}
+
+void SGPWorld::SetupScheduler() {
+  // Configure scheduler's process host function
+  scheduler.SetProcessHostFun(
+    [this](const emp::WorldPosition& pos, Organism& org) {
+      emp_assert(org.IsHost());
+      org.Process(pos);
+      if (org.GetDead()) {
+        this->DoDeath();
+      }
+    }
+  );
+
+  // Configure scheduler's process sym function
+  scheduler.SetProcessSymFun(
+    [this](const emp::WorldPosition& pos, Organism& org) {
+      emp_assert(!org.IsHost()); // NOTE - IsSym?
+      // have to check for death first, because it might have moved
+      // process takes worldposition, dosymdeath takes popid
+      if (org.GetDead()) {
+        DoSymDeath(pos.GetPopID());
+      } else {
+        org.Process(pos);
+      }
+      if (IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
+        DoSymDeath(pos.GetPopID());
+      }
+    }
+  );
+
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {

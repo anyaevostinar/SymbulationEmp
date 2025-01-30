@@ -13,13 +13,17 @@
 namespace sgpmode {
 
 class Scheduler {
+public:
+  using fun_process_org_t = std::function<void(const emp::WorldPosition&, Organism&)>;
+protected:
   const size_t BATCH_SIZE = 64;
 
-  SymWorld &world;
+  SymWorld& world;
   size_t thread_count;
 
   bool thread_pool_started = false;
-  std::function<void(emp::WorldPosition, Organism &)> callback;
+  fun_process_org_t fun_process_host;       // Function called to run host when scheduled to run.
+  fun_process_org_t fun_process_sym;        // Function called to run sym when scheduled to run.
   emp::vector<std::thread> running_threads;
 
   std::mutex ready_lock;
@@ -62,12 +66,12 @@ class Scheduler {
 
         size_t end = start + BATCH_SIZE;
 
-        for (size_t id = start; id < end; id++) {
+        for (size_t id = start; id < end; ++id) {
           if (world.IsOccupied(id)) {
-            callback(id, world.GetOrg(id));
+            fun_process_host(id, world.GetOrg(id));
           }
           if (world.IsSymPopOccupied(id)) {
-            callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
+            fun_process_sym(emp::WorldPosition(0, id), *world.GetSymAt(id));
           }
         }
       }
@@ -81,8 +85,11 @@ class Scheduler {
   }
 
 public:
-  Scheduler(SymWorld &world, size_t thread_count)
-      : world(world), thread_count(thread_count) {
+  Scheduler(
+    SymWorld& world,
+    size_t thread_count = 1
+  ) : world(world), thread_count(thread_count)
+  {
     // Reset the seed of the main thread based on the config
     sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED());
   }
@@ -100,9 +107,17 @@ public:
       finished = true;
     }
     ready_cv.notify_all();
-    for (auto &thread : running_threads) {
+    for (auto& thread : running_threads) {
       thread.join();
     }
+  }
+
+  void SetProcessSymFun(const fun_process_org_t& fun) {
+    fun_process_sym = fun;
+  }
+
+  void SetProcessHostFun(const fun_process_org_t& fun) {
+    fun_process_host = fun;
   }
 
   /**
@@ -113,14 +128,13 @@ public:
    * Purpose: Runs the provided callback on each organism in the world, without
    * spawning any threads.
    */
-  void ProcessOrgsSync(
-      std::function<void(emp::WorldPosition, Organism &)> callback) {
-    for (size_t id = 0; id < world.GetSize(); id++) {
+  void ProcessOrgsSync() {
+    for (size_t id = 0; id < world.GetSize(); ++id) {
       if (world.IsOccupied(id)) {
-        callback(id, world.GetOrg(id));
+        fun_process_host(id, world.GetOrg(id));
       }
       if (world.IsSymPopOccupied(id)) {
-        callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
+        fun_process_sym(emp::WorldPosition(0, id), *world.GetSymAt(id));
       }
     }
   }
@@ -132,12 +146,10 @@ public:
    *
    * Purpose: Runs the provided callback on each organism in the world.
    */
-  void ProcessOrgs(std::function<void(emp::WorldPosition, Organism &)> callback) {
+  void ProcessOrgs() {
     // Special case so we don't start any threads when they're not needed
     if (thread_count == 1)
-      return ProcessOrgsSync(callback);
-
-    this->callback = callback;
+      return ProcessOrgsSync();
 
     if (!thread_pool_started) {
       thread_pool_started = true;
