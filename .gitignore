@@ -16,3 +16,5 @@ symbulation.test
 *.gcno
 *.gcda
 *.vscode
+local/
+output/
