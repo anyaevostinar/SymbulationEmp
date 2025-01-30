@@ -8,6 +8,8 @@
 #include <cstdint>
 #include <limits>
 
+namespace sgpmode {
+
 void SGPWorld::CreateDataFiles() {
   std::string file_ending =
       "_SEED" + std::to_string(sgp_config->SEED()) + ".data";
@@ -17,7 +19,7 @@ void SGPWorld::CreateDataFiles() {
     .SetTimingRepeat(sgp_config->DATA_INT());
 
   // SGP mode doesn't need int val files, and they have significant performance
-  // overhead. Only the transmission file needs to be created for this mode.  
+  // overhead. Only the transmission file needs to be created for this mode.
   SetUpTransmissionFile(sgp_config->FILE_PATH() + "TransmissionRates" +
                         sgp_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());
@@ -36,7 +38,7 @@ void SGPWorld::CreateDataFiles() {
  *
  * Output: The address of the DataFile that has been created.
  *
- * Purpose: To set up the file that will be used to track 
+ * Purpose: To set up the file that will be used to track
  * organism counts in the world.
  *  This includes: (1) the host count, (2) the hosted symbiont
  * count, and (2b) the free living symbiont count, if free living
@@ -46,18 +48,18 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
   auto& file = SetupFile(filename);
   auto& host_count = GetHostCountDataNode();
   auto& endo_sym_count = GetCountHostedSymsDataNode();
-  
+
   file.AddVar(update, "update", "Update");
   file.AddTotal(host_count, "count", "Total number of hosts");
   file.AddTotal(endo_sym_count, "hosted_syms", "Total number of syms in a host");
-  
+
   if (sgp_config->FREE_LIVING_SYMS()) {
     auto& free_sym_count = GetCountFreeSymsDataNode();
     file.AddTotal(free_sym_count, "free_syms", "Total number of free syms");
   }
 
   file.PrintHeaderKeys();
-  
+
   return file;
 }
 
@@ -122,8 +124,8 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
   for (size_t i = 0; i < pop.size(); i++) {
     if (!IsOccupied(i)) continue;
     emp::Ptr<SGPHost> host = pop[i].DynamicCast<SGPHost>();
-    std::string host_matching_tasks = (sgp_config->TRACK_PARENT_TASKS()) ? 
-                                    host->GetCPU().state.parent_tasks_performed->ToBinaryString() : 
+    std::string host_matching_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+                                    host->GetCPU().state.parent_tasks_performed->ToBinaryString() :
                                     host->GetCPU().state.tasks_performed->ToBinaryString();
     if (emp::Has(matching_task_counts, host_matching_tasks)) {
       matching_task_counts[host_matching_tasks][0]++;
@@ -147,7 +149,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
   }
 
   // bits construction from string takes a loop, so just loop here
-  for (auto it = matching_task_counts.begin(); 
+  for (auto it = matching_task_counts.begin();
     it != matching_task_counts.end(); it++){
     for (auto interior_it = it; interior_it != matching_task_counts.end(); interior_it++) {
       if (interior_it == it) continue;
@@ -189,7 +191,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
  *
  * Output: None
  *
- * Purpose: To write the reproductive and mutation history 
+ * Purpose: To write the reproductive and mutation history
  * of all hosts and symbionts
  */
 void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
@@ -266,6 +268,8 @@ SyncDataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
     data_node_sym_stolen.New();
   }
   return *data_node_sym_stolen;
+}
+
 }
 
 #endif

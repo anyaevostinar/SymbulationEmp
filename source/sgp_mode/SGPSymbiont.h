@@ -7,6 +7,8 @@
 #include "SGPWorld.h"
 #include "emp/Evolve/World_structure.hpp"
 
+namespace sgpmode {
+
 class SGPSymbiont : public Symbiont {
 private:
   CPU cpu;
@@ -21,10 +23,10 @@ private:
 
 protected:
   /**
-   * 
+   *
    * Purpose: Holds all configuration settings and points to same configuration
    * object as my_config from superclass, but with the correct subtype.
-   * 
+   *
    */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
@@ -103,7 +105,7 @@ public:
    * Purpose: To set the count of reproductions in this lineage.
    */
   void SetReproCount(int _in) { reproductions = _in; }
- 
+
   /**
    * Input: None.
    *
@@ -172,7 +174,7 @@ public:
     if (GetDead()) {
       return;
     }
-    
+
     cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
     // The parts of Symbiont::Process that don't use resources or reproduction
 
@@ -223,7 +225,7 @@ public:
           sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
         }
         else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
-          // child loses the ability to infect hosts with whom this parent had only this task in common 
+          // child loses the ability to infect hosts with whom this parent had only this task in common
           sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
         }
 
@@ -275,5 +277,7 @@ public:
     cpu.Mutate();
   }
 };
+
+}
 
 #endif

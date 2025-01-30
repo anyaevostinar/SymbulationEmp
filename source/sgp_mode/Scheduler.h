@@ -10,6 +10,8 @@
 #include <functional>
 #include <thread>
 
+namespace sgpmode {
+
 class Scheduler {
   const size_t BATCH_SIZE = 64;
 
@@ -64,7 +66,7 @@ class Scheduler {
           if (world.IsOccupied(id)) {
             callback(id, world.GetOrg(id));
           }
-          if (world.IsSymPopOccupied(id)) { 
+          if (world.IsSymPopOccupied(id)) {
             callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
           }
         }
@@ -160,5 +162,7 @@ public:
     }
   }
 };
+
+}
 
 #endif

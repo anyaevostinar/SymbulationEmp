@@ -9,6 +9,8 @@
 #include "emp/bits/BitSet.hpp"
 #include <cstdint>
 
+namespace sgpmode {
+
 const int CPU_BITSET_LENGTH = 9;
 
 /// A helper class for a ring buffer that keeps the latest `len` inputs and
@@ -75,5 +77,7 @@ struct CPUState {
   CPUState(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
       : organism(organism), world(world) {}
 };
+
+}
 
 #endif

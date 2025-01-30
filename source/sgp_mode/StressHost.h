@@ -3,6 +3,8 @@
 
 #include "SGPHost.h"
 
+namespace sgpmode {
+
 class StressHost : public SGPHost {
 
 public:
@@ -73,4 +75,6 @@ public:
     SGPHost::Process(pos);
   }
 };
+
+}
 #endif // STRESSHOST_H

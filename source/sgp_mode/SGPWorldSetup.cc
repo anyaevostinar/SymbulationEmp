@@ -10,6 +10,8 @@
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
 
+namespace sgpmode {
+
 /**
  * Input: None.
  *
@@ -200,6 +202,6 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     }
   }
 
-
+}
 
 #endif

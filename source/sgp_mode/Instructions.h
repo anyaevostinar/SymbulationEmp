@@ -12,7 +12,7 @@
 #include <functional>
 #include <mutex>
 
-namespace inst {
+namespace sgpmode::inst {
 
 /**
  * Macro to easily create an instruction:

@@ -4,6 +4,7 @@
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 
+namespace sgpmode {
 
 /**
 * Input: None.
@@ -29,7 +30,7 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
         host_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
       }
       else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
-        // child loses the ability to be infected by syms with whom this parent had only this task in common 
+        // child loses the ability to be infected by syms with whom this parent had only this task in common
         host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
       }
 
@@ -54,5 +55,6 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
   return host_baby;
 }
 
+}
 
 #endif

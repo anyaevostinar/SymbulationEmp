@@ -4,6 +4,8 @@
 #include "Tasks.h"
 #include "SGPWorld.h"
 
+namespace sgpmode {
+
 void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
                          bool shared) {
   state.used_resources->Set(task_id);
@@ -33,6 +35,8 @@ void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
   } else {
     state.available_dependencies[task_id]++;
   }
+}
+
 }
 
 #endif

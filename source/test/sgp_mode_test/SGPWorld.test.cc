@@ -6,22 +6,22 @@
 
 TEST_CASE("GetDominantInfo", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.DOMINANT_COUNT(10);
 
-  SGPWorld world(random, &config, TaskSet{});
+  sgpmode::SGPWorld world(random, &config, sgpmode::TaskSet{});
 
-  SGPHost host1(&random, &world, &config);
-  SGPHost host2(&random, &world, &config);
+  sgpmode::SGPHost host1(&random, &world, &config);
+  sgpmode::SGPHost host2(&random, &world, &config);
   // Make sure they have different genomes
   host1.Mutate();
   host2.Mutate();
 
   WHEN("The world contains 2 of one org and 1 of another") {
     // One copy of host1 and two of host2
-    world.AddOrgAt(emp::NewPtr<SGPHost>(host1), 0);
-    world.AddOrgAt(emp::NewPtr<SGPHost>(host2), 1);
-    world.AddOrgAt(emp::NewPtr<SGPHost>(host2), 2);
+    world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost>(host1), 0);
+    world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost>(host2), 1);
+    world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost>(host2), 2);
 
     CHECK(world.GetNumOrgs() == 3);
 
@@ -42,25 +42,25 @@ TEST_CASE("GetDominantInfo", "[sgp]") {
 
 TEST_CASE("Baseline function", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
   config.GRID_X(2);
   config.GRID_Y(2);
 
 
-  SGPWorld world(random, &config, LogicTasks);
+  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.Resize(2,2);
 
-  emp::Ptr<SGPHost> infected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
-  emp::Ptr<SGPSymbiont> free_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPHost> infected_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPHost> uninfected_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPSymbiont> hosted_symbiont = emp::NewPtr<sgpmode::SGPSymbiont> (&random, &world, &config);
+  emp::Ptr<sgpmode::SGPSymbiont> free_symbiont = emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config);
 
   infected_host->AddSymbiont(hosted_symbiont);
   world.AddOrgAt(infected_host, 0);
   world.AddOrgAt(uninfected_host, 1);
   world.AddOrgAt(free_symbiont, emp::WorldPosition(0, 0));
-  
+
   THEN("Organisms can be added to the world") {
     REQUIRE(world.GetNumOrgs() == 3);
   }
@@ -76,17 +76,17 @@ TEST_CASE("Baseline function", "[sgp]") {
 
 TEST_CASE("TaskMatchCheck", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
-  SGPWorld world(random, &config, LogicTasks);
+  sgpmode::SymConfigSGP config;
+  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   config.SYM_LIMIT(2);
 
-  ProgramBuilder builder;
+  sgpmode::ProgramBuilder builder;
   builder.AddNand();
 
-  emp::Ptr<SGPHost> NOT_host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  emp::Ptr<SGPSymbiont> NOT_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-  emp::Ptr<SGPSymbiont> NAND_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, builder.Build(100));
-  
+  emp::Ptr<sgpmode::SGPHost> NOT_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
+  emp::Ptr<sgpmode::SGPSymbiont> NOT_symbiont = emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config, sgpmode::CreateNotProgram(100));
+  emp::Ptr<sgpmode::SGPSymbiont> NAND_symbiont = emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config, builder.Build(100));
+
   NOT_host->AddSymbiont(NOT_symbiont);
   NOT_host->AddSymbiont(NAND_symbiont);
   world.AddOrgAt(NOT_host, 0);
@@ -114,18 +114,18 @@ TEST_CASE("TaskMatchCheck", "[sgp]") {
 
 TEST_CASE("Ousting is permitted", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.GRID_X(2);
   config.GRID_Y(2);
   config.OUSTING(1);
   config.SYM_LIMIT(1);
 
-  SGPWorld world(random, &config, LogicTasks);
+  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.Resize(2, 2);
 
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPSymbiont> old_symbiont = emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config);
+  emp::Ptr<sgpmode::SGPSymbiont> new_symbiont = emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config);
 
   host->AddSymbiont(old_symbiont);
   world.AddOrgAt(host, 0);

@@ -9,6 +9,8 @@
 #include <cstddef>
 #include <limits>
 
+namespace sgpmode {
+
 using Library = sgpl::OpLibrary<
     sgpl::Nop<>,
     // single argument math
@@ -313,6 +315,8 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
   }
+}
+
 }
 
 #endif

@@ -8,6 +8,8 @@
 #include "emp/data/DataNode.hpp"
 #include "SGPConfigSetup.h"
 
+namespace sgpmode {
+
 /// Helper which synchronizes access to the DataMonitor with a mutex
 template <typename T, emp::data... MODS> class SyncDataMonitor {
   std::mutex mutex;
@@ -194,5 +196,7 @@ public:
 
   void CreateDataFiles() override;
 };
+
+}
 
 #endif

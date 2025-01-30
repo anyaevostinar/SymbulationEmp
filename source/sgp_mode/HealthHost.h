@@ -3,11 +3,12 @@
 
 #include "SGPHost.h"
 
+namespace sgpmode {
+
 class HealthHost : public SGPHost {
+public:
 
-    public:
-
-      /**
+  /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
    * the config setting RANDOM_ANCESTOR.
@@ -19,7 +20,7 @@ class HealthHost : public SGPHost {
           double _points = 0.0)
       : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points){}
 
-        /**
+  /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
@@ -49,13 +50,13 @@ class HealthHost : public SGPHost {
   int AddSymbiont(emp::Ptr<Organism> _in) override {
 
     // Ousting code:
-    if((int)syms.size() >= my_config->SYM_LIMIT()){
+    if ((int)syms.size() >= my_config->SYM_LIMIT()) {
       emp::Ptr<Organism> last_sym = syms.back();
       syms.pop_back();
-      last_sym->SetDead(); //TODO: this isn't ever cleaned up? 
-    }//end ousting code
+      last_sym->SetDead(); //TODO: this isn't ever cleaned up?
+    } //end ousting code
 
-    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+    if ((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()) {
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
@@ -68,54 +69,55 @@ class HealthHost : public SGPHost {
 
 
 
-    /** 
-     * Input: The location of the host.
-     * 
-     * Output: None
-     * 
-     * Purpose: TBD
-     */
-    void Process(emp::WorldPosition pos) override {
-        if (GetDead()) {
-            // Handle the case where the host is dead
-            //TODO: can this be handled somewhere else so it doesn't get duplicated?
-            //Or setup function?
-            return;
-        }
-
-        //Host with parasite loses 50% of CPU to parasite
-        bool host_cycle = true;
-        if (HasSym()) {
-        host_cycle = random->P(0.5);
-        }
-
-        
-        if (host_cycle) {
-        GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-        }
-
-        if (HasSym() && !host_cycle) { // let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
-        for (size_t j = 0; j < syms.size(); j++) {
-            emp::Ptr<Organism> curSym = syms[j];
-            if (GetDead()) {
-            return; // If previous symbiont killed host, we're done
-            }
-            // sym position should have host index as id and
-            // position in syms list + 1 as index (0 as fls index)
-            emp::WorldPosition sym_pos = emp::WorldPosition(j + 1, pos.GetIndex());
-            if (!curSym->GetDead()) {
-            curSym->Process(sym_pos);
-            }
-            if (curSym->GetDead()) {
-            syms.erase(syms.begin() + j); // if the symbiont dies during their
-                                            // process, remove from syms list
-            curSym.Delete();
-            }
-        } // for each sym in syms
-        }   // if org has syms
-
-
+  /**
+   * Input: The location of the host.
+   *
+   * Output: None
+   *
+   * Purpose: TBD
+   */
+  void Process(emp::WorldPosition pos) override {
+    if (GetDead()) {
+        // Handle the case where the host is dead
+        //TODO: can this be handled somewhere else so it doesn't get duplicated?
+        //Or setup function?
+        return;
     }
+
+    //Host with parasite loses 50% of CPU to parasite
+    bool host_cycle = true;
+    if (HasSym()) {
+      host_cycle = random->P(0.5);
+    }
+
+
+    if (host_cycle) {
+      GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
+    }
+
+    if (HasSym() && !host_cycle) { // let each sym do whatever they need to do
+      emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
+      for (size_t j = 0; j < syms.size(); j++) {
+        emp::Ptr<Organism> curSym = syms[j];
+        if (GetDead()) {
+          return; // If previous symbiont killed host, we're done
+        }
+        // sym position should have host index as id and
+        // position in syms list + 1 as index (0 as fls index)
+        emp::WorldPosition sym_pos = emp::WorldPosition(j + 1, pos.GetIndex());
+        if (!curSym->GetDead()) {
+          curSym->Process(sym_pos);
+        }
+        if (curSym->GetDead()) {
+          syms.erase(syms.begin() + j); // if the symbiont dies during their
+                                          // process, remove from syms list
+          curSym.Delete();
+        }
+      } // for each sym in syms
+    } // if org has syms
+  }
 };
+
+}
+
 #endif // HEALTHHOST_H

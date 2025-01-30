@@ -7,10 +7,12 @@
 #include "emp/base/Ptr.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
+namespace sgpmode {
+
 class SGPHost : public Host {
 private:
   CPU cpu;
-  
+
   /**
    *
    * Purpose: Tracks the number of reproductive events in this host's lineage.
@@ -129,9 +131,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: A pointer to the world this host belongs to.
-   * 
+   *
    * Purpose: Allows accessing the host's world.
    */
   emp::Ptr<SGPWorld> GetWorld() { return my_world; }
@@ -155,7 +157,7 @@ public:
     }
 
     cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-    
+
 
     if (HasSym()) { // let each sym do whatever they need to do
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
@@ -194,7 +196,7 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
-    
+
     return host_baby;
   }
 
@@ -211,5 +213,7 @@ public:
     cpu.Mutate();
   }
 };
+
+}
 
 #endif

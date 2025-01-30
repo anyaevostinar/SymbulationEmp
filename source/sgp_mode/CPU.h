@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 
+namespace sgpmode {
+
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
@@ -261,5 +263,7 @@ public:
     }
   }
 };
+
+}
 
 #endif

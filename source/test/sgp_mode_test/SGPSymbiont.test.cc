@@ -5,13 +5,18 @@
 
 TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 	emp::Random random(31);
-	SymConfigSGP config;
-	SGPWorld world(random, &config, LogicTasks);
-	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-	
+	sgpmode::SymConfigSGP config;
+	sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
+	emp::Ptr<sgpmode::SGPSymbiont> sym_parent = emp::NewPtr<sgpmode::SGPSymbiont>(
+    &random,
+    &world,
+    &config,
+    sgpmode::CreateNotProgram(100)
+  );
+
 
 	THEN("Symbiont child increases its lineage reproduction count"){
-		emp::Ptr<SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<SGPSymbiont>();
+		emp::Ptr<sgpmode::SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<sgpmode::SGPSymbiont>();
 		REQUIRE(sym_parent->GetReproCount() == sym_baby->GetReproCount() - 1);
 		sym_baby.Delete();
     sym_parent.Delete();
@@ -19,7 +24,12 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 
   WHEN("Parental task tracking is on") {
 
-    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+    emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(
+      &random,
+      &world,
+      &config,
+      sgpmode::CreateNotProgram(100)
+    );
     config.TRACK_PARENT_TASKS(1);
     world.AddOrgAt(host, 0);
     host->AddSymbiont(sym_parent);
@@ -28,7 +38,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       world.Update();
     }
 
-    emp::Ptr<SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<SGPSymbiont>();
+    emp::Ptr<sgpmode::SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<sgpmode::SGPSymbiont>();
 
     THEN("Symbiont child inherits its parent's completed task bitset") {
       REQUIRE(sym_parent->GetCPU().state.parent_tasks_performed->All());
@@ -45,7 +55,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       // since first-gen organisms are uniquely marked as having parents who complete every task
       REQUIRE(sym_baby->GetCPU().state.task_change_lose[0] == 0);
       REQUIRE(sym_baby->GetCPU().state.task_change_gain[0] == 0);
-      for (unsigned int i = 1; i < CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
         REQUIRE(sym_baby->GetCPU().state.task_change_lose[i] == 1);
         REQUIRE(sym_baby->GetCPU().state.task_change_gain[i] == 0);
       }
@@ -55,7 +65,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       REQUIRE(sym_baby->GetCPU().state.task_toward_partner[0] == 0);
       REQUIRE(sym_baby->GetCPU().state.task_from_partner[0] == 0);
 
-      for (unsigned int i = 1; i < CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
         REQUIRE(sym_baby->GetCPU().state.task_toward_partner[i] == 0);
         REQUIRE(sym_baby->GetCPU().state.task_from_partner[i] == 1);
       }

@@ -7,6 +7,8 @@
 #include "../../Empirical/include/emp/config/config.hpp"
 #include "../ConfigSetup.h"
 
+namespace sgpmode {
+
 enum class SGPOrganismType { DEFAULT = 0, HEALTH, STRESS, NUTRIENT };
 enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
@@ -49,5 +51,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?")
 )
+
+}
 
 #endif

@@ -24,14 +24,14 @@
 // This is the main function for the NATIVE version of this project.
 
 int symbulation_main(int argc, char *argv[]) {
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   CheckConfigFile(config, argc, argv);
 
   emp::Random random(config.SEED());
 
-  TaskSet task_set = LogicTasks;
+  sgpmode::TaskSet task_set = sgpmode::LogicTasks;
 
-  SGPWorld world(random, &config, task_set);
+  sgpmode::SGPWorld world(random, &config, task_set);
 
   world.Setup();
   world.CreateDataFiles();
@@ -58,7 +58,7 @@ int symbulation_main(int argc, char *argv[]) {
   {
     size_t idx = 0;
     for (auto pair : dominant_organisms) {
-      auto sample = pair.first.DynamicCast<SGPHost>();
+      auto sample = pair.first.DynamicCast<sgpmode::SGPHost>();
 
       std::ofstream genome_file;
       std::string genome_path = config.FILE_PATH() + "Genome_Host" +
@@ -73,7 +73,7 @@ int symbulation_main(int argc, char *argv[]) {
                                   std::to_string(idx) + config.FILE_NAME() +
                                   file_ending;
         genome_file.open(genome_path);
-        sym.DynamicCast<SGPSymbiont>()->GetCPU().PrintCode(genome_file);
+        sym.DynamicCast<sgpmode::SGPSymbiont>()->GetCPU().PrintCode(genome_file);
       }
 
       idx++;

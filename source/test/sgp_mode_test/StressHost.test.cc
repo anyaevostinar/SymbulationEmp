@@ -2,7 +2,7 @@
 
 TEST_CASE("Extinction event", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.ORGANISM_TYPE("stress");
   config.EXTINCTION_FREQUENCY(10);
   config.GRID_X(10);
@@ -16,7 +16,7 @@ TEST_CASE("Extinction event", "[sgp]") {
   config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
   config.BASE_DEATH_CHANCE(base_death_chance);
 
-  SGPWorld world(random, &config, LogicTasks);
+  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
 
 
   WHEN("There are stress symbionts in the world"){

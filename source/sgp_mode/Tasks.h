@@ -6,6 +6,8 @@
 #include <atomic>
 #include <string>
 
+namespace sgpmode {
+
 class Task {
   bool unlimited = true;
   emp::vector<size_t> dependencies;
@@ -20,7 +22,7 @@ public:
        emp::vector<size_t> dependencies = {}, size_t num_dep_completes = 1)
       : unlimited(unlimited), dependencies(dependencies),
         num_dep_completes(num_dep_completes), name(name) {}
-  
+
   virtual ~Task(){}
 
   virtual void MarkAlwaysPerformable() {
@@ -35,7 +37,7 @@ public:
     //   if(state.tasks_performed->Get(i)) return false; //if any other task has been performed, can't do this one
     // }
     // if (!state.organism->IsHost()){
-    //   //if this is a symbiont 
+    //   //if this is a symbiont
     //   if (state.used_resources->Get(task_id)) {
     //     //and the task has been performed (therefore must be by host)
     //     //symbiont gets the points from the host
@@ -45,10 +47,10 @@ public:
     //     return false;
     //   }
     // }
-    
+
     // if (state.used_resources->Get(task_id) && !unlimited) {
     //   return false;
-    // } 
+    // }
 
     // if (dependencies.size()) {
     //   size_t actually_completed = std::reduce(
@@ -86,7 +88,7 @@ public:
             size_t num_dep_completes = 1)
       : Task(name, unlimited, dependencies, num_dep_completes),
         n_inputs(n_inputs), task_fun(task_fun), value(value) {}
-  
+
   ~InputTask(){}
 
   float CheckOutput(CPUState &state, uint32_t output) override {
@@ -134,7 +136,7 @@ class TaskSet {
     else{
       ++*n_succeeds_sym[task_id];
     }
-      
+
 
     return score;
   }
@@ -212,7 +214,7 @@ public:
     }
     if (sym_special){
       return 2.5;
-    } 
+    }
     return 0.0f;
   }
 
@@ -276,5 +278,7 @@ const TaskSet LogicTasks{
     emp::NewPtr<InputTask>(OR),  emp::NewPtr<InputTask>(ANDN),
     emp::NewPtr<InputTask>(NOR), emp::NewPtr<InputTask>(XOR),
     emp::NewPtr<InputTask>(EQU)};
+
+}
 
 #endif
