@@ -56,6 +56,8 @@ struct CPUState {
   int task_toward_partner[CPU_BITSET_LENGTH] = { 0 };
   int task_from_partner[CPU_BITSET_LENGTH] = { 0 };
 
+  double survivial_resource = 0.0;
+
   emp::vector<size_t> available_dependencies;
   emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();

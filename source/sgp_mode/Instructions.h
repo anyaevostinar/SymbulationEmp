@@ -9,6 +9,7 @@
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+#include <functional>
 #include <mutex>
 
 namespace inst {
@@ -204,15 +205,39 @@ INST(Infect, {
         // extract the symbiont from the fls vector and decrement the free living org count, then
         // add the sym to the host's sym list
         state.world->GetPop()[pop_index]->AddSymbiont(state.world->ExtractSym(pop_index));
-        // change the location 
+        // change the location
         state.location = emp::WorldPosition(pop_index, syms_size);
       }
       else {
-        state.organism->SetDead(); // infection failed, set it dead and do deletion next update 
+        state.organism->SetDead(); // infection failed, set it dead and do deletion next update
       }
     }
   }
 });
+
+
+// Trigger interaction
+struct Interact {
+
+  template <typename Spec>
+  static void run(
+    sgpl::Core<Spec> &core,
+    const sgpl::Instruction<Spec> &inst,
+    const sgpl::Program<Spec> &program,
+    CPUState &state
+  ) {
+    uint32_t *a = (uint32_t *)&core.registers[inst.args[0]],
+              *b = (uint32_t *)&core.registers[inst.args[1]],
+              *c = (uint32_t *)&core.registers[inst.args[2]];
+    /* avoid "unused variable" warnings */
+    a = a, b = b, c = c;
+    // InstCode
+  }
+
+  static size_t prevalence() { return 1; }
+  static std::string name() { return "Interact"; }
+};
+
 
 } // namespace inst
 

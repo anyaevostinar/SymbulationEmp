@@ -1,25 +1,98 @@
 #ifndef SGP_WORLD_SETUP_C
 #define SGP_WORLD_SETUP_C
 
+#include "emp/datastructs/map_utils.hpp"
+#include "emp/tools/string_utils.hpp"
+
 #include "SGPConfigSetup.h"
 #include "HealthHost.h"
 #include "StressHost.h"
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
 
+/**
+ * Input: None.
+ *
+ * Output: None.
+ *
+ * Purpose: Prepare the SGPWorld for an experiment by applying the configuration settings
+ * and populating the world with hosts and symbionts.
+ */
+void SGPWorld::Setup() {
+  std::cout << "Running sgp world setup..." << std::endl;
+  // Configure sgp org type
+  std::string cfg_org_type(emp::to_lower(sgp_config->ORGANISM_TYPE()));
+  emp_assert(
+    emp::Has(sgp_org_type_map, cfg_org_type),
+    "Invalid SGP organism type.",
+    sgp_config->ORGANISM_TYPE()
+  );
+  sgp_org_type = sgp_org_type_map[cfg_org_type];
+
+  // Configure stress sym type
+  // TODO - Implement SetupStressMode / etc
+  std::string cfg_stress_sym_type(emp::to_lower(sgp_config->STRESS_TYPE()));
+  emp_assert(
+    emp::Has(sgp_stress_sym_type_map, cfg_stress_sym_type),
+    "Invalid stress symbiont type.",
+    sgp_config->STRESS_TYPE()
+  );
+  stress_sym_type = sgp_stress_sym_type_map[cfg_stress_sym_type];
+
+  // TODO - clean this up
+  // stress hard-coded transmission modes
+  if (sgp_org_type == SGPOrganismType::STRESS) {
+    if (stress_sym_type == StressSymbiontType::MUTUALIST) {
+      // mutualists
+      sgp_config->VERTICAL_TRANSMISSION(1.0);
+      sgp_config->HORIZ_TRANS(0);
+    } else if (stress_sym_type == StressSymbiontType::PARASITE) {
+      // parasites
+      sgp_config->VERTICAL_TRANSMISSION(0);
+      sgp_config->HORIZ_TRANS(1);
+    }
+  }
+
+  // NOTE - Some of this code is repeated from base class.
+  //  - Could to some reorganization to copy-paste. E.g., make functions for this,
+  //     add hooks into the base setup to give more downstream flexibility.
+  double start_moi = sgp_config->START_MOI();
+  long unsigned int POP_SIZE;
+  if (sgp_config->POP_SIZE() == -1) {
+    POP_SIZE = sgp_config->GRID_X() * sgp_config->GRID_Y();
+  } else {
+    POP_SIZE = sgp_config->POP_SIZE();
+  }
+
+  // set world structure (either mixed or a grid with some dimensions)
+  // and set synchronous generations to false
+  if (sgp_config->GRID() == 0) {
+    SetPopStruct_Mixed(false);
+  } else {
+    SetPopStruct_Grid(sgp_config->GRID_X(), sgp_config->GRID_Y(), false);
+  }
+
+  SetupHosts(&POP_SIZE);
+
+  Resize(sgp_config->GRID_X(), sgp_config->GRID_Y());
+  long unsigned int total_syms = POP_SIZE * start_moi;
+  SetupSymbionts(&total_syms);
+}
+
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
+
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
-    switch (sgp_config->ORGANISM_TYPE()) {
-      case DEFAULT:
+    switch (sgp_org_type) {
+      case SGPOrganismType::DEFAULT:
         new_org = emp::NewPtr<SGPHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
-      case HEALTH:
+      case SGPOrganismType::HEALTH:
         new_org = emp::NewPtr<HealthHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
-      case STRESS:
+      case SGPOrganismType::STRESS:
         new_org = emp::NewPtr<StressHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
@@ -27,7 +100,7 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
         std::cout << "Please request a supported sgp organism type" << std::endl;
         break;
     }
-    
+
     if(sgp_config->START_MOI()==1){
 
       emp::Ptr<SGPSymbiont> new_sym = emp::NewPtr<SGPSymbiont>(

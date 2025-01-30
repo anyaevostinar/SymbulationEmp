@@ -56,15 +56,20 @@ public:
   void Process(emp::WorldPosition pos) override {
     if (my_world->GetUpdate() % sgp_config->EXTINCTION_FREQUENCY() == 0) {
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
+      // TODO - replace to support instruction-driven interactions
+      // -> Don't need to check mode every execution; we know this at world setup.
       if (HasSym()) {
-        if (sgp_config->STRESS_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        else if (sgp_config->STRESS_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
+        if (my_world->GetStressSymType() == StressSymbiontType::MUTUALIST) {
+          death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
+        } else if (my_world->GetStressSymType() == StressSymbiontType::PARASITE) {
+          death_chance = sgp_config->PARASITE_DEATH_CHANCE();
+        }
       }
       if (random->P(death_chance)) {
         SetDead();
       }
     }
-    
+
     SGPHost::Process(pos);
   }
 };

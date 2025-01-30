@@ -21,29 +21,12 @@
 #include <memory>
 #include <string>
 
-using namespace std;
-
 // This is the main function for the NATIVE version of this project.
 
 int symbulation_main(int argc, char *argv[]) {
   SymConfigSGP config;
   CheckConfigFile(config, argc, argv);
 
-  // stress hard-coded transmission modes
-  if (config.ORGANISM_TYPE() == 2) {
-    if (config.STRESS_TYPE() == 0) {
-      // mutualists
-      config.VERTICAL_TRANSMISSION(1.0);
-      config.HORIZ_TRANS(0);
-    }
-    else if (config.STRESS_TYPE() == 1) {
-      // parasites
-      config.VERTICAL_TRANSMISSION(0);
-      config.HORIZ_TRANS(1);
-    }
-  }
-
-  config.Write(std::cout);
   emp::Random random(config.SEED());
 
   TaskSet task_set = LogicTasks;
@@ -53,11 +36,15 @@ int symbulation_main(int argc, char *argv[]) {
   world.Setup();
   world.CreateDataFiles();
 
+  // Write config after world setup to accomodate world potentially changing
+  // config values on setup.
+  config.Write(std::cout);
+
   // Print some debug info for testing purposes
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
   world.RunExperiment();
- 
+
   world.WriteOrgReproHistFile(config.FILE_PATH() + "OrgReproHist" + config.FILE_NAME() +
     file_ending);
   world.WriteTaskCombinationsFile(config.FILE_PATH() + "EndingTaskCombinations" + config.FILE_NAME() +
@@ -73,7 +60,7 @@ int symbulation_main(int argc, char *argv[]) {
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<SGPHost>();
 
-      ofstream genome_file;
+      std::ofstream genome_file;
       std::string genome_path = config.FILE_PATH() + "Genome_Host" +
                                 std::to_string(idx) + config.FILE_NAME() +
                                 file_ending;
@@ -81,7 +68,7 @@ int symbulation_main(int argc, char *argv[]) {
       sample->GetCPU().PrintCode(genome_file);
 
       for (auto &sym : sample->GetSymbionts()) {
-        ofstream genome_file;
+        std::ofstream g1enome_file;
         std::string genome_path = config.FILE_PATH() + "Genome_Sym" +
                                   std::to_string(idx) + config.FILE_NAME() +
                                   file_ending;

@@ -55,6 +55,9 @@ private:
   *
   */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
+  SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
+  StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
+
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
@@ -119,7 +122,7 @@ public:
         if (org.GetDead()) DoSymDeath(pos.GetPopID());
         else org.Process(pos);
         if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
-        
+
       }
     });
 
@@ -161,6 +164,7 @@ public:
   }
 
   // Prototypes for setup methods
+  void Setup() override;
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
 
@@ -171,6 +175,9 @@ public:
 
   // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
+
+  SGPOrganismType GetOrgType() const { return sgp_org_type; }
+  StressSymbiontType GetStressSymType() const { return stress_sym_type; }
 
   // Prototypes for data node methods
   SyncDataMonitor<double> &GetSymDonatedDataNode();
