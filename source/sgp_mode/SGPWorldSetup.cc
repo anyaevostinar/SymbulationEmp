@@ -21,6 +21,35 @@
 void SGPWorld::Setup() {
   std::cout << "Running sgp world setup..." << std::endl;
   // Configure sgp org type
+  SetupOrgMode();
+
+  // NOTE - Some of this code is repeated from base class.
+  //  - Could to some reorganization to copy-paste. E.g., make functions for this,
+  //     add hooks into the base setup to give more downstream flexibility.
+  double start_moi = sgp_config->START_MOI();
+  long unsigned int POP_SIZE;
+  if (sgp_config->POP_SIZE() == -1) {
+    POP_SIZE = sgp_config->GRID_X() * sgp_config->GRID_Y();
+  } else {
+    POP_SIZE = sgp_config->POP_SIZE();
+  }
+
+  // set world structure (either mixed or a grid with some dimensions)
+  // and set synchronous generations to false
+  if (sgp_config->GRID() == 0) {
+    SetPopStruct_Mixed(false);
+  } else {
+    SetPopStruct_Grid(sgp_config->GRID_X(), sgp_config->GRID_Y(), false);
+  }
+
+  SetupHosts(&POP_SIZE);
+
+  Resize(sgp_config->GRID_X(), sgp_config->GRID_Y());
+  long unsigned int total_syms = POP_SIZE * start_moi;
+  SetupSymbionts(&total_syms);
+}
+
+void SGPWorld::SetupOrgMode() {
   std::string cfg_org_type(emp::to_lower(sgp_config->ORGANISM_TYPE()));
   emp_assert(
     emp::Has(sgp_org_type_map, cfg_org_type),
@@ -52,31 +81,6 @@ void SGPWorld::Setup() {
       sgp_config->HORIZ_TRANS(1);
     }
   }
-
-  // NOTE - Some of this code is repeated from base class.
-  //  - Could to some reorganization to copy-paste. E.g., make functions for this,
-  //     add hooks into the base setup to give more downstream flexibility.
-  double start_moi = sgp_config->START_MOI();
-  long unsigned int POP_SIZE;
-  if (sgp_config->POP_SIZE() == -1) {
-    POP_SIZE = sgp_config->GRID_X() * sgp_config->GRID_Y();
-  } else {
-    POP_SIZE = sgp_config->POP_SIZE();
-  }
-
-  // set world structure (either mixed or a grid with some dimensions)
-  // and set synchronous generations to false
-  if (sgp_config->GRID() == 0) {
-    SetPopStruct_Mixed(false);
-  } else {
-    SetPopStruct_Grid(sgp_config->GRID_X(), sgp_config->GRID_Y(), false);
-  }
-
-  SetupHosts(&POP_SIZE);
-
-  Resize(sgp_config->GRID_X(), sgp_config->GRID_Y());
-  long unsigned int total_syms = POP_SIZE * start_moi;
-  SetupSymbionts(&total_syms);
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {

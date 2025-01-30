@@ -167,6 +167,7 @@ public:
   void Setup() override;
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
+  void SetupOrgMode();
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
