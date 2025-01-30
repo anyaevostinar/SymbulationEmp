@@ -660,7 +660,7 @@ public:
       //baby's taxon will be set in AddSymToSystematic
     }
 
-    if (my_config->TAG_MATCHING()) {
+    if (my_config->TAG_MATCHING() && my_host) {
       // do not xor to get 1 where bits are matching
       emp::BitSet<32> host_sym_parent_matching = my_host->GetTag().XOR(tag).NOT();
       emp::BitSet<32> host_sym_baby_matching = my_host->GetTag().XOR(sym_baby->GetTag()).NOT();
