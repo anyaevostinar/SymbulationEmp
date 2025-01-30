@@ -3,14 +3,14 @@
 TEST_CASE("Extinction event", "[sgp]") {
   emp::Random random(61);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(STRESS);
+  config.ORGANISM_TYPE("stress");
   config.EXTINCTION_FREQUENCY(10);
   config.GRID_X(10);
   config.GRID_Y(10);
   size_t world_size = config.GRID_X() * config.GRID_Y();
 
-  double parasite_death_chance = 0.5; 
-  double mutualist_death_chance = 0.125; 
+  double parasite_death_chance = 0.5;
+  double mutualist_death_chance = 0.125;
   double base_death_chance = 0.25;
   config.PARASITE_DEATH_CHANCE(parasite_death_chance);
   config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
@@ -24,7 +24,7 @@ TEST_CASE("Extinction event", "[sgp]") {
     for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
     REQUIRE(world.GetNumOrgs() == world_size);
     WHEN("Stress symbionts are mutualists"){
-      config.STRESS_TYPE(MUTUALIST);
+      config.STRESS_TYPE("mutualist");
       world.Update();
       THEN("Hosts are less likely to die during the extinction event") {
         REQUIRE(world.GetNumOrgs() < world_size * (1 - mutualist_death_chance) + 10);
@@ -32,17 +32,17 @@ TEST_CASE("Extinction event", "[sgp]") {
       }
     }
     WHEN("Stress symbionts are parasites") {
-      config.STRESS_TYPE(PARASITE);
+      config.STRESS_TYPE("parasite");
       world.Update();
-      THEN("Hosts are more likely to die during the extinction event") {        
+      THEN("Hosts are more likely to die during the extinction event") {
         REQUIRE(world.GetNumOrgs() < world_size * (1 - parasite_death_chance) + 10);
         REQUIRE(world.GetNumOrgs() > world_size * (1 - parasite_death_chance) - 10);
       }
     }
     WHEN("Stress symbionts are neutrals"){
-      config.STRESS_TYPE(NEUTRAL);
+      config.STRESS_TYPE("neutral");
       world.Update();
-      THEN("Hosts die according to the default extinction probability during the extinction event") {        
+      THEN("Hosts die according to the default extinction probability during the extinction event") {
         REQUIRE(world.GetNumOrgs() < world_size * (1 - base_death_chance) + 10);
         REQUIRE(world.GetNumOrgs() > world_size * (1 - base_death_chance) - 10);
       }
