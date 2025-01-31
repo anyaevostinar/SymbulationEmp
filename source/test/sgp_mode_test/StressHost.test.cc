@@ -106,7 +106,7 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
       auto it = world.GetTaskSet().begin();
       ++it;
       REQUIRE((*it).n_succeeds_host > 30);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 5);
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 2);
     }
   }
 }

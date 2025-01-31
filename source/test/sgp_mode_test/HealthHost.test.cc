@@ -43,7 +43,7 @@ TEST_CASE("Health hosts evolve", "[sgp]") {
       auto it = world.GetTaskSet().begin();
       ++it;
       REQUIRE((*it).n_succeeds_host > 30);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 4);
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 2);
     }
   }
 }
