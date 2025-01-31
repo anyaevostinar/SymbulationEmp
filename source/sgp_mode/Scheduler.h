@@ -14,7 +14,7 @@ namespace sgpmode {
 
 class Scheduler {
 public:
-  using fun_process_org_t = std::function<void(const emp::WorldPosition&, Organism&)>;
+  using fun_process_org_t = std::function<void(emp::WorldPosition, Organism&)>;
 protected:
   const size_t BATCH_SIZE = 64;
 

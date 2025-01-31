@@ -92,7 +92,7 @@ void SGPWorld::SetupOrgMode() {
 void SGPWorld::SetupScheduler() {
   // Configure scheduler's process host function
   scheduler.SetProcessHostFun(
-    [this](const emp::WorldPosition& pos, Organism& org) {
+    [this](emp::WorldPosition pos, Organism& org) {
       emp_assert(org.IsHost());
       org.Process(pos);
       if (org.GetDead()) {
@@ -103,7 +103,7 @@ void SGPWorld::SetupScheduler() {
 
   // Configure scheduler's process sym function
   scheduler.SetProcessSymFun(
-    [this](const emp::WorldPosition& pos, Organism& org) {
+    [this](emp::WorldPosition pos, Organism& org) {
       emp_assert(!org.IsHost()); // NOTE - IsSym?
       // have to check for death first, because it might have moved
       // process takes worldposition, dosymdeath takes popid
