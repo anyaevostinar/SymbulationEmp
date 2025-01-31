@@ -92,33 +92,52 @@ void SGPWorld::SetupOrgMode() {
 void SGPWorld::SetupScheduler() {
   // Configure scheduler's process host function
   scheduler.SetProcessHostFun(
-    [this](emp::WorldPosition pos, Organism& org) {
-      emp_assert(org.IsHost());
-      org.Process(pos);
-      if (org.GetDead()) {
-        this->DoDeath();
+    [&](emp::WorldPosition pos, Organism &org) {
+      if (org.IsHost()) {
+        org.Process(pos);
+        if (org.GetDead()) DoDeath(pos);
+      }
+      else {
+        //have to check for death first, because it might have moved
+       // process takes worldposition, dosymdeath takes popid
+        if (org.GetDead()) DoSymDeath(pos.GetPopID());
+        else org.Process(pos);
+        if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
+
       }
     }
   );
 
   // Configure scheduler's process sym function
   scheduler.SetProcessSymFun(
-    [this](emp::WorldPosition pos, Organism& org) {
-      emp_assert(!org.IsHost()); // NOTE - IsSym?
-      // have to check for death first, because it might have moved
-      // process takes worldposition, dosymdeath takes popid
-      std::cout << "Symbiont process function" << std::endl;
-      if (org.GetDead()) {
-        this->DoSymDeath(pos.GetPopID());
-      } else {
+    [&](emp::WorldPosition pos, Organism &org) {
+      if (org.IsHost()) {
         org.Process(pos);
+        if (org.GetDead()) DoDeath(pos);
       }
-      if (this->IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
-        this->DoSymDeath(pos.GetPopID());
+      else {
+        //have to check for death first, because it might have moved
+       // process takes worldposition, dosymdeath takes popid
+        if (org.GetDead()) DoSymDeath(pos.GetPopID());
+        else org.Process(pos);
+        if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
+
       }
     }
   );
 
+      // emp_assert(!org.IsHost()); // NOTE - IsSym?
+      // // have to check for death first, because it might have moved
+      // // process takes worldposition, dosymdeath takes popid
+      // std::cout << "Symbiont process function" << std::endl;
+      // if (org.GetDead()) {
+      //   this->DoSymDeath(pos.GetPopID());
+      // } else {
+      //   org.Process(pos);
+      // }
+      // if (this->IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
+      //   this->DoSymDeath(pos.GetPopID());
+      // }
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {

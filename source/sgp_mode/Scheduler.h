@@ -70,9 +70,11 @@ protected:
 
         for (size_t id = start; id < end; ++id) {
           if (world.IsOccupied(id)) {
+            emp_assert(world.GetOrg(id).IsHost());
             fun_process_host(id, world.GetOrg(id));
           }
           if (world.IsSymPopOccupied(id)) {
+            emp_assert(!world.GetSymAt(id)->IsHost());
             fun_process_sym(emp::WorldPosition(0, id), *world.GetSymAt(id));
           }
         }
@@ -114,11 +116,11 @@ public:
     }
   }
 
-  void SetProcessHostFun(const fun_process_org_t& fun) {
+  void SetProcessHostFun(fun_process_org_t fun) {
     fun_process_host = fun;
   }
 
-  void SetProcessSymFun(const fun_process_org_t& fun) {
+  void SetProcessSymFun(fun_process_org_t fun) {
     fun_process_sym = fun;
   }
 
@@ -150,8 +152,10 @@ public:
    */
   void ProcessOrgs() {
     // Special case so we don't start any threads when they're not needed
-    if (thread_count == 1)
-      return ProcessOrgsSync();
+    if (thread_count == 1) {
+      ProcessOrgsSync();
+      return;
+    }
 
     if (!thread_pool_started) {
       thread_pool_started = true;

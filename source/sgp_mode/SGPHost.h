@@ -249,7 +249,12 @@ public:
    */
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
-        random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
+        random,
+        my_world,
+        sgp_config,
+        cpu.GetProgram(),
+        GetIntVal()
+      );
 
     return host_baby;
   }
