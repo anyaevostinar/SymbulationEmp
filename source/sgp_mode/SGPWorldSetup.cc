@@ -236,6 +236,45 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     }
   }
 
+  void SGPWorld::DoReproduction() {
+    for (auto& info : to_reproduce) {
+      const emp::WorldPosition& position = info.second;
+      emp::Ptr<Organism> org = info.first;
+
+      if (!position.IsValid() || org->GetDead()) {
+        continue;
+      }
+      emp::Ptr<Organism> child = org->Reproduce();
+      if (child->IsHost()) {
+        // Host::Reproduce() doesn't take care of vertical transmission, that
+        // happens here
+        for (auto& sym : org->GetSymbionts()) {
+          // don't vertically transmit if they must task match but don't
+          // TODO - Make condition for vertical transmission configurable
+          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
+          sym->VerticalTransmission(child);
+        }
+        DoBirth(child, position);
+      } else {
+        emp::WorldPosition new_pos = SymDoBirth(child, position);
+        // Because we're not calling HorizontalTransmission, we need to adjust
+        // these data nodes here
+        emp::DataMonitor<int>& data_node_attempts_horiztrans =
+          GetHorizontalTransmissionAttemptCount();
+
+        data_node_attempts_horiztrans.AddDatum(1);
+
+        emp::DataMonitor<int>& data_node_successes_horiztrans =
+            GetHorizontalTransmissionSuccessCount();
+
+        if (new_pos.IsValid()) {
+          data_node_successes_horiztrans.AddDatum(1);
+        }
+      }
+    }
+    to_reproduce.clear();
+  }
+
 }
 
 #endif

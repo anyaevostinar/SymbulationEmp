@@ -31,6 +31,8 @@ private:
   SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
   StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
 
+  // Internal helper function to handle reproduction events each update.
+  void DoReproduction();
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
@@ -77,8 +79,9 @@ public:
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future
     emp::World<Organism>::Update();
-    if (sgp_config->PHYLOGENY())
+    if (sgp_config->PHYLOGENY()) {
       sym_sys->Update();
+    }
 
     // Handle resource inflow
     // NOTE - Why magic number?
@@ -89,35 +92,7 @@ public:
     // Run scheduler to process orgs.
     scheduler.ProcessOrgs();
 
-    for (auto org : to_reproduce) {
-      if (!org.second.IsValid() || org.first->GetDead())
-        continue;
-      emp::Ptr<Organism> child = org.first->Reproduce();
-      if (child->IsHost()) {
-        // Host::Reproduce() doesn't take care of vertical transmission, that
-        // happens here
-        for (auto &sym : org.first->GetSymbionts()) {
-          // don't vertically transmit if they must task match but don't
-          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org.first)) continue;
-          sym->VerticalTransmission(child);
-        }
-        DoBirth(child, org.second);
-      } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, org.second);
-        // Because we're not calling HorizontalTransmission, we need to adjust
-        // these data nodes here
-        emp::DataMonitor<int> &data_node_attempts_horiztrans =
-            GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
-
-        emp::DataMonitor<int> &data_node_successes_horiztrans =
-            GetHorizontalTransmissionSuccessCount();
-        if (new_pos.IsValid()) {
-          data_node_successes_horiztrans.AddDatum(1);
-        }
-      }
-    }
-    to_reproduce.clear();
+    DoReproduction();
 
     // clean up the graveyard
     for (size_t i = 0; i < graveyard.size(); i++) {
