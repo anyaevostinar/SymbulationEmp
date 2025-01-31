@@ -17,7 +17,7 @@ TEST_CASE("Extinction event", "[sgp]") {
   config.BASE_DEATH_CHANCE(base_death_chance);
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
-
+  world.SetupScheduler();
 
   WHEN("There are stress symbionts in the world"){
     config.START_MOI(1);

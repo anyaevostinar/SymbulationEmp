@@ -189,7 +189,7 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
-  void Process(const emp::WorldPosition& pos) {
+  void Process(emp::WorldPosition pos) {
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
 
