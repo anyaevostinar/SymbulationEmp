@@ -33,6 +33,8 @@ private:
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();
+  // Internal helper function to delete dead organisms in graveyard.
+  void ProcessGraveyard();
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
@@ -92,13 +94,12 @@ public:
     // Run scheduler to process orgs.
     scheduler.ProcessOrgs();
 
+    // Processes reproduction queue (to_reproduce)
     DoReproduction();
 
-    // clean up the graveyard
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
-    }
-    graveyard.clear();
+    // Processes graveyard, deletes all dead organisms.
+    ProcessGraveyard();
+
   }
 
   // Prototypes for setup methods

@@ -275,6 +275,14 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     to_reproduce.clear();
   }
 
+void SGPWorld::ProcessGraveyard() {
+  // clean up the graveyard
+  for (size_t i = 0; i < graveyard.size(); ++i) {
+    graveyard[i].Delete();
+  }
+  graveyard.clear();
+}
+
 }
 
 #endif
