@@ -18,3 +18,4 @@ symbulation.test
 *.vscode
 local/
 output/
+log.txt
