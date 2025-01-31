@@ -78,7 +78,6 @@ TEST_CASE("Baseline function", "[sgp]") {
 TEST_CASE("TaskMatchCheck", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.THREAD_COUNT(1);
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
   config.SYM_LIMIT(2);
