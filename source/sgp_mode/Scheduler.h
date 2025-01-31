@@ -51,8 +51,10 @@ protected:
     while (true) {
       if (!finished && last_update == update) {
         std::unique_lock<std::mutex> lock(ready_lock);
-        ready_cv.wait(lock,
-                      [&]() { return finished || last_update != update; });
+        ready_cv.wait(
+          lock,
+          [&]() { return finished || last_update != update; }
+        );
       }
       if (finished)
         return;
@@ -87,7 +89,7 @@ protected:
 public:
   Scheduler(
     SymWorld& world,
-    size_t thread_count = 1
+    size_t thread_count
   ) : world(world), thread_count(thread_count)
   {
     // Reset the seed of the main thread based on the config
@@ -112,12 +114,12 @@ public:
     }
   }
 
-  void SetProcessSymFun(const fun_process_org_t& fun) {
-    fun_process_sym = fun;
-  }
-
   void SetProcessHostFun(const fun_process_org_t& fun) {
     fun_process_host = fun;
+  }
+
+  void SetProcessSymFun(const fun_process_org_t& fun) {
+    fun_process_sym = fun;
   }
 
   /**

@@ -31,9 +31,6 @@ private:
   SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
   StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
 
-  // Internal helper function to configure scheduler.
-  // Called internally on world setup.
-  void SetupScheduler();
 public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
@@ -130,10 +127,15 @@ public:
   }
 
   // Prototypes for setup methods
+  // TODO - distinguish between world configuration and population initialization
+  //  Why? Tests, different mains configure initial population differently
   void Setup() override;
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
   void SetupOrgMode();
+  // Internal helper function to configure scheduler.
+  // Called internally on world setup.
+  void SetupScheduler();
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;

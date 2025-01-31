@@ -107,13 +107,14 @@ void SGPWorld::SetupScheduler() {
       emp_assert(!org.IsHost()); // NOTE - IsSym?
       // have to check for death first, because it might have moved
       // process takes worldposition, dosymdeath takes popid
+      std::cout << "Symbiont process function" << std::endl;
       if (org.GetDead()) {
-        DoSymDeath(pos.GetPopID());
+        this->DoSymDeath(pos.GetPopID());
       } else {
         org.Process(pos);
       }
-      if (IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
-        DoSymDeath(pos.GetPopID());
+      if (this->IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
+        this->DoSymDeath(pos.GetPopID());
       }
     }
   );
