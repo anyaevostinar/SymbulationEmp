@@ -80,16 +80,17 @@ void SGPWorld::SetupOrgMode() {
     if (stress_sym_type == StressSymbiontType::MUTUALIST) {
       // mutualists
       sgp_config->VERTICAL_TRANSMISSION(1.0);
-      sgp_config->HORIZ_TRANS(0);
+      sgp_config->HORIZ_TRANS(false);
     } else if (stress_sym_type == StressSymbiontType::PARASITE) {
       // parasites
       sgp_config->VERTICAL_TRANSMISSION(0);
-      sgp_config->HORIZ_TRANS(1);
+      sgp_config->HORIZ_TRANS(true);
     }
   }
 }
 
 void SGPWorld::SetupScheduler() {
+
   // Configure scheduler's process host function
   scheduler.SetProcessHostFun(
     [this](emp::WorldPosition pos, Organism& org) {
@@ -117,6 +118,10 @@ void SGPWorld::SetupScheduler() {
       }
     }
   );
+}
+
+void SGPWorld::SetupSymTransmission() {
+
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
@@ -196,6 +201,7 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
 bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks;
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
+  // TODO - shift to one-time configurable option
   if (sgp_config->TRACK_PARENT_TASKS()) {
     parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
     host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
@@ -216,64 +222,64 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
 
 
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
-   size_t i = parent_pos.GetPopID();
-    emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
-    if(sgp_config->FREE_LIVING_SYMS() == 0){
-      int new_host_pos = GetNeighborHost(i, parent);
-      if (new_host_pos > -1) { //-1 means no living neighbors
-        int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
-        if(new_index > 0){ //sym successfully infected
-          return emp::WorldPosition(new_index, new_host_pos);
-        } else { //sym got killed trying to infect
-          return emp::WorldPosition();
-        }
-      } else {
-        sym_baby.Delete();
+  size_t i = parent_pos.GetPopID();
+  emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
+  if(sgp_config->FREE_LIVING_SYMS() == 0){
+    int new_host_pos = GetNeighborHost(i, parent);
+    if (new_host_pos > -1) { //-1 means no living neighbors
+      int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+      if(new_index > 0){ //sym successfully infected
+        return emp::WorldPosition(new_index, new_host_pos);
+      } else { //sym got killed trying to infect
         return emp::WorldPosition();
       }
     } else {
-      return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
+      sym_baby.Delete();
+      return emp::WorldPosition();
+    }
+  } else {
+    return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
+  }
+}
+
+void SGPWorld::DoReproduction() {
+  for (auto& info : to_reproduce) {
+    const emp::WorldPosition& position = info.second;
+    emp::Ptr<Organism> org = info.first;
+
+    if (!position.IsValid() || org->GetDead()) {
+      continue;
+    }
+    emp::Ptr<Organism> child = org->Reproduce();
+    if (child->IsHost()) {
+      // Host::Reproduce() doesn't take care of vertical transmission, that
+      // happens here
+      for (auto& sym : org->GetSymbionts()) {
+        // don't vertically transmit if they must task match but don't
+        // TODO - Make condition for vertical transmission configurable
+        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
+        sym->VerticalTransmission(child);
+      }
+      DoBirth(child, position);
+    } else {
+      emp::WorldPosition new_pos = SymDoBirth(child, position);
+      // Because we're not calling HorizontalTransmission, we need to adjust
+      // these data nodes here
+      emp::DataMonitor<int>& data_node_attempts_horiztrans =
+        GetHorizontalTransmissionAttemptCount();
+
+      data_node_attempts_horiztrans.AddDatum(1);
+
+      emp::DataMonitor<int>& data_node_successes_horiztrans =
+          GetHorizontalTransmissionSuccessCount();
+
+      if (new_pos.IsValid()) {
+        data_node_successes_horiztrans.AddDatum(1);
+      }
     }
   }
-
-  void SGPWorld::DoReproduction() {
-    for (auto& info : to_reproduce) {
-      const emp::WorldPosition& position = info.second;
-      emp::Ptr<Organism> org = info.first;
-
-      if (!position.IsValid() || org->GetDead()) {
-        continue;
-      }
-      emp::Ptr<Organism> child = org->Reproduce();
-      if (child->IsHost()) {
-        // Host::Reproduce() doesn't take care of vertical transmission, that
-        // happens here
-        for (auto& sym : org->GetSymbionts()) {
-          // don't vertically transmit if they must task match but don't
-          // TODO - Make condition for vertical transmission configurable
-          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
-          sym->VerticalTransmission(child);
-        }
-        DoBirth(child, position);
-      } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, position);
-        // Because we're not calling HorizontalTransmission, we need to adjust
-        // these data nodes here
-        emp::DataMonitor<int>& data_node_attempts_horiztrans =
-          GetHorizontalTransmissionAttemptCount();
-
-        data_node_attempts_horiztrans.AddDatum(1);
-
-        emp::DataMonitor<int>& data_node_successes_horiztrans =
-            GetHorizontalTransmissionSuccessCount();
-
-        if (new_pos.IsValid()) {
-          data_node_successes_horiztrans.AddDatum(1);
-        }
-      }
-    }
-    to_reproduce.clear();
-  }
+  to_reproduce.clear();
+}
 
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard

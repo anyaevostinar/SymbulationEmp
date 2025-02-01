@@ -111,7 +111,8 @@ public:
   void SetupOrgMode();
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
-  void SetupScheduler();
+  void SetupScheduler(); // TODO - shift to private function (will need to refactor many tests)
+  void SetupSymTransmission(); // TODOO - shift to private function (will need to refactor many tests)
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
