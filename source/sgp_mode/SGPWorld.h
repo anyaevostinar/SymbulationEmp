@@ -120,6 +120,14 @@ public:
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization
   //  Why? Tests, different mains configure initial population differently
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Prepare the SGPWorld for an experiment by applying the configuration settings
+   * and populating the world with hosts and symbionts.
+   */
   void Setup() override;
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
@@ -132,9 +140,24 @@ public:
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
   int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
+
+  /**
+    * Input: Pointers to a host and to a symbiont
+    *
+    * Output: Whether host and symbiont parent are able to accomplish
+    * at least one task in common
+    *
+    * Purpose: To check for task matching before vertical transmission
+    */
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
 
-  // Prototype for graveyard handling method
+  /**
+   * Input: An organism pointer to add to the graveyard
+   *
+   * Output: None
+   *
+   * Purpose: To add organisms to the graveyard
+   */
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   SGPOrganismType GetOrgType() const { return sgp_org_type; }

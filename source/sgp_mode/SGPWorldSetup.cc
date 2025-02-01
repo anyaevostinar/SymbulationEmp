@@ -12,14 +12,6 @@
 
 namespace sgpmode {
 
-/**
- * Input: None.
- *
- * Output: None.
- *
- * Purpose: Prepare the SGPWorld for an experiment by applying the configuration settings
- * and populating the world with hosts and symbionts.
- */
 void SGPWorld::Setup() {
   std::cout << "Running sgp world setup..." << std::endl;
   // Configure sgp org type
@@ -205,13 +197,6 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
 
 }
 
-/**
- * Input: An organism pointer to add to the graveyard
- *
- * Output: None
- *
- * Purpose: To add organisms to the graveyard
- */
 void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
   if (org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro != -1) {
     to_reproduce[org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro].second =
@@ -220,7 +205,8 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
   SymWorld::SendToGraveyard(org);
 }
 
-int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
+int SGPWorld::GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont) {
+  // TODO - Why magic number here?
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(id);
@@ -235,14 +221,7 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   return -1;
 }
 
- /**
-  * Input: Pointers to a host and to a symbiont
-  *
-  * Output: Whether host and symbiont parent are able to accomplish
-  * at least one task in common
-  *
-  * Purpose: To check for task matching before vertical transmission
-  */
+
 bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks;
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
