@@ -12,6 +12,8 @@
 namespace sgpmode {
 
 class SGPWorld : public SymWorld {
+public:
+  using fun_sym_do_birth_t = std::function<emp::WorldPosition(emp::Ptr<Organism>, emp::WorldPosition)>;
 private:
   Scheduler scheduler;
   TaskSet task_set;
@@ -28,17 +30,30 @@ private:
   *
   */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
+
   SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
   StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
+
+  // Triggers on symbiont do birth action.
+  //  sym baby ptr, parent pos
+  emp::Signal<void(
+    emp::Ptr<Organism> /* sym_baby_ptr */,
+    emp::WorldPosition /* parent_pos */
+  )> before_sym_do_birth;
+
+  emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth;
+  fun_sym_do_birth_t fun_sym_do_birth;
+
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
 public:
+  // TODO - Shift to protected/private. Add any necessary accessors.
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
-  SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
+  SGPWorld(emp::Random& r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
     task_set(task_set) {
     sgp_config = _config;
@@ -112,7 +127,7 @@ public:
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
   void SetupScheduler(); // TODO - shift to private function (will need to refactor many tests)
-  void SetupSymTransmission(); // TODOO - shift to private function (will need to refactor many tests)
+  void SetupSymTransmission(); // TODO - shift to private function (will need to refactor many tests)
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
@@ -139,6 +154,23 @@ public:
 
   void CreateDataFiles() override;
 };
+
+emp::WorldPosition SGPWorld::SymDoBirth(
+  emp::Ptr<Organism> sym_baby,
+  emp::WorldPosition parent_pos
+) {
+  // Trigger any before birth actions.
+  before_sym_do_birth.Trigger(sym_baby, parent_pos);
+
+  emp::WorldPosition sym_baby_pos = fun_sym_do_birth(sym_baby, parent_pos);
+
+  // Trigger any after birth actions
+  // NOTE - Currently triggers regardless of success. Should this only trigger on successful births?
+  //   Or, have separate signals for successful / unsuccessful births?
+  after_sym_do_birth.Trigger(sym_baby_pos);
+
+  return sym_baby_pos;
+}
 
 }
 

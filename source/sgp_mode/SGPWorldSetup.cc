@@ -46,6 +46,8 @@ void SGPWorld::Setup() {
 
   // Setup scheduler
   SetupScheduler();
+  // Setup symbiont transmission mode
+  SetupSymTransmission();
 
   // Setup host population
   SetupHosts(&POP_SIZE);
@@ -121,6 +123,49 @@ void SGPWorld::SetupScheduler() {
 }
 
 void SGPWorld::SetupSymTransmission() {
+  // NOTE - can distinguish transmission mode and transmission mechanism
+  // e.g., possible mechanism: task matching, tags, etc.
+  // e.g., possible modes: vertical, horizontal, evolvable vert/horiz
+
+  // Reset sym birth signals.
+  before_sym_do_birth.Clear();
+  after_sym_do_birth.Clear();
+
+  // Configure sym do birth function
+  // QUESTION - Is this setup function appropriate for this? Different setup function more appropriate?
+  if (sgp_config->FREE_LIVING_SYMS()) {
+    // Configure sym birth in free-living symbiont mode
+    fun_sym_do_birth = [this](
+      emp::Ptr<Organism> sym_baby_ptr,
+      emp::WorldPosition parent_pos
+    ) -> emp::WorldPosition {
+      return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
+    };
+  } else {
+    // Configure sym birth in non-free-living symbiont mode.
+    fun_sym_do_birth = [this](
+      emp::Ptr<Organism> sym_baby_ptr,
+      emp::WorldPosition parent_pos
+    ) -> emp::WorldPosition {
+      const size_t parent_pop_idx = parent_pos.GetPopID();
+      emp::Ptr<Organism> parent = this->GetOrgPtr(parent_pop_idx)->GetSymbionts()[parent_pos.GetIndex() - 1];
+      const int new_host_pos = this->GetNeighborHost(parent_pop_idx, parent);
+      if (new_host_pos > -1) {
+        // -1 means no living neighbors
+        int new_index = pop[new_host_pos]->AddSymbiont(sym_baby_ptr);
+        if (new_index > 0) {
+          //sym successfully infected
+          return emp::WorldPosition(new_index, new_host_pos);
+        } else {
+          //sym got killed trying to infect
+          return emp::WorldPosition();
+        }
+      } else {
+        sym_baby_ptr.Delete();
+        return emp::WorldPosition();
+      }
+    };
+  }
 
 }
 
@@ -217,29 +262,6 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
     }
   }
   return false;
-}
-
-
-
-emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
-  size_t i = parent_pos.GetPopID();
-  emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
-  if(sgp_config->FREE_LIVING_SYMS() == 0){
-    int new_host_pos = GetNeighborHost(i, parent);
-    if (new_host_pos > -1) { //-1 means no living neighbors
-      int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
-      if(new_index > 0){ //sym successfully infected
-        return emp::WorldPosition(new_index, new_host_pos);
-      } else { //sym got killed trying to infect
-        return emp::WorldPosition();
-      }
-    } else {
-      sym_baby.Delete();
-      return emp::WorldPosition();
-    }
-  } else {
-    return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
-  }
 }
 
 void SGPWorld::DoReproduction() {

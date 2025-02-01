@@ -9,6 +9,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
   sgpmode::SymConfigSGP config;
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
 
   WHEN("Parental task tracking is on") {
     config.HOST_REPRO_RES(5000);
@@ -83,6 +84,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   sgpmode::SymConfigSGP config;
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
   emp::Ptr<sgpmode::SGPHost> host_parent = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
   world.AddOrgAt(host_parent, 0);
 

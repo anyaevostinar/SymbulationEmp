@@ -50,6 +50,7 @@ TEST_CASE("Baseline function", "[sgp]") {
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
   world.Resize(2,2);
 
   emp::Ptr<sgpmode::SGPHost> infected_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);
@@ -78,9 +79,10 @@ TEST_CASE("Baseline function", "[sgp]") {
 TEST_CASE("TaskMatchCheck", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(2);
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
-  config.SYM_LIMIT(2);
+  world.SetupSymTransmission();
 
   sgpmode::ProgramBuilder builder;
   builder.AddNand();
@@ -124,6 +126,7 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
   world.Resize(2, 2);
 
   emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);

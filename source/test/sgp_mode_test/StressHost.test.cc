@@ -18,6 +18,7 @@ TEST_CASE("Extinction event", "[sgp]") {
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
 
   WHEN("There are stress symbionts in the world"){
     config.START_MOI(1);
@@ -80,6 +81,7 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
   world.SetupScheduler();
+  world.SetupSymTransmission();
   world.SetupOrgMode();
   world.SetupHosts(&world_size);
 
