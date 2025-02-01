@@ -49,6 +49,14 @@ private:
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();
+  // Internal helper function to handle host births.
+  //   Handles both host do birth and triggering vertical transmission on any
+  //   symbionts within the host.
+  emp::WorldPosition HostDoBirth(
+    emp::Ptr<Organism> host_ptr,
+    emp::WorldPosition parent_pos
+  );
+
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
 public:
@@ -140,7 +148,11 @@ public:
   void SetupSymTransmission(); // TODO - shift to private function (will need to refactor many tests)
 
   // Prototypes for reproduction handling methods
-  emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
+  // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
+  emp::WorldPosition SymDoBirth(
+    emp::Ptr<Organism> sym_baby,
+    emp::WorldPosition parent_pos
+  ) override;
   int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
 
   /**

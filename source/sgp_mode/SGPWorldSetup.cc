@@ -107,7 +107,7 @@ void SGPWorld::SetupScheduler() {
       } else {
         org.Process(pos);
       }
-      if(this->IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
+      if (this->IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) {
         this->DoSymDeath(pos.GetPopID());
       }
     }
@@ -158,6 +158,20 @@ void SGPWorld::SetupSymTransmission() {
       }
     };
   }
+
+  // Configure after sym birth data tracking
+  // NOTE - Should this be adjusted at all to account for configuration differences?
+  // QUESTION - Should this fire for free-living symbionts?
+  after_sym_do_birth.AddAction(
+    [this](emp::WorldPosition sym_baby_pos) {
+      // Because we're not calling HorizontalTransmission, we need to adjust
+      // these data nodes here
+      GetHorizontalTransmissionAttemptCount().AddDatum(1);
+      if (sym_baby_pos.IsValid()) {
+        GetHorizontalTransmissionSuccessCount().AddDatum(1);
+      }
+    }
+  );
 
 }
 

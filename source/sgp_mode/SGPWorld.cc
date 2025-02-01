@@ -17,8 +17,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   emp::WorldPosition sym_baby_pos = fun_sym_do_birth(sym_baby, parent_pos);
 
   // Trigger any after birth actions
-  // NOTE - Currently triggers regardless of success. Should this only trigger on successful births?
-  //   Or, have separate signals for successful / unsuccessful births?
+  // NOTE - Triggers on both successful and unsuccessful births.
   after_sym_do_birth.Trigger(sym_baby_pos);
 
   return sym_baby_pos;
@@ -78,39 +77,38 @@ void SGPWorld::DoReproduction() {
   for (auto& info : to_reproduce) {
     const emp::WorldPosition& position = info.second;
     emp::Ptr<Organism> org = info.first;
-
+    // If queued organism is in an invalid position or is dead, don't reproduce.
     if (!position.IsValid() || org->GetDead()) {
       continue;
     }
+    // Reproduce organism.
     emp::Ptr<Organism> child = org->Reproduce();
-    if (child->IsHost()) {
-      // Host::Reproduce() doesn't take care of vertical transmission, that
-      // happens here
-      for (auto& sym : org->GetSymbionts()) {
-        // don't vertically transmit if they must task match but don't
-        // TODO - Make condition for vertical transmission configurable
-        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
-        sym->VerticalTransmission(child);
-      }
-      DoBirth(child, position);
-    } else {
-      emp::WorldPosition new_pos = SymDoBirth(child, position);
-      // Because we're not calling HorizontalTransmission, we need to adjust
-      // these data nodes here
-      emp::DataMonitor<int>& data_node_attempts_horiztrans =
-        GetHorizontalTransmissionAttemptCount();
+    // Run appropriate do birth function based on organism type.
+    (child->IsHost()) ? HostDoBirth(child, position) : SymDoBirth(child, position);
+    // if (child->IsHost()) {
 
-      data_node_attempts_horiztrans.AddDatum(1);
+    // } else {
 
-      emp::DataMonitor<int>& data_node_successes_horiztrans =
-          GetHorizontalTransmissionSuccessCount();
-
-      if (new_pos.IsValid()) {
-        data_node_successes_horiztrans.AddDatum(1);
-      }
-    }
+    // }
   }
   to_reproduce.clear();
+}
+
+emp::WorldPosition SGPWorld::HostDoBirth(
+  emp::Ptr<Organism> host_ptr,
+  emp::WorldPosition parent_pos
+) {
+  emp_assert(host_ptr->IsHost());
+  // Host::Reproduce() doesn't take care of vertical transmission, that
+  // happens here
+  // NOTE - Could have signals here (like in sym_do_birth).
+  for (auto& sym : host_ptr->GetSymbionts()) {
+    // don't vertically transmit if they must task match but don't
+    // TODO - Make condition for vertical transmission configurable
+    if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_ptr)) continue;
+    sym->VerticalTransmission(host_ptr);
+  }
+  return DoBirth(host_ptr, parent_pos);
 }
 
 void SGPWorld::ProcessGraveyard() {
