@@ -2,7 +2,7 @@
 #include "../../sgp_mode/SGPHost.cc"
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPDataNodes.h"
+#include "../../sgp_mode/SGPWorldDataNodes.cc"
 
 TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
   emp::Random random(31);

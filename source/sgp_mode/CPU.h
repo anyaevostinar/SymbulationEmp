@@ -7,11 +7,13 @@
 #include "Instructions.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+
 #include "sgpl/algorithm/execute_cpu_n_cycles.hpp"
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+
 #include <iostream>
 #include <string>
 

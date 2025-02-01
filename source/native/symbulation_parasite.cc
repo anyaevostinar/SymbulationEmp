@@ -3,7 +3,6 @@
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
-#include "../sgp_mode/SGPDataNodes.h"
 #include "../sgp_mode/SGPWorld.h"
 #include "../sgp_mode/Scheduler.h"
 #include "../sgp_mode/SymbiontImpact.h"
@@ -12,7 +11,9 @@
 // Empirical doesn't support more than one translation unit, so any CC files are
 // included last. It still fixes include issues, but doesn't improve build time.
 #include "../default_mode/WorldSetup.cc"
+#include "../sgp_mode/SGPWorld.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
+#include "../sgp_mode/SGPWorldDataNodes.cc"
 #include "../sgp_mode/Tasks.cc"
 #include "../sgp_mode/SGPHost.cc"
 

@@ -1,7 +1,7 @@
 #include "../../sgp_mode/SGPHost.h"
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPDataNodes.h"
+#include "../../sgp_mode/SGPWorldDataNodes.cc"
 
 TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 	emp::Random random(31);

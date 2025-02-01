@@ -1,11 +1,12 @@
 #ifndef SGP_CONFIG_H
 #define SGP_CONFIG_H
 
-#include <unordered_map>
-#include <string>
+#include "../ConfigSetup.h"
 
 #include "../../Empirical/include/emp/config/config.hpp"
-#include "../ConfigSetup.h"
+
+#include <unordered_map>
+#include <string>
 
 namespace sgpmode {
 

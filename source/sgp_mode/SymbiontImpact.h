@@ -3,8 +3,8 @@
 
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
+#include "emp/Evolve/World_structure.hpp"
 #include <cstddef>
-#include <emp/Evolve/World_structure.hpp>
 
 namespace sgpmode {
 

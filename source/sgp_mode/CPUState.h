@@ -2,11 +2,13 @@
 #define CPU_STATE_H
 
 #include "../Organism.h"
+
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/base/Ptr.hpp"
 #include "emp/base/optional.hpp"
 #include "emp/base/vector.hpp"
 #include "emp/bits/BitSet.hpp"
+
 #include <cstdint>
 
 namespace sgpmode {

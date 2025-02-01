@@ -1,16 +1,16 @@
 #ifndef SGPHOST_H
 #define SGPHOST_H
 
-#include <functional>
+#include "../default_mode/Host.h"
+#include "CPU.h"
+#include "SGPWorld.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/control/Signal.hpp"
 
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
-#include "../default_mode/Host.h"
-#include "CPU.h"
-#include "SGPWorld.h"
+#include <functional>
 
 
 namespace sgpmode {
@@ -272,6 +272,10 @@ public:
     cpu.Mutate();
   }
 };
+
+SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) {
+  return *(static_cast<SGPHost*>(org_ptr.Raw()));
+}
 
 }
 

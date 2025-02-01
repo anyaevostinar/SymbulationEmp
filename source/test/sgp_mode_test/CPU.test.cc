@@ -1,7 +1,8 @@
 #include "../../source/sgp_mode/Tasks.cc"
 #include "../../sgp_mode/CPU.h"
-#include "../../sgp_mode/SGPDataNodes.h"
 #include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorld.cc"
+#include "../../sgp_mode/SGPWorldSetup.cc"
 
 TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   // Mock Organism to check reproduction

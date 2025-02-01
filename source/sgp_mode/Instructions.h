@@ -4,11 +4,13 @@
 #include "CPUState.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+
 #include <functional>
 #include <mutex>
 

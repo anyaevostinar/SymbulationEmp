@@ -1,9 +1,10 @@
-#ifndef SGP_DATA_NODES_H
-#define SGP_DATA_NODES_H
+#ifndef SGP_DATA_NODES_C
+#define SGP_DATA_NODES_C
 
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <limits>

@@ -4,10 +4,12 @@
 #include "../default_mode/SymWorld.h"
 #include "Scheduler.h"
 #include "Tasks.h"
-#include "emp/Evolve/World_structure.hpp"
-#include "emp/data/DataNode.hpp"
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
+
+#include "emp/Evolve/World_structure.hpp"
+#include "emp/data/DataNode.hpp"
+
 
 namespace sgpmode {
 
@@ -73,7 +75,7 @@ public:
    *
    * Purpose: Allows accessing the world's task set.
    */
-  TaskSet &GetTaskSet() { return task_set; }
+  TaskSet& GetTaskSet() { return task_set; }
 
   /**
    * Input: None
@@ -129,8 +131,8 @@ public:
    * and populating the world with hosts and symbionts.
    */
   void Setup() override;
-  void SetupHosts(long unsigned int *POP_SIZE) override;
-  void SetupSymbionts(long unsigned int *total_syms) override;
+  void SetupHosts(long unsigned int* POP_SIZE) override;
+  void SetupSymbionts(long unsigned int* total_syms) override;
   void SetupOrgMode();
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
@@ -177,23 +179,6 @@ public:
 
   void CreateDataFiles() override;
 };
-
-emp::WorldPosition SGPWorld::SymDoBirth(
-  emp::Ptr<Organism> sym_baby,
-  emp::WorldPosition parent_pos
-) {
-  // Trigger any before birth actions.
-  before_sym_do_birth.Trigger(sym_baby, parent_pos);
-
-  emp::WorldPosition sym_baby_pos = fun_sym_do_birth(sym_baby, parent_pos);
-
-  // Trigger any after birth actions
-  // NOTE - Currently triggers regardless of success. Should this only trigger on successful births?
-  //   Or, have separate signals for successful / unsuccessful births?
-  after_sym_do_birth.Trigger(sym_baby_pos);
-
-  return sym_baby_pos;
-}
 
 }
 

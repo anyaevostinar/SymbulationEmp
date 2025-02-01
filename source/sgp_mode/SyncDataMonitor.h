@@ -1,8 +1,8 @@
 #ifndef SYNCDATAMONITOR_H
 #define SYNCDATAMONITOR_H
 
-#include <mutex>
 #include "emp/data/DataNode.hpp"
+#include <mutex>
 
 namespace sgpmode {
 
