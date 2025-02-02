@@ -38,7 +38,9 @@ void SGPWorld::Setup() {
   // Setup scheduler
   SetupScheduler();
   // Setup symbiont transmission mode
-  SetupSymTransmission();
+  SetupHostReproduction();
+  SetupSymReproduction();
+
 
   // Setup host population
   SetupHosts(&POP_SIZE);
@@ -67,19 +69,6 @@ void SGPWorld::SetupOrgMode() {
   );
   stress_sym_type = sgp_stress_sym_type_map[cfg_stress_sym_type];
 
-  // TODO - clean this up
-  // stress hard-coded transmission modes
-  if (sgp_org_type == SGPOrganismType::STRESS) {
-    if (stress_sym_type == StressSymbiontType::MUTUALIST) {
-      // mutualists
-      sgp_config->VERTICAL_TRANSMISSION(1.0);
-      sgp_config->HORIZ_TRANS(false);
-    } else if (stress_sym_type == StressSymbiontType::PARASITE) {
-      // parasites
-      sgp_config->VERTICAL_TRANSMISSION(0);
-      sgp_config->HORIZ_TRANS(true);
-    }
-  }
 }
 
 void SGPWorld::SetupScheduler() {
@@ -113,7 +102,15 @@ void SGPWorld::SetupScheduler() {
   );
 }
 
-void SGPWorld::SetupSymTransmission() {
+void SGPWorld::SetupHostReproduction() {
+  // Reset host birth signals
+  // e.g., SetupHosts
+  before_host_do_birth.Clear();
+  after_host_do_birth.Clear();
+  // NOTE - this is where we'd wire up any runtime configurable host repro functionality.
+}
+
+void SGPWorld::SetupSymReproduction() {
   // NOTE - can distinguish transmission mode and transmission mechanism
   // e.g., possible mechanism: task matching, tags, etc.
   // e.g., possible modes: vertical, horizontal, evolvable vert/horiz
@@ -121,14 +118,23 @@ void SGPWorld::SetupSymTransmission() {
   // Reset sym birth signals
   before_sym_do_birth.Clear();
   after_sym_do_birth.Clear();
-  // Reset host birth signals
-  // TODO - move this elsewhere; it doesn't belong here!
-  // e.g., SetupHosts
-  before_host_do_birth.Clear();
-  after_host_do_birth.Clear();
   // Reset vert. transmission signals
   before_sym_vert_transmission.Clear();
   after_sym_vert_transmission.Clear();
+
+  // TODO - clean this up
+  // stress hard-coded transmission modes
+  if (sgp_org_type == SGPOrganismType::STRESS) {
+    if (stress_sym_type == StressSymbiontType::MUTUALIST) {
+      // mutualists
+      sgp_config->VERTICAL_TRANSMISSION(1.0);
+      sgp_config->HORIZ_TRANS(false);
+    } else if (stress_sym_type == StressSymbiontType::PARASITE) {
+      // parasites
+      sgp_config->VERTICAL_TRANSMISSION(0);
+      sgp_config->HORIZ_TRANS(true);
+    }
+  }
 
   // Configure sym do birth function
   // QUESTION - Is this setup function appropriate for this? Different setup function more appropriate?

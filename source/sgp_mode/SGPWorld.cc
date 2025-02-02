@@ -61,8 +61,8 @@ emp::WorldPosition SGPWorld::HostDoBirth(
   //  happens here
   // Loop over parent's symbiont, check if each can transmit vertically to host
   //  offspring.
-  for (auto& sym : host_parent_ptr->GetSymbionts()) {
-    emp_assert(!sym.IsHost());
+  for (auto sym : host_parent_ptr->GetSymbionts()) {
+    emp_assert(!sym->IsHost());
     // don't vertically transmit if they must task match but don't
     // TODO - Make condition for vertical transmission configurable
     if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;

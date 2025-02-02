@@ -171,7 +171,8 @@ public:
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
   void SetupScheduler(); // TODO - shift to private function (will need to refactor many tests)
-  void SetupSymTransmission(); // TODO - shift to private function (will need to refactor many tests)
+  void SetupSymReproduction(); // TODO - shift to private function (will need to refactor many tests)
+  void SetupHostReproduction();
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
