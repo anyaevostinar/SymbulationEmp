@@ -15,6 +15,7 @@ TEST_CASE("Health hosts evolve", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
   world.SetupHosts(&world_size);
 
   REQUIRE(world.GetNumOrgs() == world_size);

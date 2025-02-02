@@ -11,6 +11,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
 	emp::Ptr<sgpmode::SGPSymbiont> sym_parent = emp::NewPtr<sgpmode::SGPSymbiont>(
     &random,
     &world,

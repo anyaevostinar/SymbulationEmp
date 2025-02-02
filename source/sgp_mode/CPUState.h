@@ -7,13 +7,16 @@
 #include "emp/base/Ptr.hpp"
 #include "emp/base/optional.hpp"
 #include "emp/base/vector.hpp"
-#include "emp/bits/BitSet.hpp"
+#include "emp/bits/Bits.hpp"
 
 #include <cstdint>
 
 namespace sgpmode {
 
+// TODO - Consolidate into spec.h
 const int CPU_BITSET_LENGTH = 9;
+
+class SGPWorld;
 
 /// A helper class for a ring buffer that keeps the latest `len` inputs and
 /// discards the rest.
@@ -38,22 +41,22 @@ public:
   size_t size() const { return len; }
 };
 
-// CPUState has a pointer to the SGPWorld, but it can't include it
-class SGPWorld;
-
 /**
  * The CPUState holds all state that can be accessed by instructions in the
  * organism's genomes. Each organism has its own CPUState.
  */
+// TODO - promote to full class
 struct CPUState {
   emp::vector<uint32_t> stack;
   emp::vector<uint32_t> stack2;
 
   IORingBuffer<4> input_buf;
 
+  // TODO - get rid of dynamic memory if possible
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> used_resources = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(true);
+  // TODO - shift to emp::array if possible
   int task_change_lose[CPU_BITSET_LENGTH] = { 0 };
   int task_change_gain[CPU_BITSET_LENGTH] = { 0 };
 

@@ -6,6 +6,8 @@
 #include "Tasks.h"
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
+// #include "SGPHost.h"
+// #include "SGPSymbiont.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
@@ -27,6 +29,13 @@ public:
     emp::WorldPosition  /* parent_pos */
   )>;
 
+  using fun_compatibility_check_t = std::function<bool(
+    // const SGPHost&,
+    // const SGPSymbiont&
+    emp::Ptr<Organism>, /* host */
+    emp::Ptr<Organism> /* symbiont */
+  )>;
+
 private:
   Scheduler scheduler;
   TaskSet task_set;
@@ -46,6 +55,10 @@ private:
 
   SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
   StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
+
+  // Function to check compatibility between host and symbiont
+  // - Used to check eligibility for vertical / horizontal transmission, etc.
+  fun_compatibility_check_t host_sym_compatibility_check;
 
   // Triggers on symbiont do birth action.
   //  sym baby ptr, parent pos
@@ -185,9 +198,10 @@ public:
   void SetupOrgMode();
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
-  void SetupScheduler();        // TODO - shift to private function (will need to refactor many tests)
-  void SetupSymReproduction();  // TODO - shift to private function (will need to refactor many tests)
+  void SetupScheduler();        // TODO - shift to private function (will need to refactor tests)
+  void SetupSymReproduction();  // TODO - shift to private function (will need to refactor tests)
   void SetupHostReproduction(); // TODO - shift to private function (will need to refactor tests)
+  void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
@@ -196,16 +210,6 @@ public:
     emp::WorldPosition parent_pos
   ) override;
   int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
-
-  /**
-    * Input: Pointers to a host and to a symbiont
-    *
-    * Output: Whether host and symbiont parent are able to accomplish
-    * at least one task in common
-    *
-    * Purpose: To check for task matching before vertical transmission
-    */
-  bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
 
   /**
    * Input: An organism pointer to add to the graveyard

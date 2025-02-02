@@ -169,7 +169,8 @@ public:
    *
    * Purpose: Allows accessing the host's CPU.
    */
-  CPU &GetCPU() { return cpu; }
+  CPU& GetCPU() { return cpu; }
+  const CPU& GetCPU() const { return cpu; }
 
   /**
    * Input: None
@@ -276,6 +277,10 @@ public:
 SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) {
   return *(static_cast<SGPHost*>(org_ptr.Raw()));
 }
+
+// const SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) const {
+//   return *(static_cast<SGPHost*>(org_ptr.Raw()));
+// }
 
 }
 

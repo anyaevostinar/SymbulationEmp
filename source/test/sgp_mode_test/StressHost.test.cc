@@ -21,6 +21,7 @@ TEST_CASE("Extinction event", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
 
   WHEN("There are stress symbionts in the world"){
     config.START_MOI(1);
@@ -86,6 +87,7 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
   world.SetupHosts(&world_size);
 
   REQUIRE(world.GetNumOrgs() == world_size);

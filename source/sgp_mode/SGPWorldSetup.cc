@@ -9,6 +9,7 @@
 #include "StressHost.h"
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
+#include "utils.h"
 
 namespace sgpmode {
 
@@ -40,7 +41,8 @@ void SGPWorld::Setup() {
   // Setup symbiont transmission mode
   SetupHostReproduction();
   SetupSymReproduction();
-
+  // Setup host-symbiont interactions
+  SetupHostSymInteractions();
 
   // Setup host population
   SetupHosts(&POP_SIZE);
@@ -187,6 +189,8 @@ void SGPWorld::SetupSymReproduction() {
   );
 
   // Configure vertical transmission
+  // TODO - Probably will need to change VT_TASK_MATCH to a categorical variable
+  //        to accomodate different mechanisms for determining whether vt is possible.
   if (sgp_config->VT_TASK_MATCH()) {
     // If task matching required, check.
     can_attempt_vert_trans = [this](
@@ -195,7 +199,12 @@ void SGPWorld::SetupSymReproduction() {
       emp::Ptr<Organism> host_parent_ptr,
       emp::WorldPosition parent_pos
     ) -> bool {
-      return this->TaskMatchCheck(sym_ptr, host_offspring_ptr);
+      return host_sym_compatibility_check(
+        // AsSGPHost(host_offspring_ptr),
+        // AsSGPSymbiont(sym_ptr)
+        host_offspring_ptr,
+        sym_ptr
+      );
     };
   } else {
     // Otherwise, allow attempt in all cases.
@@ -208,7 +217,38 @@ void SGPWorld::SetupSymReproduction() {
       return true;
     };
   }
+}
 
+void SGPWorld::SetupHostSymInteractions() {
+  // Setup function that determines host-symbiont compatibility
+  // TODO - Will probably need to shift this bool config to a categorical config
+  //        if we want to accomodate anything like tag matching for compatibility
+  //        checking.
+  if (sgp_config->TRACK_PARENT_TASKS()) {
+    host_sym_compatibility_check = [this](
+      // const SGPHost& host,
+      // const SGPSymbiont& sym
+      emp::Ptr<Organism> host_ptr,
+      emp::Ptr<Organism> sym_ptr
+    ) -> bool {
+      // Get tasks from host/sym
+      const auto& host_parent_tasks = *(AsSGPHost(host_ptr).GetCPU().state.parent_tasks_performed);
+      const auto& sym_parent_tasks = *(AsSGPSymbiont(sym_ptr).GetCPU().state.parent_tasks_performed);
+      return utils::AnyMatch(host_parent_tasks, sym_parent_tasks);
+    };
+  } else {
+    host_sym_compatibility_check = [this](
+      // const SGPHost& host,
+      // const SGPSymbiont& sym
+      emp::Ptr<Organism> host_ptr,
+      emp::Ptr<Organism> sym_ptr
+    ) -> bool {
+      // Get tasks from host/sym
+      const auto& host_parent_tasks = *(AsSGPHost(host_ptr).GetCPU().state.tasks_performed);
+      const auto& sym_parent_tasks = *(AsSGPSymbiont(sym_ptr).GetCPU().state.tasks_performed);
+      return utils::AnyMatch(host_parent_tasks, sym_parent_tasks);
+    };
+  }
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {

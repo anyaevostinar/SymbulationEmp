@@ -1,9 +1,12 @@
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPHost.h"
 #include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/utils.h"
 
 #include "../../catch/catch.hpp"
 
+// TODO - refactor task match checks into compatibiliity mode checks
+//        (test all compatibility modes)
 TEST_CASE("GetDominantInfo", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
@@ -53,6 +56,7 @@ TEST_CASE("Baseline function", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
   world.Resize(2,2);
 
   emp::Ptr<sgpmode::SGPHost> infected_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);
@@ -87,6 +91,7 @@ TEST_CASE("TaskMatchCheck", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
 
   sgpmode::ProgramBuilder builder;
   builder.AddNand();
@@ -104,12 +109,19 @@ TEST_CASE("TaskMatchCheck", "[sgp]") {
   bool not_nand_matched = false;
   for (int i = 0; i < 100; i++) {
     world.Update();
-    if (world.TaskMatchCheck(NOT_symbiont, NOT_host)) not_not_matched = true;
-    if (world.TaskMatchCheck(NAND_symbiont, NOT_host)) not_nand_matched = true;
+
+    not_not_matched = sgpmode::utils::AnyMatch(
+      *(NOT_symbiont->GetCPU().state.tasks_performed),
+      *(NOT_host->GetCPU().state.tasks_performed)
+    );
+    not_nand_matched = sgpmode::utils::AnyMatch(
+      *(NAND_symbiont->GetCPU().state.tasks_performed),
+      *(NOT_host->GetCPU().state.tasks_performed)
+    );
   }
 
   WHEN("A host and symbiont can both do at least one same task") {
-    THEN("TaskMatchCheck returns true"){
+    THEN("TaskMatchCheck returns true") {
       REQUIRE(not_not_matched == true);
     }
   }
@@ -133,6 +145,7 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   world.SetupScheduler();
   world.SetupHostReproduction();
   world.SetupSymReproduction();
+  world.SetupHostSymInteractions();
   world.Resize(2, 2);
 
   emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config);

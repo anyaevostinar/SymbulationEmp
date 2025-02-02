@@ -154,7 +154,8 @@ public:
    *
    * Purpose: Allows accessing the symbiont's CPU.
    */
-  CPU &GetCPU() { return cpu; }
+  CPU& GetCPU() { return cpu; }
+  const CPU& GetCPU() const { return cpu; }
 
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
@@ -277,6 +278,14 @@ public:
     cpu.Mutate();
   }
 };
+
+SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) {
+  return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
+}
+
+// const SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) const {
+//   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
+// }
 
 }
 

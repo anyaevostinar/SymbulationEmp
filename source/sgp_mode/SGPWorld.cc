@@ -4,6 +4,7 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
+#include "utils.h"
 
 namespace sgpmode {
 
@@ -64,7 +65,6 @@ emp::WorldPosition SGPWorld::HostDoBirth(
     if (!can_attempt_vert_trans(sym_ptr, host_offspring_ptr, host_parent_ptr, parent_pos)) {
       continue;
     }
-    // if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;
     // NOTE - Make DoVerticalTransmission function?
     // Trigger before transmission signal.
     before_sym_vert_transmission.Trigger(
@@ -117,37 +117,23 @@ int SGPWorld::GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont) {
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(id);
-    if (neighbor.IsValid() && IsOccupied(neighbor)){
+    if (neighbor.IsValid() && IsOccupied(neighbor)) {
+      auto neighbor_host_ptr = GetOrgPtr(neighbor.GetIndex());
+      emp_assert(neighbor_host_ptr->IsHost());
       //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont, GetOrgPtr(neighbor.GetIndex()))) {
+      const bool compatible = host_sym_compatibility_check(
+        // AsSGPHost(neighbor_host_ptr),
+        // AsSGPSymbiont(symbiont)
+        neighbor_host_ptr,
+        symbiont
+      );
+      if (compatible) {
         return neighbor.GetIndex();
       }
     }
   }
   //Otherwise parasite can't infect host
   return -1;
-}
-
-
-bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks;
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
-  // TODO - shift to one-time configurable option
-  if (sgp_config->TRACK_PARENT_TASKS()) {
-    parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
-    host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
-  }
-  else {
-    parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-    host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
-  }
-  for (int i = host_tasks->size() - 1; i > -1; i--) {
-    if (parent_tasks->Get(i) && host_tasks->Get(i)) {
-      //both parent sym and host can do this task, symbiont baby can infect
-      return true;
-    }
-  }
-  return false;
 }
 
 }
