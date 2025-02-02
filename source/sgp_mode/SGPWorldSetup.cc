@@ -13,7 +13,6 @@
 namespace sgpmode {
 
 void SGPWorld::Setup() {
-  std::cout << "Running sgp world setup..." << std::endl;
   // Configure sgp org type
   SetupOrgMode();
 

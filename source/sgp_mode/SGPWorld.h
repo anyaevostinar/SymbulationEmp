@@ -42,18 +42,25 @@ private:
     emp::Ptr<Organism> /* sym_baby_ptr */,
     emp::WorldPosition /* parent_pos */
   )> before_sym_do_birth;
-
   emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth;
   fun_sym_do_birth_t fun_sym_do_birth;
 
+  // Tiggers on host birth action
+  // emp::Signal<void(
+  //   emp::Ptr<Organism>,
+
+  // )
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
   //   symbionts within the host.
+  //   Need to pass in parent pointer because parent may no longer exist at the
+  //   given world position when this function is called.
   emp::WorldPosition HostDoBirth(
-    emp::Ptr<Organism> host_ptr,
+    emp::Ptr<Organism> host_offspring_ptr,
+    emp::Ptr<Organism> host_parent_ptr,
     emp::WorldPosition parent_pos
   );
 

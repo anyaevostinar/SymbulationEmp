@@ -7,6 +7,24 @@
 
 namespace sgpmode {
 
+void SGPWorld::DoReproduction() {
+  for (auto& info : to_reproduce) {
+    const emp::WorldPosition& position = info.second;
+    emp::Ptr<Organism> org = info.first;
+    // If queued organism is in an invalid position or is dead, don't reproduce.
+    if (!position.IsValid() || org->GetDead()) {
+      continue;
+    }
+    // Reproduce organism.
+    emp::Ptr<Organism> child = org->Reproduce();
+    // Run appropriate do birth function based on organism type.
+    // TODO - host parent might no longer be in world? Need to use pointer from repro queue
+    (child->IsHost()) ? HostDoBirth(child, org, position) : SymDoBirth(child, position);
+
+  }
+  to_reproduce.clear();
+}
+
 emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<Organism> sym_baby,
   emp::WorldPosition parent_pos
@@ -21,6 +39,39 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   after_sym_do_birth.Trigger(sym_baby_pos);
 
   return sym_baby_pos;
+}
+
+emp::WorldPosition SGPWorld::HostDoBirth(
+  emp::Ptr<Organism> host_offspring_ptr,
+  emp::Ptr<Organism> host_parent_ptr,
+  emp::WorldPosition parent_pos
+) {
+  emp_assert(host_offspring_ptr->IsHost());
+  emp_assert(host_parent_ptr->IsHost());
+  // emp_assert(IsOccupied(parent_pos)); NOTE - Should this assert be true (fails in tests)?
+  // TODO - Add signals like in SymDoBirth
+  // NOTE - Double check that this will properly get parent
+  // NOTE - Can make contents of this function into a functor if needs to be
+  //        configurable for different types of hosts.
+  // Host::Reproduce() doesn't take care of vertical transmission, that
+  //  happens here
+  // Loop over parent's symbiont, check if each can transmit vertically to host
+  //  offspring.
+  for (auto& sym : host_parent_ptr->GetSymbionts()) {
+    // don't vertically transmit if they must task match but don't
+    // TODO - Make condition for vertical transmission configurable
+    if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;
+    sym->VerticalTransmission(host_offspring_ptr);
+  }
+  return DoBirth(host_offspring_ptr, parent_pos);
+}
+
+void SGPWorld::ProcessGraveyard() {
+  // clean up the graveyard
+  for (size_t i = 0; i < graveyard.size(); ++i) {
+    graveyard[i].Delete();
+  }
+  graveyard.clear();
 }
 
 void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
@@ -71,52 +122,6 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
     }
   }
   return false;
-}
-
-void SGPWorld::DoReproduction() {
-  for (auto& info : to_reproduce) {
-    const emp::WorldPosition& position = info.second;
-    emp::Ptr<Organism> org = info.first;
-    // If queued organism is in an invalid position or is dead, don't reproduce.
-    if (!position.IsValid() || org->GetDead()) {
-      continue;
-    }
-    // Reproduce organism.
-    emp::Ptr<Organism> child = org->Reproduce();
-    // Run appropriate do birth function based on organism type.
-    (child->IsHost()) ? HostDoBirth(child, position) : SymDoBirth(child, position);
-    // if (child->IsHost()) {
-
-    // } else {
-
-    // }
-  }
-  to_reproduce.clear();
-}
-
-emp::WorldPosition SGPWorld::HostDoBirth(
-  emp::Ptr<Organism> host_ptr,
-  emp::WorldPosition parent_pos
-) {
-  emp_assert(host_ptr->IsHost());
-  // Host::Reproduce() doesn't take care of vertical transmission, that
-  // happens here
-  // NOTE - Could have signals here (like in sym_do_birth).
-  for (auto& sym : host_ptr->GetSymbionts()) {
-    // don't vertically transmit if they must task match but don't
-    // TODO - Make condition for vertical transmission configurable
-    if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_ptr)) continue;
-    sym->VerticalTransmission(host_ptr);
-  }
-  return DoBirth(host_ptr, parent_pos);
-}
-
-void SGPWorld::ProcessGraveyard() {
-  // clean up the graveyard
-  for (size_t i = 0; i < graveyard.size(); ++i) {
-    graveyard[i].Delete();
-  }
-  graveyard.clear();
 }
 
 }
