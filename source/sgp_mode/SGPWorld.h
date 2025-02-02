@@ -6,6 +6,7 @@
 #include "Tasks.h"
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
+#include "spec.h"
 // #include "SGPHost.h"
 // #include "SGPSymbiont.h"
 
@@ -36,6 +37,9 @@ public:
     emp::Ptr<Organism> /* symbiont */
   )>;
 
+  using org_mode_t = typename spec::SGPOrganismType;
+  using stress_sym_mode_t = typename spec::StressSymbiontType;
+
 private:
   Scheduler scheduler;
   TaskSet task_set;
@@ -53,8 +57,8 @@ private:
   */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 
-  SGPOrganismType sgp_org_type = SGPOrganismType::DEFAULT;
-  StressSymbiontType stress_sym_type = StressSymbiontType::MUTUALIST;
+  org_mode_t sgp_org_type = org_mode_t::DEFAULT;
+  stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
@@ -220,8 +224,8 @@ public:
    */
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
-  SGPOrganismType GetOrgType() const { return sgp_org_type; }
-  StressSymbiontType GetStressSymType() const { return stress_sym_type; }
+  org_mode_t GetOrgType() const { return sgp_org_type; }
+  stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
 
   // Prototypes for data node methods
   SyncDataMonitor<double>& GetSymDonatedDataNode();

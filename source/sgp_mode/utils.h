@@ -1,5 +1,5 @@
-#ifndef UTILS_h
-#define UTILS_h
+#ifndef SGPMODE_UTILS_h
+#define SGPMODE_UTILS_h
 
 #include "emp/bits/Bits.hpp"
 

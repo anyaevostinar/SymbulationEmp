@@ -60,7 +60,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       // since first-gen organisms are uniquely marked as having parents who complete every task
       REQUIRE(sym_baby->GetCPU().state.task_change_lose[0] == 0);
       REQUIRE(sym_baby->GetCPU().state.task_change_gain[0] == 0);
-      for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
         REQUIRE(sym_baby->GetCPU().state.task_change_lose[i] == 1);
         REQUIRE(sym_baby->GetCPU().state.task_change_gain[i] == 0);
       }
@@ -70,7 +70,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       REQUIRE(sym_baby->GetCPU().state.task_toward_partner[0] == 0);
       REQUIRE(sym_baby->GetCPU().state.task_from_partner[0] == 0);
 
-      for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
         REQUIRE(sym_baby->GetCPU().state.task_toward_partner[i] == 0);
         REQUIRE(sym_baby->GetCPU().state.task_from_partner[i] == 1);
       }

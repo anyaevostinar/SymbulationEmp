@@ -4,6 +4,7 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
+#include "spec.h"
 
 #include <cstddef>
 #include <cstdint>
@@ -157,7 +158,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
       // bit operation do and <- need to have keys be bitsets and not bitstrings
       bool can_infect = false;
 
-      for (int i = CPU_BITSET_LENGTH - 1; i >= 0 && !can_infect; i--) {
+      for (int i = ((int)spec::NUM_TASKS) - 1; i >= 0 && !can_infect; i--) {
         if (it->first[i] == interior_it->first[i] && interior_it->first[i] == '1') {
           can_infect = true;
         }
@@ -210,7 +211,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
     if (IsOccupied(i)) {
       host = pop[i].DynamicCast<SGPHost>();
       out_file << "host," << host->GetReproCount();
-      for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
+      for (size_t k = 0; k < spec::NUM_TASKS; k++) {
         out_file << "," << host->GetCPU().state.task_change_gain[k] << "," << host->GetCPU().state.task_change_lose[k] << "," << host->GetCPU().state.task_toward_partner[k] << "," << host->GetCPU().state.task_from_partner[k];
       }
       out_file << "\n";
@@ -221,7 +222,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
           symbiont = syms[j].DynamicCast<SGPSymbiont>();
 
           out_file << "sym," << symbiont->GetReproCount();
-          for (int k = 0; k < CPU_BITSET_LENGTH; k++) {
+          for (size_t k = 0; k < spec::NUM_TASKS; k++) {
             out_file << "," << symbiont->GetCPU().state.task_change_gain[k] << "," << symbiont->GetCPU().state.task_change_lose[k] << "," << symbiont->GetCPU().state.task_toward_partner[k] << "," << symbiont->GetCPU().state.task_from_partner[k];
           }
           out_file << "\n";

@@ -216,7 +216,7 @@ public:
     if (sgp_config->TRACK_PARENT_TASKS()) {
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
       //inherit towards-from tracking
-      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+      for (size_t i = 0; i < spec::NUM_TASKS; i++) {
 
         // lineage task gain / loss
         sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
@@ -232,7 +232,7 @@ public:
 
         if (my_host) {
           // divergence from/convergence towards parent's partner
-          emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+          emp::Ptr<emp::BitSet<spec::NUM_TASKS>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
           sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
           sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
           if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&

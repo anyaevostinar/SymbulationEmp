@@ -22,8 +22,8 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
     WHEN("A host can only perform NOT") {
       WHEN("It is of the first generation (does not have parents)") {
         emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
-        emp::Ptr<emp::BitSet<sgpmode::CPU_BITSET_LENGTH>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
-        emp::Ptr<emp::BitSet<sgpmode::CPU_BITSET_LENGTH>> host_tasks = host->GetCPU().state.tasks_performed;
+        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
+        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> host_tasks = host->GetCPU().state.tasks_performed;
 
         world.AddOrgAt(host, 0);
 
@@ -41,7 +41,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
           REQUIRE(host_tasks->Get(0));
           REQUIRE(host_tasks->CountOnes() == 1);
 
-          host_tasks->Toggle(1, sgpmode::CPU_BITSET_LENGTH);
+          host_tasks->Toggle(1, sgpmode::spec::NUM_TASKS);
           REQUIRE(host_tasks->All());
         }
       }
@@ -56,8 +56,8 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
         world.AddOrgAt(host, 0);
         REQUIRE(world.GetNumOrgs() == 1);
 
-        emp::Ptr<emp::BitSet<sgpmode::CPU_BITSET_LENGTH>> host_tasks = host->GetCPU().state.tasks_performed;
-        emp::Ptr<emp::BitSet<sgpmode::CPU_BITSET_LENGTH>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
+        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> host_tasks = host->GetCPU().state.tasks_performed;
+        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
 
         THEN("Its own tasks are initially all marked as uncompleted") {
           REQUIRE(host_tasks->None());
@@ -70,7 +70,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
         THEN("Only NOT is recorded are successful for its parent") {
           REQUIRE(parent_tasks->Get(0));
           REQUIRE(parent_tasks->CountOnes() == 1);
-          parent_tasks->Toggle(1, sgpmode::CPU_BITSET_LENGTH);
+          parent_tasks->Toggle(1, sgpmode::spec::NUM_TASKS);
           REQUIRE(parent_tasks->All());
         }
 
@@ -131,7 +131,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
       emp::Ptr<sgpmode::SGPHost> host_gen2 = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
       REQUIRE(host_gen2->GetCPU().state.task_change_lose[NOT_i] == 0);
       REQUIRE(host_gen2->GetCPU().state.task_change_gain[NOT_i] == 0);
-      for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
         REQUIRE(host_gen2->GetCPU().state.task_change_lose[i] == 1);
         REQUIRE(host_gen2->GetCPU().state.task_change_gain[i] == 0);
       }
@@ -139,7 +139,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
 
       host_gen2->GetCPU().state.tasks_performed->Set(NAND_i);
       emp::Ptr<sgpmode::SGPHost> host_gen3 = (host_gen2->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
         if(i == NAND_i){ // gains NAND this gen, lost it last gen
           REQUIRE(host_gen3->GetCPU().state.task_change_lose[i] == 1);
           REQUIRE(host_gen3->GetCPU().state.task_change_gain[i] == 1);
@@ -153,7 +153,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
       host_gen3->GetCPU().state.tasks_performed->Set(NOT_i);
       host_gen3->GetCPU().state.tasks_performed->Set(EQU_i);
       emp::Ptr<sgpmode::SGPHost> host_gen4 = (host_gen3->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
         if(i == NOT_i || i == EQU_i){ // gains NOT & EQU this gen, lost them previously
           REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 1);
           REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 1);
@@ -171,7 +171,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
       host_gen4->GetCPU().state.tasks_performed->Set(NOT_i);
       host_gen4->GetCPU().state.tasks_performed->Set(NAND_i);
       emp::Ptr<sgpmode::SGPHost> host_gen5 = (host_gen4->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
         if(i == NOT_i){ // keeps NOT this gen, lost it previously
           REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 1);
           REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 1);
@@ -198,7 +198,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
     WHEN("The host parent has no symbiont") {
       emp::Ptr<sgpmode::SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
       THEN("The host child inherits the lineage's partner task flip count with no modifications"){
-        for (unsigned int i = 0; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+        for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
           REQUIRE(host_baby->GetCPU().state.task_toward_partner[i] == 0);
           REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 0);
         }
@@ -213,7 +213,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
         REQUIRE(host_baby->GetCPU().state.task_toward_partner[0] == 0);
         REQUIRE(host_baby->GetCPU().state.task_from_partner[0] == 0);
 
-        for (unsigned int i = 1; i < sgpmode::CPU_BITSET_LENGTH; i++) {
+        for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
           REQUIRE(host_baby->GetCPU().state.task_toward_partner[i] == 0);
           REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 1);
         }

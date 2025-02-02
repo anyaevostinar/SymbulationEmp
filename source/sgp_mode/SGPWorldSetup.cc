@@ -1,15 +1,17 @@
 #ifndef SGP_WORLD_SETUP_C
 #define SGP_WORLD_SETUP_C
 
-#include "emp/datastructs/map_utils.hpp"
-#include "emp/tools/string_utils.hpp"
-
 #include "SGPConfigSetup.h"
 #include "HealthHost.h"
 #include "StressHost.h"
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
 #include "utils.h"
+#include "spec.h"
+
+#include "emp/datastructs/map_utils.hpp"
+#include "emp/tools/string_utils.hpp"
+
 
 namespace sgpmode {
 
@@ -55,21 +57,21 @@ void SGPWorld::Setup() {
 void SGPWorld::SetupOrgMode() {
   std::string cfg_org_type(emp::to_lower(sgp_config->ORGANISM_TYPE()));
   emp_assert(
-    emp::Has(sgp_org_type_map, cfg_org_type),
+    emp::Has(spec::sgp_org_type_map, cfg_org_type),
     "Invalid SGP organism type.",
     sgp_config->ORGANISM_TYPE()
   );
-  sgp_org_type = sgp_org_type_map[cfg_org_type];
+  sgp_org_type = spec::sgp_org_type_map[cfg_org_type];
 
   // Configure stress sym type
   // TODO - Implement SetupStressMode / etc
   std::string cfg_stress_sym_type(emp::to_lower(sgp_config->STRESS_TYPE()));
   emp_assert(
-    emp::Has(sgp_stress_sym_type_map, cfg_stress_sym_type),
+    emp::Has(spec::sgp_stress_sym_type_map, cfg_stress_sym_type),
     "Invalid stress symbiont type.",
     sgp_config->STRESS_TYPE()
   );
-  stress_sym_type = sgp_stress_sym_type_map[cfg_stress_sym_type];
+  stress_sym_type = spec::sgp_stress_sym_type_map[cfg_stress_sym_type];
 
 }
 
@@ -126,12 +128,12 @@ void SGPWorld::SetupSymReproduction() {
 
   // TODO - clean this up
   // stress hard-coded transmission modes
-  if (sgp_org_type == SGPOrganismType::STRESS) {
-    if (stress_sym_type == StressSymbiontType::MUTUALIST) {
+  if (sgp_org_type == org_mode_t::STRESS) {
+    if (stress_sym_type == stress_sym_mode_t::MUTUALIST) {
       // mutualists
       sgp_config->VERTICAL_TRANSMISSION(1.0);
       sgp_config->HORIZ_TRANS(false);
-    } else if (stress_sym_type == StressSymbiontType::PARASITE) {
+    } else if (stress_sym_type == stress_sym_mode_t::PARASITE) {
       // parasites
       sgp_config->VERTICAL_TRANSMISSION(0);
       sgp_config->HORIZ_TRANS(true);
@@ -256,15 +258,15 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
     switch (sgp_org_type) {
-      case SGPOrganismType::DEFAULT:
+      case org_mode_t::DEFAULT:
         new_org = emp::NewPtr<SGPHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
-      case SGPOrganismType::HEALTH:
+      case org_mode_t::HEALTH:
         new_org = emp::NewPtr<HealthHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
-      case SGPOrganismType::STRESS:
+      case org_mode_t::STRESS:
         new_org = emp::NewPtr<StressHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;

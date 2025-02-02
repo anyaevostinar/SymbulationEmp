@@ -8,13 +8,11 @@
 #include "emp/base/optional.hpp"
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
+#include "spec.h"
 
 #include <cstdint>
 
 namespace sgpmode {
-
-// TODO - Consolidate into spec.h
-const int CPU_BITSET_LENGTH = 9;
 
 class SGPWorld;
 
@@ -53,15 +51,15 @@ struct CPUState {
   IORingBuffer<4> input_buf;
 
   // TODO - get rid of dynamic memory if possible
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> used_resources = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(true);
+  emp::Ptr<emp::BitSet<spec::NUM_TASKS>> used_resources = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
+  emp::Ptr<emp::BitSet<spec::NUM_TASKS>> tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
+  emp::Ptr<emp::BitSet<spec::NUM_TASKS>> parent_tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>(true);
   // TODO - shift to emp::array if possible
-  int task_change_lose[CPU_BITSET_LENGTH] = { 0 };
-  int task_change_gain[CPU_BITSET_LENGTH] = { 0 };
+  int task_change_lose[spec::NUM_TASKS] = { 0 };
+  int task_change_gain[spec::NUM_TASKS] = { 0 };
 
-  int task_toward_partner[CPU_BITSET_LENGTH] = { 0 };
-  int task_from_partner[CPU_BITSET_LENGTH] = { 0 };
+  int task_toward_partner[spec::NUM_TASKS] = { 0 };
+  int task_from_partner[spec::NUM_TASKS] = { 0 };
 
   double survivial_resource = 0.0;
 

@@ -61,9 +61,9 @@ public:
       // TODO - replace to support instruction-driven interactions
       // -> Don't need to check mode every execution; we know this at world setup.
       if (HasSym()) {
-        if (my_world->GetStressSymType() == StressSymbiontType::MUTUALIST) {
+        if (my_world->GetStressSymType() == spec::StressSymbiontType::MUTUALIST) {
           death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        } else if (my_world->GetStressSymType() == StressSymbiontType::PARASITE) {
+        } else if (my_world->GetStressSymType() == spec::StressSymbiontType::PARASITE) {
           death_chance = sgp_config->PARASITE_DEATH_CHANCE();
         }
       }

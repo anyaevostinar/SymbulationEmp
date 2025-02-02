@@ -21,7 +21,7 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
   if (sgp_config->TRACK_PARENT_TASKS()) {
     host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
 
-    for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+    for (size_t i = 0; i < spec::NUM_TASKS; i++) {
       host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
       host_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
       // lineage task gain / loss
@@ -38,7 +38,7 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
       host_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
       host_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
       if (HasSym()) {
-        emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> symbiont_tasks = syms[0].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
+        emp::Ptr<emp::BitSet<spec::NUM_TASKS>> symbiont_tasks = syms[0].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
         if (cpu.state.parent_tasks_performed->Get(i) != symbiont_tasks->Get(i) &&
           cpu.state.tasks_performed->Get(i) == symbiont_tasks->Get(i)) {
           // parent != partner and child == partner

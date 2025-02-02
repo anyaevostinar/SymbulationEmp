@@ -7,6 +7,7 @@
 #include "Instructions.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+#include "spec.h"
 
 #include "sgpl/algorithm/execute_cpu_n_cycles.hpp"
 #include "sgpl/hardware/Cpu.hpp"
@@ -157,7 +158,7 @@ public:
    *
    * Purpose: Get the phenotype of an organism
    */
-  emp::BitSet<CPU_BITSET_LENGTH> TasksPerformable() const {
+  emp::BitSet<spec::NUM_TASKS> TasksPerformable() const {
     // Make a temporary copy of this CPU so that its state isn't clobbered
     CPU org_cpu = *this;
     org_cpu.Reset();
