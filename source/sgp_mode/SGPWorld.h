@@ -39,17 +39,36 @@ private:
   // Triggers on symbiont do birth action.
   //  sym baby ptr, parent pos
   emp::Signal<void(
-    emp::Ptr<Organism> /* sym_baby_ptr */,
+    emp::Ptr<Organism>, /* sym_baby_ptr */
     emp::WorldPosition /* parent_pos */
   )> before_sym_do_birth;
   emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth;
   fun_sym_do_birth_t fun_sym_do_birth;
 
   // Tiggers on host birth action
-  // emp::Signal<void(
-  //   emp::Ptr<Organism>,
+  // TODO - add functions that add functions to these signals
+  // TODO - switch to passing references instead of pointers
+  emp::Signal<void(
+    emp::Ptr<Organism>, /* host_offspring_ptr */
+    emp::Ptr<Organism>, /* host_parent_ptr */
+    const emp::WorldPosition&  /* parent_pos */
+  )> before_host_do_birth;
+  emp::Signal<void(
+    const emp::WorldPosition& /* host_offspring_pos */
+  )> after_host_do_birth;
 
-  // )
+  // Triggers on symbiont vertical transmission
+  // TODO - shift from ptr of org to references of SGP base classes
+  emp::Signal<void(
+    emp::Ptr<Organism>, /**/
+    emp::Ptr<Organism>,
+    const emp::WorldPosition&
+  )> before_sym_vert_transmission;
+  emp::Signal<void(
+    emp::Ptr<Organism>, /**/
+    emp::Ptr<Organism>,
+    const emp::WorldPosition&
+  )> after_sym_vert_transmission;
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();

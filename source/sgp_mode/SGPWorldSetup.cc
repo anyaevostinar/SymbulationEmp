@@ -118,9 +118,17 @@ void SGPWorld::SetupSymTransmission() {
   // e.g., possible mechanism: task matching, tags, etc.
   // e.g., possible modes: vertical, horizontal, evolvable vert/horiz
 
-  // Reset sym birth signals.
+  // Reset sym birth signals
   before_sym_do_birth.Clear();
   after_sym_do_birth.Clear();
+  // Reset host birth signals
+  // TODO - move this elsewhere; it doesn't belong here!
+  // e.g., SetupHosts
+  before_host_do_birth.Clear();
+  after_host_do_birth.Clear();
+  // Reset vert. transmission signals
+  before_sym_vert_transmission.Clear();
+  after_sym_vert_transmission.Clear();
 
   // Configure sym do birth function
   // QUESTION - Is this setup function appropriate for this? Different setup function more appropriate?

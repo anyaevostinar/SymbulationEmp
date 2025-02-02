@@ -46,8 +46,12 @@ emp::WorldPosition SGPWorld::HostDoBirth(
   emp::Ptr<Organism> host_parent_ptr,
   emp::WorldPosition parent_pos
 ) {
+  // TODO - can static cast pointers to SGP-specific base classes.
   emp_assert(host_offspring_ptr->IsHost());
   emp_assert(host_parent_ptr->IsHost());
+
+  before_host_do_birth.Trigger(host_offspring_ptr, host_parent_ptr, parent_pos);
+
   // emp_assert(IsOccupied(parent_pos)); NOTE - Should this assert be true (fails in tests)?
   // TODO - Add signals like in SymDoBirth
   // NOTE - Double check that this will properly get parent
@@ -58,12 +62,32 @@ emp::WorldPosition SGPWorld::HostDoBirth(
   // Loop over parent's symbiont, check if each can transmit vertically to host
   //  offspring.
   for (auto& sym : host_parent_ptr->GetSymbionts()) {
+    emp_assert(!sym.IsHost());
     // don't vertically transmit if they must task match but don't
     // TODO - Make condition for vertical transmission configurable
     if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;
+    // TODO - Make DoVerticalTransmission function?
+    // Trigger before transmission signal.
+    before_sym_vert_transmission.Trigger(
+      host_parent_ptr,  /* transmission from */
+      host_offspring_ptr, /* transmission to */
+      parent_pos
+    );
+    // Do vertical transmission
     sym->VerticalTransmission(host_offspring_ptr);
+    // Trigger after transmission signal.
+    after_sym_vert_transmission.Trigger(
+      host_parent_ptr,  /* transmission from */
+      host_offspring_ptr, /* transmission to */
+      parent_pos
+    );
   }
-  return DoBirth(host_offspring_ptr, parent_pos);
+
+  const emp::WorldPosition offspring_pos = DoBirth(host_offspring_ptr, parent_pos);
+
+  after_host_do_birth.Trigger(offspring_pos);
+
+  return offspring_pos;
 }
 
 void SGPWorld::ProcessGraveyard() {
