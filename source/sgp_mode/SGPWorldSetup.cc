@@ -186,6 +186,29 @@ void SGPWorld::SetupSymReproduction() {
     }
   );
 
+  // Configure vertical transmission
+  if (sgp_config->VT_TASK_MATCH()) {
+    // If task matching required, check.
+    can_attempt_vert_trans = [this](
+      emp::Ptr<Organism> sym_ptr,
+      emp::Ptr<Organism> host_offspring_ptr,
+      emp::Ptr<Organism> host_parent_ptr,
+      emp::WorldPosition parent_pos
+    ) -> bool {
+      return this->TaskMatchCheck(sym_ptr, host_offspring_ptr);
+    };
+  } else {
+    // Otherwise, allow attempt in all cases.
+    can_attempt_vert_trans = [](
+      emp::Ptr<Organism> sym_ptr,
+      emp::Ptr<Organism> host_offspring_ptr,
+      emp::Ptr<Organism> host_parent_ptr,
+      emp::WorldPosition parent_pos
+    ) -> bool {
+      return true;
+    };
+  }
+
 }
 
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {

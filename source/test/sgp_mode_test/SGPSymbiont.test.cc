@@ -7,8 +7,10 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 	emp::Random random(31);
 	sgpmode::SymConfigSGP config;
 	sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
+  world.SetupOrgMode();
   world.SetupScheduler();
-  world.SetupSymTransmission();
+  world.SetupHostReproduction();
+  world.SetupSymReproduction();
 	emp::Ptr<sgpmode::SGPSymbiont> sym_parent = emp::NewPtr<sgpmode::SGPSymbiont>(
     &random,
     &world,

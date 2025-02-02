@@ -49,32 +49,34 @@ emp::WorldPosition SGPWorld::HostDoBirth(
   // TODO - can static cast pointers to SGP-specific base classes.
   emp_assert(host_offspring_ptr->IsHost());
   emp_assert(host_parent_ptr->IsHost());
+  // emp_assert(IsOccupied(parent_pos)); NOTE - Should this assert be true (fails in tests)?
 
   before_host_do_birth.Trigger(host_offspring_ptr, host_parent_ptr, parent_pos);
 
-  // emp_assert(IsOccupied(parent_pos)); NOTE - Should this assert be true (fails in tests)?
-  // TODO - Add signals like in SymDoBirth
-  // NOTE - Double check that this will properly get parent
   // NOTE - Can make contents of this function into a functor if needs to be
   //        configurable for different types of hosts.
   // Host::Reproduce() doesn't take care of vertical transmission, that
-  //  happens here
-  // Loop over parent's symbiont, check if each can transmit vertically to host
-  //  offspring.
-  for (auto sym : host_parent_ptr->GetSymbionts()) {
-    emp_assert(!sym->IsHost());
-    // don't vertically transmit if they must task match but don't
-    // TODO - Make condition for vertical transmission configurable
-    if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;
-    // TODO - Make DoVerticalTransmission function?
+  //  happens here. Loop over parent's symbiont, check if each can transmit
+  //  vertically to host offspring.
+  for (auto sym_ptr : host_parent_ptr->GetSymbionts()) {
+    emp_assert(!sym_ptr->IsHost());
+    // Check if symbiont will succeed in attempted vertical transmission.
+    if (!can_attempt_vert_trans(sym_ptr, host_offspring_ptr, host_parent_ptr, parent_pos)) {
+      continue;
+    }
+    // if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, host_offspring_ptr)) continue;
+    // NOTE - Make DoVerticalTransmission function?
     // Trigger before transmission signal.
     before_sym_vert_transmission.Trigger(
+      sym_ptr,          /* symbiont producing offspring */
       host_parent_ptr,  /* transmission from */
       host_offspring_ptr, /* transmission to */
       parent_pos
     );
     // Do vertical transmission
-    sym->VerticalTransmission(host_offspring_ptr);
+    // NOTE - easy way to grab the new symbiont?
+    // TODO - How to know if vertical transmission is successful?
+    sym_ptr->VerticalTransmission(host_offspring_ptr);
     // Trigger after transmission signal.
     after_sym_vert_transmission.Trigger(
       host_parent_ptr,  /* transmission from */

@@ -11,6 +11,10 @@ TEST_CASE("Health hosts evolve", "[sgp]") {
   size_t world_size = config.GRID_X() * config.GRID_Y();
 
   SGPWorld world(random, &config, LogicTasks);
+  world.SetupOrgMode();
+  world.SetupScheduler();
+  world.SetupHostReproduction();
+  world.SetupSymReproduction();
   world.SetupHosts(&world_size);
 
   REQUIRE(world.GetNumOrgs() == world_size);
@@ -46,4 +50,4 @@ TEST_CASE("Health hosts evolve", "[sgp]") {
       REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 2);
     }
   }
-} 
+}

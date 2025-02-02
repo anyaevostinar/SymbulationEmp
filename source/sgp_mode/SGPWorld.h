@@ -15,7 +15,18 @@ namespace sgpmode {
 
 class SGPWorld : public SymWorld {
 public:
-  using fun_sym_do_birth_t = std::function<emp::WorldPosition(emp::Ptr<Organism>, emp::WorldPosition)>;
+  using fun_sym_do_birth_t = std::function<
+    emp::WorldPosition(emp::Ptr<Organism>, emp::WorldPosition)
+  >;
+  // NOTE - better name?
+  // TODO - switch to using references to SGPHost, etc.
+  using fun_can_attempt_vert_trans_t = std::function<bool(
+    emp::Ptr<Organism>, /* symbiont_ptr */
+    emp::Ptr<Organism>, /* host_offspring_ptr */
+    emp::Ptr<Organism>, /* host_parent_ptr */
+    emp::WorldPosition  /* parent_pos */
+  )>;
+
 private:
   Scheduler scheduler;
   TaskSet task_set;
@@ -40,7 +51,7 @@ private:
   //  sym baby ptr, parent pos
   emp::Signal<void(
     emp::Ptr<Organism>, /* sym_baby_ptr */
-    emp::WorldPosition /* parent_pos */
+    emp::WorldPosition  /* parent_pos */
   )> before_sym_do_birth;
   emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth;
   fun_sym_do_birth_t fun_sym_do_birth;
@@ -49,8 +60,8 @@ private:
   // TODO - add functions that add functions to these signals
   // TODO - switch to passing references instead of pointers
   emp::Signal<void(
-    emp::Ptr<Organism>, /* host_offspring_ptr */
-    emp::Ptr<Organism>, /* host_parent_ptr */
+    emp::Ptr<Organism>,        /* host_offspring_ptr */
+    emp::Ptr<Organism>,        /* host_parent_ptr */
     const emp::WorldPosition&  /* parent_pos */
   )> before_host_do_birth;
   emp::Signal<void(
@@ -59,16 +70,20 @@ private:
 
   // Triggers on symbiont vertical transmission
   // TODO - shift from ptr of org to references of SGP base classes
+  // TODO - Need to extract whether vertical transmission is successful or not.
   emp::Signal<void(
-    emp::Ptr<Organism>, /**/
-    emp::Ptr<Organism>,
-    const emp::WorldPosition&
+    emp::Ptr<Organism>,       /* sym_ptr - symbiont producing offspring */
+    emp::Ptr<Organism>,       /* host_parent_ptr - transmission from */
+    emp::Ptr<Organism>,       /* host_offspring_ptr - transmission to */
+    const emp::WorldPosition& /* host_parent_pos */
   )> before_sym_vert_transmission;
   emp::Signal<void(
-    emp::Ptr<Organism>, /**/
-    emp::Ptr<Organism>,
-    const emp::WorldPosition&
+    emp::Ptr<Organism>,       /* host_parent_ptr */
+    emp::Ptr<Organism>,       /* host_offspring_ptr */
+    const emp::WorldPosition& /* host_parent_pos */
   )> after_sym_vert_transmission;
+  // Checks if symbiont vertical transmission is successful
+  fun_can_attempt_vert_trans_t can_attempt_vert_trans;
 
   // Internal helper function to handle reproduction events each update.
   void DoReproduction();
@@ -170,9 +185,9 @@ public:
   void SetupOrgMode();
   // Internal helper function to configure scheduler.
   // Called internally on world setup.
-  void SetupScheduler(); // TODO - shift to private function (will need to refactor many tests)
-  void SetupSymReproduction(); // TODO - shift to private function (will need to refactor many tests)
-  void SetupHostReproduction();
+  void SetupScheduler();        // TODO - shift to private function (will need to refactor many tests)
+  void SetupSymReproduction();  // TODO - shift to private function (will need to refactor many tests)
+  void SetupHostReproduction(); // TODO - shift to private function (will need to refactor tests)
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.

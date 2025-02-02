@@ -33,6 +33,7 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     sgpmode::TaskSet task_set{ emp::NewPtr<sgpmode::InputTask>(sgpmode::NOT) };
     sgpmode::SGPWorld world(random, &config, task_set);
 
+
     TestOrg organism;
     sgpmode::CPU cpu(&organism, &world);
 

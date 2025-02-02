@@ -17,8 +17,10 @@ TEST_CASE("Extinction event", "[sgp]") {
   config.BASE_DEATH_CHANCE(base_death_chance);
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
+  world.SetupOrgMode();
   world.SetupScheduler();
-  world.SetupSymTransmission();
+  world.SetupHostReproduction();
+  world.SetupSymReproduction();
 
   WHEN("There are stress symbionts in the world"){
     config.START_MOI(1);
@@ -80,9 +82,10 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
   size_t world_size = config.GRID_X() * config.GRID_Y();
 
   sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
-  world.SetupScheduler();
-  world.SetupSymTransmission();
   world.SetupOrgMode();
+  world.SetupScheduler();
+  world.SetupHostReproduction();
+  world.SetupSymReproduction();
   world.SetupHosts(&world_size);
 
   REQUIRE(world.GetNumOrgs() == world_size);
