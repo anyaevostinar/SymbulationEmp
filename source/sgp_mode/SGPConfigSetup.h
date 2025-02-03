@@ -10,6 +10,8 @@
 
 namespace sgpmode {
 
+// TODO - rename TASK_TYPE to be more specific
+
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
