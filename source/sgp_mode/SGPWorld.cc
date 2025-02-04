@@ -100,6 +100,7 @@ void SGPWorld::ProcessGraveyard() {
   graveyard.clear();
 }
 
+// TODO - add test to make sure this works for hosts as well
 void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
   // NOTE: Currently, if not host, assume symbiont.
   // Determine if repro is in progress.
