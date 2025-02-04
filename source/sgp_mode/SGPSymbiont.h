@@ -35,30 +35,43 @@ public:
    * genome or a blank genome that knows how to do a simple task depending on
    * the config setting RANDOM_ANCESTOR.
    */
-  SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
-              double _points = 0.0)
-      : Symbiont(_random, _world, _config, _intval, _points), cpu(this, _world),
-        my_world(_world) {
+  SGPSymbiont(
+    emp::Ptr<emp::Random> _random,
+    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<SymConfigSGP> _config,
+    double _intval = 0.0,
+    double _points = 0.0
+  ) :
+    Symbiont(_random, _world, _config, _intval, _points),
+    cpu(this, _world),
+    my_world(_world)
+  {
     sgp_config = _config;
   }
 
   /**
    * Constructs an SGPSymbiont with a copy of the provided genome.
    */
-  SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
-              emp::Ptr<SymConfigSGP> _config,
-              const sgpl::Program<Spec> &genome, double _intval = 0.0,
-              double _points = 0.0)
-      : Symbiont(_random, _world, _config, _intval, _points),
-        cpu(this, _world, genome), my_world(_world) {
+  SGPSymbiont(
+    emp::Ptr<emp::Random> _random,
+    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<SymConfigSGP> _config,
+    const sgpl::Program<Spec>& genome,
+    double _intval = 0.0,
+    double _points = 0.0
+  ) :
+    Symbiont(_random, _world, _config, _intval, _points),
+    cpu(this, _world, genome),
+    my_world(_world)
+  {
     sgp_config = _config;
   }
 
-  SGPSymbiont(const SGPSymbiont &symbiont)
-      : Symbiont(symbiont),
-        cpu(this, symbiont.my_world, symbiont.cpu.GetProgram()),
-        my_world(symbiont.my_world) {}
+  SGPSymbiont(const SGPSymbiont& symbiont) :
+    Symbiont(symbiont),
+    cpu(this, symbiont.my_world, symbiont.cpu.GetProgram()),
+    my_world(symbiont.my_world)
+  {}
 
   /**
    * Input: None
@@ -81,7 +94,7 @@ public:
     }
   }
 
-  bool operator<(const Organism &other) const {
+  bool operator<(const Organism& other) const {
     if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
       return cpu.GetProgram() < sgp->cpu.GetProgram();
     } else {
@@ -89,7 +102,7 @@ public:
     }
   }
 
-  bool operator==(const Organism &other) const {
+  bool operator==(const Organism& other) const {
     if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
       return cpu.GetProgram() == sgp->cpu.GetProgram();
     } else {
