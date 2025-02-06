@@ -8,34 +8,65 @@
 #include "sgpl/spec/Spec.hpp"
 #include <cstddef>
 #include <limits>
+#include <unordered_set>
 
 namespace sgpmode {
 
 using Library = sgpl::OpLibrary<
-    sgpl::Nop<>,
-    // single argument math
-    inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
-    // biological operations
-    // no copy or alloc
-    inst::Reproduce,
-    //inst::PrivateIO,
-    inst::SharedIO,
-    // double argument math
-    inst::Add, inst::Subtract, inst::Nand,
-    // Stack manipulation
-    inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-    // no h-search
-    //inst::Donate,
-    inst::JumpIfNEq, inst::JumpIfLess,
-    //inst::Reuptake,
-    //fls basics
-    //inst::Infect,
-    // if-label doesn't make sense for SGP, same with *-head
-    // and set-flow but this is required
-    sgpl::global::Anchor
-    // inst::DynamicInst
-    //inst::Steal
-    >;
+  sgpl::Nop<>,
+  // single argument math
+  inst::ShiftLeft,
+  inst::ShiftRight,
+  inst::Increment,
+  inst::Decrement,
+  // biological operations
+  // no copy or alloc
+  // no h-search
+  inst::Reproduce,
+  inst::SharedIO,
+  // double argument math
+  inst::Add,
+  inst::Subtract,
+  inst::Nand,
+  // Stack manipulation
+  inst::Push,
+  inst::Pop,
+  inst::SwapStack,
+  inst::Swap,
+  // Control flow
+  // TODO - add back in JumpIfEq
+  // inst::JumpIfEq, Leave off for now; minimal changes before compilation works
+  inst::JumpIfNEq,
+  inst::JumpIfLess,
+  //fls basics
+  // if-label doesn't make sense for SGP, same with *-head
+  // and set-flow but this is required
+  sgpl::global::Anchor
+>;
+
+namespace lib_info {
+  const std::unordered_set<uint8_t> jump_opcodes = {
+    Library::GetOpCode("JumpIfNEq"),
+    Library::GetOpCode("JumpIfLess")
+    // Library::GetOpCode("JumpEq")
+  };
+
+  const emp::map<std::string, size_t> arities {
+    {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
+    {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
+    {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
+    {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
+    {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3}
+  };
+}
+
+// Unused instructions:
+//  inst::PrivateIO,
+//  inst::Donate,
+//  inst::Reuptake,
+//  inst::Infect,
+//  inst::DynamicInst
+//  inst::Steal
 
 using Spec = sgpl::Spec<Library, CPUState>;
 
@@ -43,6 +74,7 @@ using Spec = sgpl::Spec<Library, CPUState>;
 // has the most bits set by matching with the maximum valued tag. This way
 // organisms can evolve to designate a certain anchor as the entry.
 const Spec::tag_t START_TAG(std::numeric_limits<uint64_t>::max());
+
 const size_t PROGRAM_LENGTH = 100;
 
 /**
