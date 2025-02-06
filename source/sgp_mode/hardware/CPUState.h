@@ -17,6 +17,7 @@
 
 namespace sgpmode {
 
+
 /**
  * The CPUState holds all state that can be accessed by instructions in the
  * organism's genomes. Each organism has its own CPUState.
@@ -26,7 +27,7 @@ class CPUState {
 public:
 
 protected:
-  emp::array<emp::vector<uint32_t>, 2> stacks;
+  Stacks<uint32_t> stacks;
   IORingBuffer<uint32_t, 4> input_buf;
 
   // TODO - get rid of dynamic memory if possible
@@ -74,40 +75,16 @@ public:
   CPUState(
     emp::Ptr<Organism> organism,
     size_t num_tasks = 0
-  ) : organism(organism)
+  ) :
+    stacks(2),
+    organism(organism)
   {
     Reset(num_tasks);
   }
 
   // Reset state values for given num_tasks.
   // NOTE - does not update/clear organism pointer.
-  void Reset(size_t num_tasks) {
-    // Clear stacks
-    for (size_t i = 0; i < stacks.size(); ++i) {
-      stacks[i].clear();
-    }
-
-    // Reset the input buffer.
-    input_buf.Reset(0);
-    // Resize + 0-out
-    utils::ResizeClear(used_resources, num_tasks);
-    utils::ResizeClear(tasks_performed, num_tasks);
-    utils::ResizeClear(parent_tasks_performed, num_tasks);
-
-    utils::ResizeFill(task_change_loss, num_tasks, 0);
-    utils::ResizeFill(task_change_gain, num_tasks, 0);
-    utils::ResizeFill(task_toward_partner, num_tasks, 0);
-    utils::ResizeFill(task_from_partner, num_tasks, 0);
-
-    survival_resource = 0.0;
-
-    repro_in_progress = false;
-    repro_queue_pos = 0;
-
-    jump_table.clear();
-
-    location = emp::WorldPosition();
-  }
+  void Reset(size_t num_tasks);
 
   // Reset cpu state, but keep num_tasks the same.
   void Reset() {
@@ -115,7 +92,51 @@ public:
     Reset(cur_size);
   }
 
+  // TODO - accessors
+  // stacks
+  // input_buf
+  // used_resources
+  // tasks_performed
+  // parent_tasks_performed
+  // task_change_loss
+  // task_change_gain
+  // task_toward_partner
+  // task_from_partner
+  // survival_resource
+  // repro_in_progress
+  // repro_queue_pos
+  // jump_table
+  // organism
+  // location
+
+
 };
+
+void CPUState::Reset(size_t num_tasks) {
+  // Clear stacks
+  stacks.ClearAll();
+
+  // Reset the input buffer.
+  input_buf.Reset(0);
+  // Resize + 0-out
+  utils::ResizeClear(used_resources, num_tasks);
+  utils::ResizeClear(tasks_performed, num_tasks);
+  utils::ResizeClear(parent_tasks_performed, num_tasks);
+
+  utils::ResizeFill(task_change_loss, num_tasks, 0);
+  utils::ResizeFill(task_change_gain, num_tasks, 0);
+  utils::ResizeFill(task_toward_partner, num_tasks, 0);
+  utils::ResizeFill(task_from_partner, num_tasks, 0);
+
+  survival_resource = 0.0;
+
+  repro_in_progress = false;
+  repro_queue_pos = 0;
+
+  jump_table.clear();
+
+  location = emp::WorldPosition();
+}
 
 }
 
