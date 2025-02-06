@@ -2,9 +2,10 @@
 #define CPU_STATE_H
 
 #include "../Organism.h"
+#include "../spec.h"
+#include "../utils.h"
 #include "IORingBuffer.h"
-#include "spec.h"
-#include "utils.h"
+#include "Stacks.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/base/Ptr.hpp"
@@ -35,6 +36,7 @@ protected:
   // emp::BitSet<spec::NUM_TASKS> tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
   // emp::BitSet<spec::NUM_TASKS> parent_tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>(true);
   // TODO - will need to resize / reset
+  size_t num_tasks = 0;
   emp::BitVector used_resources;          // TODO - document use
   emp::BitVector tasks_performed;
   emp::BitVector parent_tasks_performed;
@@ -74,9 +76,10 @@ protected:
 public:
   CPUState(
     emp::Ptr<Organism> organism,
-    size_t num_tasks = 0
+    size_t task_cnt = 0
   ) :
     stacks(2),
+    num_tasks(task_cnt),
     organism(organism)
   {
     Reset(num_tasks);
@@ -84,13 +87,20 @@ public:
 
   // Reset state values for given num_tasks.
   // NOTE - does not update/clear organism pointer.
-  void Reset(size_t num_tasks);
+  void Reset(size_t task_cnt);
 
   // Reset cpu state, but keep num_tasks the same.
   void Reset() {
-    const size_t cur_size = tasks_performed.size();
-    Reset(cur_size);
+    Reset(num_tasks);
   }
+
+  size_t GetNumTasks() const { return num_tasks; }
+  emp::vector<size_t>& GetJumpTable() { return jump_table; }
+  const emp::vector<size_t>& GetJumpTable() const { return jump_table; }
+  void SetLocation(const emp::WorldPosition& loc) {
+    location = loc;
+  }
+  const emp::WorldPosition& GetLocation() const { return loc; }
 
   // TODO - accessors
   // stacks
@@ -112,7 +122,9 @@ public:
 
 };
 
-void CPUState::Reset(size_t num_tasks) {
+void CPUState::Reset(size_t task_cnt) {
+  num_tasks = task_cnt;
+
   // Clear stacks
   stacks.ClearAll();
 

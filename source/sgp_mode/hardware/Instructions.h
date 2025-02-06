@@ -26,9 +26,12 @@ namespace sgpmode::inst {
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
     template <typename Spec>                                                   \
-    static void run(sgpl::Core<Spec> &core,                                    \
-                    const sgpl::Instruction<Spec> &inst,                       \
-                    const sgpl::Program<Spec> &program, CPUState &state) {     \
+    static void run(                                                           \
+      sgpl::Core<Spec>& core,                                                  \
+      const sgpl::Instruction<Spec>& inst,                                     \
+      const sgpl::Program<Spec>& program,                                      \
+      CPUState& state                                                          \
+    ) {                                                                        \
       uint32_t *a = (uint32_t *)&core.registers[inst.args[0]],                 \
                *b = (uint32_t *)&core.registers[inst.args[1]],                 \
                *c = (uint32_t *)&core.registers[inst.args[2]];                 \
@@ -40,17 +43,19 @@ namespace sgpmode::inst {
     static std::string name() { return #InstName; }                            \
   };
 
-INST(JumpIfNEq, {
-  // Even != works differently on floats because of NaNs
-  if (*a != *b) {
-    core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-  }
-});
-INST(JumpIfLess, {
-  if (*a < *b) {
-    core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-  }
-});
+// TODO - remove commented out code if new versions work as intended.
+// INST(JumpIfNEq, {
+//   // Even != works differently on floats because of NaNs
+//   if (*a != *b) {
+//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
+//   }
+// });
+// INST(JumpIfLess, {
+//   if (*a < *b) {
+//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
+//   }
+// });
+
 INST(Increment, { ++*a; });
 INST(Decrement, { --*a; });
 // Unary shift (>>1 or <<1)
@@ -217,6 +222,157 @@ INST(Infect, {
   }
 });
 
+// NOTE - Prev Jump instructions used global anchors
+// TODO - Check if should cast register values to uint32_t or leave as floats?
+/**
+ * Jumps to a local anchor that matches the instruction tag if `reg[arg_0]` ==
+ * `reg[arg_1]`.
+ * Adapted from sgplite JumpIf instruction
+ */
+struct JumpIfEq {
+
+  template<typename Spec>
+  static void run(
+    sgpl::Core<Spec>& core,
+    const sgpl::Instruction<Spec>& inst,
+    const sgpl::Program<Spec>& prog,
+    CPUState& state
+  ) noexcept {
+    if ( (uint32_t)(core.registers[inst.args[0]]) == (uint32_t)(core.registers[inst.args[0]])) {
+      core.JumpToLocalAnchorMatch( inst.tag );
+    }
+  }
+
+  static std::string name() { return "Local Jump If Equal"; }
+
+  static size_t prevalence() { return 1; }
+
+  template<typename Spec>
+  static auto descriptors( const sgpl::Instruction<Spec>& inst ) {
+
+    using tag_t = typename Spec::tag_t;
+
+    return std::map<std::string, std::string>{
+      { "argument a", uit_emp::to_string( static_cast<int>( inst.args[0] ) ) },
+      { "argument b", uit_emp::to_string( static_cast<int>( inst.args[1] ) ) },
+      { "tag bits", uit_emp::to_string( inst.tag ) },
+      { "tag moniker", uit_emp::hash_namify( std::hash< tag_t >{}( inst.tag ) ) },
+      { "summary", "if a == b, goto tag match local anchor" },
+    };
+  }
+
+  template<typename Spec>
+  static std::set<std::string> categories(const sgpl::Instruction<Spec>&) {
+    return {
+      "flow",
+      "local flow",
+      "intrinsic",
+      "op",
+    };
+  }
+
+};
+
+// TODO - Check if should cast register values to uint32_t or leave as floats?
+/**
+ * Jumps to a local anchor that matches the instruction tag if `reg[arg_0]` !=
+ * `reg[arg_1]`.
+ * Adapted from sgplite JumpIf instruction
+ */
+struct JumpIfNEq {
+
+  template<typename Spec>
+  static void run(
+    sgpl::Core<Spec>& core,
+    const sgpl::Instruction<Spec>& inst,
+    const sgpl::Program<Spec>&,
+    typename Spec::peripheral_t&
+  ) noexcept {
+    if ( (uint32_t)(core.registers[ inst.args[0] ]) != (uint32_t)(core.registers[ inst.args[0] ])) {
+      core.JumpToLocalAnchorMatch( inst.tag );
+    }
+  }
+
+  static std::string name() { return "Local Jump If Not Equal"; }
+
+  static size_t prevalence() { return 1; }
+
+  template<typename Spec>
+  static auto descriptors( const sgpl::Instruction<Spec>& inst ) {
+
+    using tag_t = typename Spec::tag_t;
+
+    return std::map<std::string, std::string>{
+      { "argument a", uit_emp::to_string( static_cast<int>( inst.args[0] ) ) },
+      { "argument b", uit_emp::to_string( static_cast<int>( inst.args[1] ) ) },
+      { "tag bits", uit_emp::to_string( inst.tag ) },
+      { "tag moniker", uit_emp::hash_namify( std::hash< tag_t >{}( inst.tag ) ) },
+      { "summary", "if a != b, goto tag match local anchor" },
+    };
+  }
+
+  template<typename Spec>
+  static std::set<std::string> categories(const sgpl::Instruction<Spec>&) {
+    return {
+      "flow",
+      "local flow",
+      "intrinsic",
+      "op",
+    };
+  }
+
+};
+
+// TODO - Check if should cast register values to uint32_t or leave as floats?
+/**
+ * Jumps to a local anchor that matches the instruction tag if `reg[arg_0]` is
+ * less than `reg[arg_1]`.
+ * Adapted from sgplite JumpIf instruction
+ */
+struct JumpIfLess {
+
+  template<typename Spec>
+  static void run(
+    sgpl::Core<Spec>& core,
+    const sgpl::Instruction<Spec>& inst,
+    const sgpl::Program<Spec>&,
+    CPUState& state
+  ) noexcept {
+    if ( (uint32_t)(core.registers[inst.args[0]]) < ((uint32_t)core.registers[inst.args[1]]) ) {
+      core.JumpToLocalAnchorMatch( inst.tag );
+    }
+  }
+
+  static std::string name() { return "Local Jump If Less"; }
+
+  static size_t prevalence() { return 1; }
+
+  template<typename Spec>
+  static auto descriptors( const sgpl::Instruction<Spec>& inst ) {
+
+    using tag_t = typename Spec::tag_t;
+
+    return std::map<std::string, std::string>{
+      { "argument a", uit_emp::to_string( static_cast<int>( inst.args[0] ) ) },
+      { "argument b", uit_emp::to_string( static_cast<int>( inst.args[1] ) ) },
+      { "tag bits", uit_emp::to_string( inst.tag ) },
+      { "tag moniker", uit_emp::hash_namify( std::hash< tag_t >{}( inst.tag ) ) },
+      { "summary", "if a < b, goto tag match local anchor" },
+    };
+  }
+
+  template<typename Spec>
+  static std::set<std::string> categories(const sgpl::Instruction<Spec>&) {
+    return {
+      "flow",
+      "local flow",
+      "intrinsic",
+      "op",
+    };
+  }
+
+};
+
 
 // Trigger interaction
 struct Interact {
@@ -239,6 +395,8 @@ struct Interact {
   static size_t prevalence() { return 1; }
   static std::string name() { return "Interact"; }
 };
+
+
 
 
 } // namespace inst
