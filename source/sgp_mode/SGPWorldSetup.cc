@@ -81,7 +81,9 @@ void SGPWorld::SetupScheduler() {
   scheduler.SetProcessHostFun(
     [this](emp::WorldPosition pos, Organism& org) {
       emp_assert(org.IsHost());
+      // Pre-process step
       org.Process(pos);
+      // Post-process step
       if (org.GetDead()) {
         this->DoDeath(pos);
       }

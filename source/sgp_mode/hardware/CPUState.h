@@ -30,6 +30,7 @@ public:
 protected:
   Stacks<uint32_t> stacks;
   IORingBuffer<uint32_t, 4> input_buf;
+  emp::vector<size_t> output_buffer;
 
   // TODO - get rid of dynamic memory if possible
   // emp::BitSet<spec::NUM_TASKS> used_resources = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
