@@ -9,7 +9,7 @@
 #include "emp/bits/BitSet.hpp"
 #include <cstdint>
 
-const int CPU_BITSET_LENGTH = 64;
+const int CPU_BITSET_LENGTH = 9;
 
 /// A helper class for a ring buffer that keeps the latest `len` inputs and
 /// discards the rest.
@@ -49,6 +49,13 @@ struct CPUState {
 
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> used_resources = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(true);
+  int task_change_lose[CPU_BITSET_LENGTH] = { 0 };
+  int task_change_gain[CPU_BITSET_LENGTH] = { 0 };
+
+  int task_toward_partner[CPU_BITSET_LENGTH] = { 0 };
+  int task_from_partner[CPU_BITSET_LENGTH] = { 0 };
+
   emp::vector<size_t> available_dependencies;
   emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
       emp::NewPtr<emp::vector<size_t>>();

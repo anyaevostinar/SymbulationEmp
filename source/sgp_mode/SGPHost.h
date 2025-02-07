@@ -11,6 +11,12 @@ class SGPHost : public Host {
 private:
   CPU cpu;
   
+  /**
+   *
+   * Purpose: Tracks the number of reproductive events in this host's lineage.
+   *
+   */
+  unsigned int reproductions = 0;
 protected:
   /**
     *
@@ -69,7 +75,6 @@ public:
    */
   ~SGPHost() {
     cpu.state.used_resources.Delete();
-    cpu.state.tasks_performed.Delete();
     cpu.state.shared_available_dependencies.Delete();
     cpu.state.internal_environment.Delete();
     // Invalidate any in-progress reproduction
@@ -94,6 +99,24 @@ public:
       return false;
     }
   }
+
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(int _in) { reproductions = _in; }
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  unsigned int GetReproCount() { return reproductions; }
 
   /**
    * Input: None
@@ -158,6 +181,9 @@ public:
     GrowOlder();
   }
 
+  // Prototype for this host's reproduce method
+  emp::Ptr<Organism> Reproduce();
+
   /**
    * Input: None.
    *
@@ -168,8 +194,7 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    cpu.state.in_progress_repro = -1;
+    
     return host_baby;
   }
 

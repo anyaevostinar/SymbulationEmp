@@ -32,6 +32,8 @@
 #include "../test/sgp_mode_test/CPU.test.cc"
 #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
 #include "../test/sgp_mode_test/SGPWorld.test.cc"
+#include "../test/sgp_mode_test/SGPHost.test.cc"
+#include "../test/sgp_mode_test/SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/StressHost.test.cc"
 
 #include "../test/integration_test/spatial_structure/vt.test.cc"

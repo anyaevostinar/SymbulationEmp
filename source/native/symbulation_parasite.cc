@@ -14,6 +14,7 @@
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/Tasks.cc"
+#include "../sgp_mode/SGPHost.cc"
 
 #include <fstream>
 #include <iostream>
@@ -56,6 +57,11 @@ int symbulation_main(int argc, char *argv[]) {
   std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
 
   world.RunExperiment();
+ 
+  world.WriteOrgReproHistFile(config.FILE_PATH() + "OrgReproHist" + config.FILE_NAME() +
+    file_ending);
+  world.WriteTaskCombinationsFile(config.FILE_PATH() + "EndingTaskCombinations" + config.FILE_NAME() +
+    file_ending);
 
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
       world.GetDominantInfo();

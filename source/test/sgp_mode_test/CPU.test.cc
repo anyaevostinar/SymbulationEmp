@@ -44,6 +44,5 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     cpu.state.shared_available_dependencies.Delete();
     cpu.state.used_resources.Delete();
     cpu.state.internal_environment.Delete();
-    cpu.state.tasks_performed.Delete();
   }
 }

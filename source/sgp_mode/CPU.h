@@ -84,6 +84,18 @@ public:
    *
    * Output: None
    *
+   * Purpose: To destruct the objects belonging to CPU.
+   */
+  ~CPU() {
+    state.parent_tasks_performed.Delete();
+    state.tasks_performed.Delete();
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
    * Purpose: Resets the CPU to its initial state.
    */
   void Reset() {

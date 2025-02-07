@@ -27,7 +27,7 @@ class HealthHost : public SGPHost {
           double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
           emp::vector<emp::Ptr<Organism>> _repro_syms = {},
           double _points = 0.0)
-      : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points) {}
+      : SGPHost(_random, _world, _config, genome, _intval, _syms, _repro_syms, _points) {}
 
   HealthHost(const SGPHost &host)
       : SGPHost(host) {}
@@ -41,8 +41,6 @@ class HealthHost : public SGPHost {
     emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<HealthHost>(
         random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
-    // This organism is reproducing, so it must have gotten off the queue
-    GetCPU().state.in_progress_repro = -1;
     return host_baby;
   }
 
