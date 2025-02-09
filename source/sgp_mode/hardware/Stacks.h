@@ -65,6 +65,11 @@ public:
     emp_assert(active_stack < stacks.size());
   }
 
+  void SetActive(size_t new_active) {
+    emp_assert(new_active < stacks.size());
+    active_stack = new_active;
+  }
+
   // Push new value on active stack. Return true if successful, false if not.
   bool Push(T val) {
     emp_assert(active_stack < stacks.size());

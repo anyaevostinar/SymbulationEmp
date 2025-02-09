@@ -24,17 +24,21 @@ namespace sgpmode {
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
  */
+template<typename HW_SPEC_T>
 class SGPHardware {
 public:
-  using cpu_t = sgpl::Cpu<Spec>;
-  using program_t = sgpl::Program<Spec>;
-  using inst_t = sgpl::Instruction<Spec>;
-  using jump_table_t = sgpl::JumpTable<Spec, Spec::global_matching_t>;
+  using spec_t = HW_SPEC_T;
+  using cpu_t = sgpl::Cpu<spec_t>;
+  using program_t = sgpl::Program<spec_t>;
+  using inst_t = sgpl::Instruction<spec_t>;
+  using jump_table_t = sgpl::JumpTable<spec_t, spec_t::global_matching_t>;
+  using cpu_state_t = CPUState<spec_t>; // <WORLD_T>;
+  // using world_t = WORLD_T;
 
 protected:
   cpu_t cpu;
   program_t program;
-  CPUState state;       // cpu_t Peripheral
+  cpu_state_t state;       // cpu_t Peripheral
 
   /**
    * Input: The instruction to print, and the context needed to print it.
