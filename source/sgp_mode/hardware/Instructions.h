@@ -65,7 +65,7 @@ namespace sgpmode::inst {
 
 INST(Increment, { ++a; });
 INST(Decrement, { --a; });
-
+INST(Nand, { a = ~(b & c); });
 
 } // namespace inst
 

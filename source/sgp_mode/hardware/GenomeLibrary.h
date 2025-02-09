@@ -6,6 +6,7 @@
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
+#include "sgpl/library/OpLibrary.h"
 
 #include <cstddef>
 #include <limits>
@@ -18,6 +19,7 @@ using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,
   inst::Decrement,
+  inst::Nand,
   sgpl::global::Anchor
 >;
 
