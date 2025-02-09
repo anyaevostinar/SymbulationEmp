@@ -8,6 +8,7 @@ namespace sgpmode::spec {
 
 // TODO - refactor tasks, move this.
 const size_t NUM_TASKS = 9;
+const size_t DEFAULT_STACK_SIZE_LIMIT = 16;
 
 enum class SGPOrganismType { DEFAULT = 0, HEALTH, STRESS, NUTRIENT };
 enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };

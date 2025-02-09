@@ -2,8 +2,8 @@
 #define SGPHOST_H
 
 #include "../default_mode/Host.h"
-#include "CPU.h"
-#include "SGPWorld.h"
+#include "hardware/SGPHardware.h"
+// #include "SGPWorld.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/control/Signal.hpp"
@@ -15,24 +15,28 @@
 
 namespace sgpmode {
 
+template <typename HW_SPEC_T>
 class SGPHost : public Host {
-private:
-  CPU cpu;
+public:
+  using world_t = typename HW_SPEC_T::world_t
+
+protected:
+  // CPU cpu;
+  SGPHardware hardware;
 
   /**
    *
    * Purpose: Tracks the number of reproductive events in this host's lineage.
    *
    */
-  unsigned int reproductions = 0;
+  uint32_t reproductions = 0;
 
-protected:
   /**
     *
     * Purpose: Represents the SGPWorld that the hosts are living in.
     *
   */
-  const emp::Ptr<SGPWorld> my_world;
+  const emp::Ptr<world_t> my_world;
 
   /**
    *

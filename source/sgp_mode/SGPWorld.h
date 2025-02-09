@@ -3,9 +3,10 @@
 
 #include "../default_mode/SymWorld.h"
 #include "Scheduler.h"
-#include "Tasks.h"
+// #include "Tasks.h"
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
+#include "hardware/SGPHardwareSpec.h"
 #include "spec.h"
 // #include "SGPHost.h"
 // #include "SGPSymbiont.h"
@@ -16,8 +17,18 @@
 
 namespace sgpmode {
 
+const size_t PROGRAM_LENGTH = 100;
+
+// TODO - init necessary hardware state on organism birth (e.g., stack limit)
 class SGPWorld : public SymWorld {
 public:
+  using hw_spec_t = SGPHardwareSpec<Library, CPUState<SGPWorld>, SGPWorld>;
+
+  // // Instead of picking an anchor to start at randomly, start at the anchor that
+  // // has the most bits set by matching with the maximum valued tag. This way
+  // // organisms can evolve to designate a certain anchor as the entry.
+  // const Spec::tag_t START_TAG(std::numeric_limits<uint64_t>::max());
+
   using fun_sym_do_birth_t = std::function<
     emp::WorldPosition(emp::Ptr<Organism>, emp::WorldPosition)
   >;
