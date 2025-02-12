@@ -397,7 +397,7 @@ emp::DataFile& SymWorld::SetUpTagDistFile(const std::string& filename) {
 void SymWorld::WriteTagDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
 
-  std::string header = "host_tag,sym_tag,tag_distance\n";
+  std::string header = "host_tag,sym_tag,tag_distance,host_int,sym_int\n";
   out_file << header;
 
   for (size_t i = 0; i < size(); i++) {
@@ -409,11 +409,12 @@ void SymWorld::WriteTagDumpFile(const std::string& filename) {
         for (size_t j = 0; j < symbionts.size(); j++) {
           out_file << host_tag + "," + symbionts[j]->GetTag().ToBinaryString() + ",";
           out_file << hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+          out_file << "," << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal();
           out_file << "\n";
         }
       }
       else {
-        out_file << host_tag + ",,\n";
+        out_file << host_tag + ",,," << pop[i]->GetIntVal() << ",\n";
       }
     }
   }
