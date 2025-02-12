@@ -95,12 +95,16 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_repro_count; 
+  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_repro_count;
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_repro_count;
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_towards_partner_count;
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_from_partner_count;
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_towards_partner_count;
   emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_from_partner_count;
+  emp::Ptr<emp::DataMonitor<int>> data_node_host_tag_richness;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_tag_shannon;
+  emp::Ptr<emp::DataMonitor<int>> data_node_symbiont_tag_richness;
+  emp::Ptr<emp::DataMonitor<double>> data_node_symbiont_tag_shannon;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
@@ -123,22 +127,22 @@ public:
    *
    * Purpose: To construct an instance of SymWorld
    */
-  SymWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
-    fun_print_org = [](Organism & org, std::ostream & os) {
+  SymWorld(emp::Random& _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
+    fun_print_org = [](Organism& org, std::ostream& os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
-    };
+      };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
-    if (my_config->PHYLOGENY() == true){
+    if (my_config->PHYLOGENY() == true) {
       if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
-        calc_host_info_fun = [&](Organism & org){
+        calc_host_info_fun = [&](Organism& org) {
           return org.GetIntVal();
-        };
+          };
 
-        calc_sym_info_fun = [&](Organism & org){
+        calc_sym_info_fun = [&](Organism& org) {
           return org.GetIntVal();
-        };
+          };
       }
 
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
@@ -150,12 +154,12 @@ public:
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData> & t){return std::to_string(t.GetInfo());}, "info");
-    
-      on_placement_sig.AddAction([this](emp::WorldPosition pos){
+      sym_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>& t) {return std::to_string(t.GetInfo()); }, "info");
+      host_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData>& t) {return std::to_string(t.GetInfo()); }, "info");
+
+      on_placement_sig.AddAction([this](emp::WorldPosition pos) {
         GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
-      });
+        });
 
     }
 
@@ -189,6 +193,10 @@ public:
     if (data_node_host_from_partner_count) data_node_host_from_partner_count.Delete();
     if (data_node_sym_towards_partner_count) data_node_sym_towards_partner_count.Delete();
     if (data_node_sym_from_partner_count) data_node_sym_from_partner_count.Delete();
+    if (data_node_host_tag_richness) data_node_host_tag_richness.Delete();
+    if (data_node_host_tag_shannon) data_node_host_tag_shannon.Delete();
+    if (data_node_symbiont_tag_richness) data_node_symbiont_tag_richness.Delete();
+    if (data_node_symbiont_tag_shannon) data_node_symbiont_tag_shannon.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
     if (data_node_tag_dist) data_node_tag_dist.Delete();
@@ -615,6 +623,10 @@ public:
   emp::DataMonitor<unsigned int>& GetSymFromPartnerCountDataNode();
   emp::DataMonitor<unsigned int>& GetHostTowardsPartnerCountDataNode();
   emp::DataMonitor<unsigned int>& GetHostFromPartnerCountDataNode();
+  emp::DataMonitor<int>& GetHostTagRichness();
+  emp::DataMonitor<double>& GetHostTagShannonDiversity();
+  emp::DataMonitor<int>& GetSymbiontTagRichness();
+  emp::DataMonitor<double>& GetSymbiontTagShannonDiversity();
   emp::DataMonitor<double,emp::data::Histogram>& GetTagDistanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();

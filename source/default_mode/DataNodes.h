@@ -359,8 +359,17 @@ emp::DataFile& SymWorld::SetUpTagDistFile(const std::string& filename) {
   auto& file = SetupFile(filename);
   auto& tag_dist_node = GetTagDistanceDataNode();
 
+  auto& host_tag_shannon = GetHostTagShannonDiversity();
+  auto& symbiont_tag_richness = GetSymbiontTagRichness();
+  auto& symbiont_tag_shannon = GetSymbiontTagShannonDiversity();
+  auto& host_tag_richness = GetHostTagRichness();
+
   file.AddVar(update, "update", "Update");
   file.AddMean(tag_dist_node, "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
+  file.AddTotal(host_tag_richness, "host_tag_richness", "The host tag richness");
+  file.AddTotal(host_tag_shannon, "host_tag_shannon", "The host tag shannon diversity");
+  file.AddTotal(symbiont_tag_richness, "symbiont_tag_richness", "The symbiont tag richness");
+  file.AddTotal(symbiont_tag_shannon, "symbiont_tag_shannon", "The symbiont tag shannon diversity");
   file.AddHistBin(tag_dist_node, 0, "tag_0.1", "Count for tag distance histogram bin 0 to <0.1");
   file.AddHistBin(tag_dist_node, 1, "tag_0.2", "Count for tag distance histogram bin 0.1 to <0.2");
   file.AddHistBin(tag_dist_node, 2, "tag_0.3", "Count for tag distance histogram bin 0.2 to <0.3");
@@ -1101,6 +1110,98 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
       data_node_sym_from_partner_count.New();
     }
     return *data_node_sym_from_partner_count;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the host tag richness this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * host tag richness this update.
+   */
+  emp::DataMonitor<int>& SymWorld::GetHostTagRichness() {
+    if (!data_node_host_tag_richness) {
+      data_node_host_tag_richness.New();
+      OnUpdate([this](size_t) {
+        emp::vector<emp::BitSet<32>> host_tags;
+        emp::vector<emp::BitSet<32>> symbiont_tags;
+        data_node_host_tag_richness->Reset();
+        data_node_host_tag_shannon->Reset();
+        data_node_symbiont_tag_richness->Reset();
+        data_node_symbiont_tag_shannon->Reset();
+
+        for (size_t i = 0; i < pop.size(); i++) {
+          if (IsOccupied(i) && pop[i]->IsHost()) {
+            host_tags.push_back(pop[i]->GetTag());
+            for (emp::Ptr<Organism> sym : pop[i]->GetSymbionts()) {
+              symbiont_tags.push_back(sym->GetTag());
+            }
+          }
+        }
+
+        data_node_host_tag_richness->AddDatum(emp::UniqueCount(host_tags));
+        data_node_host_tag_shannon->AddDatum(emp::ShannonEntropy(host_tags));
+        data_node_symbiont_tag_richness->AddDatum(emp::UniqueCount(symbiont_tags));
+        data_node_symbiont_tag_shannon->AddDatum(emp::ShannonEntropy(symbiont_tags));
+        });
+    }
+    return *data_node_host_tag_richness;
+
+
+    if (!data_node_host_tag_richness) {
+      data_node_host_tag_richness.New();
+    }
+    return *data_node_host_tag_richness;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the host tag shannon this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * host tag shannon this update.
+   */
+  emp::DataMonitor<double>& SymWorld::GetHostTagShannonDiversity() {
+    if (!data_node_host_tag_shannon) {
+      data_node_host_tag_shannon.New();
+    }
+    return *data_node_host_tag_shannon;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the host tag shannon this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * symbiont tag richness this update.
+   */
+  emp::DataMonitor<int>& SymWorld::GetSymbiontTagRichness() {
+    if (!data_node_symbiont_tag_richness) {
+      data_node_symbiont_tag_richness.New();
+    }
+    return *data_node_symbiont_tag_richness;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the symbiont tag shannon this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * host symbiont shannon this update.
+   */
+  emp::DataMonitor<double>& SymWorld::GetSymbiontTagShannonDiversity() {
+    if (!data_node_symbiont_tag_shannon) {
+      data_node_symbiont_tag_shannon.New();
+    }
+    return *data_node_symbiont_tag_shannon;
   }
 
 #endif
