@@ -3,182 +3,151 @@
 
 #include "../Organism.h"
 #include "../default_mode/SymWorld.h"
+
 #include "sgpl/utility/ThreadLocalRandom.hpp"
+#include "emp/base/vector.hpp"
+#include "emp/math/Random.hpp"
+#include "emp/math/random_utils.hpp"
+
 #include <atomic>
 #include <condition_variable>
-#include <emp/base/vector.hpp>
 #include <functional>
 #include <thread>
+#include <algorithm>
 
 namespace sgpmode {
 
+// TODO - tests!
 class Scheduler {
 public:
   using fun_process_org_t = std::function<void(emp::WorldPosition, Organism&)>;
+
 protected:
-  const size_t BATCH_SIZE = 64;
-
-  SymWorld& world;
-  size_t thread_count;
-
-  bool thread_pool_started = false;
-  fun_process_org_t fun_process_host;       // Function called to run host when scheduled to run.
-  fun_process_org_t fun_process_sym;        // Function called to run sym when scheduled to run.
+emp::Random& random;
+  emp::vector<size_t> schedule_order; // Order of pop ids to evaluate.
+  emp::vector<emp::vector<size_t>> thread_batches; // Contains schedule indexes handled for each thread.
+  size_t thread_count; // How many threads?
+  bool threaded_mode = false;
   emp::vector<std::thread> running_threads;
+  bool thread_pool_started = false;
 
-  std::mutex ready_lock;
-  std::condition_variable ready_cv;
-  std::atomic<size_t> next_id = 0;
-  std::atomic<size_t> update = -1;
+  // Helper function to get id to schedule w/thread batch info
+  size_t GetID(size_t batch_id, size_t idx) {
+    emp_assert(batch_id < thread_batches.size());
+    emp_assert(idx < thread_batches[batch_id].size());
+    return schedule_order[thread_batches[batch_id][idx]];
+  }
 
-  std::mutex done_lock;
-  std::condition_variable done_cv;
-  size_t n_done;
-  std::atomic_bool finished = false;
-
-  /**
-   * Input: None
-   *
-   * Output: The ID of this thread, between 0 and THREAD_COUNT.
-   *
-   * Purpose: Runs a worker thread for the scheduler, which processes organisms
-   * each update and then waits to be signaled for the next update.
-   */
-  void RunThread(size_t i) {
-    // Make sure each thread gets a different, deterministic, seed
-    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED() * thread_count + i);
-    size_t last_update = -1;
-    while (true) {
-      if (!finished && last_update == update) {
-        std::unique_lock<std::mutex> lock(ready_lock);
-        ready_cv.wait(
-          lock,
-          [&]() { return finished || last_update != update; }
-        );
-      }
-      if (finished)
-        return;
-      last_update = update;
-
-      while (true) {
-        // Process the next BATCH_SIZE organisms
-        size_t start = next_id.fetch_add(BATCH_SIZE);
-        if (start > world.GetSize())
-          break;
-
-        size_t end = start + BATCH_SIZE;
-
-        for (size_t id = start; id < end; ++id) {
-          if (world.IsOccupied(id)) {
-            emp_assert(world.GetOrg(id).IsHost());
-            fun_process_host(id, world.GetOrg(id));
-          }
-          if (world.IsSymPopOccupied(id)) {
-            emp_assert(!world.GetSymAt(id)->IsHost());
-            fun_process_sym(emp::WorldPosition(0, id), *world.GetSymAt(id));
-          }
-        }
-      }
-
-      {
-        std::unique_lock<std::mutex> lock(done_lock);
-        n_done++;
-      }
-      done_cv.notify_all();
-    }
+  template<typename WORLD_T>
+  void RunThread(WORLD_T& world, size_t thread_id) {
+    // TODO
   }
 
 public:
   Scheduler(
-    SymWorld& world,
-    size_t thread_count
-  ) : world(world), thread_count(thread_count)
+    emp::Random& rand,
+    size_t world_size=1,
+    size_t num_threads=1
+  ) :
+    random(rand),
+    thread_count(num_threads),
+    threaded_mode(num_threads > 1)
   {
-    // Reset the seed of the main thread based on the config
-    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED());
+    SetupScheduler(world_size, num_threads);
   }
 
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: Stops any running threads when the scheduler is destroyed.
-   */
-  ~Scheduler() {
-    {
-      std::unique_lock<std::mutex> lock(ready_lock);
-      finished = true;
-    }
-    ready_cv.notify_all();
-    for (auto& thread : running_threads) {
-      thread.join();
-    }
-  }
+  // Allow re-configuration of scheduler post-construction.
+  void SetupScheduler(size_t world_size, size_t num_threads) {
+    emp_assert(num_threads > 0, "Thread count cannot be 0");
+    emp_assert(world_size > 0, "World size must be > 0");
+    schedule_order.clear();
+    thread_batches.clear();
+    running_threads.clear(); // TODO - do I need to wait?
+    thread_pool_started = false;
+    // If num threads is bigger than world size, set thread count to world size
+    thread_count = (num_threads > world_size) ? world_size : num_threads;
+    threaded_mode = num_threads > 1;
 
-  void SetProcessHostFun(fun_process_org_t fun) {
-    fun_process_host = fun;
-  }
+    // Resize schedule order to world size
+    schedule_order.resize(world_size, 0);
+    // Fill schedule order with valid ids
+    std::iota(
+      schedule_order.begin(),
+      schedule_order.end(),
+      0
+    );
+    // TODO - test that thread batches are as expected
 
-  void SetProcessSymFun(fun_process_org_t fun) {
-    fun_process_sym = fun;
-  }
+    if (threaded_mode) {
+      // If multiple threads, configure thread batches.
+      // The following code will work regardless of number of threads
+      const size_t base_batch_size = (size_t)(world_size / thread_count);
 
-  /**
-   * Input: A function to run on each organism.
-   *
-   * Output: None
-   *
-   * Purpose: Runs the provided callback on each organism in the world, without
-   * spawning any threads.
-   */
-  void ProcessOrgsSync() {
-    for (size_t id = 0; id < world.GetSize(); ++id) {
-      if (world.IsOccupied(id)) {
-        fun_process_host(id, world.GetOrg(id));
+      // world size might not evenly divide into given batch sizes,
+      // so spread the "leftovers" evenly over batches.
+      size_t leftover_cnt = world_size - (base_batch_size * thread_count);
+      thread_batches.resize(thread_count);
+      size_t schedule_i = 0;
+      for (size_t batch_i = 0; batch_i < thread_batches.size(); ++batch_i) {
+        size_t batch_size = base_batch_size;
+        if (leftover_cnt > 0) {
+          ++batch_size;
+          --leftover_cnt;
+        }
+        thread_batches[batch_i].resize(batch_size, 0);
+        std::iota(
+          thread_batches[batch_i].begin(),
+          thread_batches[batch_i].end(),
+          schedule_i
+        );
+        schedule_i += batch_size;
       }
-      if (world.IsSymPopOccupied(id)) {
-        fun_process_sym(emp::WorldPosition(0, id), *world.GetSymAt(id));
-      }
+      emp_assert(schedule_i == world_size);
+
+    }
+
+  }
+
+  size_t GetScheduleSize() const { return schedule_order.size(); }
+  const emp::vector<size_t>& GetCurSchedule() const { return schedule_order; }
+
+  // Update schedule order (uniform random)
+  void UpdateSchedule() {
+    emp::Shuffle(random, schedule_order);
+  }
+
+  // TODO - process
+  // Process all orgs in world population in current schedule order (single-threaded).
+  template<typename WORLD_T>
+  void RunSync(WORLD_T& world) {
+    for (size_t world_id : schedule_order) {
+      emp_assert(world_id < world.GetSize());
+      world.ProcessOrgAt(world_id);  // TODO - implement process org at
     }
   }
 
-  /**
-   * Input: A function to run on each organism.
-   *
-   * Output: None
-   *
-   * Purpose: Runs the provided callback on each organism in the world.
-   */
-  void ProcessOrgs() {
-    // Special case so we don't start any threads when they're not needed
-    if (thread_count == 1) {
-      ProcessOrgsSync();
+  template<typename WORLD_T>
+  void Run(WORLD_T& world) {
+    // thread batches should work for sync or threaded mode
+    if (!threaded_mode) {
+      RunSync(world);
       return;
     }
 
+    // TODO - better way to init threads?
     if (!thread_pool_started) {
-      thread_pool_started = true;
-      for (size_t i = 0; i < thread_count; i++) {
-        running_threads.push_back(std::thread(&Scheduler::RunThread, this, i));
+      // Init thread pool
+      for (size_t thread_i = 0; thread_i < thread_count; ++thread_i) {
+        running_threads.emplace_back(
+          std::thread(&Scheduler::RunThread<WORLD_T>, this, world, thread_i)
+        );
       }
     }
 
-    // Notify threads
-    next_id = 0;
-    n_done = 0;
-    {
-      std::unique_lock<std::mutex> lock(ready_lock);
-      update = world.GetUpdate();
-    }
-    ready_cv.notify_all();
-
-    // Wait for threads to finish
-    {
-      std::unique_lock<std::mutex> lock(done_lock);
-      done_cv.wait(lock, [&]() { return n_done == thread_count; });
-    }
+    // TODO
+    // -- bookmark --
   }
+
 };
 
 }
