@@ -18,8 +18,8 @@ namespace sgpmode {
   }
 
   emp::WorldPosition SGPWorld::HostDoBirth(
-    emp::Ptr<Organism> host_offspring_ptr,
-    emp::Ptr<Organism> host_parent_ptr,
+    emp::Ptr<sgp_host_t> host_offspring_ptr,
+    emp::Ptr<sgp_host_t> host_parent_ptr,
     emp::WorldPosition parent_pos
   ) {
     /* TODO */

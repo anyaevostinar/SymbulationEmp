@@ -6,16 +6,18 @@
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
 #include "spec.h"
-#include "SGPHost.h"
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
 #include "hardware/SGPHardware.h"
+#include "SGPHost.h"
 #include "SGPSymbiont.h"
+#include "org_type_info.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
 #include "emp/math/Random.hpp"
 
+#include <functional>
 
 namespace sgpmode {
 
@@ -24,11 +26,46 @@ const size_t PROGRAM_LENGTH = 100;
 // TODO - init necessary hardware state on organism birth (e.g., stack limit)
 class SGPWorld : public SymWorld {
 public:
-  using hw_spec_t = SGPHardwareSpec<Library, CPUState<SGPWorld>, SGPWorld>;
+  using sgp_cpu_peripheral_t = CPUState<SGPWorld>;
+  using hw_spec_t = SGPHardwareSpec<Library, sgp_cpu_peripheral_t, SGPWorld>;
+  using sgp_host_t = SGPHost<hw_spec_t>;
+  using sgp_sym_t = SGPSymbiont<hw_spec_t>;
+
+  using fun_sym_do_birth_t = std::function<emp::WorldPosition(
+    emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
+    emp::WorldPosition     /* parent_position */
+  )>;
+
+  // NOTE - better name?
+  // TODO - switch to using references to SGPHost, etc.
+  using fun_can_attempt_vert_trans_t = std::function<bool(
+    emp::Ptr<sgp_sym_t>, /* symbiont_ptr */
+    emp::Ptr<sgp_host_t>, /* host_offspring_ptr */
+    emp::Ptr<sgp_host_t>, /* host_parent_ptr */
+    emp::WorldPosition  /* parent_pos */
+  )>;
+
+  using fun_compatibility_check_t = std::function<bool(
+    const sgp_host_t&,
+    const sgp_sym_t&
+    // emp::Ptr<Organism>, /* host */
+    // emp::Ptr<Organism> /* symbiont */
+  )>;
+
+  using org_mode_t = typename org_info::SGPOrganismType;
+  using stress_sym_mode_t = typename org_info::StressSymbiontType;
 
 protected:
   // TODO - scheduler could be SGP scheduler? It will only work with SGPWorld anyway?
   Scheduler scheduler;
+
+  /* TODO - task environment */
+
+  emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
+  emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
+  emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
+  emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
+  emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
   /**
     *
@@ -39,6 +76,51 @@ protected:
   //  emp::Ptr<SymConfigSGP> sgp_config = nullptr;
   SymConfigSGP& sgp_config;
 
+  // What kind of SGP organism type to use?
+  org_mode_t sgp_org_type = org_mode_t::DEFAULT;
+  // If using stress organisms, what kind of stress?
+  stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+
+  // Function to check compatibility between host and symbiont
+  // - Used to check eligibility for vertical / horizontal transmission, etc.
+  fun_compatibility_check_t host_sym_compatibility_check;
+
+  // --- Symbiont birth signals / functors ---
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>, /* sym_baby_ptr */
+    emp::WorldPosition     /* parent_pos */
+  )> before_sym_do_birth;
+  emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth;
+  fun_sym_do_birth_t fun_sym_do_birth;
+
+  // --- Symbiont vertical transmission signals / functors ---
+  // TODO - Need to extract whether vertical transmission is successful or not.
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
+    emp::Ptr<sgp_host_t>,           /* host_parent_ptr - transmission from */
+    emp::Ptr<sgp_host_t>,           /* host_offspring_ptr - transmission to */
+    const emp::WorldPosition&    /* host_parent_pos */
+  )> before_sym_vert_transmission;
+  emp::Signal<void(
+    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
+    const emp::WorldPosition& /* host_parent_pos */
+  )> after_sym_vert_transmission;
+  // Checks if symbiont vertical transmission is successful
+  fun_can_attempt_vert_trans_t can_attempt_vert_trans;
+
+  // --- Host birth signals / functors ---
+  // TODO - add functions that add functions to these signals
+  // TODO - switch to passing references instead of pointers
+  emp::Signal<void(
+    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    const emp::WorldPosition&  /* parent_pos */
+  )> before_host_do_birth;
+  emp::Signal<void(
+    const emp::WorldPosition& /* host_offspring_pos */
+  )> after_host_do_birth;
+
   // ---- Internal helper functions ----
   void DoReproduction();
   // Internal helper function to handle host births.
@@ -47,8 +129,8 @@ protected:
   //   Need to pass in parent pointer because parent may no longer exist at the
   //   given world position when this function is called.
   emp::WorldPosition HostDoBirth(
-    emp::Ptr<Organism> host_offspring_ptr,
-    emp::Ptr<Organism> host_parent_ptr,
+    emp::Ptr<sgp_host_t> host_offspring_ptr,
+    emp::Ptr<sgp_host_t> host_parent_ptr,
     emp::WorldPosition parent_pos
   );
 

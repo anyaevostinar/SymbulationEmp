@@ -24,11 +24,11 @@ namespace sgpmode {
  * organism's genomes. Each organism has its own CPUState.
  */
 // TODO - write tests
-template<typename HW_SPEC_T>
+template<typename WORLD_T>
 class CPUState {
 public:
-  using spec_t = HW_SPEC_T;
-  using world_t = spec_t::WORLD_T;
+  // using spec_t = HW_SPEC_T;
+  using world_t = WORLD_T;
 
 protected:
   Stacks<uint32_t> stacks;
