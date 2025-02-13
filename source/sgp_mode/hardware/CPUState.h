@@ -84,7 +84,7 @@ public:
     emp::Ptr<world_t> world,
     emp::Ptr<Organism> organism,
     size_t task_cnt = 0,
-    size_t stack_limit = spec::DEFAULT_STACK_SIZE_LIMIT;
+    size_t stack_limit = spec::DEFAULT_STACK_SIZE_LIMIT
   ) :
     stacks(2),
     num_tasks(task_cnt),
@@ -137,7 +137,9 @@ public:
   void SetLocation(const emp::WorldPosition& loc) {
     location = loc;
   }
-  const emp::WorldPosition& GetLocation() const { return loc; }
+  const emp::WorldPosition& GetLocation() const { return location; }
+
+  // const emp::WorldPosition& GetLocation() const { return loc; }
 
   void SetOrganism(emp::Ptr<Organism> org_ptr) {
     organism = org_ptr;
@@ -155,13 +157,20 @@ public:
   Stacks<uint32_t>& GetStacks() { return stacks; }
   const Stacks<uint32_t>& GetStacks() const { return stacks; }
 
-  void FlagReproInProgress() { repro_in_progress = true; }
-  void FlagReproAttempt() { repro_attempt = true; }
+  void SetReproInProgress(bool val) { repro_in_progress = val; }
+  void SetReproAttempt(bool val) { repro_attempt = val; }
+
   bool ReproInProgress() const { return repro_in_progress; }
   bool ReproAttempt() const { return repro_attempt; }
 
+  size_t GetReproQueuePos() const { return repro_queue_pos; }
+  void SetReproQueuePos(size_t pos) { repro_queue_pos = pos; }
 
-  const emp::WorldPosition& GetLocation() const { return location; }
+   void ResetReproState() {
+    repro_queue_pos = 0;
+    repro_attempt = false;
+    repro_in_progress = false;
+  }
 
   // TODO - accessors
   // stacks

@@ -2,35 +2,43 @@
 #define TASKS_H
 
 #include "../default_mode/SymWorld.h"
-#include "CPUState.h"
+#include "hardware/CPUState.h"
 #include <atomic>
 #include <string>
 
 namespace sgpmode {
 
 class Task {
+protected:
   bool unlimited = true;
   emp::vector<size_t> dependencies;
   /// The total number of times this task's dependencies must be completed for
   /// each use of this task
   size_t num_dep_completes = 1;
-
-public:
   std::string name;
 
-  Task(std::string name, bool unlimited = true,
-       emp::vector<size_t> dependencies = {}, size_t num_dep_completes = 1)
-      : unlimited(unlimited), dependencies(dependencies),
-        num_dep_completes(num_dep_completes), name(name) {}
+public:
 
-  virtual ~Task(){}
+  Task(
+    const std::string& name,
+    bool unlimited = true,
+    const emp::vector<size_t>& dependencies = {},
+    size_t num_dep_completes = 1
+  ) :
+    unlimited(unlimited),
+    dependencies(dependencies),
+    num_dep_completes(num_dep_completes),
+    name(name)
+  {}
+
+  virtual ~Task() {}
 
   virtual void MarkAlwaysPerformable() {
     dependencies.clear();
     unlimited = true;
   }
 
-  virtual bool CanPerform(const CPUState &state, size_t task_id) {
+  virtual bool CanPerform(const CPUState& state, size_t task_id) {
     //only let organisms do one task during lifetime
     // for(int i=0; i<state.tasks_performed->size(); i++){
     //   if(i==task_id) continue; //skip this task
@@ -65,10 +73,9 @@ public:
     return true;
   }
 
-  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                             bool shared);
+  void MarkPerformed(CPUState& state, uint32_t output, size_t task_id, bool shared);
 
-  virtual float CheckOutput(CPUState &state, uint32_t output) = 0;
+  virtual float CheckOutput(CPUState& state, uint32_t output) = 0;
 };
 
 /**

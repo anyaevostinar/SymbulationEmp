@@ -3,8 +3,8 @@
 
 #include "CPUState.h"
 #include "Instructions.h"
-#include "../GenomeLibrary.h"
-#include "../Tasks.h"
+#include "GenomeLibrary.h"
+// #include "../Tasks.h"
 #include "../spec.h"
 #include "../../default_mode/Host.h"
 
@@ -31,9 +31,9 @@ public:
   using cpu_t = sgpl::Cpu<spec_t>;
   using program_t = sgpl::Program<spec_t>;
   using inst_t = sgpl::Instruction<spec_t>;
-  using jump_table_t = sgpl::JumpTable<spec_t, spec_t::global_matching_t>;
+  using jump_table_t = sgpl::JumpTable<spec_t, typename spec_t::global_matching_t>;
   using cpu_state_t = CPUState<spec_t>; // <WORLD_T>;
-  // using world_t = WORLD_T;
+  using world_t = typename spec_t::world_t;
 
 protected:
   cpu_t cpu;
@@ -53,6 +53,11 @@ protected:
     const emp::map<std::string, size_t>& arities,
     const jump_table_t& table,
     std::ostream& out = std::cout
+
+    // const sgpl::Instruction<HW_SPEC_T>& ins,
+    // const emp::map<std::string, size_t>& arities,
+    // sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
+    // std::ostream& out = std::cout
   ) const;
 
   // Internal helper function for initializing local jump table used by
@@ -90,8 +95,8 @@ protected:
 
     // If CPU has no active cores, launch a core.
     if (!cpu.HasActiveCore()) {
-      // TODO - move START_TAG definition into spec
-      cpu.DoLaunchCore(START_TAG);
+      // TODO - move START_TAG definition into spec / world?
+      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
     }
 
     // Initialize local jump table for program.
@@ -105,11 +110,15 @@ public:
    * Constructs a new CPU for an ancestor organism, with a blank genome.
    */
   SGPHardware(
-    emp::Ptr<Organism> organism,
-    size_t task_cnt
+    emp::Ptr<world_t> world_ptr,
+    emp::Ptr<Organism> organism
   ) :
     program(),
-    state(organism, task_cnt)
+    state(
+      world_ptr,
+      organism,
+      world_ptr->GetTaskCount()
+    )
   {
     // State constructor (above) will reset cpu state.
     // InitializeState (below) will configure the local jump table using program.
@@ -120,12 +129,16 @@ public:
    * Constructs a new CPU with a copy of another CPU's genome.
    */
   SGPHardware(
+    emp::Ptr<world_t> world_ptr,
     emp::Ptr<Organism> organism,
-    size_t task_cnt,
-    const sgpl::Program<Spec>& program,
+    const program_t& program
   ) :
     program(program),
-    state(organism, task_cnt)
+    state(
+      world_ptr,
+      organism,
+      world_ptr->GetTaskCount()
+    )
   {
     // State constructor (above) will reset cpu state.
     // InitializeState (below) will configure the local jump table using program.
@@ -158,7 +171,7 @@ public:
     InitializeState();
   }
 
-  void SetProgram(const sgpl::Program<Spec>& new_program) {
+  void SetProgram(const program_t& new_program) {
     program = new_program;
     Reset();
   }
@@ -173,13 +186,16 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles) {
+    // TODO - Can we eliminate this check?
+    //    - Shift into world?
     if (!cpu.HasActiveCore()) {
-      cpu.DoLaunchCore(START_TAG);
+      // TODO - give world control over this?
+      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
     }
-
+    // TODO / NOTE - Why set location on every CPU step?
     state.SetLocation(location);
 
-    sgpl::execute_cpu_n_cycles<Spec>(n_cycles, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
   }
 
   /**
@@ -190,6 +206,7 @@ public:
    * Purpose: Mutates the genome code stored in the CPU.
    */
   // TODO - move out of hardware?
+  // TODO - implement more (configurable) mutation operators
   // NOTE - for now, just pass in the mutation rate
   void Mutate(double mut_rate) {
     // TODO - get rid of or define magic number somewhere
@@ -207,6 +224,9 @@ public:
    * Purpose: To Get the Program of an Organism from its CPU
    */
   const program_t& GetProgram() const { return program; }
+
+  const cpu_state_t& GetCPUState() const { return state; }
+  cpu_state_t& GetCPUState() { return state; }
 
   /**
    * Input: None
@@ -232,11 +252,12 @@ public:
 
 };
 
-void CPU::PrintOp(
-  const sgpl::Instruction<Spec>& ins,
+template<typename HW_SPEC_T>
+void SGPHardware<HW_SPEC_T>::PrintOp(
+  const sgpl::Instruction<HW_SPEC_T>& ins,
   const emp::map<std::string, size_t>& arities,
-  sgpl::JumpTable<Spec, Spec::global_matching_t>& table,
-  std::ostream& out = std::cout
+  const sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
+  std::ostream& out
 ) const {
   const std::string& name = ins.GetOpName();
   if (arities.count(name)) {

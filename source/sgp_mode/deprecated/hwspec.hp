@@ -32,22 +32,22 @@ struct SGPHardwareSpec {
   // make match cutoff threshold strict because there are many potential matches
   // among modules (each module is a potential match)
   /// What matching implementation should we use for global jump tables?
-  using global_matching_t = emp::MatchDepository<
+  using global_matching_t = uit_emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    uit_emp::OptimizedApproxDualStreakMetric<64>,
     // match selector
-    emp::statics::RankedSelector<
+    uit_emp::statics::RankedSelector<
       std::ratio<1, 5> // match threshold
     >,
-    // regulator ; TODO - ask matthew about differences between emp:: and uit_emp
-    emp::PlusCountdownRegulator<
-      std::deci // Slope
-      // std::ratio<1,4>, // MaxUpreg
-      // std::deci, // ClampLeeway
-      // 2 // CountdownStart
+    // regulator
+    uit_emp::PlusCountdownRegulator<
+      std::deci, // Slope
+      std::ratio<1,4>, // MaxUpreg
+      std::deci, // ClampLeeway
+      2 // CountdownStart
     >,
-    8, // raw caching // TODO - ask matthew
+    true, // raw caching
     8 // regulated caching
   >;
 
@@ -55,20 +55,20 @@ struct SGPHardwareSpec {
   // matches within a module
   /// What matching datastructure implementation should we use for local jump
   /// tables?
-  using local_matching_t = emp::MatchDepository<
+  using local_matching_t = uit_emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    uit_emp::OptimizedApproxDualStreakMetric<64>,
     // match selector
-    emp::statics::RankedSelector<
+    uit_emp::statics::RankedSelector<
       std::ratio<1, 2> // match threshold
     >,
     // regulator
-    emp::PlusCountdownRegulator<
-      std::deci // Slope
-      // std::ratio<1,4>, // MaxUpreg
-      // std::deci, // ClampLeeway
-      // 2 // CountdownStart
+    uit_emp::PlusCountdownRegulator<
+      std::deci, // Slope
+      std::ratio<1,4>, // MaxUpreg
+      std::deci, // ClampLeeway
+      2 // CountdownStart
     >,
     false, // raw caching
     0 // regulated caching

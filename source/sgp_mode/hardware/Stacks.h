@@ -16,7 +16,7 @@ public:
 protected:
   emp::vector<stack_t> stacks;
   size_t active_stack;
-  size_t stack_size_limit = std::limits<size_t>::max();
+  size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
 public:
   Stacks(size_t num_stacks) :

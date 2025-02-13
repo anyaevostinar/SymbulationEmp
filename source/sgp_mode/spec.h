@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 
+// TODO - rename, "spec" overlaps too much with hardwdare spec naming; confusing as-is
 namespace sgpmode::spec {
 
 // TODO - refactor tasks, move this.

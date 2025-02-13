@@ -6,7 +6,6 @@
 // #include "SGPWorld.h"
 
 #include "emp/base/Ptr.hpp"
-#include "emp/control/Signal.hpp"
 
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
@@ -18,18 +17,22 @@ namespace sgpmode {
 template <typename HW_SPEC_T>
 class SGPHost : public Host {
 public:
-  using world_t = typename HW_SPEC_T::world_t
+  using this_t = SGPHost<HW_SPEC_T>;
+  using world_t = typename HW_SPEC_T::world_t;
+  using hw_spec_t = HW_SPEC_T;
+  using hw_t = SGPHardware<hw_spec_t>;
+  using program_t = typename hw_t::program_t;
 
 protected:
   // CPU cpu;
-  SGPHardware hardware;
+  hw_t hardware;
 
   /**
    *
    * Purpose: Tracks the number of reproductive events in this host's lineage.
    *
    */
-  uint32_t reproductions = 0;
+  size_t reproductions = 0;
 
   /**
     *
@@ -44,17 +47,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  emp::Ptr<SymConfigSGP> sgp_config;
-
-  // Signals that can be configured
-  // NOTE - Don't want to copy signals over and over again on reproduction.
-  //  - These are things that don't change per-organism; they change per-run.
-  emp::Signal<void(const emp::WorldPosition&)> process_sig_before_cpu_step;
-  emp::Signal<void(const emp::WorldPosition&)> process_sig_before_syms;
-  emp::Signal<void(const emp::WorldPosition&)> process_sig_after_syms;
-  emp::Signal<void(const emp::WorldPosition&)> process_sig_end;
-
-  std::function<void(const emp::WorldPosition&)> process_syms;
+  // emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -75,17 +68,17 @@ public:
    */
   SGPHost(
     emp::Ptr<emp::Random> _random,
-    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<world_t> _world,
     emp::Ptr<SymConfigSGP> _config,
-    double _intval = 0.0, /* Interaction value */
-    emp::vector<emp::Ptr<Organism>> _syms = {},
-    emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+    double _intval = 0.0,                         /* Interaction value */
+    const emp::vector<emp::Ptr<Organism>>& _syms = {},
+    const emp::vector<emp::Ptr<Organism>>& _repro_syms = {}, // NOTE - what are repro_syms?
     double _points = 0.0
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-    cpu(this, _world),
-    my_world(_world),
-    sgp_config(_config)
+    hardware(_world, this),
+    my_world(_world)
+    // sgp_config(_config)
   { }
 
   /**
@@ -93,23 +86,23 @@ public:
    */
   SGPHost(
     emp::Ptr<emp::Random> _random,
-    emp::Ptr<SGPWorld> _world,
+    emp::Ptr<world_t> _world,
     emp::Ptr<SymConfigSGP> _config,
-    const sgpl::Program<Spec>& genome,
-    double _intval = 0.0, /* Interaction value */
-    emp::vector<emp::Ptr<Organism>> _syms = {},
-    emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+    const program_t& genome,
+    double _intval = 0.0,                         /* Interaction value */
+    const emp::vector<emp::Ptr<Organism>>& _syms = {},
+    const emp::vector<emp::Ptr<Organism>>& _repro_syms = {},
     double _points = 0.0
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
-    cpu(this, _world, genome),
-    my_world(_world),
-    sgp_config(_config)
+    hardware(_world, this, genome),
+    my_world(_world)
+    // sgp_config(_config)
   { }
 
-  SGPHost(const SGPHost &host) :
+  SGPHost(const SGPHost& host) :
     Host(host),
-    cpu(this, host.my_world, host.cpu.GetProgram()),
+    hardware(host.my_world, this, host.hardware.GetProgram()),
     my_world(host.my_world)
   { }
 
@@ -122,30 +115,46 @@ public:
    * state and canceling any in-progress reproduction.
    */
   ~SGPHost() {
-    cpu.state.used_resources.Delete();
-    cpu.state.shared_available_dependencies.Delete();
-    cpu.state.internal_environment.Delete();
+    // cpu.state.used_resources.Delete();
+    // cpu.state.shared_available_dependencies.Delete();
+    // cpu.state.internal_environment.Delete();
     // Invalidate any in-progress reproduction
-    if (cpu.state.in_progress_repro != -1) {
-      my_world->to_reproduce[cpu.state.in_progress_repro].second =
-          emp::WorldPosition::invalid_id;
+    // TODO - move this out of this class?
+    // - Or, move functionality into world (add world function for invalidating queued repro)
+    auto& cpu_state = hardware.GetCPUState();
+    if (cpu_state.ReproInProgress()) {
+      my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
+        emp::WorldPosition::invalid_id;
     }
+    // if (hardware.state.in_progress_repro != -1) {
+    //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
+    //     emp::WorldPosition::invalid_id;
+    // }
   }
 
-  bool operator<(const Organism &other) const {
-    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
-      return cpu.GetProgram() < sgp->cpu.GetProgram();
+  bool operator<(const Organism& other) const {
+    if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
+      return GetProgram() < sgp->GetProgram();
     } else {
       return false;
     }
   }
 
-  bool operator==(const Organism &other) const {
-    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
-      return cpu.GetProgram() == sgp->cpu.GetProgram();
+  bool operator<(const SGPHost& other) const {
+    return GetProgram() < other.GetProgram();
+  }
+
+  // NOTE / TODO - What about host interaction values?
+  bool operator==(const Organism& other) const {
+    if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
+      return GetProgram() == sgp->GetProgram();
     } else {
       return false;
     }
+  }
+
+  bool operator==(const SGPHost& other) const {
+    return hardware.GetProgram() == other.hardware.GetProgram();
   }
 
   /**
@@ -155,7 +164,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(int _in) { reproductions = _in; }
+  void SetReproCount(size_t _in) { reproductions = _in; }
 
   /**
    * Input: None.
@@ -164,7 +173,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  unsigned int GetReproCount() { return reproductions; }
+  size_t GetReproCount() const { return reproductions; }
 
   /**
    * Input: None
@@ -173,8 +182,10 @@ public:
    *
    * Purpose: Allows accessing the host's CPU.
    */
-  CPU& GetCPU() { return cpu; }
-  const CPU& GetCPU() const { return cpu; }
+  hw_t& GetHardware() { return hardware; }
+  const hw_t& GetHardware() const { return hardware; }
+
+  const program_t& GetProgram() const { return hardware.GetProgram(); }
 
   /**
    * Input: None
@@ -183,7 +194,7 @@ public:
    *
    * Purpose: Allows accessing the host's world.
    */
-  emp::Ptr<SGPWorld> GetWorld() { return my_world; }
+  emp::Ptr<world_t> GetWorld() { return my_world; }
 
   /**
    * Input: The location of the host.
@@ -194,6 +205,7 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
+  // TODO - why pass a copy of the position?
   void Process(emp::WorldPosition pos) {
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
@@ -203,16 +215,15 @@ public:
       return;
     }
 
-    process_sig_before_cpu_step.Trigger(pos);
-
-    cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-
-    process_sig_before_syms.Trigger(pos);
+    // Todo - run 1 step at a time
+    hardware.RunCPUStep(pos, my_world->GetConfig()->CYCLES_PER_UPDATE());
 
     // if (HasSym()) {
     //   process_syms(pos);
     // }
 
+    // TODO - move this functionality
+    // e.g., world->ProcessSyms(this, ...)
     if (HasSym()) { // let each sym do whatever they need to do
       // TODO - make this a configurable "process syms function"
       emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
@@ -235,15 +246,61 @@ public:
       } // for each sym in syms
     }   // if org has syms
 
-    process_sig_after_syms.Trigger(pos);
-
     GrowOlder();
 
-    process_sig_end.Trigger(pos);
   }
 
-  // Prototype for this host's reproduce method
-  emp::Ptr<Organism> Reproduce();
+  /**
+    * Input: None.
+    *
+    * Output: A new host baby of the current host, mutated.
+    *
+    * Purpose: To create a new baby host and reset this host's points to 0.
+    */
+  emp::Ptr<Organism> Reproduce() {
+    // emp::Ptr<SGPHost> host_baby = Host::Reproduce().DynamicCast<SGPHost>();
+    emp::Ptr<this_t> host_baby = static_cast<this_t*>(Host::Reproduce().Raw());
+    host_baby->SetReproCount(reproductions + 1);
+    // This organism is reproducing, so it must have gotten off the queue
+    // cpu.state.in_progress_repro = -1;
+    hardware.GetCPUState().ResetReproState();
+    // TODO - move this tracking functionality into the world
+    // if (sgp_config->TRACK_PARENT_TASKS()) {
+    //   host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+
+    //   for (size_t i = 0; i < spec::NUM_TASKS; i++) {
+    //     host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
+    //     host_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
+    //     // lineage task gain / loss
+    //     if (cpu.state.tasks_performed->Get(i) && !cpu.state.parent_tasks_performed->Get(i)) {
+    //       // child gains the ability to be infected by syms whose parents have done this task
+    //       host_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
+    //     }
+    //     else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
+    //       // child loses the ability to be infected by syms with whom this parent had only this task in common
+    //       host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
+    //     }
+
+    //     // divergence from/convergence towards parent's partner
+    //     host_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+    //     host_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
+    //     if (HasSym()) {
+    //       emp::Ptr<emp::BitSet<spec::NUM_TASKS>> symbiont_tasks = syms[0].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
+    //       if (cpu.state.parent_tasks_performed->Get(i) != symbiont_tasks->Get(i) &&
+    //         cpu.state.tasks_performed->Get(i) == symbiont_tasks->Get(i)) {
+    //         // parent != partner and child == partner
+    //         host_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
+    //       }
+    //       else if (cpu.state.parent_tasks_performed->Get(i) == symbiont_tasks->Get(i) &&
+    //         cpu.state.tasks_performed->Get(i) != symbiont_tasks->Get(i)) {
+    //         // parent == partner and child != partner
+    //         host_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+    //       }
+    //     }
+    //   }
+    // }
+    return host_baby;
+  }
 
   /**
    * Input: None.
@@ -253,15 +310,13 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew() {
-    emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
-        random,
-        my_world,
-        sgp_config,
-        cpu.GetProgram(),
-        GetIntVal()
-      );
-
-    return host_baby;
+    return emp::NewPtr<this_t>(
+      random,
+      my_world,
+      my_world->GetConfig(),
+      GetProgram(),
+      GetIntVal()
+    );
   }
 
   /**
@@ -271,16 +326,16 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  void Mutate() {
-    Host::Mutate();
-
-    cpu.Mutate();
+  // TODO - move this out
+  void Mutate(double mut_rate) {
+    Host::Mutate(); // Mutates interaction value
+    hardware.Mutate(mut_rate); // Mutates program
   }
 };
 
-SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) {
-  return *(static_cast<SGPHost*>(org_ptr.Raw()));
-}
+// SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) {
+//   return *(static_cast<SGPHost*>(org_ptr.Raw()));
+// }
 
 // const SGPHost& AsSGPHost(emp::Ptr<Organism> org_ptr) const {
 //   return *(static_cast<SGPHost*>(org_ptr.Raw()));

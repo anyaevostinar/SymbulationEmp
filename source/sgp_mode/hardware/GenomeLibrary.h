@@ -6,7 +6,7 @@
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
-#include "sgpl/library/OpLibrary.h"
+#include "sgpl/library/OpLibrary.hpp"
 
 #include <cstddef>
 #include <limits>

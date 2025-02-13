@@ -9,6 +9,7 @@
 /*
   Implements logic task environment.
     - Responsible for configuring LogicTaskSet, etc.
+    - Responsible for managing any task dependencies, etc.
 */
 
 namespace sgpmode::tasks {

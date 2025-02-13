@@ -19,6 +19,8 @@ namespace sgpmode::tasks {
     https://github.com/amlalejini/directed-digital-evolution
 
   Boolean logic tasks.
+  - *Only* responsible for tracking task functionality
+    (knows nothing about world, any configured task dependencies, etc)
 */
 class LogicTaskSet : public TaskSet<uint32_t, uint32_t> {
 public:
