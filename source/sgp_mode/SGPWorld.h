@@ -203,13 +203,18 @@ public:
     fun_do_resource_inflow();
 
     // Run scheduler to process organisms
-    scheduler.ProcessOrgs();
+    // scheduler.ProcessOrgs();
+    scheduler.Run(*this);
 
     // Process reproduction queue
     DoReproduction();
 
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
+  }
+
+  void ProcessOrgAt(size_t pop_id) {
+    /* TODO */
   }
 
   // Prototypes for setup methods
