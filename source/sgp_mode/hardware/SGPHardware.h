@@ -32,8 +32,8 @@ public:
   using program_t = sgpl::Program<spec_t>;
   using inst_t = sgpl::Instruction<spec_t>;
   using jump_table_t = sgpl::JumpTable<spec_t, typename spec_t::global_matching_t>;
-  using cpu_state_t = CPUState<spec_t>; // <WORLD_T>;
   using world_t = typename spec_t::world_t;
+  using cpu_state_t = CPUState<world_t>; // <WORLD_T>;
 
 protected:
   cpu_t cpu;
@@ -185,7 +185,7 @@ public:
    *
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
-  void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles) {
+  void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles=1) {
     // TODO - Can we eliminate this check?
     //    - Shift into world?
     if (!cpu.HasActiveCore()) {
@@ -193,7 +193,8 @@ public:
       cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
     }
     // TODO / NOTE - Why set location on every CPU step?
-    state.SetLocation(location);
+    // -> Moved into ProcessOrg
+    // state.SetLocation(location);
 
     sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
   }

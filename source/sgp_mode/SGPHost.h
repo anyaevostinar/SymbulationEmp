@@ -166,6 +166,13 @@ public:
    */
   void SetReproCount(size_t _in) { reproductions = _in; }
 
+  void SetLocation(const emp::WorldPosition& pos) {
+    hardware.GetCPUState().SetLocation(pos);
+  }
+  const emp::WorldPosition& GetLocation() const {
+    return hardware.GetCPUState().GetLocation();
+  }
+
   /**
    * Input: None.
    *
@@ -206,48 +213,9 @@ public:
    * processing alive syms.
    */
   // TODO - why pass a copy of the position?
+  //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-    // Instead of calling Host::Process, do the important stuff here
-    // Our instruction handles reproduction
-
-    // Check if this organism is dead; if so, no need to continue.
-    if (GetDead()) {
-      return;
-    }
-
-    // Todo - run 1 step at a time
-    hardware.RunCPUStep(pos, my_world->GetConfig()->CYCLES_PER_UPDATE());
-
-    // if (HasSym()) {
-    //   process_syms(pos);
-    // }
-
-    // TODO - move this functionality
-    // e.g., world->ProcessSyms(this, ...)
-    if (HasSym()) { // let each sym do whatever they need to do
-      // TODO - make this a configurable "process syms function"
-      emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
-      for (size_t j = 0; j < syms.size(); j++) {
-        emp::Ptr<Organism> curSym = syms[j];
-        if (GetDead()) {
-          return; // If previous symbiont killed host, we're done
-        }
-        // sym position should have host index as id and
-        // position in syms list + 1 as index (0 as fls index)
-        emp::WorldPosition sym_pos = emp::WorldPosition(j + 1, pos.GetIndex());
-        if (!curSym->GetDead()) {
-          curSym->Process(sym_pos);
-        }
-        if (curSym->GetDead()) {
-          syms.erase(syms.begin() + j); // if the symbiont dies during their
-                                        // process, remove from syms list
-          curSym.Delete();
-        }
-      } // for each sym in syms
-    }   // if org has syms
-
     GrowOlder();
-
   }
 
   /**
@@ -313,7 +281,7 @@ public:
     return emp::NewPtr<this_t>(
       random,
       my_world,
-      my_world->GetConfig(),
+      my_world->GetConfigPtr(),
       GetProgram(),
       GetIntVal()
     );

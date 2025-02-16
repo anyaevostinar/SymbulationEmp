@@ -54,6 +54,12 @@ public:
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
+  // using fun_process_endosym_t = std::function<void(
+  //   sgp_sym_t&,                /* endosymbiont */
+  //   const emp::WorldPosition&, /* sym pos */
+  //   sgp_host_t&                /* host */
+  // )>;
+
   using org_mode_t = typename org_info::SGPOrganismType;
   using stress_sym_mode_t = typename org_info::StressSymbiontType;
 
@@ -124,6 +130,47 @@ protected:
     const emp::WorldPosition& /* host_offspring_pos */
   )> after_host_do_birth_sig;
 
+  // --- Host process signals / functors ---
+  emp::Signal<void(
+    sgp_host_t&
+  )> before_host_process_sig;
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_process_sig;
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_cpu_step_sig;
+  // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
+
+  // --- Free-living symbiont signals / functors ---
+  emp::Signal<void(
+    sgp_sym_t&                 /* sym */
+  )> before_freeliving_sym_process_sig;
+  emp::Signal<void(
+    sgp_sym_t&                 /* sym */
+  )> after_freeliving_sym_process_sig;
+  emp::Signal<void(
+    sgp_sym_t&                 /* sym */
+  )> after_freeliving_sym_cpu_step_sig;
+
+  // --- Endosymbiont process signals / functors ---
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_process_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_process_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_step_sig;
+
+
   // --- Environment signals/functors ---
   fun_do_resource_inflow_t fun_do_resource_inflow;
 
@@ -179,8 +226,13 @@ public:
    *
    * Purpose: Allows accessing the world's sgp config.
    */
+  // TODO - switch back to having a pointer to the config to be consistent with
+  // base class? (lots of base classes assume we're hanging on to a pointer)
   const SymConfigSGP& GetConfig() const { return sgp_config; }
+  emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
+  /* TODO - re-implement tasks, replace magic number when we do*/
+  size_t GetTaskCount() const { return 9; }
 
   /**
    * Input: None
@@ -203,7 +255,6 @@ public:
     fun_do_resource_inflow();
 
     // Run scheduler to process organisms
-    // scheduler.ProcessOrgs();
     scheduler.Run(*this);
 
     // Process reproduction queue
@@ -213,9 +264,21 @@ public:
     ProcessGraveyard();
   }
 
-  void ProcessOrgAt(size_t pop_id) {
-    /* TODO */
-  }
+  // Process organism(s) at pop_id location in world.
+  void ProcessOrgAt(size_t pop_id);
+
+  // Process host at given position in world
+  // NOTE - what functionality should be centralized vs in the host class vs functor/signal?
+  void ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host);
+
+  // Process symbiont at given position in the world
+  void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
+
+  // Process all symbionts inside given host
+  void ProcessEndosymbionts(sgp_host_t& host);
+
+  // Process endosymbiont
+  void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization

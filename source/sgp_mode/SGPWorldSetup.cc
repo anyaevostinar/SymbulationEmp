@@ -45,6 +45,22 @@ namespace sgpmode {
 
     // -- bookmark --
 
+    // TODO - move this function into different setup function
+    // fun_process_host_endosyms = [this](sgp_host_t& host) {
+    //   // If host doesn't have a symbiont, return.
+    //   if (!host.HasSym()) {
+    //     return;
+    //   }
+    //   // TODO - trigger
+    //   // Host must have an endosymbiont.
+    //   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+    //   for (size_t sym_i = 0; sym_i < syms.size(); ++sym_i) {
+    //     emp_assert(!(syms[sym_i]->IsHost()));
+    //     sgp_sym_t& cur_symbiont = static_cast<sgp_sym_t&>(*(syms[sym_i]));
+
+    //   }
+    //   // TODO - trigger
+    // };
 
   }
 
@@ -66,21 +82,10 @@ namespace sgpmode {
   void SGPWorld::SetupScheduler() {
     // Configure scheduler w/max world size (updated in SGPWorld::Setup, and cfg thread count)
     scheduler.SetupScheduler(max_world_size, sgp_config.THREAD_COUNT());
-
-    // Configure scheduler's process host function
-    // scheduler.SetProcessHostFun(
-    //   [this](emp::WorldPosition pos, Organism& org) {
-    //     emp_assert(org.IsHost());
-    //     // Pre-process step
-    //     org.Process(pos);
-    //     // Post-process step
-    //     if (org.GetDead()) {
-    //       this->DoDeath(pos);
-    //     }
-    //   }
-    // );
-
+    // Scheduler calls world's ProcessOrgAt function
   }
+
+
   void SGPWorld::SetupSymReproduction() {/*TODO*/}
   void SGPWorld::SetupHostReproduction() {/*TODO*/}
   void SGPWorld::SetupHostSymInteractions() {/*TODO*/}

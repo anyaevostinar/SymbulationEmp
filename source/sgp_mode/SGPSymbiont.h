@@ -13,6 +13,7 @@ namespace sgpmode {
 template<typename HW_SPEC_T>
 class SGPSymbiont : public Symbiont {
 public:
+  using this_t = SGPSymbiont<HW_SPEC_T>;
   using world_t = typename HW_SPEC_T::world_t;
   using hw_spec_t = HW_SPEC_T;
   using hw_t = SGPHardware<hw_spec_t>;
@@ -104,10 +105,11 @@ public:
     // }
     // Invalidate any in-progress reproduction
     auto& cpu_state = hardware.GetCPUState();
-    if (cpu_state.ReproInProgress()) {
-      my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
-        emp::WorldPosition::invalid_id;
-    }
+    // TODO - put this functionality back once repro queue is re-implemented
+    // if (cpu_state.ReproInProgress()) {
+    //   my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
+    //     emp::WorldPosition::invalid_id;
+    // }
     // if (cpu.state.in_progress_repro != -1) {
     //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
     //       emp::WorldPosition::invalid_id;
@@ -212,18 +214,6 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
-    // TODO - move commented out functionality into world
-    // if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-    //   cpu.state.used_resources->reset();
-    // Instead of calling Host::Process, do the important stuff here
-    // Our instruction handles reproduction
-    if (GetDead()) {
-      return;
-    }
-
-    hardware.RunCPUStep(pos, my_world->GetConfig()->CYCLES_PER_UPDATE());
-    // The parts of Symbiont::Process that don't use resources or reproduction
-
     // Age the organism
     GrowOlder();
   }
@@ -246,8 +236,8 @@ public:
     const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
     const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
     Symbiont::VerticalTransmission(host_baby);
-    hardware.SetReproInProgress(repro_in_progress);
-    hardware.SetReproQueuePos(repro_queue_pos);
+    hardware.GetCPUState().SetReproInProgress(repro_in_progress);
+    hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
   }
 
@@ -315,10 +305,10 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
-    return emp::NewPtr<SGPSymbiont>(
+    return emp::NewPtr<this_t>(
       random,
       my_world,
-      my_world->GetConfig(),
+      my_world->GetConfigPtr(),
       GetProgram(),
       GetIntVal()
     );
@@ -332,9 +322,9 @@ public:
    * Purpose: To mutate the code in the genome of this symbiont.
    */
   // TODO - allow to be world-configurable?
-  void Mutate() {
+  void Mutate(double mut_rate) {
     Symbiont::Mutate();
-    hardware.Mutate();
+    hardware.Mutate(mut_rate);
   }
 };
 
