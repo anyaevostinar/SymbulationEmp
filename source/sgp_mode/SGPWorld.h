@@ -12,6 +12,7 @@
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 #include "org_type_info.h"
+#include "ReproductionQueue.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
@@ -39,10 +40,10 @@ public:
   // NOTE - better name?
   // TODO - switch to using references to SGPHost, etc.
   using fun_can_attempt_vert_trans_t = std::function<bool(
-    emp::Ptr<sgp_sym_t>, /* symbiont_ptr */
-    emp::Ptr<sgp_host_t>, /* host_offspring_ptr */
-    emp::Ptr<sgp_host_t>, /* host_parent_ptr */
-    emp::WorldPosition  /* parent_pos */
+    sgp_sym_t&, /* symbiont_ptr */
+    sgp_host_t&, /* host_offspring_ptr (trans to) */
+    sgp_host_t&, /* host_parent_ptr (trans from) */
+    const emp::WorldPosition&  /* parent_pos */
   )>;
 
   using fun_compatibility_check_t = std::function<bool(
@@ -67,6 +68,7 @@ protected:
   // TODO - scheduler could be SGP scheduler? It will only work with SGPWorld anyway?
   Scheduler scheduler;
   size_t max_world_size; // Maximum number of locations in the world
+  ReproductionQueue repro_queue;
 
   /* TODO - task environment */
 
@@ -122,8 +124,8 @@ protected:
   // TODO - add functions that add functions to these signals
   // TODO - switch to passing references instead of pointers
   emp::Signal<void(
-    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
-    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    sgp_host_t&,        /* host_offspring_ptr */
+    sgp_host_t&,        /* host_parent_ptr */
     const emp::WorldPosition&  /* parent_pos */
   )> before_host_do_birth_sig;
   emp::Signal<void(
@@ -182,9 +184,9 @@ protected:
   //   Need to pass in parent pointer because parent may no longer exist at the
   //   given world position when this function is called.
   emp::WorldPosition HostDoBirth(
-    emp::Ptr<sgp_host_t> host_offspring_ptr,
-    emp::Ptr<sgp_host_t> host_parent_ptr,
-    emp::WorldPosition parent_pos
+    emp::Ptr<Organism> host_offspring_ptr,
+    emp::Ptr<Organism> host_parent_ptr,
+    const emp::WorldPosition& parent_pos
   );
 
   // Internal helper function to delete dead organisms in graveyard.
@@ -254,6 +256,8 @@ public:
     // TODO - implement inflow configuration
     fun_do_resource_inflow();
 
+    // Update scheduler's evaluation order
+    scheduler.UpdateSchedule();
     // Run scheduler to process organisms
     scheduler.Run(*this);
 

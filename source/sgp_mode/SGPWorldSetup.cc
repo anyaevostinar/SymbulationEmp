@@ -11,6 +11,7 @@
 
 namespace sgpmode {
   // TODO - implement "empty initialization" option
+  //        - Particularly useful for testing
   void SGPWorld::Setup() {
     // Reset the seed of the main sgp thread based on the config
     // TODO - should this be here? (used to be inside scheduler)
@@ -43,24 +44,12 @@ namespace sgpmode {
     // Setup scheduler
     SetupScheduler();
 
+    // Setup host reproduction
+    repro_queue.Clear(); // Clear reproduction queue
+    SetupHostReproduction();
+
     // -- bookmark --
-
-    // TODO - move this function into different setup function
-    // fun_process_host_endosyms = [this](sgp_host_t& host) {
-    //   // If host doesn't have a symbiont, return.
-    //   if (!host.HasSym()) {
-    //     return;
-    //   }
-    //   // TODO - trigger
-    //   // Host must have an endosymbiont.
-    //   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
-    //   for (size_t sym_i = 0; sym_i < syms.size(); ++sym_i) {
-    //     emp_assert(!(syms[sym_i]->IsHost()));
-    //     sgp_sym_t& cur_symbiont = static_cast<sgp_sym_t&>(*(syms[sym_i]));
-
-    //   }
-    //   // TODO - trigger
-    // };
+    // - setuphostreproduction, doreproduction, host::reproduce, etc
 
   }
 
@@ -85,11 +74,19 @@ namespace sgpmode {
     // Scheduler calls world's ProcessOrgAt function
   }
 
+  void SGPWorld::SetupHostReproduction() {
+    // Reset host birth signals
+    before_host_do_birth_sig.Clear();
+    after_host_do_birth_sig.Clear();
+    // -- bookmark --
+  }
 
   void SGPWorld::SetupSymReproduction() {/*TODO*/}
-  void SGPWorld::SetupHostReproduction() {/*TODO*/}
   void SGPWorld::SetupHostSymInteractions() {/*TODO*/}
+
+  // TODO - clear host process signals
   void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {/*TODO*/}
+  // TODO - clear symbiont process signals
   void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {/*TODO*/}
 
 

@@ -71,7 +71,12 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
     if (!dead) {
       // Symbiont not dead, process it
       // TODO - change to functor?
-      cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
+      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
+      ProcessEndosymbiont(
+        {sym_i + 1, host.GetLocation().GetIndex()},
+        *cur_symbiont,
+        host
+      );
       ++sym_i;
     } else {
       emp_assert(sym_cnt > 0);
@@ -135,7 +140,24 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
   }
 }
 
-void SGPWorld::DoReproduction() { /*TODO*/ }
+void SGPWorld::DoReproduction() {
+  // Process reproduction queue
+  for (ReproEvent& repro_info : repro_queue.GetQueue()) {
+    emp::Ptr<Organism> org = repro_info.org;
+    // If queued organism is is dead or repro event has been invalidated, don't reproduce.
+    if (!repro_info.valid || org->GetDead()) {
+      continue;
+    }
+    // Reproduce organism, producing an offspring
+    emp::Ptr<Organism> child = org->Reproduce();
+    // Run appropriate do birth function based on organism type.
+    (child->IsHost()) ?
+      HostDoBirth(child, org, repro_info.pos) :
+      SymDoBirth(child, repro_info.pos);
+  }
+  // Clear the queue now that it has been processed
+  repro_queue.Clear();
+}
 
 emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<Organism> sym_baby,
@@ -146,11 +168,49 @@ emp::WorldPosition SGPWorld::SymDoBirth(
 }
 
 emp::WorldPosition SGPWorld::HostDoBirth(
-  emp::Ptr<sgp_host_t> host_offspring_ptr,
-  emp::Ptr<sgp_host_t> host_parent_ptr,
-  emp::WorldPosition parent_pos
+  emp::Ptr<Organism> host_offspring_ptr,
+  emp::Ptr<Organism> host_parent_ptr,
+  const emp::WorldPosition& parent_pos
 ) {
-  /* TODO */
+  emp_assert(host_offspring_ptr->IsHost());
+  emp_assert(host_parent_ptr->IsHost());
+
+  // Static cast host offspring and host parent pointers
+  emp::Ptr<sgp_host_t> offspring_ptr = static_cast<sgp_host_t*>(host_offspring_ptr.Raw());
+  emp::Ptr<sgp_host_t> parent_ptr = static_cast<sgp_host_t*>(host_parent_ptr.Raw());
+
+  before_host_do_birth_sig.Trigger(
+    *offspring_ptr,
+    *parent_ptr,
+    parent_pos
+  );
+
+  // NOTE - Can make contents of this function into a functor if needs to be
+  //        configurable for different types of hosts.
+  // Host::Reproduce() doesn't take care of vertical transmission, that
+  //  happens here. Loop over parent's symbiont, check if each can transmit
+  //  vertically to host offspring.
+  for (emp::Ptr<Organism> sym_org_ptr : parent_ptr->GetSymbionts()) {
+    emp_assert(!sym_org_ptr->IsHost());
+    // Cast generic org pointer to more specific sym pointer type
+    emp::Ptr<sgp_sym_t> sym_ptr = static_cast<sgp_sym_t*>(sym_org_ptr.Raw());
+    // Check if symbiont can attempt vertical transmission
+    const bool can_attempt = fun_can_attempt_vert_trans(
+      *sym_ptr, /* Symbiont attempting to vert. trans */
+      *offspring_ptr, /* Host offspring (trans into) */
+      *parent_ptr, /* Host parent (trans from) */
+      parent_pos
+    );
+    if (!can_attempt) {
+      continue;
+    }
+    // -- BOOKMARK --
+  }
+
+
+
+
+
   return emp::WorldPosition{};
 }
 
