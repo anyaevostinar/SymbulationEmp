@@ -39,9 +39,12 @@ namespace sgpmode::inst {
       const sgpl::Program<HW_SPEC_T>& program,                                      \
       CPUState<typename HW_SPEC_T::world_t>& state                                  \
     ) {                                                                        \
-      uint32_t& a = core.registers[inst.args[0]];                 \
-      uint32_t& b = core.registers[inst.args[1]];                 \
-      uint32_t& c = core.registers[inst.args[2]];                 \
+      uint32_t* a_ptr = (uint32_t*)&core.registers[inst.args[0]];                 \
+      uint32_t* b_ptr = (uint32_t*)&core.registers[inst.args[1]];                 \
+      uint32_t* c_ptr = (uint32_t*)&core.registers[inst.args[2]];                 \
+      uint32_t& a = *a_ptr; \
+      uint32_t& b = *b_ptr; \
+      uint32_t& c = *c_ptr; \
       /* avoid "unused variable" warnings */                                   \
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \

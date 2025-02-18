@@ -64,7 +64,7 @@ protected:
   // symbulation jump instructions.
   void InitializeLocalJumpTable() {
     // Get global jump table in sgplite cpu
-    const auto& table = cpu.GetActiveCore().GetGlobalJumpTable();
+    auto& table = cpu.GetActiveCore().GetGlobalJumpTable();
     auto& state_jump_table = state.GetJumpTable();
     // NOTE - jump table was previously size 100. Seemed like that was because
     //        program size is 100?
