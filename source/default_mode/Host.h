@@ -631,18 +631,18 @@ public:
    * Purpose: To distribute resources between sym and host depending on their interaction values.
    */
   void DistribResToSym(emp::Ptr<Organism> sym, double sym_piece){
-    double hostIntVal = interaction_val;
-    double hostDonation = 0;
-    if(hostIntVal < 0){
-      double hostDefense = hostIntVal * sym_piece * -1.0;
-      hostDonation = 0;
-      SetResInProcess(sym_piece - hostDefense);
+    double host_int_val = interaction_val;
+    double host_donation = 0;
+    if(host_int_val < 0){
+      double host_defense = host_int_val * sym_piece * -1.0;
+      host_donation = 0;
+      SetResInProcess(sym_piece - host_defense);
     }
-    else if(hostIntVal >= 0){
-      hostDonation = hostIntVal * sym_piece;
-      SetResInProcess(sym_piece - hostDonation);
+    else if(host_int_val >= 0){
+      host_donation = host_int_val * sym_piece;
+      SetResInProcess(sym_piece - host_donation);
     }
-    double sym_return = sym->ProcessResources(hostDonation, this);
+    double sym_return = sym->ProcessResources(host_donation, this);
     this->AddPoints(sym_return + GetResInProcess());
     SetResInProcess(0);
   }
