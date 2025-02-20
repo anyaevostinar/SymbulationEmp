@@ -172,6 +172,10 @@ public:
     repro_in_progress = false;
   }
 
+  const emp::BitVector& GetTasksPerformed() const { return tasks_performed; }
+  const emp::BitVector& GetParentTasksPerformed() const { return parent_tasks_performed; }
+
+
   // TODO - accessors
   // stacks
   // input_buf

@@ -17,6 +17,13 @@ bool AnyMatch(
   return bits_a.HasOverlap(bits_b);
 }
 
+bool AnyMatch(
+  const emp::BitVector& bits_a,
+  const emp::BitVector& bits_b
+) {
+  return bits_a.HasOverlap(bits_b);
+}
+
 // Return number of matching bits between two bit sets.
 template<size_t NUM_BITS>
 size_t SimpleMatchCoeff(

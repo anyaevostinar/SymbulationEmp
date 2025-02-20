@@ -8,7 +8,9 @@
 
 namespace sgpmode {
 
-void SGPWorld::ProcessOrgAt(size_t pop_id) {
+// TODO - Make clear that this will process host and free-living symbiont
+//        ProcessOrgsAt?
+void SGPWorld::ProcessOrgsAt(size_t pop_id) {
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
     emp_assert(GetOrg(pop_id).IsHost());
@@ -159,12 +161,20 @@ void SGPWorld::DoReproduction() {
   repro_queue.Clear();
 }
 
+// TODO - SymDoBirth is for horizontal(?) and free-living repro
+//      - How to distinguish between the two?
 emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<Organism> sym_baby,
   emp::WorldPosition parent_pos
 ) {
-  /* TODO */
-  return emp::WorldPosition{};
+  emp_assert(!sym_baby->IsHost());
+  emp::Ptr<sgp_sym_t> sym_baby_ptr = static_cast<sgp_sym_t*>(sym_baby.Raw());
+  // Trigger any before birth actions
+  before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
+  emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_baby_ptr, parent_pos));
+  // Trigger any post-birth actions
+  after_sym_do_birth_sig.Trigger(sym_baby_pos);
+  return sym_baby_pos;
 }
 
 emp::WorldPosition SGPWorld::HostDoBirth(
@@ -204,14 +214,84 @@ emp::WorldPosition SGPWorld::HostDoBirth(
     if (!can_attempt) {
       continue;
     }
-    // -- BOOKMARK --
+    // This symbiont attempts vertical transmission (returns success if necessary)
+    EndosymAttemptVertTransmission(
+      sym_ptr,
+      offspring_ptr,
+      parent_ptr,
+      parent_pos
+    );
   }
 
+  // Call emp::World's DoBirth for host offspring that we're currently "birthing".
+  const emp::WorldPosition offspring_pos(DoBirth(host_offspring_ptr, parent_pos));
+  after_host_do_birth_sig.Trigger(offspring_pos);
+  return offspring_pos;
+}
 
+emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
+  emp::Ptr<sgp_sym_t> sym_baby_ptr,
+  const emp::WorldPosition& parent_pos
+) {
+  // TODO - add any signals?
+  return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
+}
 
+emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
+  emp::Ptr<sgp_sym_t> sym_baby_ptr,
+  const emp::WorldPosition& parent_pos
+) {
+  // TODO - add any signals?
+  const size_t parent_pop_idx = parent_pos.GetPopID();
+  emp::Ptr<Organism> parent = this->GetOrgPtr(parent_pop_idx)->GetSymbionts()[parent_pos.GetIndex() - 1];
+  emp_assert(!parent->IsHost());
+  emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(parent.Raw());
+  // hew_host_pos is an optional<emp::WorldPosition>
+  const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
+  if (new_host_pos) {
+    // -1 means no living neighbors
+    const size_t host_id = new_host_pos.value().GetIndex();
+    int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
+    if (new_index > 0) {
+      //sym successfully infected
+      return emp::WorldPosition(new_index, host_id);
+    } else {
+      //sym got killed trying to infect
+      return emp::WorldPosition();
+    }
+  } else {
+    sym_baby_ptr.Delete();
+    return emp::WorldPosition();
+  }
+}
 
+bool SGPWorld::EndosymAttemptVertTransmission(
+  emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
+  emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
+  emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
+  const emp::WorldPosition& parent_pos /* Parent location */
+) {
+  // NOTE - Make DoVerticalTransmission function?
+  // Trigger before transmission signal.
+  before_sym_vert_transmission_sig.Trigger(
+    endosym_ptr,          /* symbiont producing offspring */
+    host_parent_ptr,  /* transmission from */
+    host_offspring_ptr, /* transmission to */
+    parent_pos
+  );
+  // Do vertical transmission
+  // NOTE - easy way to grab the new symbiont?
+  // TODO - How to know if vertical transmission is successful?
+  const bool success = endosym_ptr->VerticalTransmission(host_offspring_ptr);
+  // Trigger after transmission signal.
+  after_sym_vert_transmission_sig.Trigger(
+    host_parent_ptr,  /* transmission from */
+    host_offspring_ptr, /* transmission to */
+    parent_pos,
+    success
+  );
 
-  return emp::WorldPosition{};
+  return success;
 }
 
 void SGPWorld::ProcessGraveyard() {
@@ -224,6 +304,16 @@ void SGPWorld::ProcessGraveyard() {
 
 // TODO - add test to make sure this works for hosts as well
 void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) { /*TODO*/ }
+
+std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
+  size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+  emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+) {
+  // Outsource to configurable functor
+  return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
+}
+
+
 
 }
 

@@ -34,7 +34,7 @@ public:
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
-    emp::WorldPosition     /* parent_position */
+    const emp::WorldPosition&     /* parent_position */
   )>;
 
   // NOTE - better name?
@@ -99,23 +99,24 @@ protected:
   // --- Symbiont birth signals / functors ---
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>, /* sym_baby_ptr */
-    emp::WorldPosition     /* parent_pos */
+    const emp::WorldPosition&     /* parent_pos */
   )> before_sym_do_birth_sig;
-  emp::Signal<void(emp::WorldPosition /* sym_baby_pos */)> after_sym_do_birth_sig;
+  emp::Signal<void(const emp::WorldPosition& /* sym_baby_pos */)> after_sym_do_birth_sig;
   fun_sym_do_birth_t fun_sym_do_birth;
 
   // --- Symbiont vertical transmission signals / functors ---
   // TODO - Need to extract whether vertical transmission is successful or not.
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
-    emp::Ptr<sgp_host_t>,           /* host_parent_ptr - transmission from */
     emp::Ptr<sgp_host_t>,           /* host_offspring_ptr - transmission to */
+    emp::Ptr<sgp_host_t>,           /* host_parent_ptr - transmission from */
     const emp::WorldPosition&    /* host_parent_pos */
   )> before_sym_vert_transmission_sig;
   emp::Signal<void(
-    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
     emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
-    const emp::WorldPosition& /* host_parent_pos */
+    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    const emp::WorldPosition&,  /* host_parent_pos */
+    bool                        /* vertical transmission success */
   )> after_sym_vert_transmission_sig;
   // Checks if symbiont vertical transmission is successful
   fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
@@ -133,6 +134,7 @@ protected:
   )> after_host_do_birth_sig;
 
   // --- Host process signals / functors ---
+  // TODO - clear these in setuphosts
   emp::Signal<void(
     sgp_host_t&
   )> before_host_process_sig;
@@ -176,6 +178,11 @@ protected:
   // --- Environment signals/functors ---
   fun_do_resource_inflow_t fun_do_resource_inflow;
 
+  std::function<std::optional<emp::WorldPosition>(
+    size_t,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
+  )> fun_find_host_for_horizontal_trans;
+
   // ---- Internal helper functions ----
   void DoReproduction();
   // Internal helper function to handle host births.
@@ -189,12 +196,32 @@ protected:
     const emp::WorldPosition& parent_pos
   );
 
+  emp::WorldPosition FreeLivingSymDoBirth(
+    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    const emp::WorldPosition& parent_pos
+  );
+
+  emp::WorldPosition SymAttemptHorizontalTrans(
+    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    const emp::WorldPosition& parent_pos
+  );
+
+  // Attempt vertical transmission from host parent to host offspring.
+  // Pass in pointers to play nice with Symbiont.h's VerticalTransmission function.
+  bool EndosymAttemptVertTransmission(
+    emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
+    emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
+    emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
+    const emp::WorldPosition& parent_pos /* Parent location */
+  );
+
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
 
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
   void SetupOrgMode();
+  void SetupPopStructure();
   void SetupScheduler();           // TODO - shift to private function (will need to refactor tests)
   void SetupSymReproduction();     // TODO - shift to private function (will need to refactor tests)
   void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
@@ -268,8 +295,8 @@ public:
     ProcessGraveyard();
   }
 
-  // Process organism(s) at pop_id location in world.
-  void ProcessOrgAt(size_t pop_id);
+  // Process hosts at given position in world pop vector and free-living symbionts in world syms vector.
+  void ProcessOrgsAt(size_t pop_id);
 
   // Process host at given position in world
   // NOTE - what functionality should be centralized vs in the host class vs functor/signal?
@@ -301,13 +328,18 @@ public:
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
+  // TODO - How to distinguish between the two?
   emp::WorldPosition SymDoBirth(
     emp::Ptr<Organism> sym_baby,
     emp::WorldPosition parent_pos
   ) override;
 
-  // TODO - shift return type?
-  int GetNeighborHost(size_t id, emp::Ptr<sgp_sym_t> symbiont);
+  // Returns neighboring host from given symbiont
+  // NOTE - Opinions on name change? (originally GetNeighborHost)
+  std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
+    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  );
 
   /**
    * Input: An organism pointer to add to the graveyard
