@@ -84,7 +84,7 @@ class Organism {
   virtual emp::Ptr<Organism> Reproduce() {
     std::cout << "Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  virtual bool VerticalTransmission(emp::Ptr<Organism> host_baby) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void HorizontalTransmission(emp::WorldPosition location) {

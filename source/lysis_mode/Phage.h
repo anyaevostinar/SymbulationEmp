@@ -356,16 +356,18 @@ public:
    * phage have 100% chance of vertical transmission, lytic phage have
    * 0% chance
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby){
+  bool VerticalTransmission(emp::Ptr<Organism> host_baby){
+    bool success = false;
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
       emp::Ptr<Organism> phage_baby = Reproduce();
-      host_baby->AddSymbiont(phage_baby);
+      success = host_baby->AddSymbiont(phage_baby) > 0;
 
       //vertical transmission data node
       emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(1);
     }
+    return success;
   }
 
 

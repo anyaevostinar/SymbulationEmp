@@ -556,7 +556,8 @@ public:
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  bool VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
     if (my_world->WillTransmit()) {
       // Vertical transmission data nodes
       // Attempt vs success for vertical transmission is just whether it has enough resources
@@ -566,11 +567,13 @@ public:
       if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
         emp::Ptr<Organism> sym_baby = Reproduce();
         points -= my_config->SYM_VERT_TRANS_RES();
-        host_baby->AddSymbiont(sym_baby);
-
-        my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
+        success = host_baby->AddSymbiont(sym_baby) > 0;
+        if (success) {
+          my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
+        }
       }
     }
+    return success;
   }
 
   /**
