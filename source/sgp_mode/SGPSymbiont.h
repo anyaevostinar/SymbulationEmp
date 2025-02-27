@@ -233,11 +233,11 @@ public:
     // size_t old = cpu.state.in_progress_repro;
     // TODO - clean this up? Does cpu state need to manage this?
     //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
-    const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
-    const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
+    // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
+    // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
     const bool success = Symbiont::VerticalTransmission(host_baby);
-    hardware.GetCPUState().SetReproInProgress(repro_in_progress);
-    hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
+    // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
+    // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
     return success;
   }
@@ -257,7 +257,8 @@ public:
     sym_baby->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
-    hardware.GetCPUState().ResetReproState();
+    // NOTE - we don't always want to reset the repro state
+    // hardware.GetCPUState().ResetReproState();
     // TODO - move out of symbiont into world
     // if (my_world->GetConfig()->TRACK_PARENT_TASKS()) {
     //   sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);

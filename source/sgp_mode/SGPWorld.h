@@ -188,6 +188,9 @@ protected:
 
   // ---- Internal helper functions ----
   void DoReproduction();
+
+  void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
+
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
   //   symbionts within the host.
@@ -226,6 +229,7 @@ protected:
   void SetupOrgMode();
   void SetupPopStructure();
   void SetupScheduler();           // TODO - shift to private function (will need to refactor tests)
+  void SetupReproduction();
   void SetupSymReproduction();     // TODO - shift to private function (will need to refactor tests)
   void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
   void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)

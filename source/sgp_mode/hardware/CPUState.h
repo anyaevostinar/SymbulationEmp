@@ -19,6 +19,8 @@
 namespace sgpmode {
 
 
+enum class ReproState { NONE=0, ATTEMPTING, IN_PROGRESS };
+
 /**
  * The CPUState holds all state that can be accessed by instructions in the
  * organism's genomes. Each organism has its own CPUState.
@@ -30,6 +32,10 @@ public:
   // using spec_t = HW_SPEC_T;
   using world_t = WORLD_T;
 
+  struct ReproInfo {
+    ReproState state = ReproState::NONE;
+    size_t queue_pos = 0;
+  };
 protected:
   Stacks<uint32_t> stacks;
   IORingBuffer<uint32_t, 4> input_buf;
@@ -66,9 +72,10 @@ protected:
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   // int in_progress_repro = -1;
-  bool repro_attempt = false;     // Flags whether organism has attempted reproduction.
-  bool repro_in_progress = false;
-  size_t repro_queue_pos = 0;
+  // bool repro_attempt = false;     // Flags whether organism has attempted reproduction.
+  // bool repro_in_progress = false;
+  // size_t repro_queue_pos = 0;
+  ReproInfo repro_info;
 
   // emp::Ptr<emp::vector<uint32_t>> internal_environment =
   //     emp::NewPtr<emp::vector<uint32_t>>();
@@ -118,8 +125,7 @@ public:
 
     survival_resource = 0.0;
 
-    repro_in_progress = false;
-    repro_queue_pos = 0;
+    ResetReproState();
 
     jump_table.clear();
 
@@ -157,19 +163,28 @@ public:
   Stacks<uint32_t>& GetStacks() { return stacks; }
   const Stacks<uint32_t>& GetStacks() const { return stacks; }
 
-  void SetReproInProgress(bool val) { repro_in_progress = val; }
-  void SetReproAttempt(bool val) { repro_attempt = val; }
-
-  bool ReproInProgress() const { return repro_in_progress; }
-  bool ReproAttempt() const { return repro_attempt; }
-
-  size_t GetReproQueuePos() const { return repro_queue_pos; }
-  void SetReproQueuePos(size_t pos) { repro_queue_pos = pos; }
+  void MarkReproAttempt() { repro_info.state = ReproState::ATTEMPTING; }
+  void MarkReproInProgress(size_t queue_pos) {
+    repro_info.state = ReproState::IN_PROGRESS;
+    repro_info.queue_pos = queue_pos;
+  }
+  bool ReproInProgress() const {
+    return repro_info.state == ReproState::IN_PROGRESS;
+  }
+  bool ReproAttempt() const {
+    repro_info.state == ReproState::ATTEMPTING;
+  }
+  size_t GetReproQueuePos() const {
+    emp_assert(ReproInProgress(), "Queue position valid only if repro is in progress");
+    return repro_info.queue_pos;
+  }
 
    void ResetReproState() {
-    repro_queue_pos = 0;
-    repro_attempt = false;
-    repro_in_progress = false;
+    // repro_queue_pos = 0;
+    // repro_attempt = false;
+    // repro_in_progress = false;
+    repro_info.state = ReproState::NONE;
+    repro_info.queue_pos = 0;
   }
 
   const emp::BitVector& GetTasksPerformed() const { return tasks_performed; }

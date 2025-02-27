@@ -43,6 +43,15 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
     host.GetHardware().RunCPUStep(pos, 1);
+
+    // Did host attempt to reproduce?
+    // NOTE - could move into a signal response
+    // NOTE - want to handle this after every clock cycle?
+    if (host.GetHardware().GetCPUState().ReproAttempt()) {
+      // upside to handling this here: we have direct access to organism
+      HostAttemptRepro(pos, host);
+    }
+
     after_host_cpu_step_sig.Trigger(host);
   }
   // Handle any endosymbionts (configurable at setup-time)
@@ -142,25 +151,35 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
   }
 }
 
-void SGPWorld::DoReproduction() {
-  // Process reproduction queue
-  for (ReproEvent& repro_info : repro_queue.GetQueue()) {
-    emp::Ptr<Organism> org = repro_info.org;
-    // If queued organism is is dead or repro event has been invalidated, don't reproduce.
-    if (!repro_info.valid || org->GetDead()) {
-      continue;
-    }
-    // Reproduce organism, producing an offspring
-    emp::Ptr<Organism> child = org->Reproduce();
-    // Run appropriate do birth function based on organism type.
-    (child->IsHost()) ?
-      HostDoBirth(child, org, repro_info.pos) :
-      SymDoBirth(child, repro_info.pos);
+void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
+  // sgp_cpu_peripheral_t& state = host.GetHardware().GetCPUState();
+  // NOTE - >= here or >? (used to be >)
+  // NOTE - Could make this a configurable functor if we envision wanting different
+  //        reproduction requirements
+  const double repro_cost = sgp_config.HOST_REPRO_RES();
+  if (host.GetPoints() >= repro_cost) {
+    // Host pays cost
+    host.DecPoints(repro_cost);
+    // Add host to repro queue
+    // TODO - protect with mutex?
+    const size_t queue_id = repro_queue.Enqueue(
+      host.GetHardware().GetCPUState().GetOrgPtr(),
+      pos
+    );
+    // Mark host hardware as repro in progress, no longer in repro "attempt" state.
+    host.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
   }
-  // Clear the queue now that it has been processed
-  repro_queue.Clear();
+
 }
 
+void SGPWorld::DoReproduction() {
+  // Process reproduction queue
+  // NOTE - If do repro remains simplified to just calling the repro_queue's
+  //        process function, can get rid of this function.
+  repro_queue.Process();
+}
+
+// Called for symbionts in the reproduction queue
 // TODO - SymDoBirth is for horizontal(?) and free-living repro
 //      - How to distinguish between the two?
 emp::WorldPosition SGPWorld::SymDoBirth(
@@ -225,6 +244,7 @@ emp::WorldPosition SGPWorld::HostDoBirth(
 
   // Call emp::World's DoBirth for host offspring that we're currently "birthing".
   const emp::WorldPosition offspring_pos(DoBirth(host_offspring_ptr, parent_pos));
+
   after_host_do_birth_sig.Trigger(offspring_pos);
   return offspring_pos;
 }

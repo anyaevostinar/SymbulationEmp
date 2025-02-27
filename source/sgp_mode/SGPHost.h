@@ -173,6 +173,10 @@ public:
     return hardware.GetCPUState().GetLocation();
   }
 
+  void DecPoints(double amt) {
+    points -= amt;
+  }
+
   /**
    * Input: None.
    *
@@ -231,7 +235,8 @@ public:
     host_baby->SetReproCount(reproductions + 1);
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
-    hardware.GetCPUState().ResetReproState();
+    // Moved reset repro state into reproduction queue
+    // hardware.GetCPUState().ResetReproState();
     // TODO - move this tracking functionality into the world
     // if (sgp_config->TRACK_PARENT_TASKS()) {
     //   host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);

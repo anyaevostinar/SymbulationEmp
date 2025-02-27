@@ -24,7 +24,7 @@ void SGPWorld::Setup() {
 
   // NOTE - Some of this code is repeated from base class.
   //  - Could do some reorganization to copy-paste. E.g., make functions for this,
-  //     add hooks into the base setup to give more downstream flexibility.
+  //     add hooks into the base setup to give more 1wnstream flexibility.
   double start_moi = sgp_config.START_MOI();
   // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
   long unsigned int POP_SIZE;
@@ -42,10 +42,9 @@ void SGPWorld::Setup() {
   // Setup scheduler
   SetupScheduler();
 
-  // Setup host reproduction
-  repro_queue.Clear(); // Clear reproduction queue
-  SetupHostReproduction();
-  SetupSymReproduction();
+  // Setup host and symbiont reproduction
+  SetupReproduction();
+
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
@@ -111,6 +110,30 @@ void SGPWorld::SetupScheduler() {
   // Configure scheduler w/max world size (updated in SGPWorld::Setup, and cfg thread count)
   scheduler.SetupScheduler(max_world_size, sgp_config.THREAD_COUNT());
   // Scheduler calls world's ProcessOrgAt function
+}
+
+void SGPWorld::SetupReproduction() {
+  // Setup reproduction queue
+  repro_queue.Clear();
+
+  // NOTE - could configure reproduce function in repro queue for maximum
+  //        runtime configurability
+  repro_queue.SetReproduceOrgFun([this](ReproEvent& repro_info) {
+    emp::Ptr<Organism> org = repro_info.org;
+    emp::Ptr<Organism> child = org->Reproduce();
+    if (child->IsHost()) {
+      HostDoBirth(child, org, repro_info.pos);
+      // Mark parent as no longer reproducing (world handles setting state, so should handle resetting)
+      static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+    } else {
+      SymDoBirth(child, repro_info.pos);
+      // Mark parent as no longer reproducing
+      static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+    }
+  });
+
+  SetupHostReproduction();
+  SetupSymReproduction();
 }
 
 // Configure HostDoBirth signals
