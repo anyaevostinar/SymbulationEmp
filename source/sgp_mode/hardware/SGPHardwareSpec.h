@@ -10,6 +10,8 @@
 #include "emp/matching/regulators/PlusCountdownRegulator.hpp"
 #include "emp/matching/selectors_static/RankedSelector.hpp"
 
+#include <limits>
+
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/matchbin_metrics.hpp"
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/MatchDepository.hpp"
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/regulators/PlusCountdownRegulator.hpp"
@@ -98,6 +100,11 @@ struct SGPHardwareSpec {
 
   static constexpr inline size_t num_global_jump_tables
     = global_jump_table_inclusion_mods.size();
+
+  // Instead of picking an anchor to start at randomly, start at the anchor that
+  // has the most bits set by matching with the maximum valued tag. This way
+  // organisms can evolve to designate a certain anchor as the entry.
+  static constexpr tag_t START_TAG{std::numeric_limits<uint64_t>::max()};
 
 };
 

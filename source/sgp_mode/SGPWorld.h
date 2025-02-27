@@ -6,13 +6,14 @@
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
 #include "spec.h"
-#include "hardware/SGPHardwareSpec.h"
-#include "hardware/GenomeLibrary.h"
-#include "hardware/SGPHardware.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 #include "org_type_info.h"
 #include "ReproductionQueue.h"
+#include "ProgramBuilder.h"
+#include "hardware/SGPHardwareSpec.h"
+#include "hardware/GenomeLibrary.h"
+#include "hardware/SGPHardware.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
@@ -22,6 +23,7 @@
 
 namespace sgpmode {
 
+// TODO - do we want this to be configurable?
 const size_t PROGRAM_LENGTH = 100;
 
 // TODO - init necessary hardware state on organism birth (e.g., stack limit)
@@ -69,6 +71,7 @@ protected:
   Scheduler scheduler;
   size_t max_world_size; // Maximum number of locations in the world
   ReproductionQueue repro_queue;
+  ProgramBuilder<hw_spec_t> prog_builder;
 
   /* TODO - task environment */
 
@@ -323,6 +326,7 @@ public:
    * and populating the world with hosts and symbionts.
    */
   void Setup() override;
+  // NOTE - Can we get rid of passing these values in as pointers?
   void SetupHosts(long unsigned int* POP_SIZE) override;
   void SetupSymbionts(long unsigned int* total_syms) override;
 

@@ -17,17 +17,7 @@ void SGPWorld::Setup() {
   // TODO - should this be here? (used to be inside scheduler)
   sgpl::tlrand.Get().ResetSeed(sgp_config.SEED());
 
-  // TODO - move these into appropriate setup functions
-  before_host_process_sig.Clear();
-  after_host_process_sig.Clear();
-  after_host_cpu_step_sig.Clear();
-  before_freeliving_sym_process_sig.Clear();
-  after_freeliving_sym_process_sig.Clear();
-  after_freeliving_sym_cpu_step_sig.Clear();
-  before_endosym_process_sig.Clear();
-  after_endosym_process_sig.Clear();
-  after_endosym_cpu_step_sig.Clear();
-
+  // TODO - configure program builder if necessary
 
   // Configure SGP organism type
   SetupOrgMode();
@@ -36,6 +26,15 @@ void SGPWorld::Setup() {
   //  - Could do some reorganization to copy-paste. E.g., make functions for this,
   //     add hooks into the base setup to give more downstream flexibility.
   double start_moi = sgp_config.START_MOI();
+  // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
+  long unsigned int POP_SIZE;
+  // TODO - add pop mode?
+  max_world_size = sgp_config.GRID_X() * sgp_config.GRID_Y();
+  if (sgp_config.POP_SIZE() < 0) {
+    POP_SIZE = max_world_size;
+  } else {
+    POP_SIZE = sgp_config.POP_SIZE();
+  }
 
   // Setup population structure
   SetupPopStructure();
@@ -50,8 +49,10 @@ void SGPWorld::Setup() {
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
-  // -- bookmark --
-
+  SetupHosts(&POP_SIZE);
+  // NOTE - any way to clean this up a little? Or, add some explanatory comments.
+  long unsigned int total_syms = POP_SIZE * start_moi;
+  SetupSymbionts(&total_syms);
 }
 
 void SGPWorld::SetupOrgMode() {
@@ -70,15 +71,6 @@ void SGPWorld::SetupOrgMode() {
 }
 
 void SGPWorld::SetupPopStructure() {
-  long unsigned int POP_SIZE;
-  // TODO - add pop mode?
-  if (sgp_config.POP_SIZE() == -1) {
-    POP_SIZE = sgp_config.GRID_X() * sgp_config.GRID_Y();
-  } else {
-    POP_SIZE = sgp_config.POP_SIZE();
-  }
-  max_world_size = (size_t)POP_SIZE;
-
   // set world structure (either mixed or a grid with some dimensions)
   // and set synchronous generations to false
   if (!sgp_config.GRID()) {
@@ -86,6 +78,9 @@ void SGPWorld::SetupPopStructure() {
   } else {
     SetPopStruct_Grid(sgp_config.GRID_X(), sgp_config.GRID_Y(), false);
   }
+  // Resize world capacity to max_world_size
+  Resize(max_world_size);
+
   // Setup function that gets host neighbor (used for symbiont)
   // TODO - add different configuration options for this?
   fun_find_host_for_horizontal_trans = [this](
@@ -251,9 +246,60 @@ void SGPWorld::SetupHostSymInteractions() {
 }
 
 // TODO - clear host process signals
-void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {/*TODO*/}
+void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
+  // TODO - add any signals for host/endosymbiont initialization?
+  // Clear host process signals
+  before_host_process_sig.Clear();
+  after_host_process_sig.Clear();
+  after_host_cpu_step_sig.Clear();
+  const size_t init_pop_size = *POP_SIZE;
+  for (size_t i = 0; i < init_pop_size; ++i) {
+    emp::Ptr<sgp_host_t> new_host;
+    switch (sgp_org_type) {
+      case org_mode_t::DEFAULT:
+        new_host.New<sgp_host_t>(
+          random_ptr,
+          this,
+          &sgp_config,
+          prog_builder.CreateNotProgram(PROGRAM_LENGTH),
+          sgp_config.HOST_INT()
+        );
+      // TODO - add back more modes
+      default:
+        // org mode has already been verified, so something has gone very wrong
+        // with that if we're here.
+        std::cout << "Unrecognized SGP organism type: " << sgp_config.ORGANISM_TYPE() << std::endl;
+        break;
+    }
+
+    // NOTE - what about other Start MOI values?
+    // - these endosymbionts have empty programs?
+    if (sgp_config.START_MOI() == 1) {
+      emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
+        random_ptr,
+        this,
+        &sgp_config,
+        sgp_config.SYM_INT()
+      );
+      new_host->AddSymbiont(new_sym);
+    }
+    InjectHost(new_host);
+  }
+}
+
+
 // TODO - clear symbiont process signals
-void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {/*TODO*/}
+void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
+  // NOTE - this was empty in original implementation.
+
+  // Clear symbiont-related signals
+  before_freeliving_sym_process_sig.Clear();
+  after_freeliving_sym_process_sig.Clear();
+  after_freeliving_sym_cpu_step_sig.Clear();
+  before_endosym_process_sig.Clear();
+  after_endosym_process_sig.Clear();
+  after_endosym_cpu_step_sig.Clear();
+}
 
 
 }
