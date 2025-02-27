@@ -18,6 +18,7 @@ void SGPWorld::Setup() {
   sgpl::tlrand.Get().ResetSeed(sgp_config.SEED());
 
   // TODO - configure program builder if necessary
+  prog_builder.SetStartTag(START_TAG);
 
   // Configure SGP organism type
   SetupOrgMode();
@@ -280,7 +281,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     emp::Ptr<sgp_host_t> new_host;
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
-        new_host.New<sgp_host_t>(
+        new_host = emp::NewPtr<sgp_host_t>(
           random_ptr,
           this,
           &sgp_config,

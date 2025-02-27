@@ -105,6 +105,9 @@ public:
     // }
     // Invalidate any in-progress reproduction
     auto& cpu_state = hardware.GetCPUState();
+    if (cpu_state.ReproInProgress()) {
+      my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
+    }
     // TODO - put this functionality back once repro queue is re-implemented
     // if (cpu_state.ReproInProgress()) {
     //   my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =

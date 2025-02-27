@@ -56,6 +56,11 @@ public:
     fun_reproduce_org = fun;
   }
 
+  void Invalidate(size_t queue_pos) {
+    emp_assert(queue_pos < queue.size());
+    queue[queue_pos].valid = false;
+  }
+
   // Add organism to queue, return organism's queue id (valid until queue is processed)
   size_t Enqueue(
     emp::Ptr<Organism> org_ptr,

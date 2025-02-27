@@ -18,7 +18,8 @@
 
 namespace sgpmode {
 
-
+// NOTE - should this be repro "in progress" or "queued"?
+//        I think this is only used to manage queued reproductions?
 enum class ReproState { NONE=0, ATTEMPTING, IN_PROGRESS };
 
 /**
@@ -172,7 +173,7 @@ public:
     return repro_info.state == ReproState::IN_PROGRESS;
   }
   bool ReproAttempt() const {
-    repro_info.state == ReproState::ATTEMPTING;
+    return repro_info.state == ReproState::ATTEMPTING;
   }
   size_t GetReproQueuePos() const {
     emp_assert(ReproInProgress(), "Queue position valid only if repro is in progress");

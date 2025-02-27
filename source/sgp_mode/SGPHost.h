@@ -123,8 +123,9 @@ public:
     // - Or, move functionality into world (add world function for invalidating queued repro)
     auto& cpu_state = hardware.GetCPUState();
     if (cpu_state.ReproInProgress()) {
-      my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
-        emp::WorldPosition::invalid_id;
+      my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
+      // my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
+      //   emp::WorldPosition::invalid_id;
     }
     // if (hardware.state.in_progress_repro != -1) {
     //   my_world->to_reproduce[cpu.state.in_progress_repro].second =

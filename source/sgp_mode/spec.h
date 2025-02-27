@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <string>
 
+#include "hardware/SGPHardwareSpec.h"
+
 // TODO - rename, "spec" overlaps too much with hardwdare spec naming; confusing as-is
 namespace sgpmode::spec {
 

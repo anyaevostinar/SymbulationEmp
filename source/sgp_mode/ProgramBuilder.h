@@ -18,7 +18,7 @@ public:
   using hw_spec_t = HW_SPEC_T;
   using program_t = sgpl::Program<hw_spec_t>;
   using inst_t = sgpl::Instruction<hw_spec_t>;
-  using tag_t = typename hw_spect_t::tag_t;
+  using tag_t = typename hw_spec_t::tag_t;
 
 protected:
   // Can add extra flexibility in future to configure
@@ -27,10 +27,15 @@ protected:
   std::string io_op_name = "SharedIO";//inst::SharedIO::name();
   // std::string
 
+  tag_t start_tag;
+
 public:
   // TODO - finish drafting
 
   // TODO - add functions for switching "instruction modes"
+  void SetStartTag(const tag_t& tag) {
+    start_tag = tag;
+  }
 
   void AddInst(
     program_t& program,
@@ -71,15 +76,16 @@ public:
     // Add start anchor
     AddInst(
       program,
-      "Global Anchor",
-      hw_spec_t::START_TAG
+      "GlobalAnchor",
+      start_tag
     );
     // Add not instruction
     AddTask_Not(program); // Add not task
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
-    AddInst("Reproduce")
+    AddInst(program, "Reproduce");
+    return program;
   }
 
 };

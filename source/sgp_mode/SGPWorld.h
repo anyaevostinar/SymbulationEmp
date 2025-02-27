@@ -33,6 +33,7 @@ public:
   using hw_spec_t = SGPHardwareSpec<Library, sgp_cpu_peripheral_t, SGPWorld>;
   using sgp_host_t = SGPHost<hw_spec_t>;
   using sgp_sym_t = SGPSymbiont<hw_spec_t>;
+  using tag_t = typename hw_spec_t::tag_t;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
@@ -65,6 +66,8 @@ public:
 
   using org_mode_t = typename org_info::SGPOrganismType;
   using stress_sym_mode_t = typename org_info::StressSymbiontType;
+
+  tag_t START_TAG = tag_t(std::numeric_limits<uint64_t>::max());
 
 protected:
   // TODO - scheduler could be SGP scheduler? It will only work with SGPWorld anyway?
@@ -360,6 +363,8 @@ public:
 
   org_mode_t GetOrgType() const { return sgp_org_type; }
   stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
+
+  ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
   SyncDataMonitor<double>& GetSymDonatedDataNode();
