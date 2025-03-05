@@ -56,6 +56,15 @@ public:
       );
     }
 
+    bool IsValidOutput(output_t output) const {
+      return emp::Has(valid_outputs, output);
+    }
+
+    const emp::vector<size_t>& GetTaskIDs(output_t output) const {
+      emp_assert(IsValidOutput(output));
+      return task_lookup.at(output);
+    }
+
   };
 
 protected:
@@ -89,6 +98,7 @@ protected:
     task_io.is_collision=true;
     size_t build_tries = 0;
     do {
+      // TODO - discuss if we want to handle input buffers differently
       task_io.Clear();
       task_io.correct_outputs.resize(task_set.GetSize(), (uint32_t)-1);
       task_io.input_buffer = {

@@ -1,7 +1,7 @@
-#ifndef CPU_STATE_H
-#define CPU_STATE_H
+#ifndef HARDWARE_CPU_STATE_H
+#define HARDWARE_CPU_STATE_H
 
-#include "IORingBuffer.h"
+#include "RingBuffer.h"
 #include "Stacks.h"
 #include "../spec.h"
 #include "../utils.h"
@@ -32,6 +32,7 @@ class CPUState {
 public:
   // using spec_t = HW_SPEC_T;
   using world_t = WORLD_T;
+  using input_buf_t = RingBuffer<uint32_t>;
 
   struct ReproInfo {
     ReproState state = ReproState::NONE;
@@ -39,8 +40,9 @@ public:
   };
 protected:
   Stacks<uint32_t> stacks;
-  IORingBuffer<uint32_t, 4> input_buf;
-  emp::vector<size_t> output_buffer;
+  input_buf_t input_buf;
+  emp::vector<uint32_t> output_buffer;
+  size_t task_env_id = 0; // Tracks current task ID environment used by this organism
 
   // TODO - get rid of dynamic memory if possible
   // emp::BitSet<spec::NUM_TASKS> used_resources = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
@@ -48,9 +50,12 @@ protected:
   // emp::BitSet<spec::NUM_TASKS> parent_tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>(true);
   // TODO - will need to resize / reset
   size_t num_tasks = 0;
-  emp::BitVector used_resources;          // TODO - document use
+  // emp::BitVector used_resources;          // TODO - document use
+  // NOTE - should this be in the CPU state? Or, move into organism class as "phenotype" information?
   emp::BitVector tasks_performed;
-  emp::BitVector parent_tasks_performed;
+  emp::vector<size_t> tasks_performance_cnt;
+
+  emp::BitVector parent_tasks_performed;  // TODO - Configure parent tasks performed
 
   emp::vector<int> task_change_loss;    // Change in task performance (relative to parent)
   emp::vector<int> task_change_gain;    // Change in task performance (relative to parent)
@@ -64,7 +69,7 @@ protected:
   // int task_toward_partner[spec::NUM_TASKS] = { 0 };
   // int task_from_partner[spec::NUM_TASKS] = { 0 };
 
-  double survival_resource = 0.0;
+  double survival_resource = 0.0; // TODO - move this out of CPUState
 
   // emp::vector<size_t> available_dependencies;
   // emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
@@ -107,18 +112,23 @@ public:
   // NOTE - does not update/clear organism pointer or world pointer.
   void Reset(size_t task_cnt)  {
     num_tasks = task_cnt;
-
     // Clear stacks
     stacks.ClearAll();
     stacks.SetActive(0);
 
     // Reset the input buffer.
-    input_buf.Reset(0);
+    input_buf.Reset(0, 0);
+    task_env_id = 0;
+
+    // Reset output buffer
+    output_buffer.clear();
+
     // Resize + 0-out
-    utils::ResizeClear(used_resources, num_tasks);
+    // utils::ResizeClear(used_resources, num_tasks);
     utils::ResizeClear(tasks_performed, num_tasks);
     utils::ResizeClear(parent_tasks_performed, num_tasks);
 
+    utils::ResizeFill(tasks_performance_cnt, num_tasks, 0);
     utils::ResizeFill(task_change_loss, num_tasks, 0);
     utils::ResizeFill(task_change_gain, num_tasks, 0);
     utils::ResizeFill(task_toward_partner, num_tasks, 0);
@@ -145,6 +155,25 @@ public:
     location = loc;
   }
   const emp::WorldPosition& GetLocation() const { return location; }
+
+  void SetTaskEnvID(size_t id) { task_env_id = id; }
+  size_t GetTaskEnvID() const { return task_env_id; }
+
+  input_buf_t& GetInputBuffer() { return input_buf; }
+  const input_buf_t& GetInputBuffer() const { return input_buf; }
+
+  emp::vector<uint32_t>& GetOutputBuffer() { return output_buffer; }
+  const emp::vector<uint32_t>& GetOutputBuffer() const { return output_buffer; }
+
+  void SetInputs(const emp::vector<uint32_t>& inputs) {
+    input_buf.SetBuffer(inputs);
+    emp_assert(input_buf.size() == inputs.size());
+    // input_buf.Reset(inputs.size());
+    // // NOTE - could come back and add support for std algorithms
+    // for (uint32_t val : inputs) {
+    //   input_buf.push(val);
+    // }
+  }
 
   // const emp::WorldPosition& GetLocation() const { return loc; }
 
@@ -189,25 +218,26 @@ public:
   }
 
   const emp::BitVector& GetTasksPerformed() const { return tasks_performed; }
+  emp::BitVector& GetTasksPerformed() { return tasks_performed; }
+  bool GetTaskPerformed(size_t task_id) const { return tasks_performed.Get(task_id); }
+
   const emp::BitVector& GetParentTasksPerformed() const { return parent_tasks_performed; }
+  emp::BitVector& GetParentTasksPerformed() { return parent_tasks_performed; }
+  bool GetParentTaskPerformed(size_t task_id) const { return parent_tasks_performed.Get(task_id); }
 
+  const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_cnt; }
+  emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_cnt; }
+  size_t GetTaskPerformanceCount(size_t task_id) const {
+    emp_assert(task_id < tasks_performance_cnt.size());
+    return tasks_performance_cnt[task_id];
+  }
 
-  // TODO - accessors
-  // stacks
-  // input_buf
-  // used_resources
-  // tasks_performed
-  // parent_tasks_performed
-  // task_change_loss
-  // task_change_gain
-  // task_toward_partner
-  // task_from_partner
-  // survival_resource
-  // repro_queue_pos
-  // jump_table
-  // organism
-  // location
-
+  void MarkTaskPerformed(size_t task_id) {
+    emp_assert(task_id < tasks_performed.GetSize());
+    emp_assert(task_id < tasks_performance_cnt.size());
+    tasks_performed.Set(task_id, true);
+    ++(tasks_performance_cnt[task_id]);
+  }
 
 };
 

@@ -107,7 +107,13 @@ INST(Reproduce, {
   state.MarkReproAttempt();
 });
 
-// TODO - determine how inputs will work
+// NOTE - what is the intended difference between SharedIO and PrivateIO?
+INST(IO, {
+  // (1) Add output to output buffer
+  state.GetOutputBuffer().emplace_back(a);
+  // (2) Read next value from input buffer (advancing buffer read ptr)
+  a = state.GetInputBuffer().read();
+});
 
 } // namespace inst
 

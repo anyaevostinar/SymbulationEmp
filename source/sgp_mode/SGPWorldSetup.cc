@@ -14,6 +14,9 @@ namespace sgpmode {
 // TODO - implement "empty initialization" option
 //        - Particularly useful for testing
 void SGPWorld::Setup() {
+  // Clear all world signals
+  ClearWorldSignals();
+
   // Reset the seed of the main sgp thread based on the config
   // TODO - should this be here? (used to be inside scheduler)
   sgpl::tlrand.Get().ResetSeed(sgp_config.SEED());
@@ -146,21 +149,11 @@ void SGPWorld::SetupReproduction() {
 
 // Configure HostDoBirth signals
 void SGPWorld::SetupHostReproduction() {
-  // Reset host birth signals
-  before_host_do_birth_sig.Clear();
-  after_host_do_birth_sig.Clear();
   // TODO - anything else to configure here?
 }
 
 // Configure symbiont reproduction signals
 void SGPWorld::SetupSymReproduction() {
-  // Reset sym do birth signals
-  after_sym_do_birth_sig.Clear();
-
-  // Reset sym vertical transmission signals
-  before_sym_vert_transmission_sig.Clear();
-  after_sym_vert_transmission_sig.Clear();
-
   // TODO - clean this up
   // stress hard-coded transmission modes
   // TODO - allow "layering on" of stress/nutrient/etc functionality
@@ -279,10 +272,6 @@ void SGPWorld::SetupHostSymInteractions() {
 // TODO - clear host process signals
 void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   // TODO - add any signals for host/endosymbiont initialization?
-  // Clear host process signals
-  before_host_process_sig.Clear();
-  after_host_process_sig.Clear();
-  after_host_cpu_step_sig.Clear();
 
   // TODO - discuss implications of timing for core launch
   // Launch core if none running.
@@ -332,14 +321,6 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
   // NOTE - this was empty in original implementation.
 
-  // Clear symbiont-related signals
-  before_freeliving_sym_process_sig.Clear();
-  after_freeliving_sym_process_sig.Clear();
-  after_freeliving_sym_cpu_step_sig.Clear();
-  before_endosym_process_sig.Clear();
-  after_endosym_process_sig.Clear();
-  after_endosym_cpu_step_sig.Clear();
-
   before_endosym_process_sig.AddAction(
     [this](
       const emp::WorldPosition& sym_pos ,
@@ -368,6 +349,79 @@ void SGPWorld::SetupTaskEnvironment() {
     sgp_config.TASK_IO_BANK_SIZE(),
     sgp_config.TASK_IO_UNIQUE_OUTPUT()
   );
+
+  // TODO - configure offspring to have parent task profiles in cpustate
+
+  // NOTE - discuss whether we want to reset parent after reproduction
+  //        Currently, inconsistent between host do birth, sym do birth, vert trans
+  //        because vert trans doesn't know sym offspring until after
+
+  // Configure oganism input buffers / environment id
+  // NOTE - now that assigning new env io is in a function, could
+  //        hardcode these calls in "ProcessOrg" functions.
+  //        If this isn't something we want to configure at runtime, should do that.
+  before_host_do_birth_sig.AddAction(
+    [this](
+      sgp_host_t& host_offspring,
+      sgp_host_t& host_parent,
+      const emp::WorldPosition&  parent_pos
+    ) {
+      AssignNewEnvIO(host_offspring.GetHardware().GetCPUState());
+    }
+  );
+
+  before_sym_do_birth_sig.AddAction(
+    [this](
+      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      const emp::WorldPosition& parent_pos
+    ) {
+      AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState());
+    }
+  );
+
+  after_sym_vert_transmission_sig.AddAction(
+    [this](
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
+      emp::Ptr<sgp_host_t> host_offspring_ptr,
+      emp::Ptr<sgp_host_t> host_parent_ptr,
+      const emp::WorldPosition& host_parent_pos,
+      bool success                        /* vertical transmission success */
+    ) {
+      if (!success) return;
+      emp_assert(sym_offspring_ptr != nullptr);
+      AssignNewEnvIO(sym_offspring_ptr->GetHardware().GetCPUState());
+    }
+  );
+
+  // --- Setup task completion/output buffer checks ---
+  // NOTE - discuss timing of this check. Currently happens after executing cpu
+  //        fully for this update
+  // NOTE - discuss whether we want ability to configure this differently for different
+  //        kinds of organisms
+  after_host_cpu_exec_sig.AddAction(
+    [this](sgp_host_t& host) {
+      ProcessHostOutputBuffer(host);
+    }
+  );
+
+  // E.g., fine for freeliving and endo syms to have same output processing?
+  after_freeliving_sym_cpu_exec_sig.AddAction(
+    [this](sgp_sym_t& sym) {
+      ProcessSymOutputBuffer(sym);
+    }
+  );
+
+  after_endosym_cpu_exec_sig.AddAction(
+    [this](
+      const emp::WorldPosition& sym_pos,
+      sgp_sym_t& sym,
+      sgp_host_t& host
+    ) {
+      ProcessSymOutputBuffer(sym);
+    }
+  );
+
 }
 
 }

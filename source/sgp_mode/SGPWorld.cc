@@ -30,6 +30,7 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
   }
 }
 
+// TODO - discuss timing
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // If host is dead, don't process.
   if (host.GetDead()) {
@@ -54,6 +55,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 
     after_host_cpu_step_sig.Trigger(host);
   }
+  after_host_cpu_exec_sig.Trigger(host);
   // Handle any endosymbionts (configurable at setup-time)
   // NOTE - is there any reason that this might need to be a functor?
   ProcessEndosymbionts(host);
@@ -106,6 +108,7 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
   // TODO - signal?
 }
 
+// TODO - discuss timing
 void SGPWorld::ProcessEndosymbiont(
   const emp::WorldPosition& sym_pos,
   sgp_sym_t& sym,
@@ -121,11 +124,13 @@ void SGPWorld::ProcessEndosymbiont(
     sym.GetHardware().RunCPUStep(sym_pos, 1);
     after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
   }
+  after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, host);
   // Call symbiont's process function
   sym.Process(sym_pos);
   after_endosym_process_sig.Trigger(sym_pos, sym, host);
 }
 
+// TODO - discuss timing
 void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym) {
   // TODO - ask about the code below (should it ever be run on endosymbionts?)
   // if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
@@ -141,6 +146,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
       sym.GetHardware().RunCPUStep(pos, 1);
       after_freeliving_sym_cpu_step_sig.Trigger(sym);
     }
+    after_freeliving_sym_cpu_exec_sig.Trigger(sym);
     // Call symbiont's process function
     sym.Process(pos);
     after_freeliving_sym_process_sig.Trigger(sym);
@@ -295,18 +301,25 @@ bool SGPWorld::EndosymAttemptVertTransmission(
   // Trigger before transmission signal.
   before_sym_vert_transmission_sig.Trigger(
     endosym_ptr,          /* symbiont producing offspring */
-    host_parent_ptr,  /* transmission from */
     host_offspring_ptr, /* transmission to */
+    host_parent_ptr,  /* transmission from */
     parent_pos
   );
   // Do vertical transmission
   // NOTE - easy way to grab the new symbiont?
   // TODO - How to know if vertical transmission is successful?
-  const bool success = endosym_ptr->VerticalTransmission(host_offspring_ptr);
+  auto endosym_offspring = endosym_ptr->VerticalTransmission(host_offspring_ptr);
+  const bool success = (bool)endosym_offspring;
+  emp::Ptr<sgp_sym_t> endosym_offspring_ptr = (success) ?
+    static_cast<sgp_sym_t*>(endosym_offspring.value().Raw()) :
+    nullptr;
+  // TODO -
   // Trigger after transmission signal.
   after_sym_vert_transmission_sig.Trigger(
-    host_parent_ptr,  /* transmission from */
-    host_offspring_ptr, /* transmission to */
+    endosym_offspring_ptr, /* endosym offspring (if successful) */
+    endosym_ptr,                         /* endosym parent*/
+    host_offspring_ptr,                  /* transmission to */
+    host_parent_ptr,                     /* transmission from */
     parent_pos,
     success
   );
@@ -333,6 +346,77 @@ std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
 }
 
+void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
+  auto& cpu_state = host.GetHardware().GetCPUState();
+  const size_t env_task_id = cpu_state.GetTaskEnvID();
+  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+  // Process output buffer
+  auto& output_buffer = cpu_state.GetOutputBuffer();
+  for (uint32_t val : output_buffer) {
+    // Is this the correct output for any tasks?
+    if (task_io.IsValidOutput(val)) {
+      // Yes, this output is correct.
+      // Get all task ids associated with this output value
+      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
+      // Give credit for completed tasks
+      for (size_t task_id : task_ids) {
+        // Check task requirements
+        auto& task_req_info = task_env.GetHostTaskReq(task_id);
+        if (!CanPerformTask(cpu_state, task_req_info)) {
+          continue;
+        }
+        // Mark task as being performed
+        cpu_state.MarkTaskPerformed(task_id);
+        // Calc value, add to organism points
+        host.SetPoints(
+          task_req_info.fun_calc_task_val(
+            task_env,
+            task_req_info,
+            host.GetPoints()
+          )
+        );
+      }
+    }
+  }
+  // Clear output buffer
+  output_buffer.clear();
+}
+
+void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
+  auto& cpu_state = sym.GetHardware().GetCPUState();
+  const size_t env_task_id = cpu_state.GetTaskEnvID();
+  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+  // Process output buffer
+  auto& output_buffer = cpu_state.GetOutputBuffer();
+  for (uint32_t val : output_buffer) {
+    // Is this the correct output for any tasks?
+    if (task_io.IsValidOutput(val)) {
+      // Yes, this output is correct.
+      // Get all task ids associated with this output value
+      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
+      // Give credit for completed tasks
+      for (size_t task_id : task_ids) {
+        // Check task requirements
+        auto& task_req_info = task_env.GetSymTaskReq(task_id);
+        if (!CanPerformTask(cpu_state, task_req_info)) {
+          continue;
+        }
+        // Mark task as being performed
+        cpu_state.MarkTaskPerformed(task_id);
+        // Calc value, add to organism points
+        sym.SetPoints(
+          task_req_info.fun_calc_task_val(
+            task_env,
+            task_req_info,
+            sym.GetPoints()
+          )
+        );
+      }
+    }
+  }
+  // Clear output buffer
+  output_buffer.clear();
+}
 
 
 }

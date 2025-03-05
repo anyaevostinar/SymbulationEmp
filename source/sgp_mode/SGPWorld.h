@@ -36,6 +36,8 @@ public:
   using sgp_sym_t = SGPSymbiont<hw_spec_t>;
   using tag_t = typename hw_spec_t::tag_t;
   using sgp_hw_t = SGPHardware<hw_spec_t>;
+  using task_env_t = tasks::LogicTaskEnvironment;
+  using task_reqs_t = typename task_env_t::TaskReqInfo;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
@@ -121,6 +123,8 @@ protected:
     const emp::WorldPosition&    /* host_parent_pos */
   )> before_sym_vert_transmission_sig;
   emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
+    emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
     emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
     emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
     const emp::WorldPosition&,  /* host_parent_pos */
@@ -131,7 +135,6 @@ protected:
 
   // --- Host birth signals / functors ---
   // TODO - add functions that add functions to these signals
-  // TODO - switch to passing references instead of pointers
   emp::Signal<void(
     sgp_host_t&,        /* host_offspring_ptr */
     sgp_host_t&,        /* host_parent_ptr */
@@ -142,7 +145,7 @@ protected:
   )> after_host_do_birth_sig;
 
   // --- Host process signals / functors ---
-  // TODO - clear these in setuphosts
+  // TODO - document timing
   emp::Signal<void(
     sgp_host_t&
   )> before_host_process_sig;
@@ -152,6 +155,9 @@ protected:
   emp::Signal<void(
     sgp_host_t&
   )> after_host_cpu_step_sig;
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_cpu_exec_sig;
   // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
 
   // --- Free-living symbiont signals / functors ---
@@ -164,6 +170,9 @@ protected:
   emp::Signal<void(
     sgp_sym_t&                 /* sym */
   )> after_freeliving_sym_cpu_step_sig;
+  emp::Signal<void(
+    sgp_sym_t&                 /* sym */
+  )> after_freeliving_sym_cpu_exec_sig;
 
   // --- Endosymbiont process signals / functors ---
   emp::Signal<void(
@@ -181,10 +190,15 @@ protected:
     sgp_sym_t&,                /* sym */
     sgp_host_t&                /* host */
   )> after_endosym_cpu_step_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_exec_sig;
 
 
   // --- Environment signals/functors ---
-  fun_do_resource_inflow_t fun_do_resource_inflow;
+  // fun_do_resource_inflow_t fun_do_resource_inflow;
 
   std::function<std::optional<emp::WorldPosition>(
     size_t,                 /* Parent's host location id in world (pops[0][id])*/
@@ -240,6 +254,47 @@ protected:
   void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
   void SetupTaskEnvironment();
 
+  // Clear all world signals
+  void ClearWorldSignals() {
+    before_sym_do_birth_sig.Clear();
+    after_sym_do_birth_sig.Clear();
+    before_sym_vert_transmission_sig.Clear();
+    after_sym_vert_transmission_sig.Clear();
+    before_host_do_birth_sig.Clear();
+    after_host_do_birth_sig.Clear();
+    before_host_process_sig.Clear();
+    after_host_process_sig.Clear();
+    after_host_cpu_step_sig.Clear();
+    before_freeliving_sym_process_sig.Clear();
+    after_freeliving_sym_process_sig.Clear();
+    after_freeliving_sym_cpu_step_sig.Clear();
+    before_endosym_process_sig.Clear();
+    after_endosym_process_sig.Clear();
+    after_endosym_cpu_step_sig.Clear();
+  }
+
+  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
+    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
+    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
+    cpu_state.SetTaskEnvID(env_id);
+    cpu_state.SetInputs(task_io.input_buffer);
+  }
+
+  // NOTE - could make this a functor to allow runtime configuration or differences
+  //        between different kinds of organisms
+  // NOTE - Other conditions that we want to check?
+  bool CanPerformTask(
+    sgp_cpu_peripheral_t& cpu_state,
+    const task_reqs_t& task_reqs
+  ) {
+    const size_t task_id = task_reqs.task_id;
+    const size_t max_repeats = task_reqs.max_repeats;
+    return cpu_state.GetTaskPerformanceCount(task_id) < max_repeats;
+  }
+
+  void ProcessHostOutputBuffer(sgp_host_t& host);
+  void ProcessSymOutputBuffer(sgp_sym_t& sym);
+
 public:
   SGPWorld(
     emp::Random& rnd,
@@ -293,7 +348,7 @@ public:
 
     // Handle resource inflow
     // TODO - implement inflow configuration
-    fun_do_resource_inflow();
+    // fun_do_resource_inflow();
 
     // Update scheduler's evaluation order
     scheduler.UpdateSchedule();

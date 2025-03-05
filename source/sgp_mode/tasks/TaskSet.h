@@ -40,6 +40,7 @@ public:
     I.e., a particular set of inputs and the correct output as calculated by the
     TaskDefinition.
   */
+  // TODO - is this being used?
   struct TaskInstance {
     size_t task_id;               // Task ID for this task (from task definition)
     emp::vector<input_t> inputs;  // Inputs for this task instance

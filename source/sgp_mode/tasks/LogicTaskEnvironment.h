@@ -31,6 +31,7 @@ class LogicTaskEnvironment {
 public:
   struct TaskReqInfo;
   using this_t = LogicTaskEnvironment;
+  // NOTE - Could add cpustate as argument (would then need to template class off state type)
   using fun_calc_task_value_t = std::function<double(
     this_t&,            /* The environment, which could contain necessary environment state information */
     const TaskReqInfo&, /* Task requirement information */
@@ -157,6 +158,8 @@ public:
     emp_assert(IsSymTask(task_id));
     return sym_task_reqs[GetSymTaskReqID(task_id)];
   }
+
+  const io_bank_t& GetIOBank() const { return io_bank; }
 
   void Setup(const std::string& env_filepath, size_t io_bank_size, bool io_unique_outputs) {
     LoadTasks(env_filepath); // Will reset current bank, etc.
