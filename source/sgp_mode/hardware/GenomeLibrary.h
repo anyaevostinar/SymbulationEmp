@@ -19,7 +19,16 @@ using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,
   inst::Decrement,
+  inst::ShiftLeft,
+  inst::ShiftRight,
+  inst::Add,
+  inst::Subtract,
   inst::Nand,
+  inst::Push,
+  inst::Pop,
+  inst::SwapStack,
+  inst::Swap,
+  inst::Reproduce,
   sgpl::global::Anchor
 >;
 

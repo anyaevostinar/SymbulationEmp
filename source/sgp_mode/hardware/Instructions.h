@@ -85,7 +85,7 @@ INST(Push, {
 
 INST(Pop, {
   if (auto val = state.GetStacks().Pop()) {
-    a = val;
+    a = val.value();
   } else {
     a = 0;
   }
