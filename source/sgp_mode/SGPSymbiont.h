@@ -230,7 +230,7 @@ public:
    * bookkeeping on top of `Symbiont::VerticalTransmission()` to avoid messing
    * with the reproduction queue which is used for horizontal transmission.
    */
-  bool VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     // Save and restore the in-progress reproduction, since Reproduce() will be
     // called but it will still be on the queue for horizontal transmission
     // size_t old = cpu.state.in_progress_repro;
@@ -238,11 +238,11 @@ public:
     //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
     // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
     // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
-    const bool success = Symbiont::VerticalTransmission(host_baby);
+    auto sym_baby = Symbiont::VerticalTransmission(host_baby);
     // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
     // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
-    return success;
+    return sym_baby;
   }
 
 

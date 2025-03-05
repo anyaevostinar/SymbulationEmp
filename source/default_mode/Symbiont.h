@@ -7,6 +7,7 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <optional>
 
 
 class Symbiont: public Organism {
@@ -552,12 +553,13 @@ public:
   /**
    * Input: The pointer to the organism that is the new host baby
    *
-   * Output: None
+   * Output: Return symbiont offspring on success; std::nullopt otherwise.
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  bool VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     bool success = false;
+    emp::Ptr<Organism> sym_baby;
     if (my_world->WillTransmit()) {
       // Vertical transmission data nodes
       // Attempt vs success for vertical transmission is just whether it has enough resources
@@ -565,7 +567,7 @@ public:
 
       // If the world permits vertical transmission and the sym has enough resources, transmit!
       if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
-        emp::Ptr<Organism> sym_baby = Reproduce();
+        sym_baby = Reproduce();
         points -= my_config->SYM_VERT_TRANS_RES();
         success = host_baby->AddSymbiont(sym_baby) > 0;
         if (success) {
@@ -573,7 +575,7 @@ public:
         }
       }
     }
-    return success;
+    return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
   /**
