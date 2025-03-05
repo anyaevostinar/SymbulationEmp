@@ -363,7 +363,11 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
 void SGPWorld::SetupTaskEnvironment() {
   // TODO - configure any world <--> environment interactions that need to be
   //        setup prior to run
-  task_env.LoadTasks(sgp_config.TASK_ENV_CFG_PATH());
+  task_env.Setup(
+    sgp_config.TASK_ENV_CFG_PATH(),
+    sgp_config.TASK_IO_BANK_SIZE(),
+    sgp_config.TASK_IO_UNIQUE_OUTPUT()
+  );
 }
 
 }

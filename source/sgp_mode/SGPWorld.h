@@ -247,6 +247,7 @@ public:
   ) :
     SymWorld(rnd, _config),
     scheduler(rnd),
+    task_env(rnd),
     sgp_config(*_config)
   {
     // TODO - taskset

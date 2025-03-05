@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LogicTaskSet.h"
+#include "LogicTaskIOBank.h"
 
 #include "../../json/json.hpp"
 
@@ -36,6 +37,7 @@ public:
     double              /* Current organism 'merit'/'points' value */
   )>;
   using json_t = nlohmann::json;
+  using io_bank_t = LogicTaskIOBank;
 
   // Used to track information about task performance restrictions/requirements.
   struct TaskReqInfo {
@@ -54,6 +56,7 @@ protected:
   LogicTaskSet task_set;
   std::unordered_map<size_t, size_t> host_tasks;  // Keys: Task IDs (in task_set) of host tasks; Values: associated index into host_task_reqs
   std::unordered_map<size_t, size_t> sym_tasks;   // Keys: Task IDs (in task set) of sym tasks; Values: associated index into sym_task_reqs
+  io_bank_t io_bank;
 
   emp::vector<TaskReqInfo> host_task_reqs;
   emp::vector<TaskReqInfo> sym_task_reqs;
@@ -113,8 +116,25 @@ protected:
     sym_tasks[task_id] = sym_req_idx;
   }
 
+  // Load tasks from an environment file.
+  void LoadTasks(const std::string& env_filepath);
+
 public:
-  // LogicTaskEnvironment
+
+  LogicTaskEnvironment(
+    emp::Random& random
+  ) :
+    io_bank(random, task_set)
+  { }
+
+  void Clear() {
+    task_set.Clear();
+    host_tasks.clear();
+    sym_tasks.clear();
+    host_task_reqs.clear();
+    sym_task_reqs.clear();
+    io_bank.Clear();
+  }
 
   size_t GetTaskCount() const { return task_set.GetSize(); }
   size_t GetHostTaskCount() const { return host_task_reqs.size(); }
@@ -138,8 +158,10 @@ public:
     return sym_task_reqs[GetSymTaskReqID(task_id)];
   }
 
-  // Load tasks from an environment file.
-  void LoadTasks(const std::string& env_filepath);
+  void Setup(const std::string& env_filepath, size_t io_bank_size, bool io_unique_outputs) {
+    LoadTasks(env_filepath); // Will reset current bank, etc.
+    io_bank.GenerateBank(io_bank_size, io_unique_outputs);
+  }
 
   // NOTE - can have a process output buffer function that triggers signals that world can attach functions to
 
@@ -148,12 +170,7 @@ public:
 void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   std::cout << "Loading tasks from environment file." << std::endl;
   // Clear any existing task information.
-  task_set.Clear();
-  // task_req_info.clear();
-  host_tasks.clear();
-  sym_tasks.clear();
-  host_task_reqs.clear();
-  sym_task_reqs.clear();
+  Clear();
 
   // TODO - add support for limited resource pools
   //     E.g., {"resource_pools": {"name": "A", "in-flow": 5, "out-flow": 5}}

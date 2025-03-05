@@ -38,7 +38,9 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
 
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
-  VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration")
+  VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
+  VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
+  VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?")
 )
 
 }
