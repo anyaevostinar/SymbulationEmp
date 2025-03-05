@@ -87,12 +87,12 @@ public:
   }
 
   /// Retrieve a task by ID
-  const Task& GetTask(size_t id) const { return task_lib[id]; }
+  const TaskDefinition& GetTaskDef(size_t id) const { return task_lib[id]; }
 
   bool HasTask(const std::string& name) const { return emp::Has(name_map, name); }
 
   /// Add a new task to the task set.
-  void AddTask(
+  size_t AddTask(
     const std::string& name,
     const calc_output_fun_t& calc_output_fun,
     size_t num_inputs,
@@ -107,6 +107,7 @@ public:
       desc
     );
     name_map[name] = id;
+    return id;
   }
 
   /// Reset the task set.

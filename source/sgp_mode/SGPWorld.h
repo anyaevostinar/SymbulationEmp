@@ -11,6 +11,7 @@
 #include "org_type_info.h"
 #include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
+#include "tasks/LogicTaskEnvironment.h"
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
 #include "hardware/SGPHardware.h"
@@ -75,8 +76,8 @@ protected:
   size_t max_world_size; // Maximum number of locations in the world
   ReproductionQueue repro_queue;
   ProgramBuilder<hw_spec_t> prog_builder;
+  tasks::LogicTaskEnvironment task_env;
 
-  /* TODO - task environment */
 
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
@@ -236,6 +237,7 @@ protected:
   void SetupSymReproduction();     // TODO - shift to private function (will need to refactor tests)
   void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
   void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
+  void SetupTaskEnvironment();
 
 public:
   SGPWorld(
@@ -256,8 +258,6 @@ public:
     if(data_node_sym_earned) data_node_sym_earned.Delete();
   }
 
-  /* TODO - tasks */
-
   /**
    * Input: None
    *
@@ -270,8 +270,8 @@ public:
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
-  /* TODO - re-implement tasks, replace magic number when we do*/
-  size_t GetTaskCount() const { return 9; }
+
+  size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
   /**
    * Input: None

@@ -23,6 +23,9 @@ void SGPWorld::Setup() {
   // Configure SGP organism type
   SetupOrgMode();
 
+  // Configure task environment
+  SetupTaskEnvironment();
+
   // NOTE - Some of this code is repeated from base class.
   //  - Could do some reorganization to copy-paste. E.g., make functions for this,
   //     add hooks into the base setup to give more 1wnstream flexibility.
@@ -311,8 +314,6 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   }
 }
 
-
-// TODO - clear symbiont process signals
 void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
   // NOTE - this was empty in original implementation.
 
@@ -325,6 +326,11 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
   after_endosym_cpu_step_sig.Clear();
 }
 
+void SGPWorld::SetupTaskEnvironment() {
+  // TODO - configure any world <--> environment interactions that need to be
+  //        setup prior to run
+  task_env.LoadTasks(sgp_config.TASK_ENV_CFG_PATH());
+}
 
 }
 

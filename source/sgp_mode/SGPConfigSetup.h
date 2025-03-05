@@ -35,7 +35,10 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
-  VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?")
+  VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
+
+  GROUP(TASK_ENVIRONMENT, "Task environment settings"),
+  VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration")
 )
 
 }
