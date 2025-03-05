@@ -4,6 +4,7 @@
 #include "SGPWorld.h"
 #include "org_type_info.h"
 #include "utils.h"
+#include "hardware/SGPHardware.h"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include "emp/datastructs/map_utils.hpp"
@@ -17,6 +18,9 @@ void SGPWorld::Setup() {
   // TODO - should this be here? (used to be inside scheduler)
   sgpl::tlrand.Get().ResetSeed(sgp_config.SEED());
 
+  // Configure start tag
+  // TODO - clean up start tag management.
+  START_TAG.SetUInt64(0, std::numeric_limits<uint64_t>::max());
   // TODO - configure program builder if necessary
   prog_builder.SetStartTag(START_TAG);
 
@@ -279,6 +283,16 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   before_host_process_sig.Clear();
   after_host_process_sig.Clear();
   after_host_cpu_step_sig.Clear();
+
+  // TODO - discuss implications of timing for core launch
+  // Launch core if none running.
+  before_host_process_sig.AddAction(
+    [this](sgp_host_t& host) {
+      // NOTE - currently, LaunchCPU will only launch if no cores currently running
+      host.GetHardware().LaunchCPU(START_TAG);
+    }
+  );
+
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
@@ -291,7 +305,8 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
           prog_builder.CreateNotProgram(PROGRAM_LENGTH),
           sgp_config.HOST_INT()
         );
-      // TODO - add back more modes
+        break;
+        // TODO - add back more modes
       default:
         // org mode has already been verified, so something has gone very wrong
         // with that if we're here.
@@ -324,6 +339,25 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
   before_endosym_process_sig.Clear();
   after_endosym_process_sig.Clear();
   after_endosym_cpu_step_sig.Clear();
+
+  before_endosym_process_sig.AddAction(
+    [this](
+      const emp::WorldPosition& sym_pos ,
+      sgp_sym_t& sym,
+      sgp_host_t& host
+    ) {
+      // NOTE - currently, LaunchCPU will
+      sym.GetHardware().LaunchCPU(START_TAG);
+    }
+  );
+
+  before_freeliving_sym_process_sig.AddAction(
+    [this](sgp_sym_t& sym) {
+      // NOTE - currently, LaunchCPU will
+      sym.GetHardware().LaunchCPU(START_TAG);
+    }
+  );
+
 }
 
 void SGPWorld::SetupTaskEnvironment() {

@@ -24,7 +24,8 @@ protected:
   // Can add extra flexibility in future to configure
   // what instructions to use (e.g., different IO instructions, etc)
   std::string nand_op_name = inst::Nand::name();
-  std::string io_op_name = "SharedIO";//inst::SharedIO::name();
+  /* TODO - fix this once IO instruction is implemented!!! */
+  std::string io_op_name = "Nand"; //"SharedIO";//inst::SharedIO::name();
   // std::string
 
   tag_t start_tag;
@@ -76,7 +77,7 @@ public:
     // Add start anchor
     AddInst(
       program,
-      "GlobalAnchor",
+      "Global Anchor",
       start_tag
     );
     // Add not instruction

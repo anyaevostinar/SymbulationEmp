@@ -20,6 +20,7 @@
 
 namespace sgpmode {
 
+
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
@@ -27,13 +28,15 @@ namespace sgpmode {
 template<typename HW_SPEC_T>
 class SGPHardware {
 public:
+  using this_t = SGPHardware<HW_SPEC_T>;
   using spec_t = HW_SPEC_T;
   using cpu_t = sgpl::Cpu<spec_t>;
   using program_t = sgpl::Program<spec_t>;
   using inst_t = sgpl::Instruction<spec_t>;
   using jump_table_t = sgpl::JumpTable<spec_t, typename spec_t::global_matching_t>;
   using world_t = typename spec_t::world_t;
-  using cpu_state_t = CPUState<world_t>; // <WORLD_T>;
+  using cpu_state_t = CPUState<world_t>;
+  using tag_t = typename spec_t::tag_t;
 
 protected:
   cpu_t cpu;
@@ -90,18 +93,16 @@ protected:
    * Purpose: Initializes the jump table and task information in the CPUState.
    * Should be called when a new CPU is created or the program is changed.
    */
+  // TODO - should this be launching cores? At the moment, it needs to.
   void InitializeState() {
     cpu.InitializeAnchors(program);
 
-    // If CPU has no active cores, launch a core.
-    if (!cpu.HasActiveCore()) {
-      // TODO - move START_TAG definition into spec / world?
-      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
-    }
+    LaunchCPU(state.GetWorld().START_TAG);
 
+    // NOTE - this is awkward: it requires that a CPU core be launched to run.
+    //        This means that we need the start tag for any operation that would reset the CPU.
     // Initialize local jump table for program.
     InitializeLocalJumpTable();
-
   }
 
 public:
@@ -165,6 +166,7 @@ public:
     Reset(state.GetNumTasks());
   }
 
+  // TODO - is there a reason we might want to support different start tags?
   void Reset(size_t task_cnt) {
     cpu.Reset();
     state.Reset(task_cnt);
@@ -174,6 +176,14 @@ public:
   void SetProgram(const program_t& new_program) {
     program = new_program;
     Reset();
+  }
+
+  // Start a CPU core if none have been started
+  void LaunchCPU(const tag_t& start_tag, bool force_launch=false) {
+    // If CPU has no active cores or force is true, launch a core.
+    if (force_launch || !cpu.HasActiveCore()) {
+      cpu.DoLaunchCore(start_tag);
+    }
   }
 
   /**
@@ -186,12 +196,7 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles=1) {
-    // TODO - Can we eliminate this check?
-    //    - Shift into world?
-    if (!cpu.HasActiveCore()) {
-      // TODO - give world control over this?
-      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
-    }
+
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
     // state.SetLocation(location);
@@ -343,6 +348,8 @@ TODO - either delete, re-incoporate into hardware, or relocate implementations
 // bool CanPerformTask(size_t task_id) const {
 //   return TasksPerformable().Get(task_id);
 // }
+
+
 
 }
 
