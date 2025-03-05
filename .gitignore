@@ -19,3 +19,4 @@ symbulation.test
 local/
 output/
 log.txt
+*.json
