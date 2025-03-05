@@ -189,6 +189,7 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
         std::cout << " (invalid). Exiting." << std::endl;
         std::exit(EXIT_FAILURE);
       }
+      std::cout << std::endl;
       // Task name is valid, add to task_set.
       task_set.AddLogicTask(task["name"]);
     }
@@ -207,7 +208,7 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   // (3) Process host tasks.
   //     NOTE - Overrides any task settings set under "shared" tasks.
   if (env_json.contains("host")) {
-    auto& host_tasks = env_json["host"];
+    auto& host_tasks = env_json["host"]["tasks"];
     for (auto& task : host_tasks) {
       const size_t task_id = task_set.GetID(task["name"]);
       // Is this task already in host_tasks?
@@ -226,7 +227,7 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   // (4) Process symbiont tasks.
   //     NOTE - Overrides any task settings set under "shared" tasks.
   if (env_json.contains("symbiont")) {
-    auto& symbiont_tasks = env_json["symbiont"];
+    auto& symbiont_tasks = env_json["symbiont"]["tasks"];
     for (auto& task : symbiont_tasks) {
       const size_t task_id = task_set.GetID(task["name"]);
       // Is this task already in host_tasks?
