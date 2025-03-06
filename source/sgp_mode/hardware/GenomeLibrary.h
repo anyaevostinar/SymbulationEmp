@@ -29,6 +29,7 @@ using Library = sgpl::OpLibrary<
   inst::SwapStack,
   inst::Swap,
   inst::Reproduce,
+  inst::IO,
   sgpl::global::Anchor
 >;
 

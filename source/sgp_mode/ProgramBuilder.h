@@ -25,7 +25,7 @@ protected:
   // what instructions to use (e.g., different IO instructions, etc)
   std::string nand_op_name = inst::Nand::name();
   /* TODO - fix this once IO instruction is implemented!!! */
-  std::string io_op_name = "Nand"; //"SharedIO";//inst::SharedIO::name();
+  std::string io_op_name = inst::IO::name();
   // std::string
 
   tag_t start_tag;

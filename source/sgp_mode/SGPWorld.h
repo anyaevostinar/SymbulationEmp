@@ -362,6 +362,17 @@ public:
     ProcessGraveyard();
   }
 
+  void Run() {
+    emp_assert(sgp_config.UPDATES() >= 0);
+    const size_t updates = sgp_config.UPDATES();
+    for (size_t u = 0; u <= updates; ++u) {
+      Update();
+      if ((u % sgp_config.PRINT_INTERVAL()) == 0) {
+        std::cout << "Update: " << u << std::endl;
+      }
+    }
+  }
+
   // Process hosts at given position in world pop vector and free-living symbionts in world syms vector.
   void ProcessOrgsAt(size_t pop_id);
 
