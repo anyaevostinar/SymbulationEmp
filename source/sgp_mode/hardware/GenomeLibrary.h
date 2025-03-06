@@ -45,7 +45,8 @@ namespace lib_info {
     {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
     {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
     {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
-    {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3}
+    {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3},
+    {"IO", 1}
   };
 }
 

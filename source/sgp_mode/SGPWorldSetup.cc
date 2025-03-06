@@ -9,7 +9,7 @@
 
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
-
+// TODO - assert that sym / host has program
 namespace sgpmode {
 // TODO - implement "empty initialization" option
 //        - Particularly useful for testing
@@ -60,6 +60,7 @@ void SGPWorld::Setup() {
   SetupHostSymInteractions();
 
   SetupHosts(&POP_SIZE);
+  Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
@@ -89,7 +90,7 @@ void SGPWorld::SetupPopStructure() {
     SetPopStruct_Grid(sgp_config.GRID_X(), sgp_config.GRID_Y(), false);
   }
   // Resize world capacity to max_world_size
-  Resize(max_world_size);
+  // Resize(max_world_size); // TODO - move ethis back here
 
   // Setup function that gets host neighbor (used for symbiont)
   // TODO - add different configuration options for this?
@@ -278,14 +279,18 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   // Launch core if none running.
   before_host_process_sig.AddAction(
     [this](sgp_host_t& host) {
+      std::cout << "before_host_process_sig" << std::endl;
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
       host.GetHardware().LaunchCPU(START_TAG);
+      std::cout << "  Has active core?" << host.GetHardware().GetCPU().HasActiveCore() << std::endl;
     }
   );
 
+  // TODO - inject initial population at fixed positions (unless configured otherwise)
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
+    // std::cout << "Creating host " << i << std::endl;
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
         new_host = emp::NewPtr<sgp_host_t>(
@@ -295,6 +300,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
           prog_builder.CreateNotProgram(PROGRAM_LENGTH),
           sgp_config.HOST_INT()
         );
+        // new_host->GetHardware().PrintCode();
         break;
         // TODO - add back more modes
       default:
@@ -311,10 +317,16 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
         random_ptr,
         this,
         &sgp_config,
+        prog_builder.CreateNotProgram(PROGRAM_LENGTH),
         sgp_config.SYM_INT()
       );
+      // TODO - add InjectSymIntoHost to wrap
+      // std::cout << "  Injecting symbiont into host" << std::endl;
+      AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
       new_host->AddSymbiont(new_sym);
     }
+    // TODO - Add SGPWorld function to wrap inject host function
+    AssignNewEnvIO(new_host->GetHardware().GetCPUState());
     InjectHost(new_host);
   }
 }

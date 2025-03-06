@@ -11,6 +11,7 @@ namespace sgpmode {
 // TODO - Make clear that this will process host and free-living symbiont
 //        ProcessOrgsAt?
 void SGPWorld::ProcessOrgsAt(size_t pop_id) {
+  std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
     emp_assert(GetOrg(pop_id).IsHost());
@@ -34,6 +35,7 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
 
 // TODO - discuss timing
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
+  std::cout << "ProcessHostAt" << std::endl;
   // If host is dead, don't process.
   if (host.GetDead()) {
     return;
@@ -43,8 +45,10 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
   // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
   // Execute organism hardware for CYCLES_PER_UPDATE steps
+  host.GetHardware().PrintCode();
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
+    std::cout << "Execute cycle " << i << std::endl;
     host.GetHardware().RunCPUStep(pos, 1);
 
     // Did host attempt to reproduce?
@@ -68,6 +72,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 }
 
 void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
+  std::cout << "ProcessEndosymbionts" << std::endl;
   // If host doesn't have a symbiont, return.
   if (!host.HasSym()) {
     return;
@@ -76,6 +81,7 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
   size_t sym_cnt = syms.size();
   for (size_t sym_i = 0; sym_i < sym_cnt; /*sym_i handled internally*/) {
+    std::cout << "Processing endosym " << sym_i << std::endl;
     emp_assert(!(syms[sym_i]->IsHost()));
     // If host is dead (e.g., because of previous symbiont), stop processing.
     if (host.GetDead()) {
@@ -183,12 +189,14 @@ void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host)
   // NOTE - >= here or >? (used to be >)
   // NOTE - Could make this a configurable functor if we envision wanting different
   //        reproduction requirements
+  std::cout << "HostAttemptRepro" << std::endl;
   const double repro_cost = sgp_config.HOST_REPRO_RES();
   if (host.GetPoints() >= repro_cost) {
     // Host pays cost
     host.DecPoints(repro_cost);
     // Add host to repro queue
     // TODO - protect with mutex?
+    std::cout << "  Org queued in repro queue" << std::endl;
     const size_t queue_id = repro_queue.Enqueue(
       host.GetHardware().GetCPUState().GetOrgPtr(),
       pos
@@ -211,8 +219,10 @@ void SGPWorld::EndosymAttemptRepro(
   // NOTE - Do we want to be using the horizontal transmission cost here?
   //        Is this always horizontal transmisstion?
   // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
+  std::cout << "EndosymAttemptRepro" << std::endl;
   const double repro_cost = sgp_config.SYM_HORIZ_TRANS_RES();
   if (sym.GetPoints() >= repro_cost) {
+    std::cout << "  Endosym queued in repro queue" << std::endl;
     // Sym pays cost
     sym.DecPoints(repro_cost);
     // Add sym to repro queue

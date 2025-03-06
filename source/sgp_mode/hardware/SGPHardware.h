@@ -54,14 +54,14 @@ protected:
   void PrintOp(
     const inst_t& ins,
     const emp::map<std::string, size_t>& arities,
-    const jump_table_t& table,
+    jump_table_t& table,
     std::ostream& out = std::cout
 
     // const sgpl::Instruction<HW_SPEC_T>& ins,
     // const emp::map<std::string, size_t>& arities,
     // sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
     // std::ostream& out = std::cout
-  ) const;
+  ) ;
 
   // Internal helper function for initializing local jump table used by
   // symbulation jump instructions.
@@ -200,7 +200,8 @@ public:
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
     // state.SetLocation(location);
-
+    std::cout << "RunCPUStep" << std::endl;
+    std::cout << "  Has active core? " << cpu.HasActiveCore() << std::endl;
     sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
   }
 
@@ -235,6 +236,8 @@ public:
   const cpu_state_t& GetCPUState() const { return state; }
   cpu_state_t& GetCPUState() { return state; }
 
+  cpu_t& GetCPU() { return cpu; }
+
   /**
    * Input: None
    *
@@ -243,11 +246,12 @@ public:
    * Purpose: Prints out a human-readable representation of the program code of
    * the organism's genome to the given output stream or standard output.
    */
+  // TODO - clean up printing
   void PrintCode(std::ostream& out = std::cout) {
     // TODO - refactor internal/external dependencies of these functions
     //        could also consider shifting this functionality outside of this
     //        class and into a utilities file.
-    for (const auto& i : program) {
+    for (auto i : program) {
       PrintOp(
         i,
         lib_info::arities,
@@ -263,9 +267,9 @@ template<typename HW_SPEC_T>
 void SGPHardware<HW_SPEC_T>::PrintOp(
   const sgpl::Instruction<HW_SPEC_T>& ins,
   const emp::map<std::string, size_t>& arities,
-  const sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
+  jump_table_t& table,
   std::ostream& out
-) const {
+) {
   const std::string& name = ins.GetOpName();
   if (arities.count(name)) {
     // Simple instruction
