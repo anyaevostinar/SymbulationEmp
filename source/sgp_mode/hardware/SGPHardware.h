@@ -215,6 +215,7 @@ public:
   // TODO - implement more (configurable) mutation operators
   // NOTE - for now, just pass in the mutation rate
   void Mutate(double mut_rate) {
+    std::cout << "Mutate!" << std::endl;
     // TODO - get rid of or define magic number somewhere
     program.ApplyPointMutations(mut_rate * 15.0);
     // InitializeState();

@@ -135,11 +135,12 @@ void SGPWorld::SetupReproduction() {
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
       // Mark parent as no longer reproducing (world handles setting state, so should handle resetting)
-      static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+      // NOTE - could move reset repro state in Reproduce functions
+      // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     } else {
       SymDoBirth(child, repro_info.pos);
       // Mark parent as no longer reproducing
-      static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+      // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     }
   });
 
@@ -366,7 +367,9 @@ void SGPWorld::SetupTaskEnvironment() {
       sgp_host_t& host_parent,
       const emp::WorldPosition&  parent_pos
     ) {
-      AssignNewEnvIO(host_offspring.GetHardware().GetCPUState());
+      auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
+      // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
+      AssignNewEnvIO(offspring_cpu_state);
     }
   );
 
@@ -390,7 +393,9 @@ void SGPWorld::SetupTaskEnvironment() {
     ) {
       if (!success) return;
       emp_assert(sym_offspring_ptr != nullptr);
-      AssignNewEnvIO(sym_offspring_ptr->GetHardware().GetCPUState());
+      auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
+      // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
+      AssignNewEnvIO(sym_offspring_cpu_state);
     }
   );
 

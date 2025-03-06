@@ -234,6 +234,13 @@ public:
     // emp::Ptr<SGPHost> host_baby = Host::Reproduce().DynamicCast<SGPHost>();
     emp::Ptr<this_t> host_baby = static_cast<this_t*>(Host::Reproduce().Raw());
     host_baby->SetReproCount(reproductions + 1);
+    // Offspring needs to be given parent's (this) task profile
+    host_baby->GetHardware().GetCPUState().SetParentTasksPerformed(
+      hardware.GetCPUState().GetTasksPerformed()
+    );
+    // This organism reproduced, reset repro state.
+    hardware.GetCPUState().ResetReproState();
+
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
     // Moved reset repro state into reproduction queue
@@ -300,7 +307,8 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  // TODO - move this out
+  // TODO - move this out? Call configurable world mutate function.
+  // TODO - this isn't being called!
   void Mutate(double mut_rate) {
     Host::Mutate(); // Mutates interaction value
     hardware.Mutate(mut_rate); // Mutates program

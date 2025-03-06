@@ -20,6 +20,8 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
     );
   }
   // TODO - double check that my interpretation is correct here
+  // TODO - can we condiitonally tack this onto processing only
+  //        when free-living syms are turned on
   // Process free-living symbiont at this location (if any)
   if (IsSymPopOccupied(pop_id)) {
     emp_assert(!GetSymAt(pop_id)->IsHost());
@@ -109,6 +111,7 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
 }
 
 // TODO - discuss timing
+// NOTE - Go over reproduction
 void SGPWorld::ProcessEndosymbiont(
   const emp::WorldPosition& sym_pos,
   sgp_sym_t& sym,
@@ -123,6 +126,14 @@ void SGPWorld::ProcessEndosymbiont(
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     sym.GetHardware().RunCPUStep(sym_pos, 1);
     after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
+
+    // Did endosymbiont attempt to reproduce?
+    // NOTE - want to handle this after every clock cycle?
+    if (sym.GetHardware().GetCPUState().ReproAttempt()) {
+      // upside to handling this here: we have direct access to organism
+      EndosymAttemptRepro(sym_pos, sym, host);
+    }
+
   }
   after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, host);
   // Call symbiont's process function
@@ -131,6 +142,10 @@ void SGPWorld::ProcessEndosymbiont(
 }
 
 // TODO - discuss timing
+
+// TODO - Handle Reproduction?
+// TODO - Go over support for free-living symbionts. Not sure it was
+//        fully supported to begin with, so should discuss what needs to be added.
 void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym) {
   // TODO - ask about the code below (should it ever be run on endosymbionts?)
   // if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
@@ -144,6 +159,12 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     before_freeliving_sym_process_sig.Trigger(sym);
     for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
       sym.GetHardware().RunCPUStep(pos, 1);
+
+      // Did this sym attempt to reproduce?
+      if (sym.GetHardware().GetCPUState().ReproAttempt()) {
+        FreeLivingSymAttemptRepro(pos, sym);
+      }
+
       after_freeliving_sym_cpu_step_sig.Trigger(sym);
     }
     after_freeliving_sym_cpu_exec_sig.Trigger(sym);
@@ -174,8 +195,64 @@ void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host)
     );
     // Mark host hardware as repro in progress, no longer in repro "attempt" state.
     host.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+  } else {
+    // Attempt failed, so reset repro state.
+    host.GetHardware().GetCPUState().ResetReproState();
   }
+}
 
+void SGPWorld::EndosymAttemptRepro(
+  const emp::WorldPosition& pos,
+  sgp_sym_t& sym,
+  sgp_host_t& host
+) {
+  // NOTE - could make this a configurable functor if we want different success/failure
+  //        conditions on attempt
+  // NOTE - Do we want to be using the horizontal transmission cost here?
+  //        Is this always horizontal transmisstion?
+  // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
+  const double repro_cost = sgp_config.SYM_HORIZ_TRANS_RES();
+  if (sym.GetPoints() >= repro_cost) {
+    // Sym pays cost
+    sym.DecPoints(repro_cost);
+    // Add sym to repro queue
+    // TODO - protect with mutex for threading
+    const size_t queue_id = repro_queue.Enqueue(
+      sym.GetHardware().GetCPUState().GetOrgPtr(),
+      pos
+    );
+    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
+    sym.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+  } else {
+    // Attempt failed, so reset repro state.
+    sym.GetHardware().GetCPUState().ResetReproState();
+  }
+}
+
+void SGPWorld::FreeLivingSymAttemptRepro(
+  const emp::WorldPosition& pos,
+  sgp_sym_t& sym
+) {
+  // NOTE - this is largely redundant with other attempt functions. Need to think
+  //        think about whether attempt logic should be different
+  // NOTE - could make this a configurable functor if we want different success/failure
+  //        conditions on attempt
+  const double repro_cost = sgp_config.FREE_SYM_REPRO_RES();
+  if (sym.GetPoints() >= repro_cost) {
+    // Sym pays cost
+    sym.DecPoints(repro_cost);
+    // Add sym to repro queue
+    // TODO - protect with mutex for threading
+    const size_t queue_id = repro_queue.Enqueue(
+      sym.GetHardware().GetCPUState().GetOrgPtr(),
+      pos
+    );
+    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
+    sym.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+  } else {
+    // Attempt failed, so reset repro state.
+    sym.GetHardware().GetCPUState().ResetReproState();
+  }
 }
 
 void SGPWorld::DoReproduction() {
@@ -298,6 +375,8 @@ bool SGPWorld::EndosymAttemptVertTransmission(
   const emp::WorldPosition& parent_pos /* Parent location */
 ) {
   // NOTE - Make DoVerticalTransmission function?
+  // No need to mark reproduction in progress here, as this isn't managed by repro queue.
+  // endosym_ptr->GetHardware().GetCPUState().MarkReproInProgress();
   // Trigger before transmission signal.
   before_sym_vert_transmission_sig.Trigger(
     endosym_ptr,          /* symbiont producing offspring */
@@ -323,7 +402,8 @@ bool SGPWorld::EndosymAttemptVertTransmission(
     parent_pos,
     success
   );
-
+  // NOTE - ResetReproState here or in Reproduce function?
+  // endosym_ptr->GetHardware().GetCPUState().ResetReproState();
   return success;
 }
 

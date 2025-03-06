@@ -206,6 +206,10 @@ public:
     points += _in;
   }
 
+  void DecPoints(double amt) {
+    points -= amt;
+  }
+
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
    * in the host (default -1 if it doesn't have a host)
@@ -238,6 +242,7 @@ public:
     //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
     // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
     // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
+    std::cout << "vt" << std::endl;
     auto sym_baby = Symbiont::VerticalTransmission(host_baby);
     // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
     // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
@@ -254,10 +259,18 @@ public:
    * Purpose: To produce a new SGPSymbiont
    */
   emp::Ptr<Organism> Reproduce() {
+    std::cout << "  sym repro" << std::endl;
     // emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_baby = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
     sym_baby->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    // Offspring needs to be given parent's (this) task profile
+    sym_baby->GetHardware().GetCPUState().SetParentTasksPerformed(
+      hardware.GetCPUState().GetTasksPerformed()
+    );
+    // This organism reproduced, reset repro state.
+    hardware.GetCPUState().ResetReproState();
+
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
     // NOTE - we don't always want to reset the repro state

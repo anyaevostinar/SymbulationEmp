@@ -168,11 +168,6 @@ public:
   void SetInputs(const emp::vector<uint32_t>& inputs) {
     input_buf.SetBuffer(inputs);
     emp_assert(input_buf.size() == inputs.size());
-    // input_buf.Reset(inputs.size());
-    // // NOTE - could come back and add support for std algorithms
-    // for (uint32_t val : inputs) {
-    //   input_buf.push(val);
-    // }
   }
 
   // const emp::WorldPosition& GetLocation() const { return loc; }
@@ -224,6 +219,9 @@ public:
   const emp::BitVector& GetParentTasksPerformed() const { return parent_tasks_performed; }
   emp::BitVector& GetParentTasksPerformed() { return parent_tasks_performed; }
   bool GetParentTaskPerformed(size_t task_id) const { return parent_tasks_performed.Get(task_id); }
+  void SetParentTasksPerformed(const emp::BitVector& parent_tasks) {
+    parent_tasks_performed.Import(parent_tasks);
+  }
 
   const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_cnt; }
   emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_cnt; }

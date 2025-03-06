@@ -210,6 +210,17 @@ protected:
 
   void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
 
+  void EndosymAttemptRepro(
+    const emp::WorldPosition& pos,
+    sgp_sym_t& sym,
+    sgp_host_t& host
+  );
+
+  void FreeLivingSymAttemptRepro(
+    const emp::WorldPosition& pos,
+    sgp_sym_t& sym
+  );
+
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
   //   symbionts within the host.
