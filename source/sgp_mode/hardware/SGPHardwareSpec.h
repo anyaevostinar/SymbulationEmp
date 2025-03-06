@@ -37,10 +37,11 @@ struct SGPHardwareSpec {
   using global_matching_t = emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    // emp::ApproxDualStreakMetric<64>,
+    emp::HammingMetric<64>,
     // match selector
     emp::statics::RankedSelector<
-      std::ratio<1, 5> // match threshold
+      std::ratio<1, 3> // match threshold
     >,
     // regulator ; TODO - ask matthew about differences between emp:: and uit_emp
     emp::PlusCountdownRegulator<
@@ -60,7 +61,8 @@ struct SGPHardwareSpec {
   using local_matching_t = emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    // emp::ApproxDualStreakMetric<64>,
+    emp::HammingMetric<64>,
     // match selector
     emp::statics::RankedSelector<
       std::ratio<1, 2> // match threshold

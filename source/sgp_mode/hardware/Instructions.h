@@ -99,19 +99,18 @@ INST(Swap, { std::swap(a, b); });
 
 INST(Reproduce, {
   const emp::WorldPosition& org_loc = state.GetLocation();
-  std::cout << "Repro inst!" << std::endl;
+  // std::cout << "Repro inst!" << std::endl;
   // Check whether this attempt at reproduction is allowed.
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid() || state.ReproAttempt();
   if (invalid_attempt) {
     return;
   }
-  std::cout << "  Mark repro attempt!" << std::endl;
+  // std::cout << "  Mark repro attempt!" << std::endl;
   state.MarkReproAttempt();
 });
 
 // NOTE - what is the intended difference between SharedIO and PrivateIO?
 INST(IO, {
-  std::cout << "IO instruction" << std::endl;
   // (1) Add output to output buffer
   state.GetOutputBuffer().emplace_back(a);
   // (2) Read next value from input buffer (advancing buffer read ptr)

@@ -279,10 +279,8 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   // Launch core if none running.
   before_host_process_sig.AddAction(
     [this](sgp_host_t& host) {
-      std::cout << "before_host_process_sig" << std::endl;
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
       host.GetHardware().LaunchCPU(START_TAG);
-      std::cout << "  Has active core?" << host.GetHardware().GetCPU().HasActiveCore() << std::endl;
     }
   );
 

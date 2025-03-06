@@ -242,7 +242,7 @@ public:
     //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
     // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
     // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
-    std::cout << "vt" << std::endl;
+    // std::cout << "vt" << std::endl;
     auto sym_baby = Symbiont::VerticalTransmission(host_baby);
     // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
     // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);

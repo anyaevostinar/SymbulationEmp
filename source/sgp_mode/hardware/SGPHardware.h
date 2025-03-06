@@ -200,9 +200,12 @@ public:
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
     // state.SetLocation(location);
-    std::cout << "RunCPUStep" << std::endl;
-    std::cout << "  Has active core? " << cpu.HasActiveCore() << std::endl;
-    sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    // std::cout << "RunCPUStep" << std::endl;
+    // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
+    // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
+    // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
+    // sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**
@@ -308,7 +311,7 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
       out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
           << tag_name;
     } else if (name == "Global Anchor") {
-      out << tag_name << ':';
+      out << tag_name << " " << ins.tag << ':';
     } else {
       out << "<unknown " << name << ">";
     }

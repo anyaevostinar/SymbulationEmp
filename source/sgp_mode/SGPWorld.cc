@@ -11,7 +11,7 @@ namespace sgpmode {
 // TODO - Make clear that this will process host and free-living symbiont
 //        ProcessOrgsAt?
 void SGPWorld::ProcessOrgsAt(size_t pop_id) {
-  std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
+  // std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
     emp_assert(GetOrg(pop_id).IsHost());
@@ -35,7 +35,7 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
 
 // TODO - discuss timing
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
-  std::cout << "ProcessHostAt" << std::endl;
+  // std::cout << "ProcessHostAt" << std::endl;
   // If host is dead, don't process.
   if (host.GetDead()) {
     return;
@@ -45,10 +45,8 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
   // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
   // Execute organism hardware for CYCLES_PER_UPDATE steps
-  host.GetHardware().PrintCode();
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
-    std::cout << "Execute cycle " << i << std::endl;
     host.GetHardware().RunCPUStep(pos, 1);
 
     // Did host attempt to reproduce?
@@ -72,7 +70,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 }
 
 void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
-  std::cout << "ProcessEndosymbionts" << std::endl;
   // If host doesn't have a symbiont, return.
   if (!host.HasSym()) {
     return;
@@ -81,7 +78,6 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
   size_t sym_cnt = syms.size();
   for (size_t sym_i = 0; sym_i < sym_cnt; /*sym_i handled internally*/) {
-    std::cout << "Processing endosym " << sym_i << std::endl;
     emp_assert(!(syms[sym_i]->IsHost()));
     // If host is dead (e.g., because of previous symbiont), stop processing.
     if (host.GetDead()) {
@@ -189,14 +185,14 @@ void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host)
   // NOTE - >= here or >? (used to be >)
   // NOTE - Could make this a configurable functor if we envision wanting different
   //        reproduction requirements
-  std::cout << "HostAttemptRepro" << std::endl;
+  // std::cout << "HostAttemptRepro" << std::endl;
   const double repro_cost = sgp_config.HOST_REPRO_RES();
   if (host.GetPoints() >= repro_cost) {
     // Host pays cost
     host.DecPoints(repro_cost);
     // Add host to repro queue
     // TODO - protect with mutex?
-    std::cout << "  Org queued in repro queue" << std::endl;
+    // std::cout << "  Org queued in repro queue" << std::endl;
     const size_t queue_id = repro_queue.Enqueue(
       host.GetHardware().GetCPUState().GetOrgPtr(),
       pos
@@ -450,6 +446,8 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
       const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
       // Give credit for completed tasks
       for (size_t task_id : task_ids) {
+        // Is this a host task?
+        if (!task_env.IsHostTask(task_id)) continue;
         // Check task requirements
         auto& task_req_info = task_env.GetHostTaskReq(task_id);
         if (!CanPerformTask(cpu_state, task_req_info)) {
@@ -486,6 +484,8 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
       const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
       // Give credit for completed tasks
       for (size_t task_id : task_ids) {
+        // Is this a valid sym task?
+        if (!task_env.IsSymTask(task_id)) continue;
         // Check task requirements
         auto& task_req_info = task_env.GetSymTaskReq(task_id);
         if (!CanPerformTask(cpu_state, task_req_info)) {
