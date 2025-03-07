@@ -3,7 +3,7 @@
 
 TEST_CASE("Multi-infection results", "[integration]") {
   emp::Random random(29);
-  SymConfigBase config;
+  SymConfigPGG config;
   PGGWorld world(random, &config);
   config.HOST_INT(0);
   config.SYM_INT(0);

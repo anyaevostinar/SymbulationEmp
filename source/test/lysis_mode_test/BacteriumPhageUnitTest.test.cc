@@ -7,7 +7,7 @@ TEST_CASE("Phage Process", "[lysis]") {
 
         emp::Ptr<emp::Random> random;
         random.New(5);
-        SymConfigBase config;
+        SymConfigLysis config;
         LysisWorld w(*random, &config);
         LysisWorld * world = &w;
         config.LYSIS(1);
@@ -91,8 +91,8 @@ TEST_CASE("Phage Process", "[lysis]") {
 }
 
 TEST_CASE("Phage Vertical Transmission", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     config.LYSIS(1);
@@ -184,12 +184,12 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
         }
 
     }
-
+    random.Delete();
 }
 
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(6);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld *world = &w;
     config.SYM_LIMIT(2);
@@ -239,11 +239,12 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         }
         bacterium.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("Phage LysisBurst", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(6);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
 
@@ -280,11 +281,12 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
             }
         }
     }
+    random.Delete();
 }
 
 TEST_CASE("Phage LysisStep", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(9);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
 
@@ -330,11 +332,12 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
     }
 
     bacterium.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(9);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
+    SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
     double int_val = 0.2;
@@ -369,4 +372,5 @@ TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
 
     phage.Delete();
     bacterium.Delete();
+    random.Delete();
 }

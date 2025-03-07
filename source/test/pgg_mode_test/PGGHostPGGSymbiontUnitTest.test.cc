@@ -3,8 +3,8 @@
 
 TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(91);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
     double int_val = 1;
 
@@ -17,11 +17,12 @@ TEST_CASE("PGGSymbiont SetHost, GetHost", "[pgg]") {
 
     host.Delete();
     symbiont.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGHost DistribResources", "[pgg]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(19);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
     config.SYM_LIMIT(6);
     config.SYNERGY(5);
@@ -248,11 +249,12 @@ TEST_CASE("PGGHost DistribResources", "[pgg]") {
         }
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(95);
+    SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
@@ -295,12 +297,12 @@ TEST_CASE("PGGVertical Transmission of Symbiont", "[pgg]") {
         host.Delete();
         symbiont.Delete();
     }
-
+    random.Delete();
 }
 
 TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(49);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
     config.SYM_LIMIT(3);
     config.SYNERGY(5);
@@ -333,11 +335,12 @@ TEST_CASE("PGGSymbiont  PGGHost Pool Interaction", "[pgg]"){
     REQUIRE(host->GetPoints() == host_portion);
     REQUIRE(host->GetPool() == host_pool);
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGSym Dead and Removal", "[pgg]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(901);
+    SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
     config.SYM_LIMIT(2);
@@ -356,4 +359,5 @@ TEST_CASE("PGGSym Dead and Removal", "[pgg]") {
     host->Process(0);
     REQUIRE(host->GetSymbionts().size() == expected_sym_size);
     host.Delete();
+    random.Delete();
 }

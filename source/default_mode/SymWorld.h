@@ -32,6 +32,15 @@ protected:
 
   /**
     *
+    * Purpose: Represents the set of organisms which have been unlinked from 
+    * their standard managing structures and need to be deleted at the end 
+    * of every update.
+    *
+  */
+  emp::vector<emp::Ptr<Organism>> graveyard = {};
+
+  /**
+    *
     * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
     *
   */
@@ -77,7 +86,7 @@ protected:
 
 public:
   /**
-   * Input: The world's random seed
+   * Input: The world's random seed and a pointer to this world's config object
    *
    * Output: None
    *
@@ -110,7 +119,7 @@ public:
    *
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
-  ~SymWorld() {
+  virtual ~SymWorld() {
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
@@ -165,6 +174,16 @@ public:
   /**
    * Input: None
    *
+   * Output: A reference to the world graveyard.
+   *
+   * Purpose: To get the world's graveyard.
+   */
+  emp::vector<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
+
+
+  /**
+   * Input: None
+   *
    * Output: The boolean representing if vertical transmission will occur
    *
    * Purpose: To determine if vertical transmission will occur
@@ -205,7 +224,7 @@ public:
    * Output: The standard function object that determines which bin organisms
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organsims based on their interaction value.
+   * Purpose: To classify organisms based on their interaction value.
    */
   fun_calc_info_t GetCalcInfoFun() {
     if (!calc_info_fun) {
@@ -297,6 +316,16 @@ public:
     pop_sizes.resize(2);
   }
 
+  /**
+   * Input: An organism pointer to add to the graveyard
+   *
+   * Output: None
+   *
+   * Purpose: To add organisms to the graveyard
+   */
+  void SendToGraveyard(emp::Ptr<Organism> org) {
+    graveyard.push_back(org);
+  }
 
   /**
    * Input: The pointer to the new organism;
@@ -708,6 +737,12 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
+
+    // clean up the graveyard
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
   } // Update()
 };// SymWorld class
 #endif

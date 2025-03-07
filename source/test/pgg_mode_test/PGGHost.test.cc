@@ -2,8 +2,8 @@
 #include "../../pgg_mode/PGGSymbiont.h"
 
 TEST_CASE("PGGHost constructor", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(49);
+    SymConfigPGG config;
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
 
@@ -43,11 +43,12 @@ TEST_CASE("PGGHost constructor", "[pgg]"){
     host1.Delete();
     host2.Delete();
     host3.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGHost get pool", "[pgg]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(43);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
     double pool = 1;
 
@@ -62,11 +63,12 @@ TEST_CASE("PGGHost get pool", "[pgg]") {
 
     host1.Delete();
     host2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("PGGHost DistributeResources", "[pgg]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(24);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
 
     WHEN("There are no symbionts and interaction value is between 0 and 1") {
@@ -128,11 +130,12 @@ TEST_CASE("PGGHost DistributeResources", "[pgg]") {
         }
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("PGGHost MakeNew", "[pgg]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
-    SymConfigBase config;
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(8);
+    SymConfigPGG config;
     PGGWorld world(*random, &config);
 
     double host_int_val = 0.2;
@@ -147,4 +150,5 @@ TEST_CASE("PGGHost MakeNew", "[pgg]"){
     }
     host1.Delete();
     host2.Delete();
+    random.Delete();
 }

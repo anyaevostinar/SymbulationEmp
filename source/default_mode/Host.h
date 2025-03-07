@@ -44,7 +44,7 @@ protected:
   /**
     *
     * Purpose: Represents the set of in-progress "reproductive" symbionts belonging to a host. These are symbionts that aren't yet active.
-    * Symbionts can be added with AddReproSymb(). This can be cleared with ClearSyms()
+    * Symbionts can be added with AddReproSym(). This can be cleared with ClearSyms()
     *
   */
   emp::vector<emp::Ptr<Organism>> repro_syms = {};
@@ -401,17 +401,17 @@ public:
    * steal resources from the host.
    */
   double StealResources(double _intval){
-    double hostIntVal = GetIntVal();
+    double host_int_val = GetIntVal();
     double res_in_process = GetResInProcess();
     //calculate how many resources another organism can steal from this host
-    if (hostIntVal>0){ //cooperative hosts shouldn't be over punished by StealResources
-      hostIntVal = 0;
+    if (host_int_val >0){ //cooperative hosts shouldn't be over punished by StealResources
+        host_int_val = 0;
     }
-    if (_intval < hostIntVal){
+    if (_intval < host_int_val){
       //organism trying to steal can overcome host's defense
-      double stolen = (hostIntVal - _intval) * res_in_process;
-      double remainingResources = res_in_process - stolen;
-      SetResInProcess(remainingResources);
+      double stolen = (host_int_val - _intval) * res_in_process;
+      double remaining_resources = res_in_process - stolen;
+      SetResInProcess(remaining_resources);
       return stolen;
     } else {
       //defense cannot be overcome, no resources are stolen
@@ -439,7 +439,18 @@ public:
    * Purpose: To add a symbionts to a host's symbionts
    */
   int AddSymbiont(emp::Ptr<Organism> _in) {
-    if((int)syms.size() < my_config->SYM_LIMIT() && SymAllowedIn()){
+    bool allowed_in = SymAllowedIn();
+    if (my_config->OUSTING() && allowed_in && (int)syms.size() == my_config->SYM_LIMIT()) {
+      // if there's more than one sym, randomly choose one to replace, otherwise replace the one sym
+      const int new_sym_pos = (syms.size() > 1) ? random->GetInt(syms.size()) : 0;
+      emp::Ptr<Organism> old_sym = syms[new_sym_pos];
+      my_world->SendToGraveyard(old_sym);
+      syms[new_sym_pos] = _in;
+      _in->SetHost(this);
+      _in->UponInjection();
+      return new_sym_pos+1;
+    }
+    else if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
@@ -461,13 +472,12 @@ public:
    * where n is the number of existing phage.
    */
   bool SymAllowedIn(){
-    bool do_phage_exclusion = my_config->PHAGE_EXCLUDE();
-    if(!do_phage_exclusion){
+    if(!my_config->PHAGE_EXCLUDE()){
      return true;
     }
     else{
      int num_syms = syms.size();
-     //essentially imitaties a 1/ 2^n chance, with n = number of symbionts
+     //essentially imitates a 1/ 2^n chance, with n = number of symbionts
      int enter_chance = random->GetUInt((int) pow(2.0, num_syms));
      if(enter_chance == 0) { return true; }
      return false;
@@ -580,7 +590,7 @@ public:
   } //end DistribResources
 
   /**
-   * Input: The total resources recieved by the host and its location in the world.
+   * Input: The total resources received by the host and its location in the world.
    *
    * Output: The resources remaining after the host maybe does ectosymbiosis.
    *
@@ -621,18 +631,18 @@ public:
    * Purpose: To distribute resources between sym and host depending on their interaction values.
    */
   void DistribResToSym(emp::Ptr<Organism> sym, double sym_piece){
-    double hostIntVal = interaction_val;
-    double hostDonation = 0;
-    if(hostIntVal < 0){
-      double hostDefense = hostIntVal * sym_piece * -1.0;
-      hostDonation = 0;
-      SetResInProcess(sym_piece - hostDefense);
+    double host_int_val = interaction_val;
+    double host_donation = 0;
+    if(host_int_val < 0){
+      double host_defense = host_int_val * sym_piece * -1.0;
+      host_donation = 0;
+      SetResInProcess(sym_piece - host_defense);
     }
-    else if(hostIntVal >= 0){
-      hostDonation = hostIntVal * sym_piece;
-      SetResInProcess(sym_piece - hostDonation);
+    else if(host_int_val >= 0){
+      host_donation = host_int_val * sym_piece;
+      SetResInProcess(sym_piece - host_donation);
     }
-    double sym_return = sym->ProcessResources(hostDonation, this);
+    double sym_return = sym->ProcessResources(host_donation, this);
     this->AddPoints(sym_return + GetResInProcess());
     SetResInProcess(0);
   }
@@ -650,7 +660,7 @@ public:
     size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function
     double desired_resources = my_config->RES_DISTRIBUTE();
-    double world_resources = my_world->PullResources(desired_resources); //recieve resources from the world
+    double world_resources = my_world->PullResources(desired_resources); //receive resources from the world
     double resources = HandleEctosymbiosis(world_resources, location);
     if(resources > 0) DistribResources(resources); //if there are enough resources left, distribute them.
 
@@ -673,19 +683,21 @@ public:
     if (HasSym()) { //let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
         for(size_t j = 0; j < syms.size(); j++){
-          emp::Ptr<Organism> curSym = syms[j];
+          emp::Ptr<Organism> cur_sym = syms[j];
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
           //sym position should have host index as id and
           //position in syms list + 1 as index (0 as fls index)
           emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
-          if(!curSym->GetDead()){
-            curSym->Process(sym_pos);
+          if(!cur_sym->GetDead()){
+              cur_sym->Process(sym_pos);
           }
-          if(curSym->GetDead()){
-            syms.erase(syms.begin() + j); //if the symbiont dies during their process, remove from syms list
-            curSym.Delete();
+          if(cur_sym->GetDead()) {
+            //if the symbiont dies during their process, remove from syms list
+            //UNLESS they died by getting ousted
+            syms.erase(syms.begin() + j); 
+            cur_sym.Delete();
           }
         } //for each sym in syms
       } //if org has syms

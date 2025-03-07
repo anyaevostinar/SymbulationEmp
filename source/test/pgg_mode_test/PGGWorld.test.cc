@@ -2,10 +2,10 @@
 #include "../../pgg_mode/PGGSymbiont.h"
 
 TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
-  SymConfigBase config;
+  SymConfigPGG config;
 
   GIVEN( "a PGGworld without vertical transmission" ) {
-    emp::Ptr<emp::Random> random = new emp::Random(17);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     PGGWorld world(*random, &config);
     config.VERTICAL_TRANSMISSION(0);
     config.MUTATION_SIZE(0);
@@ -38,6 +38,7 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
           REQUIRE( !(world.GetPop()[i] && world.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
+    random.Delete();
   }
 
   GIVEN( "a PGGworld" ) {
@@ -86,7 +87,7 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
 TEST_CASE("PGG SetupSymbionts", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigPGG config;
     PGGWorld world(random, &config);
 
     size_t world_size = 6;
@@ -117,7 +118,7 @@ TEST_CASE("PGG SetupSymbionts", "[pgg]") {
 TEST_CASE("PGG SetupHosts", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
-    SymConfigBase config;
+    SymConfigPGG config;
     PGGWorld world(random, &config);
 
     WHEN("SetupHosts is called") {

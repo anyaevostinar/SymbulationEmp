@@ -49,22 +49,31 @@ protected:
     *
   */
   emp::Ptr<EfficientWorld> my_world = NULL;
+
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigEfficient> efficient_config = NULL;
 public:
   /**
    * The constructor for efficient symbiont
    */
-  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
+  EfficientSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<EfficientWorld> _world, emp::Ptr<SymConfigEfficient> _config, double _intval=0.0, double _points = 0.0, double _efficient = 0.1) : Symbiont(_random, _world, _config, _intval, _points) {
     efficiency = _efficient;
     my_world = _world;
-    if(my_config->HORIZ_MUTATION_RATE() < 0){
-      ht_mut_rate = my_config->MUTATION_RATE();
+    efficient_config = _config;
+    if(efficient_config->HORIZ_MUTATION_RATE() < 0){
+      ht_mut_rate = efficient_config->MUTATION_RATE();
     } else {
-      ht_mut_rate = my_config->HORIZ_MUTATION_RATE();
+      ht_mut_rate = efficient_config->HORIZ_MUTATION_RATE();
     }
-    if(my_config->HORIZ_MUTATION_SIZE() < 0) {
-      ht_mut_size = my_config->MUTATION_SIZE();
+    if(efficient_config->HORIZ_MUTATION_SIZE() < 0) {
+      ht_mut_size = efficient_config->MUTATION_SIZE();
     } else {
-      ht_mut_size = my_config->HORIZ_MUTATION_SIZE();
+      ht_mut_size = efficient_config->HORIZ_MUTATION_SIZE();
     }
   }
 
@@ -158,8 +167,8 @@ public:
     double int_rate;
 
     if(mode == "vertical"){
-      local_rate = my_config->MUTATION_RATE();
-      local_size = my_config->MUTATION_SIZE();
+      local_rate = efficient_config->MUTATION_RATE();
+      local_size = efficient_config->MUTATION_SIZE();
     } else if(mode == "horizontal") {
       local_rate = ht_mut_rate;
       local_size = ht_mut_size;
@@ -167,14 +176,14 @@ public:
       throw "Illegal argument passed to mutate in EfficientSymbiont";
     }
 
-    if(my_config->EFFICIENCY_MUT_RATE() >= 0) {
-      eff_mut_rate = my_config->EFFICIENCY_MUT_RATE();
+    if(efficient_config->EFFICIENCY_MUT_RATE() >= 0) {
+      eff_mut_rate = efficient_config->EFFICIENCY_MUT_RATE();
     } else {
       eff_mut_rate = local_rate;
     }
 
-    if(my_config->INT_VAL_MUT_RATE() >= 0) {
-      int_rate = my_config->INT_VAL_MUT_RATE();
+    if(efficient_config->INT_VAL_MUT_RATE() >= 0) {
+      int_rate = efficient_config->INT_VAL_MUT_RATE();
     } else {
       int_rate = local_rate;
     }
@@ -185,7 +194,7 @@ public:
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
-      if(my_config->FREE_LIVING_SYMS()){
+      if(efficient_config->FREE_LIVING_SYMS()){
         infection_chance += random->GetNormal(0.0, local_size);
         if (infection_chance < 0) infection_chance = 0;
         else if (infection_chance > 1) infection_chance = 1;
@@ -209,7 +218,7 @@ public:
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
   emp::Ptr<Organism> MakeNew(){
-    emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, efficient_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
     return sym_baby;
@@ -240,7 +249,7 @@ public:
    * Purpose: To allow for vertical transmission to occur
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
+    if((my_world->WillTransmit()) && GetPoints() >= efficient_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
       emp::Ptr<Organism> sym_baby = Reproduce("vertical");
       host_baby->AddSymbiont(sym_baby);
 
@@ -258,8 +267,8 @@ public:
    * Purpose: To check and allow for horizontal transmission to occur
    */
   void HorizontalTransmission(emp::WorldPosition location) {
-    if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= my_config->SYM_HORIZ_TRANS_RES()) {
+    if (efficient_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
+      if(GetPoints() >= efficient_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0

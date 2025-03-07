@@ -5,7 +5,7 @@
 
 TEST_CASE("Host Constructor", "[default]") {
 
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld w(*random, &config);
     SymWorld * world = &w;
@@ -56,10 +56,11 @@ TEST_CASE("Host Constructor", "[default]") {
     host1.Delete();
     host2.Delete();
     host3.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -86,10 +87,11 @@ TEST_CASE("Host SetIntVal, GetIntVal", "[default]") {
 
     host1.Delete();
     host2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -107,10 +109,11 @@ TEST_CASE("SetPoints, AddPoints, GetPoints", "[default]") {
     REQUIRE(host->GetPoints() == expected_points);
 
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("HasSym", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = 1;
@@ -131,11 +134,12 @@ TEST_CASE("HasSym", "[default]") {
         }
     }
     host.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host Mutate", "[default]") {
     //TODO: put in tests for mutation size and mutation rate separately
-    emp::Ptr<emp::Random> random = new emp::Random(3);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigBase config;
     SymWorld world(*random, &config);
     double int_val = -0.31;
@@ -200,10 +204,11 @@ TEST_CASE("Host Mutate", "[default]") {
         host.Delete();
       }
     }
+    random.Delete();
 }
 
 TEST_CASE("DistributeResources", "[default]") {
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(5);
     SymConfigBase config;
     SymWorld world(*random, &config);
 
@@ -268,10 +273,11 @@ TEST_CASE("DistributeResources", "[default]") {
 
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
-  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
   SymConfigBase config;
   SymWorld world(*random, &config);
   double int_val = 1;
@@ -286,10 +292,11 @@ TEST_CASE("SetResInProcess, GetResInProcess", "[default]") {
   REQUIRE(host->GetResInProcess() == expected_res_in_process);
 
   host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Steal resources unit test", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigBase config;
     SymWorld world(*random, &config);
 
@@ -342,11 +349,12 @@ TEST_CASE("Steal resources unit test", "[default]"){
         }
         host.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("GetDoEctosymbiosis", "[default]"){
   GIVEN("A world"){
-    emp::Ptr<emp::Random> random = new emp::Random(17);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymConfigBase config;
     SymWorld world(*random, &config);
     world.Resize(2,2);
@@ -425,11 +433,12 @@ TEST_CASE("GetDoEctosymbiosis", "[default]"){
         REQUIRE(host->GetDoEctosymbiosis(host_pos) == true);
       }
     }
+    random.Delete();
   }
 }
 
 TEST_CASE("Host GrowOlder", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
     config.HOST_AGE_MAX(2);
@@ -449,10 +458,11 @@ TEST_CASE("Host GrowOlder", "[default]"){
         REQUIRE(world.GetNumOrgs() == 0);
       }
     }
+    random.Delete();
 }
 
 TEST_CASE("Host MakeNew", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
 
@@ -469,10 +479,11 @@ TEST_CASE("Host MakeNew", "[default]"){
 
     host1.Delete();
     host2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Host Reproduce", "[default]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigBase config;
     SymWorld world(*random, &config);
 
@@ -488,17 +499,18 @@ TEST_CASE("Host Reproduce", "[default]"){
 
     host1.Delete();
     host2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("AddSymbiont", "[default]"){
-  emp::Ptr<emp::Random> random = new emp::Random(-1);
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
   SymConfigBase config;
   SymWorld world(*random, &config);
   double int_val = 0;
-  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-  emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
-  WHEN("A symbiont successfully infects"){
+   WHEN("A symbiont successfully infects"){
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
     size_t pos = host->AddSymbiont(symbiont);
     emp::vector<emp::Ptr<Organism>>& host_syms = host->GetSymbionts();
     THEN("It is added to the host sym vector and it's position is returned"){
@@ -506,14 +518,85 @@ TEST_CASE("AddSymbiont", "[default]"){
       REQUIRE(pos == host_syms.size());
       REQUIRE(host_syms.at(pos - 1) == symbiont);
     }
+    host.Delete();
   }
   WHEN("A symbiont fails to infect"){
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
     config.SYM_LIMIT(0);
     int pos = host->AddSymbiont(symbiont);
     THEN("It is deleted and 0 is returned"){
       REQUIRE(host->HasSym() == false);
       REQUIRE(pos == 0);
     }
+    host.Delete();
   }
-  host.Delete();
+
+  WHEN("A symbiont ousts another") {
+    config.OUSTING(1);
+    world.Resize(1, 1);
+    emp::Ptr<Host> ousting_host = emp::NewPtr<Host>(random, &world, &config, int_val);
+    emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+    emp::Ptr<Organism> old_symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+
+    world.AddOrgAt(ousting_host, 0);
+    REQUIRE(world.GetNumOrgs() == 1);
+    ousting_host->AddSymbiont(old_symbiont);
+    ousting_host->AddSymbiont(new_symbiont);
+
+    THEN("The new symbiont enters the host and the old is sent to the graveyard and killed") {
+      REQUIRE(ousting_host->HasSym() == true);
+      REQUIRE(ousting_host->GetSymbionts()[0] == new_symbiont);
+      REQUIRE(ousting_host->GetSymbionts().size() == 1);
+      REQUIRE(world.GetGraveyard().size() == 1);
+      REQUIRE(world.GetGraveyard()[0] == old_symbiont);
+      world.Update();
+      REQUIRE(world.GetGraveyard().size() == 0);
+    }
+  }
+  random.Delete();
+}
+
+TEST_CASE("SymAllowedIn", "[default]") {
+  SymConfigBase config;
+  double int_val = 0;
+  
+  int sym_limit = 4;
+  config.SYM_LIMIT(sym_limit);
+
+  WHEN("Symbiont exclude is set to false") {
+    config.PHAGE_EXCLUDE(0);
+    THEN("Symbionts are added without issue") {
+      emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
+      SymWorld world(*random, &config);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+      for (int i = 0; i < sym_limit; i++) {
+        host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
+      }
+      int num_syms = (host->GetSymbionts()).size();
+      REQUIRE(num_syms == sym_limit);
+      host.Delete();
+      random.Delete();
+    }
+  }
+
+  WHEN("Symbiont exclude is set to true") {
+    config.PHAGE_EXCLUDE(1);
+    THEN("Symbionts have a decreasing change of entering the host") {
+      int goal_num_syms[] = { 3,3,3,3 };
+      for (int i = 0; i < 4; i++) {
+        emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(i + 1);
+        SymWorld world(*random, &config);
+        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+
+        for (double i = 0; i < 10; i++) {
+          host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
+        }
+        int host_num_syms = (host->GetSymbionts()).size();
+        REQUIRE(goal_num_syms[i] == host_num_syms);
+        host.Delete();
+        random.Delete();
+      }
+    }
+  } 
 }

@@ -21,9 +21,19 @@ protected:
   */
   emp::Ptr<PGGWorld> my_world = NULL;
 
+  /**
+    *
+    * Purpose: Holds all configuration settings and points to same configuration 
+    * object as my_config from superclass, but with the correct subtype.
+    *
+  */
+  emp::Ptr<SymConfigPGG> pgg_config = NULL;
+
 public:
-  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigBase> _config, double _intval=0.0, double _donation = 0.0, double _points = 0.0 ) : Symbiont(_random, _world, _config, _intval, _points),PGG_donate(_donation)
-  {my_world = _world;}
+  PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
+    pgg_config = _config; 
+    my_world = _world;
+  }
 
 
   /**
@@ -117,8 +127,8 @@ public:
    */
   void Mutate(){
     Symbiont::Mutate();
-    if (random->GetDouble(0.0, 1.0) <= my_config->MUTATION_RATE()) {
-      PGG_donate += random->GetNormal(0.0, my_config->MUTATION_SIZE());
+    if (random->GetDouble(0.0, 1.0) <= pgg_config->MUTATION_RATE()) {
+      PGG_donate += random->GetNormal(0.0, pgg_config->MUTATION_SIZE());
       if(PGG_donate < 0) PGG_donate = 0;
       else if (PGG_donate > 1) PGG_donate = 1;
     }
@@ -130,16 +140,16 @@ public:
    *
    * Output: The double representation of resources to be given to the host.
    *
-   * Purpose: Deteremines the resources that the symbiont is contributing
+   * Purpose: Determines the resources that the symbiont is contributing
    * to the host's resource pool, and decriments them from the symbiont's own
    * own resource collection.
    */
   double ProcessPool(){
-    double symdonation = GetDonation();
-    double symPortion = GetPoints();
-    double hostreturn = symdonation*symPortion;
-    SetPoints(symPortion-hostreturn);
-    return hostreturn;
+    double sym_donation = GetDonation();
+    double sym_portion = GetPoints();
+    double host_return = sym_donation * sym_portion;
+    SetPoints(sym_portion - host_return);
+    return host_return;
   }
 
   /**
@@ -150,7 +160,7 @@ public:
    * Purpose: To produce a new PGGSymbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
-    emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(random, my_world, my_config, GetIntVal());
+    emp::Ptr<PGGSymbiont> sym_baby = emp::NewPtr<PGGSymbiont>(random, my_world, pgg_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetDonation(GetDonation());
     return sym_baby;
