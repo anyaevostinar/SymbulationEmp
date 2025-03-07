@@ -32,9 +32,11 @@ jobs:
         run: cd SymbulationEmp && make coverage
         
       - name: Generate coverage
-        run: cd SymbulationEmp && gcov -abcfu main.cc
+        run: cd SymbulationEmp && gcov -abcfu symbulation.test-main.cc
         
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           root_dir: SymbulationEmp
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
