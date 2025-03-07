@@ -1,7 +1,7 @@
 #include "../../lysis_mode/Bacterium.h"
 
 TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(5);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(5);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -23,10 +23,11 @@ TEST_CASE("Bacterium constructor, host_incorporation_val", "[lysis]"){
 
     bacterium.Delete();
     bacterium2.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(4);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -39,10 +40,11 @@ TEST_CASE("Bacterium SetIncVal, GetIncVal", "[lysis]"){
     REQUIRE(bacterium->GetIncVal()==expected_inc_val);
 
     bacterium.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Bacterium mutate", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(12);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(12);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -108,11 +110,12 @@ TEST_CASE("Bacterium mutate", "[lysis]"){
         }
 
     bacterium.Delete();
-  }
+    }
+    random.Delete();
 }
 
 TEST_CASE("ProcessLysogenResources", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(12);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(12);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -156,10 +159,11 @@ TEST_CASE("ProcessLysogenResources", "[lysis]"){
         }
     }
     bacterium.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Bacterium Process", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(12);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(12);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -197,10 +201,11 @@ TEST_CASE("Bacterium Process", "[lysis]"){
             bacterium.Delete();
         }
     }
+    random.Delete();
 }
 
 TEST_CASE("Bacterium MakeNew", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigLysis config;
     LysisWorld world(*random, &config);
 
@@ -220,10 +225,11 @@ TEST_CASE("Bacterium MakeNew", "[lysis]"){
 
     bacterium.Delete();
     new_bacterium.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Bacterium reproduce", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigLysis config;
     LysisWorld world(*random, &config);
     config.MUTATION_SIZE(0.002);
@@ -249,4 +255,5 @@ TEST_CASE("Bacterium reproduce", "[lysis]"){
 
     bacterium.Delete();
     bacterium_baby.Delete();
+    random.Delete();
 }

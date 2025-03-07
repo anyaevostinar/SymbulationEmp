@@ -1,7 +1,7 @@
 #include "../../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Prophage Loss Rate Results", "[integration]"){
-    emp::Ptr<emp::Random> random = new emp::Random(5);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(5);
     SymConfigLysis config;
 
     //smaller world than actual experiment, starting with full population
@@ -79,4 +79,5 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
             REQUIRE(avg <= 0.10);
         }
     }
+    random.Delete();
 }

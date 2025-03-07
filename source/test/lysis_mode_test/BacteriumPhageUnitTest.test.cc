@@ -91,7 +91,7 @@ TEST_CASE("Phage Process", "[lysis]") {
 }
 
 TEST_CASE("Phage Vertical Transmission", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(-1);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -184,11 +184,11 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
         }
 
     }
-
+    random.Delete();
 }
 
 TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(6);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld *world = &w;
@@ -239,10 +239,11 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
         }
         bacterium.Delete();
     }
+    random.Delete();
 }
 
 TEST_CASE("Phage LysisBurst", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(6);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -280,10 +281,11 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
             }
         }
     }
+    random.Delete();
 }
 
 TEST_CASE("Phage LysisStep", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(9);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -330,10 +332,11 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
     }
 
     bacterium.Delete();
+    random.Delete();
 }
 
 TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
-    emp::Ptr<emp::Random> random = new emp::Random(9);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
     SymConfigLysis config;
     LysisWorld w(*random, &config);
     LysisWorld * world = &w;
@@ -369,4 +372,5 @@ TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
 
     phage.Delete();
     bacterium.Delete();
+    random.Delete();
 }
