@@ -26,13 +26,29 @@ void SGPWorld::CreateDataFiles() {
   //        TODO - update file endings post discussion
 
   // Setup organism count file
-  // std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts.csv");
-  // SetUpOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts.csv");
+  SetupOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup transmission file
   std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
   SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
-  // Setup
+  // BOOKMARK
 
+}
+
+emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
+  auto& file = SetupFile(filepath);
+  auto& host_count = GetHostCountDataNode();
+  auto& endosym_count = GetCountHostedSymsDataNode();
+  auto& freeliving_sym_count = GetCountFreeSymsDataNode();
+
+  file.AddVar(update, "update", "World update");
+  file.AddTotal(host_count, "host_count", "Total number of hosts");
+  file.AddTotal(endosym_count, "hosted_sym_count", "Total number of syms in a host");
+  // NOTE - this was previously only on file if in free living syms mode
+  //        do we want to have a variable number of columns per run?
+  file.AddTotal(freeliving_sym_count, "free_sym_count", "Total number of free-living syms");
+  file.PrintHeaderKeys();
+  return file;
 }
 
 

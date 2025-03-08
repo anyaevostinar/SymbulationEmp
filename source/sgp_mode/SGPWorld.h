@@ -492,11 +492,11 @@ public:
   SyncDataMonitor<double>& GetSymEarnedDataNode();
   void SetupTasksNodes();
 
-  emp::DataFile& SetUpOrgCountFile(const std::string& filename);
-  emp::DataFile& SetupSymDonatedFile(const std::string& filename);
-  emp::DataFile& SetupTasksFile(const std::string& filename);
-  void WriteTaskCombinationsFile(const std::string& filename);
-  void WriteOrgReproHistFile(const std::string& filename);
+  emp::DataFile& SetupOrgCountFile(const std::string& filepath);
+  emp::DataFile& SetupSymDonatedFile(const std::string& filepath);
+  emp::DataFile& SetupTasksFile(const std::string& filepath);
+  void WriteTaskCombinationsFile(const std::string& filepath);
+  void WriteOrgReproHistFile(const std::string& filepath);
 
   void CreateDataFiles() override;
 
