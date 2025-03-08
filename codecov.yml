@@ -4,3 +4,5 @@ ignore:
   - "web" # the web code does not currently have a test framework
   - "source/Organism.h"
   - "source/*.test.cc"
+  - "Empirical"
+  - "coverage_source"
