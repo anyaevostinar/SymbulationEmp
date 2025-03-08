@@ -16,6 +16,8 @@ namespace sgpmode {
 void SGPWorld::Setup() {
   // Clear all world signals
   ClearWorldSignals();
+  // Clear any config snapshot entries
+  config_snapshot_entries.clear();
 
   // Reset the seed of the main sgp thread based on the config
   // TODO - should this be here? (used to be inside scheduler)
@@ -67,6 +69,10 @@ void SGPWorld::Setup() {
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
+
+  CreateDataFiles();
+  SnapshotConfig();
+  setup = true;
 }
 
 void SGPWorld::SetupOrgMode() {

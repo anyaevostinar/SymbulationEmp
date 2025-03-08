@@ -20,7 +20,7 @@
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorld.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
-#include "../sgp_mode/SGPWorldDataNodes.cc"
+#include "../sgp_mode/SGPWorldData.cc"
 
 // This is the main function for the NATIVE version of this project.
 

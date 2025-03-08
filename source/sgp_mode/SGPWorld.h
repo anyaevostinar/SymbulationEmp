@@ -22,6 +22,7 @@
 #include "emp/math/Random.hpp"
 
 #include <functional>
+#include <filesystem>
 
 namespace sgpmode {
 
@@ -74,6 +75,23 @@ public:
   using org_mode_t = typename org_info::SGPOrganismType;
   using stress_sym_mode_t = typename org_info::StressSymbiontType;
 
+  // Used for any snapshot info that should be added to the config snapshot file
+  // in addition to values in sgp_config object.
+  struct ConfigSnapshotEntry {
+
+    std::string param;    ///< Parameter name
+    std::string value;    ///< Parameter value
+
+    ConfigSnapshotEntry(
+      const std::string& p,
+      const std::string& v
+    ) :
+      param(p),
+      value(v)
+    { }
+
+  };
+
   tag_t START_TAG;
 
 protected:
@@ -84,6 +102,8 @@ protected:
   ProgramBuilder<hw_spec_t> prog_builder;
   tasks::LogicTaskEnvironment task_env;
   mutator_t mutator;
+  // Flag for whether setup has been run.
+  bool setup = false;
 
 
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
@@ -105,6 +125,11 @@ protected:
   org_mode_t sgp_org_type = org_mode_t::DEFAULT;
   // If using stress organisms, what kind of stress?
   stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+
+  // Directory to dump output files into.
+  // std::string output_dir;
+  std::filesystem::path output_dir;
+  emp::vector<ConfigSnapshotEntry> config_snapshot_entries;
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
@@ -355,6 +380,7 @@ public:
    * process functions for hosts and symbionts and updating the data nodes.
    */
   void Update() override {
+    emp_assert(setup);
     // These must be done here because we don't call SymWorld::Update()
     // That may change in the future
     emp::World<Organism>::Update();
@@ -379,6 +405,7 @@ public:
   }
 
   void Run() {
+    emp_assert(setup);
     emp_assert(sgp_config.UPDATES() >= 0);
     const size_t updates = sgp_config.UPDATES();
     for (size_t u = 0; u <= updates; ++u) {
@@ -466,6 +493,8 @@ public:
   void WriteOrgReproHistFile(const std::string& filename);
 
   void CreateDataFiles() override;
+
+  void SnapshotConfig(const std::string& filename="run_config.csv");
 };
 
 }
