@@ -260,7 +260,7 @@ public:
    * Purpose: To produce a new SGPSymbiont
    */
   emp::Ptr<Organism> Reproduce() {
-    std::cout << "  sym repro" << std::endl;
+    // std::cout << "  sym repro" << std::endl;
     // emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_baby = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());

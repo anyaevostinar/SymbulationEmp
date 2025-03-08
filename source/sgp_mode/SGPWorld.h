@@ -381,12 +381,6 @@ public:
    */
   void Update() override {
     emp_assert(setup);
-    // These must be done here because we don't call SymWorld::Update()
-    // That may change in the future
-    emp::World<Organism>::Update();
-    if (sgp_config.PHYLOGENY()) {
-      sym_sys->Update();
-    }
 
     // Handle resource inflow
     // TODO - implement inflow configuration
@@ -402,6 +396,18 @@ public:
 
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
+
+    // NOTE - these were previously called at the beginning of the update
+    //        any specific reason to do that instead of at end?
+    //        If we move this to the end of the update, file updates happen after
+    //        world update logic.
+    //
+    // These must be done here because we don't call SymWorld::Update()
+    // That may change in the future
+    emp::World<Organism>::Update();
+    if (sgp_config.PHYLOGENY()) {
+      sym_sys->Update();
+    }
   }
 
   void Run() {

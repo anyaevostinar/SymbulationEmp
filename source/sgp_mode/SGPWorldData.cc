@@ -21,7 +21,17 @@ void SGPWorld::CreateDataFiles() {
   if (!setup) {
     std::filesystem::create_directory(output_dir);
   }
-  // BOOKMARK
+
+  // NOTE - discuss typical data organization for symbulation
+  //        TODO - update file endings post discussion
+
+  // Setup organism count file
+  // std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts.csv");
+  // SetUpOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  // Setup transmission file
+  std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
+  SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  // Setup
 
 }
 
