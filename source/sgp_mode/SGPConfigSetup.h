@@ -26,6 +26,9 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
   VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
 
+  GROUP(SGP_MUTATION, "SGP mutation group"),
+  VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
+
   VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),

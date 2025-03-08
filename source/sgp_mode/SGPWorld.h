@@ -11,6 +11,7 @@
 #include "org_type_info.h"
 #include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
+#include "SGPMutator.h"
 #include "tasks/LogicTaskEnvironment.h"
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
@@ -36,8 +37,10 @@ public:
   using sgp_sym_t = SGPSymbiont<hw_spec_t>;
   using tag_t = typename hw_spec_t::tag_t;
   using sgp_hw_t = SGPHardware<hw_spec_t>;
+  using sgp_prog_t = typename sgp_hw_t::program_t;
   using task_env_t = tasks::LogicTaskEnvironment;
   using task_reqs_t = typename task_env_t::TaskReqInfo;
+  using mutator_t = SGPMutator<sgp_prog_t>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
@@ -80,6 +83,7 @@ protected:
   ReproductionQueue repro_queue;
   ProgramBuilder<hw_spec_t> prog_builder;
   tasks::LogicTaskEnvironment task_env;
+  mutator_t mutator;
 
 
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
@@ -264,6 +268,7 @@ protected:
   void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
   void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
   void SetupTaskEnvironment();
+  void SetupMutator();
 
   // Clear all world signals
   void ClearWorldSignals() {
@@ -423,6 +428,9 @@ public:
     emp::Ptr<Organism> sym_baby,
     emp::WorldPosition parent_pos
   ) override;
+
+  void HostDoMutation(sgp_host_t& host);
+  void SymDoMutation(sgp_sym_t& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)

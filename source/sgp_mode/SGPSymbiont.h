@@ -173,6 +173,7 @@ public:
   const hw_t& GetHardware() const { return hardware; }
 
   const program_t& GetProgram() const { return hardware.GetProgram(); }
+  program_t& GetProgram() { return hardware.GetProgram(); }
 
 
   /**
@@ -339,12 +340,22 @@ public:
    *
    * Purpose: To mutate the code in the genome of this symbiont.
    */
-  // TODO - allow to be world-configurable?
-  void Mutate(double mut_rate) {
+  // Called by Symbiont::Reproduce (which is called for both VT/HT)
+  void Mutate() {
+    // Mutate the interaction value
+    // NOTE - could also move this into the SGPMutator, which would allow us
+    //        to deviate from what happens in the base class mutate functions
     Symbiont::Mutate();
-    hardware.Mutate(mut_rate);
+    // Apply SGP-specific mutations (managed by world)
+    my_world->SymDoMutation(*this);
+    // Reset host's hardware
+    hardware.Reset(); // NOTE - this function was previously just Initializing state,
+                      // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
+
 };
+
+}
 
 // SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) {
 //   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
@@ -353,7 +364,5 @@ public:
 // const SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) const {
 //   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
 // }
-
-}
 
 #endif

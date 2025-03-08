@@ -211,30 +211,12 @@ public:
   /**
    * Input: None
    *
-   * Output: None
-   *
-   * Purpose: Mutates the genome code stored in the CPU.
-   */
-  // TODO - move out of hardware?
-  // TODO - implement more (configurable) mutation operators
-  // NOTE - for now, just pass in the mutation rate
-  void Mutate(double mut_rate) {
-    std::cout << "Mutate!" << std::endl;
-    // TODO - get rid of or define magic number somewhere
-    program.ApplyPointMutations(mut_rate * 15.0);
-    // InitializeState();
-    Reset(); // NOTE - this function was previously just Initializing state,
-             // which didn't reset the cpu. I think we want to reset the CPU here also?
-  }
-
-  /**
-   * Input: None
-   *
    * Output: Returns the CPU's program
    *
    * Purpose: To Get the Program of an Organism from its CPU
    */
   const program_t& GetProgram() const { return program; }
+  program_t& GetProgram() { return program; }
 
   const cpu_state_t& GetCPUState() const { return state; }
   cpu_state_t& GetCPUState() { return state; }

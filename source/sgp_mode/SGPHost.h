@@ -198,6 +198,7 @@ public:
   const hw_t& GetHardware() const { return hardware; }
 
   const program_t& GetProgram() const { return hardware.GetProgram(); }
+  program_t& GetProgram() { return hardware.GetProgram(); }
 
   /**
    * Input: None
@@ -307,11 +308,17 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  // TODO - move this out? Call configurable world mutate function.
-  // TODO - this isn't being called!
-  void Mutate(double mut_rate) {
-    Host::Mutate(); // Mutates interaction value
-    hardware.Mutate(mut_rate); // Mutates program
+  // Called by Host::Reproduce
+  void Mutate() {
+    // Mutate the interaction value
+    // NOTE - could also move this into the SGPMutator, which would allow us
+    //        to deviate from what happens in the base class mutate functions
+    Host::Mutate();
+    // Apply SGP-specific mutations (managed by world)
+    my_world->HostDoMutation(*this);
+    // Reset host's hardware
+    hardware.Reset(); // NOTE - this function was previously just Initializing state,
+                      // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
 };
 
