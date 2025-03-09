@@ -160,6 +160,7 @@ public:
   }
 
   const io_bank_t& GetIOBank() const { return io_bank; }
+  const LogicTaskSet& GetTaskSet() const { return task_set; }
 
   void Setup(const std::string& env_filepath, size_t io_bank_size, bool io_unique_outputs) {
     LoadTasks(env_filepath); // Will reset current bank, etc.

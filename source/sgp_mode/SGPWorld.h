@@ -109,8 +109,14 @@ protected:
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
+
+  // Tracks host/symbiont task success counts.
+  // NOTE - Managed by world instead of task set because world
+  //        determines whether a task is successful
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
+  emp::vector<size_t> host_task_successes;
+  emp::vector<size_t> sym_task_successes;
 
   /**
     *
@@ -134,6 +140,8 @@ protected:
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
   fun_compatibility_check_t fun_host_sym_compatibility_check;
+
+  emp::Signal<void(void)> begin_update_sig;
 
   // --- Symbiont birth signals / functors ---
   emp::Signal<void(
@@ -297,6 +305,7 @@ protected:
 
   // Clear all world signals
   void ClearWorldSignals() {
+    begin_update_sig.Clear();
     before_sym_do_birth_sig.Clear();
     after_sym_do_birth_sig.Clear();
     before_sym_vert_transmission_sig.Clear();
@@ -381,7 +390,7 @@ public:
    */
   void Update() override {
     emp_assert(setup);
-
+    begin_update_sig.Trigger();
     // Handle resource inflow
     // TODO - implement inflow configuration
     // fun_do_resource_inflow();

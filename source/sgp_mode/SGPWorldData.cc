@@ -31,8 +31,13 @@ void SGPWorld::CreateDataFiles() {
   // Setup transmission file
   std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
   SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  // Setup sym donated file
+  std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
+  SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  // Setup tasks file
+  std::filesystem::path tasks_fpath = output_dir / ("Tasks.csv");
+  SetupTasksFile(tasks_fpath).SetTimingRepeat(sgp_config.DATA_INT());
   // BOOKMARK
-
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -51,6 +56,140 @@ emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
   return file;
 }
 
+// TODO - update statistics as necessary
+emp::DataFile& SGPWorld::SetupSymDonatedFile(const std::string& filepath) {
+  // If data node already exists, delete it.
+  if (data_node_sym_earned != nullptr) {
+    data_node_sym_earned.Delete();
+  }
+  data_node_sym_earned.New();
+
+  if (data_node_sym_donated != nullptr) {
+    data_node_sym_donated.Delete();
+  }
+  data_node_sym_donated.New();
+
+  if (data_node_sym_stolen != nullptr) {
+    data_node_sym_stolen.Delete();
+  }
+  data_node_sym_stolen.New();
+  // TODO - update if threading is refactored
+  auto& file = SetupFile(filepath);
+  file.AddVar(update, "update", "World update");
+  file.AddTotal(
+    data_node_sym_donated->UnsynchronizedGetMonitor(),
+    "sym_points_earned",
+    "Points earned by symbionts",
+    true
+  );
+  file.AddFun<size_t>(
+    [this]() {
+      return data_node_sym_donated->UnsynchronizedGetMonitor().GetCount();
+    },
+    "sym_donate_calls",
+    "Number of donate calls"
+  );
+  file.AddTotal(
+    data_node_sym_donated->UnsynchronizedGetMonitor(),
+    "sym_points_donated",
+    "Points donated by symbionts",
+    true
+  );
+  file.AddFun<size_t>(
+    [this]() {
+      return data_node_sym_stolen->UnsynchronizedGetMonitor().GetCount();
+    },
+    "sym_steal_calls",
+    "Number of steal calls"
+  );
+  file.AddTotal(
+    data_node_sym_stolen->UnsynchronizedGetMonitor(),
+    "sym_points_stolen",
+    "Points stolen by symbionts",
+    true
+  );
+
+  file.PrintHeaderKeys();
+  return file;
+}
+
+emp::DataFile& SGPWorld::SetupTasksFile(const std::string& filepath) {
+  // NOTE - data nodes are potentially extra overhead that we're not making use of.
+  data_node_host_tasks.clear();
+  data_node_sym_tasks.clear();
+  data_node_host_tasks.resize(task_env.GetTaskCount());
+  data_node_sym_tasks.resize(task_env.GetTaskCount());
+
+  host_task_successes.clear();
+  sym_task_successes.clear();
+  host_task_successes.resize(task_env.GetTaskCount(), 0);
+  sym_task_successes.resize(task_env.GetTaskCount(), 0);
+
+  // Reset task counts at beginning of every update
+  begin_update_sig.AddAction(
+    [this](){
+      std::fill(
+        host_task_successes.begin(),
+        host_task_successes.end(),
+        0
+      );
+      std::fill(
+        sym_task_successes.begin(),
+        sym_task_successes.end(),
+        0
+      );
+    }
+  );
+
+  // World's on update signal happens at end of update but before data files are
+  // output.
+  OnUpdate(
+    [this](size_t) {
+      for (size_t task_i = 0; task_i < task_env.GetTaskCount(); ++task_i) {
+        data_node_host_tasks[task_i].AddDatum(host_task_successes[task_i]);
+        data_node_sym_tasks[task_i].AddDatum(sym_task_successes[task_i]);
+      }
+    }
+  );
+
+  auto& file = SetupFile(filepath);
+  file.AddVar(update, "update", "World update");
+  // Add columns for host tasks
+  for (size_t task_i = 0; task_i < host_task_successes.size(); ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    // file.AddVar(
+    //   host_task_successes[task_i],
+    //   "host_task_" + name,
+    //   "Host completions of " + name
+    // );
+    // NOTE - data node is potentially extra overhead that we're not making use of.
+    file.AddTotal(
+      data_node_host_tasks[task_i],
+      "host_task_" + name,
+      "Host completions of " + name,
+      true
+    );
+  }
+  // Add columns for sym tasks
+  for (size_t task_i = 0; task_i < sym_task_successes.size(); ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    // file.AddVar(
+    //   sym_task_successes[task_i],
+    //   "sym_task_" + name,
+    //   "Symbiont completions of " + name
+    // );
+    // NOTE - data node is potentially extra overhead that we're not making use of.
+    file.AddTotal(
+      data_node_sym_tasks[task_i],
+      "sym_task_" + name,
+      "Symbiont completions of " + name,
+      true
+    );
+  }
+
+  file.PrintHeaderKeys();
+  return file;
+}
 
 void SGPWorld::SnapshotConfig(const std::string& filename) {
   std::filesystem::path fpath = output_dir / filename;
@@ -58,6 +197,7 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
   std::function<std::string(void)> get_param;   // Parameter name
   std::function<std::string(void)> get_value;   // Parameter value
   // std::function<std::string(void)> get_source;
+  // TODO - add tasks (in order)
   snapshot_file.AddFun<std::string>(
     [&get_param]() { return get_param(); },
     "parameter"
@@ -83,6 +223,10 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
     "tag_size",
     emp::to_string(hw_spec_t::tag_t::GetCTSize())
   );
+
+  // TODO - add all tasks
+  // TODO - add host tasks
+  // TODO - add sym tasks
 
   // NOTE - Difficult to get metric out of hw_spec_t w/out
   //        some finagling. Can do it if we want.

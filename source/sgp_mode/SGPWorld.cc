@@ -463,6 +463,7 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
             host.GetPoints()
           )
         );
+        ++host_task_successes[task_id];
       }
     }
   }
@@ -501,6 +502,7 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
             sym.GetPoints()
           )
         );
+        ++sym_task_successes[task_id];
       }
     }
   }
