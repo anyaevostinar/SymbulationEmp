@@ -218,18 +218,39 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
   // NOTE - discuss any addition configuration settings that it might be useful
   //        to have dumped in a snapshot file.
 
-  // NOTE - Add any additional custom things here.
+
   config_snapshot_entries.emplace_back(
     "tag_size",
     emp::to_string(hw_spec_t::tag_t::GetCTSize())
   );
-
-  // TODO - add all tasks
-  // TODO - add host tasks
-  // TODO - add sym tasks
-
   // NOTE - Difficult to get metric out of hw_spec_t w/out
   //        some finagling. Can do it if we want.
+
+  // Add list of all tasks to config snapshot
+  emp::vector<std::string> task_names;
+  emp::vector<std::string> host_task_names;
+  emp::vector<std::string> sym_task_names;
+  for (size_t task_i = 0; task_i < task_env.GetTaskCount(); ++task_i) {
+    task_names.emplace_back(task_env.GetTaskSet().GetName(task_i));
+    if (task_env.IsHostTask(task_i)) {
+      host_task_names.emplace_back(task_env.GetTaskSet().GetName(task_i));
+    }
+    if (task_env.IsSymTask(task_i)) {
+      sym_task_names.emplace_back(task_env.GetTaskSet().GetName(task_i));
+    }
+  }
+  config_snapshot_entries.emplace_back(
+    "tasks",
+    emp::to_string(task_names)
+  );
+  config_snapshot_entries.emplace_back(
+    "host_tasks",
+    emp::to_string(host_task_names)
+  );
+  config_snapshot_entries.emplace_back(
+    "sym_tasks",
+    emp::to_string(sym_task_names)
+  );
 
   for (const auto& entry : config_snapshot_entries) {
     get_param = [&entry]() { return entry.param; };
