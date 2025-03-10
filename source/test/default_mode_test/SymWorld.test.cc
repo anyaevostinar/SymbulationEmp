@@ -1715,6 +1715,7 @@ TEST_CASE("Tag matching", "[default]") {
     SymConfigBase config;
     config.GRID_X(2);
     config.GRID_Y(2);
+    config.SYM_LIMIT(1);
     int trans_res = 10;
     int starting_res = 15;
     config.SYM_HORIZ_TRANS_RES(trans_res);
@@ -1726,7 +1727,7 @@ TEST_CASE("Tag matching", "[default]") {
     double int_val = 0;
 
     SymWorld world(random, &config);
-    
+
     WHEN("A symbiont tries to vertically transmit offspring into a host child") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -1737,10 +1738,10 @@ TEST_CASE("Tag matching", "[default]") {
       symbiont->AddPoints(starting_res);
 
       WHEN("Their tags are sufficiently close") {
-        // host tag has 8 1s
+        // host tag has 4 1s
         emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
         host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) <= tag_distance_limit);
 
         symbiont->VerticalTransmission(host);
 
@@ -1785,7 +1786,7 @@ TEST_CASE("Tag matching", "[default]") {
       emp::BitSet<32> bit_set_0 = emp::BitSet<32>();
       symbiont->SetTag(bit_set_0);
       
-      WHEN("Their tags are sufficiently close") {
+      WHEN("Their tags are sufficiently close and the host has room") {
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -1798,14 +1799,14 @@ TEST_CASE("Tag matching", "[default]") {
         world.AddOrgAt(target_host, target_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
-        // host tag has 8 1s
+        // host tag has 4 1s
         emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
         target_host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
 
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
         
-        THEN("The symbiont suceeds") {
+        THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
         }
         THEN("The parent symbiont spends points on reproduction"){
@@ -1814,6 +1815,37 @@ TEST_CASE("Tag matching", "[default]") {
         }
         THEN("The child symbiont starts with 0 points"){
           REQUIRE(target_host->GetSymbionts().at(0)->GetPoints() == 0);
+        }
+      }
+      WHEN("Their tags are sufficiently close and the host does not have room") {
+        emp::Ptr<Symbiont> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        
+        size_t source_pos = 1;
+        size_t target_pos = 0;
+        world.AddOrgAt(source_host, source_pos);
+        source_host->AddSymbiont(symbiont);
+        target_host->AddSymbiont(obstructive_symbiont);
+        symbiont->AddPoints(starting_res);
+
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.IsOccupied(source_pos));
+
+        world.AddOrgAt(target_host, target_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+
+        // host tag has 4 1s
+        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
+        target_host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+
+        THEN("The symbiont fails") {
+          REQUIRE(target_host->HasSym() == true);
+          REQUIRE(target_host->GetSymbionts().at(0) == obstructive_symbiont);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
         }
       }
       WHEN("Their tags are too dissimilar") {

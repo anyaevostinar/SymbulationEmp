@@ -687,6 +687,11 @@ public:
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
+
+      //vertical transmission data node
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(1);
+
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING()) {
         double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())*32;
@@ -698,10 +703,6 @@ public:
       }
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
-
-      //vertical transmission data node
-      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
-      data_node_attempts_verttrans.AddDatum(1);
     }
   }
 

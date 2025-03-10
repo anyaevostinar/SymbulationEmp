@@ -710,7 +710,7 @@ public:
         if (my_config->TAG_MATCHING()) {
           double tag_distance = hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * 32;
           double cutoff = GetRandom().GetPoisson(my_config->TAG_DISTANCE() * 32);
-          if (tag_distance > cutoff) {
+          if (tag_distance > cutoff || pop[new_host_pos]->GetSymbionts().size() >= my_config->SYM_LIMIT()) {
             sym_baby.Delete();
             return emp::WorldPosition();
           }
@@ -732,7 +732,7 @@ public:
         } else { //sym got killed trying to infect
           return emp::WorldPosition();
         }
-      } else {
+      } else { // no living neighbors
         sym_baby.Delete();
         return emp::WorldPosition();
       }
