@@ -18,6 +18,8 @@ protected:
   size_t active_stack;
   size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
+
+// sgpmode::Stack<unsignedinteger32  > (5)
 public:
   Stacks(size_t num_stacks) :
     stacks(num_stacks, stack_t()),
@@ -73,9 +75,9 @@ public:
   // Push new value on active stack. Return true if successful, false if not.
   bool Push(T val) {
     emp_assert(active_stack < stacks.size());
-    auto& active_stack = stacks[active_stack];
-    if (active_stack.size() < stack_size_limit) {
-      active_stack.emplace_back(val);
+    auto& current_stack = stacks[active_stack];
+    if (current_stack.size() < stack_size_limit) {
+      current_stack.emplace_back(val);
       return true;
     }
     return false;
@@ -84,9 +86,9 @@ public:
   // Pop (and return) the top element of the active stack.
   std::optional<T> Pop() {
     emp_assert(active_stack < stacks.size());
-    auto& active_stack = stacks[active_stack];
-    if (active_stack.size() > 0) {
-      const T back = active_stack.back();
+    auto& current_stack = stacks[active_stack];
+    if (current_stack.size() > 0) {
+      const T back = current_stack.back();
       return std::optional<T>{back};
     }
     return std::nullopt;
@@ -94,8 +96,8 @@ public:
 
   // Return the top element of the active stack.
   std::optional<T> GetTop() const {
-    return (stacks[active_stack].size() > 0) ?
-      stacks[active_stack].back() :
+    return (stacks[active_stack].size() > 0);
+      stacks[active_stack].back();
       std::nullopt;
   }
 
