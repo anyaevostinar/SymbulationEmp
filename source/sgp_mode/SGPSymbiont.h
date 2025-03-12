@@ -105,6 +105,9 @@ public:
     // }
     // Invalidate any in-progress reproduction
     auto& cpu_state = hardware.GetCPUState();
+    if (cpu_state.ReproInProgress()) {
+      my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
+    }
     // TODO - put this functionality back once repro queue is re-implemented
     // if (cpu_state.ReproInProgress()) {
     //   my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
@@ -170,6 +173,7 @@ public:
   const hw_t& GetHardware() const { return hardware; }
 
   const program_t& GetProgram() const { return hardware.GetProgram(); }
+  program_t& GetProgram() { return hardware.GetProgram(); }
 
 
   /**
@@ -203,6 +207,10 @@ public:
     points += _in;
   }
 
+  void DecPoints(double amt) {
+    points -= amt;
+  }
+
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
    * in the host (default -1 if it doesn't have a host)
@@ -227,18 +235,20 @@ public:
    * bookkeeping on top of `Symbiont::VerticalTransmission()` to avoid messing
    * with the reproduction queue which is used for horizontal transmission.
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     // Save and restore the in-progress reproduction, since Reproduce() will be
     // called but it will still be on the queue for horizontal transmission
     // size_t old = cpu.state.in_progress_repro;
     // TODO - clean this up? Does cpu state need to manage this?
     //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
-    const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
-    const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
-    Symbiont::VerticalTransmission(host_baby);
-    hardware.GetCPUState().SetReproInProgress(repro_in_progress);
-    hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
+    // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
+    // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
+    // std::cout << "vt" << std::endl;
+    auto sym_baby = Symbiont::VerticalTransmission(host_baby);
+    // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
+    // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
+    return sym_baby;
   }
 
 
@@ -250,13 +260,22 @@ public:
    * Purpose: To produce a new SGPSymbiont
    */
   emp::Ptr<Organism> Reproduce() {
+    // std::cout << "  sym repro" << std::endl;
     // emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_baby = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
     sym_baby->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    // Offspring needs to be given parent's (this) task profile
+    sym_baby->GetHardware().GetCPUState().SetParentTasksPerformed(
+      hardware.GetCPUState().GetTasksPerformed()
+    );
+    // This organism reproduced, reset repro state.
+    hardware.GetCPUState().ResetReproState();
+
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
-    hardware.GetCPUState().ResetReproState();
+    // NOTE - we don't always want to reset the repro state
+    // hardware.GetCPUState().ResetReproState();
     // TODO - move out of symbiont into world
     // if (my_world->GetConfig()->TRACK_PARENT_TASKS()) {
     //   sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
@@ -321,12 +340,22 @@ public:
    *
    * Purpose: To mutate the code in the genome of this symbiont.
    */
-  // TODO - allow to be world-configurable?
-  void Mutate(double mut_rate) {
+  // Called by Symbiont::Reproduce (which is called for both VT/HT)
+  void Mutate() {
+    // Mutate the interaction value
+    // NOTE - could also move this into the SGPMutator, which would allow us
+    //        to deviate from what happens in the base class mutate functions
     Symbiont::Mutate();
-    hardware.Mutate(mut_rate);
+    // Apply SGP-specific mutations (managed by world)
+    my_world->SymDoMutation(*this);
+    // Reset host's hardware
+    hardware.Reset(); // NOTE - this function was previously just Initializing state,
+                      // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
+
 };
+
+}
 
 // SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) {
 //   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
@@ -335,7 +364,5 @@ public:
 // const SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) const {
 //   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
 // }
-
-}
 
 #endif

@@ -20,6 +20,7 @@
 
 namespace sgpmode {
 
+
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
@@ -27,13 +28,15 @@ namespace sgpmode {
 template<typename HW_SPEC_T>
 class SGPHardware {
 public:
+  using this_t = SGPHardware<HW_SPEC_T>;
   using spec_t = HW_SPEC_T;
   using cpu_t = sgpl::Cpu<spec_t>;
   using program_t = sgpl::Program<spec_t>;
   using inst_t = sgpl::Instruction<spec_t>;
   using jump_table_t = sgpl::JumpTable<spec_t, typename spec_t::global_matching_t>;
   using world_t = typename spec_t::world_t;
-  using cpu_state_t = CPUState<world_t>; // <WORLD_T>;
+  using cpu_state_t = CPUState<world_t>;
+  using tag_t = typename spec_t::tag_t;
 
 protected:
   cpu_t cpu;
@@ -51,14 +54,14 @@ protected:
   void PrintOp(
     const inst_t& ins,
     const emp::map<std::string, size_t>& arities,
-    const jump_table_t& table,
+    jump_table_t& table,
     std::ostream& out = std::cout
 
     // const sgpl::Instruction<HW_SPEC_T>& ins,
     // const emp::map<std::string, size_t>& arities,
     // sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
     // std::ostream& out = std::cout
-  ) const;
+  ) ;
 
   // Internal helper function for initializing local jump table used by
   // symbulation jump instructions.
@@ -90,18 +93,16 @@ protected:
    * Purpose: Initializes the jump table and task information in the CPUState.
    * Should be called when a new CPU is created or the program is changed.
    */
+  // TODO - should this be launching cores? At the moment, it needs to.
   void InitializeState() {
     cpu.InitializeAnchors(program);
 
-    // If CPU has no active cores, launch a core.
-    if (!cpu.HasActiveCore()) {
-      // TODO - move START_TAG definition into spec / world?
-      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
-    }
+    LaunchCPU(state.GetWorld().START_TAG);
 
+    // NOTE - this is awkward: it requires that a CPU core be launched to run.
+    //        This means that we need the start tag for any operation that would reset the CPU.
     // Initialize local jump table for program.
     InitializeLocalJumpTable();
-
   }
 
 public:
@@ -165,6 +166,7 @@ public:
     Reset(state.GetNumTasks());
   }
 
+  // TODO - is there a reason we might want to support different start tags?
   void Reset(size_t task_cnt) {
     cpu.Reset();
     state.Reset(task_cnt);
@@ -174,6 +176,14 @@ public:
   void SetProgram(const program_t& new_program) {
     program = new_program;
     Reset();
+  }
+
+  // Start a CPU core if none have been started
+  void LaunchCPU(const tag_t& start_tag, bool force_launch=false) {
+    // If CPU has no active cores or force is true, launch a core.
+    if (force_launch || !cpu.HasActiveCore()) {
+      cpu.DoLaunchCore(start_tag);
+    }
   }
 
   /**
@@ -186,35 +196,16 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles=1) {
-    // TODO - Can we eliminate this check?
-    //    - Shift into world?
-    if (!cpu.HasActiveCore()) {
-      // TODO - give world control over this?
-      cpu.DoLaunchCore(std::numeric_limits<uint64_t>::max());
-    }
+
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
     // state.SetLocation(location);
-
-    sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
-  }
-
-  /**
-   * Input: None
-   *
-   * Output: None
-   *
-   * Purpose: Mutates the genome code stored in the CPU.
-   */
-  // TODO - move out of hardware?
-  // TODO - implement more (configurable) mutation operators
-  // NOTE - for now, just pass in the mutation rate
-  void Mutate(double mut_rate) {
-    // TODO - get rid of or define magic number somewhere
-    program.ApplyPointMutations(mut_rate * 15.0);
-    // InitializeState();
-    Reset(); // NOTE - this function was previously just Initializing state,
-             // which didn't reset the cpu. I think we want to reset the CPU here also?
+    // std::cout << "RunCPUStep" << std::endl;
+    // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
+    // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
+    // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
+    // sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**
@@ -225,9 +216,12 @@ public:
    * Purpose: To Get the Program of an Organism from its CPU
    */
   const program_t& GetProgram() const { return program; }
+  program_t& GetProgram() { return program; }
 
   const cpu_state_t& GetCPUState() const { return state; }
   cpu_state_t& GetCPUState() { return state; }
+
+  cpu_t& GetCPU() { return cpu; }
 
   /**
    * Input: None
@@ -237,11 +231,12 @@ public:
    * Purpose: Prints out a human-readable representation of the program code of
    * the organism's genome to the given output stream or standard output.
    */
+  // TODO - clean up printing
   void PrintCode(std::ostream& out = std::cout) {
     // TODO - refactor internal/external dependencies of these functions
     //        could also consider shifting this functionality outside of this
     //        class and into a utilities file.
-    for (const auto& i : program) {
+    for (auto i : program) {
       PrintOp(
         i,
         lib_info::arities,
@@ -257,9 +252,9 @@ template<typename HW_SPEC_T>
 void SGPHardware<HW_SPEC_T>::PrintOp(
   const sgpl::Instruction<HW_SPEC_T>& ins,
   const emp::map<std::string, size_t>& arities,
-  const sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
+  jump_table_t& table,
   std::ostream& out
-) const {
+) {
   const std::string& name = ins.GetOpName();
   if (arities.count(name)) {
     // Simple instruction
@@ -298,7 +293,7 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
       out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
           << tag_name;
     } else if (name == "Global Anchor") {
-      out << tag_name << ':';
+      out << tag_name << " " << ins.tag << ':';
     } else {
       out << "<unknown " << name << ">";
     }
@@ -343,6 +338,8 @@ TODO - either delete, re-incoporate into hardware, or relocate implementations
 // bool CanPerformTask(size_t task_id) const {
 //   return TasksPerformable().Get(task_id);
 // }
+
+
 
 }
 

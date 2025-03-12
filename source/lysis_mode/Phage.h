@@ -3,6 +3,7 @@
 
 #include "../default_mode/Symbiont.h"
 #include "LysisWorld.h"
+#include <optional>
 
 class Phage: public Symbiont {
 protected:
@@ -356,16 +357,19 @@ public:
    * phage have 100% chance of vertical transmission, lytic phage have
    * 0% chance
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby){
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
+    emp::Ptr<Organism> phage_baby;
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
     if(lysogeny){
-      emp::Ptr<Organism> phage_baby = Reproduce();
-      host_baby->AddSymbiont(phage_baby);
+      phage_baby = Reproduce();
+      success = host_baby->AddSymbiont(phage_baby) > 0;
 
       //vertical transmission data node
       emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(1);
     }
+    return (success) ? {phage_baby} : std::nullopt;
   }
 
 

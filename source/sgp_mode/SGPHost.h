@@ -123,8 +123,9 @@ public:
     // - Or, move functionality into world (add world function for invalidating queued repro)
     auto& cpu_state = hardware.GetCPUState();
     if (cpu_state.ReproInProgress()) {
-      my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
-        emp::WorldPosition::invalid_id;
+      my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
+      // my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
+      //   emp::WorldPosition::invalid_id;
     }
     // if (hardware.state.in_progress_repro != -1) {
     //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
@@ -173,6 +174,10 @@ public:
     return hardware.GetCPUState().GetLocation();
   }
 
+  void DecPoints(double amt) {
+    points -= amt;
+  }
+
   /**
    * Input: None.
    *
@@ -193,6 +198,7 @@ public:
   const hw_t& GetHardware() const { return hardware; }
 
   const program_t& GetProgram() const { return hardware.GetProgram(); }
+  program_t& GetProgram() { return hardware.GetProgram(); }
 
   /**
    * Input: None
@@ -229,9 +235,17 @@ public:
     // emp::Ptr<SGPHost> host_baby = Host::Reproduce().DynamicCast<SGPHost>();
     emp::Ptr<this_t> host_baby = static_cast<this_t*>(Host::Reproduce().Raw());
     host_baby->SetReproCount(reproductions + 1);
+    // Offspring needs to be given parent's (this) task profile
+    host_baby->GetHardware().GetCPUState().SetParentTasksPerformed(
+      hardware.GetCPUState().GetTasksPerformed()
+    );
+    // This organism reproduced, reset repro state.
+    hardware.GetCPUState().ResetReproState();
+
     // This organism is reproducing, so it must have gotten off the queue
     // cpu.state.in_progress_repro = -1;
-    hardware.GetCPUState().ResetReproState();
+    // Moved reset repro state into reproduction queue
+    // hardware.GetCPUState().ResetReproState();
     // TODO - move this tracking functionality into the world
     // if (sgp_config->TRACK_PARENT_TASKS()) {
     //   host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
@@ -294,10 +308,17 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  // TODO - move this out
-  void Mutate(double mut_rate) {
-    Host::Mutate(); // Mutates interaction value
-    hardware.Mutate(mut_rate); // Mutates program
+  // Called by Host::Reproduce
+  void Mutate() {
+    // Mutate the interaction value
+    // NOTE - could also move this into the SGPMutator, which would allow us
+    //        to deviate from what happens in the base class mutate functions
+    Host::Mutate();
+    // Apply SGP-specific mutations (managed by world)
+    my_world->HostDoMutation(*this);
+    // Reset host's hardware
+    hardware.Reset(); // NOTE - this function was previously just Initializing state,
+                      // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
 };
 

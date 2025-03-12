@@ -68,8 +68,57 @@ namespace sgpmode::inst {
 
 INST(Increment, { ++a; });
 INST(Decrement, { --a; });
+
+// Unary shift (>>1 or <<1)
+INST(ShiftLeft, { a <<= 1; });
+INST(ShiftRight, { a >>= 1; });
+
+INST(Add, { a = b + c; });
+INST(Subtract, { a = b - c; });
+
 INST(Nand, { a = ~(b & c); });
 
+INST(Push, {
+  // Push value in register a to active stack.
+  state.GetStacks().Push(a);
+});
+
+INST(Pop, {
+  if (auto val = state.GetStacks().Pop()) {
+    a = val.value();
+  } else {
+    a = 0;
+  }
+});
+
+INST(SwapStack, {
+  state.GetStacks().ChangeActive();
+});
+
+INST(Swap, { std::swap(a, b); });
+
+INST(Reproduce, {
+  const emp::WorldPosition& org_loc = state.GetLocation();
+  // std::cout << "Repro inst!" << std::endl;
+  // Check whether this attempt at reproduction is allowed.
+  const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid() || state.ReproAttempt();
+  if (invalid_attempt) {
+    return;
+  }
+  // std::cout << "  Mark repro attempt!" << std::endl;
+  state.MarkReproAttempt();
+});
+
+// NOTE - what is the intended difference between SharedIO and PrivateIO?
+INST(IO, {
+  // (1) Add output to output buffer
+  state.GetOutputBuffer().emplace_back(a);
+  // (2) Read next value from input buffer (advancing buffer read ptr)
+  a = state.GetInputBuffer().read();
+});
+
 } // namespace inst
+
+// BOOKMARK
 
 #endif

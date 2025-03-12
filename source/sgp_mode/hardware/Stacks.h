@@ -75,9 +75,9 @@ public:
   // Push new value on active stack. Return true if successful, false if not.
   bool Push(T val) {
     emp_assert(active_stack < stacks.size());
-    auto& current_stack = stacks[active_stack];
-    if (current_stack.size() < stack_size_limit) {
-      current_stack.emplace_back(val);
+    auto& stack = stacks[active_stack];
+    if (stack.size() < stack_size_limit) {
+      stack.emplace_back(val);
       return true;
     }
     return false;
@@ -86,9 +86,9 @@ public:
   // Pop (and return) the top element of the active stack.
   std::optional<T> Pop() {
     emp_assert(active_stack < stacks.size());
-    auto& current_stack = stacks[active_stack];
-    if (current_stack.size() > 0) {
-      const T back = current_stack.back();
+    auto& stack = stacks[active_stack];
+    if (stack.size() > 0) {
+      const T back = stack.back();
       return std::optional<T>{back};
     }
     return std::nullopt;

@@ -58,6 +58,10 @@ protected:
 
 public:
 
+  static bool IsPredefined(const std::string& name) {
+    return emp::Has(this_t::predefined_tasks, name);
+  }
+
   /*
     Add tasks by name from a set of pre-defined tasks
   */
@@ -82,12 +86,23 @@ public:
   /*
     Add new logic task from given logic task spec.
   */
-  void AddLogicTask(const LogicTaskSpec& spec) {
-    AddTask(
+  size_t AddLogicTask(const LogicTaskSpec& spec) {
+    return AddTask(
       spec.name,
       spec.calc,
       spec.num_inputs,
       spec.desc
+    );
+  }
+
+  size_t AddLogicTask(const std::string& name) {
+    emp_assert(emp::Has(this_t::predefined_tasks, name));
+    const auto& task_spec = this_t::predefined_tasks.at(name);
+    return AddTask(
+      task_spec.name,
+      task_spec.calc,
+      task_spec.num_inputs,
+      task_spec.desc
     );
   }
 

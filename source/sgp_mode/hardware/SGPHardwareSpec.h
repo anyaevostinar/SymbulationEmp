@@ -10,6 +10,8 @@
 #include "emp/matching/regulators/PlusCountdownRegulator.hpp"
 #include "emp/matching/selectors_static/RankedSelector.hpp"
 
+#include <limits>
+
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/matchbin_metrics.hpp"
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/MatchDepository.hpp"
 // #include "../../../signalgp-lite/third-party/conduit/include/uit_emp/matching/regulators/PlusCountdownRegulator.hpp"
@@ -35,10 +37,11 @@ struct SGPHardwareSpec {
   using global_matching_t = emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    // emp::ApproxDualStreakMetric<64>,
+    emp::HammingMetric<64>,
     // match selector
     emp::statics::RankedSelector<
-      std::ratio<1, 5> // match threshold
+      std::ratio<1, 3> // match threshold
     >,
     // regulator ; TODO - ask matthew about differences between emp:: and uit_emp
     emp::PlusCountdownRegulator<
@@ -58,7 +61,8 @@ struct SGPHardwareSpec {
   using local_matching_t = emp::MatchDepository<
     unsigned short, // program index type
     // matching metric
-    emp::ApproxDualStreakMetric<64>,
+    // emp::ApproxDualStreakMetric<64>,
+    emp::HammingMetric<64>,
     // match selector
     emp::statics::RankedSelector<
       std::ratio<1, 2> // match threshold
@@ -98,7 +102,6 @@ struct SGPHardwareSpec {
 
   static constexpr inline size_t num_global_jump_tables
     = global_jump_table_inclusion_mods.size();
-
 };
 
 }

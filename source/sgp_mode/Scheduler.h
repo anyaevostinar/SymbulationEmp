@@ -74,7 +74,7 @@ protected:
       // Process assigned organisms
       for (size_t schedule_i : schedule_ids) {
         const size_t pop_id = GetID(thread_id, schedule_i);
-        world_ptr->ProcessOrgAt(pop_id);
+        world_ptr->ProcessOrgsAt(pop_id);
       }
 
       {
@@ -196,7 +196,7 @@ public:
   void RunSync(WORLD_T& world) {
     for (size_t world_id : schedule_order) {
       emp_assert(world_id < world.GetSize());
-      world.ProcessOrgAt(world_id);  // TODO - implement process org at
+      world.ProcessOrgsAt(world_id);  // TODO - implement process org at
     }
   }
 
