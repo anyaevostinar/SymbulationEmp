@@ -113,6 +113,7 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_attempts_horiztrans;
   emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
+  emp::Ptr<emp::DataMonitor<int>> data_node_successes_verttrans;
 
 
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
@@ -204,8 +205,9 @@ public:
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
-    if (data_node_attempts_horiztrans) data_node_successes_horiztrans.Delete();
+    if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
+    if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
     for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
       if(sym_pop[i]) {
@@ -617,6 +619,7 @@ public:
   emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
   emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
+  emp::DataMonitor<int>& GetVerticalTransmissionSuccessCount();
   emp::DataMonitor<unsigned int>& GetHostReproCountDataNode();
   emp::DataMonitor<unsigned int>& GetSymReproCountDataNode();
   emp::DataMonitor<unsigned int>& GetSymTowardsPartnerCountDataNode();

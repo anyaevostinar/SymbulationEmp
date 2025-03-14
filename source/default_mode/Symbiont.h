@@ -703,6 +703,9 @@ public:
       }
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
+
+      emp::DataMonitor<int>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
+      data_node_successes_verttrans.AddDatum(1);
     }
   }
 
