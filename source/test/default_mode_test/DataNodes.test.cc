@@ -716,15 +716,16 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
+    config.TAG_MATCHING(1);
     SymWorld world(random, &config);
     size_t world_size = 4;
     world.Resize(world_size);
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
-
+    
     emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
     REQUIRE(data_node_attempts_verttrans.GetTotal() == 0);
-
+    
     WHEN("A symbiont baby gets vertically transmitted into a host baby"){
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -739,12 +740,11 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
       symbiont.Delete();
       host_baby.Delete();
     }
-
+    
     WHEN("A symbiont baby tries to vertically transmitted into a host baby but their tags mismatch") {
-      config.TAG_MATCHING(1);
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
-
+      
       emp::BitSet<32> sym_bit_set = emp::BitSet<32>();
       emp::BitSet<32> host_bit_set = emp::BitSet<32>(32, random, 16);
       symbiont->SetTag(sym_bit_set);
@@ -756,24 +756,24 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
         REQUIRE(host_baby->HasSym() == false);
         REQUIRE(data_node_attempts_verttrans.GetTotal() == 1);
       }
-
+      
       symbiont.Delete();
       host_baby.Delete();
     }
   }
 }
 
-TEST_CASE("GetVerticalTransmissionSucessCount", "[default]") {
+TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
+    config.TAG_MATCHING(1);
     SymWorld world(random, &config);
     size_t world_size = 4;
     world.Resize(world_size);
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
-    config.TAG_MATCHING(1);
 
     emp::DataMonitor<int>& data_node_successes_verttrans = world.GetVerticalTransmissionSuccessCount();
     REQUIRE(data_node_successes_verttrans.GetTotal() == 0);
