@@ -117,8 +117,33 @@ INST(IO, {
   a = state.GetInputBuffer().read();
 });
 
+// BOOKMARK
+// TODO - Donate / Steal instructions
+// INST(Donate, {
+
+// });
+
+// NOTE - Discuss whether we want to be using custom jump table vs. using signalgp's
+//        module infrastructure.
+INST(JumpIfNEq, {
+  if (a != b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfLess, {
+  if (a < b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfEq, {
+  if (a == b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
 } // namespace inst
 
-// BOOKMARK
 
 #endif

@@ -102,6 +102,7 @@ struct SGPHardwareSpec {
 
   static constexpr inline size_t num_global_jump_tables
     = global_jump_table_inclusion_mods.size();
+
 };
 
 }

@@ -26,6 +26,7 @@ void SGPWorld::Setup() {
   // Configure start tag
   // TODO - clean up start tag management.
   START_TAG.SetUInt64(0, std::numeric_limits<uint64_t>::max());
+
   // TODO - configure program builder if necessary
   prog_builder.SetStartTag(START_TAG);
 

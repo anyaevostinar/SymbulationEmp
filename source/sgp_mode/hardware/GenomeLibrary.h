@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <limits>
 #include <unordered_set>
+#include <set>
 
 namespace sgpmode {
 
@@ -30,15 +31,15 @@ using Library = sgpl::OpLibrary<
   inst::Swap,
   inst::Reproduce,
   inst::IO,
+  inst::JumpIfNEq,
+  inst::JumpIfLess,
+  inst::JumpIfEq,
   sgpl::global::Anchor
 >;
 
 namespace lib_info {
-  const std::unordered_set<uint8_t> jump_opcodes = {
-    // Library::GetOpCode("JumpIfNEq"),
-    // Library::GetOpCode("JumpIfLess")
-    // Library::GetOpCode("JumpEq")
-  };
+  // sgpl::Cpu<spec_t>();
+  std::set<uint8_t> jump_opcodes;
 
   const emp::map<std::string, size_t> arities {
     {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
@@ -46,7 +47,7 @@ namespace lib_info {
     {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
     {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
     {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3},
-    {"IO", 1}
+    {"IO", 1}, {"JumpIfNEq", 2}, {"JumpIfEq", 2}, {"JumpIfLess", 2}
   };
 }
 

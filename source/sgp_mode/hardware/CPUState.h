@@ -149,8 +149,14 @@ public:
   }
 
   size_t GetNumTasks() const { return num_tasks; }
+
   emp::vector<size_t>& GetJumpTable() { return jump_table; }
   const emp::vector<size_t>& GetJumpTable() const { return jump_table; }
+  size_t GetJumpDest(size_t pc) const {
+    emp_assert(pc < jump_table.size());
+    return jump_table[pc];
+  }
+
   void SetLocation(const emp::WorldPosition& loc) {
     location = loc;
   }

@@ -105,7 +105,6 @@ protected:
   // Flag for whether setup has been run.
   bool setup = false;
 
-
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
@@ -131,6 +130,17 @@ protected:
   org_mode_t sgp_org_type = org_mode_t::DEFAULT;
   // If using stress organisms, what kind of stress?
   stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+
+  // NOTE - Don't love this being owned by the world.
+  //        Not sure of better alterative. Need to know this in InitializeState
+  //        (don't want to re-lookup every call using strings). Couldn't have it float
+  //        inside of the GenomeLibrary file because the static map used by these
+  //        GetOpCode functions isn't initialized at that point.
+  std::unordered_set<uint8_t> sgp_jump_opcodes = {
+    Library::GetOpCode("JumpIfNEq"),
+    Library::GetOpCode("JumpIfEq"),
+    Library::GetOpCode("JumpIfLess")
+  };
 
   // Directory to dump output files into.
   // std::string output_dir;
@@ -377,8 +387,9 @@ public:
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
-
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
+
+  const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
   /**
    * Input: None

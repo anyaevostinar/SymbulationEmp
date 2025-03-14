@@ -56,11 +56,6 @@ protected:
     const emp::map<std::string, size_t>& arities,
     jump_table_t& table,
     std::ostream& out = std::cout
-
-    // const sgpl::Instruction<HW_SPEC_T>& ins,
-    // const emp::map<std::string, size_t>& arities,
-    // sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
-    // std::ostream& out = std::cout
   ) ;
 
   // Internal helper function for initializing local jump table used by
@@ -69,13 +64,14 @@ protected:
     // Get global jump table in sgplite cpu
     auto& table = cpu.GetActiveCore().GetGlobalJumpTable();
     auto& state_jump_table = state.GetJumpTable();
+    const auto& jump_opcodes = state.GetWorld().GetJumpInstOpcodes();
     // NOTE - jump table was previously size 100. Seemed like that was because
     //        program size is 100?
     state_jump_table.resize(program.size(), 0);
     size_t idx = 0;
     for (auto& inst : program) {
       const uint8_t inst_opcode = inst.op_code;
-      if (emp::Has(lib_info::jump_opcodes, inst_opcode)) {
+      if (emp::Has(jump_opcodes, inst_opcode)) {
         const auto entry{table.MatchRegulated(inst.tag)};
         state_jump_table[idx] = (entry.size() > 0) ?
           table.GetVal(entry.front()) :
