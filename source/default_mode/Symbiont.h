@@ -725,12 +725,12 @@ public:
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         
         
-        if(!my_config->TAG_MATCHING()) SetPoints(0);
+        if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
         // removing the above for tag matching--sym parent points are 
         // now set to 0 in symdobirth (todo: test)
         
         emp::Ptr<Organism> sym_baby = Reproduce();
-        if (my_config->TAG_MATCHING()) sym_baby->SetPoints(0);
+        if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes

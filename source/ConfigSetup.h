@@ -31,6 +31,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do symbionts have a decreasing chance of getting into the host the more symbionts are already infecting it? (0 for no, 1 for yes)"), // todo: alias phage_exclude, and change name to sym_exclude
     VALUE(OUSTING, bool, 0, "Should ousting (incoming symbiont kills and replaces existing symbiont) be turned on? (0 for no, 1 for yes)"),
+    VALUE(FREE_HT_FAILURE, bool, 0, "Should failing to infect a host with horizontally transmitted offspring on the basis of the host already being full cost the parent symbiont any points? (0 for trying and failing still costs, 1 for free failure)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
     

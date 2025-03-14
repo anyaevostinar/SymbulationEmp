@@ -707,23 +707,28 @@ public:
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
-        if (my_config->TAG_MATCHING()) {
+
+        // failing to infect is free if: tag mismatch or free failure is on
+        if (my_config->FREE_HT_FAILURE() && pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT()) {
+          sym_baby.Delete();
+          return emp::WorldPosition();
+        } else if (my_config->TAG_MATCHING()){
           double tag_distance = hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * 32;
           double cutoff = GetRandom().GetPoisson(my_config->TAG_DISTANCE() * 32);
-          if (tag_distance > cutoff || pop[new_host_pos]->GetSymbionts().size() >= my_config->SYM_LIMIT()) {
+          if (tag_distance > cutoff) {
             sym_baby.Delete();
             return emp::WorldPosition();
           }
-          else {
-            // set parent points to 0
-            if (pop[i]->HasSym() && pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)) {
-              pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)->SetPoints(0);
-            }
+        }
+        if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()){ 
+          // if we get to this point infection should be successful, so set parent points to 0
+          if (pop[i]->HasSym() && pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)) {
+            pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)->SetPoints(0);
           }
         }
-        
 
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+
         if(new_index > 0){ //sym successfully infected
           if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
             pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
