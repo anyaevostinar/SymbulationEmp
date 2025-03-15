@@ -12,9 +12,9 @@ namespace sgpmode {
 template<typename T>
 class Stacks {
 public:
-  using stack_t = emp::vector<T>;
+  using stack_t = std::vector<T>;
 protected:
-  emp::vector<stack_t> stacks;
+  std::vector<stack_t> stacks;
   size_t active_stack;
   size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
