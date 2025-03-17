@@ -103,6 +103,8 @@ protected:
   ProgramBuilder<hw_spec_t> prog_builder;
   tasks::LogicTaskEnvironment task_env;
   mutator_t mutator;  // TODO - add rectifier
+  // TODO - Consider having symbiont rectifier and host rectifier
+  //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier;
 
   // Flag for whether setup has been run.
@@ -365,8 +367,8 @@ public:
   ) :
     SymWorld(rnd, _config),
     scheduler(rnd),
-    task_env(rnd),
     prog_builder(opcode_rectifier),
+    task_env(rnd),
     mutator(opcode_rectifier),
     sgp_config(*_config)
   { }
@@ -488,6 +490,7 @@ public:
   void SymDoMutation(sgp_sym_t& sym);
 
   void SymDonateToHost(Organism& from_sym, Organism& to_host);
+  void SymStealFromHost(Organism& to_sym, Organism& from_host);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)

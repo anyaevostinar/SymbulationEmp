@@ -136,6 +136,14 @@ INST(Donate, {
   state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
 });
 
+INST(Steal, {
+  // This instruction does nothing if executed by a
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
+});
+
 } // namespace inst
 
 

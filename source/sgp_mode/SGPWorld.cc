@@ -531,16 +531,37 @@ void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
   const double sym_points = sym.GetPoints();
   const double to_donate = emp::Min(
     sym_points,
-    sym_points + (host.GetPoints() * sgp_config.SYM_DONATE_PROP())
+    (sym_points + host.GetPoints()) * sgp_config.SYM_DONATE_PROP()
   );
   // TODO - Protect for threaded implementation
+  // TODO - setup data tracking
   // state.world->GetSymDonatedDataNode().WithMonitor(
   //   [=](auto &m) { m.AddDatum(to_donate); });
 
   // Adjust host/sym points accordingly
   const double donate_value = to_donate * (1.0 - sgp_config.DONATE_PENALTY());
   host.AddPoints(donate_value);
-  sym.DecPoints(donate_value);
+  sym.DecPoints(to_donate);
+}
+
+void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different steal logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(to_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(from_host);
+
+  const double to_steal = emp::Min(
+    host.GetPoints(),
+    (sym.GetPoints() + host.GetPoints()) * sgp_config.SYM_STEAL_PROP()
+  );
+  // TODO - make safe for threading mode + setup data tracking
+  // state.world->GetSymStolenDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_steal); });
+
+  const double steal_value = to_steal * (1.0 - sgp_config.STEAL_PENALTY());
+  host.DecPoints(to_steal);
+  sym.AddPoints(steal_value);
 }
 
 }
