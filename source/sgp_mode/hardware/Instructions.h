@@ -144,7 +144,14 @@ INST(Steal, {
   state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
 });
 
-
+// Only active if free living sym mode turned on
+INST(Infect, {
+  // Check that this is neither a host or a hosted symbiont
+  if (state.IsHost() || state.HasHost()) {
+    return;
+  }
+  state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
+});
 
 // NOTE - Discuss following old instructions that were unused (and whether we still want them)
 /*

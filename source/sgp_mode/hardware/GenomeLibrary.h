@@ -36,6 +36,7 @@ using Library = sgpl::OpLibrary<
   inst::JumpIfEq,
   inst::Donate,
   inst::Steal,
+  inst::Infect,
   sgpl::global::Anchor
 >;
 

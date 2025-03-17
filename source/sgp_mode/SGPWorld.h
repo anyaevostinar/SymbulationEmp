@@ -29,6 +29,9 @@ namespace sgpmode {
 // TODO - do we want this to be configurable?
 const size_t PROGRAM_LENGTH = 100;
 
+// NOTE - SymWorld::GetPop returns pop by copy instead of by reference?
+//        GetPop is expensive operation, avoid use
+
 // TODO - init necessary hardware state on organism birth (e.g., stack limit)
 class SGPWorld : public SymWorld {
 public:
@@ -491,6 +494,7 @@ public:
 
   void SymDonateToHost(Organism& from_sym, Organism& to_host);
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
+  void FreeLivingSymDoInfect(Organism& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)

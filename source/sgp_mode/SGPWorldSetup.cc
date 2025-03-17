@@ -84,6 +84,12 @@ void SGPWorld::Setup() {
   CreateDataFiles();
   SnapshotConfig();
   setup = true;
+  // TODO - Delete this once confident in instruction removal
+  std::cout << "Opcode rectifier mappings (post setup):";
+  for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+    std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  }
+  std::cout << std::endl;
 }
 
 void SGPWorld::SetupOrgMode() {
@@ -101,7 +107,6 @@ void SGPWorld::SetupOrgMode() {
   // TODO - configure other organism modes as appropriate
 
   // Knock out any mode-related instructions that shouldn't be active for this run
-  // state.world->GetConfig()->DONATION_STEAL_INST()
   if (!sgp_config.DONATION_STEAL_INST()) {
     // Knockout donate instruction
     del_inst(
@@ -118,6 +123,18 @@ void SGPWorld::SetupOrgMode() {
       Library::GetSize()
     );
   }
+
+  // If free-living symbionts are disabled, disable the infect instruction
+  if (!sgp_config.FREE_LIVING_SYMS()) {
+    // Knockout the infect instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Infect"),
+      Library::GetSize()
+    );
+  }
+
 }
 
 void SGPWorld::SetupPopStructure() {

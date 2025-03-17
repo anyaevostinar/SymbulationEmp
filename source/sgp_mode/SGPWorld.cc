@@ -519,6 +519,8 @@ void SGPWorld::SymDoMutation(sgp_sym_t& sym) {
 }
 
 void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
+  emp_assert(!from_sym.IsHost());
+  emp_assert(to_host.IsHost());
   // NOTE - could make this a configurable functor if we think
   //        that different config settings will need different donate logic.
   // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
@@ -545,6 +547,8 @@ void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
 }
 
 void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
+  emp_assert(!to_sym.IsHost());
+  emp_assert(from_host.IsHost());
   // NOTE - could make this a configurable functor if we think
   //        that different config settings will need different steal logic.
   // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
@@ -562,6 +566,40 @@ void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
   const double steal_value = to_steal * (1.0 - sgp_config.STEAL_PENALTY());
   host.DecPoints(to_steal);
   sym.AddPoints(steal_value);
+}
+
+void SGPWorld::FreeLivingSymDoInfect(Organism& sym) {
+  emp_assert(!sym.IsHost());
+  emp_assert(sgp_config.SYM_LIMIT() >= 0);
+  // NOTE - Could add some runtime customizability here if we want. E.g., functors, etc.
+  sgp_sym_t& sgp_sym = static_cast<sgp_sym_t&>(sym);
+  // Get sym's location in emp::World pop
+  const size_t pop_index = sgp_sym.GetHardware().GetCPUState().GetLocation().GetPopID();
+  // Check that there's an available host
+  // If this location isn't occupied, infect fails (at no cost?).
+  if (!IsOccupied(pop_index)) {
+    return;
+  }
+  // Check that there's enough space for infection
+  const size_t num_syms = pop[pop_index]->GetSymbionts().size();
+  // NOTE - Should sym_limit be allowed to be negative in config?
+  if (num_syms < (size_t)sgp_config.SYM_LIMIT()) {
+    // Extract the symbiont from the fls vector and decrement the free-living org
+    // count. Then add the sym to the host's sym list.
+    // TODO - consider whether we want signals here + if there are some
+    //        bookkeeping things we need to do. E.g., add signals, etc.
+    // TODO - Do we need to assign a new environment here? I don't think so?
+    //        Symbiont should have been assigned an environment on birth.
+    // NOTE - Previously, the infect instruction did not check whether AddSymbiont
+    //        was successful. Discuss whether we want to check that here.
+    pop[pop_index]->AddSymbiont(ExtractSym(pop_index));
+    sgp_sym.GetHardware().GetCPUState().SetLocation(
+      emp::WorldPosition(pop_index, num_syms)
+    );
+  } else {
+    // Injection failed, set it dead and do deletion next update
+    sgp_sym.SetDead();
+  }
 }
 
 }
