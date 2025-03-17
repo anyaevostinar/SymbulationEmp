@@ -185,6 +185,17 @@ public:
   emp::Ptr<Organism> GetOrgPtr() { return organism; }
   Organism& GetOrg() { return *organism; }
   const Organism& GetOrg() const { return *organism; }
+  bool IsHost() const { return organism->IsHost(); }
+  bool IsSym() const { return !(organism->IsHost()); }
+  bool HasHost() const { return organism->GetHost() != nullptr; }
+  Organism& GetHost() {
+    emp_assert(HasHost());
+    return *(organism->GetHost());
+  }
+  const Organism& GetHost() const {
+    emp_assert(HasHost());
+    return *(organism->GetHost());
+  }
 
   void SetWorld(emp::Ptr<world_t> w_ptr) { world_ptr = w_ptr; }
   emp::Ptr<world_t> GetWorldPtr() { return world_ptr; }

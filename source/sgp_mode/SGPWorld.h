@@ -41,7 +41,8 @@ public:
   using sgp_prog_t = typename sgp_hw_t::program_t;
   using task_env_t = tasks::LogicTaskEnvironment;
   using task_reqs_t = typename task_env_t::TaskReqInfo;
-  using mutator_t = SGPMutator<sgp_prog_t>;
+  using mutator_t = SGPMutator<sgp_prog_t, Library>;
+  using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
@@ -101,7 +102,9 @@ protected:
   ReproductionQueue repro_queue;
   ProgramBuilder<hw_spec_t> prog_builder;
   tasks::LogicTaskEnvironment task_env;
-  mutator_t mutator;
+  mutator_t mutator;  // TODO - add rectifier
+  sgp_prog_rectifier_t opcode_rectifier;
+
   // Flag for whether setup has been run.
   bool setup = false;
 
@@ -363,11 +366,10 @@ public:
     SymWorld(rnd, _config),
     scheduler(rnd),
     task_env(rnd),
+    prog_builder(opcode_rectifier),
+    mutator(opcode_rectifier),
     sgp_config(*_config)
-  {
-    // TODO - taskset
-
-  }
+  { }
 
   ~SGPWorld() {
     if(data_node_sym_donated) data_node_sym_donated.Delete();
@@ -484,6 +486,8 @@ public:
 
   void HostDoMutation(sgp_host_t& host);
   void SymDoMutation(sgp_sym_t& sym);
+
+  void SymDonateToHost(Organism& from_sym, Organism& to_host);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)

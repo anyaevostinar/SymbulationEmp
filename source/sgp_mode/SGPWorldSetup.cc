@@ -30,6 +30,16 @@ void SGPWorld::Setup() {
   // TODO - configure program builder if necessary
   prog_builder.SetStartTag(START_TAG);
 
+  // std::cout << opcode_rectifier.mapper << std::endl;
+  // TODO - Delete this once confident in instruction removal
+  std::cout << "Opcode rectifier mappings:";
+  for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+    std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  }
+  std::cout << std::endl;
+  // TODO - print out mapper after all deletes, hand-check
+  // TODO - add tests for rectifier inst removals
+
   // Configure SGP organism type
   SetupOrgMode();
 
@@ -89,6 +99,19 @@ void SGPWorld::SetupOrgMode() {
   stress_sym_type = org_info::GetStressSymType(cfg_stress_sym_type);
 
   // TODO - configure other organism modes as appropriate
+
+  // Knock out any mode-related instructions that shouldn't be active for this run
+  // state.world->GetConfig()->DONATION_STEAL_INST()
+  if (!sgp_config.DONATION_STEAL_INST()) {
+    // Knockout donate instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Donate"),
+      Library::GetSize()
+    );
+    // TODO - knockout steal instruction
+  }
 }
 
 void SGPWorld::SetupPopStructure() {
@@ -298,6 +321,9 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
+    sgp_prog_t init_prog(
+      prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+    );
     // std::cout << "Creating host " << i << std::endl;
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
@@ -305,7 +331,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
           random_ptr,
           this,
           &sgp_config,
-          prog_builder.CreateNotProgram(PROGRAM_LENGTH),
+          init_prog,
           sgp_config.HOST_INT()
         );
         // new_host->GetHardware().PrintCode();
@@ -321,11 +347,14 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
+      sgp_prog_t sym_prog(
+        prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+      );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
         this,
         &sgp_config,
-        prog_builder.CreateNotProgram(PROGRAM_LENGTH),
+        sym_prog,
         sgp_config.SYM_INT()
       );
       // TODO - add InjectSymIntoHost to wrap

@@ -518,6 +518,31 @@ void SGPWorld::SymDoMutation(sgp_sym_t& sym) {
   mutator.MutateProgram(sym.GetProgram());
 }
 
+void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different donate logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(from_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(to_host);
+
+  // Donate X% of the total points of the symbiont-host system
+  // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+  // couple of instructions
+  const double sym_points = sym.GetPoints();
+  const double to_donate = emp::Min(
+    sym_points,
+    sym_points + (host.GetPoints() * sgp_config.SYM_DONATE_PROP())
+  );
+  // TODO - Protect for threaded implementation
+  // state.world->GetSymDonatedDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_donate); });
+
+  // Adjust host/sym points accordingly
+  const double donate_value = to_donate * (1.0 - sgp_config.DONATE_PENALTY());
+  host.AddPoints(donate_value);
+  sym.DecPoints(donate_value);
+}
+
 }
 
 #endif

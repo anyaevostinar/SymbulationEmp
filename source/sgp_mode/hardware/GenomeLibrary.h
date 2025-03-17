@@ -15,7 +15,7 @@
 
 namespace sgpmode {
 
-// TODO - re-add all instructions
+// NOTE - Discuss what instructions that we'd like to include
 using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,
@@ -34,13 +34,11 @@ using Library = sgpl::OpLibrary<
   inst::JumpIfNEq,
   inst::JumpIfLess,
   inst::JumpIfEq,
+  inst::Donate,
   sgpl::global::Anchor
 >;
 
 namespace lib_info {
-  // sgpl::Cpu<spec_t>();
-  std::set<uint8_t> jump_opcodes;
-
   const emp::map<std::string, size_t> arities {
     {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
     {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
@@ -58,6 +56,23 @@ namespace lib_info {
 //  inst::Infect,
 //  inst::DynamicInst
 //  inst::Steal
+template<typename Iter>
+void del_inst(
+  Iter begin,
+  Iter end,
+  const unsigned char inst,
+  const unsigned char num_inst
+) {
+  unsigned char current = 0;
+  for (; begin != end; ++begin) {
+    if (*begin == inst) {
+      if (current == inst)
+        current = (current + 1) % num_inst;
+      *begin = current;
+      current = (current + 1) % num_inst;
+    }
+  }
+}
 
 }
 

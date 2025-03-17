@@ -19,6 +19,7 @@ public:
   using program_t = sgpl::Program<hw_spec_t>;
   using inst_t = sgpl::Instruction<hw_spec_t>;
   using tag_t = typename hw_spec_t::tag_t;
+  using rectifier_t = sgpl::OpCodeRectifier<Library>;
 
 protected:
   // Can add extra flexibility in future to configure
@@ -30,14 +31,10 @@ protected:
 
   tag_t start_tag;
 
-public:
-  // TODO - finish drafting
+  rectifier_t& rectifier;
 
-  // TODO - add functions for switching "instruction modes"
-  void SetStartTag(const tag_t& tag) {
-    start_tag = tag;
-  }
-
+  // NOTE - Keep these protected vs move to public?
+  //        If move to public, should rectify program after add.
   void AddInst(
     program_t& program,
     const std::string& op_name,
@@ -61,6 +58,19 @@ public:
     AddInst(program, op_name, 0, 0, 0, tag);
   }
 
+public:
+  ProgramBuilder(
+    rectifier_t& opcode_rectifier
+  ) : rectifier(opcode_rectifier)
+  { }
+
+  // TODO - finish drafting
+
+  // TODO - add functions for switching "instruction modes"
+  void SetStartTag(const tag_t& tag) {
+    start_tag = tag;
+  }
+
   void AddTask_Not(
     program_t& program
   ) {
@@ -72,7 +82,9 @@ public:
     AddInst(program, io_op_name);
   }
 
-  program_t CreateNotProgram(size_t length) {
+  program_t CreateNotProgram(
+    size_t length
+  ) {
     program_t program; // Create empty program
     // Add start anchor
     AddInst(
@@ -86,6 +98,8 @@ public:
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
     AddInst(program, "Reproduce");
+    // Remove any deleted instructions
+    program.Rectify(rectifier);
     return program;
   }
 

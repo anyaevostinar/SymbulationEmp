@@ -53,19 +53,6 @@ namespace sgpmode::inst {
     static std::string name() { return #InstName; }                            \
   };
 
-// TODO - remove commented out code if new versions work as intended.
-// INST(JumpIfNEq, {
-//   // Even != works differently on floats because of NaNs
-//   if (*a != *b) {
-//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-//   }
-// });
-// INST(JumpIfLess, {
-//   if (*a < *b) {
-//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-//   }
-// });
-
 INST(Increment, { ++a; });
 INST(Decrement, { --a; });
 
@@ -117,12 +104,6 @@ INST(IO, {
   a = state.GetInputBuffer().read();
 });
 
-// BOOKMARK
-// TODO - Donate / Steal instructions
-// INST(Donate, {
-
-// });
-
 // NOTE - Discuss whether we want to be using custom jump table vs. using signalgp's
 //        module infrastructure.
 INST(JumpIfNEq, {
@@ -141,6 +122,18 @@ INST(JumpIfEq, {
   if (a == b) {
     core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
   }
+});
+
+// BOOKMARK
+// TODO - Donate / Steal instructions
+INST(Donate, {
+  // This instruction does nothing if executed by a host or if this is a symbiont
+  // without a host.
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  // If we're here, we know that we have a symbiont with a host.
+  state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
 });
 
 } // namespace inst

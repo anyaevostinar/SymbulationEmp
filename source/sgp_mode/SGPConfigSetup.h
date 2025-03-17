@@ -21,6 +21,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(DONATION_STEAL_INST, bool, 1, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(FIND_NEIGHBOR_HOST_ATTEMPTS, size_t, 4, "How many times to attempt finding a neighboring host for symbiont to horizontally transmit into"),
+  VALUE(SYM_DONATE_PROP, double, 0.2, "Proportion of points for sym to donate to host on donate"),
 
   VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
