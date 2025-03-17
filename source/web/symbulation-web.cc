@@ -1,3 +1,6 @@
+#define UIT_VENDORIZE_EMP
+#define UIT_SUPPRESS_MACRO_INSEEP_WARNINGS
+
 #include <iostream>
 #include "../default_mode/SymWorld.h"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
