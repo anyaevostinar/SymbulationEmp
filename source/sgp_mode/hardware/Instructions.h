@@ -144,6 +144,28 @@ INST(Steal, {
   state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
 });
 
+
+
+// NOTE - Discuss following old instructions that were unused (and whether we still want them)
+/*
+INST(Reuptake, {
+  uint32_t next;
+  AddOrganismPoints(state, *a);
+  // Only get resources if the organism has values in their internal environment
+  if (state.internal_environment->size() > 0) {
+    // Take a resource from back of internal environment vector
+    next = state.internal_environment->back();
+    // Clear out the selected resource from Internal Environment
+    state.internal_environment->pop_back();
+    *a = next;
+    state.input_buf.push(next);
+  } else {
+    // Otherwise, reset the register to 0
+    *a = 0;
+  }
+});
+*/
+
 } // namespace inst
 
 

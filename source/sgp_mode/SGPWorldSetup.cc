@@ -110,7 +110,13 @@ void SGPWorld::SetupOrgMode() {
       Library::GetOpCode("Donate"),
       Library::GetSize()
     );
-    // TODO - knockout steal instruction
+    // Knockout steal instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Steal"),
+      Library::GetSize()
+    );
   }
 }
 
