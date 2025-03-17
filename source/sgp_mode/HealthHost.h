@@ -83,18 +83,40 @@ class HealthHost : public SGPHost {
             return;
         }
 
-        //Host with parasite loses 50% of CPU to parasite
-        bool host_cycle = true;
+        int host_cycle; //TODO: should have default values
+        int sym_cycle;
         if (HasSym()) {
-        host_cycle = random->P(0.5);
+          if (sgp_config->STRESS_TYPE() == MUTUALIST) {
+            //Host with mutualist gains 50% of CPU from mutualist
+            if (random->P(0.5)) {
+              host_cycle = 2;
+              sym_cycle = 0;
+            } else {
+              host_cycle = 1;
+              sym_cycle = 1;
+            }
+          }
+          else if (sgp_config->STRESS_TYPE() == PARASITE) {
+            //Host with parasite loses 50% of CPU to parasite
+            if (random->P(0.5)) {
+              host_cycle = 0;
+              sym_cycle = 1;
+            } else {
+              host_cycle = 1;
+              sym_cycle = 0;
+            }
+          }
         }
-
         
-        if (host_cycle) {
-        GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
+        //TODO: Should this be in a little loop to avoid duplicate code?
+        //Probably doesn't matter that much
+        if (host_cycle == 1) {
+          GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
+        } else if (host_cycle == 2) {
+          GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
         }
 
-        if (HasSym() && !host_cycle) { // let each sym do whatever they need to do
+        if (HasSym() && sym_cycle) { // let each sym do whatever they need to do
         emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
         for (size_t j = 0; j < syms.size(); j++) {
             emp::Ptr<Organism> curSym = syms[j];
