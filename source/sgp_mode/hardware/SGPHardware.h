@@ -4,8 +4,6 @@
 #include "CPUState.h"
 #include "Instructions.h"
 #include "GenomeLibrary.h"
-// #include "../Tasks.h"
-#include "../spec.h"
 #include "../../default_mode/Host.h"
 
 #include "sgpl/algorithm/execute_cpu_n_cycles.hpp"

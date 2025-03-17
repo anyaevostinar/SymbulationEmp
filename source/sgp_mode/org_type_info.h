@@ -9,6 +9,8 @@
 
 namespace sgpmode::org_info {
 
+const size_t DEFAULT_STACK_SIZE_LIMIT = 16;
+
 enum class SGPOrganismType { DEFAULT = 0, HEALTH, STRESS, NUTRIENT };
 enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 

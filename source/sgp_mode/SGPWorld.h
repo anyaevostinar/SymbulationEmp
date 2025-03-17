@@ -5,7 +5,6 @@
 #include "Scheduler.h"
 #include "SGPConfigSetup.h"
 #include "SyncDataMonitor.h"
-#include "spec.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 #include "org_type_info.h"
@@ -138,6 +137,7 @@ protected:
   org_mode_t sgp_org_type = org_mode_t::DEFAULT;
   // If using stress organisms, what kind of stress?
   stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+  bool stress_extinction_update = false;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -320,6 +320,7 @@ protected:
   void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
   void SetupTaskEnvironment();
   void SetupMutator();
+  void SetupStressInteractions();
 
   // Clear all world signals
   void ClearWorldSignals() {

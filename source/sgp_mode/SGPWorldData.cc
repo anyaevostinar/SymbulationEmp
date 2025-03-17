@@ -4,7 +4,6 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
-#include "spec.h"
 
 #include <cstddef>
 #include <cstdint>

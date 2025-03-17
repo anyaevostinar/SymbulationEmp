@@ -135,6 +135,59 @@ void SGPWorld::SetupOrgMode() {
     );
   }
 
+  // Configure stress
+  if (sgp_config.ENABLE_STRESS()) {
+    SetupStressInteractions();
+  }
+}
+
+void SGPWorld::SetupStressInteractions() {
+  emp_assert(sgp_config.ENABLE_STRESS());
+
+  // Setup extinction variable
+  // At beginning of update, determine whether an extinction event occurs
+  begin_update_sig.AddAction(
+    [this]() {
+      stress_extinction_update = (GetUpdate() % sgp_config.EXTINCTION_FREQUENCY()) == 0;
+    }
+  );
+
+  // BOOKMARK
+  // Setup host interactions
+  if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        // If host has a symbiont, death_chance = mutualist death chance
+        // Otherwise, base death chance.
+        const double death_chance = (host.HasSym()) ?
+          sgp_config.MUTUALIST_DEATH_CHANCE() :
+          sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
+  } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        // If host has a symbiont, death_chance = parasite death chance
+        // Otherwise, base death chance.
+        const double death_chance = (host.HasSym()) ?
+          sgp_config.PARASITE_DEATH_CHANCE() :
+          sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
+  }
+
+  // TODO - Add instruction-mediated stress interaction mode
+
+  // NOTE - What about free-living symbionts (if any)?
+  //        Or endosymbionts?
 }
 
 void SGPWorld::SetupPopStructure() {

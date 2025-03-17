@@ -3,7 +3,7 @@
 
 #include "RingBuffer.h"
 #include "Stacks.h"
-#include "../spec.h"
+#include "../org_type_info.h"
 #include "../utils.h"
 #include "../../Organism.h"
 
@@ -97,7 +97,7 @@ public:
     emp::Ptr<world_t> world,
     emp::Ptr<Organism> organism,
     size_t task_cnt = 0,
-    size_t stack_limit = spec::DEFAULT_STACK_SIZE_LIMIT
+    size_t stack_limit = org_info::DEFAULT_STACK_SIZE_LIMIT
   ) :
     stacks(2),
     num_tasks(task_cnt),

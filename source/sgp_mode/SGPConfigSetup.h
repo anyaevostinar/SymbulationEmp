@@ -31,11 +31,13 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP_MUTATION, "SGP mutation group"),
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
 
+  // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
   VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
 
   GROUP(STRESS, "Stress Settings"),
+  VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),
   VALUE(STRESS_TYPE, std::string, "mutualist", "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),

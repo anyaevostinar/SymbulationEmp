@@ -41,10 +41,16 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     return;
   }
   before_host_process_sig.Trigger(host);
+  // Host may have died as a result of this signal.
+  if (host.GetDead()) {
+    return;
+  }
   // Update host location
   host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
   // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
   // Execute organism hardware for CYCLES_PER_UPDATE steps
+  // NOTE - Discuss possibility of host dying because of instruction executions.
+  //        As-is, still run hardware forward full amount regardless
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
     host.GetHardware().RunCPUStep(pos, 1);
@@ -416,6 +422,7 @@ bool SGPWorld::EndosymAttemptVertTransmission(
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
   for (size_t i = 0; i < graveyard.size(); ++i) {
+    // TODO - Does this need to call DoDeath?
     graveyard[i].Delete();
   }
   graveyard.clear();
