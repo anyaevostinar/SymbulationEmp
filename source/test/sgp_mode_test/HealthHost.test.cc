@@ -1,5 +1,52 @@
 #include "../../sgp_mode/HealthHost.h"
 
+//TODO: test case: with parasites, health hosts at 20k updates evolve more than 30 ORN and 200 NAND
+//Whereas health hosts without parasites evolve at 20k updates evolve less than 10 ORN and 100 NAND
+//random seed 10
+
+TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp]") {
+  emp::Random random(10);
+  SymConfigSGP config;
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(PARASITE);
+
+
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+  SGPWorld world(random, &config, LogicTasks);
+
+
+  size_t run_updates = 20000;
+  WHEN("There are parasites") {
+    config.START_MOI(0);
+    
+    world.SetupHosts(&world_size);
+  
+    REQUIRE(world.GetNumOrgs() == world_size);
+    for (size_t i = 0; i < run_updates; i++) {
+      if (i % 100 == 0) {
+        world.GetTaskSet().ResetTaskData();
+      }
+      world.Update();
+    }
+    auto it = world.GetTaskSet().begin();
+    THEN("Parasites do some NOT") {
+      REQUIRE((*it).n_succeeds_sym > 0);
+    }
+    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      //advance iterator to the ORN task
+      for (size_t i = 0; i < 4; i++) {
+        std::cout << "advancing" << std::endl;
+        std::cout << (*it).task.name << (*it).n_succeeds_host << std::endl;
+        ++it;
+      }
+      std::cout << (*it).task.name << (*it).n_succeeds_host << std::endl;
+      REQUIRE((*it).n_succeeds_host > 30);
+    }
+  }
+
+}
+
 TEST_CASE("Health hosts evolve", "[sgp]") {
   emp::Random random(32);
   SymConfigSGP config;
