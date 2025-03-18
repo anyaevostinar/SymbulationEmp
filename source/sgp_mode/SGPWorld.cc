@@ -36,6 +36,7 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
 }
 
 // TODO - discuss timing
+// NOTE - DoDeath repeated several times here. Maybe move that check out to ProcessOrgsAt?
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // std::cout << "ProcessHostAt" << std::endl;
   // If host is dead, don't process.
@@ -75,6 +76,11 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // Handle any endosymbionts (configurable at setup-time)
   // NOTE - is there any reason that this might need to be a functor?
   ProcessEndosymbionts(host);
+  // Endosymbionts might kill host.
+  if (host.GetDead()) {
+    DoDeath(pos);
+    return;
+  }
   // Run host's process function (post cpu steps, post endosymbiont processing)
   // TODO - when do we actually want to run this?
   host.Process(pos);
