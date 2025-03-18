@@ -148,15 +148,16 @@ void SGPWorld::SetupStressInteractions() {
   // At beginning of update, determine whether an extinction event occurs
   begin_update_sig.AddAction(
     [this]() {
-      stress_extinction_update = (GetUpdate() % sgp_config.EXTINCTION_FREQUENCY()) == 0;
+      const size_t u = GetUpdate();
+      stress_extinction_update = (u > 0) && (u % sgp_config.EXTINCTION_FREQUENCY()) == 0;
     }
   );
 
-  // BOOKMARK
   // Setup host interactions
   if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
         // If host has a symbiont, death_chance = mutualist death chance
         // Otherwise, base death chance.
         const double death_chance = (host.HasSym()) ?
@@ -171,6 +172,7 @@ void SGPWorld::SetupStressInteractions() {
   } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
         // If host has a symbiont, death_chance = parasite death chance
         // Otherwise, base death chance.
         const double death_chance = (host.HasSym()) ?

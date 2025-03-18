@@ -14,10 +14,11 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
   // std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
-    emp_assert(GetOrg(pop_id).IsHost());
+    auto& org = GetOrg(pop_id);;
+    emp_assert(org.IsHost());
     ProcessHostAt(
       {pop_id},
-      static_cast<sgp_host_t&>(GetOrg(pop_id))
+      static_cast<sgp_host_t&>(org)
     );
   }
   // TODO - double check that my interpretation is correct here
@@ -30,6 +31,7 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
       emp::WorldPosition(0, pop_id),
       static_cast<sgp_sym_t&>(*(GetSymAt(pop_id)))
     );
+
   }
 }
 
@@ -38,11 +40,15 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // std::cout << "ProcessHostAt" << std::endl;
   // If host is dead, don't process.
   if (host.GetDead()) {
+    DoDeath(pos);
     return;
   }
   before_host_process_sig.Trigger(host);
   // Host may have died as a result of this signal.
+  // NOTE - Do we want to return early here + do death?
+  //        Anywhere else we want to check for death?
   if (host.GetDead()) {
+    DoDeath(pos);
     return;
   }
   // Update host location
@@ -73,6 +79,10 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // TODO - when do we actually want to run this?
   host.Process(pos);
   after_host_process_sig.Trigger(host);
+  // If process resulted in death, DoDeath.
+  if (host.GetDead()) {
+    DoDeath(pos);
+  }
 }
 
 void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
