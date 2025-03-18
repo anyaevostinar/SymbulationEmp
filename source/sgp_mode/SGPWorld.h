@@ -23,6 +23,8 @@
 #include <functional>
 #include <filesystem>
 
+// TODO - fix graveyard / processing dead organisms!
+
 namespace sgpmode {
 
 // TODO - do we want this to be configurable?
@@ -359,6 +361,13 @@ protected:
     const size_t task_id = task_reqs.task_id;
     const size_t max_repeats = task_reqs.max_repeats;
     return cpu_state.GetTaskPerformanceCount(task_id) < max_repeats;
+  }
+
+  // Utility function to get cpu state from an org pointer
+  sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
+    return (org_ptr->IsHost()) ?
+      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
+      (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
   }
 
   void ProcessHostOutputBuffer(sgp_host_t& host);

@@ -422,14 +422,27 @@ bool SGPWorld::EndosymAttemptVertTransmission(
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
   for (size_t i = 0; i < graveyard.size(); ++i) {
-    // TODO - Does this need to call DoDeath?
+    // NOTE - Does this need to call DoDeath?
+    //        the original implementation (in old Update function) does not
     graveyard[i].Delete();
   }
   graveyard.clear();
 }
 
 // TODO - add test to make sure this works for hosts as well
-void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) { /*TODO*/ }
+void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
+  // NOTE - Previous version of this function assumed symbiont
+  //        Just in case we end up needing it for host's, might as well make it
+  //        work for them as well?
+  auto& cpu_state = GetCPUState(org);
+  if (cpu_state.ReproInProgress()) {
+    repro_queue.Invalidate(
+      cpu_state.GetReproQueuePos()
+    );
+  }
+
+  SymWorld::SendToGraveyard(org);
+}
 
 std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
