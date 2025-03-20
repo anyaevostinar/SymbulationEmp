@@ -597,9 +597,18 @@ public:
   ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
-  emp::DataMonitor<double>& GetSymDonatedDataNode() { return *data_node_sym_donated; }
-  emp::DataMonitor<double>& GetSymStolenDataNode() { return *data_node_sym_stolen; }
-  emp::DataMonitor<double>& GetSymEarnedDataNode() { return *data_node_sym_earned; }
+  emp::DataMonitor<double>& GetSymDonatedDataNode() {
+    emp_assert(data_node_sym_donated != nullptr);
+    return *data_node_sym_donated;
+  }
+  emp::DataMonitor<double>& GetSymStolenDataNode() {
+    emp_assert(data_node_sym_stolen != nullptr);
+    return *data_node_sym_stolen;
+  }
+  emp::DataMonitor<double>& GetSymEarnedDataNode() {
+    emp_assert(data_node_sym_earned != nullptr);
+    return *data_node_sym_earned;
+  }
   void SetupTasksNodes();
 
   emp::DataFile& SetupOrgCountFile(const std::string& filepath);
