@@ -23,7 +23,7 @@
 #include <functional>
 #include <filesystem>
 
-// TODO - fix graveyard / processing dead organisms!
+// TODO - Document how each base configuration works for SGPWorld
 
 namespace sgpmode {
 
@@ -33,7 +33,7 @@ const size_t PROGRAM_LENGTH = 100;
 // NOTE - SymWorld::GetPop returns pop by copy instead of by reference?
 //        GetPop is expensive operation, avoid use
 
-// TODO - init necessary hardware state on organism birth (e.g., stack limit)
+// TODO - add tests for stack limits on organisms
 class SGPWorld : public SymWorld {
 public:
   using sgp_cpu_peripheral_t = CPUState<SGPWorld>;
@@ -65,8 +65,6 @@ public:
   using fun_compatibility_check_t = std::function<bool(
     const sgp_host_t&,
     const sgp_sym_t&
-    // emp::Ptr<Organism>, /* host */
-    // emp::Ptr<Organism> /* symbiont */
   )>;
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
@@ -128,11 +126,10 @@ protected:
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration
+    * Purpose: Holds all configuration settings and references the same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
     */
-  //  emp::Ptr<SymConfigSGP> sgp_config = nullptr;
   SymConfigSGP& sgp_config;
 
   // What kind of SGP organism type to use?
@@ -153,7 +150,6 @@ protected:
   };
 
   // Directory to dump output files into.
-  // std::string output_dir;
   std::filesystem::path output_dir;
   emp::vector<ConfigSnapshotEntry> config_snapshot_entries;
 
@@ -163,22 +159,40 @@ protected:
 
   emp::Signal<void(void)> begin_update_sig;
 
-  // --- Symbiont birth signals / functors ---
+  // ---- Symbiont birth signals / functors ----
+  // before_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after sym offspring is created but before fun_sym_do_birth() is called.
   emp::Signal<void(
-    emp::Ptr<sgp_sym_t>, /* sym_baby_ptr */
+    emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
     const emp::WorldPosition&     /* parent_pos */
   )> before_sym_do_birth_sig;
-  emp::Signal<void(const emp::WorldPosition& /* sym_baby_pos */)> after_sym_do_birth_sig;
+
+  // after_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after fun_sym_do_birth() is called.
+  emp::Signal<void(
+    const emp::WorldPosition& /* sym_baby_pos */
+  )> after_sym_do_birth_sig;
+
+  // fun_sym_do_birth - Configurable functor that handles calling appropriate
+  //  "DoBirth" function depending on whether free-living symbionts are turned on.
   fun_sym_do_birth_t fun_sym_do_birth;
 
-  // --- Symbiont vertical transmission signals / functors ---
-  // TODO - Need to extract whether vertical transmission is successful or not.
+  // ---- Symbiont vertical transmission signals / functors ----
+  // before_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
+  //  Triggers before VerticalTransmission is called on endosymbiont attempting
+  //  vertical transmission. I.e., before attempt is made.
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
-    emp::Ptr<sgp_host_t>,           /* host_offspring_ptr - transmission to */
-    emp::Ptr<sgp_host_t>,           /* host_parent_ptr - transmission from */
-    const emp::WorldPosition&    /* host_parent_pos */
+    emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
+    emp::Ptr<sgp_host_t>,      /* host_parent_ptr - transmission from */
+    const emp::WorldPosition&  /* host_parent_pos */
   )> before_sym_vert_transmission_sig;
+
+  // after_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
+  //  Triggers ater vertical transmission attempt has been made.
+  //  If attempt was successful, sym_offspring_ptr will point to the new symbiont
+  //  offspring (that was vertically transmitted). If unsuccessful, sym_offspring_ptr
+  //  will be a nullptr.
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
     emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
@@ -187,11 +201,12 @@ protected:
     const emp::WorldPosition&,  /* host_parent_pos */
     bool                        /* vertical transmission success */
   )> after_sym_vert_transmission_sig;
-  // Checks if symbiont vertical transmission is successful
+
+  // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
+  //  a given symbiont can attempt vertical transmission into host offspring.
   fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
 
-  // --- Host birth signals / functors ---
-  // TODO - add functions that add functions to these signals
+  // ---- Host birth signals / functors ----
   emp::Signal<void(
     sgp_host_t&,        /* host_offspring_ptr */
     sgp_host_t&,        /* host_parent_ptr */
@@ -201,7 +216,7 @@ protected:
     const emp::WorldPosition& /* host_offspring_pos */
   )> after_host_do_birth_sig;
 
-  // --- Host process signals / functors ---
+  // ---- Host process signals / functors ----
   // TODO - document timing
   emp::Signal<void(
     sgp_host_t&
@@ -217,7 +232,7 @@ protected:
   )> after_host_cpu_exec_sig;
   // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
 
-  // --- Free-living symbiont signals / functors ---
+  // ---- Free-living symbiont signals / functors ----
   emp::Signal<void(
     sgp_sym_t&                 /* sym */
   )> before_freeliving_sym_process_sig;
@@ -231,7 +246,7 @@ protected:
     sgp_sym_t&                 /* sym */
   )> after_freeliving_sym_cpu_exec_sig;
 
-  // --- Endosymbiont process signals / functors ---
+  // ---- Endosymbiont process signals / functors ----
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */
@@ -254,7 +269,7 @@ protected:
   )> after_endosym_cpu_exec_sig;
 
 
-  // --- Environment signals/functors ---
+  // ---- Environment signals/functors ----
   // fun_do_resource_inflow_t fun_do_resource_inflow;
 
   std::function<std::optional<emp::WorldPosition>(
@@ -262,7 +277,7 @@ protected:
     emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
   )> fun_find_host_for_horizontal_trans;
 
-  // ---- Internal helper functions ----
+  // ----- Internal helper functions -----
   void DoReproduction();
 
   void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
