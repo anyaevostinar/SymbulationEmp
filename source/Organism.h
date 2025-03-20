@@ -2,6 +2,7 @@
 #define ORGANISM_H
 
 #include <string>
+#include <optional>
 #include "ConfigSetup.h"
 #include "emp/Evolve/Systematics.hpp"
 
@@ -84,9 +85,12 @@ class Organism {
   virtual emp::Ptr<Organism> Reproduce() {
     std::cout << "Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  virtual std::optional<emp::Ptr<Organism>> VerticalTransmission(
+    emp::Ptr<Organism> host_baby
+  ) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
-    throw "Organism method called!";}
+    throw "Organism method called!";
+  }
   virtual void HorizontalTransmission(emp::WorldPosition location) {
     std::cout << "HorizontalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}

@@ -3,16 +3,16 @@
 
 #include "../../catch/catch.hpp"
 
-void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
+void TestGenome(emp::Ptr<sgpmode::Task> task, void (sgpmode::ProgramBuilder::*method)()) {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
   // Ensure we can actually complete the task
   task->MarkAlwaysPerformable();
 
-  SGPWorld world(random, &config, TaskSet{task});
+  sgpmode::SGPWorld world(random, &config, sgpmode::TaskSet{task});
 
   // Mock Organism to check reproduction
   class TestOrg : public Organism {
@@ -23,10 +23,10 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   };
 
   TestOrg organism;
-  ProgramBuilder builder;
+  sgpmode::ProgramBuilder builder;
   // Call the provided method reference
   (builder.*method)();
-  CPU cpu(&organism, &world, builder.Build(100));
+  sgpmode::CPU cpu(&organism, &world, builder.Build(100));
 
   cpu.RunCPUStep(0, 100);
   world.Update();
@@ -39,41 +39,41 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NOT), &ProgramBuilder::AddNot);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::NOT), &sgpmode::ProgramBuilder::AddNot);
 }
 
 TEST_CASE("Generate NAND program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NAND), &ProgramBuilder::AddNand);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::NAND), &sgpmode::ProgramBuilder::AddNand);
 }
 TEST_CASE("Generate AND program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(AND), &ProgramBuilder::AddAnd);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::AND), &sgpmode::ProgramBuilder::AddAnd);
 }
 TEST_CASE("Generate ORN program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(ORN), &ProgramBuilder::AddOrn);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::ORN), &sgpmode::ProgramBuilder::AddOrn);
 }
 TEST_CASE("Generate OR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(OR), &ProgramBuilder::AddOr);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::OR), &sgpmode::ProgramBuilder::AddOr);
 }
 TEST_CASE("Generate ANDN program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(ANDN), &ProgramBuilder::AddAndn);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::ANDN), &sgpmode::ProgramBuilder::AddAndn);
 }
 TEST_CASE("Generate NOR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NOR), &ProgramBuilder::AddNor);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::NOR), &sgpmode::ProgramBuilder::AddNor);
 }
 TEST_CASE("Generate XOR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(XOR), &ProgramBuilder::AddXor);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::XOR), &sgpmode::ProgramBuilder::AddXor);
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(EQU), &ProgramBuilder::AddEqu);
+  TestGenome(emp::NewPtr<sgpmode::InputTask>(sgpmode::EQU), &sgpmode::ProgramBuilder::AddEqu);
 }
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
-  SGPWorld world(random, &config, LogicTasks);
+  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
 
   // Mock Organism to check reproduction
   class TestOrg : public Organism {
@@ -85,8 +85,8 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
 
   TestOrg organism;
   // Empty builder
-  ProgramBuilder builder;
-  CPU cpu(&organism, &world, builder.Build(100));
+  sgpmode::ProgramBuilder builder;
+  sgpmode::CPU cpu(&organism, &world, builder.Build(100));
 
   cpu.RunCPUStep(0, 100);
   world.Update();

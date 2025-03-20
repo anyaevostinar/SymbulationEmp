@@ -3,8 +3,10 @@
 
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
+#include "emp/Evolve/World_structure.hpp"
 #include <cstddef>
-#include <emp/Evolve/World_structure.hpp>
+
+namespace sgpmode {
 
 const size_t SYM_CHECK_UPDATES = 100;
 
@@ -65,6 +67,8 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
 
   double change = (with_sym - no_sym) / fmax(fmax(no_sym, with_sym), 1);
   return change;
+}
+
 }
 
 #endif

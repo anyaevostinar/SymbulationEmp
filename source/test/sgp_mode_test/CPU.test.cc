@@ -1,7 +1,8 @@
 #include "../../source/sgp_mode/Tasks.cc"
 #include "../../sgp_mode/CPU.h"
-#include "../../sgp_mode/SGPDataNodes.h"
 #include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorld.cc"
+#include "../../sgp_mode/SGPWorldSetup.cc"
 
 TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   // Mock Organism to check reproduction
@@ -22,18 +23,19 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
   };
 
   emp::Random random(61);
-  SymConfigSGP config;
+  sgpmode::SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   WHEN("logic tasks are used") {
     // Make the ancestor genome do NOT
     config.TASK_TYPE(1);
 
-    TaskSet task_set{ emp::NewPtr<InputTask>(NOT) };
-    SGPWorld world(random, &config, task_set);
+    sgpmode::TaskSet task_set{ emp::NewPtr<sgpmode::InputTask>(sgpmode::NOT) };
+    sgpmode::SGPWorld world(random, &config, task_set);
+
 
     TestOrg organism;
-    CPU cpu(&organism, &world);
+    sgpmode::CPU cpu(&organism, &world);
 
     // It should reproduce at the end of its program, which has length 100
     cpu.RunCPUStep(0, 100);
