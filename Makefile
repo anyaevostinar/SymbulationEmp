@@ -148,6 +148,11 @@ test-debug-pgg:
 test-sgp:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp]
+
+test-sgp-all:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp, sgp-integration]
+
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp]

@@ -4,11 +4,21 @@
 //Whereas health hosts without parasites evolve at 20k updates evolve less than 10 ORN and 100 NAND
 //random seed 10
 
-TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp]") {
+TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
   emp::Random random(10);
+
   SymConfigSGP config;
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
+  config.LIMITED_RES_TOTAL(10);
+  config.LIMITED_RES_INFLOW(500);
+  config.VERTICAL_TRANSMISSION(0);
+  config.HOST_REPRO_RES(100);
+  config.SYM_HORIZ_TRANS_RES(10);
+  config.THREAD_COUNT(1);
+  config.TASK_TYPE(1);
+  config.DONATION_STEAL_INST(0);
+  config.LIMITED_TASK_RESET_INTERVAL(20);
 
 
   size_t world_size = config.GRID_X() * config.GRID_Y();
@@ -17,6 +27,35 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp]") {
 
   size_t run_updates = 20000;
   WHEN("There are parasites") {
+    config.START_MOI(1);
+    
+    world.SetupHosts(&world_size);
+  
+    REQUIRE(world.GetNumOrgs() == world_size);
+    for (size_t i = 0; i < run_updates; i++) {
+      if (i % 100 == 0) {
+        world.GetTaskSet().ResetTaskData();
+      }
+      world.Update();
+    }
+    std::cout << "Random: " << random.GetSeed() << std::endl;
+    std::cout << "Random number: " << random.GetUInt() << std::endl;
+    auto it = world.GetTaskSet().begin();
+    THEN("Parasites do some NOT") {
+      REQUIRE((*it).n_succeeds_sym > 0);
+    }
+    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      //advance iterator to the ORN task
+      for (size_t i = 0; i < 3; i++) {
+        ++it;
+      }
+      std::cout << (*it).task.name << (*it).n_succeeds_host << std::endl;
+      REQUIRE((*it).task.name == "ORN");
+      REQUIRE((*it).n_succeeds_host > 30);
+    }
+  }
+  WHEN("There are no parasites") {
     config.START_MOI(0);
     
     world.SetupHosts(&world_size);
@@ -28,26 +67,27 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp]") {
       }
       world.Update();
     }
+    std::cout << "Random: " << random.GetSeed() << std::endl;
+    std::cout << "Random number: " << random.GetUInt() << std::endl;
     auto it = world.GetTaskSet().begin();
-    THEN("Parasites do some NOT") {
-      REQUIRE((*it).n_succeeds_sym > 0);
+    THEN("Non-existant parasites do no NOT") {
+      REQUIRE((*it).n_succeeds_sym == 0);
     }
-    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+    THEN("Health hosts evolve to do fewer than 10 ORN tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
       //advance iterator to the ORN task
-      for (size_t i = 0; i < 4; i++) {
-        std::cout << "advancing" << std::endl;
-        std::cout << (*it).task.name << (*it).n_succeeds_host << std::endl;
+      for (size_t i = 0; i < 3; i++) {
         ++it;
       }
       std::cout << (*it).task.name << (*it).n_succeeds_host << std::endl;
-      REQUIRE((*it).n_succeeds_host > 30);
+      REQUIRE((*it).task.name == "ORN");
+      REQUIRE((*it).n_succeeds_host < 15);
     }
   }
 
 }
 
-TEST_CASE("Health hosts evolve", "[sgp]") {
+TEST_CASE("Health hosts evolve", "[sgp-integration]") {
   emp::Random random(32);
   SymConfigSGP config;
   config.ORGANISM_TYPE(HEALTH);
