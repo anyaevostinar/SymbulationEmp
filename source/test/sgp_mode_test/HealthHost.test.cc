@@ -3,7 +3,11 @@
 //Tests to write:
 // Health host with parasite loses cycle 50% of time
 // Health host with mutualist gains cycle 50% of time
-//  How to test? CPU or program have pointer to current instruction?
+  // in signalgp-lite/include/sgpl/hardware/Cpu.hpp there is GetCore(0)
+  // in signalgp-lite/include/sgpl/hardware/Core.hpp there is GetProgramCounter()
+  // that hopefully will show whether organism has advanced program counter
+// Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
+// Trickier for mutualist, check just before enough CPUs and it should manage to finish
 
 TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
   emp::Random random(10);
@@ -65,6 +69,7 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
     world.Setup();
   
     REQUIRE(world.GetNumOrgs() == world_size);
+    //TODO: Use RunExperiment(false)
     for (size_t i = 0; i < run_updates; i++) {
       if (i % 1000 == 0) {
         world.GetTaskSet().ResetTaskData();

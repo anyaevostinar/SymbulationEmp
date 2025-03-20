@@ -124,6 +124,9 @@ test-debug-efficient:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [efficient]
 
+test-test:
+	./symbulation.test [test]
+
 test-lysis:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [lysis]
