@@ -27,6 +27,7 @@ enum class ReproState { NONE=0, ATTEMPTING, IN_PROGRESS };
  * organism's genomes. Each organism has its own CPUState.
  */
 // TODO - write tests
+// TODO - cleanup member variables (reduce down to only what we're using)
 template<typename WORLD_T>
 class CPUState {
 public:

@@ -44,6 +44,8 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     DoDeath(pos);
     return;
   }
+  // Update host location
+  host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
   before_host_process_sig.Trigger(host);
   // Host may have died as a result of this signal.
   // NOTE - Do we want to return early here + do death?
@@ -52,8 +54,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     DoDeath(pos);
     return;
   }
-  // Update host location
-  host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
   // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
   // Execute organism hardware for CYCLES_PER_UPDATE steps
   // NOTE - Discuss possibility of host dying because of instruction executions.
@@ -71,6 +71,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     }
 
     after_host_cpu_step_sig.Trigger(host);
+    // NOTE - Check death here?
   }
   after_host_cpu_exec_sig.Trigger(host);
   // Handle any endosymbionts (configurable at setup-time)

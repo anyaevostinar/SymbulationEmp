@@ -56,6 +56,8 @@ emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
 }
 
 // TODO - update statistics as necessary
+// TODO - What about sym earned?
+// TODO - split this setup function up
 emp::DataFile& SGPWorld::SetupSymDonatedFile(const std::string& filepath) {
   // If data node already exists, delete it.
   if (data_node_sym_earned != nullptr) {
@@ -75,34 +77,36 @@ emp::DataFile& SGPWorld::SetupSymDonatedFile(const std::string& filepath) {
   // TODO - update if threading is refactored
   auto& file = SetupFile(filepath);
   file.AddVar(update, "update", "World update");
-  file.AddTotal(
-    data_node_sym_donated->UnsynchronizedGetMonitor(),
-    "sym_points_earned",
-    "Points earned by symbionts",
-    true
-  );
+  // NOTE - The commented out code below was in original, but looks redundant?
+  // file.AddTotal(
+  //   data_node_sym_donated,
+  //   "sym_points_earned",
+  //   "Points earned by symbionts",
+  //   true
+  // );
   file.AddFun<size_t>(
     [this]() {
-      return data_node_sym_donated->UnsynchronizedGetMonitor().GetCount();
+      return data_node_sym_donated->GetCount();
     },
     "sym_donate_calls",
     "Number of donate calls"
   );
   file.AddTotal(
-    data_node_sym_donated->UnsynchronizedGetMonitor(),
+    *data_node_sym_donated,
     "sym_points_donated",
     "Points donated by symbionts",
     true
   );
+
   file.AddFun<size_t>(
     [this]() {
-      return data_node_sym_stolen->UnsynchronizedGetMonitor().GetCount();
+      return data_node_sym_stolen->GetCount();
     },
     "sym_steal_calls",
     "Number of steal calls"
   );
   file.AddTotal(
-    data_node_sym_stolen->UnsynchronizedGetMonitor(),
+    *data_node_sym_stolen,
     "sym_points_stolen",
     "Points stolen by symbionts",
     true
