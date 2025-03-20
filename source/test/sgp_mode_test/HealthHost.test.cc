@@ -10,6 +10,7 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
   SymConfigSGP config;
+  config.SEED(10);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
   config.LIMITED_RES_TOTAL(10);
