@@ -154,6 +154,8 @@ void SGPWorld::SetupStressInteractions() {
   );
 
   // Setup host interactions
+  // NOTE - this can be simplified assuming no other desired differences in logic
+  //        for parasite vs. mutualist (repeated code; only death chance is different)
   if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
@@ -231,7 +233,7 @@ void SGPWorld::SetupPopStructure() {
 
 void SGPWorld::SetupScheduler() {
   // Configure scheduler w/max world size (updated in SGPWorld::Setup, and cfg thread count)
-  scheduler.SetupScheduler(max_world_size, sgp_config.THREAD_COUNT());
+  scheduler.SetupScheduler(max_world_size);
   // Scheduler calls world's ProcessOrgAt function
 }
 
