@@ -1,6 +1,95 @@
 #include "../../sgp_mode/HealthHost.h"
 
-TEST_CASE("Health hosts evolve", "[sgp]") {
+//Tests to write:
+// Health host with parasite loses cycle 50% of time
+// Health host with mutualist gains cycle 50% of time
+//  How to test? CPU or program have pointer to current instruction?
+
+TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
+  emp::Random random(10);
+  //TODO: The random number seed doesn't seem to be working, different values for the same seed
+
+  SymConfigSGP config;
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(PARASITE);
+  config.LIMITED_RES_TOTAL(10);
+  config.LIMITED_RES_INFLOW(500);
+  config.VERTICAL_TRANSMISSION(0);
+  config.HOST_REPRO_RES(100);
+  config.SYM_HORIZ_TRANS_RES(10);
+  config.THREAD_COUNT(1);
+  config.TASK_TYPE(1);
+  config.DONATION_STEAL_INST(0);
+  config.LIMITED_TASK_RESET_INTERVAL(20);
+
+  config.OUSTING(1); //TODO: test removing the HealthHost ousting code
+
+
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+  SGPWorld world(random, &config, LogicTasks);
+
+
+  size_t run_updates = 20000;
+  WHEN("There are parasites") {
+    config.START_MOI(1);
+    
+    world.Setup();
+  
+    REQUIRE(world.GetNumOrgs() == world_size);
+    for (size_t i = 0; i < run_updates; i++) {
+      if (i % 1000 == 0) {
+        world.GetTaskSet().ResetTaskData();
+      }
+      world.Update();
+    }
+    //std::cout << "Random: " << random.GetSeed() << std::endl;
+    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    auto it = world.GetTaskSet().begin();
+    THEN("Parasites do some NOT") {
+      REQUIRE((*it).n_succeeds_sym > 0);
+    }
+    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      //advance iterator to the ORN task
+      for (size_t i = 0; i < 3; i++) {
+        ++it;
+      }
+      REQUIRE((*it).task.name == "ORN");
+      REQUIRE((*it).n_succeeds_host > 100);
+    }
+  }
+  WHEN("There are no parasites") {
+    config.START_MOI(0);
+    
+    world.Setup();
+  
+    REQUIRE(world.GetNumOrgs() == world_size);
+    for (size_t i = 0; i < run_updates; i++) {
+      if (i % 1000 == 0) {
+        world.GetTaskSet().ResetTaskData();
+      }
+      world.Update();
+    }
+    //std::cout << "Random: " << random.GetSeed() << std::endl;
+    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    auto it = world.GetTaskSet().begin();
+    THEN("Non-existant parasites do no NOT") {
+      REQUIRE((*it).n_succeeds_sym == 0);
+    }
+    THEN("Health hosts evolve to do fewer than 10 ORN tasks") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      //advance iterator to the ORN task
+      for (size_t i = 0; i < 3; i++) {
+        ++it;
+      }
+      REQUIRE((*it).task.name == "ORN");
+      REQUIRE((*it).n_succeeds_host < 100);
+    }
+  }
+
+}
+
+TEST_CASE("Health hosts evolve", "[sgp-integration]") {
   emp::Random random(32);
   SymConfigSGP config;
   config.ORGANISM_TYPE(HEALTH);
