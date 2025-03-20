@@ -369,7 +369,7 @@ public:
       emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(1);
     }
-    return (success) ? {phage_baby} : std::nullopt;
+    return (success) ? std::optional<emp::Ptr<Organism>>{phage_baby} : std::nullopt;
   }
 
 
