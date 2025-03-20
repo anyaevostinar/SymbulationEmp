@@ -24,6 +24,7 @@
 #include <filesystem>
 
 // TODO - Document how each base configuration works for SGPWorld
+// TODO - Comments for every member variable / function / type alias
 
 namespace sgpmode {
 
@@ -54,9 +55,8 @@ public:
   )>;
 
   // NOTE - better name?
-  // TODO - switch to using references to SGPHost, etc.
   using fun_can_attempt_vert_trans_t = std::function<bool(
-    sgp_sym_t&, /* symbiont_ptr */
+    sgp_sym_t&,  /* symbiont_ptr */
     sgp_host_t&, /* host_offspring_ptr (trans to) */
     sgp_host_t&, /* host_parent_ptr (trans from) */
     const emp::WorldPosition&  /* parent_pos */
@@ -330,11 +330,11 @@ protected:
   // Called internally on world setup.
   void SetupOrgMode();
   void SetupPopStructure();
-  void SetupScheduler();           // TODO - shift to private function (will need to refactor tests)
+  void SetupScheduler();
   void SetupReproduction();
-  void SetupSymReproduction();     // TODO - shift to private function (will need to refactor tests)
-  void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
-  void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
+  void SetupSymReproduction();
+  void SetupHostReproduction();
+  void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
   void SetupStressInteractions();
@@ -414,8 +414,9 @@ public:
    *
    * Purpose: Allows accessing the world's sgp config.
    */
-  // TODO - switch back to having a pointer to the config to be consistent with
-  // base class? (lots of base classes assume we're hanging on to a pointer)
+  // NOTE - Thoughts on holding a reference vs a pointer. Reference is a little
+  //   cleaner in my opinion, but will always need to know at construction
+  //   (which is how things were already setup with the pointer).
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
@@ -508,7 +509,6 @@ public:
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
-  // TODO - How to distinguish between the two?
   emp::WorldPosition SymDoBirth(
     emp::Ptr<Organism> sym_baby,
     emp::WorldPosition parent_pos
