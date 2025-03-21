@@ -60,7 +60,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   //        As-is, still run hardware forward full amount regardless
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
-    host.GetHardware().RunCPUStep(pos, 1);
+    host.GetHardware().RunCPUStep(1);
 
     // Did host attempt to reproduce?
     // NOTE - could move into a signal response
@@ -149,7 +149,7 @@ void SGPWorld::ProcessEndosymbiont(
   }
   before_endosym_process_sig.Trigger(sym_pos, sym, host);
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
-    sym.GetHardware().RunCPUStep(sym_pos, 1);
+    sym.GetHardware().RunCPUStep(1);
     after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
 
     // Did endosymbiont attempt to reproduce?
@@ -183,7 +183,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     // Not dead, process.
     before_freeliving_sym_process_sig.Trigger(sym);
     for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
-      sym.GetHardware().RunCPUStep(pos, 1);
+      sym.GetHardware().RunCPUStep(1);
 
       // Did this sym attempt to reproduce?
       if (sym.GetHardware().GetCPUState().ReproAttempt()) {

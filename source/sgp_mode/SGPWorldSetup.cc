@@ -258,6 +258,21 @@ void SGPWorld::SetupReproduction() {
     }
   });
 
+  // OnBeforePlacement happens during emp::World's AddOrgAt
+  // Set CPUState's location when organism is added to the world.
+  OnBeforePlacement(
+    [this](Organism& org, size_t loc) {
+      (org.IsHost()) ?
+        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}) :
+        static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+    }
+  );
+  // before_placement_sig.AddAction(
+  //   OnBeforePlacement(
+
+  //   )
+  // );
+
   SetupHostReproduction();
   SetupSymReproduction();
 }

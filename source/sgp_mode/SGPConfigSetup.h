@@ -16,10 +16,10 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
   VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
-  VALUE(TASK_TYPE, bool, 1, "If random ancestor off, 1 for NOT + repro starting genome, 0 for repro starting program"),
+  VALUE(TASK_TYPE, bool, true, "If random ancestor off, 1 for NOT + repro starting genome, 0 for repro starting program"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(FIND_NEIGHBOR_HOST_ATTEMPTS, size_t, 4, "How many times to attempt finding a neighboring host for symbiont to horizontally transmit into"),
-  VALUE(DONATION_STEAL_INST, bool, 1, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
+  VALUE(DONATION_STEAL_INST, bool, true, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(SYM_DONATE_PROP, double, 0.2, "Proportion of points for sym to donate to host on donate"),
   VALUE(SYM_STEAL_PROP, double, 0.2, "Proportion of points for sym to steal from host on steal"),
 
@@ -32,8 +32,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
 
   // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
   VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
-  VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
-  VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
+  VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
+  VALUE(TRACK_PARENT_TASKS, bool, false, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),

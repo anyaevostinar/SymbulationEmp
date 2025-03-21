@@ -439,9 +439,6 @@ protected:
       (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
   }
 
-  void ProcessHostOutputBuffer(sgp_host_t& host);
-  void ProcessSymOutputBuffer(sgp_sym_t& sym);
-
 public:
   SGPWorld(
     emp::Random& rnd,
@@ -473,6 +470,9 @@ public:
   //   (which is how things were already setup with the pointer).
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
+
+  task_env_t& GetTaskEnv() { return task_env; }
+  const task_env_t& GetTaskEnv() const { return task_env; }
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
@@ -545,6 +545,9 @@ public:
   // Process endosymbiont
   void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
+  void ProcessHostOutputBuffer(sgp_host_t& host);
+  void ProcessSymOutputBuffer(sgp_sym_t& sym);
+
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization
   //  Why? Tests, different mains configure initial population differently
@@ -610,6 +613,9 @@ public:
     return *data_node_sym_earned;
   }
   void SetupTasksNodes();
+
+  ProgramBuilder<hw_spec_t>& GetProgramBuilder() { return prog_builder; }
+  const ProgramBuilder<hw_spec_t>& GetProgramBuilder() const { return prog_builder; }
 
   emp::DataFile& SetupOrgCountFile(const std::string& filepath);
   emp::DataFile& SetupSymDonatedFile(const std::string& filepath);

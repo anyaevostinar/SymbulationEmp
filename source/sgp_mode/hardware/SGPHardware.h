@@ -189,7 +189,7 @@ public:
    *
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
-  void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles=1) {
+  void RunCPUStep(size_t n_cycles=1) {
 
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
@@ -198,8 +198,8 @@ public:
     // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
     // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
     // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
-    // sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
-    sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    // sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**
@@ -242,6 +242,7 @@ public:
 
 };
 
+// TODO - clean this function up
 template<typename HW_SPEC_T>
 void SGPHardware<HW_SPEC_T>::PrintOp(
   const sgpl::Instruction<HW_SPEC_T>& ins,
