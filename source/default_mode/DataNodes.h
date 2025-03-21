@@ -396,28 +396,36 @@ emp::DataFile& SymWorld::SetUpTagDistFile(const std::string& filename) {
  * Purpose: To write the tags of hosts and symbionts to a data file after an experiment is 
  * concluded
  */
-void SymWorld::WriteTagDumpFile(const std::string& filename) {
+void SymWorld::WriteOrgDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
-
-  std::string header = "host_tag,sym_tag,tag_distance,host_int,sym_int\n";
-  out_file << header;
+  out_file << "host_int,sym_int,host_repro_count,host_towards_partner_count,host_from_partner_count," << 
+    "sym_repro_count,sym_towards_partner_count,sym_from_partner_count";
+  if (my_config->TAG_MATCHING()) out_file << ",host_tag,sym_tag,tag_distance";
+  out_file << "\n";
 
   for (size_t i = 0; i < size(); i++) {
     if (IsOccupied(i)) {
-      std::string host_tag = pop[i]->GetTag().ToBinaryString();
-
       if (pop[i]->HasSym()) {
         emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
         for (size_t j = 0; j < symbionts.size(); j++) {
-          out_file << host_tag + "," + symbionts[j]->GetTag().ToBinaryString() + ",";
-          out_file << hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
-          out_file << "," << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal();
-          out_file << "\n";
+          out_file << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal() << "," << pop[i]->GetReproCount() << 
+            "," << pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << 
+            "," << symbionts[j]->GetReproCount() << "," << symbionts[j]->GetTowardsPartnerCount() << 
+            "," << symbionts[j]->GetFromPartnerCount();
+          if (my_config->TAG_MATCHING()) {
+            out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() << 
+              "," << hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+          }
         }
       }
       else {
-        out_file << host_tag + ",,," << pop[i]->GetIntVal() << ",\n";
+        out_file << pop[i]->GetIntVal() << ",," << pop[i]->GetReproCount() << "," << 
+          pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << ",,,";
+        if (my_config->TAG_MATCHING()) {
+          out_file << "," << pop[i]->GetTag().ToBinaryString() << ",,";
+        }
       }
+      out_file << "\n";
     }
   }
   out_file.close();

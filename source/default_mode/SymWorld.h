@@ -597,7 +597,7 @@ public:
   virtual void CreateDataFiles();
   void MapPhylogenyInteractions();
   void WritePhylogenyFile(const std::string & filename);
-  void WriteTagDumpFile(const std::string& filename);
+  void WriteOrgDumpFile(const std::string& filename);
   void WriteTagMatrixFile(const std::string& filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
   emp::Ptr<emp::Taxon<taxon_info_t>> GetDominantSymTaxon();
