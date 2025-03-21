@@ -110,11 +110,10 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
-  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_horiztrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_successes_verttrans;
-
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
 
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
@@ -168,7 +167,7 @@ public:
       hamming_metric = emp::NewPtr<emp::HammingMetric<32>>();
     }
   }
-
+  
 
   /**
    * Input: None
@@ -616,10 +615,10 @@ public:
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
-  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
-  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetVerticalTransmissionSuccessCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionAttemptCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
   emp::DataMonitor<size_t>& GetHostReproCountDataNode();
   emp::DataMonitor<size_t>& GetSymReproCountDataNode();
   emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();

@@ -689,8 +689,8 @@ public:
     if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
 
       //vertical transmission data node
-      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
-      data_node_attempts_verttrans.AddDatum(1);
+      emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(GetIntVal());
 
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING()) {
@@ -704,8 +704,8 @@ public:
       points = points - my_config->SYM_VERT_TRANS_RES();
       host_baby->AddSymbiont(sym_baby);
 
-      emp::DataMonitor<int>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
-      data_node_successes_verttrans.AddDatum(1);
+      emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
+      data_node_successes_verttrans.AddDatum(GetIntVal());
     }
   }
 
@@ -737,12 +737,12 @@ public:
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes
-        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(GetIntVal());
 
-        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
         if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(1);
+          data_node_successes_horiztrans.AddDatum(GetIntVal());
         }
       }
     }

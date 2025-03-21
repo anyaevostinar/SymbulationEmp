@@ -593,9 +593,9 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCount();
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCount();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
-    REQUIRE(data_node_attempts_horiztrans.GetTotal() == 0);
+    REQUIRE(data_node_attempts_horiztrans.GetCount() == 0);
 
     WHEN("Free living symbionts are allowed"){
       config.FREE_LIVING_SYMS(1);
@@ -607,7 +607,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         REQUIRE(world.GetNumOrgs() == 2);
 
         THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
         }
       }
         WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
@@ -615,7 +615,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);
         THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
         }
         symbiont.Delete(); // won't be caught by symworld destructor due to resize
       }
@@ -630,7 +630,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(host->HasSym() == true);
         THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
         }
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
@@ -638,7 +638,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(host->HasSym() == false);
         THEN("The count of attempted horizontal transmissions increments"){
-          REQUIRE(data_node_attempts_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
         }
       }
       symbiont.Delete();
@@ -657,9 +657,9 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
     world.Resize(world_size);
     config.SYM_HORIZ_TRANS_RES(0);
 
-    emp::DataMonitor<int>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCount();
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCount();
     emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
-    REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
+    REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
 
     WHEN("Free living symbionts are allowed"){
       config.FREE_LIVING_SYMS(1);
@@ -671,7 +671,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         REQUIRE(world.GetNumOrgs() == 2);
 
         THEN("The count of successful horizontal transmissions increments"){
-          REQUIRE(data_node_successes_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_successes_horiztrans.GetCount() == 1);
         }
       }
       WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
@@ -679,7 +679,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);
         THEN("The count of successful horizontal transmissions does not change"){
-          REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
+          REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
         }
         symbiont.Delete(); // won't be caught by symworld destructor due to resize 
       }
@@ -694,7 +694,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(host->HasSym() == true);
         THEN("The count of successful horizontal transmissions increments"){
-          REQUIRE(data_node_successes_horiztrans.GetTotal() == 1);
+          REQUIRE(data_node_successes_horiztrans.GetCount() == 1);
         }
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
@@ -702,7 +702,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         symbiont->HorizontalTransmission(parent_pos);
         REQUIRE(host->HasSym() == false);
         THEN("The count of successful horizontal transmissions does not change"){
-          REQUIRE(data_node_successes_horiztrans.GetTotal() == 0);
+          REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
         }
       }
       symbiont.Delete();
@@ -723,8 +723,8 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
     
-    emp::DataMonitor<int>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
-    REQUIRE(data_node_attempts_verttrans.GetTotal() == 0);
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
+    REQUIRE(data_node_attempts_verttrans.GetCount() == 0);
     
     WHEN("A symbiont baby gets vertically transmitted into a host baby"){
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
@@ -734,7 +734,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
 
       THEN("The count of attempted vertical transmissions increments"){
         REQUIRE(host_baby->HasSym() == true);
-        REQUIRE(data_node_attempts_verttrans.GetTotal() == 1);
+        REQUIRE(data_node_attempts_verttrans.GetCount() == 1);
       }
 
       symbiont.Delete();
@@ -754,7 +754,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
 
       THEN("The count of attempted vertical transmissions increments") {
         REQUIRE(host_baby->HasSym() == false);
-        REQUIRE(data_node_attempts_verttrans.GetTotal() == 1);
+        REQUIRE(data_node_attempts_verttrans.GetCount() == 1);
       }
       
       symbiont.Delete();
@@ -775,8 +775,8 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
 
-    emp::DataMonitor<int>& data_node_successes_verttrans = world.GetVerticalTransmissionSuccessCount();
-    REQUIRE(data_node_successes_verttrans.GetTotal() == 0);
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = world.GetVerticalTransmissionSuccessCount();
+    REQUIRE(data_node_successes_verttrans.GetCount() == 0);
 
     WHEN("A symbiont baby gets vertically transmitted into a host baby") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
@@ -791,7 +791,7 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
 
       THEN("The count of successful vertical transmissions increments") {
         REQUIRE(host_baby->HasSym() == true);
-        REQUIRE(data_node_successes_verttrans.GetTotal() == 1);
+        REQUIRE(data_node_successes_verttrans.GetCount() == 1);
       }
 
       symbiont.Delete();
@@ -810,7 +810,7 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
 
       THEN("The count of successful vertical transmissions increments") {
         REQUIRE(host_baby->HasSym() == false);
-        REQUIRE(data_node_successes_verttrans.GetTotal() == 0);
+        REQUIRE(data_node_successes_verttrans.GetCount() == 0);
       }
 
       symbiont.Delete();

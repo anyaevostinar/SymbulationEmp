@@ -325,7 +325,7 @@ void SymWorld::MapPhylogenyInteractions() {
  * Output: None.
  *
  * Purpose: To setup and write to the files that track the counts of attempted
- * tranmissions.
+ * transmissions.
  */
 
 emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
@@ -336,14 +336,31 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & node4 = GetVerticalTransmissionSuccessCount(); 
 
   file.AddVar(update, "update", "Update");
-
   //horizontal transmission
-  file.AddTotal(node1, "attempts_horiztrans", "Total number of horizontal transmission attempts", true);
-  file.AddTotal(node2, "successes_horiztrans", "Total number of horizontal transmission successes", true);
+  file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.6", "Count for histogram bin for horizontal attempts with int val -1 to <-0.6");
+  file.AddHistBin(node1, 1, "horiz_attempt_-0.6_-0.2", "Count for histogram bin for horizontal attempts with int val -0.6 to <-0.2");
+  file.AddHistBin(node1, 2, "horiz_attempt_-0.2_0.2", "Count for histogram bin for horizontal attempts with int val -0.2 to <0.2");
+  file.AddHistBin(node1, 3, "horiz_attempt_0.2_0.6", "Count for histogram bin for horizontal attempts with int val 0.2 to <0.6");
+  file.AddHistBin(node1, 4, "horiz_attempt_0.6_1", "Count for histogram bin for horizontal attempts with int val 0.6 to 1", true);
+
+  file.AddHistBin(node2, 0, "horiz_success_-1_-0.6", "Count for histogram bin for horizontal successes with int val -1 to <-0.6");
+  file.AddHistBin(node2, 1, "horiz_success_-0.6_-0.2", "Count for histogram bin for horizontal successes with int val -0.6 to <-0.2");
+  file.AddHistBin(node2, 2, "horiz_success_-0.2_0.2", "Count for histogram bin for horizontal successes with int val -0.2 to <0.2");
+  file.AddHistBin(node2, 3, "horiz_success_0.2_0.6", "Count for histogram bin for horizontal successes with int val 0.2 to <0.6");
+  file.AddHistBin(node2, 4, "horiz_success_0.6_1", "Count for histogram bin for horizontal successes with int val 0.6 to 1", true);
 
   //vertical transmission
-  file.AddTotal(node3, "attempts_verttrans", "Total number of horizontal transmission attempts", true);
-  file.AddTotal(node4, "successes_verttrans", "Total number of horizontal transmission successes", true);
+  file.AddHistBin(node3, 0, "vert_attempt_-1_-0.6", "Count for histogram bin for vertical attempts with int val -1 to <-0.6");
+  file.AddHistBin(node3, 1, "vert_attempt_-0.6_-0.2", "Count for histogram bin for vertical attempts with int val -0.6 to <-0.2");
+  file.AddHistBin(node3, 2, "vert_attempt_-0.2_0.2", "Count for histogram bin for vertical attempts with int val -0.2 to <0.2");
+  file.AddHistBin(node3, 3, "vert_attempt_0.2_0.6", "Count for histogram bin for vertical attempts with int val 0.2 to <0.6");
+  file.AddHistBin(node3, 4, "vert_attempt_0.6_1", "Count for histogram bin for vertical attempts with int val 0.6 to 1", true);
+
+  file.AddHistBin(node4, 0, "vert_success_-1_-0.6", "Count for histogram bin for vertical successes with int val -1 to <-0.6");
+  file.AddHistBin(node4, 1, "vert_success_-0.6_-0.2", "Count for histogram bin for vertical successes with int val -0.6 to <-0.2");
+  file.AddHistBin(node4, 2, "vert_success_-0.2_0.2", "Count for histogram bin for vertical successes with int val -0.2 to <0.2");
+  file.AddHistBin(node4, 3, "vert_success_0.2_0.6", "Count for histogram bin for vertical successes with int val 0.2 to <0.6");
+  file.AddHistBin(node4, 4, "vert_success_0.6_1", "Count for histogram bin for vertical successes with int val 0.6 to 1", true);
 
   file.PrintHeaderKeys();
 
@@ -869,16 +886,18 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
 /**
  * Input: None
  *
- * Output: The DataMonitor<int>& that has the information representing
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many attempts were made to horizontally transmit.
  *
  * Purpose: To retrieve the data nodes that is tracking the
  * number of attempted horizontal transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionAttemptCount() {
   if (!data_node_attempts_horiztrans) {
     data_node_attempts_horiztrans.New();
+    data_node_attempts_horiztrans->SetupBins(-1.0, 1.1, 6);
   }
+  
   return *data_node_attempts_horiztrans;
 }
 
@@ -886,16 +905,18 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionAttemptCount() {
 /**
  * Input: None
  *
- * Output: The DataMonitor<int>& that has the information representing
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many successful attempts were made to horizontally transmit.
  *
  * Purpose: To retrieve the data nodes that is tracking the
  * number of successful horizontal transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSuccessCount() {
   if (!data_node_successes_horiztrans) {
     data_node_successes_horiztrans.New();
+    data_node_successes_horiztrans->SetupBins(-1.0, 1.1, 6);
   }
+  
   return *data_node_successes_horiztrans;
 }
 
@@ -903,15 +924,16 @@ emp::DataMonitor<int>& SymWorld::GetHorizontalTransmissionSuccessCount() {
 /**
  * Input: None
  *
- * Output: The DataMonitor<int>& that has the information representing
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many attempts were made to vertically transmit.
  *
  * Purpose: To retrieve the data nodes that is tracking the
  * number of attempted vertical transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionAttemptCount() {
   if (!data_node_attempts_verttrans) {
     data_node_attempts_verttrans.New();
+    data_node_attempts_verttrans->SetupBins(-1.0, 1.1, 6);
   }
   return *data_node_attempts_verttrans;
 }
@@ -920,16 +942,18 @@ emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionAttemptCount() {
 /**
  * Input: None
  *
- * Output: The DataMonitor<int>& that has the information representing
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many successful attempts were made to vertically transmit.
  *
  * Purpose: To retrieve the data nodes that is tracking the
  * number of successful vertical transmissions.
  */
-emp::DataMonitor<int>& SymWorld::GetVerticalTransmissionSuccessCount() {
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionSuccessCount() {
   if (!data_node_successes_verttrans) {
     data_node_successes_verttrans.New();
+    data_node_successes_verttrans->SetupBins(-1.0, 1.1, 6);
   }
+  
   return *data_node_successes_verttrans;
 }
 
@@ -1232,5 +1256,5 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
     }
     return *data_node_symbiont_tag_shannon;
   }
-
+  
 #endif
