@@ -212,16 +212,16 @@ emp::DataFile& SymWorld::SetUpReproHistFile(const std::string& filename) {
 
   if (my_config->TAG_MATCHING()) {
 
-    auto& host_towards_partner_count = GetHostTowardsPartnerCountDataNode();
-    auto& host_from_partner_count = GetHostFromPartnerCountDataNode();
-    auto& sym_towards_partner_count = GetSymTowardsPartnerCountDataNode();
-    auto& sym_from_partner_count = GetSymFromPartnerCountDataNode();
+    auto& host_towards_partner_rate = GetHostTowardsPartnerRateDataNode();
+    auto& host_from_partner_rate = GetHostFromPartnerRateDataNode();
+    auto& sym_towards_partner_rate = GetSymTowardsPartnerRateDataNode();
+    auto& sym_from_partner_rate = GetSymFromPartnerRateDataNode();
 
-    file.AddMean(host_towards_partner_count, "host_towards_partner_count", "Average host lineage flips towards partner count");
-    file.AddMean(host_from_partner_count, "host_from_partner_count", "Average host lineage flips from partner count");
+    file.AddMean(host_towards_partner_rate, "host_towards_partner_rate", "Average host lineage flips towards partner count divided by that lineage's repro count");
+    file.AddMean(host_from_partner_rate, "host_from_partner_rate", "Average host lineage flips from partner count divided by that lineage's repro count");
 
-    file.AddMean(sym_towards_partner_count, "sym_towards_partner_count", "Average symbiont lineage flips towards partner count");
-    file.AddMean(sym_from_partner_count, "sym_from_partner_count", "Average symbiont lineage flips from partner count");
+    file.AddMean(sym_towards_partner_rate, "sym_towards_partner_rate", "Average symbiont lineage flips towards partner count divided by that lineage's repro count");
+    file.AddMean(sym_from_partner_rate, "sym_from_partner_rate", "Average symbiont lineage flips from partner count divided by that lineage's repro count");
   }
   file.PrintHeaderKeys();
 
@@ -1022,7 +1022,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of reproductions each host lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetHostReproCountDataNode() {
+  emp::DataMonitor<size_t>& SymWorld::GetHostReproCountDataNode() {
     if (!data_node_host_repro_count) {
       data_node_host_repro_count.New();
       OnUpdate([this](size_t) {
@@ -1051,7 +1051,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of reproductions each symbiont lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetSymReproCountDataNode() {
+  emp::DataMonitor<size_t>& SymWorld::GetSymReproCountDataNode() {
     if (!data_node_sym_repro_count) {
       data_node_sym_repro_count.New();
     }
@@ -1062,83 +1062,83 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the average number of flips towards a partner each host lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of flips towards a partner each host lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetHostTowardsPartnerCountDataNode() {
-    if (!data_node_host_towards_partner_count) {
-      data_node_host_towards_partner_count.New();
+  emp::DataMonitor<double>& SymWorld::GetHostTowardsPartnerRateDataNode() {
+    if (!data_node_host_towards_partner_rate) {
+      data_node_host_towards_partner_rate.New();
       OnUpdate([this](size_t) {
-        data_node_host_towards_partner_count->Reset();
-        data_node_host_from_partner_count->Reset();
-        data_node_sym_towards_partner_count->Reset();
-        data_node_sym_from_partner_count->Reset();
+        data_node_host_towards_partner_rate->Reset();
+        data_node_host_from_partner_rate->Reset();
+        data_node_sym_towards_partner_rate->Reset();
+        data_node_sym_from_partner_rate->Reset();
 
         for (size_t i = 0; i < pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost()) {
-            data_node_host_towards_partner_count->AddDatum(pop[i]->GetTowardsPartnerCount());
-            data_node_host_from_partner_count->AddDatum(pop[i]->GetFromPartnerCount());
+            data_node_host_towards_partner_rate->AddDatum((double)pop[i]->GetTowardsPartnerCount() / (double)pop[i]->GetReproCount());
+            data_node_host_from_partner_rate->AddDatum((double)pop[i]->GetFromPartnerCount() / (double)pop[i]->GetReproCount());
             for (emp::Ptr<Organism> sym : pop[i]->GetSymbionts()) {
-              data_node_sym_towards_partner_count->AddDatum(pop[i]->GetTowardsPartnerCount());
-              data_node_sym_from_partner_count->AddDatum(pop[i]->GetFromPartnerCount());
+              data_node_sym_towards_partner_rate->AddDatum((double)sym->GetTowardsPartnerCount() / (double)sym->GetReproCount());
+              data_node_sym_from_partner_rate->AddDatum((double)sym->GetFromPartnerCount() / (double)sym->GetReproCount());
             }
           }
         }
         });
     }
-    return *data_node_host_towards_partner_count;
+    return *data_node_host_towards_partner_rate;
   }
 
 
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the average number of flips from a partner each host lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of flips from a partner each host lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetHostFromPartnerCountDataNode() {
-    if (!data_node_host_from_partner_count) {
-      data_node_host_from_partner_count.New();
+  emp::DataMonitor<double>& SymWorld::GetHostFromPartnerRateDataNode() {
+    if (!data_node_host_from_partner_rate) {
+      data_node_host_from_partner_rate.New();
     }
-    return *data_node_host_from_partner_count;
+    return *data_node_host_from_partner_rate;
   }
 
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the average number of flips towards a partner each symbiont lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of flips towards a partner each symbiont lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetSymTowardsPartnerCountDataNode() {
-    if (!data_node_sym_towards_partner_count) {
-      data_node_sym_towards_partner_count.New();
+  emp::DataMonitor<double>& SymWorld::GetSymTowardsPartnerRateDataNode() {
+    if (!data_node_sym_towards_partner_rate) {
+      data_node_sym_towards_partner_rate.New();
     }
-    return *data_node_sym_towards_partner_count;
+    return *data_node_sym_towards_partner_rate;
   }
 
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the average number of flips from a partner each symbiont lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of flips from a partner each symbiont lineage has accumulated.
    */
-  emp::DataMonitor<unsigned int>& SymWorld::GetSymFromPartnerCountDataNode() {
-    if (!data_node_sym_from_partner_count) {
-      data_node_sym_from_partner_count.New();
+  emp::DataMonitor<double>& SymWorld::GetSymFromPartnerRateDataNode() {
+    if (!data_node_sym_from_partner_rate) {
+      data_node_sym_from_partner_rate.New();
     }
-    return *data_node_sym_from_partner_count;
+    return *data_node_sym_from_partner_rate;
   }
 
   /**

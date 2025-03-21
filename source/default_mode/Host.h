@@ -39,21 +39,21 @@ protected:
     * Purpose: Tracks the number of reproductive events in this host's lineage.
     *
   */
-  unsigned int reproductions = 0;
+  size_t reproductions = 0;
 
   /**
     *
     * Purpose: Tracks the number of tag flips towards partner in this host's lineage.
     *
   */
-  unsigned int towards_partner_count = 0;
+  size_t towards_partner_count = 0;
 
   /**
     *
     * Purpose: Tracks the number of tag flips away from partner in this host's lineage.
     *
   */
-  unsigned int from_partner_count = 0;
+  size_t from_partner_count = 0;
 
   /**
     *
@@ -254,7 +254,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(unsigned int _in) { reproductions = _in; }
+  void SetReproCount(size_t _in) { reproductions = _in; }
 
 
   /**
@@ -264,7 +264,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  unsigned int GetReproCount() { return reproductions; }
+  size_t GetReproCount() { return reproductions; }
 
 
   /**
@@ -274,7 +274,7 @@ public:
     *
     * Purpose: To set the count of flips towards a partner in this lineage.
     */
-  void SetTowardsPartnerCount(unsigned int _in) { towards_partner_count = _in; }
+  void SetTowardsPartnerCount(size_t _in) { towards_partner_count = _in; }
 
 
   /**
@@ -284,7 +284,7 @@ public:
    *
    * Purpose: To get the count of flips towards a partner in this lineage.
    */
-  unsigned int GetTowardsPartnerCount() { return towards_partner_count; }
+  size_t GetTowardsPartnerCount() { return towards_partner_count; }
 
 
   /**
@@ -294,7 +294,7 @@ public:
    *
    * Purpose: To set the count of flips from a partner in this lineage.
    */
-  void SetFromPartnerCount(unsigned int _in) { from_partner_count = _in; }
+  void SetFromPartnerCount(size_t _in) { from_partner_count = _in; }
 
 
   /**
@@ -304,7 +304,7 @@ public:
    *
    * Purpose: To get the count of flips from a partner in this lineage.
    */
-  unsigned int GetFromPartnerCount() { return from_partner_count; }
+  size_t GetFromPartnerCount() { return from_partner_count; }
 
 
 /**

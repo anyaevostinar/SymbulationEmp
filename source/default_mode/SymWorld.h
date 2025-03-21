@@ -95,12 +95,12 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_repro_count;
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_repro_count;
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_towards_partner_count;
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_host_from_partner_count;
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_towards_partner_count;
-  emp::Ptr<emp::DataMonitor<unsigned int>> data_node_sym_from_partner_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_towards_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_from_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_towards_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_from_partner_rate;
   emp::Ptr<emp::DataMonitor<int>> data_node_host_tag_richness;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_tag_shannon;
   emp::Ptr<emp::DataMonitor<int>> data_node_symbiont_tag_richness;
@@ -190,10 +190,10 @@ public:
     if (data_node_within_host_variance) data_node_within_host_variance.Delete();
     if (data_node_host_repro_count) data_node_host_repro_count.Delete();
     if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
-    if (data_node_host_towards_partner_count) data_node_host_towards_partner_count.Delete();
-    if (data_node_host_from_partner_count) data_node_host_from_partner_count.Delete();
-    if (data_node_sym_towards_partner_count) data_node_sym_towards_partner_count.Delete();
-    if (data_node_sym_from_partner_count) data_node_sym_from_partner_count.Delete();
+    if (data_node_host_towards_partner_rate) data_node_host_towards_partner_rate.Delete();
+    if (data_node_host_from_partner_rate) data_node_host_from_partner_rate.Delete();
+    if (data_node_sym_towards_partner_rate) data_node_sym_towards_partner_rate.Delete();
+    if (data_node_sym_from_partner_rate) data_node_sym_from_partner_rate.Delete();
     if (data_node_host_tag_richness) data_node_host_tag_richness.Delete();
     if (data_node_host_tag_shannon) data_node_host_tag_shannon.Delete();
     if (data_node_symbiont_tag_richness) data_node_symbiont_tag_richness.Delete();
@@ -620,12 +620,12 @@ public:
   emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<int>& GetVerticalTransmissionSuccessCount();
-  emp::DataMonitor<unsigned int>& GetHostReproCountDataNode();
-  emp::DataMonitor<unsigned int>& GetSymReproCountDataNode();
-  emp::DataMonitor<unsigned int>& GetSymTowardsPartnerCountDataNode();
-  emp::DataMonitor<unsigned int>& GetSymFromPartnerCountDataNode();
-  emp::DataMonitor<unsigned int>& GetHostTowardsPartnerCountDataNode();
-  emp::DataMonitor<unsigned int>& GetHostFromPartnerCountDataNode();
+  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
+  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();
+  emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostFromPartnerRateDataNode();
   emp::DataMonitor<int>& GetHostTagRichness();
   emp::DataMonitor<double>& GetHostTagShannonDiversity();
   emp::DataMonitor<int>& GetSymbiontTagRichness();

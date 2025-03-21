@@ -98,27 +98,27 @@ class Organism {
     std::cout << "GetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual unsigned int GetReproCount() {
+  virtual size_t GetReproCount() {
     std::cout << "GetReproCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void SetReproCount(unsigned int _in) {
+  virtual void SetReproCount(size_t _in) {
     std::cout << "SetReproCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void SetTowardsPartnerCount(unsigned int _in) {
+  virtual void SetTowardsPartnerCount(size_t _in) {
     std::cout << "SetTowardsPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual unsigned int GetTowardsPartnerCount() {
+  virtual size_t GetTowardsPartnerCount() {
     std::cout << "GetTowardsPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void SetFromPartnerCount(unsigned int _in) {
+  virtual void SetFromPartnerCount(size_t _in) {
     std::cout << "SetFromPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual unsigned int GetFromPartnerCount() {
+  virtual size_t GetFromPartnerCount() {
     std::cout << "GetFromPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
