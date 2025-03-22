@@ -413,13 +413,6 @@ protected:
     after_endosym_cpu_step_sig.Clear();
   }
 
-  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
-    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
-    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
-    cpu_state.SetTaskEnvID(env_id);
-    cpu_state.SetInputs(task_io.input_buffer);
-  }
-
   // NOTE - could make this a functor to allow runtime configuration or differences
   //        between different kinds of organisms
   // NOTE - Other conditions that we want to check?
@@ -547,6 +540,14 @@ public:
 
   void ProcessHostOutputBuffer(sgp_host_t& host);
   void ProcessSymOutputBuffer(sgp_sym_t& sym);
+
+  // NOTE - moved to be public for testing
+  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
+    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
+    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
+    cpu_state.SetTaskEnvID(env_id);
+    cpu_state.SetInputs(task_io.input_buffer);
+  }
 
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization
