@@ -117,6 +117,14 @@ public:
     nand_op = opcode;
   }
 
+  void AddStartAnchor(program_t& program) {
+    AddInst(
+      program,
+      "Global Anchor",
+      start_tag
+    );
+  }
+
   void AddTask_Not(program_t& program) {
     // io   r0
     // nand r0, r0, r0
@@ -220,13 +228,13 @@ public:
     // nand r0, r1, r0
     // nand r0, r0, r0
     // io   r0
-    AddInst(io_op);
-    AddInst(io_op, 1);
-    AddInst(nand_op, 0, 0, 0);
-    AddInst(nand_op, 1, 1, 1);
-    AddInst(nand_op, 0, 1, 0);
-    AddInst(nand_op, 0, 0, 0);
-    AddInst(io_op);
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddInst(program, nand_op, 0, 0, 0);
+    AddInst(program, nand_op, 1, 1, 1);
+    AddInst(program, nand_op, 0, 1, 0);
+    AddInst(program, nand_op, 0, 0, 0);
+    AddInst(program, io_op);
     // Rectify program in case any of these instructions have been disabled
     program.Rectify(rectifier);
   }
@@ -254,7 +262,7 @@ public:
     AddInst(program, nand_op, 2, 2, 1);
 
     AddInst(program, nand_op, 0, 2, 3);
-    AddInst(io_op);
+    AddInst(program, io_op);
     // Rectify program in case any of these instructions have been disabled
     program.Rectify(rectifier);
   }
@@ -292,11 +300,7 @@ public:
   program_t CreateNotProgram(size_t length) {
     program_t program; // Create empty program
     // Add start anchor
-    AddInst(
-      program,
-      "Global Anchor",
-      start_tag
-    );
+    AddStartAnchor(program);
     // Add not instruction
     AddTask_Not(program); // Add not task
     // Nop filler is length minus current size + repro instructions
@@ -309,7 +313,9 @@ public:
   }
 
   program_t CreateRandomProgram(size_t length) {
-    return program_t(length);
+    // Program constructor will initialize program randomly.
+    // Be sure to pass instruction rectifier to remove any disabled instructions.
+    return program_t(length, rectifier);
   }
 
   program_t CreateReproProgram(size_t length) {

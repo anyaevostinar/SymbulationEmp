@@ -42,6 +42,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   config.FILE_PATH("ProgramBuilder_test_output");
   config.POP_SIZE(1);
   config.START_MOI(0);
+  config.TASK_IO_UNIQUE_OUTPUT(true);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -75,7 +76,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
         world,
         hw,
         {},
-        {"NOT", "NAND", "OR_NOT","AND","OR","AND_NOT","XOR","EQU"}
+        {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
       );
     REQUIRE(output_buffer.size() == 2);
     world.ProcessHostOutputBuffer(sgp_host);
@@ -84,7 +85,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       world,
       hw,
       {"NOT"},
-      {"NAND", "OR_NOT","AND","OR","AND_NOT","XOR","EQU"}
+      {"NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     REQUIRE(output_buffer.size() == 0);
   }
@@ -104,7 +105,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       world,
       hw,
       {},
-      {"NOT", "NAND", "OR_NOT","AND","OR","AND_NOT","XOR","EQU"}
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     REQUIRE(output_buffer.size() > 0);
     world.ProcessHostOutputBuffer(sgp_host);
@@ -113,16 +114,274 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       world,
       hw,
       {"NOT", "NAND"},
-      {"OR_NOT","AND","OR","AND_NOT","XOR","EQU"}
+      {"OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU"}
     );
   }
 
-  // BOOKMARK
-  // WHEN("creating a repro program") {
+  WHEN("creating a repro program") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().CreateReproProgram(50)
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
 
-  // }
+    // Run organism's hardware for 50 steps
+    hw.RunCPUStep(50);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    REQUIRE(output_buffer.size() == 0);
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+  }
+
+  WHEN("creating a random program") {
+    // We should be able to create random programs that run
+    const size_t num_rand_progs = 20;
+    // Generate N random programs, run each to make sure things work
+    for (size_t i = 0; i < num_rand_progs; ++i) {
+      hw.Reset();
+      // Set program of organism to something else
+      hw.SetProgram(
+        world.GetProgramBuilder().CreateRandomProgram(50)
+      );
+      REQUIRE(hw.GetProgram().size() == 50);
+      world.AssignNewEnvIO(hw.GetCPUState());
+      // Run organism's hardware for 50 steps
+      hw.RunCPUStep(50);
+      // We don't know anything about the output buffer here.
+      // Just want to make sure we don't get any errors.
+    }
+  }
 
   // TODO - test each add inst function
+  // TODO - test rectifier?
+  WHEN("creating an AND program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an AND program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_And(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
 
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"AND"},
+      {"NOT","NAND","OR_NOT","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+  }
 
+  WHEN("creating an OrNot program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an OrNot program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_OrNot(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"OR_NOT"},
+      {"NOT","NAND","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+  }
+
+  WHEN("creating an Or program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an OR program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_Or(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"OR"},
+      {"NOT","NAND","AND","OR_NOT","AND_NOT","NOR","XOR","EQU"}
+    );
+  }
+
+  WHEN("creating an AndNot program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an AndNot program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_AndNot(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"AND_NOT"},
+      {"NOT","NAND","AND","OR_NOT","OR","NOR","XOR","EQU"}
+    );
+  }
+
+  WHEN("creating a Nor program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an Nor program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_Nor(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"NOR"},
+      {"NOT","NAND","AND","OR_NOT","OR","AND_NOT","XOR","EQU"}
+    );
+  }
+
+  WHEN("creating a Xor program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an Xor program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_Xor(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"XOR"},
+      {"NOT","NAND","AND","OR_NOT","OR","AND_NOT","NOR","EQU"}
+    );
+  }
+
+  WHEN("creating an Equ program") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an Xor program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddTask_Equ(program);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware
+    hw.RunCPUStep(program.size());
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
+    );
+    // There should be nothing in the output buffer, and no tasks performed.
+    world.ProcessHostOutputBuffer(sgp_host);
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      {"EQU"},
+      {"NOT","NAND","AND","OR_NOT","OR","AND_NOT","NOR","XOR"}
+    );
+  }
 }

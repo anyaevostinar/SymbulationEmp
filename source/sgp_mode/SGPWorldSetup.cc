@@ -32,11 +32,11 @@ void SGPWorld::Setup() {
 
   // std::cout << opcode_rectifier.mapper << std::endl;
   // TODO - Delete this once confident in instruction removal
-  std::cout << "Opcode rectifier mappings:";
-  for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
-    std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
-  }
-  std::cout << std::endl;
+  // std::cout << "Opcode rectifier mappings:";
+  // for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+  //   std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  // }
+  // std::cout << std::endl;
   // TODO - print out mapper after all deletes, hand-check
   // TODO - add tests for rectifier inst removals
 
@@ -85,11 +85,11 @@ void SGPWorld::Setup() {
   SnapshotConfig();
   setup = true;
   // TODO - Delete this once confident in instruction removal
-  std::cout << "Opcode rectifier mappings (post setup):";
-  for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
-    std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
-  }
-  std::cout << std::endl;
+  // std::cout << "Opcode rectifier mappings (post setup):";
+  // for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+  //   std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  // }
+  // std::cout << std::endl;
 }
 
 void SGPWorld::SetupOrgMode() {
@@ -267,11 +267,6 @@ void SGPWorld::SetupReproduction() {
         static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
     }
   );
-  // before_placement_sig.AddAction(
-  //   OnBeforePlacement(
-
-  //   )
-  // );
 
   SetupHostReproduction();
   SetupSymReproduction();
@@ -455,6 +450,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       // TODO - add InjectSymIntoHost to wrap
       // std::cout << "  Injecting symbiont into host" << std::endl;
       AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
+      // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function
