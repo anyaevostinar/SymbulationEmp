@@ -78,7 +78,7 @@ TEST_CASE("Test instructions", "[sgp]") {
     hw.SetProgram(program);
     world.AssignNewEnvIO(hw.GetCPUState());
     hw.RunCPUStep(1); // Anchor
-    REQUIRE(CheckRegisterContents(hw, {0, 0, 0, 0, 0, 0, 0}));
+    REQUIRE(CheckRegisterContents(hw, {0, 0, 0, 0, 0, 0, 0, 0}));
     // PrintRegisterContents(hw);
     hw.RunCPUStep(1); // Increment 0
     // PrintRegisterContents(hw);
@@ -91,11 +91,39 @@ TEST_CASE("Test instructions", "[sgp]") {
     hw.RunCPUStep(1); // Increment 7
     REQUIRE(CheckRegisterContents(hw, {2, 1, 0, 0, 0, 0, 0, 1}));
   }
+
+  SECTION("Test Decrement instruction") {
+    auto& prog_builder = world.GetProgramBuilder();
+    // Build an OR program
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Decrement", 0);
+    prog_builder.AddInst(program, "Decrement", 0);
+    prog_builder.AddInst(program, "Decrement", 1);
+    prog_builder.AddInst(program, "Decrement", 7);
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.GetCPU().GetActiveCore().SetRegisters({100, 100, 100, 100, 100, 100, 100, 100});
+
+    hw.RunCPUStep(1); // Anchor
+    REQUIRE(CheckRegisterContents(hw, {100, 100, 100, 100, 100, 100, 100, 100}));
+    // PrintRegisterContents(hw);
+    hw.RunCPUStep(1); // Decrement 0
+    // PrintRegisterContents(hw);
+    REQUIRE(CheckRegisterContents(hw, {99, 100, 100, 100, 100, 100, 100, 100}));
+    hw.RunCPUStep(1); // Decrement 0
+    REQUIRE(CheckRegisterContents(hw, {98, 100, 100, 100, 100, 100, 100, 100}));
+    hw.RunCPUStep(1); // Decrement 1
+    // PrintRegisterContents(hw);
+    REQUIRE(CheckRegisterContents(hw, {98, 99, 100, 100, 100, 100, 100, 100}));
+    hw.RunCPUStep(1); // Decrement 7
+    REQUIRE(CheckRegisterContents(hw, {98, 99, 100, 100, 100, 100, 100, 99}));
+  }
+
   // BOOKMARK
   // TODO - ask about intention with casting
-  // SECTION("Test Decrement instruction") {
-
-  // }
 
   // SECTION("Test ShiftLeft instruction") {
 
