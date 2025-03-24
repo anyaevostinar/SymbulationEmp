@@ -53,8 +53,14 @@ namespace sgpmode::inst {
     static std::string name() { return #InstName; }                            \
   };
 
-INST(Increment, { ++a; });
-INST(Decrement, { --a; });
+// NOTE - Discuss weirdness with casting behavior as-is
+INST(Increment, {
+  core.registers[inst.args[0]] += 1;
+});
+
+INST(Decrement, {
+  core.registers[inst.args[0]] -= 1;
+});
 
 // Unary shift (>>1 or <<1)
 INST(ShiftLeft, { a <<= 1; });

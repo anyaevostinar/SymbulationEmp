@@ -58,8 +58,6 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
 
   WHEN("creating a NOT program") {
-
-    REQUIRE(true);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(
@@ -384,4 +382,6 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","AND","OR_NOT","OR","AND_NOT","NOR","XOR"}
     );
   }
+
+  // TODO - test adding disabled instructions => Make sure they fail to be added
 }

@@ -216,6 +216,7 @@ public:
   cpu_state_t& GetCPUState() { return state; }
 
   cpu_t& GetCPU() { return cpu; }
+  const cpu_t& GetCPU() const { return cpu; }
 
   /**
    * Input: None

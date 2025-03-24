@@ -32,57 +32,6 @@ protected:
 
   rectifier_t& rectifier;
 
-  // NOTE - Keep these protected vs move to public?
-  //        If move to public, should rectify program after add.
-  void AddInst(
-    program_t& program,
-    const std::string& op_name,
-    uint8_t arg0 = 0,
-    uint8_t arg1 = 0,
-    uint8_t arg2 = 0,
-    tag_t tag={}
-  ) {
-    AddInst(
-      program,
-      Library::GetOpCode(op_name),
-      arg0,
-      arg1,
-      arg2,
-      tag
-    );
-  }
-
-  void AddInst(
-    program_t& program,
-    uint8_t opcode,
-    uint8_t arg0 = 0,
-    uint8_t arg1 = 0,
-    uint8_t arg2 = 0,
-    tag_t tag={}
-  ) {
-    inst_t inst;
-    inst.op_code = opcode;
-    inst.args = {arg0, arg1, arg2};
-    inst.tag = tag;
-    program.emplace_back(inst);
-  }
-
-  void AddInst(
-    program_t& program,
-    const std::string& op_name,
-    tag_t tag
-  ) {
-    AddInst(program, op_name, 0, 0, 0, tag);
-  }
-
-  void AddInst(
-    program_t& program,
-    uint8_t opcode,
-    tag_t tag
-  ) {
-    AddInst(program, opcode, 0, 0, 0, tag);
-  }
-
 public:
   ProgramBuilder(
     rectifier_t& opcode_rectifier
@@ -117,6 +66,59 @@ public:
     nand_op = opcode;
   }
 
+  void AddInst(
+    program_t& program,
+    const std::string& op_name,
+    uint8_t arg0 = 0,
+    uint8_t arg1 = 0,
+    uint8_t arg2 = 0,
+    tag_t tag={}
+  ) {
+    AddInst(
+      program,
+      Library::GetOpCode(op_name),
+      arg0,
+      arg1,
+      arg2,
+      tag
+    );
+  }
+
+  void AddInst(
+    program_t& program,
+    uint8_t opcode,
+    uint8_t arg0 = 0,
+    uint8_t arg1 = 0,
+    uint8_t arg2 = 0,
+    tag_t tag={}
+  ) {
+    emp_assert(opcode < rectifier.mapper.size());
+    inst_t inst;
+    // NOTE - Should we add instruction if rectifier is going to remap? Could either
+    //        bail out on add or add re-mapped instruction.
+    // Rectify opcode to disallow disabled instructions
+    inst.op_code = rectifier.mapper[opcode];
+    inst.args = {arg0, arg1, arg2};
+    inst.tag = tag;
+    program.emplace_back(inst);
+  }
+
+  void AddInst(
+    program_t& program,
+    const std::string& op_name,
+    tag_t tag
+  ) {
+    AddInst(program, op_name, 0, 0, 0, tag);
+  }
+
+  void AddInst(
+    program_t& program,
+    uint8_t opcode,
+    tag_t tag
+  ) {
+    AddInst(program, opcode, 0, 0, 0, tag);
+  }
+
   void AddStartAnchor(program_t& program) {
     AddInst(
       program,
@@ -132,8 +134,6 @@ public:
     AddInst(program, io_op);
     AddInst(program, nand_op);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_Nand(program_t& program) {
@@ -145,8 +145,6 @@ public:
     AddInst(program, io_op, 1);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_And(
@@ -163,8 +161,6 @@ public:
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_OrNot(program_t& program) {
@@ -179,8 +175,6 @@ public:
     AddInst(program, nand_op);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_Or(program_t& program) {
@@ -197,8 +191,6 @@ public:
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_AndNot(program_t& program) {
@@ -215,8 +207,6 @@ public:
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_Nor(program_t& program) {
@@ -235,8 +225,6 @@ public:
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_Xor(program_t& program) {
@@ -263,8 +251,6 @@ public:
 
     AddInst(program, nand_op, 0, 2, 3);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   void AddTask_Equ(program_t& program) {
@@ -293,8 +279,6 @@ public:
     AddInst(program, nand_op, 0, 2, 3);
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, io_op);
-    // Rectify program in case any of these instructions have been disabled
-    program.Rectify(rectifier);
   }
 
   program_t CreateNotProgram(size_t length) {
