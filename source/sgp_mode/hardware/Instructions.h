@@ -39,12 +39,9 @@ namespace sgpmode::inst {
       const sgpl::Program<HW_SPEC_T>& program,                                      \
       CPUState<typename HW_SPEC_T::world_t>& state                                  \
     ) {                                                                        \
-      uint32_t* a_ptr = (uint32_t*)&core.registers[inst.args[0]];                 \
-      uint32_t* b_ptr = (uint32_t*)&core.registers[inst.args[1]];                 \
-      uint32_t* c_ptr = (uint32_t*)&core.registers[inst.args[2]];                 \
-      uint32_t& a = *a_ptr; \
-      uint32_t& b = *b_ptr; \
-      uint32_t& c = *c_ptr; \
+      float& a = core.registers[inst.args[0]];  \
+      float& b = core.registers[inst.args[1]];  \
+      float& c = core.registers[inst.args[2]];  \
       /* avoid "unused variable" warnings */                                   \
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
@@ -53,23 +50,33 @@ namespace sgpmode::inst {
     static std::string name() { return #InstName; }                            \
   };
 
-// NOTE - Discuss weirdness with casting behavior as-is
 INST(Increment, {
-  core.registers[inst.args[0]] += 1;
+  // core.registers[inst.args[0]] += 1;
+  a += 1;
 });
 
 INST(Decrement, {
-  core.registers[inst.args[0]] -= 1;
+  // core.registers[inst.args[0]] -= 1;
+  a -= 1;
 });
 
-// Unary shift (>>1 or <<1)
-INST(ShiftLeft, { a <<= 1; });
-INST(ShiftRight, { a >>= 1; });
+// INST(Add, { a = b + c; });
+// INST(Subtract, { a = b - c; });
 
-INST(Add, { a = b + c; });
-INST(Subtract, { a = b - c; });
-
-INST(Nand, { a = ~(b & c); });
+INST(Nand, {
+  // a = ~(b & c);
+  const size_t arg0 = inst.args[0];
+  const size_t arg1 = inst.args[1];
+  const size_t arg2 = inst.args[2];
+  // Work with raw bit representation of floats
+  std::transform(
+    reinterpret_cast<std::byte*>( &core.registers[arg1] ),
+    reinterpret_cast<std::byte*>( &core.registers[arg1] ) + sizeof( core.registers[b] ),
+    reinterpret_cast<std::byte*>( &core.registers[arg2] ),
+    reinterpret_cast<std::byte*>( &core.registers[arg0] ),
+    [](const std::byte b, const std::byte c){ return ~(b & c); }
+  );
+});
 
 INST(Push, {
   // Push value in register a to active stack.

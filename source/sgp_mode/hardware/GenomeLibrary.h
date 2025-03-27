@@ -3,10 +3,10 @@
 
 #include "Instructions.h"
 
-#include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/library/OpLibrary.hpp"
+#include "sgpl/operations/operations.hpp"
 
 #include <cstddef>
 #include <limits>
@@ -20,10 +20,11 @@ using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,
   inst::Decrement,
-  inst::ShiftLeft,
-  inst::ShiftRight,
-  inst::Add,
-  inst::Subtract,
+  sgpl::BitwiseShift, // NOTE - replaced ShiftLeft/ShiftRight with BitwiseShift instruction
+  sgpl::Add,
+  sgpl::Subtract,
+  // inst::Add,
+  // inst::Subtract,
   inst::Nand,
   inst::Push,
   inst::Pop,

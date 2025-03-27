@@ -31,6 +31,8 @@ struct SGPHardwareSpec {
   using peripheral_t = Peripheral;
   using world_t = WORLD_T;
 
+  using register_value_t = float;
+
   // make match cutoff threshold strict because there are many potential matches
   // among modules (each module is a potential match)
   /// What matching implementation should we use for global jump tables?

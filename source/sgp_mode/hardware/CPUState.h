@@ -34,13 +34,14 @@ public:
   // using spec_t = HW_SPEC_T;
   using world_t = WORLD_T;
   using input_buf_t = RingBuffer<uint32_t>;
+  using reg_val_t = typename world_t::hw_spec_t::register_value_t;
 
   struct ReproInfo {
     ReproState state = ReproState::NONE;
     size_t queue_pos = 0;
   };
 protected:
-  Stacks<uint32_t> stacks;
+  Stacks<reg_val_t> stacks;
   input_buf_t input_buf;
   emp::vector<uint32_t> output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
@@ -203,8 +204,8 @@ public:
   world_t& GetWorld() { return *world_ptr; }
   const world_t& GetWorld() const { return *world_ptr; }
 
-  Stacks<uint32_t>& GetStacks() { return stacks; }
-  const Stacks<uint32_t>& GetStacks() const { return stacks; }
+  Stacks<reg_val_t>& GetStacks() { return stacks; }
+  const Stacks<reg_val_t>& GetStacks() const { return stacks; }
 
   void MarkReproAttempt() { repro_info.state = ReproState::ATTEMPTING; }
   void MarkReproInProgress(size_t queue_pos) {
