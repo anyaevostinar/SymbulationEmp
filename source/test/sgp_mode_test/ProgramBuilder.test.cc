@@ -47,8 +47,6 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
-  const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-  const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
 
   // World should have one organism inside.
   REQUIRE(world.IsOccupied(0));

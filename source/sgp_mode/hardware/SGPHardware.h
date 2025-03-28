@@ -218,6 +218,30 @@ public:
   cpu_t& GetCPU() { return cpu; }
   const cpu_t& GetCPU() const { return cpu; }
 
+  uint32_t GetRegister(size_t reg_id) {
+    emp_assert(cpu.HasActiveCore());
+    auto& registers = cpu.GetActiveCore().registers;
+    return (*reinterpret_cast<uint32_t*>(&registers[reg_id]));
+  }
+
+  void SetRegister(size_t reg_id, uint32_t value) {
+    // uint32_t *a = (uint32_t *)&core.registers[reg_id];
+    Reg(reg_id) = value;
+  }
+
+  void SetRegisters(const emp::vector<uint32_t>& values) {
+    emp_assert(values.size() <=  spec_t::num_registers);
+    for (size_t i = 0; i < values.size(); ++i) {
+      Reg(i) = values[i];
+    }
+  }
+
+  uint32_t& Reg(size_t reg_id) {
+    emp_assert(cpu.HasActiveCore());
+    auto& registers = cpu.GetActiveCore().registers;
+    return reinterpret_cast<uint32_t&>(registers[reg_id]);
+  }
+
   /**
    * Input: None
    *

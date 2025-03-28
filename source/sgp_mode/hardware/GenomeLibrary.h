@@ -20,11 +20,13 @@ using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,
   inst::Decrement,
-  sgpl::BitwiseShift, // NOTE - replaced ShiftLeft/ShiftRight with BitwiseShift instruction
-  sgpl::Add,
-  sgpl::Subtract,
-  // inst::Add,
-  // inst::Subtract,
+  // sgpl::BitwiseShift, // NOTE - replaced ShiftLeft/ShiftRight with BitwiseShift instruction
+  // sgpl::Add,
+  // sgpl::Subtract,
+  inst::ShiftLeft,
+  inst::ShiftRight,
+  inst::Add,
+  inst::Subtract,
   inst::Nand,
   inst::Push,
   inst::Pop,

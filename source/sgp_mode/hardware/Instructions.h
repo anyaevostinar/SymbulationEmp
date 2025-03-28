@@ -15,13 +15,9 @@
 
 namespace sgpmode::inst {
 
-// template<typename WORLD_T>
-// class InstructionLib {
+// TODO - Implement an instruction library to help manage instruction set?
 
-
-// };
-
-// TODO - test switch from pionters to references
+// NOTE - discuss register value typing (float vs unsigned integer)
 
 /**
  * Macro to easily create an instruction:
@@ -39,9 +35,9 @@ namespace sgpmode::inst {
       const sgpl::Program<HW_SPEC_T>& program,                                      \
       CPUState<typename HW_SPEC_T::world_t>& state                                  \
     ) {                                                                        \
-      float& a = core.registers[inst.args[0]];  \
-      float& b = core.registers[inst.args[1]];  \
-      float& c = core.registers[inst.args[2]];  \
+      uint32_t& a = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[0]]);  \
+      uint32_t& b = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[1]]);  \
+      uint32_t& c = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[2]]);  \
       /* avoid "unused variable" warnings */                                   \
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
@@ -60,22 +56,27 @@ INST(Decrement, {
   a -= 1;
 });
 
-// INST(Add, { a = b + c; });
-// INST(Subtract, { a = b - c; });
+// Unary shift (>>1 or <<1)
+INST(ShiftLeft, { a <<= 1; });
+INST(ShiftRight, { a >>= 1; });
+
+INST(Add, { a = b + c; });
+INST(Subtract, { a = b - c; });
 
 INST(Nand, {
-  // a = ~(b & c);
-  const size_t arg0 = inst.args[0];
-  const size_t arg1 = inst.args[1];
-  const size_t arg2 = inst.args[2];
-  // Work with raw bit representation of floats
-  std::transform(
-    reinterpret_cast<std::byte*>( &core.registers[arg1] ),
-    reinterpret_cast<std::byte*>( &core.registers[arg1] ) + sizeof( core.registers[b] ),
-    reinterpret_cast<std::byte*>( &core.registers[arg2] ),
-    reinterpret_cast<std::byte*>( &core.registers[arg0] ),
-    [](const std::byte b, const std::byte c){ return ~(b & c); }
-  );
+  a = ~(b & c);
+  // a_uint = ~(b_uint & c_uint);
+  // const size_t arg0 = inst.args[0];
+  // const size_t arg1 = inst.args[1];
+  // const size_t arg2 = inst.args[2];
+  // // Work with raw bit representation of floats
+  // std::transform(
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ) + sizeof( core.registers[b] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg2] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg0] ),
+  //   [](const std::byte b, const std::byte c){ return ~(b & c); }
+  // );
 });
 
 INST(Push, {

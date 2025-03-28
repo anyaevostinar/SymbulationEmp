@@ -22,14 +22,6 @@ constexpr size_t num_registers = hw_spec_t::num_registers;
 
 }
 
-template<typename T>
-T& GetRegisterAs(
-  std::array<float, inst_tests_internal::num_registers>& registers,
-  size_t reg_id
-) {
-  return *(reinterpret_cast<T*>(&registers[reg_id]));
-}
-
 bool CheckRegisterContents(
   sgpmode::SGPWorld::sgp_hw_t& hardware,
   const emp::vector<float>& req_register_values
@@ -40,7 +32,8 @@ bool CheckRegisterContents(
     // NOTE - All instructions in symbulation cast sgp-lite's float register values
     //        to uint32_t
     // if (GetRegisterAs<uint32_t>(registers, reg_i) != req_register_values[reg_i]) {
-    if ((registers[reg_i]) != req_register_values[reg_i]) {
+    // if ((registers[reg_i]) != req_register_values[reg_i]) {
+    if (hardware.GetRegister(reg_i) != req_register_values[reg_i]) {
       return false;
     }
   }
@@ -53,7 +46,7 @@ void PrintRegisterContents(
   auto& registers = hardware.GetCPU().GetActiveCore().registers;
   for (size_t reg_i = 0; reg_i < registers.size(); ++reg_i) {
     if (reg_i) std::cout << " ";
-    std::cout << "[" << reg_i << ":" << registers[reg_i] << "," << (uint32_t)(registers[reg_i]) << "]";
+    std::cout << "[" << reg_i << ":" << registers[reg_i] << "," << hardware.Reg(reg_i) << "," << hardware.GetRegister(reg_i) << "]";
   }
   std::cout << std::endl;
 }
@@ -126,14 +119,15 @@ TEST_CASE("Test instructions", "[sgp]") {
     // Set program of organism to something else
     hw.SetProgram(program);
     world.AssignNewEnvIO(hw.GetCPUState());
-    hw.GetCPU().GetActiveCore().SetRegisters({100, 100, 100, 100, 100, 100, 100, 100});
-
+    hw.SetRegisters({100, 100, 100, 100, 100, 100, 100, 100});
+    // PrintRegisterContents(hw);
     hw.RunCPUStep(1); // Anchor
     REQUIRE(CheckRegisterContents(hw, {100, 100, 100, 100, 100, 100, 100, 100}));
     // PrintRegisterContents(hw);
     hw.RunCPUStep(1); // Decrement 0
     // PrintRegisterContents(hw);
     REQUIRE(CheckRegisterContents(hw, {99, 100, 100, 100, 100, 100, 100, 100}));
+    // PrintRegisterContents(hw);
     hw.RunCPUStep(1); // Decrement 0
     REQUIRE(CheckRegisterContents(hw, {98, 100, 100, 100, 100, 100, 100, 100}));
     hw.RunCPUStep(1); // Decrement 1
@@ -144,35 +138,43 @@ TEST_CASE("Test instructions", "[sgp]") {
   }
 
   // BOOKMARK
-  // TODO - ask about intention with casting
+  SECTION("Test ShiftLeft instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "ShiftLeft", 0);
+    prog_builder.AddInst(program, "ShiftLeft", 1);
+    hw.Reset();
+    hw.SetProgram(program);
+    // Set program of organism to something else
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({4, 1});
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {8, 1, 0, 0, 0, 0, 0, 0}));
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {8, 2, 0, 0, 0, 0, 0, 0}));
+  }
 
-  // SECTION("Test ShiftLeft instruction") {
-  //   program_t program;
-  //   prog_builder.AddStartAnchor(program);
-  //   prog_builder.AddInst(program, "ShiftLeft", 0);
-  //   prog_builder.AddInst(program, "ShiftLeft", 1);
-  //   hw.Reset();
-
-  //   auto& registers = hw.GetCPU().GetActiveCore().registers;
-  //   GetRegisterAs<uint32_t>(registers, 0) = 4;
-  //   GetRegisterAs<uint32_t>(registers, 1) = 1;
-  //   // registers[0] = 4;
-  //   // registers[1] = 1;
-
-  //   // Set program of organism to something else
-  //   hw.SetProgram(program);
-  //   world.AssignNewEnvIO(hw.GetCPUState());
-  //   hw.RunCPUStep(1); // Anchor
-  //   REQUIRE(CheckRegisterContents(hw, {8, 0, 0, 0, 0, 0, 0, 0}));
-  //   // PrintRegisterContents(hw);
-  //   hw.RunCPUStep(1);
-  //   REQUIRE(CheckRegisterContents(hw, {8, 2, 0, 0, 0, 0, 0, 0}));
-
-  // }
-
-  // SECTION("Test ShiftRight instruction") {
-
-  // }
+  SECTION("Test ShiftRight instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "ShiftRight", 0);
+    prog_builder.AddInst(program, "ShiftRight", 1);
+    prog_builder.AddInst(program, "ShiftRight", 2);
+    prog_builder.AddInst(program, "ShiftRight", 2);
+    hw.Reset();
+    hw.SetProgram(program);
+    // Set program of organism to something else
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({4, 1, 128});
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {2, 1, 128, 0, 0, 0, 0, 0}));
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {2, 0, 128, 0, 0, 0, 0, 0}));
+    hw.RunCPUStep(2);
+    REQUIRE(CheckRegisterContents(hw, {2, 0, 32, 0, 0, 0, 0, 0}));
+  }
 
   // SECTION("Test Add instruction") {
 

@@ -33,8 +33,9 @@ class CPUState {
 public:
   // using spec_t = HW_SPEC_T;
   using world_t = WORLD_T;
-  using input_buf_t = RingBuffer<uint32_t>;
   using reg_val_t = typename world_t::hw_spec_t::register_value_t;
+  using input_buf_t = RingBuffer<uint32_t>;
+  using output_buf_t = emp::vector<uint32_t>;
 
   struct ReproInfo {
     ReproState state = ReproState::NONE;
@@ -43,7 +44,7 @@ public:
 protected:
   Stacks<reg_val_t> stacks;
   input_buf_t input_buf;
-  emp::vector<uint32_t> output_buffer;
+  output_buf_t output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
 
   // TODO - get rid of dynamic memory if possible
@@ -170,8 +171,8 @@ public:
   input_buf_t& GetInputBuffer() { return input_buf; }
   const input_buf_t& GetInputBuffer() const { return input_buf; }
 
-  emp::vector<uint32_t>& GetOutputBuffer() { return output_buffer; }
-  const emp::vector<uint32_t>& GetOutputBuffer() const { return output_buffer; }
+  output_buf_t& GetOutputBuffer() { return output_buffer; }
+  const output_buf_t& GetOutputBuffer() const { return output_buffer; }
 
   void SetInputs(const emp::vector<uint32_t>& inputs) {
     input_buf.SetBuffer(inputs);
