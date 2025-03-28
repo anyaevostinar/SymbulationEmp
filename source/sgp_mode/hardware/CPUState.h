@@ -42,7 +42,7 @@ public:
     size_t queue_pos = 0;
   };
 protected:
-  Stacks<reg_val_t> stacks;
+  Stacks<uint32_t> stacks;
   input_buf_t input_buf;
   output_buf_t output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
@@ -205,8 +205,8 @@ public:
   world_t& GetWorld() { return *world_ptr; }
   const world_t& GetWorld() const { return *world_ptr; }
 
-  Stacks<reg_val_t>& GetStacks() { return stacks; }
-  const Stacks<reg_val_t>& GetStacks() const { return stacks; }
+  Stacks<uint32_t>& GetStacks() { return stacks; }
+  const Stacks<uint32_t>& GetStacks() const { return stacks; }
 
   void MarkReproAttempt() { repro_info.state = ReproState::ATTEMPTING; }
   void MarkReproInProgress(size_t queue_pos) {
@@ -225,9 +225,6 @@ public:
   }
 
    void ResetReproState() {
-    // repro_queue_pos = 0;
-    // repro_attempt = false;
-    // repro_in_progress = false;
     repro_info.state = ReproState::NONE;
     repro_info.queue_pos = 0;
   }

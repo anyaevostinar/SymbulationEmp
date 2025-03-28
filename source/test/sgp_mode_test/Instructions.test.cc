@@ -176,13 +176,39 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {2, 0, 32, 0, 0, 0, 0, 0}));
   }
 
-  // SECTION("Test Add instruction") {
+  SECTION("Test Add instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Add", 0, 1, 2);
+    prog_builder.AddInst(program, "Add", 0, 0, 0);
+    hw.Reset();
+    hw.SetProgram(program);
+    // Set program of organism to something else
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({0, 10, 15});
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {25, 10, 15, 0, 0, 0, 0, 0}));
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {50, 10, 15, 0, 0, 0, 0, 0}));
+  }
 
-  // }
-
-  // SECTION("Test Subtract instruction") {
-
-  // }
+  SECTION("Test Subtract instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Subtract", 0, 1, 2);
+    prog_builder.AddInst(program, "Subtract", 0, 0, 0);
+    hw.Reset();
+    hw.SetProgram(program);
+    // Set program of organism to something else
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({0, 15, 10});
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {5, 15, 10, 0, 0, 0, 0, 0}));
+    hw.RunCPUStep(1);
+    REQUIRE(CheckRegisterContents(hw, {0, 15, 10, 0, 0, 0, 0, 0}));
+  }
 
   // SECTION("Test Nand instruction") {
 
