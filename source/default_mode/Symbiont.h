@@ -723,11 +723,12 @@ public:
         required_points = my_config->FREE_SYM_REPRO_RES();
       }
       if (GetPoints() >= required_points) {
+        int stored_intval = GetIntVal(); // post-SDB this symbiont may be deleted (?)
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
         
-        
+
         if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
         // removing the above for tag matching--sym parent points are 
         // now set to 0 in symdobirth (todo: test)
@@ -738,11 +739,10 @@ public:
 
         //horizontal transmission data nodes
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(GetIntVal());
-
+        data_node_attempts_horiztrans.AddDatum(stored_intval);
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
         if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(GetIntVal());
+          data_node_successes_horiztrans.AddDatum(stored_intval);
         }
       }
     }
