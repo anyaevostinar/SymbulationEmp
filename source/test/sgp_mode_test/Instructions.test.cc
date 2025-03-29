@@ -24,7 +24,7 @@ constexpr size_t num_registers = hw_spec_t::num_registers;
 
 bool CheckRegisterContents(
   sgpmode::SGPWorld::sgp_hw_t& hardware,
-  const emp::vector<float>& req_register_values
+  const emp::vector<uint32_t>& req_register_values
 ) {
   auto& registers = hardware.GetCPU().GetActiveCore().registers;
   emp_assert(req_register_values.size() <= registers.size());
@@ -210,9 +210,21 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {0, 15, 10, 0, 0, 0, 0, 0}));
   }
 
-  // SECTION("Test Nand instruction") {
-
-  // }
+  SECTION("Test Nand instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Nand", 2, 0, 1);
+    // prog_builder.AddInst(program, "Nand", 2, 0, 0);
+    hw.Reset();
+    hw.SetProgram(program);
+    // Set program of organism to something else
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({7, 5, 0});
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1);
+    const uint32_t result = ~(7 & 5);
+    REQUIRE(CheckRegisterContents(hw, {7, 5, result, 0, 0, 0, 0, 0}));
+  }
 
   // SECTION("Test Push instruction") {
 
@@ -259,10 +271,6 @@ TEST_CASE("Test instructions", "[sgp]") {
   // }
 
   // SECTION("Test Infect instruction") {
-
-  // }
-
-  // SECTION("Test global::Anchor instruction") {
 
   // }
 
