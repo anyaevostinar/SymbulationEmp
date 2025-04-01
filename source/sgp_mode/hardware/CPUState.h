@@ -46,31 +46,22 @@ protected:
   input_buf_t input_buf;
   output_buf_t output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
-
-  // TODO - get rid of dynamic memory if possible
-  // emp::BitSet<spec::NUM_TASKS> used_resources = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
-  // emp::BitSet<spec::NUM_TASKS> tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
-  // emp::BitSet<spec::NUM_TASKS> parent_tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>(true);
-  // TODO - will need to resize / reset
   size_t num_tasks = 0;
   // emp::BitVector used_resources;          // TODO - document use
   // NOTE - should this be in the CPU state? Or, move into organism class as "phenotype" information?
   emp::BitVector tasks_performed;
   emp::vector<size_t> tasks_performance_cnt;
 
-  emp::BitVector parent_tasks_performed;  // TODO - Configure parent tasks performed
+  emp::BitVector parent_tasks_performed;
 
-  emp::vector<int> task_change_loss;    // Change in task performance (relative to parent)
-  emp::vector<int> task_change_gain;    // Change in task performance (relative to parent)
-
-  // TODO - shift to emp::array if possible
-  // int task_change_lose[spec::NUM_TASKS] = { 0 };
-  // int task_change_gain[spec::NUM_TASKS] = { 0 };
-
-  emp::vector<int> task_toward_partner;
-  emp::vector<int> task_from_partner;
-  // int task_toward_partner[spec::NUM_TASKS] = { 0 };
-  // int task_from_partner[spec::NUM_TASKS] = { 0 };
+  // NOTE - should this be tracked by the systematics instead?
+  // NOTE - shifted int to size_t, looked like these were only ever positive numbers
+  // NOTE - Manage all of this with a struct that contains relevant logic?
+  emp::vector<size_t> lineage_task_change_loss;    // Change in task performance (relative to parent)
+  emp::vector<size_t> lineage_task_change_gain;    // Change in task performance (relative to parent)
+  // NOTE - shifted int to size_t, looked like these were only ever positive numbers
+  emp::vector<size_t> lineage_task_converge_partner;
+  emp::vector<size_t> lineage_task_diverge_partner;
 
   double survival_resource = 0.0; // TODO - move this out of CPUState
 
@@ -132,10 +123,10 @@ public:
     utils::ResizeClear(parent_tasks_performed, num_tasks);
 
     utils::ResizeFill(tasks_performance_cnt, num_tasks, 0);
-    utils::ResizeFill(task_change_loss, num_tasks, 0);
-    utils::ResizeFill(task_change_gain, num_tasks, 0);
-    utils::ResizeFill(task_toward_partner, num_tasks, 0);
-    utils::ResizeFill(task_from_partner, num_tasks, 0);
+    utils::ResizeFill(lineage_task_change_loss, num_tasks, 0);
+    utils::ResizeFill(lineage_task_change_gain, num_tasks, 0);
+    utils::ResizeFill(lineage_task_converge_partner, num_tasks, 0);
+    utils::ResizeFill(lineage_task_diverge_partner, num_tasks, 0);
 
     survival_resource = 0.0;
 
@@ -252,6 +243,36 @@ public:
     emp_assert(task_id < tasks_performance_cnt.size());
     tasks_performed.Set(task_id, true);
     ++(tasks_performance_cnt[task_id]);
+  }
+
+  size_t GetLineageTaskLossCount(size_t task_id) const {
+    return lineage_task_change_loss[task_id];
+  }
+
+  size_t GetLineageTaskGainCount(size_t task_id) const {
+    return lineage_task_change_gain[task_id];
+  }
+
+  void SetLineageTaskLossCount(size_t task_id, size_t count) {
+    lineage_task_change_loss[task_id] = count;
+  }
+  void SetLineageTaskGainCount(size_t task_id, size_t count) {
+    lineage_task_change_gain[task_id] = count;
+  }
+
+  size_t GetLineageTaskConvergeToPartner(size_t task_id) const {
+    return lineage_task_converge_partner[task_id];
+  }
+
+  size_t GetLineageTaskDivergeFromPartner(size_t task_id) const {
+    return lineage_task_diverge_partner[task_id];
+  }
+
+  void SetLineageTaskConvergeToPartner(size_t task_id, size_t count) {
+    lineage_task_converge_partner[task_id] = count;
+  }
+  void SetLineageTaskDivergeFromPartner(size_t task_id, size_t count) {
+    lineage_task_diverge_partner[task_id] = count;
   }
 
 };
