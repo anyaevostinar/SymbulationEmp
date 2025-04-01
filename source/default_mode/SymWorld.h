@@ -148,9 +148,6 @@ public:
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
       sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
 
-      host_sys->SetStoreOutside(true);
-      sym_sys->SetStoreOutside(true);
-
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
