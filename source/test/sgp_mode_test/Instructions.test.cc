@@ -137,7 +137,6 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {98, 99, 100, 100, 100, 100, 100, 99}));
   }
 
-  // BOOKMARK
   SECTION("Test ShiftLeft instruction") {
     program_t program;
     prog_builder.AddStartAnchor(program);
@@ -225,6 +224,8 @@ TEST_CASE("Test instructions", "[sgp]") {
     const uint32_t result = ~(7 & 5);
     REQUIRE(CheckRegisterContents(hw, {7, 5, result, 0, 0, 0, 0, 0}));
   }
+
+  // BOOKMARK
 
   // SECTION("Test Push instruction") {
 
