@@ -26,8 +26,19 @@ void SGPWorld::Setup() {
   // Configure start tag
   // TODO - clean up start tag management.
   START_TAG.SetUInt64(0, std::numeric_limits<uint64_t>::max());
+
   // TODO - configure program builder if necessary
   prog_builder.SetStartTag(START_TAG);
+
+  // std::cout << opcode_rectifier.mapper << std::endl;
+  // TODO - Delete this once confident in instruction removal
+  // std::cout << "Opcode rectifier mappings:";
+  // for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+  //   std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  // }
+  // std::cout << std::endl;
+  // TODO - print out mapper after all deletes, hand-check
+  // TODO - add tests for rectifier inst removals
 
   // Configure SGP organism type
   SetupOrgMode();
@@ -73,6 +84,12 @@ void SGPWorld::Setup() {
   CreateDataFiles();
   SnapshotConfig();
   setup = true;
+  // TODO - Delete this once confident in instruction removal
+  // std::cout << "Opcode rectifier mappings (post setup):";
+  // for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
+  //   std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
+  // }
+  // std::cout << std::endl;
 }
 
 void SGPWorld::SetupOrgMode() {
@@ -88,6 +105,93 @@ void SGPWorld::SetupOrgMode() {
   stress_sym_type = org_info::GetStressSymType(cfg_stress_sym_type);
 
   // TODO - configure other organism modes as appropriate
+
+  // Knock out any mode-related instructions that shouldn't be active for this run
+  if (!sgp_config.DONATION_STEAL_INST()) {
+    // Knockout donate instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Donate"),
+      Library::GetSize()
+    );
+    // Knockout steal instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Steal"),
+      Library::GetSize()
+    );
+  }
+
+  // If free-living symbionts are disabled, disable the infect instruction
+  if (!sgp_config.FREE_LIVING_SYMS()) {
+    // Knockout the infect instruction
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("Infect"),
+      Library::GetSize()
+    );
+  }
+
+  // Configure stress
+  if (sgp_config.ENABLE_STRESS()) {
+    SetupStressInteractions();
+  }
+}
+
+void SGPWorld::SetupStressInteractions() {
+  emp_assert(sgp_config.ENABLE_STRESS());
+
+  // Setup extinction variable
+  // At beginning of update, determine whether an extinction event occurs
+  begin_update_sig.AddAction(
+    [this]() {
+      const size_t u = GetUpdate();
+      stress_extinction_update = (u > 0) && (u % sgp_config.EXTINCTION_FREQUENCY()) == 0;
+    }
+  );
+
+  // Setup host interactions
+  // NOTE - this can be simplified assuming no other desired differences in logic
+  //        for parasite vs. mutualist (repeated code; only death chance is different)
+  if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
+        // If host has a symbiont, death_chance = mutualist death chance
+        // Otherwise, base death chance.
+        const double death_chance = (host.HasSym()) ?
+          sgp_config.MUTUALIST_DEATH_CHANCE() :
+          sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
+  } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
+        // If host has a symbiont, death_chance = parasite death chance
+        // Otherwise, base death chance.
+        const double death_chance = (host.HasSym()) ?
+          sgp_config.PARASITE_DEATH_CHANCE() :
+          sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
+  }
+
+  // TODO - Add instruction-mediated stress interaction mode
+
+  // NOTE - What about free-living symbionts (if any)?
+  //        Or endosymbionts?
 }
 
 void SGPWorld::SetupPopStructure() {
@@ -129,7 +233,7 @@ void SGPWorld::SetupPopStructure() {
 
 void SGPWorld::SetupScheduler() {
   // Configure scheduler w/max world size (updated in SGPWorld::Setup, and cfg thread count)
-  scheduler.SetupScheduler(max_world_size, sgp_config.THREAD_COUNT());
+  scheduler.SetupScheduler(max_world_size);
   // Scheduler calls world's ProcessOrgAt function
 }
 
@@ -153,6 +257,16 @@ void SGPWorld::SetupReproduction() {
       // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     }
   });
+
+  // OnBeforePlacement happens during emp::World's AddOrgAt
+  // Set CPUState's location when organism is added to the world.
+  OnBeforePlacement(
+    [this](Organism& org, size_t loc) {
+      (org.IsHost()) ?
+        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}) :
+        static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+    }
+  );
 
   SetupHostReproduction();
   SetupSymReproduction();
@@ -297,6 +411,9 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
+    sgp_prog_t init_prog(
+      prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+    );
     // std::cout << "Creating host " << i << std::endl;
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
@@ -304,7 +421,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
           random_ptr,
           this,
           &sgp_config,
-          prog_builder.CreateNotProgram(PROGRAM_LENGTH),
+          init_prog,
           sgp_config.HOST_INT()
         );
         // new_host->GetHardware().PrintCode();
@@ -320,16 +437,20 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
+      sgp_prog_t sym_prog(
+        prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+      );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
         this,
         &sgp_config,
-        prog_builder.CreateNotProgram(PROGRAM_LENGTH),
+        sym_prog,
         sgp_config.SYM_INT()
       );
       // TODO - add InjectSymIntoHost to wrap
       // std::cout << "  Injecting symbiont into host" << std::endl;
       AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
+      // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function

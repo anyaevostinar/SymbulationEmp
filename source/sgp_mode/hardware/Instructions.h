@@ -15,13 +15,9 @@
 
 namespace sgpmode::inst {
 
-// template<typename WORLD_T>
-// class InstructionLib {
+// TODO - Implement an instruction library to help manage instruction set?
 
-
-// };
-
-// TODO - test switch from pionters to references
+// NOTE - discuss register value typing (float vs unsigned integer)
 
 /**
  * Macro to easily create an instruction:
@@ -39,12 +35,9 @@ namespace sgpmode::inst {
       const sgpl::Program<HW_SPEC_T>& program,                                      \
       CPUState<typename HW_SPEC_T::world_t>& state                                  \
     ) {                                                                        \
-      uint32_t* a_ptr = (uint32_t*)&core.registers[inst.args[0]];                 \
-      uint32_t* b_ptr = (uint32_t*)&core.registers[inst.args[1]];                 \
-      uint32_t* c_ptr = (uint32_t*)&core.registers[inst.args[2]];                 \
-      uint32_t& a = *a_ptr; \
-      uint32_t& b = *b_ptr; \
-      uint32_t& c = *c_ptr; \
+      uint32_t& a = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[0]]);  \
+      uint32_t& b = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[1]]);  \
+      uint32_t& c = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[2]]);  \
       /* avoid "unused variable" warnings */                                   \
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
@@ -53,21 +46,15 @@ namespace sgpmode::inst {
     static std::string name() { return #InstName; }                            \
   };
 
-// TODO - remove commented out code if new versions work as intended.
-// INST(JumpIfNEq, {
-//   // Even != works differently on floats because of NaNs
-//   if (*a != *b) {
-//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-//   }
-// });
-// INST(JumpIfLess, {
-//   if (*a < *b) {
-//     core.JumpToIndex(state.jump_table[core.GetProgramCounter()]);
-//   }
-// });
+INST(Increment, {
+  // core.registers[inst.args[0]] += 1;
+  a += 1;
+});
 
-INST(Increment, { ++a; });
-INST(Decrement, { --a; });
+INST(Decrement, {
+  // core.registers[inst.args[0]] -= 1;
+  a -= 1;
+});
 
 // Unary shift (>>1 or <<1)
 INST(ShiftLeft, { a <<= 1; });
@@ -76,7 +63,21 @@ INST(ShiftRight, { a >>= 1; });
 INST(Add, { a = b + c; });
 INST(Subtract, { a = b - c; });
 
-INST(Nand, { a = ~(b & c); });
+INST(Nand, {
+  a = ~(b & c);
+  // a_uint = ~(b_uint & c_uint);
+  // const size_t arg0 = inst.args[0];
+  // const size_t arg1 = inst.args[1];
+  // const size_t arg2 = inst.args[2];
+  // // Work with raw bit representation of floats
+  // std::transform(
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ) + sizeof( core.registers[b] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg2] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg0] ),
+  //   [](const std::byte b, const std::byte c){ return ~(b & c); }
+  // );
+});
 
 INST(Push, {
   // Push value in register a to active stack.
@@ -117,8 +118,76 @@ INST(IO, {
   a = state.GetInputBuffer().read();
 });
 
-} // namespace inst
+// NOTE - Discuss whether we want to be using custom jump table vs. using signalgp's
+//        module infrastructure.
+INST(JumpIfNEq, {
+  if (a != b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfLess, {
+  if (a < b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfEq, {
+  if (a == b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
 
 // BOOKMARK
+// TODO - Donate / Steal instructions
+INST(Donate, {
+  // This instruction does nothing if executed by a host or if this is a symbiont
+  // without a host.
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  // If we're here, we know that we have a symbiont with a host.
+  state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
+});
+
+INST(Steal, {
+  // This instruction does nothing if executed by a
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
+});
+
+// Only active if free living sym mode turned on
+INST(Infect, {
+  // Check that this is neither a host or a hosted symbiont
+  if (state.IsHost() || state.HasHost()) {
+    return;
+  }
+  state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
+});
+
+// NOTE - Discuss following old instructions that were unused (and whether we still want them)
+/*
+INST(Reuptake, {
+  uint32_t next;
+  AddOrganismPoints(state, *a);
+  // Only get resources if the organism has values in their internal environment
+  if (state.internal_environment->size() > 0) {
+    // Take a resource from back of internal environment vector
+    next = state.internal_environment->back();
+    // Clear out the selected resource from Internal Environment
+    state.internal_environment->pop_back();
+    *a = next;
+    state.input_buf.push(next);
+  } else {
+    // Otherwise, reset the register to 0
+    *a = 0;
+  }
+});
+*/
+
+} // namespace inst
+
 
 #endif

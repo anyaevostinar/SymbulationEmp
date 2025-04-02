@@ -56,6 +56,10 @@ public:
       );
     }
 
+    bool IsValidOutput(float output) const {
+      return IsValidOutput(*(reinterpret_cast<output_t*>(&output)));
+    }
+
     bool IsValidOutput(output_t output) const {
       return emp::Has(valid_outputs, output);
     }

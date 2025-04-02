@@ -260,7 +260,7 @@ public:
       emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(1);
     }
-    return (success) ? {sym_baby} : std::nullopt;
+    return (success) ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
   /**

@@ -1,224 +1,96 @@
-#include "../../sgp_mode/SGPHost.h"
-#include "../../sgp_mode/SGPHost.cc"
+#include "emp/math/Random.hpp"
+
+#include "../../sgp_mode/hardware/SGPHardware.h"
 #include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorld.cc"
+#include "../../sgp_mode/SGPHost.h"
 #include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPWorldDataNodes.cc"
+#include "../../sgp_mode/SGPWorldData.cc"
+#include "../../sgp_mode/ProgramBuilder.h"
 
-TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
-  emp::Random random(31);
-  sgpmode::SymConfigSGP config;
-  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
-  world.SetupOrgMode();
-  world.SetupScheduler();
-  world.SetupHostReproduction();
-  world.SetupSymReproduction();
-  world.SetupHostSymInteractions();
+#include "../../catch/catch.hpp"
 
-  WHEN("Parental task tracking is on") {
-    config.HOST_REPRO_RES(5000);
-    config.MUTATION_RATE(0);
-    config.MUTATION_SIZE(0);
-    config.TRACK_PARENT_TASKS(1);
-    WHEN("A host can only perform NOT") {
-      WHEN("It is of the first generation (does not have parents)") {
-        emp::Ptr<sgpmode::SGPHost> host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
-        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
-        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> host_tasks = host->GetCPU().state.tasks_performed;
-
-        world.AddOrgAt(host, 0);
-
-        THEN("Its own tasks are initially all marked as uncompleted") {
-          REQUIRE(host_tasks->None());
-        }
-        THEN("Its parent's tasks are all marked as successful") {
-          REQUIRE(parent_tasks->All());
-        }
-        for (int i = 0; i < 25; i++) {
-          world.Update();
-        }
-        THEN("After running for several updates, it is only tracked as completing NOT") {
-          // NOT id is 0
-          REQUIRE(host_tasks->Get(0));
-          REQUIRE(host_tasks->CountOnes() == 1);
-
-          host_tasks->Toggle(1, sgpmode::spec::NUM_TASKS);
-          REQUIRE(host_tasks->All());
-        }
-      }
-      WHEN("It has a parent who could only perform NOT") {
-        emp::Ptr<sgpmode::SGPHost> parent_host = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
-        world.AddOrgAt(parent_host, 0);
-        for (int i = 0; i < 25; i++) {
-          world.Update();
-        }
-        emp::Ptr<sgpmode::SGPHost> host = (parent_host->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-
-        world.AddOrgAt(host, 0);
-        REQUIRE(world.GetNumOrgs() == 1);
-
-        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> host_tasks = host->GetCPU().state.tasks_performed;
-        emp::Ptr<emp::BitSet<sgpmode::spec::NUM_TASKS>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
-
-        THEN("Its own tasks are initially all marked as uncompleted") {
-          REQUIRE(host_tasks->None());
-        }
-
-        for (int i = 0; i < 25; i++) {
-          world.Update();
-        }
-
-        THEN("Only NOT is recorded are successful for its parent") {
-          REQUIRE(parent_tasks->Get(0));
-          REQUIRE(parent_tasks->CountOnes() == 1);
-          parent_tasks->Toggle(1, sgpmode::spec::NUM_TASKS);
-          REQUIRE(parent_tasks->All());
-        }
-
-        THEN("It is only tracked as completing NOT") {
-          REQUIRE(host_tasks->Any());
-        }
-      }
-    }
-  }
-}
+// TODO - add tests for parental task tracking
 
 TEST_CASE("SGPHost Reproduce", "[sgp]") {
-  emp::Random random(31);
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using program_t = typename world_t::sgp_prog_t;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
   sgpmode::SymConfigSGP config;
-  sgpmode::SGPWorld world(random, &config, sgpmode::LogicTasks);
-  world.SetupOrgMode();
-  world.SetupScheduler();
-  world.SetupHostReproduction();
-  world.SetupSymReproduction();
-  world.SetupHostSymInteractions();
-  emp::Ptr<sgpmode::SGPHost> host_parent = emp::NewPtr<sgpmode::SGPHost>(&random, &world, &config, sgpmode::CreateNotProgram(100));
-  world.AddOrgAt(host_parent, 0);
+  config.CYCLES_PER_UPDATE(0);
+  config.RANDOM_ANCESTOR(false);
+  config.HOST_REPRO_RES(1);
+  config.SEED(61);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("SGPHost_test_output");
+  config.POP_SIZE(1);
+  config.START_MOI(0);
+  config.TASK_IO_UNIQUE_OUTPUT(true);
 
-  THEN("Host child increases its lineage reproduction count") {
-    emp::Ptr<sgpmode::SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-    REQUIRE(host_parent->GetReproCount() == host_baby->GetReproCount() - 1);
-    host_baby.Delete();
+  // Initialize world with one host
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& prog_builder = world.GetProgramBuilder();
+  REQUIRE(world.IsOccupied(0));
+
+  // Grab host to use for test
+  auto& org = world.GetOrg(0);
+  auto& sgp_host = static_cast<sgp_host_t&>(org);
+  hardware_t& hw = sgp_host.GetHardware();
+  REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
+
+  // Configure host's program to include a NOT task
+  hw.SetProgram(
+    prog_builder.CreateNotProgram(50)
+  );
+
+  SECTION("Host offspring increases lineage reproduction count and resets parent repro state") {
+    emp::Ptr<sgp_host_t> offspring_ptr = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+    REQUIRE(offspring_ptr->GetReproCount() == (sgp_host.GetReproCount() + 1));
+    REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproAttempt());
+    REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproInProgress());
+    offspring_ptr.Delete();
   }
 
-  WHEN("Parental task tracking is on") {
-    config.TRACK_PARENT_TASKS(1);
-
-    for (int i = 0; i < 25; i++) {
-      world.Update();
-    }
-
-    THEN("Host child inherits its parent's completed task bitset") {
-      emp::Ptr<sgpmode::SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      REQUIRE(host_parent->GetCPU().state.parent_tasks_performed->All());
-
-      REQUIRE(host_parent->GetCPU().state.tasks_performed->Get(0));
-      REQUIRE(host_parent->GetCPU().state.tasks_performed->CountOnes() == 1);
-
-      REQUIRE(host_baby->GetCPU().state.parent_tasks_performed->Get(0));
-      REQUIRE(host_baby->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
-      host_baby.Delete();
-    }
-
-    THEN("The host child tracks any gains or loses in task completions") {
-      // gen 1 (host_parent) parent tasks: all ones
-      // gen 2 (host_gen2) parent tasks: only NOT (gains nothing, loses everything but not) : checks task-specific loss
-      // gen 3 (host_gen3) parent tasks: only NAND (gains NAND, loses NOT) : checks task-specific gain
-      // gen 4 (host_gen4) parent tasks: NOT and EQU (gains NOT and EQU, loses NAND) : checks loss of >1
-      // gen 5 (host_gen5) parent tasks: NOT and NAND (gains NAND, loses EQU) : checks gain of >1
-
-      enum TaskIndices {NOT_i = 0, NAND_i = 1, EQU_i = 8};
-
-      emp::Ptr<sgpmode::SGPHost> host_gen2 = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      REQUIRE(host_gen2->GetCPU().state.task_change_lose[NOT_i] == 0);
-      REQUIRE(host_gen2->GetCPU().state.task_change_gain[NOT_i] == 0);
-      for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
-        REQUIRE(host_gen2->GetCPU().state.task_change_lose[i] == 1);
-        REQUIRE(host_gen2->GetCPU().state.task_change_gain[i] == 0);
-      }
-
-
-      host_gen2->GetCPU().state.tasks_performed->Set(NAND_i);
-      emp::Ptr<sgpmode::SGPHost> host_gen3 = (host_gen2->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
-        if(i == NAND_i){ // gains NAND this gen, lost it last gen
-          REQUIRE(host_gen3->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen3->GetCPU().state.task_change_gain[i] == 1);
-        }
-        else{
-          REQUIRE(host_gen3->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen3->GetCPU().state.task_change_gain[i] == 0);
-        }
-      }
-
-      host_gen3->GetCPU().state.tasks_performed->Set(NOT_i);
-      host_gen3->GetCPU().state.tasks_performed->Set(EQU_i);
-      emp::Ptr<sgpmode::SGPHost> host_gen4 = (host_gen3->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
-        if(i == NOT_i || i == EQU_i){ // gains NOT & EQU this gen, lost them previously
-          REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 1);
-        }
-        else if(i == NAND_i){ // lost NAND this gen, lost it and gained it once each previously
-          REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 2);
-          REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 1);
-        }
-        else{
-          REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 0);
-        }
-      }
-
-      host_gen4->GetCPU().state.tasks_performed->Set(NOT_i);
-      host_gen4->GetCPU().state.tasks_performed->Set(NAND_i);
-      emp::Ptr<sgpmode::SGPHost> host_gen5 = (host_gen4->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
-        if(i == NOT_i){ // keeps NOT this gen, lost it previously
-          REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 1);
-        }
-        else if(i == NAND_i){ // gained NAND this gen, lost it twice and gained it once previously
-          REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 2);
-          REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 2);
-        }
-        else if(i == EQU_i){ // lost EQU this gen, gained it and lost it once previously
-          REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 2);
-          REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 1);
-        }
-        else{
-          REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 1);
-          REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 0);
-        }
-      }
-
-      host_gen2.Delete();
-      host_gen3.Delete();
-      host_gen4.Delete();
-      host_gen5.Delete();
-    }
-    WHEN("The host parent has no symbiont") {
-      emp::Ptr<sgpmode::SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      THEN("The host child inherits the lineage's partner task flip count with no modifications"){
-        for (unsigned int i = 0; i < sgpmode::spec::NUM_TASKS; i++) {
-          REQUIRE(host_baby->GetCPU().state.task_toward_partner[i] == 0);
-          REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 0);
-        }
-      }
-      host_baby.Delete();
-    }
-    WHEN("The host parent has a symbiont") {
-      host_parent->AddSymbiont(emp::NewPtr<sgpmode::SGPSymbiont>(&random, &world, &config, sgpmode::CreateNotProgram(100)));
-      emp::Ptr<sgpmode::SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<sgpmode::SGPHost>();
-      THEN("The host child tracks how its tasks compare to its parent's partner's tasks") {
-
-        REQUIRE(host_baby->GetCPU().state.task_toward_partner[0] == 0);
-        REQUIRE(host_baby->GetCPU().state.task_from_partner[0] == 0);
-
-        for (unsigned int i = 1; i < sgpmode::spec::NUM_TASKS; i++) {
-          REQUIRE(host_baby->GetCPU().state.task_toward_partner[i] == 0);
-          REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 1);
-        }
-      }
-      host_baby.Delete();
-    }
+  // (3) Check that offspring has been configured appropriately
+  SECTION("Host offspring inherits parent task profile correctly") {
+    // Mark some of parent's tasks completed
+    hw.GetCPUState().MarkTaskPerformed(0);
+    hw.GetCPUState().MarkTaskPerformed(0);
+    hw.GetCPUState().MarkTaskPerformed(2);
+    hw.GetCPUState().MarkTaskPerformed(4);
+    hw.GetCPUState().MarkTaskPerformed(6);
+    hw.GetCPUState().MarkTaskPerformed(8);
+    // Assert that MarkTaskPerformed worked as expected
+    REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(0) == 2);
+    REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(1) == 0);
+    REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(2) == 1);
+    REQUIRE(hw.GetCPUState().GetTaskPerformed(0));
+    REQUIRE(!hw.GetCPUState().GetTaskPerformed(1));
+    REQUIRE(hw.GetCPUState().GetTaskPerformed(2));
+    // Reproduce
+    emp::Ptr<sgp_host_t> offspring_ptr = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+    auto& offspring_hw = offspring_ptr->GetHardware();
+    REQUIRE(!offspring_hw.GetCPUState().GetParentTaskPerformed(1));
+    REQUIRE(!offspring_hw.GetCPUState().GetParentTaskPerformed(3));
+    REQUIRE(!offspring_hw.GetCPUState().GetParentTaskPerformed(5));
+    REQUIRE(!offspring_hw.GetCPUState().GetParentTaskPerformed(7));
+    REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(0));
+    REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(2));
+    REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(4));
+    REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(6));
+    REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(8));
+    offspring_ptr.Delete();
   }
+
+  // BOOKMARK
+
+  // TODO
+
+
 }

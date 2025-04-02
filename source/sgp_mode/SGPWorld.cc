@@ -14,10 +14,11 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
   // std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
-    emp_assert(GetOrg(pop_id).IsHost());
+    auto& org = GetOrg(pop_id);;
+    emp_assert(org.IsHost());
     ProcessHostAt(
       {pop_id},
-      static_cast<sgp_host_t&>(GetOrg(pop_id))
+      static_cast<sgp_host_t&>(org)
     );
   }
   // TODO - double check that my interpretation is correct here
@@ -30,24 +31,36 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
       emp::WorldPosition(0, pop_id),
       static_cast<sgp_sym_t&>(*(GetSymAt(pop_id)))
     );
+
   }
 }
 
 // TODO - discuss timing
+// NOTE - DoDeath repeated several times here. Maybe move that check out to ProcessOrgsAt?
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   // std::cout << "ProcessHostAt" << std::endl;
   // If host is dead, don't process.
   if (host.GetDead()) {
+    DoDeath(pos);
     return;
   }
-  before_host_process_sig.Trigger(host);
   // Update host location
   host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
+  before_host_process_sig.Trigger(host);
+  // Host may have died as a result of this signal.
+  // NOTE - Do we want to return early here + do death?
+  //        Anywhere else we want to check for death?
+  if (host.GetDead()) {
+    DoDeath(pos);
+    return;
+  }
   // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
   // Execute organism hardware for CYCLES_PER_UPDATE steps
+  // NOTE - Discuss possibility of host dying because of instruction executions.
+  //        As-is, still run hardware forward full amount regardless
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
     // Execute 1 CPU cycle
-    host.GetHardware().RunCPUStep(pos, 1);
+    host.GetHardware().RunCPUStep(1);
 
     // Did host attempt to reproduce?
     // NOTE - could move into a signal response
@@ -58,15 +71,25 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     }
 
     after_host_cpu_step_sig.Trigger(host);
+    // NOTE - Check death here?
   }
   after_host_cpu_exec_sig.Trigger(host);
   // Handle any endosymbionts (configurable at setup-time)
   // NOTE - is there any reason that this might need to be a functor?
   ProcessEndosymbionts(host);
+  // Endosymbionts might kill host.
+  if (host.GetDead()) {
+    DoDeath(pos);
+    return;
+  }
   // Run host's process function (post cpu steps, post endosymbiont processing)
   // TODO - when do we actually want to run this?
   host.Process(pos);
   after_host_process_sig.Trigger(host);
+  // If process resulted in death, DoDeath.
+  if (host.GetDead()) {
+    DoDeath(pos);
+  }
 }
 
 void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
@@ -126,7 +149,7 @@ void SGPWorld::ProcessEndosymbiont(
   }
   before_endosym_process_sig.Trigger(sym_pos, sym, host);
   for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
-    sym.GetHardware().RunCPUStep(sym_pos, 1);
+    sym.GetHardware().RunCPUStep(1);
     after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
 
     // Did endosymbiont attempt to reproduce?
@@ -160,7 +183,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     // Not dead, process.
     before_freeliving_sym_process_sig.Trigger(sym);
     for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
-      sym.GetHardware().RunCPUStep(pos, 1);
+      sym.GetHardware().RunCPUStep(1);
 
       // Did this sym attempt to reproduce?
       if (sym.GetHardware().GetCPUState().ReproAttempt()) {
@@ -416,13 +439,27 @@ bool SGPWorld::EndosymAttemptVertTransmission(
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
   for (size_t i = 0; i < graveyard.size(); ++i) {
+    // NOTE - Does this need to call DoDeath?
+    //        the original implementation (in old Update function) does not
     graveyard[i].Delete();
   }
   graveyard.clear();
 }
 
 // TODO - add test to make sure this works for hosts as well
-void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) { /*TODO*/ }
+void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
+  // NOTE - Previous version of this function assumed symbiont
+  //        Just in case we end up needing it for host's, might as well make it
+  //        work for them as well?
+  auto& cpu_state = GetCPUState(org);
+  if (cpu_state.ReproInProgress()) {
+    repro_queue.Invalidate(
+      cpu_state.GetReproQueuePos()
+    );
+  }
+
+  SymWorld::SendToGraveyard(org);
+}
 
 std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
@@ -516,6 +553,90 @@ void SGPWorld::HostDoMutation(sgp_host_t& host) {
 
 void SGPWorld::SymDoMutation(sgp_sym_t& sym) {
   mutator.MutateProgram(sym.GetProgram());
+}
+
+void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
+  emp_assert(!from_sym.IsHost());
+  emp_assert(to_host.IsHost());
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different donate logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(from_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(to_host);
+
+  // Donate X% of the total points of the symbiont-host system
+  // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+  // couple of instructions
+  const double sym_points = sym.GetPoints();
+  const double to_donate = emp::Min(
+    sym_points,
+    (sym_points + host.GetPoints()) * sgp_config.SYM_DONATE_PROP()
+  );
+  // TODO - Protect for threaded implementation
+  // TODO - setup data tracking
+  // state.world->GetSymDonatedDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_donate); });
+
+  // Adjust host/sym points accordingly
+  const double donate_value = to_donate * (1.0 - sgp_config.DONATE_PENALTY());
+  host.AddPoints(donate_value);
+  sym.DecPoints(to_donate);
+}
+
+void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
+  emp_assert(!to_sym.IsHost());
+  emp_assert(from_host.IsHost());
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different steal logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(to_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(from_host);
+
+  const double to_steal = emp::Min(
+    host.GetPoints(),
+    (sym.GetPoints() + host.GetPoints()) * sgp_config.SYM_STEAL_PROP()
+  );
+  // TODO - make safe for threading mode + setup data tracking
+  // state.world->GetSymStolenDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_steal); });
+
+  const double steal_value = to_steal * (1.0 - sgp_config.STEAL_PENALTY());
+  host.DecPoints(to_steal);
+  sym.AddPoints(steal_value);
+}
+
+void SGPWorld::FreeLivingSymDoInfect(Organism& sym) {
+  emp_assert(!sym.IsHost());
+  emp_assert(sgp_config.SYM_LIMIT() >= 0);
+  // NOTE - Could add some runtime customizability here if we want. E.g., functors, etc.
+  sgp_sym_t& sgp_sym = static_cast<sgp_sym_t&>(sym);
+  // Get sym's location in emp::World pop
+  const size_t pop_index = sgp_sym.GetHardware().GetCPUState().GetLocation().GetPopID();
+  // Check that there's an available host
+  // If this location isn't occupied, infect fails (at no cost?).
+  if (!IsOccupied(pop_index)) {
+    return;
+  }
+  // Check that there's enough space for infection
+  const size_t num_syms = pop[pop_index]->GetSymbionts().size();
+  // NOTE - Should sym_limit be allowed to be negative in config?
+  if (num_syms < (size_t)sgp_config.SYM_LIMIT()) {
+    // Extract the symbiont from the fls vector and decrement the free-living org
+    // count. Then add the sym to the host's sym list.
+    // TODO - consider whether we want signals here + if there are some
+    //        bookkeeping things we need to do. E.g., add signals, etc.
+    // TODO - Do we need to assign a new environment here? I don't think so?
+    //        Symbiont should have been assigned an environment on birth.
+    // NOTE - Previously, the infect instruction did not check whether AddSymbiont
+    //        was successful. Discuss whether we want to check that here.
+    pop[pop_index]->AddSymbiont(ExtractSym(pop_index));
+    sgp_sym.GetHardware().GetCPUState().SetLocation(
+      emp::WorldPosition(pop_index, num_syms)
+    );
+  } else {
+    // Injection failed, set it dead and do deletion next update
+    sgp_sym.SetDead();
+  }
 }
 
 }

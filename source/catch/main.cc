@@ -29,15 +29,27 @@
 // #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 // #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
+<<<<<<< HEAD
 // #include "../test/sgp_mode_test/CPU.test.cc"
+=======
+#include "../test/sgp_mode_test/ProgramBuilder.test.cc"
+#include "../test/sgp_mode_test/SGPHardware.test.cc"
+#include "../test/sgp_mode_test/Instructions.test.cc"
+
+
+
+>>>>>>> 2024-alex-dev
 // #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
 // #include "../test/sgp_mode_test/SGPWorld.test.cc"
 // #include "../test/sgp_mode_test/SGPHost.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
 // #include "../test/sgp_mode_test/StressHost.test.cc"
+<<<<<<< HEAD
 #include "../test/sgp_mode_test/RingBuffer.test.cc"
 #include "../test/sgp_mode_test/Stacks.test.cc"
 #include "../test/sgp_mode_test/utils.test.cc"
+=======
+>>>>>>> 2024-alex-dev
 
 // #include "../test/integration_test/spatial_structure/vt.test.cc"
 // #include "../test/integration_test/lysogeny/plr.test.cc"

@@ -4,8 +4,6 @@
 #include "../default_mode/SymWorld.h"
 #include "Scheduler.h"
 #include "SGPConfigSetup.h"
-#include "SyncDataMonitor.h"
-#include "spec.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 #include "org_type_info.h"
@@ -24,12 +22,18 @@
 #include <functional>
 #include <filesystem>
 
+// TODO - Document how each base configuration works for SGPWorld
+// TODO - Comments for every member variable / function / type alias
+
 namespace sgpmode {
 
 // TODO - do we want this to be configurable?
 const size_t PROGRAM_LENGTH = 100;
 
-// TODO - init necessary hardware state on organism birth (e.g., stack limit)
+// NOTE - SymWorld::GetPop returns pop by copy instead of by reference?
+//        GetPop is expensive operation, avoid use
+
+// TODO - add tests for stack limits on organisms
 class SGPWorld : public SymWorld {
 public:
   using sgp_cpu_peripheral_t = CPUState<SGPWorld>;
@@ -41,27 +45,25 @@ public:
   using sgp_prog_t = typename sgp_hw_t::program_t;
   using task_env_t = tasks::LogicTaskEnvironment;
   using task_reqs_t = typename task_env_t::TaskReqInfo;
-  using mutator_t = SGPMutator<sgp_prog_t>;
+  using mutator_t = SGPMutator<sgp_prog_t, Library>;
+  using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
-    emp::Ptr<sgp_sym_t>, /* symbiont baby ptr */
+    emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
     const emp::WorldPosition&     /* parent_position */
   )>;
 
   // NOTE - better name?
-  // TODO - switch to using references to SGPHost, etc.
   using fun_can_attempt_vert_trans_t = std::function<bool(
-    sgp_sym_t&, /* symbiont_ptr */
-    sgp_host_t&, /* host_offspring_ptr (trans to) */
-    sgp_host_t&, /* host_parent_ptr (trans from) */
+    sgp_sym_t&,                /* symbiont_ptr */
+    sgp_host_t&,               /* host_offspring_ptr (trans to) */
+    sgp_host_t&,               /* host_parent_ptr (trans from) */
     const emp::WorldPosition&  /* parent_pos */
   )>;
 
   using fun_compatibility_check_t = std::function<bool(
     const sgp_host_t&,
     const sgp_sym_t&
-    // emp::Ptr<Organism>, /* host */
-    // emp::Ptr<Organism> /* symbiont */
   )>;
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
@@ -92,141 +94,224 @@ public:
 
   };
 
+  // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
 protected:
-  // TODO - scheduler could be SGP scheduler? It will only work with SGPWorld anyway?
-  Scheduler scheduler;
+  Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
   size_t max_world_size; // Maximum number of locations in the world
-  ReproductionQueue repro_queue;
-  ProgramBuilder<hw_spec_t> prog_builder;
-  tasks::LogicTaskEnvironment task_env;
-  mutator_t mutator;
+  ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction
+  ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
+  tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
+  mutator_t mutator;  // Handles mutating sgp programs
+  // TODO - Consider having symbiont rectifier and host rectifier
+  //        -> Symbiont-specific instructions wouldn't be in host's instruction set
+  sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
+
   // Flag for whether setup has been run.
   bool setup = false;
 
-
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_stolen;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_earned;
 
   // Tracks host/symbiont task success counts.
   // NOTE - Managed by world instead of task set because world
   //        determines whether a task is successful
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
+
+  // Tracks host task successes each update. Counts reset to 0 @ begin_update_sig.
   emp::vector<size_t> host_task_successes;
+  // Tracks symbiont task successes each update. Counts reset to 0 @ begin_update_sig.
   emp::vector<size_t> sym_task_successes;
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration
+    * Purpose: Holds all configuration settings and references the same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
     */
-  //  emp::Ptr<SymConfigSGP> sgp_config = nullptr;
   SymConfigSGP& sgp_config;
 
   // What kind of SGP organism type to use?
   org_mode_t sgp_org_type = org_mode_t::DEFAULT;
   // If using stress organisms, what kind of stress?
   stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+  bool stress_extinction_update = false;
+
+  // NOTE - Don't love this being owned by the world.
+  //        Not sure of better alterative. Need to know this in InitializeState
+  //        (don't want to re-lookup every call using strings). Couldn't have it float
+  //        inside of the GenomeLibrary file because the static map used by these
+  //        GetOpCode functions isn't initialized at that point.
+  std::unordered_set<uint8_t> sgp_jump_opcodes = {
+    Library::GetOpCode("JumpIfNEq"),
+    Library::GetOpCode("JumpIfEq"),
+    Library::GetOpCode("JumpIfLess")
+  };
 
   // Directory to dump output files into.
-  // std::string output_dir;
   std::filesystem::path output_dir;
+  // Contains config information (from outside sgp_config) to include in configuration snapshot
   emp::vector<ConfigSnapshotEntry> config_snapshot_entries;
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
   fun_compatibility_check_t fun_host_sym_compatibility_check;
 
+  // begin_update_sig - Triggers at the beginning of an Update call.
+  //  Triggers before schedule update, before processing any organisms.
+  //  E.g., used for resetting any per-update data tracking.
   emp::Signal<void(void)> begin_update_sig;
 
-  // --- Symbiont birth signals / functors ---
+  // ---- Symbiont birth signals / functors ----
+  // before_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after sym offspring is created but before fun_sym_do_birth() is called.
   emp::Signal<void(
-    emp::Ptr<sgp_sym_t>, /* sym_baby_ptr */
+    emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
     const emp::WorldPosition&     /* parent_pos */
   )> before_sym_do_birth_sig;
-  emp::Signal<void(const emp::WorldPosition& /* sym_baby_pos */)> after_sym_do_birth_sig;
+
+  // after_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after fun_sym_do_birth() is called.
+  emp::Signal<void(
+    const emp::WorldPosition& /* sym_baby_pos */
+  )> after_sym_do_birth_sig;
+
+  // fun_sym_do_birth - Configurable functor that handles calling appropriate
+  //  "DoBirth" function depending on whether free-living symbionts are turned on.
   fun_sym_do_birth_t fun_sym_do_birth;
 
-  // --- Symbiont vertical transmission signals / functors ---
-  // TODO - Need to extract whether vertical transmission is successful or not.
+  // ---- Symbiont vertical transmission signals / functors ----
+  // before_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
+  //  Triggers before VerticalTransmission is called on endosymbiont attempting
+  //  vertical transmission. I.e., before attempt is made.
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
-    emp::Ptr<sgp_host_t>,           /* host_offspring_ptr - transmission to */
-    emp::Ptr<sgp_host_t>,           /* host_parent_ptr - transmission from */
-    const emp::WorldPosition&    /* host_parent_pos */
+    emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
+    emp::Ptr<sgp_host_t>,      /* host_parent_ptr - transmission from */
+    const emp::WorldPosition&  /* host_parent_pos */
   )> before_sym_vert_transmission_sig;
+
+  // after_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
+  //  Triggers ater vertical transmission attempt has been made.
+  //  If attempt was successful, sym_offspring_ptr will point to the new symbiont
+  //  offspring (that was vertically transmitted). If unsuccessful, sym_offspring_ptr
+  //  will be a nullptr.
   emp::Signal<void(
     emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
     emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
     emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
     emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
-    const emp::WorldPosition&,  /* host_parent_pos */
-    bool                        /* vertical transmission success */
+    const emp::WorldPosition&,   /* host_parent_pos */
+    bool                         /* vertical transmission success */
   )> after_sym_vert_transmission_sig;
-  // Checks if symbiont vertical transmission is successful
+
+  // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
+  //  a given symbiont can attempt vertical transmission into host offspring.
   fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
 
-  // --- Host birth signals / functors ---
-  // TODO - add functions that add functions to these signals
+  // ---- Host birth signals / functors ----
+  // before_host_do_birth_sig - Triggers during HostDoBirth().
+  //  When this triggers, host offspring has been created (when reproduction queue)
+  //  is processed. Triggers before endosymbionts attempt vertical transmission and
+  //  before DoBirth is called.
   emp::Signal<void(
-    sgp_host_t&,        /* host_offspring_ptr */
-    sgp_host_t&,        /* host_parent_ptr */
+    sgp_host_t&,               /* host_offspring_ptr */
+    sgp_host_t&,               /* host_parent_ptr */
     const emp::WorldPosition&  /* parent_pos */
   )> before_host_do_birth_sig;
+
+  // after_host_do_birth_sig - Triggers during HostDoBirth().
+  //  Triggers after endosymbionts attempt vertical transmission and after DoBirth
+  //  is called on the host offspring.
+  // NOTE - add more parameters to this? We know the parent / offsspring where this is called.
   emp::Signal<void(
     const emp::WorldPosition& /* host_offspring_pos */
   )> after_host_do_birth_sig;
 
-  // --- Host process signals / functors ---
-  // TODO - document timing
+  // ---- Host process signals / functors ----
+  // before_host_process_sig - Triggers in ProcessHostAt()
+  //  Triggers before running the host's CPU / after updating host location.
+  //  Host is not guaranteed to still be alive if prior actions attached to this signal
+  //  kill the host.
   emp::Signal<void(
     sgp_host_t&
   )> before_host_process_sig;
+
+  // after_host_process_sig - Triggers in ProcessHostAt()
+  //  Triggers at end of ProcessHostAt. There is one final check for death after
+  //  after this triggers in case an attached action kills the host.
   emp::Signal<void(
     sgp_host_t&
   )> after_host_process_sig;
+
+  // after_host_cpu_step_sig - Triggers in ProcessHostAt()
+  //  Triggers after each CPU cycle (potentially multiple times per update) and after
+  //  handling a repro attempt by the host for that CPU cycle.
   emp::Signal<void(
     sgp_host_t&
   )> after_host_cpu_step_sig;
+
+  // after_host_cpu_exec_sig - Triggers in ProcessHostAt()
+  //  Triggers after executing all CPU cycles allotted to host being processed and
+  //  before processing the host's endosymbionts.
   emp::Signal<void(
     sgp_host_t&
   )> after_host_cpu_exec_sig;
   // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
 
-  // --- Free-living symbiont signals / functors ---
+  // ---- Free-living symbiont signals / functors ----
+  // before_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers if sym is alive before executing sym's CPU.
   emp::Signal<void(
-    sgp_sym_t&                 /* sym */
+    sgp_sym_t&  /* sym */
   )> before_freeliving_sym_process_sig;
+
+  // after_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers at end of ProcessFreeLivingSymAt, but before a final check/potential
+  //  DoSymDeath call
   emp::Signal<void(
-    sgp_sym_t&                 /* sym */
+    sgp_sym_t&  /* sym */
   )> after_freeliving_sym_process_sig;
+
+  // after_freeliving_sym_cpu_step_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers after each CPU cycle after handling an instruction-triggered repro attempt.
   emp::Signal<void(
-    sgp_sym_t&                 /* sym */
+    sgp_sym_t&  /* sym */
   )> after_freeliving_sym_cpu_step_sig;
+
+  // after_freeliving_sym_cpu_exec_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers after executing all CPU cycles allotted to sym being processed and
+  //  before SGPSymbiont::Process is called.
   emp::Signal<void(
-    sgp_sym_t&                 /* sym */
+    sgp_sym_t&  /* sym */
   )> after_freeliving_sym_cpu_exec_sig;
 
-  // --- Endosymbiont process signals / functors ---
+  // ---- Endosymbiont process signals / functors ----
+  // before_endosym_process_sig - Triggers during ProcessEndoSymbiont()
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */
     sgp_host_t&                /* host */
   )> before_endosym_process_sig;
+
+  // after_endosym_process_sig - Triggers during ProcessEndoSymbiont()
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */
     sgp_host_t&                /* host */
   )> after_endosym_process_sig;
+
+  // after_endosym_cpu_step_sig - Triggers during ProcessEndoSymbiont()
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */
     sgp_host_t&                /* host */
   )> after_endosym_cpu_step_sig;
+
+  // after_endosym_cpu_exec_sig - Triggers during ProcessEndoSymbiont()
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */
@@ -234,15 +319,19 @@ protected:
   )> after_endosym_cpu_exec_sig;
 
 
-  // --- Environment signals/functors ---
+  // ---- Environment signals/functors ----
   // fun_do_resource_inflow_t fun_do_resource_inflow;
 
+  // Called in FindHostForHorizontalTrans(), configured in SetupPopStructure().
+  // Returns a target position for symbiont to horizontally transmit into.
+  // Returns std::nullopt if failed to find suitable target position.
   std::function<std::optional<emp::WorldPosition>(
     size_t,                 /* Parent's host location id in world (pops[0][id])*/
     emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
   )> fun_find_host_for_horizontal_trans;
 
-  // ---- Internal helper functions ----
+  // ----- Internal helper functions -----
+  // Called by Update()
   void DoReproduction();
 
   void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
@@ -295,13 +384,14 @@ protected:
   // Called internally on world setup.
   void SetupOrgMode();
   void SetupPopStructure();
-  void SetupScheduler();           // TODO - shift to private function (will need to refactor tests)
+  void SetupScheduler();
   void SetupReproduction();
-  void SetupSymReproduction();     // TODO - shift to private function (will need to refactor tests)
-  void SetupHostReproduction();    // TODO - shift to private function (will need to refactor tests)
-  void SetupHostSymInteractions(); // TODO - shift to private function (will need to refactor tests)
+  void SetupSymReproduction();
+  void SetupHostReproduction();
+  void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
+  void SetupStressInteractions();
 
   // Clear all world signals
   void ClearWorldSignals() {
@@ -323,13 +413,6 @@ protected:
     after_endosym_cpu_step_sig.Clear();
   }
 
-  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
-    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
-    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
-    cpu_state.SetTaskEnvID(env_id);
-    cpu_state.SetInputs(task_io.input_buffer);
-  }
-
   // NOTE - could make this a functor to allow runtime configuration or differences
   //        between different kinds of organisms
   // NOTE - Other conditions that we want to check?
@@ -342,8 +425,12 @@ protected:
     return cpu_state.GetTaskPerformanceCount(task_id) < max_repeats;
   }
 
-  void ProcessHostOutputBuffer(sgp_host_t& host);
-  void ProcessSymOutputBuffer(sgp_sym_t& sym);
+  // Utility function to get cpu state from an org pointer
+  sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
+    return (org_ptr->IsHost()) ?
+      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
+      (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
+  }
 
 public:
   SGPWorld(
@@ -352,12 +439,11 @@ public:
   ) :
     SymWorld(rnd, _config),
     scheduler(rnd),
+    prog_builder(opcode_rectifier),
     task_env(rnd),
+    mutator(opcode_rectifier),
     sgp_config(*_config)
-  {
-    // TODO - taskset
-
-  }
+  { }
 
   ~SGPWorld() {
     if(data_node_sym_donated) data_node_sym_donated.Delete();
@@ -372,13 +458,18 @@ public:
    *
    * Purpose: Allows accessing the world's sgp config.
    */
-  // TODO - switch back to having a pointer to the config to be consistent with
-  // base class? (lots of base classes assume we're hanging on to a pointer)
+  // NOTE - Thoughts on holding a reference vs a pointer. Reference is a little
+  //   cleaner in my opinion, but will always need to know at construction
+  //   (which is how things were already setup with the pointer).
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
+  task_env_t& GetTaskEnv() { return task_env; }
+  const task_env_t& GetTaskEnv() const { return task_env; }
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
+
+  const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
   /**
    * Input: None
@@ -447,6 +538,17 @@ public:
   // Process endosymbiont
   void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
+  void ProcessHostOutputBuffer(sgp_host_t& host);
+  void ProcessSymOutputBuffer(sgp_sym_t& sym);
+
+  // NOTE - moved to be public for testing
+  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
+    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
+    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
+    cpu_state.SetTaskEnvID(env_id);
+    cpu_state.SetInputs(task_io.input_buffer);
+  }
+
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization
   //  Why? Tests, different mains configure initial population differently
@@ -465,7 +567,6 @@ public:
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
-  // TODO - How to distinguish between the two?
   emp::WorldPosition SymDoBirth(
     emp::Ptr<Organism> sym_baby,
     emp::WorldPosition parent_pos
@@ -473,6 +574,10 @@ public:
 
   void HostDoMutation(sgp_host_t& host);
   void SymDoMutation(sgp_sym_t& sym);
+
+  void SymDonateToHost(Organism& from_sym, Organism& to_host);
+  void SymStealFromHost(Organism& to_sym, Organism& from_host);
+  void FreeLivingSymDoInfect(Organism& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)
@@ -496,10 +601,22 @@ public:
   ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
-  SyncDataMonitor<double>& GetSymDonatedDataNode();
-  SyncDataMonitor<double>& GetSymStolenDataNode();
-  SyncDataMonitor<double>& GetSymEarnedDataNode();
+  emp::DataMonitor<double>& GetSymDonatedDataNode() {
+    emp_assert(data_node_sym_donated != nullptr);
+    return *data_node_sym_donated;
+  }
+  emp::DataMonitor<double>& GetSymStolenDataNode() {
+    emp_assert(data_node_sym_stolen != nullptr);
+    return *data_node_sym_stolen;
+  }
+  emp::DataMonitor<double>& GetSymEarnedDataNode() {
+    emp_assert(data_node_sym_earned != nullptr);
+    return *data_node_sym_earned;
+  }
   void SetupTasksNodes();
+
+  ProgramBuilder<hw_spec_t>& GetProgramBuilder() { return prog_builder; }
+  const ProgramBuilder<hw_spec_t>& GetProgramBuilder() const { return prog_builder; }
 
   emp::DataFile& SetupOrgCountFile(const std::string& filepath);
   emp::DataFile& SetupSymDonatedFile(const std::string& filepath);

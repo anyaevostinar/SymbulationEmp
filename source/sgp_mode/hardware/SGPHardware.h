@@ -4,8 +4,6 @@
 #include "CPUState.h"
 #include "Instructions.h"
 #include "GenomeLibrary.h"
-// #include "../Tasks.h"
-#include "../spec.h"
 #include "../../default_mode/Host.h"
 
 #include "sgpl/algorithm/execute_cpu_n_cycles.hpp"
@@ -56,11 +54,6 @@ protected:
     const emp::map<std::string, size_t>& arities,
     jump_table_t& table,
     std::ostream& out = std::cout
-
-    // const sgpl::Instruction<HW_SPEC_T>& ins,
-    // const emp::map<std::string, size_t>& arities,
-    // sgpl::JumpTable<HW_SPEC_T, typename HW_SPEC_T::global_matching_t>& table,
-    // std::ostream& out = std::cout
   ) ;
 
   // Internal helper function for initializing local jump table used by
@@ -69,13 +62,14 @@ protected:
     // Get global jump table in sgplite cpu
     auto& table = cpu.GetActiveCore().GetGlobalJumpTable();
     auto& state_jump_table = state.GetJumpTable();
+    const auto& jump_opcodes = state.GetWorld().GetJumpInstOpcodes();
     // NOTE - jump table was previously size 100. Seemed like that was because
     //        program size is 100?
     state_jump_table.resize(program.size(), 0);
     size_t idx = 0;
     for (auto& inst : program) {
       const uint8_t inst_opcode = inst.op_code;
-      if (emp::Has(lib_info::jump_opcodes, inst_opcode)) {
+      if (emp::Has(jump_opcodes, inst_opcode)) {
         const auto entry{table.MatchRegulated(inst.tag)};
         state_jump_table[idx] = (entry.size() > 0) ?
           table.GetVal(entry.front()) :
@@ -195,7 +189,7 @@ public:
    *
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
-  void RunCPUStep(const emp::WorldPosition& location, size_t n_cycles=1) {
+  void RunCPUStep(size_t n_cycles=1) {
 
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
@@ -204,8 +198,8 @@ public:
     // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
     // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
     // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
-    // sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
-    sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
+    sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    // sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**
@@ -222,6 +216,31 @@ public:
   cpu_state_t& GetCPUState() { return state; }
 
   cpu_t& GetCPU() { return cpu; }
+  const cpu_t& GetCPU() const { return cpu; }
+
+  uint32_t GetRegister(size_t reg_id) {
+    emp_assert(cpu.HasActiveCore());
+    auto& registers = cpu.GetActiveCore().registers;
+    return (*reinterpret_cast<uint32_t*>(&registers[reg_id]));
+  }
+
+  void SetRegister(size_t reg_id, uint32_t value) {
+    // uint32_t *a = (uint32_t *)&core.registers[reg_id];
+    Reg(reg_id) = value;
+  }
+
+  void SetRegisters(const emp::vector<uint32_t>& values) {
+    emp_assert(values.size() <=  spec_t::num_registers);
+    for (size_t i = 0; i < values.size(); ++i) {
+      Reg(i) = values[i];
+    }
+  }
+
+  uint32_t& Reg(size_t reg_id) {
+    emp_assert(cpu.HasActiveCore());
+    auto& registers = cpu.GetActiveCore().registers;
+    return reinterpret_cast<uint32_t&>(registers[reg_id]);
+  }
 
   /**
    * Input: None
@@ -248,6 +267,7 @@ public:
 
 };
 
+// TODO - clean this function up
 template<typename HW_SPEC_T>
 void SGPHardware<HW_SPEC_T>::PrintOp(
   const sgpl::Instruction<HW_SPEC_T>& ins,

@@ -20,3 +20,4 @@ local/
 output/
 log.txt
 *.json
+*_test_output/

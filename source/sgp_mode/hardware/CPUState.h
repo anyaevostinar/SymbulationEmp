@@ -3,7 +3,7 @@
 
 #include "RingBuffer.h"
 #include "Stacks.h"
-#include "../spec.h"
+#include "../org_type_info.h"
 #include "../utils.h"
 #include "../../Organism.h"
 
@@ -27,12 +27,15 @@ enum class ReproState { NONE=0, ATTEMPTING, IN_PROGRESS };
  * organism's genomes. Each organism has its own CPUState.
  */
 // TODO - write tests
+// TODO - cleanup member variables (reduce down to only what we're using)
 template<typename WORLD_T>
 class CPUState {
 public:
   // using spec_t = HW_SPEC_T;
   using world_t = WORLD_T;
+  using reg_val_t = typename world_t::hw_spec_t::register_value_t;
   using input_buf_t = RingBuffer<uint32_t>;
+  using output_buf_t = emp::vector<uint32_t>;
 
   struct ReproInfo {
     ReproState state = ReproState::NONE;
@@ -41,33 +44,24 @@ public:
 protected:
   Stacks<uint32_t> stacks;
   input_buf_t input_buf;
-  emp::vector<uint32_t> output_buffer;
+  output_buf_t output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
-
-  // TODO - get rid of dynamic memory if possible
-  // emp::BitSet<spec::NUM_TASKS> used_resources = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
-  // emp::BitSet<spec::NUM_TASKS> tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>();
-  // emp::BitSet<spec::NUM_TASKS> parent_tasks_performed = emp::NewPtr<emp::BitSet<spec::NUM_TASKS>>(true);
-  // TODO - will need to resize / reset
   size_t num_tasks = 0;
   // emp::BitVector used_resources;          // TODO - document use
   // NOTE - should this be in the CPU state? Or, move into organism class as "phenotype" information?
   emp::BitVector tasks_performed;
   emp::vector<size_t> tasks_performance_cnt;
 
-  emp::BitVector parent_tasks_performed;  // TODO - Configure parent tasks performed
+  emp::BitVector parent_tasks_performed;
 
-  emp::vector<int> task_change_loss;    // Change in task performance (relative to parent)
-  emp::vector<int> task_change_gain;    // Change in task performance (relative to parent)
-
-  // TODO - shift to emp::array if possible
-  // int task_change_lose[spec::NUM_TASKS] = { 0 };
-  // int task_change_gain[spec::NUM_TASKS] = { 0 };
-
-  emp::vector<int> task_toward_partner;
-  emp::vector<int> task_from_partner;
-  // int task_toward_partner[spec::NUM_TASKS] = { 0 };
-  // int task_from_partner[spec::NUM_TASKS] = { 0 };
+  // NOTE - should this be tracked by the systematics instead?
+  // NOTE - shifted int to size_t, looked like these were only ever positive numbers
+  // NOTE - Manage all of this with a struct that contains relevant logic?
+  emp::vector<size_t> lineage_task_change_loss;    // Change in task performance (relative to parent)
+  emp::vector<size_t> lineage_task_change_gain;    // Change in task performance (relative to parent)
+  // NOTE - shifted int to size_t, looked like these were only ever positive numbers
+  emp::vector<size_t> lineage_task_converge_partner;
+  emp::vector<size_t> lineage_task_diverge_partner;
 
   double survival_resource = 0.0; // TODO - move this out of CPUState
 
@@ -97,7 +91,7 @@ public:
     emp::Ptr<world_t> world,
     emp::Ptr<Organism> organism,
     size_t task_cnt = 0,
-    size_t stack_limit = spec::DEFAULT_STACK_SIZE_LIMIT
+    size_t stack_limit = org_info::DEFAULT_STACK_SIZE_LIMIT
   ) :
     stacks(2),
     num_tasks(task_cnt),
@@ -129,10 +123,10 @@ public:
     utils::ResizeClear(parent_tasks_performed, num_tasks);
 
     utils::ResizeFill(tasks_performance_cnt, num_tasks, 0);
-    utils::ResizeFill(task_change_loss, num_tasks, 0);
-    utils::ResizeFill(task_change_gain, num_tasks, 0);
-    utils::ResizeFill(task_toward_partner, num_tasks, 0);
-    utils::ResizeFill(task_from_partner, num_tasks, 0);
+    utils::ResizeFill(lineage_task_change_loss, num_tasks, 0);
+    utils::ResizeFill(lineage_task_change_gain, num_tasks, 0);
+    utils::ResizeFill(lineage_task_converge_partner, num_tasks, 0);
+    utils::ResizeFill(lineage_task_diverge_partner, num_tasks, 0);
 
     survival_resource = 0.0;
 
@@ -149,8 +143,14 @@ public:
   }
 
   size_t GetNumTasks() const { return num_tasks; }
+
   emp::vector<size_t>& GetJumpTable() { return jump_table; }
   const emp::vector<size_t>& GetJumpTable() const { return jump_table; }
+  size_t GetJumpDest(size_t pc) const {
+    emp_assert(pc < jump_table.size());
+    return jump_table[pc];
+  }
+
   void SetLocation(const emp::WorldPosition& loc) {
     location = loc;
   }
@@ -162,8 +162,8 @@ public:
   input_buf_t& GetInputBuffer() { return input_buf; }
   const input_buf_t& GetInputBuffer() const { return input_buf; }
 
-  emp::vector<uint32_t>& GetOutputBuffer() { return output_buffer; }
-  const emp::vector<uint32_t>& GetOutputBuffer() const { return output_buffer; }
+  output_buf_t& GetOutputBuffer() { return output_buffer; }
+  const output_buf_t& GetOutputBuffer() const { return output_buffer; }
 
   void SetInputs(const emp::vector<uint32_t>& inputs) {
     input_buf.SetBuffer(inputs);
@@ -179,6 +179,17 @@ public:
   emp::Ptr<Organism> GetOrgPtr() { return organism; }
   Organism& GetOrg() { return *organism; }
   const Organism& GetOrg() const { return *organism; }
+  bool IsHost() const { return organism->IsHost(); }
+  bool IsSym() const { return !(organism->IsHost()); }
+  bool HasHost() const { return organism->GetHost() != nullptr; }
+  Organism& GetHost() {
+    emp_assert(HasHost());
+    return *(organism->GetHost());
+  }
+  const Organism& GetHost() const {
+    emp_assert(HasHost());
+    return *(organism->GetHost());
+  }
 
   void SetWorld(emp::Ptr<world_t> w_ptr) { world_ptr = w_ptr; }
   emp::Ptr<world_t> GetWorldPtr() { return world_ptr; }
@@ -205,9 +216,6 @@ public:
   }
 
    void ResetReproState() {
-    // repro_queue_pos = 0;
-    // repro_attempt = false;
-    // repro_in_progress = false;
     repro_info.state = ReproState::NONE;
     repro_info.queue_pos = 0;
   }
@@ -235,6 +243,36 @@ public:
     emp_assert(task_id < tasks_performance_cnt.size());
     tasks_performed.Set(task_id, true);
     ++(tasks_performance_cnt[task_id]);
+  }
+
+  size_t GetLineageTaskLossCount(size_t task_id) const {
+    return lineage_task_change_loss[task_id];
+  }
+
+  size_t GetLineageTaskGainCount(size_t task_id) const {
+    return lineage_task_change_gain[task_id];
+  }
+
+  void SetLineageTaskLossCount(size_t task_id, size_t count) {
+    lineage_task_change_loss[task_id] = count;
+  }
+  void SetLineageTaskGainCount(size_t task_id, size_t count) {
+    lineage_task_change_gain[task_id] = count;
+  }
+
+  size_t GetLineageTaskConvergeToPartner(size_t task_id) const {
+    return lineage_task_converge_partner[task_id];
+  }
+
+  size_t GetLineageTaskDivergeFromPartner(size_t task_id) const {
+    return lineage_task_diverge_partner[task_id];
+  }
+
+  void SetLineageTaskConvergeToPartner(size_t task_id, size_t count) {
+    lineage_task_converge_partner[task_id] = count;
+  }
+  void SetLineageTaskDivergeFromPartner(size_t task_id, size_t count) {
+    lineage_task_diverge_partner[task_id] = count;
   }
 
 };
