@@ -10,7 +10,84 @@
 
 #include "../../catch/catch.hpp"
 
-// TODO - add tests for parental task tracking
+TEST_CASE("SGPHost Reproduce function results in correct parental task tracking", "[sgp]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using program_t = typename world_t::sgp_prog_t;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+  sgpmode::SymConfigSGP config;
+  config.CYCLES_PER_UPDATE(4);
+  config.RANDOM_ANCESTOR(false);
+  config.HOST_REPRO_RES(1);
+  config.SEED(61);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("SGPHost_test_output");
+  config.POP_SIZE(1);
+  config.START_MOI(0);
+  config.TASK_IO_UNIQUE_OUTPUT(true);
+  // Zero out mutation rates
+  config.MUTATION_RATE(0);
+  config.MUTATION_SIZE(0);
+  config.SGP_MUT_PER_BIT_RATE(0);
+
+  // Initialize world with one host
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& prog_builder = world.GetProgramBuilder();
+  REQUIRE(world.IsOccupied(0));
+
+  // Grab host to use for test
+  auto& org = world.GetOrg(0);
+  auto& sgp_host = static_cast<sgp_host_t&>(org);
+  hardware_t& hw = sgp_host.GetHardware();
+  // Assert that added host is what we expect
+  REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
+
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOT"));
+  const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+
+  WHEN("A host can only perform NOT") {
+    WHEN("It is one of the first generation (does not have parents)") {
+
+      auto& host_parent_tasks = hw.GetCPUState().GetParentTasksPerformed();
+      auto& host_tasks = hw.GetCPUState().GetTasksPerformed();
+
+      THEN("Its own tasks are initially all marked as not completed") {
+        REQUIRE(host_tasks.None());
+      }
+
+      THEN("Its parent's tasks are marked with initial not task") {
+        REQUIRE(host_parent_tasks.Get(not_task_id));
+      }
+
+      // Run world for enough updates to evaluate full genome
+      for (size_t i = 0; i < 25; ++i) {
+        world.Update();
+      }
+
+      THEN("After running for 25 updates, host tasks should show NOT completed") {
+        REQUIRE(host_tasks.Get(not_task_id));
+        REQUIRE(host_tasks.CountOnes() == 1);
+        REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(not_task_id) == 1);
+      }
+
+      THEN("Offspring should have correct parent tasks marked as completed") {
+        emp::Ptr<sgp_host_t> offspring = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+        auto& offspring_hw = offspring->GetHardware();
+        auto& offspring_parent_tasks = offspring_hw.GetCPUState().GetParentTasksPerformed();
+        auto& offspring_tasks = offspring_hw.GetCPUState().GetTasksPerformed();
+        REQUIRE(offspring_tasks.None());
+        REQUIRE(offspring_parent_tasks.CountOnes() == 1);
+        REQUIRE(offspring_parent_tasks.Get(not_task_id));
+        offspring.Delete();
+      }
+    }
+  }
+}
 
 TEST_CASE("SGPHost Reproduce", "[sgp]") {
   using world_t = sgpmode::SGPWorld;

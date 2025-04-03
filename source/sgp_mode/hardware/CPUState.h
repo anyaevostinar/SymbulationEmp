@@ -230,6 +230,9 @@ public:
   void SetParentTasksPerformed(const emp::BitVector& parent_tasks) {
     parent_tasks_performed.Import(parent_tasks);
   }
+  void SetParentTaskPerformed(size_t task_id, bool performed=true) {
+    parent_tasks_performed.Set(task_id, performed);
+  }
 
   const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_cnt; }
   emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_cnt; }
