@@ -15,7 +15,7 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
+  // using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   sgpmode::SymConfigSGP config;
@@ -37,7 +37,6 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
-  auto& prog_builder = world.GetProgramBuilder();
   REQUIRE(world.IsOccupied(0));
 
   // Grab host to use for test
@@ -94,7 +93,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
+  // using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   sgpmode::SymConfigSGP config;
@@ -163,6 +162,101 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
     REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(6));
     REQUIRE(offspring_hw.GetCPUState().GetParentTaskPerformed(8));
     offspring_ptr.Delete();
+  }
+
+  SECTION("Host offspring tracks any gains or loses in task completions") {
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOT"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NAND"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR_NOT"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND_NOT"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOR"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("XOR"));
+    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("EQU"));
+    const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+    const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+    const size_t equ_task_id = world.GetTaskEnv().GetTaskSet().GetID("EQU");
+
+    // Gen 1 (sgp_host): parent tasks all 0s
+    REQUIRE(!sgp_host.GetHardware().GetCPUState().GetParentTaskPerformed(not_task_id));
+    REQUIRE(!sgp_host.GetHardware().GetCPUState().GetParentTaskPerformed(nand_task_id));
+    REQUIRE(!sgp_host.GetHardware().GetCPUState().GetParentTaskPerformed(equ_task_id));
+
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskGainCount(not_task_id) == 0);
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskGainCount(nand_task_id) == 0);
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskGainCount(equ_task_id) == 0);
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskLossCount(not_task_id) == 0);
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskLossCount(nand_task_id) == 0);
+    REQUIRE(sgp_host.GetHardware().GetCPUState().GetLineageTaskLossCount(equ_task_id) == 0);
+    // Gen 1 performs:
+    // - not (gain), nand (gain), equ (gain)
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(equ_task_id);
+    // Gen 2 (host_gen2)
+    emp::Ptr<sgp_host_t> host_gen2 = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskGainCount(not_task_id) == 1);
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskGainCount(nand_task_id) == 1);
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskGainCount(equ_task_id) == 1);
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskLossCount(not_task_id) == 0);
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskLossCount(nand_task_id) == 0);
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetLineageTaskLossCount(equ_task_id) == 0);
+    // Gen 2 performs:
+    // - nand (--)
+    // Loses: not, equ
+    host_gen2->GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
+    REQUIRE(!host_gen2->GetHardware().GetCPUState().GetTaskPerformed(not_task_id));
+    REQUIRE(host_gen2->GetHardware().GetCPUState().GetTaskPerformed(nand_task_id));
+    REQUIRE(!host_gen2->GetHardware().GetCPUState().GetTaskPerformed(equ_task_id));
+    // Gen 3 (host_gen3): No gains (from prev gen), loses equ
+    emp::Ptr<sgp_host_t> host_gen3 = static_cast<sgp_host_t*>(host_gen2->Reproduce().Raw());
+    REQUIRE(!host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(not_task_id));
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(nand_task_id));
+    REQUIRE(!host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(equ_task_id));
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskGainCount(not_task_id) == 1);
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskGainCount(nand_task_id) == 1);
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskGainCount(equ_task_id) == 1);
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskLossCount(not_task_id) == 1);
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskLossCount(nand_task_id) == 0);
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetLineageTaskLossCount(equ_task_id) == 1);
+    // Gen 3 performs:
+    // - nand (--), equ (gain)
+    // - loses: none
+    host_gen3->GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
+    host_gen3->GetHardware().GetCPUState().MarkTaskPerformed(equ_task_id);
+    REQUIRE(!host_gen3->GetHardware().GetCPUState().GetTaskPerformed(not_task_id));
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetTaskPerformed(nand_task_id));
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetTaskPerformed(equ_task_id));
+    REQUIRE(!host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(not_task_id));
+    REQUIRE(host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(nand_task_id));
+    REQUIRE(!host_gen3->GetHardware().GetCPUState().GetParentTaskPerformed(equ_task_id));
+    // Gen 4 (host_gen4): Gain equ
+    emp::Ptr<sgp_host_t> host_gen4 = static_cast<sgp_host_t*>(host_gen3->Reproduce().Raw());
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskGainCount(not_task_id) == 1);
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskGainCount(nand_task_id) == 1);
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskGainCount(equ_task_id) == 2);
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskLossCount(not_task_id) == 1);
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskLossCount(nand_task_id) == 0);
+    REQUIRE(host_gen4->GetHardware().GetCPUState().GetLineageTaskLossCount(equ_task_id) == 1);
+
+    host_gen2.Delete();
+    host_gen3.Delete();
+    host_gen4.Delete();
+  }
+
+  WHEN("The host parent has no symbiont") {
+    // TODO
+    THEN("The host offspring inherits the lineage's partner task flip count with no modifications") {
+
+    }
+  }
+
+  WHEN("The host parent has a symbiont") {
+    // TODO
+    THEN("The host offspring tracks how its tasks compare to its parent's partner's tasks") {
+      // TODO
+    }
   }
 
   // BOOKMARK
