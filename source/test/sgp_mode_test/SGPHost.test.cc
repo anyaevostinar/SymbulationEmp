@@ -15,7 +15,6 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  // using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   sgpmode::SymConfigSGP config;
@@ -93,8 +92,8 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  // using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
@@ -119,6 +118,19 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   auto& sgp_host = static_cast<sgp_host_t&>(org);
   hardware_t& hw = sgp_host.GetHardware();
   REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
+  const size_t num_tasks = hw.GetCPUState().GetNumTasks();
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOT"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NAND"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR_NOT"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND_NOT"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOR"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("XOR"));
+  REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("EQU"));
+  const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+  const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+  const size_t equ_task_id = world.GetTaskEnv().GetTaskSet().GetID("EQU");
 
   // Configure host's program to include a NOT task
   hw.SetProgram(
@@ -165,19 +177,6 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   }
 
   SECTION("Host offspring tracks any gains or loses in task completions") {
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOT"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NAND"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR_NOT"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("OR"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("AND_NOT"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("NOR"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("XOR"));
-    REQUIRE(world.GetTaskEnv().GetTaskSet().HasTask("EQU"));
-    const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-    const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
-    const size_t equ_task_id = world.GetTaskEnv().GetTaskSet().GetID("EQU");
-
     // Gen 1 (sgp_host): parent tasks all 0s
     REQUIRE(!sgp_host.GetHardware().GetCPUState().GetParentTaskPerformed(not_task_id));
     REQUIRE(!sgp_host.GetHardware().GetCPUState().GetParentTaskPerformed(nand_task_id));
@@ -246,22 +245,45 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
   }
 
   WHEN("The host parent has no symbiont") {
-    // TODO
+    REQUIRE(!sgp_host.HasSym());
+    emp::Ptr<sgp_host_t> host_offspring = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+    REQUIRE(!host_offspring->HasSym());
     THEN("The host offspring inherits the lineage's partner task flip count with no modifications") {
-
+      for (size_t i = 0; i < num_tasks; ++i) {
+        REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskConvergeToPartner(i) == 0);
+        REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(i) == 0);
+      }
     }
+    host_offspring.Delete();
   }
 
   WHEN("The host parent has a symbiont") {
-    // TODO
+    sgp_host.AddSymbiont(
+      emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100))
+    );
+    REQUIRE(sgp_host.HasSym());
+    sgp_host.GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, false);
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
+    sgp_host.GetHardware().GetCPUState().MarkTaskPerformed(equ_task_id);
+    // Host's parent: not
+    // Host: not, nand, equ
+
+    sgp_sym_t& sgp_sym = *static_cast<sgp_sym_t*>(sgp_host.GetSymbionts()[0].Raw());
+    sgp_sym.GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id);
+    // sgp_sym.GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
+    // Sym's parent: nand
+    // Sym: not
     THEN("The host offspring tracks how its tasks compare to its parent's partner's tasks") {
-      // TODO
+      emp::Ptr<sgp_host_t> host_offspring = static_cast<sgp_host_t*>(sgp_host.Reproduce().Raw());
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskConvergeToPartner(not_task_id) == 1);
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskConvergeToPartner(nand_task_id) == 0);
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskConvergeToPartner(equ_task_id) == 0);
+
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(not_task_id) == 0);
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(nand_task_id) == 1);
+      REQUIRE(host_offspring->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(equ_task_id) == 1);
+      host_offspring.Delete();
     }
   }
-
-  // BOOKMARK
-
-  // TODO
-
-
 }
