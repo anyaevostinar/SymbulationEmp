@@ -4,29 +4,20 @@ This is a document for development notes, i.e. a readme but for the development 
 ## Current issues
 
 ### Hacky-ness
-Much of the health parasite implementation was hacked in and so needs to be written more modularly to allow for the different kinds of parasitism and mutualism, how to best go about doing this both efficiently and modularly?
-* First step: make a list of the hacky functionality here:
-    * [SGPWorldSetup.cc](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/SGPWorldSetup.cc) is injecting a full population of hosts that can do NOT and symbionts that complement; this file also has the checking for infection via task matching code `GetNeighborHost`
+Much of the new parasite/mutualist implementation was hacked in at the expense of the previous sgp implementation. I think we want to stick with this, so we need to just go delete the old things:
     * In [GenomeLibrary.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/GenomeLibrary.h) I commented out instructions: `PrivateIO`, `Reuptake`, `Infect`, `Steal` to have the syms behave as just health parasites/health mutualists
     * The penalty for `PrivateIO` is turned off currently in `Instructions.h`
     * In [Tasks.h](https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/Tasks.h), commented out the code limiting orgs to only one task, since we kind of want them to do multiple, probably more weird stuff in here, since this is where a lot of tinkering happened
-
-Main things:
-* Hosts always lose CPU cycles to symbionts
-* Tasks are set in a specific way
-
-Anya's Todo:
-* Get the code back to a point of parasite prelim data
-    * [Plot from proposal 1](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/12-12-22-LimitedRes/HostTasksLong.png) - from experiment folder [12-12-22-LimitedRes](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/12-12-22-LimitedRes)
-    * [Plot from proposal 2](https://github.com/anyaevostinar/SymbulationEmp/blob/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Analysis/05-02-23-ParasitesLongSpatial/FinalUpdateHost.png) - from experiment folder [05-02-23-ParasitesLongSpatial](https://github.com/anyaevostinar/SymbulationEmp/tree/d8a18f28b5ae882ce43db9ea9fcb298789b25bc3/Data/05-02-23-ParasitesLongSpatial)
-    * [Magical compare URL](https://github.com/anyaevostinar/SymbulationEmp/compare/b9fd9f7a46c39206b4b7208ad7dcaa8830ed7d0d...complex-syms-clean)
-    * Settings different than default: -LIMITED_RES_TOTAL 10 -LIMITED_RES_INFLOW 500
-
-* Wrap ousting in config option
 
 ### Don't lose the ecto code
 Kai Johnson implemented support for ectosymbionts with complex genomes in the branch `complex-genomes`, which isn't currently compatible with this branch, but shouldn't be forgotten since it's good stuff.
 
 ## Tests to write
-* (with Data interval at 50) When parasites absent, hosts do NOT 7k-8k in Tasks file, when parasites present, hosts drop down below 7k by update 5000
-* Something also with the spatial structure results probably?
+* Figure out why integration test in HealthHost.test.cc gets inconsistent results, maybe the sgp random seed needs to be set?
+* Health host with parasite loses cycle 50% of time
+* Health host with mutualist gains cycle 50% of time
+  * in signalgp-lite/include/sgpl/hardware/Cpu.hpp there is GetCore(0)
+  * in signalgp-lite/include/sgpl/hardware/Core.hpp there is GetProgramCounter()
+  * that hopefully will show whether organism has advanced program counter
+* Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
+* Trickier for mutualist, check just before enough CPUs and it should manage to finish
