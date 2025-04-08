@@ -12,7 +12,7 @@ namespace sgpmode {
 template <typename T>
 class RingBuffer {
 public:
-  using buffer_t = std::vector<T>;
+  using buffer_t = emp::vector<T>;
 
 protected:
   buffer_t buffer;
@@ -66,21 +66,21 @@ public:
     write_ptr = 0;
     read_ptr = 0;
     buffer.resize(buf_size);
-    std::fill(
+    emp::fill(
       buffer.begin(),
       buffer.end(),
       fill_val
     );
   }
 
-  void SetBuffer(const std::vector<T>& contents) {
+  void SetBuffer(const emp::vector<T>& contents) {
     // Reset next id
     // next = 0;
     write_ptr = 0;
     read_ptr = 0;
     // Copy contents into buffer
     buffer.resize(contents.size());
-    std::copy(
+    emp::copy(
       contents.begin(),
       contents.end(),
       buffer.begin()
