@@ -96,8 +96,8 @@ public:
 
   // Return the top element of the active stack.
   std::optional<T> GetTop() const {
-    return (stacks[active_stack].size() > 0);
-      stacks[active_stack].back();
+    return (stacks[active_stack].size() > 0) ?
+      stacks[active_stack].back() :
       std::nullopt;
   }
 
