@@ -334,6 +334,8 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
   auto & node4 = GetVerticalTransmissionSuccessCount(); 
+  auto & node5 = GetHorizontalTransmissionTagFailCount();
+  auto & node6 = GetHorizontalTransmissionSizeFailCount();
 
   file.AddVar(update, "update", "Update");
   //horizontal transmission
@@ -361,6 +363,19 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   file.AddHistBin(node4, 2, "vert_success_-0.2_0.2", "Count for histogram bin for vertical successes with int val -0.2 to <0.2");
   file.AddHistBin(node4, 3, "vert_success_0.2_0.6", "Count for histogram bin for vertical successes with int val 0.2 to <0.6");
   file.AddHistBin(node4, 4, "vert_success_0.6_1", "Count for histogram bin for vertical successes with int val 0.6 to 1", true);
+
+  // horiz failure 
+  file.AddHistBin(node5, 0, "horiz_tagfail_-1_-0.6", "Count for histogram bin for horizontal tag failure with int val -1 to <-0.6");
+  file.AddHistBin(node5, 1, "horiz_tagfail_-0.6_-0.2", "Count for histogram bin for horizontal tag failure with int val -0.6 to <-0.2");
+  file.AddHistBin(node5, 2, "horiz_tagfail_-0.2_0.2", "Count for histogram bin for horizontal tag failure with int val -0.2 to <0.2");
+  file.AddHistBin(node5, 3, "horiz_tagfail_0.2_0.6", "Count for histogram bin for horizontal tag failure with int val 0.2 to <0.6");
+  file.AddHistBin(node5, 4, "horiz_tagfail_0.6_1", "Count for histogram bin for horizontal tag failure with int val 0.6 to 1", true);
+
+  file.AddHistBin(node6, 0, "horiz_sizefail_-1_-0.6", "Count for histogram bin for horizontal size failure with int val -1 to <-0.6");
+  file.AddHistBin(node6, 1, "horiz_sizefail_-0.6_-0.2", "Count for histogram bin for horizontal size failure with int val -0.6 to <-0.2");
+  file.AddHistBin(node6, 2, "horiz_sizefail_-0.2_0.2", "Count for histogram bin for horizontal size failure with int val -0.2 to <0.2");
+  file.AddHistBin(node6, 3, "horiz_sizefail_0.2_0.6", "Count for histogram bin for horizontal size failure with int val 0.2 to <0.6");
+  file.AddHistBin(node6, 4, "horiz_sizefail_0.6_1", "Count for histogram bin for horizontal size failure with int val 0.6 to 1", true);
 
   file.PrintHeaderKeys();
 
@@ -900,6 +915,43 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
   
   return *data_node_attempts_horiztrans;
 }
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
+ * how many horizontal transmissions failed ONLY due to tag mismatch.
+ *
+ * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions 
+ * failed ONLY due to tag mismatch.
+ */
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionTagFailCount() {
+  if (!data_node_tagfail_horiztrans) {
+    data_node_tagfail_horiztrans.New();
+    data_node_tagfail_horiztrans->SetupBins(-1.0, 1.1, 6);
+  }
+
+  return *data_node_tagfail_horiztrans;
+}
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
+ * how many horizontal transmissions failed ONLY due to insufficient space in the host.
+ *
+ * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions failed 
+ * ONLY due to insufficient space in the host
+ */
+emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSizeFailCount() {
+  if (!data_node_sizefail_horiztrans) {
+    data_node_sizefail_horiztrans.New();
+    data_node_sizefail_horiztrans->SetupBins(-1.0, 1.1, 6);
+  }
+
+  return *data_node_sizefail_horiztrans;
+}
+
 
 
 /**
