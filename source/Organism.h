@@ -98,6 +98,10 @@ class Organism {
     std::cout << "GetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void SetTag(emp::BitSet<32>& _in) {
+    std::cout << "SetTag called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual size_t GetReproCount() {
     std::cout << "GetReproCount called from Organism" << std::endl;
     throw "Organism method called!";

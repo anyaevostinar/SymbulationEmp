@@ -578,9 +578,14 @@ public:
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
         int sucess = pop[new_loc]->AddSymbiont(new_sym);
-        if(sucess && my_config->PHYLOGENY()) {
-          datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
-          d->AddInteraction(new_sym->GetTaxon());
+        if(sucess) {
+          if(my_config->TAG_MATCHING()){
+            new_sym->SetTag(pop[new_loc]->GetTag());
+          }
+          if (my_config->PHYLOGENY()) {
+            datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
+            d->AddInteraction(new_sym->GetTaxon());
+          }
         }
 
       } else new_sym.Delete();
