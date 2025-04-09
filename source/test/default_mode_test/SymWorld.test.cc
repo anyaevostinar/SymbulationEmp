@@ -416,23 +416,26 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
         WHEN("there is room in the host and free failure due to size constraints is off"){
           config.FREE_HT_FAILURE(0);
-          config.SYM_LIMIT(1);
+          config.SYM_LIMIT(2);
           size_t host_pos = 1;
           emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
           world.AddOrgAt(host, host_pos);
 
+          emp::WorldPosition parent_sym_pos = emp::WorldPosition(1, host_pos);
+          emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(parent_symbiont);
           emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          new_pos = world.SymDoBirth(new_symbiont, 1);
+          new_pos = world.SymDoBirth(new_symbiont, parent_sym_pos);
 
           emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
-          emp::Ptr<Organism> host_sym = syms[0];
+          emp::Ptr<Organism> host_sym = syms[1];
 
           THEN( "the sym is inserted into the valid neighbouring host" ){
             REQUIRE(host_sym == new_symbiont);
             REQUIRE(world.GetNumOrgs() == 1);
             REQUIRE(new_pos.IsValid() == true);
 
-            REQUIRE(new_pos.GetIndex() == 1);
+            REQUIRE(new_pos.GetIndex() == 2);
             REQUIRE(new_pos.GetPopID() == host_pos);
             REQUIRE(new_symbiont->GetPoints() == 0);
           }
@@ -1744,10 +1747,10 @@ TEST_CASE("SetupSymbionts", "[default]") {
     SymWorld world(random, &config);
 
     size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
+    
+    WHEN("SetupSymbionts is called and FLS is on") {  
+      world.Resize(world_size);
+      config.FREE_LIVING_SYMS(1);
       size_t num_to_add = 2;
       world.SetupSymbionts(&num_to_add);
 
@@ -1763,6 +1766,31 @@ TEST_CASE("SetupSymbionts", "[default]") {
         REQUIRE(symbiont->GetName() == "Symbiont");
       }
     }
+    WHEN("SetupSymbionts is called and random tag start is on") {
+      config.TAG_MATCHING(1);
+      config.STARTING_TAGS_ONE_PROB(0.1);
+      world.SetupHosts(&world_size);
+
+      size_t num_to_add = 4;
+      world.SetupSymbionts(&num_to_add);
+      size_t num_expected = 2;
+      THEN("The specified number of symbionts are added to the world and match their host's tags") {
+        size_t total_ones = 0;
+        size_t num_added = 0;
+        for (size_t i = 0; i < world_size; i++) {
+          Organism & host = world.GetOrg(i);
+          for (auto sym : host.GetSymbionts()) {
+            num_added++;
+            int ones = sym->GetTag().CountOnes();
+            total_ones += ones;
+            REQUIRE(world.GetTagMetric()->calculate(sym->GetTag(), host.GetTag()) == 0);
+          }
+        }
+        REQUIRE(num_added == num_expected);
+        REQUIRE(total_ones > (num_expected - 1) * 3);
+        REQUIRE(total_ones < (num_expected + 1) * 3);
+      }
+    }
   }
 }
 
@@ -1774,15 +1802,40 @@ TEST_CASE("SetupHosts", "[default]") {
 
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
+      
 
       THEN("The specified number of hosts are added to the world") {
+        world.SetupHosts(&num_to_add);
+
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
         emp::Ptr<Organism> host = world.GetPop()[0];
         REQUIRE(host != nullptr);
         REQUIRE(host->GetName() == "Host");
+      }
+
+      WHEN("Random starting tags are on"){
+        config.TAG_MATCHING(1);
+        config.STARTING_TAGS_ONE_PROB(0.1); 
+        // we expect 3.2ish 1s per tag
+
+        world.SetupHosts(&num_to_add);
+
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        THEN("Tags are randomly initialized as per the starting ones probability"){
+          int total_ones = 0;
+          for(size_t i = 0; i < num_added; i++){
+            int ones = world.GetOrg(i).GetTag().CountOnes();
+            total_ones += ones;
+            REQUIRE(ones >= 0);
+            REQUIRE(ones <= 5);
+          }
+          REQUIRE(total_ones > 12);
+          REQUIRE(total_ones < 18);
+        }
       }
     }
   }

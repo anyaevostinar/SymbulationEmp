@@ -111,6 +111,8 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tagfail_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_sizefail_horiztrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
@@ -201,6 +203,8 @@ public:
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
+    if (data_node_tagfail_horiztrans) data_node_tagfail_horiztrans.Delete();
+    if (data_node_sizefail_horiztrans) data_node_sizefail_horiztrans.Delete();
     if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
@@ -571,9 +575,14 @@ public:
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
         int sucess = pop[new_loc]->AddSymbiont(new_sym);
-        if(sucess && my_config->PHYLOGENY()) {
-          datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
-          d->AddInteraction(new_sym->GetTaxon());
+        if(sucess) {
+          if(my_config->TAG_MATCHING()){
+            new_sym->SetTag(pop[new_loc]->GetTag());
+          }
+          if (my_config->PHYLOGENY()) {
+            datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
+            d->AddInteraction(new_sym->GetTaxon());
+          }
         }
 
       } else new_sym.Delete();
@@ -613,6 +622,8 @@ public:
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionAttemptCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionTagFailCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSizeFailCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
@@ -706,24 +717,32 @@ public:
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
+        emp::Ptr<Organism> sym_parent;
+        if (parent_pos.GetIndex() == 0) { // free living parent
+          sym_parent = GetSymAt(i);
+        } else { // hosted parent
+          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
+          sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
+        }
 
-        // failing to infect is free if: tag mismatch or free failure is on
-        if (my_config->FREE_HT_FAILURE() && pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT()) {
-          sym_baby.Delete();
-          return emp::WorldPosition();
-        } else if (my_config->TAG_MATCHING()){
+        // infections can fail from size limits or tag mismatch
+        // (or, theoretically, no neighbouring hosts)
+        bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
+        bool tag_failed = false;
+        if (my_config->TAG_MATCHING()){
           double tag_distance = hamming_metric->calculate(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * 32;
           double cutoff = GetRandom().GetPoisson(my_config->TAG_DISTANCE() * 32);
-          if (tag_distance > cutoff) {
-            sym_baby.Delete();
-            return emp::WorldPosition();
-          }
+          tag_failed = tag_distance > cutoff;
         }
-        if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()){ 
-          // if we get to this point infection should be successful, so set parent points to 0
-          if (pop[i]->HasSym() && pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)) {
-            pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1)->SetPoints(0);
+        if (size_failed || tag_failed) {
+          if (tag_failed && !size_failed) {
+            GetHorizontalTransmissionTagFailCount().AddDatum(sym_parent->GetIntVal());
           }
+          else if (!tag_failed && size_failed) {
+            GetHorizontalTransmissionSizeFailCount().AddDatum(sym_parent->GetIntVal());
+          }
+          sym_baby.Delete();
+          return emp::WorldPosition();
         }
 
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
@@ -731,6 +750,10 @@ public:
         if(new_index > 0){ //sym successfully infected
           if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
             pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+          }
+          if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()) {
+            // if tag mismatch or free failure is on, don't subtract points until we think the infection is successful
+            sym_parent->SetPoints(0);
           }
           return emp::WorldPosition(new_index, new_host_pos);
         } else { //sym got killed trying to infect

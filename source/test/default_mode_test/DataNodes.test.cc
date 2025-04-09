@@ -634,9 +634,13 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         }
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
-        config.SYM_LIMIT(0);
-        symbiont->HorizontalTransmission(parent_pos);
-        REQUIRE(host->HasSym() == false);
+        config.SYM_LIMIT(1);
+        emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        host->AddSymbiont(parent_symbiont);
+        symbiont->HorizontalTransmission(emp::WorldPosition(1,1));
+        REQUIRE(host->HasSym() == true);
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(host->GetSymbionts().at(0) == parent_symbiont);
         THEN("The count of attempted horizontal transmissions increments"){
           REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
         }
@@ -644,6 +648,154 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
       symbiont.Delete();
     }
 
+  }
+}
+
+TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld world(random, &config);
+    size_t world_size = 4;
+    world.Resize(world_size);
+    config.SYM_HORIZ_TRANS_RES(0);
+
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_tagfail_horiztrans = world.GetHorizontalTransmissionTagFailCount();
+    emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
+    emp::WorldPosition target_pos = emp::WorldPosition(1, 0);
+    REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
+
+    WHEN("A symbiont successfully horizontally transmits into a host") {
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      world.AddOrgAt(host, target_pos);
+      symbiont->HorizontalTransmission(parent_pos);
+      REQUIRE(host->HasSym() == true);
+      THEN("The tag failure count is NOT incremented") {
+        REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
+      }
+    }
+    WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
+      config.TAG_MATCHING(1);
+      emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
+      emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+      world.AddOrgAt(parent_host, parent_pos);
+      world.AddOrgAt(target_host, target_pos);
+      parent_host->AddSymbiont(parent_symbiont);
+
+      emp::BitSet<32> tag = emp::BitSet<32>(32, random, 4);
+      emp::BitSet<32> dissimilar_tag = emp::BitSet<32>(32, random, 30);
+      parent_symbiont->SetTag(tag);
+
+      WHEN("The failure is only due to tag mismatch") {
+        target_host->SetTag(dissimilar_tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == false);
+        THEN("The tag failure count is incremented") {
+          REQUIRE(data_node_tagfail_horiztrans.GetCount() == 1);
+        }
+      }
+      WHEN("The failure is only due to size") {
+        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        target_host->AddSymbiont(filler_symbiont);
+        target_host->SetTag(tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == true);
+        REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
+        THEN("The tag failure count is NOT incremented") {
+          REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
+        }
+      }
+      WHEN("The failure is due to size and tag mismatch") {
+        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        target_host->AddSymbiont(filler_symbiont);
+        target_host->SetTag(dissimilar_tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == true);
+        REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
+        THEN("The tag failure count is NOT incremented") {
+          REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    SymWorld world(random, &config);
+    size_t world_size = 4;
+    world.Resize(world_size);
+    config.SYM_HORIZ_TRANS_RES(0);
+
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_sizefail_horiztrans = world.GetHorizontalTransmissionSizeFailCount();
+    emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
+    emp::WorldPosition target_pos = emp::WorldPosition(1, 0);
+    REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
+
+    WHEN("A symbiont successfully horizontally transmits into a host") {
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      world.AddOrgAt(host, target_pos);
+      symbiont->HorizontalTransmission(parent_pos);
+      REQUIRE(host->HasSym() == true);
+      THEN("The tag failure count is NOT incremented") {
+        REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
+      }
+    }
+    WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
+      config.TAG_MATCHING(1);
+      emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
+      emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+      world.AddOrgAt(parent_host, parent_pos);
+      world.AddOrgAt(target_host, target_pos);
+      parent_host->AddSymbiont(parent_symbiont);
+
+      emp::BitSet<32> tag = emp::BitSet<32>(32, random, 4);
+      emp::BitSet<32> dissimilar_tag = emp::BitSet<32>(32, random, 30);
+      parent_symbiont->SetTag(tag);
+
+      WHEN("The failure is only due to tag mismatch") {
+        target_host->SetTag(dissimilar_tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == false);
+        THEN("The size failure count is NOT incremented") {
+          REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
+        }
+      }
+      WHEN("The failure is only due to size") {
+        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        target_host->AddSymbiont(filler_symbiont);
+        target_host->SetTag(tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == true);
+        REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
+        THEN("The size failure count is incremented") {
+          REQUIRE(data_node_sizefail_horiztrans.GetCount() == 1);
+        }
+      }
+      WHEN("The failure is due to size and tag mismatch") {
+        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        target_host->AddSymbiont(filler_symbiont);
+        target_host->SetTag(dissimilar_tag);
+        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        REQUIRE(target_host->HasSym() == true);
+        REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
+        THEN("The size failure count is NOT incremented") {
+          REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
+        }
+      }
+    }
   }
 }
 
@@ -698,10 +850,14 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         }
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
-        config.SYM_LIMIT(0);
-        symbiont->HorizontalTransmission(parent_pos);
-        REQUIRE(host->HasSym() == false);
-        THEN("The count of successful horizontal transmissions does not change"){
+        config.SYM_LIMIT(1);
+        emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        host->AddSymbiont(parent_symbiont);
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
+        REQUIRE(host->HasSym() == true);
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(host->GetSymbionts().at(0) == parent_symbiont);
+        THEN("The count of successful horizontal transmissions does not change") {
           REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
         }
       }
