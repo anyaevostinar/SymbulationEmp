@@ -224,55 +224,206 @@ TEST_CASE("Test instructions", "[sgp]") {
     const uint32_t result = ~(7 & 5);
     REQUIRE(CheckRegisterContents(hw, {7, 5, result, 0, 0, 0, 0, 0}));
   }
+  
+  /// new 
+//   SECTION("Test Push instruction") {
+//     program_t program;
+//     prog_builder.AddStartAnchor(program);
+//     prog_builder.AddInst(program, "Push", 0); // Push value from register 0 onto the stack
+//     prog_builder.AddInst(program, "Push", 1); // Push value from register 1 onto the stack
+//     hw.Reset();
+//     hw.SetProgram(program);
+//     world.AssignNewEnvIO(hw.GetCPUState());
 
-  // BOOKMARK
+//     hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//     hw.RunCPUStep(1); // Anchor
+//     hw.RunCPUStep(1); // Push 10 onto stack
+//     hw.RunCPUStep(1); // Push 20 onto stack
+        
+//       // After pushing, the stack should have 10 and 20 as the top two values.
+//         // Verify stack state (depending on how stack is represented)
+//     REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // SECTION("Test Push instruction") {
+//     SECTION("Test Pop instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Pop", 0); // Pop value from stack into register 0
+//       prog_builder.AddInst(program, "Pop", 1); // Pop value from stack into register 1
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // }
+//       hw.SetRegisters({0, 0, 0, 0, 0, 0, 0, 0}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Pop 100 into register 0
+//       hw.RunCPUStep(1); // Pop 200 into register 1
+        
+//         // After popping, registers 0 and 1 should hold 100 and 200 respectively.
+//       REQUIRE(CheckRegisterContents(hw, {100, 200, 0, 0, 0, 0, 0, 0}));
+//     }
 
-  // SECTION("Test Pop instruction") {
+//     SECTION("Test SwapStack instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "SwapStack", 0, 1); // Swap top two stack values
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // }
+//       hw.SetRegisters({0, 0, 0, 0, 0, 0, 0, 0}); // Initial register values
+//       hw.SetStack({100, 200}); // Initial stack values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Swap stack values
 
-  // SECTION("Test SwapStack instruction") {
+//         // After swapping, the stack should have 200 and 100.
+//       REQUIRE(CheckRegisterContents(hw, {0, 0, 0, 0, 0, 0, 0, 0}));
+//         // You may need to verify stack directly if it's accessible
+//     }
 
-  // }
+//     SECTION("Test Swap instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Swap", 0, 1); // Swap register 0 and register 1
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test Swap instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Swap registers 0 and 1
+        
+//         // After swapping, registers 0 and 1 should hold 20 and 10 respectively.
+//       REQUIRE(CheckRegisterContents(hw, {20, 10, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test Reproduce instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Reproduce", 0, 1); // Reproduce based on registers 0 and 1
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test Reproduce instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Reproduce
 
-  // }
+//         // Verify that reproduction occurs correctly (based on specific behavior of the instruction)
+//         // This may be system-specific, so check registers or other state changes
+//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // SECTION("Test IO instruction") {
+//     SECTION("Test IO instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "IO", 0); // Some IO operation with register 0
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // }
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//        hw.RunCPUStep(1); // Execute IO operation
 
-  // SECTION("Test JumpIfNEq instruction") {
+//         // Verify the expected side effects of the IO operation (e.g., output to external environment)
+//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test JumpIfNEq instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "JumpIfNEq", 0, 1, 4); // Jump if register 0 != register 1, jump offset = 4
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test JumpIfLess instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Jump if registers are not equal
+        
+//         // Verify jump occurred (based on specific behavior)
+//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test JumpIfLess instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "JumpIfLess", 0, 1, 4); // Jump if register 0 < register 1, jump offset = 4
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test JumpIfEq instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Jump if register 0 is less than register 1
+        
+//       // Verify jump occurred (based on specific behavior)
+//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test JumpIfEq instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "JumpIfEq", 0, 1, 4); // Jump if register 0 == register 1, jump offset = 4
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test Donate instruction") {
+//       hw.SetRegisters({10, 10, 30, 40, 50, 60, 70, 80}); // Initial register values (0 == 1)
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Jump if registers are equal
+        
+//         // Verify jump occurred (based on specific behavior)
+//       REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test Donate instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Donate", 0, 1); // Donate from register 0 to register 1
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test Steal instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Donate from register 0 to register 1
+        
+//         // Verify donation occurred (registers updated as expected)
+//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test Steal instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Steal", 0, 1); // Steal from register 1 into register 0
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-  // SECTION("Test Infect instruction") {
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Steal from register 1 to register 0
+        
+//         // Verify steal occurred (registers updated as expected)
+//       REQUIRE(CheckRegisterContents(hw, {20, 20, 30, 40, 50, 60, 70, 80}));
+//     }
 
-  // }
+//     SECTION("Test Infect instruction") {
+//       program_t program;
+//       prog_builder.AddStartAnchor(program);
+//       prog_builder.AddInst(program, "Infect", 0, 1); // Infect from register 0 to register 1
+//       hw.Reset();
+//       hw.SetProgram(program);
+//       world.AssignNewEnvIO(hw.GetCPUState());
 
-}
+//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+//       hw.RunCPUStep(1); // Anchor
+//       hw.RunCPUStep(1); // Infect from register 0 to register 1
+        
+//         // Verify infection occurred (registers updated as expected)
+//       REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
+//     }
+// }
+
