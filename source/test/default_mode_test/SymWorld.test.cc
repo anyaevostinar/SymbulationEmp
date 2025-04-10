@@ -1768,6 +1768,7 @@ TEST_CASE("SetupSymbionts", "[default]") {
     }
     WHEN("SetupSymbionts is called and random tag start is on") {
       config.TAG_MATCHING(1);
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
       config.STARTING_TAGS_ONE_PROB(0.1);
       world.SetupHosts(&world_size);
 
@@ -1817,6 +1818,7 @@ TEST_CASE("SetupHosts", "[default]") {
 
       WHEN("Random starting tags are on"){
         config.TAG_MATCHING(1);
+        world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
         config.STARTING_TAGS_ONE_PROB(0.1); 
         // we expect 3.2ish 1s per tag
 

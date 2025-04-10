@@ -675,9 +675,11 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
       THEN("The tag failure count is NOT incremented") {
         REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
       }
+      symbiont.Delete();
     }
     WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
       config.TAG_MATCHING(1);
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
       emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
       emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -749,9 +751,11 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
       THEN("The tag failure count is NOT incremented") {
         REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
       }
+      symbiont.Delete();
     }
     WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
       config.TAG_MATCHING(1);
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
       emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
       emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);

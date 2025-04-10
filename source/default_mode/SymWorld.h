@@ -246,6 +246,17 @@ public:
    * Purpose: To get the world's symbiont population.
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
+  
+  /**
+   * Input: A pointer to the tag distance metric object
+   *
+   * Output: None
+   *
+   * Purpose: To set the world's tag distance calculator
+   */
+   void SetTagMetric(emp::Ptr<emp::HammingMetric<32>> _in) {
+    hamming_metric = _in;
+  }
 
   /**
    * Input: None
