@@ -723,7 +723,7 @@ public:
         required_points = my_config->FREE_SYM_REPRO_RES();
       }
       if (GetPoints() >= required_points) {
-        int stored_intval = GetIntVal(); // post-SDB this symbiont may be deleted (?)
+        double stored_intval = GetIntVal(); // post-SDB this symbiont may be deleted (?)
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
