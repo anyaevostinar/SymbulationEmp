@@ -240,7 +240,7 @@ emp::DataFile& SymWorld::SetUpReproHistFile(const std::string& filename) {
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
-
+  if (!my_config->TRACK_PHYLOGENY_INTERACTIONS()) return;
   // MapPhylogenyInteractions();
 
   emp::File interaction_file;

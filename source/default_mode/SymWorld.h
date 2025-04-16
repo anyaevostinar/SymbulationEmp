@@ -504,7 +504,7 @@ public:
     if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
-      if (my_config->PHYLOGENY()) {
+      if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
         datastruct::TaxonDataBase & my_data = new_org->GetTaxon()->GetData();
         datastruct::HostTaxonData * d = static_cast<datastruct::HostTaxonData*>(&my_data);
 
@@ -590,7 +590,7 @@ public:
           if(my_config->TAG_MATCHING()){
             new_sym->SetTag(pop[new_loc]->GetTag());
           }
-          if (my_config->PHYLOGENY()) {
+          if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
             datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
             d->AddInteraction(new_sym->GetTaxon());
           }
