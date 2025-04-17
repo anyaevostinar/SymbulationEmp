@@ -497,32 +497,30 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
 
 void SymWorld::WriteTagMatrixFile(const std::string& filename) {
   std::ofstream out_file(filename);
-  
-  // write the ID of every sym
+
+  emp::vector<size_t> sampled_positions = emp::Choose(GetRandom(), GetSize(), my_config->TAG_MATRIX_SAMPLE_PROPORTION() * GetSize());
+
+  // write the host position of every sym
   out_file << ',';
-  int id = 0;
-  for (size_t i = 0; i < size(); i++) {
+  for (size_t i : sampled_positions) {
     if (IsOccupied(i)) {
       if (pop[i]->HasSym()) {
         emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
         for (size_t j = 0; j < symbionts.size(); j++) {
-          out_file << std::to_string(id) << ",";
-          if(j>0) id++; // needed for multi-infection
+          out_file << i << ","; // for mulit-infection, have non-unique ids (or change this!)
         }
       }
-      id++;
     }
-    
   }
   out_file << "\n";
 
   // for every host, calculate the tag distance to every sym
-  for (size_t k = 0; k < size(); k++) {
+  for (size_t k : sampled_positions) {
     if (IsOccupied(k)) {
       out_file << k << ',';
 
       // calculate tag distance to every sym
-      for (size_t i = 0; i < size(); i++) {
+      for (size_t i : sampled_positions) {
         if (IsOccupied(i) && pop[i]->HasSym()) {
           emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
           for (size_t j = 0; j < symbionts.size(); j++) {
