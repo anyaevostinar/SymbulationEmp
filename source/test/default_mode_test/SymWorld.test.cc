@@ -1953,7 +1953,7 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
-        emp::Ptr<Symbiont> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         
         size_t source_pos = 1;
         size_t target_pos = 0;
