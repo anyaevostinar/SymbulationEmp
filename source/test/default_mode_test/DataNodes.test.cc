@@ -635,7 +635,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
         config.SYM_LIMIT(1);
-        emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         host->AddSymbiont(parent_symbiont);
         symbiont->HorizontalTransmission(emp::WorldPosition(1,1));
         REQUIRE(host->HasSym() == true);
@@ -702,7 +702,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
         }
       }
       WHEN("The failure is only due to size") {
-        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(tag);
         parent_symbiont->HorizontalTransmission(sym_parent_pos);
@@ -713,7 +713,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
         }
       }
       WHEN("The failure is due to size and tag mismatch") {
-        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(dissimilar_tag);
         parent_symbiont->HorizontalTransmission(sym_parent_pos);
@@ -778,7 +778,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
         }
       }
       WHEN("The failure is only due to size") {
-        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(tag);
         parent_symbiont->HorizontalTransmission(sym_parent_pos);
@@ -789,7 +789,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
         }
       }
       WHEN("The failure is due to size and tag mismatch") {
-        emp::Ptr<Symbiont> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(dissimilar_tag);
         parent_symbiont->HorizontalTransmission(sym_parent_pos);
@@ -855,7 +855,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
       }
       WHEN("A symbiont dies trying to horizontally transmit into a host"){
         config.SYM_LIMIT(1);
-        emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         host->AddSymbiont(parent_symbiont);
         symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
         REQUIRE(host->HasSym() == true);
