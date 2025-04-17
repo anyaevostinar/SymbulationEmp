@@ -240,56 +240,88 @@ emp::DataFile& SymWorld::SetUpReproHistFile(const std::string& filename) {
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
   sym_sys->Snapshot("SymSnapshot_"+filename);
   host_sys->Snapshot("HostSnapshot_"+filename);
-  if (!my_config->TRACK_PHYLOGENY_INTERACTIONS()) return;
-  // MapPhylogenyInteractions();
 
-  emp::File interaction_file;
-  // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
-  interaction_file << "host, symbiont, count";
+  if (my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+    emp::File interaction_file;
+    // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
+    interaction_file << "host, symbiont, count";
 
-  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
-    for (auto interaction : t->GetData().associated_syms) {
-      // It feels like there should be a better way to do this, but all the
-      // obvious solutions involved converting all these values to the same
-      // numerical type, which doesn't end well (since they're a mix of large
-      // integers and small floating points)
-      interaction_file << emp::to_string(t->GetID()) + "," + 
-                          emp::to_string(interaction.first) + "," + 
-                          // emp::to_string(t->GetInfo()) + "," + 
-                          // emp::to_string(interaction.first->GetInfo()) + "," + 
-                          emp::to_string(interaction.second);
+    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+      for (auto interaction : t->GetData().associated_syms) {
+        // It feels like there should be a better way to do this, but all the
+        // obvious solutions involved converting all these values to the same
+        // numerical type, which doesn't end well (since they're a mix of large
+        // integers and small floating points)
+        interaction_file << emp::to_string(t->GetID()) + "," +
+          emp::to_string(interaction.first) + "," +
+          // emp::to_string(t->GetInfo()) + "," + 
+          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          emp::to_string(interaction.second);
+      }
     }
-  }
 
-  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
-    for (auto interaction : t->GetData().associated_syms) {
-      // It feels like there should be a better way to do this, but all the
-      // obvious solutions involved converting all these values to the same
-      // numerical type, which doesn't end well (since they're a mix of large
-      // integers and small floating points)
-      interaction_file << emp::to_string(t->GetID()) + "," + 
-                          emp::to_string(interaction.first) + "," + 
-                          // emp::to_string(t->GetInfo()) + "," + 
-                          // emp::to_string(interaction.first->GetInfo()) + "," + 
-                          emp::to_string(interaction.second);
+    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+      for (auto interaction : t->GetData().associated_syms) {
+        // It feels like there should be a better way to do this, but all the
+        // obvious solutions involved converting all these values to the same
+        // numerical type, which doesn't end well (since they're a mix of large
+        // integers and small floating points)
+        interaction_file << emp::to_string(t->GetID()) + "," +
+          emp::to_string(interaction.first) + "," +
+          // emp::to_string(t->GetInfo()) + "," + 
+          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          emp::to_string(interaction.second);
+      }
     }
-  }
 
-  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetOutside()) {
-    for (auto interaction : t->GetData().associated_syms) {
-      // It feels like there should be a better way to do this, but all the
-      // obvious solutions involved converting all these values to the same
-      // numerical type, which doesn't end well (since they're a mix of large
-      // integers and small floating points)
-      interaction_file << emp::to_string(t->GetID()) + "," + 
-                          emp::to_string(interaction.first) + "," + 
-                          // emp::to_string(t->GetInfo()) + "," + 
-                          // emp::to_string(interaction.first->GetInfo()) + "," + 
-                          emp::to_string(interaction.second);
+    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetOutside()) {
+      for (auto interaction : t->GetData().associated_syms) {
+        // It feels like there should be a better way to do this, but all the
+        // obvious solutions involved converting all these values to the same
+        // numerical type, which doesn't end well (since they're a mix of large
+        // integers and small floating points)
+        interaction_file << emp::to_string(t->GetID()) + "," +
+          emp::to_string(interaction.first) + "," +
+          // emp::to_string(t->GetInfo()) + "," + 
+          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          emp::to_string(interaction.second);
+      }
     }
-  }
 
-  interaction_file.Write("InteractionSnapshot_" + filename);
+    interaction_file.Write("InteractionSnapshot_" + filename);
+  }
+  if (my_config->WRITE_CURRENT_INTERACTION_COUNTS()) {
+    emp::File cur_interaction_file;
+    cur_interaction_file << "host,symbiont,count";
+    std::unordered_map<unsigned long long int, std::unordered_map<unsigned long long int, int>> current_interactions;
+
+    for (size_t i = 0; i < GetSize(); i++) {
+      if (IsOccupied(i)) {
+        unsigned long long int host_taxon = pop[i]->GetTaxon()->GetID();
+        for (auto sym : pop[i]->GetSymbionts()) {
+          unsigned long long int sym_taxon = sym->GetTaxon()->GetID();
+          if (!current_interactions.contains(host_taxon)) {
+            std::unordered_map<unsigned long long int, int> syms_map = { std::pair(sym_taxon, 1) };
+            current_interactions.emplace(host_taxon, syms_map);
+          }
+          else if (!current_interactions.at(host_taxon).contains(sym_taxon)) {
+            current_interactions.at(host_taxon).emplace(sym_taxon, 1);
+          }
+          else {
+            current_interactions.at(host_taxon).at(sym_taxon)++;
+          }
+        }
+      }
+    }
+
+    for (auto host_pair : current_interactions) {
+      for (auto sym_pair : host_pair.second) {
+        cur_interaction_file << emp::to_string(host_pair.first) + "," + emp::to_string(sym_pair.first) + "," + emp::to_string(sym_pair.second);
+      }
+    }
+
+    cur_interaction_file.Write("CurrentInteractionsSnapshot_" + filename);
+  }
 
 }
 
