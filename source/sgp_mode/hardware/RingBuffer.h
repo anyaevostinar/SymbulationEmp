@@ -73,14 +73,14 @@ public:
     );
   }
 
-  void SetBuffer(const std::vector<T>& contents) {
+  void SetBuffer(const emp::vector<T>& contents) {
     // Reset next id
     // next = 0;
     write_ptr = 0;
     read_ptr = 0;
     // Copy contents into buffer
     buffer.resize(contents.size());
-    emp::copy(
+    std::copy(
       contents.begin(),
       contents.end(),
       buffer.begin()
