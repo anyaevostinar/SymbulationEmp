@@ -30,14 +30,14 @@ TEST_CASE("Push elements into RingBuffer", "[sgp]") {
     // additional pushing 
 
     buffer.push(10);
-    REQUIRE(buffer[0] == 10);  
-    REQUIRE(buffer[1] == 40); 
-    REQUIRE(buffer[2] == 20);
+    REQUIRE(buffer[0] == 40);  
+    REQUIRE(buffer[1] == 10); 
+    REQUIRE(buffer[2] == 30);
 
     buffer.push(50);
-    REQUIRE(buffer[0] == 50);  
+    REQUIRE(buffer[0] == 40);  
     REQUIRE(buffer[1] == 10); 
-    REQUIRE(buffer[2] == 40);
+    REQUIRE(buffer[2] == 50);
 
 
 }
