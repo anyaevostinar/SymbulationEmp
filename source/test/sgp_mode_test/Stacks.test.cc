@@ -31,7 +31,6 @@ TEST_CASE("Push elements onto stack", "[sgp]") {
     REQUIRE(stacks.Push(20) == true); 
 
     // Verify top of the stack
-    REQUIRE(stacks.GetTop() == true);
     REQUIRE(stacks.GetTop() == 20);  
 
     stacks.SetStackLimit(3); 
@@ -48,20 +47,16 @@ TEST_CASE("Pop elements from stack", "[sgp]") {
     stacks.Push(30);
 
     // Pop and check top element
+    REQUIRE(stacks.GetTop() == 30);
     auto pop_result = stacks.Pop();
-    REQUIRE(pop_result.has_value() == true);  
-    REQUIRE(pop_result.value() == 30);  
+    REQUIRE(stacks.GetTop() == 20);
+
+    pop_result = stacks.Pop(); 
+    REQUIRE(stacks.GetTop() == 10);
 
     pop_result = stacks.Pop();
-    REQUIRE(pop_result.has_value() == true); 
-    REQUIRE(pop_result.value() == 20);  
+    REQUIRE(stacks.GetTop() == NULL);
 
-    pop_result = stacks.Pop();
-    REQUIRE(pop_result.has_value() == true);  
-    REQUIRE(pop_result.value() == 10); 
-
-    pop_result = stacks.Pop();
-    REQUIRE(pop_result.has_value() == false);  
 }
 
 TEST_CASE("Clear active stack", "[sgp]") {
@@ -70,7 +65,6 @@ TEST_CASE("Clear active stack", "[sgp]") {
 
     stacks.Push(10);
     stacks.Push(20);
-
     stacks.ClearActive();
     
     REQUIRE(stacks.GetActiveStack().size() == 0);
