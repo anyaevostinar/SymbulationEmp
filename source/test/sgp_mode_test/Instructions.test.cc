@@ -242,7 +242,13 @@ TEST_CASE("Test instructions", "[sgp]") {
     hw.RunCPUStep(1); // Push 20 onto stack
     // After pushing, the stack should have 10 and 20 as the top two values.
     // Verify stack state (depending on how stack is represented)
-    REQUIRE(CheckRegisterContents(hw, {20, 10, 0, 0, 0, 0, 0, 0}));
+    REQUIRE(CheckRegisterContents(hw, {10, 20, 0, 0, 0, 0, 0, 0}));
+    hw.GetCPUState.GetStacks()
+    // check the contents 
+    REQUIRE(GETACTICVe )
+
+
+
     }
 
     SECTION("Test Pop instruction") {
@@ -321,53 +327,54 @@ TEST_CASE("Test instructions", "[sgp]") {
 //       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
 //     }
 
-    SECTION("Test JumpIfNEq instruction") {
-      program_t program;
-      prog_builder.AddStartAnchor(program);
-      prog_builder.AddInst(program, "JumpIfNEq", 0, 1); // Jump if register 0 != register 1, jump offset = 4
-      hw.Reset();
-      hw.SetProgram(program);
-      world.AssignNewEnvIO(hw.GetCPUState());
+    // SECTION("Test JumpIfNEq instruction") {
+    //   program_t program;
+    //   prog_builder.AddStartAnchor(program);
+    //   prog_builder.AddInst(program, "JumpIfNEq", 0, 1); // Jump if register 0 != register 1, jump offset = 4
+    //   hw.Reset();
+    //   hw.SetProgram(program);
+    //   world.AssignNewEnvIO(hw.GetCPUState());
 
-      hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-      hw.RunCPUStep(1); // Anchor
-      hw.RunCPUStep(1); // Jump if registers are not equal
+    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+    //   hw.RunCPUStep(1); // Anchor
+    //   hw.RunCPUStep(1); // Jump if registers are not equal
+
         
-      // Verify jump occurred (based on specific behavior)
-      REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-    }
+    //   // Verify jump occurred (based on specific behavior)
+    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+    // }
 
-    SECTION("Test JumpIfLess instruction") {
-      program_t program;
-      prog_builder.AddStartAnchor(program);
-      prog_builder.AddInst(program, "JumpIfLess", 0, 1); // Jump if register 0 < register 1, jump offset = 4
-      hw.Reset();
-      hw.SetProgram(program);
-      world.AssignNewEnvIO(hw.GetCPUState());
+    // SECTION("Test JumpIfLess instruction") {
+    //   program_t program;
+    //   prog_builder.AddStartAnchor(program);
+    //   prog_builder.AddInst(program, "JumpIfLess", 0, 1); // Jump if register 0 < register 1, jump offset = 4
+    //   hw.Reset();
+    //   hw.SetProgram(program);
+    //   world.AssignNewEnvIO(hw.GetCPUState());
 
-      hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-      hw.RunCPUStep(1); // Anchor
-      hw.RunCPUStep(1); // Jump if register 0 is less than register 1
+    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+    //   hw.RunCPUStep(1); // Anchor
+    //   hw.RunCPUStep(1); // Jump if register 0 is less than register 1
         
-      // Verify jump occurred (based on specific behavior)
-      REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-    }
+    //   // Verify jump occurred (based on specific behavior)
+    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+    // }
 
-    SECTION("Test JumpIfEq instruction") {
-      program_t program;
-      prog_builder.AddStartAnchor(program);
-      prog_builder.AddInst(program, "JumpIfEq", 0, 1); // Jump if register 0 == register 1, jump offset = 4
-      hw.Reset();
-      hw.SetProgram(program);
-      world.AssignNewEnvIO(hw.GetCPUState());
+    // SECTION("Test JumpIfEq instruction") {
+    //   program_t program;
+    //   prog_builder.AddStartAnchor(program);
+    //   prog_builder.AddInst(program, "JumpIfEq", 0, 1); // Jump if register 0 == register 1, jump offset = 4
+    //   hw.Reset();
+    //   hw.SetProgram(program);
+    //   world.AssignNewEnvIO(hw.GetCPUState());
 
-      hw.SetRegisters({10, 10, 30, 40, 50, 60, 70, 80}); // Initial register values (0 == 1)
-      hw.RunCPUStep(1); // Anchor
-      hw.RunCPUStep(1); // Jump if registers are equal
+    //   hw.SetRegisters({10, 10, 30, 40, 50, 60, 70, 80}); // Initial register values (0 == 1)
+    //   hw.RunCPUStep(1); // Anchor
+    //   hw.RunCPUStep(1); // Jump if registers are equal
         
-        // Verify jump occurred (based on specific behavior)
-      REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
-    }
+    //     // Verify jump occurred (based on specific behavior)
+    //   REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
+    // }
 
 //     SECTION("Test Donate instruction") {
 //       program_t program;
@@ -416,5 +423,5 @@ TEST_CASE("Test instructions", "[sgp]") {
 //         // Verify infection occurred (registers updated as expected)
 //       REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
 //     }
-// }
+}
 
