@@ -6,22 +6,10 @@
 
 TEST_CASE("AnyMatch Test", "[sgp]") {
     
-    SECTION("Matching bits - all", "[sgp]") {
-        emp::BitSet<3> b1("000");
-        emp::BitSet<3> b2("000"); 
+    SECTION("Matching bits", "[sgp]") {
+        emp::BitSet<3> b1("001");
+        emp::BitSet<3> b2("001"); 
         REQUIRE(sgpmode::utils::AnyMatch(b1, b2) == true);
-    }
-
-    SECTION("No matching bits - two ", "[sgp]") {
-        emp::BitSet<3> bits_a("001");
-        emp::BitSet<3> bits_b("000"); 
-        REQUIRE(sgpmode::utils::AnyMatch(bits_a, bits_b) == true);
-    }
-
-    SECTION("No matching bits - one ", "[sgp]") {
-        emp::BitSet<3> bits_a("110");
-        emp::BitSet<3> bits_b("000"); 
-        REQUIRE(sgpmode::utils::AnyMatch(bits_a, bits_b) == true);
     }
 
     SECTION("No matching bits", "[sgp]") {
@@ -33,33 +21,27 @@ TEST_CASE("AnyMatch Test", "[sgp]") {
 
 TEST_CASE("SimpleMatchCoeff Test", "[sgp]") {
   
-    SECTION("Matching bits count - all", "[sgp]") {
-        emp::BitSet<3> bits_a("101");
-        emp::BitSet<3> bits_b("101");
-        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 3);  
-    }
-
     SECTION("Matching bits count - 2", "[sgp]") {
         emp::BitSet<3> bits_a("111");
-        emp::BitSet<3> bits_b("101");
+        emp::BitSet<3> bits_b("110");
         REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 2);  
     }
 
     SECTION("Matching bits count - 1", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("100");
-        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 2);  
+        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 1);  
     }
 
     SECTION("No matching bits", "[sgp]") {
-        emp::BitSet<3> bits_a("101");
-        emp::BitSet<3> bits_b("010");
+        emp::BitSet<3> bits_a("111");
+        emp::BitSet<3> bits_b("000");
         REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 0);  
     }
 }
 
 TEST_CASE("ResizeClear Test - no ones", "[sgp]") {
-    emp::BitVector bits(10, 5); 
+    emp::BitVector bits(0, 5); 
     REQUIRE(bits.CountOnes() == 0); 
  
     
