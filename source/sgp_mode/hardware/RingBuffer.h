@@ -66,14 +66,14 @@ public:
     write_ptr = 0;
     read_ptr = 0;
     buffer.resize(buf_size);
-    emp::fill(
+    std::fill(
       buffer.begin(),
       buffer.end(),
       fill_val
     );
   }
 
-  void SetBuffer(const emp::vector<T>& contents) {
+  void SetBuffer(const std::vector<T>& contents) {
     // Reset next id
     // next = 0;
     write_ptr = 0;
