@@ -243,13 +243,11 @@ TEST_CASE("Test instructions", "[sgp]") {
     // After pushing, the stack should have 10 and 20 as the top two values.
     // Verify stack state (depending on how stack is represented)
     REQUIRE(CheckRegisterContents(hw, {10, 20, 0, 0, 0, 0, 0, 0}));
-    hw.GetCPUState.GetStacks()
+    auto& stacks =  hw.GetCPUState().GetStacks();
     // check the contents 
-    REQUIRE(GETACTICVe )
-
-
-
-    }
+    REQUIRE(stacks.GetActiveStack()[0] == 10);
+    REQUIRE(stacks.GetActiveStack()[1] == 20);
+  }
 
     SECTION("Test Pop instruction") {
       program_t program;
