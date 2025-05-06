@@ -940,7 +940,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionAttemptCount() {
   if (!data_node_attempts_horiztrans) {
     data_node_attempts_horiztrans.New();
-    data_node_attempts_horiztrans->SetupBins(-1.0, 1.1, 6);
+    data_node_attempts_horiztrans->SetupBins(-1.0, 1.4, 6);
   }
   
   return *data_node_attempts_horiztrans;
@@ -958,7 +958,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionTagFailCount() {
   if (!data_node_tagfail_horiztrans) {
     data_node_tagfail_horiztrans.New();
-    data_node_tagfail_horiztrans->SetupBins(-1.0, 1.1, 6);
+    data_node_tagfail_horiztrans->SetupBins(-1.0, 1.4, 6);
   }
 
   return *data_node_tagfail_horiztrans;
@@ -976,7 +976,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSizeFailCount() {
   if (!data_node_sizefail_horiztrans) {
     data_node_sizefail_horiztrans.New();
-    data_node_sizefail_horiztrans->SetupBins(-1.0, 1.1, 6);
+    data_node_sizefail_horiztrans->SetupBins(-1.0, 1.4, 6);
   }
 
   return *data_node_sizefail_horiztrans;
@@ -996,7 +996,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSuccessCount() {
   if (!data_node_successes_horiztrans) {
     data_node_successes_horiztrans.New();
-    data_node_successes_horiztrans->SetupBins(-1.0, 1.1, 6);
+    data_node_successes_horiztrans->SetupBins(-1.0, 1.4, 6);
   }
   
   return *data_node_successes_horiztrans;
@@ -1015,7 +1015,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionAttemptCount() {
   if (!data_node_attempts_verttrans) {
     data_node_attempts_verttrans.New();
-    data_node_attempts_verttrans->SetupBins(-1.0, 1.1, 6);
+    data_node_attempts_verttrans->SetupBins(-1.0, 1.4, 6);
   }
   return *data_node_attempts_verttrans;
 }
@@ -1033,7 +1033,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissio
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionSuccessCount() {
   if (!data_node_successes_verttrans) {
     data_node_successes_verttrans.New();
-    data_node_successes_verttrans->SetupBins(-1.0, 1.1, 6);
+    data_node_successes_verttrans->SetupBins(-1.0, 1.4, 6);
   }
   
   return *data_node_successes_verttrans;
