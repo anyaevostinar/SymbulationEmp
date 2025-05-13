@@ -9,6 +9,112 @@
 // Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
 // Trickier for mutualist, check just before enough CPUs and it should manage to finish
 
+
+TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[kw]") {
+  emp::Random random(10);
+  
+  //TODO: The random number seed doesn't seem to be working, different values for the same seed
+
+  SymConfigSGP config;
+  config.SEED(10);
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(PARASITE);
+  config.LIMITED_RES_TOTAL(10);
+  config.LIMITED_RES_INFLOW(500);
+  config.VERTICAL_TRANSMISSION(0);
+  config.HOST_REPRO_RES(100);
+  config.SYM_HORIZ_TRANS_RES(10);
+  config.THREAD_COUNT(1);
+  config.TASK_TYPE(1);
+  config.DONATION_STEAL_INST(0);
+  config.LIMITED_TASK_RESET_INTERVAL(20);
+
+  config.OUSTING(1); //TODO: test removing the HealthHost ousting code
+
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+  SGPWorld world(random, &config, LogicTasks);
+
+  emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
+  // emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
+  // emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = host->GetCPU().state.tasks_performed;
+
+  WHEN("Parasites are present"){
+    config.START_MOI(1);
+
+    emp::Ptr<SGPSymbiont> parasite_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+
+    host->AddSymbiont(parasite_symbiont);
+    
+
+    world.AddOrgAt(host, 0);
+
+    int totalTimesSkippedCycle = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      // world.Update();
+      host->Process(0);
+      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(initialStackLocation == newStackLocation) {
+        totalTimesSkippedCycle++;
+      }
+    }
+    
+    REQUIRE((double)totalTimesSkippedCycle/repeats <= 0.55);
+    REQUIRE((double)totalTimesSkippedCycle/repeats >= 0.45);
+  }
+  WHEN("Symbionts are not present"){
+    config.START_MOI(0);
+    world.AddOrgAt(host, 0);
+
+    int totalTimesSkippedCycle = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      // world.Update();
+      host->Process(0);
+      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(initialStackLocation == newStackLocation) {
+        totalTimesSkippedCycle++;
+      }
+    }
+    
+    REQUIRE((double)totalTimesSkippedCycle/repeats == 0);
+  }
+  WHEN("Mutualists are present"){
+    config.START_MOI(1);
+    config.STRESS_TYPE(MUTUALIST);
+
+    emp::Ptr<SGPSymbiont> mutualist_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+
+    host->AddSymbiont(mutualist_symbiont);
+    
+
+    world.AddOrgAt(host, 0);
+
+    int totalTimesGainedCycle = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(newStackLocation - initialStackLocation == 8) {
+        totalTimesGainedCycle++;
+      }
+    }
+    
+    REQUIRE((double)totalTimesGainedCycle/repeats <= 0.55);
+    REQUIRE((double)totalTimesGainedCycle/repeats >= 0.45);
+  }
+}
+
+
 TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
   emp::Random random(10);
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
