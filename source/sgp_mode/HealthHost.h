@@ -86,9 +86,10 @@ class HealthHost : public SGPHost {
         
         //TODO: Should this be in a little loop to avoid duplicate code?
         //Probably doesn't matter that much
-        if (host_cycle == 1) {
+        if (host_cycle >= 1) {
           GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-        } else if (host_cycle == 2) {
+        } 
+        if (host_cycle == 2) {
           GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
         }
 
