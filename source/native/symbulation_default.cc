@@ -25,10 +25,12 @@ int symbulation_main(int argc, char * argv[])
   if(config.PHYLOGENY() == 1){
     world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
   }
-  if (config.TAG_MATCHING() == 1 && config.TAG_MATRIX() == 1) {
+  if (config.TAG_MATCHING() == 1 && config.WRITE_TAG_MATRIX() == 1) {
     world.WriteTagMatrixFile(config.FILE_PATH() + "TagMatrix" + config.FILE_NAME() + file_ending);  
   }
-  world.WriteOrgDumpFile(config.FILE_PATH() + "OrgDump" + config.FILE_NAME() + file_ending);
+  if (config.WRITE_ORG_DUMP_FILE() == 1) {
+    world.WriteOrgDumpFile(config.FILE_PATH() + "OrgDump" + config.FILE_NAME() + file_ending);
+  }
   return 0;
 }
 

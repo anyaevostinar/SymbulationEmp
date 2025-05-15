@@ -34,6 +34,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do symbionts have a decreasing chance of getting into the host the more symbionts are already infecting it? (0 for no, 1 for yes)"), // todo: alias phage_exclude, and change name to sym_exclude
     VALUE(OUSTING, bool, 0, "Should ousting (incoming symbiont kills and replaces existing symbiont) be turned on? (0 for no, 1 for yes)"),
     VALUE(FREE_HT_FAILURE, bool, 0, "Should failing to infect a host with horizontally transmitted offspring on the basis of the host already being full cost the parent symbiont any points? (0 for trying and failing still costs, 1 for free failure)"),
+    VALUE(WRITE_ORG_DUMP_FILE, bool, 0, "Should all end-of-experiment organisms pairs be written (with their behavior values and reproduction counts) to a data file? (0 for no, 1 for yes)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
     
@@ -71,7 +72,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
   VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
   VALUE(TAG_DISTANCE, double, 0.125, "What is the poisson mean for divergence allowed between tags for a sucessful infection (1 = perfect mismatch, 0 = perfect match)"),
   VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bistring tag flips during mutation?"),
-  VALUE(TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
+  VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
   VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
   VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will assigned their host's tag. (0 for basic, all-0 only tags)"),
   )
