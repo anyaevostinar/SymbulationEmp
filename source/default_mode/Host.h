@@ -121,7 +121,7 @@ protected:
     * Purpose: Represents the tag for this organism
     *
   */
-  emp::BitSet<32> tag;
+  emp::BitSet<TAG_LENGTH> tag;
   
   /**
     * 
@@ -441,7 +441,7 @@ public:
    *
    * Purpose: To set a host's tag.
    */
-  void SetTag(emp::BitSet<32> & _in) { tag.Import(_in); }
+  void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
   
   /**
    * Input: None
@@ -450,7 +450,7 @@ public:
    *
    * Purpose: To get a host's tag.
    */
-  emp::BitSet<32> & GetTag() { return tag; }
+  emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
 
   /**
    * Input: None
@@ -656,14 +656,14 @@ public:
 
     if (my_config->TAG_MATCHING() & HasSym()) {
       // do not xor to get 1 where bits are matching
-      emp::BitSet<32> sym_host_parent_matching = syms[0]->GetTag().XOR(tag).NOT();
-      emp::BitSet<32> sym_host_baby_matching = syms[0]->GetTag().XOR(host_baby->GetTag()).NOT();
+      emp::BitSet<TAG_LENGTH> sym_host_parent_matching = syms[0]->GetTag().XOR(tag).NOT();
+      emp::BitSet<TAG_LENGTH> sym_host_baby_matching = syms[0]->GetTag().XOR(host_baby->GetTag()).NOT();
 
       // difference in matching-ness, with match in child
-      emp::BitSet<32> child_towards = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_baby_matching);
+      emp::BitSet<TAG_LENGTH> child_towards = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_baby_matching);
 
       // difference in matching-ness, with match in parent
-      emp::BitSet<32> child_from = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_parent_matching);
+      emp::BitSet<TAG_LENGTH> child_from = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_parent_matching);
 
       host_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
       host_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);

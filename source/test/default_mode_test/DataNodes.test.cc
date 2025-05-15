@@ -679,7 +679,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
     }
     WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
       config.TAG_MATCHING(1);
-      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
       emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
       emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -689,8 +689,8 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
       world.AddOrgAt(target_host, target_pos);
       parent_host->AddSymbiont(parent_symbiont);
 
-      emp::BitSet<32> tag = emp::BitSet<32>(32, random, 4);
-      emp::BitSet<32> dissimilar_tag = emp::BitSet<32>(32, random, 30);
+      emp::BitSet<TAG_LENGTH> tag = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
+      emp::BitSet<TAG_LENGTH> dissimilar_tag = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH-2);
       parent_symbiont->SetTag(tag);
 
       WHEN("The failure is only due to tag mismatch") {
@@ -755,7 +755,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
     }
     WHEN("A symbiont unsuccessfully horizontally transmits into a host") {
       config.TAG_MATCHING(1);
-      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
       emp::WorldPosition sym_parent_pos = emp::WorldPosition(1, 0);
       emp::Ptr<Symbiont> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -765,8 +765,8 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
       world.AddOrgAt(target_host, target_pos);
       parent_host->AddSymbiont(parent_symbiont);
 
-      emp::BitSet<32> tag = emp::BitSet<32>(32, random, 4);
-      emp::BitSet<32> dissimilar_tag = emp::BitSet<32>(32, random, 30);
+      emp::BitSet<TAG_LENGTH> tag = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
+      emp::BitSet<TAG_LENGTH> dissimilar_tag = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH-2);
       parent_symbiont->SetTag(tag);
 
       WHEN("The failure is only due to tag mismatch") {
@@ -905,8 +905,8 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
       
-      emp::BitSet<32> sym_bit_set = emp::BitSet<32>();
-      emp::BitSet<32> host_bit_set = emp::BitSet<32>(32, random, 16);
+      emp::BitSet<TAG_LENGTH> sym_bit_set = emp::BitSet<TAG_LENGTH>();
+      emp::BitSet<TAG_LENGTH> host_bit_set = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/2);
       symbiont->SetTag(sym_bit_set);
       host_baby->SetTag(host_bit_set);
 
@@ -942,8 +942,8 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
       
-      emp::BitSet<32> sym_bit_set = emp::BitSet<32>();
-      emp::BitSet<32> host_bit_set = emp::BitSet<32>();
+      emp::BitSet<TAG_LENGTH> sym_bit_set = emp::BitSet<TAG_LENGTH>();
+      emp::BitSet<TAG_LENGTH> host_bit_set = emp::BitSet<TAG_LENGTH>();
       symbiont->SetTag(sym_bit_set);
       host_baby->SetTag(host_bit_set);
 
@@ -961,8 +961,8 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
-      emp::BitSet<32> sym_bit_set = emp::BitSet<32>();
-      emp::BitSet<32> host_bit_set = emp::BitSet<32>(32, random, 16);
+      emp::BitSet<TAG_LENGTH> sym_bit_set = emp::BitSet<TAG_LENGTH>();
+      emp::BitSet<TAG_LENGTH> host_bit_set = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/2);
       symbiont->SetTag(sym_bit_set);
       host_baby->SetTag(host_bit_set);
 

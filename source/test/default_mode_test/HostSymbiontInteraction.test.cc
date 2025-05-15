@@ -262,6 +262,7 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 
 
 TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
+  // this test expects 32-bit tags
   emp::Random random(19);
   SymConfigBase config;
   config.TAG_MATCHING(1);
@@ -274,9 +275,9 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
   emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
   emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
-  emp::BitSet<32> host_tag = emp::BitSet<32>("00000000000000001111111111111111");
+  emp::BitSet<TAG_LENGTH> host_tag = emp::BitSet<TAG_LENGTH>("00000000000000001111111111111111");
   host->SetTag(host_tag);
-  emp::BitSet<32> sym_tag = emp::BitSet<32>("00000000111111110000000011111111");
+  emp::BitSet<TAG_LENGTH> sym_tag = emp::BitSet<TAG_LENGTH>("00000000111111110000000011111111");
   symbiont->SetTag(sym_tag);
   
   WHEN("A symbiont reproduces") {
@@ -302,7 +303,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
     }
 
     emp::Ptr<Host> host_2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
-    emp::BitSet<32> host_2_tag = emp::BitSet<32>("00000000000000000000000000000000");
+    emp::BitSet<TAG_LENGTH> host_2_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     host_2->SetTag(host_2_tag);
 
     unsigned int towards_gen_2 = 2;
@@ -351,7 +352,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
       }
 
       emp::Ptr<Symbiont> symbiont_2 = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-      emp::BitSet<32> symbiont_2_tag = emp::BitSet<32>("00000000000000000000000000000000");
+      emp::BitSet<TAG_LENGTH> symbiont_2_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
       symbiont_2->SetTag(symbiont_2_tag);
       host_baby->AddSymbiont(symbiont_2);
 

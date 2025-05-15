@@ -208,11 +208,11 @@ TEST_CASE("Host Mutate", "[default]") {
     //TAG MUTATION SIZE
     WHEN("Tag matching is on") {
       THEN("Tags mutate according to tag mutation rate") {
-        emp::HammingMetric<32> metric = emp::HammingMetric<32>();
+        emp::HammingMetric<TAG_LENGTH> metric = emp::HammingMetric<TAG_LENGTH>();
         config.TAG_MATCHING(1);
         config.TAG_MUTATION_SIZE(0.1);
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-        emp::BitSet<32> bit_set = emp::BitSet<32>();
+        emp::BitSet<TAG_LENGTH> bit_set = emp::BitSet<TAG_LENGTH>();
         host->SetTag(bit_set);
 
         REQUIRE(metric.calculate(host->GetTag(), bit_set) == 0);

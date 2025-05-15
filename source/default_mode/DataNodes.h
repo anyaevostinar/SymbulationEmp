@@ -1260,8 +1260,8 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
     if (!data_node_host_tag_richness) {
       data_node_host_tag_richness.New();
       OnUpdate([this](size_t) {
-        emp::vector<emp::BitSet<32>> host_tags;
-        emp::vector<emp::BitSet<32>> symbiont_tags;
+        emp::vector<emp::BitSet<TAG_LENGTH>> host_tags;
+        emp::vector<emp::BitSet<TAG_LENGTH>> symbiont_tags;
         data_node_host_tag_richness->Reset();
         data_node_host_tag_shannon->Reset();
         data_node_symbiont_tag_richness->Reset();

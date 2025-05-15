@@ -1768,7 +1768,7 @@ TEST_CASE("SetupSymbionts", "[default]") {
     }
     WHEN("SetupSymbionts is called and random tag start is on") {
       config.TAG_MATCHING(1);
-      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
       config.STARTING_TAGS_ONE_PROB(0.1);
       world.SetupHosts(&world_size);
 
@@ -1818,7 +1818,7 @@ TEST_CASE("SetupHosts", "[default]") {
 
       WHEN("Random starting tags are on"){
         config.TAG_MATCHING(1);
-        world.SetTagMetric(emp::NewPtr<emp::HammingMetric<32>>());
+        world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
         config.STARTING_TAGS_ONE_PROB(0.1); 
         // we expect 3.2ish 1s per tag
 
@@ -1868,13 +1868,13 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       
       // symbiont tag is all 0s
-      emp::BitSet<32> bit_set_0 = emp::BitSet<32>();
+      emp::BitSet<TAG_LENGTH> bit_set_0 = emp::BitSet<TAG_LENGTH>();
       symbiont->SetTag(bit_set_0);
       symbiont->AddPoints(starting_res);
 
       WHEN("Their tags are sufficiently close") {
         // host tag has 4 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) <= tag_distance_limit);
 
@@ -1892,7 +1892,7 @@ TEST_CASE("Tag matching", "[default]") {
       }
       WHEN("Their tags are too dissimilar") {
         // host tag has 9 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 9);
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
         host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
 
@@ -1918,7 +1918,7 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       // symbiont tag is all 0s
-      emp::BitSet<32> bit_set_0 = emp::BitSet<32>();
+      emp::BitSet<TAG_LENGTH> bit_set_0 = emp::BitSet<TAG_LENGTH>();
       symbiont->SetTag(bit_set_0);
       
       WHEN("Their tags are sufficiently close and the host has room") {
@@ -1935,7 +1935,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(world.GetNumOrgs() == 2);
 
         // host tag has 4 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         target_host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
 
@@ -1969,7 +1969,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(world.GetNumOrgs() == 2);
 
         // host tag has 4 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 4);
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         target_host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
 
@@ -1997,7 +1997,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(world.GetNumOrgs() == 2);
 
         // host tag has 9 1s
-        emp::BitSet<32> bit_set_1 = emp::BitSet<32>(32, random, 9);
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
         target_host->SetTag(bit_set_1);
         REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
 

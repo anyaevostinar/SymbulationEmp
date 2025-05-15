@@ -2,6 +2,8 @@
 #define CONFIG_H
 #include "../Empirical/include/emp/config/config.hpp"
 
+const int TAG_LENGTH = 32;
+
 EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(MAIN, "Global Settings"),
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),

@@ -83,7 +83,7 @@ protected:
     * Purpose: Represents the tag distance calculator.
     *
   */
-  emp::Ptr<emp::HammingMetric<32>> hamming_metric;
+  emp::Ptr<emp::HammingMetric<TAG_LENGTH>> hamming_metric;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -163,7 +163,7 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      hamming_metric = emp::NewPtr<emp::HammingMetric<32>>();
+      hamming_metric = emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>();
     }
   }
   
@@ -254,7 +254,7 @@ public:
    *
    * Purpose: To set the world's tag distance calculator
    */
-   void SetTagMetric(emp::Ptr<emp::HammingMetric<32>> _in) {
+   void SetTagMetric(emp::Ptr<emp::HammingMetric<TAG_LENGTH>> _in) {
     hamming_metric = _in;
   }
 
@@ -265,7 +265,7 @@ public:
    *
    * Purpose: To get the world's tag distance calculator
    */
-  emp::Ptr<emp::HammingMetric<32>> GetTagMetric() {
+  emp::Ptr<emp::HammingMetric<TAG_LENGTH>> GetTagMetric() {
     return hamming_metric;
   }
 
