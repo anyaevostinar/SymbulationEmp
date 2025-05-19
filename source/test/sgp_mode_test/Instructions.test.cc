@@ -350,21 +350,35 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(hw.GetCPUState().ReproAttempt());
   }
 
-//     SECTION("Test IO instruction") {
-//       program_t program;
-//       prog_builder.AddStartAnchor(program);
-//       prog_builder.AddInst(program, "IO", 0); // Some IO operation with register 0
-//       hw.Reset();
-//       hw.SetProgram(program);
-//       world.AssignNewEnvIO(hw.GetCPUState());
+  SECTION("Test IO instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "IO", 0);
+    prog_builder.AddInst(program, "IO", 1);
+    prog_builder.AddInst(program, "IO", 2);
 
-//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-//       hw.RunCPUStep(1); // Anchor
-//        hw.RunCPUStep(1); // Execute IO operation
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
 
-//         // Verify the expected side effects of the IO operation (e.g., output to external environment)
-//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-//     }
+    auto& inputs = hw.GetCPUState().GetInputBuffer();
+
+    hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+    hw.RunCPUStep(1); // Anchor
+    // Check output buffer as we go
+    REQUIRE(hw.GetCPUState().GetOutputBuffer().size() == 0);
+    hw.RunCPUStep(1); // Execute IO operation
+    REQUIRE(hw.GetCPUState().GetOutputBuffer().size() == 1);
+    REQUIRE(hw.GetCPUState().GetOutputBuffer()[0] == 10);
+    hw.RunCPUStep(1);
+    REQUIRE(hw.GetCPUState().GetOutputBuffer().size() == 2);
+    REQUIRE(hw.GetCPUState().GetOutputBuffer()[1] == 20);
+    hw.RunCPUStep(1);
+    REQUIRE(hw.GetCPUState().GetOutputBuffer().size() == 3);
+    REQUIRE(hw.GetCPUState().GetOutputBuffer()[2] == 30);
+    // Check that inputs from input buffer were placed into registers as appropriate
+    REQUIRE(CheckRegisterContents(hw, {inputs[0], inputs[1], inputs[2], 40, 50, 60, 70, 80}));
+  }
 
     // SECTION("Test JumpIfNEq instruction") {
     //   program_t program;
