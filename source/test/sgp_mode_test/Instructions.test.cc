@@ -58,6 +58,7 @@ TEST_CASE("Test instructions", "[sgp]") {
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using tag_t = typename hw_spec_t::tag_t;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
@@ -380,54 +381,105 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {inputs[0], inputs[1], inputs[2], 40, 50, 60, 70, 80}));
   }
 
-    // SECTION("Test JumpIfNEq instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "JumpIfNEq", 0, 1); // Jump if register 0 != register 1, jump offset = 4
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetCPUState());
+  SECTION("Test JumpIfNEq instruction") {
+    program_t program;
+    tag_t start_tag(prog_builder.GetStartTag());
+    tag_t tag1("0000000000000000000000000000000000000000000000000000000000000001");
+    // tag_t tag2("0100000000000000000000000000000000000000000000000000000000000010");
 
-    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-    //   hw.RunCPUStep(1); // Anchor
-    //   hw.RunCPUStep(1); // Jump if registers are not equal
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Decrement", 2);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfNEq", 0, 0, 0, start_tag); // This jump should fail
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfNEq", 0, 1, 0, tag1); // This jump should succeed
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Global Anchor", tag1);
+    prog_builder.AddInst(program, "Increment", 1);
 
+    // hw.GetCPU().GetActiveCore().GetProgramCounter();
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
 
-    //   // Verify jump occurred (based on specific behavior)
-    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-    // }
+    hw.SetRegisters({0, 0, 10}); // Initial register values
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Decrement
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfNEq
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfNEq
+    hw.RunCPUStep(1); // Increment 1
+    REQUIRE(CheckRegisterContents(hw, {2, 1, 9}));
+  }
 
-    // SECTION("Test JumpIfLess instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "JumpIfLess", 0, 1); // Jump if register 0 < register 1, jump offset = 4
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetCPUState());
+  SECTION("Test JumpIfLess instruction") {
+    program_t program;
+    tag_t start_tag(prog_builder.GetStartTag());
+    tag_t tag1("0000000000000000000000000000000000000000000000000000000000000001");
+    // tag_t tag2("0100000000000000000000000000000000000000000000000000000000000010");
 
-    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-    //   hw.RunCPUStep(1); // Anchor
-    //   hw.RunCPUStep(1); // Jump if register 0 is less than register 1
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Decrement", 2);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfLess", 4, 3, 0, start_tag); // This jump should fail
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfLess", 3, 4, 0, tag1); // This jump should succeed
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Global Anchor", tag1);
+    prog_builder.AddInst(program, "Increment", 1);
 
-    //   // Verify jump occurred (based on specific behavior)
-    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-    // }
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
 
-    // SECTION("Test JumpIfEq instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "JumpIfEq", 0, 1); // Jump if register 0 == register 1, jump offset = 4
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({0, 0, 10, 20, 30}); // Initial register values
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Decrement
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfLess
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfLess
+    hw.RunCPUStep(1); // Increment 1
+    REQUIRE(CheckRegisterContents(hw, {2, 1, 9}));
+  }
 
-    //   hw.SetRegisters({10, 10, 30, 40, 50, 60, 70, 80}); // Initial register values (0 == 1)
-    //   hw.RunCPUStep(1); // Anchor
-    //   hw.RunCPUStep(1); // Jump if registers are equal
+  SECTION("Test JumpIfEq instruction") {
+    program_t program;
+    tag_t start_tag(prog_builder.GetStartTag());
+    tag_t tag1("0000000000000000000000000000000000000000000000000000000000000001");
+    // tag_t tag2("0100000000000000000000000000000000000000000000000000000000000010");
 
-    //     // Verify jump occurred (based on specific behavior)
-    //   REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
-    // }
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Decrement", 2);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfEq", 4, 3, 0, start_tag); // This jump should fail
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "JumpIfEq", 3, 3, 0, tag1); // This jump should succeed
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Increment", 0);
+    prog_builder.AddInst(program, "Global Anchor", tag1);
+    prog_builder.AddInst(program, "Increment", 1);
+
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    hw.SetRegisters({0, 0, 10, 20, 30}); // Initial register values
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Decrement
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfEq
+    hw.RunCPUStep(1); // Increment
+    hw.RunCPUStep(1); // JumpIfEq
+    hw.RunCPUStep(1); // Increment 1
+    REQUIRE(CheckRegisterContents(hw, {2, 1, 9}));
+  }
 
 //     SECTION("Test Donate instruction") {
 //       program_t program;
