@@ -45,6 +45,10 @@ public:
     start_tag = tag;
   }
 
+  const tag_t& GetStartTag() const {
+    return start_tag;
+  }
+
   // Allow io opcode to be configured in case we need to change to a special/different
   //  io instruction.
   void SetIOInst(uint8_t opcode) {

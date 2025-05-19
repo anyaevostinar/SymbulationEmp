@@ -137,6 +137,10 @@ INST(JumpIfEq, {
   }
 });
 
+// INST(Jump, {
+//   core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+// });
+
 // BOOKMARK
 // TODO - Donate / Steal instructions
 INST(Donate, {
