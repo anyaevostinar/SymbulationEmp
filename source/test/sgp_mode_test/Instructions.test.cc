@@ -324,22 +324,31 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {20, 10, 0, 0, 0, 0, 0, 0}));
   }
 
-//     SECTION("Test Reproduce instruction") {
-//       program_t program;
-//       prog_builder.AddStartAnchor(program);
-//       prog_builder.AddInst(program, "Reproduce", 0, 1); // Reproduce based on registers 0 and 1
-//       hw.Reset();
-//       hw.SetProgram(program);
-//       world.AssignNewEnvIO(hw.GetCPUState());
+  SECTION("Test Reproduce instruction") {
+    // Reproduce just raises flag on cpu state that organism wants to attempt to
+    // reproduce. (the world handle's actual reproduction process)
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Reproduce");
+    prog_builder.AddInst(program, "Reproduce");
 
-//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-//       hw.RunCPUStep(1); // Anchor
-//       hw.RunCPUStep(1); // Reproduce
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.GetCPUState().SetLocation({0}); // Need to set valid location
+    REQUIRE(hw.GetCPUState().GetLocation().IsValid());
 
-//         // Verify that reproduction occurs correctly (based on specific behavior of the instruction)
-//         // This may be system-specific, so check registers or other state changes
-//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-//     }
+    REQUIRE(!hw.GetCPUState().ReproInProgress());
+    REQUIRE(!hw.GetCPUState().ReproAttempt());
+
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Reproduce
+    REQUIRE(!hw.GetCPUState().ReproInProgress());
+    REQUIRE(hw.GetCPUState().ReproAttempt());
+    hw.RunCPUStep(1); // Reproduce
+    REQUIRE(!hw.GetCPUState().ReproInProgress());
+    REQUIRE(hw.GetCPUState().ReproAttempt());
+  }
 
 //     SECTION("Test IO instruction") {
 //       program_t program;

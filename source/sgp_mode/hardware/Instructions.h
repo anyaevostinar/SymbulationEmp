@@ -100,7 +100,6 @@ INST(Swap, { std::swap(a, b); });
 
 INST(Reproduce, {
   const emp::WorldPosition& org_loc = state.GetLocation();
-  // std::cout << "Repro inst!" << std::endl;
   // Check whether this attempt at reproduction is allowed.
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid() || state.ReproAttempt();
   if (invalid_attempt) {
