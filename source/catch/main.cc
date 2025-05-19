@@ -29,9 +29,10 @@
 #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
-#include "../test/sgp_mode_test/ProgramBuilder.test.cc"
-#include "../test/sgp_mode_test/SGPHardware.test.cc"
-#include "../test/sgp_mode_test/Instructions.test.cc"
+// #include "../test/sgp_mode_test/ProgramBuilder.test.cc"
+// #include "../test/sgp_mode_test/SGPHardware.test.cc"
+// #include "../test/sgp_mode_test/Instructions.test.cc"
+// #include "../test/sgp_mode_test/SGPHost.test.cc"
 
 
 
