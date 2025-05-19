@@ -18,6 +18,7 @@ protected:
   size_t active_stack;
   size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
+
 public:
   Stacks(size_t num_stacks) :
     stacks(num_stacks, stack_t()),
@@ -95,7 +96,7 @@ public:
   // Return the top element of the active stack.
   std::optional<T> GetTop() const {
     return (stacks[active_stack].size() > 0) ?
-      stacks[active_stack].back() :
+      std::optional<T>{stacks[active_stack].back()} :
       std::nullopt;
   }
 
