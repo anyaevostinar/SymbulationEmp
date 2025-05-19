@@ -18,7 +18,6 @@ protected:
   size_t active_stack;
   size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
-
 public:
   Stacks(size_t num_stacks) :
     stacks(num_stacks, stack_t()),
@@ -88,6 +87,7 @@ public:
     auto& stack = stacks[active_stack];
     if (stack.size() > 0) {
       const T back = stack.back();
+      stack.pop_back();
       return std::optional<T>{back};
     }
     return std::nullopt;
