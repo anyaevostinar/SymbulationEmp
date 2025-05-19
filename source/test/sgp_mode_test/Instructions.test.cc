@@ -225,58 +225,90 @@ TEST_CASE("Test instructions", "[sgp]") {
     REQUIRE(CheckRegisterContents(hw, {7, 5, result, 0, 0, 0, 0, 0}));
   }
 
-  // /// new
-  // SECTION("Test Push instruction") {
-  //   program_t program;
-  //   prog_builder.AddStartAnchor(program);
-  //   prog_builder.AddInst(program, "Push", 0); // Push value from register 0 onto the stack
-  //   prog_builder.AddInst(program, "Push", 1); // Push value from register 1 onto the stack
+  SECTION("Test Push instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Push", 0); // Push value from register 0 onto the stack
+    prog_builder.AddInst(program, "Push", 1); // Push value from register 1 onto the stack
 
-  //   hw.Reset();
-  //   hw.SetProgram(program);
-  //   world.AssignNewEnvIO(hw.GetCPUState());
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
 
-  //   hw.SetRegisters({10, 20, 0}); // Initial register values
-  //   hw.RunCPUStep(1); // Anchor
-  //   hw.RunCPUStep(1); // Push 10 onto stack
-  //   hw.RunCPUStep(1); // Push 20 onto stack
-  //   // After pushing, the stack should have 10 and 20 as the top two values.
-  //   // Verify stack state (depending on how stack is represented)
-  //   REQUIRE(CheckRegisterContents(hw, {10, 20, 0, 0, 0, 0, 0, 0}));
-  //   auto& stacks =  hw.GetCPUState().GetStacks();
-  //   // check the contents
-  //   REQUIRE(stacks.GetActiveStack()[0] == 10);
-  //   REQUIRE(stacks.GetActiveStack()[1] == 20);
-  // }
+    hw.SetRegisters({10, 20, 30}); // Initial register values
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Push 10 onto stack
+    REQUIRE(hw.GetCPUState().GetStacks().GetTop().value() == 10);
+    hw.RunCPUStep(1); // Push 20 onto stack
+    REQUIRE(hw.GetCPUState().GetStacks().GetTop().value() == 20);
 
-    // SECTION("Test Pop instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "Pop", 0); // Pop value from stack into register 0
-    //   // prog_builder.AddInst(program, "Pop", 1); // Pop value from stack into register 1
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetCPUState());
-    //   hw.SetRegisters({10, 20, 0});
-    //   hw.RunCPUStep(1);
-    //   hw.RunCPUStep(1); // Pop 10 from register 0
-    //   REQUIRE(CheckRegisterContents(hw, {0, 20, 0, 0, 0, 0, 0, 0}));
-    // }
+    // After pushing, the stack should have 10 and 20 as the top two values.
+    // Verify stack state (depending on how stack is represented)
+    REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 0, 0, 0, 0, 0}));
+    auto& stacks =  hw.GetCPUState().GetStacks();
+    // check the contents
+    REQUIRE(stacks.GetActiveStack()[0] == 10);
+    REQUIRE(stacks.GetActiveStack()[1] == 20);
+  }
 
-    // SECTION("Test SwapStack instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "SwapStack", 0, 1);
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetsCPUState());
-    //   hw.SetRegisters({10, 20});
-    //   hw.RunCPUStep(1); // Anchor
-    //   hw.RunCPUStep(1); // Swap stack values
+  SECTION("Test Pop instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Push", 0); // Push value from register 0 onto the stack
+    prog_builder.AddInst(program, "Push", 1); // Push value from register 1 onto the stack
 
-    //   // After swapping, the stack should have 20 and 10.
-    //   REQUIRE(CheckRegisterContents(hw, {20, 10, 0, 0, 0, 0, 0, 0}));
-    // }
+    prog_builder.AddInst(program, "Pop", 2); // Pop value from stack into register 2
+    prog_builder.AddInst(program, "Pop", 3); // Pop value from stack into register 3
+    prog_builder.AddInst(program, "Pop", 4); // Pop value from stack into register 4 (stack is empty, reg[4] = 0)
+
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80});
+
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Push
+    hw.RunCPUStep(1); // Push
+    hw.RunCPUStep(1); // Pop
+    hw.RunCPUStep(1); // Pop
+    hw.RunCPUStep(1); // Pop
+
+    REQUIRE(CheckRegisterContents(hw, {10, 20, 20, 10, 0, 60, 70, 80}));
+  }
+
+  SECTION("Test SwapStack instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Push", 0); // Push value from register 0 onto the stack
+    prog_builder.AddInst(program, "SwapStack"); // Switch to stack 1
+    prog_builder.AddInst(program, "Push", 1); // Push value from register 1 onto the stack
+    prog_builder.AddInst(program, "SwapStack"); // Switch to stack 0
+    prog_builder.AddInst(program, "Push", 2); // Push value from register 0 onto the stack
+    // Stack state: [ [reg[0], reg[2]], [reg[1]] ]
+    prog_builder.AddInst(program, "Pop", 3);
+    prog_builder.AddInst(program, "Pop", 4);
+    prog_builder.AddInst(program, "Pop", 5);
+    prog_builder.AddInst(program, "SwapStack");
+    prog_builder.AddInst(program, "Pop", 6);
+
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80});
+
+    hw.RunCPUStep(1); // Anchor
+    hw.RunCPUStep(1); // Push
+    hw.RunCPUStep(1); // Swap stack
+    hw.RunCPUStep(1); // Push
+    hw.RunCPUStep(1); // Swap stack
+    hw.RunCPUStep(1); // Push
+    hw.RunCPUStep(1); // Pop
+    hw.RunCPUStep(1); // Pop
+    hw.RunCPUStep(1); // Pop
+    hw.RunCPUStep(1); // Swap stack
+    hw.RunCPUStep(1); // Pop
+    REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 30, 10, 0, 20, 80}));
+  }
 
   SECTION("Test Swap instruction") {
     program_t program;
