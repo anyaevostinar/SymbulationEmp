@@ -26,7 +26,7 @@ bool CheckRegisterContents(
   sgpmode::SGPWorld::sgp_hw_t& hardware,
   const emp::vector<uint32_t>& req_register_values
 ) {
-  auto& registers = hardware.GetCPU().GetActiveCore().registers;
+  // auto& registers = hardware.GetCPU().GetActiveCore().registers;
   emp_assert(req_register_values.size() <= registers.size());
   for (size_t reg_i = 0; reg_i < req_register_values.size(); ++reg_i) {
     // NOTE - All instructions in symbulation cast sgp-lite's float register values

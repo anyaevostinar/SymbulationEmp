@@ -8,24 +8,6 @@
 
 #include "../../catch/catch.hpp"
 
-// Mock Organism to check reproduction
-// class TestOrg : public Organism {
-// public:
-//   int reproduce_count = 0;
-//   double points = 0.0;
-//   emp::vector<emp::Ptr<Organism>> empty_vector = emp::vector<emp::Ptr<Organism>>();
-//   bool IsHost() override { return true; }
-//   void AddPoints(double p) override { points += p; }
-//   void DecPoints(double p) { points -= p; }
-//   double GetPoints() override { return points; }
-//   bool GetDead() override { return false; }
-//   emp::vector<emp::Ptr<Organism>>& GetSymbionts() override { return empty_vector; }
-//   emp::Ptr<Organism> Reproduce() override {
-//     reproduce_count++;
-//     return emp::NewPtr<TestOrg>();
-//   }
-// };
-
 TEST_CASE("Ancestor hardware can attempt reproduction", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
