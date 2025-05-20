@@ -59,6 +59,10 @@ class CPU {
 public:
   CPUState state;
 
+  sgpl::Cpu<Spec> GetCPUPointer() {
+    return cpu;
+  }
+
   /**
    * Constructs a new CPU for an ancestor organism, with either a random genome
    * or a blank genome that knows how to do a simple task depending on the

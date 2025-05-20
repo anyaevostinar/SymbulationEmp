@@ -1,16 +1,7 @@
 #include "../../sgp_mode/HealthHost.h"
 
-//Tests to write:
-// Health host with parasite loses cycle 50% of time
-// Health host with mutualist gains cycle 50% of time
-  // in signalgp-lite/include/sgpl/hardware/Cpu.hpp there is GetCore(0)
-  // in signalgp-lite/include/sgpl/hardware/Core.hpp there is GetProgramCounter()
-  // that hopefully will show whether organism has advanced program counter
-// Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
-// Trickier for mutualist, check just before enough CPUs and it should manage to finish
 
-
-TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[kw]") {
+TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   emp::Random random(10);
   
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
@@ -18,7 +9,6 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[kw]") {
   SymConfigSGP config;
   config.SEED(10);
   config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
   config.LIMITED_RES_TOTAL(10);
   config.LIMITED_RES_INFLOW(500);
   config.VERTICAL_TRANSMISSION(0);
@@ -29,61 +19,70 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[kw]") {
   config.DONATION_STEAL_INST(0);
   config.LIMITED_TASK_RESET_INTERVAL(20);
 
-  config.OUSTING(1); //TODO: test removing the HealthHost ousting code
+  config.OUSTING(1);
 
   size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
-  // emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
-  // emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = host->GetCPU().state.tasks_performed;
-
+  
   WHEN("Parasites are present"){
+    config.STRESS_TYPE(PARASITE);
     config.START_MOI(1);
 
     emp::Ptr<SGPSymbiont> parasite_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
 
     host->AddSymbiont(parasite_symbiont);
     
-
     world.AddOrgAt(host, 0);
 
-    int totalTimesSkippedCycle = 0;
+    int total_times_skipped_cycle = 0;
     int repeats = 25;
     for (int i = 0; i < repeats; i++) {
-      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
-      // world.Update();
       host->Process(0);
-      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
-      if(initialStackLocation == newStackLocation) {
-        totalTimesSkippedCycle++;
+      if(initial_stack_location == new_stack_location) {
+        total_times_skipped_cycle++;
       }
     }
     
-    REQUIRE((double)totalTimesSkippedCycle/repeats <= 0.55);
-    REQUIRE((double)totalTimesSkippedCycle/repeats >= 0.45);
+    REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
+    REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
   }
   WHEN("Symbionts are not present"){
     config.START_MOI(0);
     world.AddOrgAt(host, 0);
 
-    int totalTimesSkippedCycle = 0;
+    int total_times_skipped_cycle = 0;
     int repeats = 25;
     for (int i = 0; i < repeats; i++) {
-      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
-      // world.Update();
       host->Process(0);
-      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
-      if(initialStackLocation == newStackLocation) {
-        totalTimesSkippedCycle++;
+      if(initial_stack_location == new_stack_location) {
+        total_times_skipped_cycle++;
+      }
+    }
+
+    int total_times_gained_cycles = 0;
+    for (int i = 0; i < repeats; i++) {
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(new_stack_location - initial_stack_location == 8) {
+        total_times_gained_cycles++;
       }
     }
     
-    REQUIRE((double)totalTimesSkippedCycle/repeats == 0);
+    REQUIRE((double)total_times_skipped_cycle/repeats == 0);
+    REQUIRE((double)total_times_gained_cycles/repeats == 0);
   }
   WHEN("Mutualists are present"){
     config.START_MOI(1);
@@ -96,21 +95,21 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[kw]") {
 
     world.AddOrgAt(host, 0);
 
-    int totalTimesGainedCycle = 0;
+    int total_times_gained_cycles = 0;
     int repeats = 25;
     for (int i = 0; i < repeats; i++) {
-      size_t initialStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
       host->Process(0);
-      size_t newStackLocation = host->GetCPU().getCPUPointer().GetCore(0).GetProgramCounter();
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
       
-      if(newStackLocation - initialStackLocation == 8) {
-        totalTimesGainedCycle++;
+      if(new_stack_location - initial_stack_location == 8) {
+        total_times_gained_cycles++;
       }
     }
     
-    REQUIRE((double)totalTimesGainedCycle/repeats <= 0.55);
-    REQUIRE((double)totalTimesGainedCycle/repeats >= 0.45);
+    REQUIRE((double)total_times_gained_cycles/repeats <= 0.55);
+    REQUIRE((double)total_times_gained_cycles/repeats >= 0.45);
   }
 }
 
