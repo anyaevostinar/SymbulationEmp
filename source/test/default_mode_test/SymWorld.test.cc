@@ -458,7 +458,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           symbiont_parent->SetPoints(starting_resources);
           symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
 
-          THEN("the sym child is inserted nowhere and the parent spends no points") {
+          THEN("the sym child is inserted and the parent spends points") {
             REQUIRE(symbiont_parent->GetPoints() == 0);
             REQUIRE(host->GetSymbionts().size() == 2);
             REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
