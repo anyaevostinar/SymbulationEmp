@@ -525,7 +525,6 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
     hw.Reset();
     hw.SetProgram(program);
     world.AssignNewEnvIO(hw.GetCPUState());
-    hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
     // Sym donate prop: 0.5
     // Donate penalty: 0.25
     WHEN("Host with runs donate with no symbiont") {
@@ -602,88 +601,182 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
       REQUIRE(sgp_sym.GetPoints() == init_sym_points - to_donate);
       REQUIRE(sgp_host.GetPoints() == init_host_points + donate_value);
     }
+  }
 
+  SECTION("Test Steal instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Steal");
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    WHEN("Host with runs steal with no symbiont") {
+      // Nothing happens
+      REQUIRE(sgp_host.IsHost());
+      REQUIRE(!sgp_host.HasSym());
+      sgp_host.SetPoints(100);
+      // Run host program
+      hw.RunCPUStep(1); // Anchor
+      hw.RunCPUStep(1); // Steal
+      REQUIRE(sgp_host.GetPoints() == 100);
+    }
+
+    WHEN("Host runs steal with symbiont") {
+      // Inject symbiont
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Steal");
+      sgp_host.AddSymbiont(
+        emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
+      );
+      REQUIRE(sgp_host.HasSym());
+      sgp_sym_t& sgp_sym = *static_cast<sgp_sym_t*>(sgp_host.GetSymbionts()[0].Raw());
+      sgp_host.SetPoints(100);
+      sgp_sym.SetPoints(100);
+      // Run host program
+      hw.RunCPUStep(1);
+      hw.RunCPUStep(1);
+      REQUIRE(sgp_host.GetPoints() == 100);
+      REQUIRE(sgp_sym.GetPoints() == 100);
+    }
+
+    WHEN("Symbiont runs steal instruction with no host") {
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Steal");
+      sgp_sym_t sgp_sym(
+        &random, &world, &config, sym_program
+      );
+      sgp_sym.SetPoints(100);
+      REQUIRE(!sgp_sym.IsHost());
+      REQUIRE(!sgp_sym.GetHardware().GetCPUState().HasHost());
+      sgp_sym.GetHardware().RunCPUStep(1);
+      sgp_sym.GetHardware().RunCPUStep(1);
+      // Nothing happens
+      REQUIRE(sgp_sym.GetPoints() == 100);
+    }
+
+    WHEN("Symbiont runs steal instruction with a host") {
+      // Inject symbiont
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Steal");
+      sgp_host.AddSymbiont(
+        emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
+      );
+      REQUIRE(sgp_host.HasSym());
+      sgp_sym_t& sgp_sym = *static_cast<sgp_sym_t*>(sgp_host.GetSymbionts()[0].Raw());
+      REQUIRE(!sgp_sym.IsHost());
+      REQUIRE(sgp_sym.GetHardware().GetCPUState().HasHost());
+      double init_host_points = 100;
+      double init_sym_points = 50;
+      sgp_host.SetPoints(init_host_points);
+      sgp_sym.SetPoints(init_sym_points);
+
+      sgp_sym.GetHardware().RunCPUStep(1);
+      sgp_sym.GetHardware().RunCPUStep(1);
+
+      double to_steal = emp::Min(
+        init_host_points,
+        (init_sym_points + init_host_points) * config.SYM_STEAL_PROP()
+      );
+      double steal_value = to_steal * (1.0 - config.STEAL_PENALTY());
+      REQUIRE(sgp_host.GetPoints() == init_host_points - to_steal);
+      REQUIRE(sgp_sym.GetPoints() == init_sym_points + steal_value);
+    }
+  }
+}
+
+TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using program_t = typename world_t::sgp_prog_t;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+  using tag_t = typename hw_spec_t::tag_t;
+
+  sgpmode::SymConfigSGP config;
+  config.CYCLES_PER_UPDATE(0);
+  config.RANDOM_ANCESTOR(false);
+  config.HOST_REPRO_RES(1);
+  config.SEED(61);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("Instructions_test_output");
+  config.POP_SIZE(1);
+  config.START_MOI(0);
+  config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.SYM_DONATE_PROP(0.5);
+  config.DONATE_PENALTY(0.25);
+  config.FREE_LIVING_SYMS(true);
+  config.SYM_LIMIT(1);
+  config.PHAGE_EXCLUDE(false);
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& prog_builder = world.GetProgramBuilder();
+
+  // World should have one organism inside.
+  REQUIRE(world.IsOccupied(0));
+  auto& org = world.GetOrg(0);
+  auto& sgp_host = static_cast<sgp_host_t&>(org);
+  hardware_t& host_hw = sgp_host.GetHardware();
+  REQUIRE(host_hw.GetCPUState().GetNumTasks() == 9);
+
+  SECTION("Test Infect instruction") {
+    program_t host_program;
+    prog_builder.AddStartAnchor(host_program);
+    prog_builder.AddInst(host_program, "Infect");
+    host_hw.Reset();
+    host_hw.SetProgram(host_program);
+    world.AssignNewEnvIO(host_hw.GetCPUState());
+
+    WHEN("Host runs the Infect instruction") {
+      // Nothing happens
+      REQUIRE(sgp_host.IsHost());
+      REQUIRE(!sgp_host.HasSym());
+      sgp_host.SetPoints(100);
+      // Run host program
+      host_hw.RunCPUStep(1); // Anchor
+      host_hw.RunCPUStep(1); // Infect
+      // NOTE - Anything else we want to check here?
+      // The main purpose of this test is to make sure no asserts fail when
+      //   Infect is run (nothing should happen), things work, etc.
+      REQUIRE(sgp_host.GetPoints() == 100);
+    }
+
+    WHEN("Freeliving symbiont runs Infect instruction") {
+      // Build and inject a freeliving symbiont into the world
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Infect");
+      world.Resize(1); // Resize sym pop to 1
+      world.InjectSymbiont(
+        emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
+      );
+      // Make sure world size is 1
+      REQUIRE(world.GetSymPop().size() == 1);
+      REQUIRE(world.GetPop().size() == 1);
+      // Check sym/host locations (world size is 1)
+      REQUIRE(world.IsOccupied(0));
+      REQUIRE(world.IsSymPopOccupied(0));
+      REQUIRE(!sgp_host.HasSym());
+      // static_cast<sgp_host_t&>(org);
+      auto& sym_org = *(world.GetSymAt(0));
+      sgp_sym_t& sgp_sym = static_cast<sgp_sym_t&>(sym_org);
+      // InjectSymbiont doesn't automatically set cpu state location
+      sgp_sym.GetHardware().GetCPUState().SetLocation(emp::WorldPosition(0, 0));
+      // Run symbiont program
+      sgp_sym.GetHardware().RunCPUStep(1); // Run Anchor
+      sgp_sym.GetHardware().RunCPUStep(1); // Run Infect
+      // And sym pop is no longer occupied
+      REQUIRE(!world.IsSymPopOccupied(0));
+      // Check that symbiont infects host
+      REQUIRE(sgp_host.HasSym());
+    }
   }
 
 }
-
-// TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
-//   using world_t = sgpmode::SGPWorld;
-//   using cpu_state_t = sgpmode::CPUState<world_t>;
-//   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-//   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-//   using program_t = typename world_t::sgp_prog_t;
-//   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-//   using tag_t = typename hw_spec_t::tag_t;
-
-//   sgpmode::SymConfigSGP config;
-//   config.CYCLES_PER_UPDATE(0);
-//   config.RANDOM_ANCESTOR(false);
-//   config.HOST_REPRO_RES(1);
-//   config.SEED(61);
-//   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-//   config.FILE_PATH("Instructions_test_output");
-//   config.POP_SIZE(1);
-//   config.START_MOI(1); // Start each host with a symbiont
-//   config.TASK_IO_UNIQUE_OUTPUT(true);
-
-//   emp::Random random(config.SEED());
-//   world_t world(random, &config);
-//   world.Setup();
-//   auto& prog_builder = world.GetProgramBuilder();
-
-//   // World should have one organism inside.
-//   REQUIRE(world.IsOccupied(0));
-//   auto& org = world.GetOrg(0);
-//   auto& sgp_host = static_cast<sgp_host_t&>(org);
-//   hardware_t& hw = sgp_host.GetHardware();
-//   REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
-
-
-// }
-
-    // SECTION("Test Donate instruction") {
-    //   program_t program;
-    //   prog_builder.AddStartAnchor(program);
-    //   prog_builder.AddInst(program, "Donate", 0, 1); // Donate from register 0 to register 1
-    //   hw.Reset();
-    //   hw.SetProgram(program);
-    //   world.AssignNewEnvIO(hw.GetCPUState());
-    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-    //   hw.RunCPUStep(1); // Anchor
-    //   hw.RunCPUStep(1); // Donate from register 0 to register 1
-    //     // Verify donation occurred (registers updated as expected)
-    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-    // }
-
-//     SECTION("Test Steal instruction") {
-//       program_t program;
-//       prog_builder.AddStartAnchor(program);
-//       prog_builder.AddInst(program, "Steal", 0, 1); // Steal from register 1 into register 0
-//       hw.Reset();
-//       hw.SetProgram(program);
-//       world.AssignNewEnvIO(hw.GetCPUState());
-
-//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-//       hw.RunCPUStep(1); // Anchor
-//       hw.RunCPUStep(1); // Steal from register 1 to register 0
-
-//         // Verify steal occurred (registers updated as expected)
-//       REQUIRE(CheckRegisterContents(hw, {20, 20, 30, 40, 50, 60, 70, 80}));
-//     }
-
-//     SECTION("Test Infect instruction") {
-//       program_t program;
-//       prog_builder.AddStartAnchor(program);
-//       prog_builder.AddInst(program, "Infect", 0, 1); // Infect from register 0 to register 1
-//       hw.Reset();
-//       hw.SetProgram(program);
-//       world.AssignNewEnvIO(hw.GetCPUState());
-
-//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-//       hw.RunCPUStep(1); // Anchor
-//       hw.RunCPUStep(1); // Infect from register 0 to register 1
-
-//         // Verify infection occurred (registers updated as expected)
-//       REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
-//     }
