@@ -1043,7 +1043,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissio
 /**
  * Input: None
  *
- * Output: The DataMonitor<double>& that has the information representing
+ * Output: The DataMonitor<double, emp::data::Histogram>& that has the information representing
  * the average tag distance between hosts and their symbionts.
  *
  * Purpose: To retrieve the data nodes that is tracking the
@@ -1086,7 +1086,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
                 int_vals[j] = syms[j]->GetIntVal();
               }//close for
               data_node_within_host_variance->AddDatum(emp::Variance(int_vals));
-  	        } else {
+            } else {
               data_node_within_host_variance->AddDatum(0);
             }
 
@@ -1122,7 +1122,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<size_t>& that has the information representing
    * the average number of reproductions each host lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
@@ -1151,7 +1151,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<size_t>& that has the information representing
    * the average number of reproductions each symbiont lineage has accumulated.
    *
    * Purpose: To retrieve the data nodes that is tracking the
@@ -1283,18 +1283,12 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
         });
     }
     return *data_node_host_tag_richness;
-
-
-    if (!data_node_host_tag_richness) {
-      data_node_host_tag_richness.New();
-    }
-    return *data_node_host_tag_richness;
   }
 
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the host tag shannon this update.
    *
    * Purpose: To retrieve the data node that is tracking the
@@ -1326,7 +1320,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   /**
    * Input: None
    *
-   * Output: The DataMonitor<int>& that has the information representing
+   * Output: The DataMonitor<double>& that has the information representing
    * the symbiont tag shannon this update.
    *
    * Purpose: To retrieve the data node that is tracking the
