@@ -3,7 +3,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-
+#include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
@@ -413,23 +413,106 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
       config.FREE_LIVING_SYMS(0);
 
       WHEN( "there is a valid neighbouring host" ){
-        size_t host_pos = 1;
-        emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        world.AddOrgAt(host, host_pos);
 
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, 1);
+        WHEN("there is room in the host and free failure due to size constraints is off"){
+          config.FREE_HT_FAILURE(0);
+          config.SYM_LIMIT(2);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
 
-        emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
-        emp::Ptr<Organism> host_sym = syms[0];
+          emp::WorldPosition parent_sym_pos = emp::WorldPosition(1, host_pos);
+          emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(parent_symbiont);
+          emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          new_pos = world.SymDoBirth(new_symbiont, parent_sym_pos);
 
-        THEN( "the sym is inserted into the valid neighbouring host" ){
-          REQUIRE(host_sym == new_symbiont);
-          REQUIRE(world.GetNumOrgs() == 1);
-          REQUIRE(new_pos.IsValid() == true);
+          emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
+          emp::Ptr<Organism> host_sym = syms[1];
 
-          REQUIRE(new_pos.GetIndex() == 1);
-          REQUIRE(new_pos.GetPopID() == host_pos);
+          THEN( "the sym is inserted into the valid neighbouring host" ){
+            REQUIRE(host_sym == new_symbiont);
+            REQUIRE(world.GetNumOrgs() == 1);
+            REQUIRE(new_pos.IsValid() == true);
+            REQUIRE(parent_symbiont->GetPoints() == 0);
+            
+            REQUIRE(new_pos.GetIndex() == 2);
+            REQUIRE(new_pos.GetPopID() == host_pos);
+            REQUIRE(new_symbiont->GetPoints() == 0);
+          }
+        }
+        WHEN("there is room in the host and free failure due to size constraints is on") {
+          config.FREE_HT_FAILURE(1);
+          config.SYM_LIMIT(2);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted and the parent spends points") {
+            REQUIRE(symbiont_parent->GetPoints() == 0);
+            REQUIRE(host->GetSymbionts().size() == 2);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+            REQUIRE(host->GetSymbionts().at(1)->GetPoints() == 0);
+          }
+        }
+        WHEN("there is no room in the host and free failure due to size constraints is on"){
+          config.FREE_HT_FAILURE(1);
+          config.SYM_LIMIT(1);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted nowhere and the parent spends no points") {
+            REQUIRE(symbiont_parent->GetPoints() == starting_resources);
+            REQUIRE(host->GetSymbionts().size() == 1);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+          }
+        }
+        WHEN("there is no room in the host and free failure due to size constraints is off"){
+          config.FREE_HT_FAILURE(0);
+          config.SYM_LIMIT(1);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted nowhere and the parent's points get set to 0") {
+            REQUIRE(symbiont_parent->GetPoints() == 0);
+            REQUIRE(host->GetSymbionts().size() == 1);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+          }
         }
       }
 
@@ -1087,9 +1170,9 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   int world_size = 4;
   world.Resize(world_size);
 
-
+  using taxon_info_t = double;
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-  emp::Ptr<emp::Systematics<Organism,int>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
 
   //ORGANISMS ADDED TO SYSTEMATICS
   WHEN("an organism is added to the world"){
@@ -1219,8 +1302,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
   SymWorld world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
-
-  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = world.GetSymSys();
+  
+  using taxon_info_t = double;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
 
   WHEN("symbionts are added to the world"){
     THEN("they get added to the correct taxonomic bins"){
@@ -1274,7 +1358,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       REQUIRE(world.GetNumOrgs() == 2);
     }
   }
-
+  
   WHEN("generations pass"){
     config.MUTATION_SIZE(1);
     config.MUTATION_RATE(1);
@@ -1284,11 +1368,11 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     emp::Ptr<Organism> syms[num_syms];
     syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
     world.AddSymToSystematic(syms[0]);
-
+    
     for(size_t i = 1; i < num_syms; i++){
       syms[i] = syms[i-1]->Reproduce();
     }
-
+    
     THEN("Their lineages are tracked"){
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
@@ -1304,7 +1388,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       syms[0].Delete();
       syms[1].Delete();
     }
-
+    
     THEN("Their birth and destruction dates are tracked"){
       //all curr syms should have orig times of 0
       for(size_t i = 0; i < num_syms; i++){
@@ -1313,7 +1397,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       world.Update();
 
       //after update, times should now be 1
-      emp::Ptr<emp::Taxon<int>> dest_tax = syms[0]->GetTaxon();
+      emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> dest_tax = syms[0]->GetTaxon();
       syms[0].Delete();
       REQUIRE(dest_tax->GetDestructionTime() == 1);
 
@@ -1325,7 +1409,99 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     }
 
     syms[2].Delete();
-    syms[3].Delete();
+    syms[3].Delete(); 
+  }
+}
+
+TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
+  emp::Random random(17);
+  SymConfigBase config;
+  config.PHYLOGENY(1);
+  config.NUM_PHYLO_BINS(20);
+  config.TRACK_PHYLOGENY_INTERACTIONS(1);
+  int int_val = -1;
+  SymWorld world(random, &config);
+  size_t grid_side = 4;
+  config.GRID_X(grid_side);
+  config.GRID_Y(grid_side);
+
+  using taxon_info_t = double;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
+
+
+  WHEN("A symbiont is injected into a host (at the beginning of runs)") {
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+
+    world.InjectHost(host);
+    world.Resize(grid_side, grid_side);
+    world.InjectSymbiont(symbiont);
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host->HasSym());
+
+    size_t expected_host_taxon_info = 0;
+    size_t taxon_info = host->GetTaxon()->GetInfo();
+
+    // Check normal phylogeny function
+    REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(host_sys->GetNumActive() == 1);
+    REQUIRE(sym_sys->GetNumActive() == 1);
+    REQUIRE(expected_host_taxon_info == taxon_info);
+    REQUIRE(host->GetSymbionts().size() == 1);
+
+    THEN("Symbiont-host interaction is tracked") {
+      // Check that host and symbiont are not marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[symbiont->GetTaxon()->GetID()] == 1);
+    }
+  }
+  
+  
+  WHEN("A symbiont is born into a host (symdobirth or dobirth--HT or VT)") {
+    config.VERTICAL_TRANSMISSION(1);
+    config.SYM_VERT_TRANS_RES(0);
+    world.Resize(grid_side, grid_side);
+
+    size_t pos = 2;
+
+    // set up parents
+    emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    world.AddSymToSystematic(parent_symbiont);
+    world.AddOrgAt(parent_host, pos);
+
+    // set up children
+    emp::Ptr<Organism> child_host = parent_host->Reproduce();
+    parent_symbiont->VerticalTransmission(child_host);
+    emp::Ptr<Organism> child_symbiont = child_host->GetSymbionts()[0];
+
+    // call DoBirth
+    emp::WorldPosition child_pos = world.DoBirth(child_host, pos);
+
+    THEN("Symbiont-host interaction is tracked") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&child_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, child_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[child_symbiont->GetTaxon()->GetID()] == 1);
+    }
+
+
+    // do another generation
+    emp::Ptr<Organism> grandchild_host = child_host->Reproduce();
+    child_symbiont->VerticalTransmission(grandchild_host);
+    emp::Ptr<Organism> grandchild_symbiont = grandchild_host->GetSymbionts()[0];
+
+    world.DoBirth(grandchild_host, child_pos);
+
+    THEN("Symbiont-host interactions are counted") {
+      // Check that host and symbiont are marked as interacting
+      datastruct::HostTaxonData* data = static_cast<datastruct::HostTaxonData*>(&grandchild_host->GetTaxon()->GetData());
+      REQUIRE(emp::Has(data->associated_syms, grandchild_symbiont->GetTaxon()->GetID()));
+      REQUIRE(data->associated_syms[grandchild_symbiont->GetTaxon()->GetID()] == 2);
+    }
+    parent_symbiont.Delete();
   }
 }
 
@@ -1572,10 +1748,10 @@ TEST_CASE("SetupSymbionts", "[default]") {
     SymWorld world(random, &config);
 
     size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
+    
+    WHEN("SetupSymbionts is called and FLS is on") {  
+      world.Resize(world_size);
+      config.FREE_LIVING_SYMS(1);
       size_t num_to_add = 2;
       world.SetupSymbionts(&num_to_add);
 
@@ -1591,6 +1767,32 @@ TEST_CASE("SetupSymbionts", "[default]") {
         REQUIRE(symbiont->GetName() == "Symbiont");
       }
     }
+    WHEN("SetupSymbionts is called and random tag start is on") {
+      config.TAG_MATCHING(1);
+      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
+      config.STARTING_TAGS_ONE_PROB(0.1);
+      world.SetupHosts(&world_size);
+
+      size_t num_to_add = 4;
+      world.SetupSymbionts(&num_to_add);
+      size_t num_expected = 2;
+      THEN("The specified number of symbionts are added to the world and match their host's tags") {
+        size_t total_ones = 0;
+        size_t num_added = 0;
+        for (size_t i = 0; i < world_size; i++) {
+          Organism & host = world.GetOrg(i);
+          for (auto sym : host.GetSymbionts()) {
+            num_added++;
+            int ones = sym->GetTag().CountOnes();
+            total_ones += ones;
+            REQUIRE(world.GetTagMetric()->calculate(sym->GetTag(), host.GetTag()) == 0);
+          }
+        }
+        REQUIRE(num_added == num_expected);
+        REQUIRE(total_ones > (num_expected - 1) * 3);
+        REQUIRE(total_ones < (num_expected + 1) * 3);
+      }
+    }
   }
 }
 
@@ -1602,9 +1804,11 @@ TEST_CASE("SetupHosts", "[default]") {
 
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
+      
 
       THEN("The specified number of hosts are added to the world") {
+        world.SetupHosts(&num_to_add);
+
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
@@ -1612,7 +1816,203 @@ TEST_CASE("SetupHosts", "[default]") {
         REQUIRE(host != nullptr);
         REQUIRE(host->GetName() == "Host");
       }
+
+      WHEN("Random starting tags are on"){
+        config.TAG_MATCHING(1);
+        world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
+        config.STARTING_TAGS_ONE_PROB(0.1); 
+        // we expect 3.2ish 1s per tag
+
+        world.SetupHosts(&num_to_add);
+
+        size_t num_added = world.GetNumOrgs();
+        REQUIRE(num_added == num_to_add);
+
+        THEN("Tags are randomly initialized as per the starting ones probability"){
+          int total_ones = 0;
+          for(size_t i = 0; i < num_added; i++){
+            int ones = world.GetOrg(i).GetTag().CountOnes();
+            total_ones += ones;
+            REQUIRE(ones >= 0);
+            REQUIRE(ones <= 5);
+          }
+          REQUIRE(total_ones > 12);
+          REQUIRE(total_ones < 18);
+        }
+      }
     }
+  }
+}
+
+TEST_CASE("Tag matching", "[default]") {
+  GIVEN("A world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.FREE_HT_FAILURE(1);
+    config.SYM_LIMIT(1);
+    int trans_res = 10;
+    int starting_res = 15;
+    config.SYM_HORIZ_TRANS_RES(trans_res);
+    config.SYM_VERT_TRANS_RES(trans_res);
+    double tag_distance_limit = 0.125;
+    config.TAG_MATCHING(1);
+    config.TAG_DISTANCE(tag_distance_limit);
+    config.TAG_MUTATION_SIZE(0.0);
+    double int_val = 0;
+
+    SymWorld world(random, &config);
+
+    WHEN("A symbiont tries to vertically transmit offspring into a host child") {
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      
+      // symbiont tag is all 0s
+      emp::BitSet<TAG_LENGTH> bit_set_0 = emp::BitSet<TAG_LENGTH>();
+      symbiont->SetTag(bit_set_0);
+      symbiont->AddPoints(starting_res);
+
+      WHEN("Their tags are sufficiently close") {
+        // host tag has 4 1s
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
+        host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) <= tag_distance_limit);
+
+        symbiont->VerticalTransmission(host);
+
+        THEN("The symbiont succeeds") {
+          REQUIRE(host->HasSym() == true);
+        }
+        THEN("The parent symbiont spends points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res-trans_res);
+        }
+        THEN("The child symbiont starts with 0 points") {
+          REQUIRE(host->GetSymbionts().at(0)->GetPoints() == 0);
+        }
+      }
+      WHEN("Their tags are too dissimilar") {
+        // host tag has 9 1s
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
+        host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
+
+        symbiont->VerticalTransmission(host);
+
+        THEN("The symbiont fails") {
+          REQUIRE(host->HasSym() == false);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
+        }
+      }
+
+      host.Delete();
+      symbiont.Delete();
+    }
+    
+    WHEN("A symbiont tries to horizontally transmit offspring into a host") {
+      // note that these can fail simply because the empty 
+      // neighbor host is not selected by getrandomneighbor
+
+      emp::Ptr<Host> source_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+      // symbiont tag is all 0s
+      emp::BitSet<TAG_LENGTH> bit_set_0 = emp::BitSet<TAG_LENGTH>();
+      symbiont->SetTag(bit_set_0);
+      
+      WHEN("Their tags are sufficiently close and the host has room") {
+        size_t source_pos = 1;
+        size_t target_pos = 0;
+        world.AddOrgAt(source_host, source_pos);
+        source_host->AddSymbiont(symbiont);
+        symbiont->AddPoints(starting_res);
+
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.IsOccupied(source_pos));
+
+        world.AddOrgAt(target_host, target_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+
+        // host tag has 4 1s
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
+        target_host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        
+        THEN("The symbiont succeeds") {
+          REQUIRE(target_host->HasSym() == true);
+        }
+        THEN("The parent symbiont spends points on reproduction"){
+          // horiz trans sets points to 0, rather than subtracting
+          REQUIRE(symbiont->GetPoints() == 0);
+        }
+        THEN("The child symbiont starts with 0 points"){
+          REQUIRE(target_host->GetSymbionts().at(0)->GetPoints() == 0);
+        }
+      }
+      WHEN("Their tags are sufficiently close and the host does not have room") {
+        emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        
+        size_t source_pos = 1;
+        size_t target_pos = 0;
+        world.AddOrgAt(source_host, source_pos);
+        source_host->AddSymbiont(symbiont);
+        target_host->AddSymbiont(obstructive_symbiont);
+        symbiont->AddPoints(starting_res);
+
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.IsOccupied(source_pos));
+
+        world.AddOrgAt(target_host, target_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+
+        // host tag has 4 1s
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
+        target_host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+
+        THEN("The symbiont fails") {
+          REQUIRE(target_host->HasSym() == true);
+          REQUIRE(target_host->GetSymbionts().at(0) == obstructive_symbiont);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
+        }
+      }
+      WHEN("Their tags are too dissimilar") {
+        size_t source_pos = 1;
+        size_t target_pos = 0;
+        world.AddOrgAt(source_host, source_pos);
+        source_host->AddSymbiont(symbiont);
+        symbiont->AddPoints(starting_res);
+
+        REQUIRE(world.GetNumOrgs() == 1);
+        REQUIRE(world.IsOccupied(source_pos));
+
+        world.AddOrgAt(target_host, target_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+
+        // host tag has 9 1s
+        emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
+        target_host->SetTag(bit_set_1);
+        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
+
+        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+
+        THEN("The symbiont fails") {
+          REQUIRE(target_host->HasSym() == false);
+        }
+        THEN("The parent symbiont does not spend points on reproduction") {
+          REQUIRE(symbiont->GetPoints() == starting_res);
+        }
+      }
+    }
+    // NOTE: tag matching is NOT SUPPORTED by FREE LIVING SYMBIONTS
   }
 }
 

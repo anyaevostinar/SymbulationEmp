@@ -16,6 +16,10 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<Host> new_org;
     new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+    if (my_config->TAG_MATCHING()) {
+      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->STARTING_TAGS_ONE_PROB());
+      new_org->SetTag(new_tag);
+    }
     InjectHost(new_org);
   }
 
@@ -32,6 +36,10 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
 void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
   for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
+    if (my_config->TAG_MATCHING()) {
+      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->STARTING_TAGS_ONE_PROB());
+      new_sym->SetTag(new_tag); // if this sym is hosted, this tag will be overwritten upon injection
+    }
     InjectSymbiont(new_sym);
   }
 }

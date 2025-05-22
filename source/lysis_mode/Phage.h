@@ -309,16 +309,16 @@ public:
     data_node_burst_size.AddDatum(repro_syms.size());
     emp::DataMonitor<int>& data_node_burst_count = my_world->GetBurstCountDataNode();
     data_node_burst_count.AddDatum(1);
-    emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-    emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
 
     for(size_t r=0; r<repro_syms.size(); r++) {
       emp::WorldPosition new_pos = my_world->SymDoBirth(repro_syms[r], location);
 
       //horizontal transmission data nodes
-      data_node_attempts_horiztrans.AddDatum(1);
+      data_node_attempts_horiztrans.AddDatum(GetIntVal());
       if(new_pos.IsValid()){
-        data_node_successes_horiztrans.AddDatum(1);
+        data_node_successes_horiztrans.AddDatum(GetIntVal());
       }
     }
     my_host->ClearReproSyms();
@@ -363,8 +363,8 @@ public:
       host_baby->AddSymbiont(phage_baby);
 
       //vertical transmission data node
-      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
-      data_node_attempts_verttrans.AddDatum(1);
+      emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(GetIntVal());
     }
   }
 

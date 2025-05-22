@@ -20,6 +20,12 @@ int symbulation_main(int argc, char * argv[])
 
   world.RunExperiment();
 
+  //retrieve the dominant taxons for each organism and write them to a file
+  if(config.PHYLOGENY() == 1){
+    std::string file_ending = "_SEED"+std::to_string(config.SEED())+".data";
+    world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
+  }
+
   return 0;
 }
 
