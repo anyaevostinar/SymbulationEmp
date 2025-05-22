@@ -136,6 +136,9 @@ public:
       };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
+
+    emp_assert(!(my_config->TAG_MATCHING() && my_config->FREE_LIVING_SYMS()));
+
     if (my_config->PHYLOGENY() == true) {
       if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
         calc_host_info_fun = [&](Organism& org) {
