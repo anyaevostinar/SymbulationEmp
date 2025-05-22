@@ -434,7 +434,8 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
             REQUIRE(host_sym == new_symbiont);
             REQUIRE(world.GetNumOrgs() == 1);
             REQUIRE(new_pos.IsValid() == true);
-
+            REQUIRE(parent_symbiont->GetPoints() == 0);
+            
             REQUIRE(new_pos.GetIndex() == 2);
             REQUIRE(new_pos.GetPopID() == host_pos);
             REQUIRE(new_symbiont->GetPoints() == 0);

@@ -731,8 +731,8 @@ public:
 
         if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
         // removing the above for tag matching--sym parent points are 
-        // now set to 0 in symdobirth (todo: test)
-        
+        // now set to 0 in symdobirth
+
         emp::Ptr<Organism> sym_baby = Reproduce();
         if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
