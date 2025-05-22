@@ -51,7 +51,7 @@ void PrintRegisterContents(
   std::cout << std::endl;
 }
 
-TEST_CASE("Test instructions", "[sgp]") {
+TEST_CASE("Test non-interactive instructions", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -480,22 +480,181 @@ TEST_CASE("Test instructions", "[sgp]") {
     hw.RunCPUStep(1); // Increment 1
     REQUIRE(CheckRegisterContents(hw, {2, 1, 9}));
   }
+}
 
-//     SECTION("Test Donate instruction") {
-//       program_t program;
-//       prog_builder.AddStartAnchor(program);
-//       prog_builder.AddInst(program, "Donate", 0, 1); // Donate from register 0 to register 1
-//       hw.Reset();
-//       hw.SetProgram(program);
-//       world.AssignNewEnvIO(hw.GetCPUState());
 
-//       hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
-//       hw.RunCPUStep(1); // Anchor
-//       hw.RunCPUStep(1); // Donate from register 0 to register 1
+TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using program_t = typename world_t::sgp_prog_t;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+  using tag_t = typename hw_spec_t::tag_t;
 
-//         // Verify donation occurred (registers updated as expected)
-//       REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
-//     }
+  sgpmode::SymConfigSGP config;
+  config.CYCLES_PER_UPDATE(0);
+  config.RANDOM_ANCESTOR(false);
+  config.HOST_REPRO_RES(1);
+  config.SEED(61);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("Instructions_test_output");
+  config.POP_SIZE(1);
+  config.START_MOI(0);
+  config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.SYM_DONATE_PROP(0.5);
+  config.DONATE_PENALTY(0.25);
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& prog_builder = world.GetProgramBuilder();
+
+  // World should have one organism inside.
+  REQUIRE(world.IsOccupied(0));
+  auto& org = world.GetOrg(0);
+  auto& sgp_host = static_cast<sgp_host_t&>(org);
+  hardware_t& hw = sgp_host.GetHardware();
+  REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
+
+  SECTION("Test Donate instruction") {
+    program_t program;
+    prog_builder.AddStartAnchor(program);
+    prog_builder.AddInst(program, "Donate");
+    hw.Reset();
+    hw.SetProgram(program);
+    world.AssignNewEnvIO(hw.GetCPUState());
+    hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+    // Sym donate prop: 0.5
+    // Donate penalty: 0.25
+    WHEN("Host with runs donate with no symbiont") {
+      // Nothing happens
+      REQUIRE(sgp_host.IsHost());
+      REQUIRE(!sgp_host.HasSym());
+      sgp_host.SetPoints(100);
+      // Run host program
+      hw.RunCPUStep(1); // Anchor
+      hw.RunCPUStep(1); // Donate
+      REQUIRE(sgp_host.GetPoints() == 100);
+    }
+
+    WHEN("Host runs donate with symbiont") {
+      // Inject symbiont
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Donate");
+      sgp_host.AddSymbiont(
+        emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
+      );
+      REQUIRE(sgp_host.HasSym());
+      sgp_sym_t& sgp_sym = *static_cast<sgp_sym_t*>(sgp_host.GetSymbionts()[0].Raw());
+      sgp_host.SetPoints(100);
+      sgp_sym.SetPoints(100);
+      // Run host program
+      hw.RunCPUStep(1);
+      hw.RunCPUStep(1);
+      REQUIRE(sgp_host.GetPoints() == 100);
+      REQUIRE(sgp_sym.GetPoints() == 100);
+    }
+
+    WHEN("Symbiont runs donate instruction with no host") {
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Donate");
+      sgp_sym_t sgp_sym(
+        &random, &world, &config, sym_program
+      );
+      sgp_sym.SetPoints(100);
+      REQUIRE(!sgp_sym.IsHost());
+      REQUIRE(!sgp_sym.GetHardware().GetCPUState().HasHost());
+      sgp_sym.GetHardware().RunCPUStep(1);
+      sgp_sym.GetHardware().RunCPUStep(1);
+      REQUIRE(sgp_sym.GetPoints() == 100);
+    }
+
+    WHEN("Symbiont runs donate instruction with a host") {
+      // Inject symbiont
+      program_t sym_program;
+      prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "Donate");
+      sgp_host.AddSymbiont(
+        emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
+      );
+      REQUIRE(sgp_host.HasSym());
+      sgp_sym_t& sgp_sym = *static_cast<sgp_sym_t*>(sgp_host.GetSymbionts()[0].Raw());
+      REQUIRE(!sgp_sym.IsHost());
+      REQUIRE(sgp_sym.GetHardware().GetCPUState().HasHost());
+      double init_host_points = 100;
+      double init_sym_points = 50;
+      sgp_host.SetPoints(init_host_points);
+      sgp_sym.SetPoints(init_sym_points);
+
+      sgp_sym.GetHardware().RunCPUStep(1);
+      sgp_sym.GetHardware().RunCPUStep(1);
+
+      // Symbiont donates min(sym_points, (sym_points + host_points)*donate prop )
+      double to_donate = emp::Min(
+        init_sym_points,
+        (init_sym_points + init_host_points)*config.SYM_DONATE_PROP()
+      );
+      double donate_value = to_donate * (1.0 - config.DONATE_PENALTY());
+      REQUIRE(sgp_sym.GetPoints() == init_sym_points - to_donate);
+      REQUIRE(sgp_host.GetPoints() == init_host_points + donate_value);
+    }
+
+  }
+
+}
+
+// TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
+//   using world_t = sgpmode::SGPWorld;
+//   using cpu_state_t = sgpmode::CPUState<world_t>;
+//   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+//   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+//   using program_t = typename world_t::sgp_prog_t;
+//   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+//   using tag_t = typename hw_spec_t::tag_t;
+
+//   sgpmode::SymConfigSGP config;
+//   config.CYCLES_PER_UPDATE(0);
+//   config.RANDOM_ANCESTOR(false);
+//   config.HOST_REPRO_RES(1);
+//   config.SEED(61);
+//   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+//   config.FILE_PATH("Instructions_test_output");
+//   config.POP_SIZE(1);
+//   config.START_MOI(1); // Start each host with a symbiont
+//   config.TASK_IO_UNIQUE_OUTPUT(true);
+
+//   emp::Random random(config.SEED());
+//   world_t world(random, &config);
+//   world.Setup();
+//   auto& prog_builder = world.GetProgramBuilder();
+
+//   // World should have one organism inside.
+//   REQUIRE(world.IsOccupied(0));
+//   auto& org = world.GetOrg(0);
+//   auto& sgp_host = static_cast<sgp_host_t&>(org);
+//   hardware_t& hw = sgp_host.GetHardware();
+//   REQUIRE(hw.GetCPUState().GetNumTasks() == 9);
+
+
+// }
+
+    // SECTION("Test Donate instruction") {
+    //   program_t program;
+    //   prog_builder.AddStartAnchor(program);
+    //   prog_builder.AddInst(program, "Donate", 0, 1); // Donate from register 0 to register 1
+    //   hw.Reset();
+    //   hw.SetProgram(program);
+    //   world.AssignNewEnvIO(hw.GetCPUState());
+    //   hw.SetRegisters({10, 20, 30, 40, 50, 60, 70, 80}); // Initial register values
+    //   hw.RunCPUStep(1); // Anchor
+    //   hw.RunCPUStep(1); // Donate from register 0 to register 1
+    //     // Verify donation occurred (registers updated as expected)
+    //   REQUIRE(CheckRegisterContents(hw, {10, 20, 30, 40, 50, 60, 70, 80}));
+    // }
 
 //     SECTION("Test Steal instruction") {
 //       program_t program;
@@ -528,5 +687,3 @@ TEST_CASE("Test instructions", "[sgp]") {
 //         // Verify infection occurred (registers updated as expected)
 //       REQUIRE(CheckRegisterContents(hw, {10, 10, 30, 40, 50, 60, 70, 80}));
 //     }
-}
-
