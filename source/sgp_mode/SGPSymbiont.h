@@ -244,11 +244,11 @@ public:
     // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
     // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
     // std::cout << "vt" << std::endl;
-    auto sym_baby = Symbiont::VerticalTransmission(host_baby);
+    auto sym_offspring = Symbiont::VerticalTransmission(host_baby);
     // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
     // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
-    return sym_baby;
+    return sym_offspring;
   }
 
 
@@ -260,59 +260,66 @@ public:
    * Purpose: To produce a new SGPSymbiont
    */
   emp::Ptr<Organism> Reproduce() {
-    // std::cout << "  sym repro" << std::endl;
-    // emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
     // NOTE - should be able to static cast here
-    emp::Ptr<SGPSymbiont> sym_baby = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
-    sym_baby->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    emp::Ptr<SGPSymbiont> sym_offspring = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
+    sym_offspring->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    auto& offspring_hw = sym_offspring->GetHardware();
+    auto& offspring_cpu_state = offspring_hw.GetCPUState();
+    auto& cpu_state = hardware.GetCPUState();
     // Offspring needs to be given parent's (this) task profile
-    sym_baby->GetHardware().GetCPUState().SetParentTasksPerformed(
+    offspring_cpu_state.SetParentTasksPerformed(
       hardware.GetCPUState().GetTasksPerformed()
     );
+    // Update "lineage" information
+    // NOTE - This functionality is shared across symbiont/hosts.
+    //        Could move into its own struct that manages/centralizes this logic.
+    const size_t num_tasks = offspring_cpu_state.GetNumTasks();
+    emp_assert(num_tasks == cpu_state.GetNumTasks());
+    for (size_t task_id = 0; task_id < num_tasks; ++task_id) {
+      const bool performed_task = cpu_state.GetTaskPerformed(task_id);
+      const bool parent_performed_task = cpu_state.GetParentTaskPerformed(task_id);
+
+      const bool task_gain = performed_task && !parent_performed_task;
+      const bool task_loss = !performed_task && parent_performed_task;
+      offspring_cpu_state.SetLineageTaskGainCount(
+        task_id,
+        cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
+      );
+      offspring_cpu_state.SetLineageTaskLossCount(
+        task_id,
+        cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
+      );
+
+      // Divergence / convergence toward parent's partner
+      const size_t cur_task_diverge_partner = cpu_state.GetLineageTaskDivergeFromPartner(task_id);
+      const size_t cur_task_converge_partner = cpu_state.GetLineageTaskConvergeToPartner(task_id);
+      // NOTE - is this info on the offspring's convergence/divergence or info on *this* sym's convergence/divergence?
+      bool converges = false;
+      bool diverges = false;
+      if (cpu_state.HasHost()) {
+        host_t& host = *static_cast<host_t*>(my_host.Raw());
+        // NOTE - Looking at host's parent tasks here (do we want to do this or look at host tasks?)
+        const emp::BitVector& host_tasks = host.GetHardware().GetCPUState().GetParentTasksPerformed();
+        const bool host_performed_task = host_tasks[task_id];
+        // converge: sym_parent != host_partner and sym == host_partner
+        converges = (parent_performed_task != host_performed_task) && (performed_task == host_performed_task);
+        // diverge: host_parent == sym_partner and host != sym_partner
+        diverges = (parent_performed_task == host_performed_task) && (performed_task != host_performed_task);
+      }
+      offspring_cpu_state.SetLineageTaskConvergeToPartner(
+        task_id,
+        cur_task_converge_partner + (size_t)converges
+      );
+      offspring_cpu_state.SetLineageTaskDivergeFromPartner(
+        task_id,
+        cur_task_diverge_partner + (size_t)diverges
+      );
+    }
+
     // This organism reproduced, reset repro state.
     hardware.GetCPUState().ResetReproState();
 
-    // This organism is reproducing, so it must have gotten off the queue
-    // cpu.state.in_progress_repro = -1;
-    // NOTE - we don't always want to reset the repro state
-    // hardware.GetCPUState().ResetReproState();
-    // TODO - move out of symbiont into world
-    // if (my_world->GetConfig()->TRACK_PARENT_TASKS()) {
-    //   sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
-    //   //inherit towards-from tracking
-    //   for (size_t i = 0; i < spec::NUM_TASKS; i++) {
-
-    //     // lineage task gain / loss
-    //     sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
-    //     sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
-    //     if (cpu.state.tasks_performed->Get(i) && !cpu.state.parent_tasks_performed->Get(i)) {
-    //       // child gains the ability to infect hosts whose parents have done this task
-    //       sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
-    //     }
-    //     else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
-    //       // child loses the ability to infect hosts with whom this parent had only this task in common
-    //       sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
-    //     }
-
-    //     if (my_host) {
-    //       // divergence from/convergence towards parent's partner
-    //       emp::Ptr<emp::BitSet<spec::NUM_TASKS>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
-    //       sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
-    //       sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
-    //       if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
-    //         cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
-    //         // parent != partner and child == partner
-    //         sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
-    //       }
-    //       else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
-    //         cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
-    //         // parent == partner and child != partner
-    //         sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
-    //       }
-    //     }
-    //   }
-    // }
-    return sym_baby;
+    return sym_offspring;
   }
 
 

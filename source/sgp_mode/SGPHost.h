@@ -279,6 +279,7 @@ public:
       bool diverges = false;
       if (HasSym()) {
         sgp_sym_t& sym = *static_cast<sgp_sym_t*>(syms[0].Raw());
+        // NOTE - Looking at sym's parent here (do we want to do this or look at sym?)
         const emp::BitVector& sym_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
         const bool sym_performed_task = sym_tasks[task_id];
         // converge: host_parent != sym_partner and host == sym_partner

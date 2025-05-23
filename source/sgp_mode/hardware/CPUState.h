@@ -210,6 +210,9 @@ public:
   bool ReproAttempt() const {
     return repro_info.state == ReproState::ATTEMPTING;
   }
+  bool NotReproducing() const {
+    return repro_info.state == ReproState::NONE;
+  }
   size_t GetReproQueuePos() const {
     emp_assert(ReproInProgress(), "Queue position valid only if repro is in progress");
     return repro_info.queue_pos;
@@ -239,6 +242,12 @@ public:
   size_t GetTaskPerformanceCount(size_t task_id) const {
     emp_assert(task_id < tasks_performance_cnt.size());
     return tasks_performance_cnt[task_id];
+  }
+
+  void ResetTaskPerformance(size_t task_id) {
+    emp_assert(task_id < tasks_performance_cnt.size());
+    tasks_performance_cnt[task_id] = 0;
+    tasks_performed.Set(task_id, false);
   }
 
   void MarkTaskPerformed(size_t task_id) {
