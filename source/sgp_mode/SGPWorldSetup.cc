@@ -152,7 +152,7 @@ void SGPWorld::SetupStressInteractions() {
   begin_update_sig.AddAction(
     [this]() {
       const size_t u = GetUpdate();
-      stress_extinction_update = (u > 0) && (u % sgp_config.EXTINCTION_FREQUENCY()) == 0;
+      stress_extinction_update = (u > 0) && (u % sgp_config.STRESS_FREQUENCY()) == 0;
     }
   );
 
@@ -160,6 +160,7 @@ void SGPWorld::SetupStressInteractions() {
   // NOTE - this can be simplified assuming no other desired differences in logic
   //        for parasite vs. mutualist (repeated code; only death chance is different)
   if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
+    // Use mutualist death chance
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
@@ -175,6 +176,7 @@ void SGPWorld::SetupStressInteractions() {
       }
     );
   } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {
+    // Use parasite death chance
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
@@ -183,6 +185,20 @@ void SGPWorld::SetupStressInteractions() {
         const double death_chance = (host.HasSym()) ?
           sgp_config.PARASITE_DEATH_CHANCE() :
           sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
+  } else if (GetStressSymType() == stress_sym_mode_t::NEUTRAL) {
+    // Symbionts have no effect on hosts with respect to stress event.
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
+        // If host has a symbiont, death_chance = mutualist death chance
+        // Otherwise, base death chance.
+        const double death_chance = sgp_config.BASE_DEATH_CHANCE();
         // Kill host with chosen probability
         if (random_ptr->P(death_chance)) {
           host.SetDead();
@@ -285,17 +301,18 @@ void SGPWorld::SetupSymReproduction() {
   // TODO - clean this up
   // stress hard-coded transmission modes
   // TODO - allow "layering on" of stress/nutrient/etc functionality
-  if (sgp_org_type == org_mode_t::STRESS) {
-    if (stress_sym_type == stress_sym_mode_t::MUTUALIST) {
-      // mutualists
-      sgp_config.VERTICAL_TRANSMISSION(1.0);
-      sgp_config.HORIZ_TRANS(false);
-    } else if (stress_sym_type == stress_sym_mode_t::PARASITE) {
-      // parasites
-      sgp_config.VERTICAL_TRANSMISSION(0);
-      sgp_config.HORIZ_TRANS(true);
-    }
-  }
+  // NOTE - Getting rid of hardcoded settings
+  // if (sgp_org_type == org_mode_t::STRESS) {
+  //   if (stress_sym_type == stress_sym_mode_t::MUTUALIST) {
+  //     // mutualists
+  //     sgp_config.VERTICAL_TRANSMISSION(1.0);
+  //     sgp_config.HORIZ_TRANS(false);
+  //   } else if (stress_sym_type == stress_sym_mode_t::PARASITE) {
+  //     // parasites
+  //     sgp_config.VERTICAL_TRANSMISSION(0);
+  //     sgp_config.HORIZ_TRANS(true);
+  //   }
+  // }
 
   // Configure sym do birth function
   // QUESTION - Is this setup function appropriate for this? Different setup function more appropriate?

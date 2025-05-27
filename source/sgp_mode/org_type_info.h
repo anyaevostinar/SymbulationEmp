@@ -11,15 +11,12 @@ namespace sgpmode::org_info {
 
 const size_t DEFAULT_STACK_SIZE_LIMIT = 16;
 
-enum class SGPOrganismType { DEFAULT = 0, HEALTH, STRESS, NUTRIENT };
+enum class SGPOrganismType { DEFAULT = 0 };
 enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
 // Mapping from commandline string configuration to organism type.
 std::unordered_map<std::string, SGPOrganismType> sgp_org_type_map = {
-  {"default", SGPOrganismType::DEFAULT},
-  {"health", SGPOrganismType::HEALTH},
-  {"stress", SGPOrganismType::STRESS},
-  {"nutrient", SGPOrganismType::NUTRIENT}
+  {"default", SGPOrganismType::DEFAULT}
 };
 
 // Mapping from commandline stress symbiont type string to stress symbiont type.
