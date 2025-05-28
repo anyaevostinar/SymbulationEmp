@@ -9,6 +9,7 @@
 
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
+#include "emp/math/math.hpp"
 
 // TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
 
@@ -102,12 +103,13 @@ void SGPWorld::SetupOrgMode() {
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
 
   // Configure stress sym type
-  // TODO - Implement SetupStressMode / etc
   std::string cfg_stress_sym_type(emp::to_lower(sgp_config.STRESS_TYPE()));
   // Get stress symbiont type (asserts validity)
   stress_sym_type = org_info::GetStressSymType(cfg_stress_sym_type);
-
-  // TODO - configure other organism modes as appropriate
+  // Configure heatlh sym type
+  std::string cfg_health_sym_type(emp::to_lower(sgp_config.HEALTH_TYPE()));
+  health_sym_type = org_info::GetHealthSymType(cfg_health_sym_type);
+  // TODO - nutrient cfg
 
   // Knock out any mode-related instructions that shouldn't be active for this run
   if (!sgp_config.DONATION_STEAL_INST()) {
@@ -142,6 +144,83 @@ void SGPWorld::SetupOrgMode() {
   if (sgp_config.ENABLE_STRESS()) {
     SetupStressInteractions();
   }
+  // Configure health interactions
+  if (sgp_config.ENABLE_HEALTH()) {
+    SetupHealthInteractions();
+  }
+  // TODO - nutrient
+
+}
+
+void SGPWorld::SetupHealthInteractions() {
+  emp_assert(sgp_config.ENABLE_HEALTH());
+  std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
+  // NOTE - currently this does not necessarily make sense for multiple symbiotns
+  //        (host gains/loses once and all syms gain/lose same amount; i.e., no splitting)
+  // NOTE - currently set up as donate/steal interaction. There's no penalty/multiplier
+  //         which we probably want?
+  // Hosts lose/gain extra CPU cycles
+  if (GetHealthSymType() == health_sym_mode_t::MUTUALIST) {
+    // Mutualist endosymbionts may donate a proportion of their CPU cycles to their
+    // host.
+    before_endosym_host_process_sig.AddAction(
+      [this](
+        const emp::WorldPosition& sym_pos,
+        sgp_sym_t& sym,
+        sgp_host_t& host
+      ) {
+        auto& sym_state = sym.GetHardware().GetCPUState();
+        // If symbiont is dead or doesn't have a host, skip.
+        if (sym.GetDead()) { return; }
+        // Will sym donate?
+        const bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
+        const double donate_prop = sgp_config.MUTUALIST_CYCLE_GAIN_PROP();
+        emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
+        // const double sym_cycles = (double)sym_state.GetCPUCyclesGained();
+        const double sym_cycles = (double)sym_state.GetCPUCyclesToExec();
+        // How much will sym donate?
+        size_t sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles));
+        emp_assert(sym_donate >= 0);
+        sym_state.LoseCPUCycles(sym_donate);
+        // Adjust host's cpu cycles
+        host.GetHardware().GetCPUState().GainCPUCycles(sym_donate);
+      }
+    );
+  } else if (GetHealthSymType() == health_sym_mode_t::PARASITE) {
+    // Symbionts are hardcoded as health parasites.
+    // Parasitic health endosymbionts may steal a proportion of the host's CPU cycles
+    before_endosym_host_process_sig.AddAction(
+      [this](
+        const emp::WorldPosition& sym_pos,
+        sgp_sym_t& sym,
+        sgp_host_t& host
+      ) {
+        auto& sym_state = sym.GetHardware().GetCPUState();
+        // If symbiont is dead or doesn't have a host, skip.
+        if (sym.GetDead()) { return; }
+        auto& host_state = host.GetHardware().GetCPUState();
+        // Will sym steal?
+        const bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
+        const double steal_prop = sgp_config.PARASITE_CYCLE_LOSS_PROP();
+        emp_assert(steal_prop <= 1.0 && steal_prop >= 0.0);
+        // How much?
+        const double host_cycles = (double)host_state.GetCPUCyclesToExec();
+        const size_t sym_steal = (size_t)(((double)interact) * (steal_prop * host_cycles));
+        // Adjust sym and host states
+        sym_state.GainCPUCycles(sym_steal);
+        host_state.LoseCPUCycles(sym_steal);
+      }
+    );
+  } else if (GetHealthSymType() == health_sym_mode_t::NEUTRAL) {
+    // Symbionts are hardcoded as health neutralists.
+    // Not health interaction here?
+  } else {
+    std::cout << "Unimplemented health symbiont type (" << sgp_config.HEALTH_TYPE() << "). Exiting." << std::endl;
+    exit(-1);
+  }
+
+  // TODO - add instruction-mediated interaction
+
 }
 
 void SGPWorld::SetupStressInteractions() {
@@ -205,6 +284,9 @@ void SGPWorld::SetupStressInteractions() {
         }
       }
     );
+  } else {
+    std::cout << "Unimplemented stress symbiont type (" << sgp_config.STRESS_TYPE() << "). Exiting." << std::endl;
+    exit(-1);
   }
 
   // TODO - Add instruction-mediated stress interaction mode

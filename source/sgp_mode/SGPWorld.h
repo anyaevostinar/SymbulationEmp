@@ -76,6 +76,7 @@ public:
 
   using org_mode_t = typename org_info::SGPOrganismType;
   using stress_sym_mode_t = typename org_info::StressSymbiontType;
+  using health_sym_mode_t = typename org_info::HealthSymbiontType;
 
   // Used for any snapshot info that should be added to the config snapshot file
   // in addition to values in sgp_config object.
@@ -139,6 +140,8 @@ protected:
   // If using stress organisms, what kind of stress?
   stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
   bool stress_extinction_update = false;
+
+  health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -290,6 +293,12 @@ protected:
   )> after_freeliving_sym_cpu_exec_sig;
 
   // ---- Endosymbiont process signals / functors ----
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_host_process_sig;
+
   // before_endosym_process_sig - Triggers during ProcessEndoSymbiont()
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
@@ -392,6 +401,8 @@ protected:
   void SetupTaskEnvironment();
   void SetupMutator();
   void SetupStressInteractions();
+  void SetupHealthInteractions();
+  void SetupNutrientInteractions();
 
   // Clear all world signals
   void ClearWorldSignals() {
@@ -408,6 +419,7 @@ protected:
     before_freeliving_sym_process_sig.Clear();
     after_freeliving_sym_process_sig.Clear();
     after_freeliving_sym_cpu_step_sig.Clear();
+    before_endosym_host_process_sig.Clear();
     before_endosym_process_sig.Clear();
     after_endosym_process_sig.Clear();
     after_endosym_cpu_step_sig.Clear();
@@ -597,6 +609,7 @@ public:
 
   org_mode_t GetOrgType() const { return sgp_org_type; }
   stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
+  health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
 
   ReproductionQueue& GetReproQueue() { return repro_queue; }
 

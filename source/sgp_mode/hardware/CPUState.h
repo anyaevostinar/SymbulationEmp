@@ -13,6 +13,7 @@
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
 #include "emp/base/array.hpp"
+#include "emp/math/math.hpp"
 
 #include <cstdint>
 
@@ -64,6 +65,9 @@ protected:
   emp::vector<size_t> lineage_task_diverge_partner;
 
   double survival_resource = 0.0; // TODO - move this out of CPUState
+  size_t cpu_cycles_to_exec = 0;  // Used by world to adjust per-update cpu cycle allotment.
+  // size_t cpu_cycles_gained = 0;
+  // size_t cpu_cycles_lost = 0;
 
   // emp::vector<size_t> available_dependencies;
   // emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
@@ -130,6 +134,10 @@ public:
 
     survival_resource = 0.0;
 
+    cpu_cycles_to_exec = 0.0;
+    // cpu_cycles_gained = 0.0;
+    // cpu_cycles_lost = 0.0;
+
     ResetReproState();
 
     jump_table.clear();
@@ -155,6 +163,67 @@ public:
     location = loc;
   }
   const emp::WorldPosition& GetLocation() const { return location; }
+
+  void SetCPUCyclesToExec(size_t num) {
+    cpu_cycles_to_exec = num;
+  }
+
+  size_t GetCPUCyclesToExec() const {
+    return cpu_cycles_to_exec;
+  }
+
+  void GainCPUCycles(size_t gain) {
+    cpu_cycles_to_exec += gain;
+  }
+
+  void LoseCPUCycles(size_t loss) {
+    emp_assert(loss <= cpu_cycles_to_exec);
+    // NOTE - assert sufficient, or do we want to ensure loss is not bigger than
+    //        exec
+    cpu_cycles_to_exec -= loss;
+  }
+
+  size_t ExtractCPUCycles() {
+    const size_t cycles = cpu_cycles_to_exec;
+    cpu_cycles_to_exec = 0;
+    return cycles;
+  }
+
+  // void SetCPUCyclesGained(size_t num) {
+  //   cpu_cycles_gained = num;
+  // }
+  // void GainCPUCycles(size_t gain) {
+  //   cpu_cycles_gained += gain;
+  // }
+
+  // size_t GetCPUCyclesGained(size_t num) const {
+  //   return cpu_cycles_gained;
+  // }
+
+  // void SetCPUCyclesLost(size_t num) {
+  //   cpu_cycles_lost = num;
+  // }
+  // void LoseCPUCycles(size_t loss) {
+  //   cpu_cycles_lost += loss;
+  // }
+  // size_t GetCPUCyclesLost(size_t num) const {
+  //   return cpu_cycles_lost;
+  // }
+  // // Adjust cpu cycles based on gains/losses
+  // void AdjustCPUCycles() {
+  //   int adjustment = (int)cpu_cycles_gained - (int)cpu_cycles_lost;
+  //   if (adjustment >= 0) {
+  //     cpu_cycles_to_exec += (size_t)adjustment;
+  //   } else {
+  //     adjustment *= -1;
+  //     cpu_cycles_to_exec -= (adjustment > cpu_cycles_to_exec) ?
+  //       0 : (size_t)adjustment;
+  //   }
+  //   cpu_cycles_lost = 0;
+  //   cpu_cycles_gained = 0;
+  // }
+
+
 
   void SetTaskEnvID(size_t id) { task_env_id = id; }
   size_t GetTaskEnvID() const { return task_env_id; }

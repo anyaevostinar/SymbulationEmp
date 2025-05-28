@@ -46,7 +46,45 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
   }
   // Update host location
   host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
+  // NOTE - Will symbionts be able to modify host's cycles during *their* executation?
+  //        How do we want to handle that? (modify host's execution on next update?)
+  // NOTE - Will need to update/revist this if we have instruction-mediated interactions
+
+  // Hosts gain baseline number of CPU cycles
+  host.GetHardware().GetCPUState().GainCPUCycles(
+    sgp_config.CYCLES_PER_UPDATE()
+  );
+
+  // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
+  //        Currently endosyms go first and then hosts. This is to model endosyms
+  //        having opportunity to steal / donate cpu cycles and then host responding
+  //        to endosym behavior (but could argue it should be the other way around).
+  // Give endosymbionts their baseline CPU cycles
+  // Trigger signal to all endosymbionts that host is about to process
+  //   Gives endosymbionts chance to interact with host before it processes.
+  //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
+  emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+  for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+    emp_assert(!(syms[endosym_i]->IsHost()));
+    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+    const bool dead = cur_symbiont->GetDead();
+    // Skip if dead
+    if (dead) {
+      continue;
+    }
+    // Endosymbiont gains baseline number of CPU cycles
+    cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
+      sgp_config.CYCLES_PER_UPDATE()
+    );
+    before_endosym_host_process_sig.Trigger(
+      {endosym_i + 1, host.GetLocation().GetIndex()},
+      *cur_symbiont,
+      host
+    );
+  }
+
   before_host_process_sig.Trigger(host);
+
   // Host may have died as a result of this signal.
   // NOTE - Do we want to return early here + do death?
   //        Anywhere else we want to check for death?
@@ -54,11 +92,20 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     DoDeath(pos);
     return;
   }
-  // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
-  // Execute organism hardware for CYCLES_PER_UPDATE steps
+
+  if (host.GetDead()) {
+    DoDeath(pos);
+    return;
+  }
+
+  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+  const size_t cycles_to_exec = host.GetHardware().GetCPUState().ExtractCPUCycles();
+  // host.GetHardware().GetCPUState().LoseCPUCycles(cycles_to_execute);
+  // Execute organism hardware according to cycles_to_exec
   // NOTE - Discuss possibility of host dying because of instruction executions.
   //        As-is, still run hardware forward full amount regardless
-  for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
+  for (size_t i = 0; i < cycles_to_exec; ++i) {
+    // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
     // Execute 1 CPU cycle
     host.GetHardware().RunCPUStep(1);
 
@@ -148,7 +195,10 @@ void SGPWorld::ProcessEndosymbiont(
     return;
   }
   before_endosym_process_sig.Trigger(sym_pos, sym, host);
-  for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
+  // Cash in cycles for this update
+  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+  const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
+  for (size_t i = 0; i < cycles_to_exec; ++i) {
     sym.GetHardware().RunCPUStep(1);
     after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
 
@@ -180,9 +230,13 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
   if (sym.GetDead()) {
     DoSymDeath(pos.GetPopID());
   } else {
+    // Sym gains cpu cycles
+    sym.GetHardware().GetCPUState().GainCPUCycles(sgp_config.CYCLES_PER_UPDATE());
     // Not dead, process.
     before_freeliving_sym_process_sig.Trigger(sym);
-    for (size_t i = 0; i < sgp_config.CYCLES_PER_UPDATE(); ++i) {
+    // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+    const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
+    for (size_t i = 0; i < cycles_to_exec; ++i) {
       sym.GetHardware().RunCPUStep(1);
 
       // Did this sym attempt to reproduce?

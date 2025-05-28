@@ -43,6 +43,14 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
 
+  // NOTE - HEALTH_X is less descriptive than STRESS_X; shift language to HEALTH_INTERACTION_X?
+  GROUP(HEALTH, "Health interaction settings"),
+  VALUE(ENABLE_HEALTH, bool, false, "Health interactions enabled?"),
+  VALUE(HEALTH_TYPE, std::string, "mutualist", "What kind of health symbionts are used?"),
+  VALUE(MUTUALIST_CYCLE_GAIN_PROP, double, 1.0, "Proportion of cycles gained when host has health mutualist (1.0 = gain additional 100\% of base cycles)"),
+  VALUE(PARASITE_CYCLE_LOSS_PROP, double, 0.5, "Proportion of cycles lost when host has health parasite"),
+  VALUE(HEALTH_INTERACTION_CHANCE, double, 0.5, "Probability of host-symbiont health interaction each update"),
+
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
   VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
