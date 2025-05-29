@@ -68,6 +68,12 @@ public:
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
+  using fun_apply_nutrient_interaction_t = std::function<double(
+    sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t     /* task id */
+  )>;
+
   // using fun_process_endosym_t = std::function<void(
   //   sgp_sym_t&,                /* endosymbiont */
   //   const emp::WorldPosition&, /* sym pos */
@@ -77,6 +83,7 @@ public:
   using org_mode_t = typename org_info::SGPOrganismType;
   using stress_sym_mode_t = typename org_info::StressSymbiontType;
   using health_sym_mode_t = typename org_info::HealthSymbiontType;
+  using nutrient_sym_mode_t = typename org_info::NutrientSymbiontType;
 
   // Used for any snapshot info that should be added to the config snapshot file
   // in addition to values in sgp_config object.
@@ -142,6 +149,9 @@ protected:
   bool stress_extinction_update = false;
 
   health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
+  nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
+
+  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -610,6 +620,7 @@ public:
   org_mode_t GetOrgType() const { return sgp_org_type; }
   stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
   health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
+  nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
 
   ReproductionQueue& GetReproQueue() { return repro_queue; }
 

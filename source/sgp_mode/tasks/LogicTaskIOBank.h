@@ -57,6 +57,7 @@ public:
     }
 
     bool IsValidOutput(float output) const {
+      // Reinterpet floating point output value as output_t (uint usually)
       return IsValidOutput(*(reinterpret_cast<output_t*>(&output)));
     }
 

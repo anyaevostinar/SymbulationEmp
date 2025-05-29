@@ -179,6 +179,9 @@ public:
   void DecPoints(double amt) {
     points -= amt;
   }
+  void AddPoints(double amt) {
+    points += amt;
+  }
 
   /**
    * Input: None.

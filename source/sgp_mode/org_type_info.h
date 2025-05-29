@@ -14,6 +14,7 @@ const size_t DEFAULT_STACK_SIZE_LIMIT = 16;
 enum class SGPOrganismType { DEFAULT = 0 };
 enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 enum class HealthSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
+enum class NutrientSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
 // Mapping from commandline string configuration to organism type.
 std::unordered_map<std::string, SGPOrganismType> sgp_org_type_map = {
@@ -32,6 +33,13 @@ std::unordered_map<std::string, HealthSymbiontType> sgp_health_sym_type_map = {
   {"mutualist", HealthSymbiontType::MUTUALIST},
   {"parasite", HealthSymbiontType::PARASITE},
   {"neutral", HealthSymbiontType::NEUTRAL}
+};
+
+// Mapping from commandline nutrient symbiont type string to nutrient symbiont type.
+std::unordered_map<std::string, NutrientSymbiontType> sgp_nutrient_sym_type_map = {
+  {"mutualist", NutrientSymbiontType::MUTUALIST},
+  {"parasite", NutrientSymbiontType::PARASITE},
+  {"neutral", NutrientSymbiontType::NEUTRAL}
 };
 
 bool IsValidOrganismType(const std::string& type_str) {
@@ -59,6 +67,15 @@ bool IsValidHealthSymType(const std::string& type_str) {
 HealthSymbiontType GetHealthSymType(const std::string& type_str) {
   emp_assert(IsValidHealthSymType(type_str));
   return sgp_health_sym_type_map[type_str];
+}
+
+bool IsValidNutrientSymType(const std::string& type_str) {
+  return emp::Has(sgp_nutrient_sym_type_map, type_str);
+}
+
+NutrientSymbiontType GetNutrientSymType(const std::string& type_str) {
+  emp_assert(IsValidNutrientSymType(type_str));
+  return sgp_nutrient_sym_type_map[type_str];
 }
 
 }

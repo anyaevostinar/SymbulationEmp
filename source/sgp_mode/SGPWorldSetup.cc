@@ -15,8 +15,7 @@
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
-// TODO - implement "empty initialization" option
-//        - Particularly useful for testing
+
 void SGPWorld::Setup() {
   // Clear all world signals
   ClearWorldSignals();
@@ -101,7 +100,6 @@ void SGPWorld::SetupOrgMode() {
   std::string cfg_org_type(emp::to_lower(sgp_config.ORGANISM_TYPE()));
   // Get organism type (asserts validity)
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
-
   // Configure stress sym type
   std::string cfg_stress_sym_type(emp::to_lower(sgp_config.STRESS_TYPE()));
   // Get stress symbiont type (asserts validity)
@@ -109,7 +107,9 @@ void SGPWorld::SetupOrgMode() {
   // Configure heatlh sym type
   std::string cfg_health_sym_type(emp::to_lower(sgp_config.HEALTH_TYPE()));
   health_sym_type = org_info::GetHealthSymType(cfg_health_sym_type);
-  // TODO - nutrient cfg
+  // Configure nutrient sym type
+  std::string cfg_nutrient_sym_type(emp::to_lower(sgp_config.NUTRIENT_TYPE()));
+  nutrient_sym_type = org_info::GetNutrientSymType(cfg_nutrient_sym_type);
 
   // Knock out any mode-related instructions that shouldn't be active for this run
   if (!sgp_config.DONATION_STEAL_INST()) {
@@ -139,16 +139,6 @@ void SGPWorld::SetupOrgMode() {
       Library::GetSize()
     );
   }
-
-  // Configure stress
-  if (sgp_config.ENABLE_STRESS()) {
-    SetupStressInteractions();
-  }
-  // Configure health interactions
-  if (sgp_config.ENABLE_HEALTH()) {
-    SetupHealthInteractions();
-  }
-  // TODO - nutrient
 
 }
 
@@ -225,6 +215,7 @@ void SGPWorld::SetupHealthInteractions() {
 
 void SGPWorld::SetupStressInteractions() {
   emp_assert(sgp_config.ENABLE_STRESS());
+  std::cout << "Setting up stress host-endosymbiont interactions." << std::endl;
 
   // Setup extinction variable
   // At beginning of update, determine whether an extinction event occurs
@@ -293,6 +284,150 @@ void SGPWorld::SetupStressInteractions() {
 
   // NOTE - What about free-living symbionts (if any)?
   //        Or endosymbionts?
+}
+
+void SGPWorld::SetupNutrientInteractions() {
+  emp_assert(sgp_config.ENABLE_NUTRIENT());
+  std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
+
+  /* NOTE - John's notes on nutrient interactions
+    Nutrient parasites and mutualists: Nutrient symbionts will be able to infect hosts by default,
+    however the resources they earn will impact the resources that the host has accumulated. When
+    a nutrient symbiont performs a logic operation, if it matches an operation the host has recently
+    performed, the symbiont will steal half of the specified resources from the host’s supply, with the
+    other half coming from the world’s supply. Conversely, if the operation isn’t one that the host has
+    performed recently, half of the specified resources will go to the host and half will remain with the
+    symbiont. Because the symbiont will gain the same amount of resources either way, the system
+    is not biased toward mutualism or parasitism. We hypothesize that, at 50% vertical transmission,
+    symbionts will evolve toward mutualism due to hosts performing a wide range of logic operations
+    to capture additional resources.
+  */
+
+  // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks
+  if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {
+    // Nutrient mutualist - if mutualist performs task that host cannot,
+    //  mutualist donates some resources to the host.
+    fun_apply_nutrient_interaction = [this](
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
+      auto& host_state = host.GetHardware().GetCPUState();
+      const bool host_performed = host_state.GetParentTaskPerformed(task_id);
+      if (host_performed) {
+        // Task match, no interaction between host and mutualist.
+        // NOTE - Do we want this or do we want still earning reduced amount?
+        // Probably not - no incentive for mutualistm?
+        return task_points;
+      } else {
+        // Task mismtach, donate proportion of earned task points to host.
+        // Can't donate more than task value or less than 0.0
+        const double to_donate = std::clamp(
+          sgp_config.NUTRIENT_DONATE_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        // Donate points to host
+        host.AddPoints(to_donate);
+        // Return task points minus donated value for symbiont to earn
+        return task_points - to_donate;
+      }
+    };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
+    // Nutrient parasite - if parasite performs task that host also performs,
+    //  parasite steals some proportion of earned points from host
+    fun_apply_nutrient_interaction = [this](
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
+      auto& host_state = host.GetHardware().GetCPUState();
+      const bool host_performed = host_state.GetParentTaskPerformed(task_id);
+      if (!host_performed) {
+        // Task match, no interaction between host and parasite.
+        // NOTE - do we want earning full amount or not?
+        //  - Probably not? Otherwise, no incentive for parasitism?
+        return task_points;
+      } else {
+        // Task mismtach, donate proportion of earned task points to host.
+        // Can't try to steal less than 0 or more than task was worth
+        const double to_steal = std::clamp(
+          sgp_config.NUTRIENT_STEAL_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        // Can't take more than host has
+        const double from_host = emp::Min(
+          host.GetPoints(),
+          to_steal
+        );
+        host.DecPoints(from_host);
+        // NOTE - subtract to_steal or from_host?
+        const double from_world = task_points - to_steal;
+        // Take points from host
+        return from_host + from_world;
+      }
+    };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
+    // NOTE: Neutral - Both are possible?
+    fun_apply_nutrient_interaction = [this](
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
+      auto& host_state = host.GetHardware().GetCPUState();
+      const bool host_performed = host_state.GetParentTaskPerformed(task_id);
+      if (!host_performed) {
+        // Task mismtach, symbiont donates proportion of earned task points to host.
+        // Can't donate more than task value or less than 0.0
+        const double to_donate = std::clamp(
+          sgp_config.NUTRIENT_DONATE_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        // Donate points to host
+        host.AddPoints(to_donate);
+        // Return task points minus donated value for symbiont to earn
+        return task_points - to_donate;
+      } else {
+        // Task mismtach, donate proportion of earned task points to host.
+        // Can't try to steal less than 0 or more than task was worth
+        const double to_steal = std::clamp(
+          sgp_config.NUTRIENT_STEAL_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        // Can't take more than host has
+        const double from_host = emp::Min(
+          host.GetPoints(),
+          to_steal
+        );
+        host.DecPoints(from_host);
+        // NOTE - subtract to_steal or from_host?
+        const double from_world = task_points - to_steal;
+        // Take points from host
+        return from_host + from_world;
+      }
+    };
+  } else {
+    std::cout << "Unimplemented nutrient symbiont type (" << sgp_config.NUTRIENT_TYPE() << "). Exiting." << std::endl;
+    exit(-1);
+  }
 }
 
 void SGPWorld::SetupPopStructure() {
@@ -380,9 +515,7 @@ void SGPWorld::SetupHostReproduction() {
 
 // Configure symbiont reproduction signals
 void SGPWorld::SetupSymReproduction() {
-  // TODO - clean this up
   // stress hard-coded transmission modes
-  // TODO - allow "layering on" of stress/nutrient/etc functionality
   // NOTE - Getting rid of hardcoded settings
   // if (sgp_org_type == org_mode_t::STRESS) {
   //   if (stress_sym_type == stress_sym_mode_t::MUTUALIST) {
@@ -466,6 +599,7 @@ void SGPWorld::SetupSymReproduction() {
 
 
 void SGPWorld::SetupHostSymInteractions() {
+  std::cout << "Setup Host-symbiont interactions" << std::endl;
   // Setup function that determines host-symbiont compatibility
   // TODO - Will probably need to shift this bool config to a categorical config
   //        if we want to accomodate anything like tag matching for compatibility
@@ -492,6 +626,29 @@ void SGPWorld::SetupHostSymInteractions() {
       const emp::BitVector& sym_parent_tasks = sym.GetHardware().GetCPUState().GetTasksPerformed();
       return utils::AnyMatch(host_parent_tasks, sym_parent_tasks);
     };
+  }
+
+  // Configure stress
+  if (sgp_config.ENABLE_STRESS()) {
+    SetupStressInteractions();
+  }
+  // Configure health interactions
+  if (sgp_config.ENABLE_HEALTH()) {
+    SetupHealthInteractions();
+  }
+
+  // Configure nutrient interactions
+  // Configure default (no) nutrient interaction (IMPORTANT!)
+  // - Nutrient interaction setup will override this behavior if enabled.
+  fun_apply_nutrient_interaction = [](
+    sgp_sym_t& sym,
+    double task_points,
+    size_t task_id
+  ) {
+    return task_points;
+  };
+  if (sgp_config.ENABLE_NUTRIENT()) {
+    SetupNutrientInteractions();
   }
 
 }

@@ -292,10 +292,8 @@ void SGPWorld::EndosymAttemptRepro(
   // NOTE - Do we want to be using the horizontal transmission cost here?
   //        Is this always horizontal transmisstion?
   // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
-  std::cout << "EndosymAttemptRepro" << std::endl;
   const double repro_cost = sgp_config.SYM_HORIZ_TRANS_RES();
   if (sym.GetPoints() >= repro_cost) {
-    std::cout << "  Endosym queued in repro queue" << std::endl;
     // Sym pays cost
     sym.DecPoints(repro_cost);
     // Add sym to repro queue
@@ -585,15 +583,24 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
         }
         // Mark task as being performed
         cpu_state.MarkTaskPerformed(task_id);
-        // Calc value, add to organism points
-        sym.SetPoints(
-          task_req_info.fun_calc_task_val(
-            task_env,
-            task_req_info,
-            sym.GetPoints()
-          )
-        );
         ++sym_task_successes[task_id];
+
+        // Calc base task value based on task environment, task requirements, and
+        // symbiont's current point value.
+        // NOTE - A little funky because task value might be a multiplier on
+        //        current sym points.
+        //        So, to get the value *added* by the task, we subtract original point value.
+        double new_points = task_req_info.fun_calc_task_val(
+          task_env,
+          task_req_info,
+          sym.GetPoints()
+        );
+        double task_points = new_points - sym.GetPoints();
+        // Apply nutrient interaction (if any have been configured) to points
+        // NOTE - can inject nutrient interaction here to modify points?
+        task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
+        // Add earned task points to symbiont's point total
+        sym.AddPoints(task_points);
       }
     }
   }

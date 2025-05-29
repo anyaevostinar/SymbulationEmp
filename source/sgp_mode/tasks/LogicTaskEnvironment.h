@@ -204,7 +204,10 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
       emp_assert(task.contains("name"));
       std::cout << "    - " << task["name"];
       // If we've already added this task to the task_set, skip.
-      if (task_set.HasTask(task["name"])) continue;
+      if (task_set.HasTask(task["name"])) {
+        std::cout << std::endl;
+        continue;
+      }
       // Next, check that this is a valid pre-defined task name.
       if (!LogicTaskSet::IsPredefined(task["name"])) {
         std::cout << " (invalid). Exiting." << std::endl;

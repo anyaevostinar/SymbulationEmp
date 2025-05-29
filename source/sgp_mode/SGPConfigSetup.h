@@ -51,6 +51,12 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_CYCLE_LOSS_PROP, double, 0.5, "Proportion of cycles lost when host has health parasite"),
   VALUE(HEALTH_INTERACTION_CHANCE, double, 0.5, "Probability of host-symbiont health interaction each update"),
 
+  GROUP(NUTRIENT, "Nutrient interaction settings"),
+  VALUE(ENABLE_NUTRIENT, bool, false, "Nutrient interactions enabled?"),
+  VALUE(NUTRIENT_TYPE, std::string, "mutualist", "What kind of nutrient symbionts are used?"),
+  VALUE(NUTRIENT_DONATE_PROP, double, 0.5, "When symbiont donates resources to a host, what proportion is donated?"),
+  VALUE(NUTRIENT_STEAL_PROP, double, 0.5, "When symbiont steals resources from a host, what proportion is stolen?"),
+
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
   VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
