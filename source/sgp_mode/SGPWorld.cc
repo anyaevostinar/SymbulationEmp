@@ -93,11 +93,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     return;
   }
 
-  if (host.GetDead()) {
-    DoDeath(pos);
-    return;
-  }
-
   // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
   const size_t cycles_to_exec = host.GetHardware().GetCPUState().ExtractCPUCycles();
   // host.GetHardware().GetCPUState().LoseCPUCycles(cycles_to_execute);
@@ -144,7 +139,6 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
   if (!host.HasSym()) {
     return;
   }
-  // TODO - signal?
   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
   size_t sym_cnt = syms.size();
   for (size_t sym_i = 0; sym_i < sym_cnt; /*sym_i handled internally*/) {
@@ -194,6 +188,7 @@ void SGPWorld::ProcessEndosymbiont(
   if (sym.GetDead()) {
     return;
   }
+  sym.GetHardware().GetCPUState().SetLocation(sym_pos);
   before_endosym_process_sig.Trigger(sym_pos, sym, host);
   // Cash in cycles for this update
   // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)

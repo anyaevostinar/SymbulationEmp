@@ -735,7 +735,7 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
 
   before_endosym_process_sig.AddAction(
     [this](
-      const emp::WorldPosition& sym_pos ,
+      const emp::WorldPosition& sym_pos,
       sgp_sym_t& sym,
       sgp_host_t& host
     ) {
