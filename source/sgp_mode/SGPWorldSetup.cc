@@ -189,6 +189,8 @@ void SGPWorld::SetupHealthInteractions() {
         // If symbiont is dead or doesn't have a host, skip.
         if (sym.GetDead()) { return; }
         auto& host_state = host.GetHardware().GetCPUState();
+        // Drain parasite CPU cycles (can only gain via stealing)
+        sym_state.SetCPUCyclesToExec(0);
         // Will sym steal?
         const bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
         const double steal_prop = sgp_config.PARASITE_CYCLE_LOSS_PROP();
@@ -210,7 +212,6 @@ void SGPWorld::SetupHealthInteractions() {
   }
 
   // TODO - add instruction-mediated interaction
-
 }
 
 void SGPWorld::SetupStressInteractions() {
@@ -305,7 +306,7 @@ void SGPWorld::SetupNutrientInteractions() {
 
   // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks
   if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {
-    // Nutrient mutualist - if mutualist performs task that host cannot,
+    // Nutrient mutualist - if mutualist task matches a host,
     //  mutualist donates some resources to the host.
     fun_apply_nutrient_interaction = [this](
       sgp_sym_t& sym,
@@ -319,10 +320,11 @@ void SGPWorld::SetupNutrientInteractions() {
       auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
       auto& host_state = host.GetHardware().GetCPUState();
       const bool host_performed = host_state.GetParentTaskPerformed(task_id);
-      if (host_performed) {
+      if (!host_performed) {
         // Task match, no interaction between host and mutualist.
         // NOTE - Do we want this or do we want still earning reduced amount?
         // Probably not - no incentive for mutualistm?
+        // What happens when they don't donate?
         return task_points;
       } else {
         // Task mismtach, donate proportion of earned task points to host.
@@ -357,7 +359,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // Task match, no interaction between host and parasite.
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
-        return task_points;
+        return 0.0;
       } else {
         // Task mismtach, donate proportion of earned task points to host.
         // Can't try to steal less than 0 or more than task was worth
@@ -375,55 +377,11 @@ void SGPWorld::SetupNutrientInteractions() {
         // NOTE - subtract to_steal or from_host?
         const double from_world = task_points - to_steal;
         // Take points from host
-        return from_host + from_world;
+        return task_points;
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
-    // NOTE: Neutral - Both are possible?
-    fun_apply_nutrient_interaction = [this](
-      sgp_sym_t& sym,
-      double task_points,
-      size_t task_id
-    ) -> double {
-      auto& sym_state = sym.GetHardware().GetCPUState();
-      // If symbiont has no host, no interaction to modify points.
-      if (!sym_state.HasHost()) { return task_points; }
-      // Symbiont must have a host, so they interact.
-      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
-      auto& host_state = host.GetHardware().GetCPUState();
-      const bool host_performed = host_state.GetParentTaskPerformed(task_id);
-      if (!host_performed) {
-        // Task mismtach, symbiont donates proportion of earned task points to host.
-        // Can't donate more than task value or less than 0.0
-        const double to_donate = std::clamp(
-          sgp_config.NUTRIENT_DONATE_PROP() * task_points,
-          0.0,
-          task_points
-        );
-        // Donate points to host
-        host.AddPoints(to_donate);
-        // Return task points minus donated value for symbiont to earn
-        return task_points - to_donate;
-      } else {
-        // Task mismtach, donate proportion of earned task points to host.
-        // Can't try to steal less than 0 or more than task was worth
-        const double to_steal = std::clamp(
-          sgp_config.NUTRIENT_STEAL_PROP() * task_points,
-          0.0,
-          task_points
-        );
-        // Can't take more than host has
-        const double from_host = emp::Min(
-          host.GetPoints(),
-          to_steal
-        );
-        host.DecPoints(from_host);
-        // NOTE - subtract to_steal or from_host?
-        const double from_world = task_points - to_steal;
-        // Take points from host
-        return from_host + from_world;
-      }
-    };
+    // Keep default behavior
   } else {
     std::cout << "Unimplemented nutrient symbiont type (" << sgp_config.NUTRIENT_TYPE() << "). Exiting." << std::endl;
     exit(-1);

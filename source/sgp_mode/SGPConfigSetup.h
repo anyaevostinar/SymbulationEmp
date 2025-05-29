@@ -16,6 +16,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
   VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
+  // NOTE - task type is confusing; ancestor mode?
   VALUE(TASK_TYPE, bool, true, "If random ancestor off, 1 for NOT + repro starting genome, 0 for repro starting program"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(FIND_NEIGHBOR_HOST_ATTEMPTS, size_t, 4, "How many times to attempt finding a neighboring host for symbiont to horizontally transmit into"),
