@@ -654,7 +654,7 @@ public:
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
 
-    if (my_config->TAG_MATCHING() & HasSym()) {
+    if (my_config->TAG_MATCHING() && HasSym()) {
       // do not xor to get 1 where bits are matching
       emp::BitSet<TAG_LENGTH> sym_host_parent_matching = syms[0]->GetTag().XOR(tag).NOT();
       emp::BitSet<TAG_LENGTH> sym_host_baby_matching = syms[0]->GetTag().XOR(host_baby->GetTag()).NOT();
