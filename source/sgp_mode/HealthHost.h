@@ -58,8 +58,8 @@ class HealthHost : public SGPHost {
             //Or setup function?
             return;
         }
-
-        int host_cycle = 1; //TODO: should have default values
+        
+        int host_cycle = 1;
         int sym_cycle = 0;
         if (HasSym()) {
           if (sgp_config->STRESS_TYPE() == MUTUALIST) {

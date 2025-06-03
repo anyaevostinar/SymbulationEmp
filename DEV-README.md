@@ -14,6 +14,7 @@ Kai Johnson implemented support for ectosymbionts with complex genomes in the br
 
 ## Tests to write
 * Figure out why integration test in HealthHost.test.cc gets inconsistent results, maybe the sgp random seed needs to be set?
+  * sgpl::tlrand.Get().ResetSeed(3); perhaps?
 * Health host with parasite loses cycle 50% of time
 * Health host with mutualist gains cycle 50% of time
   * in signalgp-lite/include/sgpl/hardware/Cpu.hpp there is GetCore(0)
