@@ -59,8 +59,8 @@ class HealthHost : public SGPHost {
             return;
         }
 
-        int host_cycle; //TODO: should have default values
-        int sym_cycle;
+        int host_cycle = 1; //TODO: should have default values
+        int sym_cycle = 0;
         if (HasSym()) {
           if (sgp_config->STRESS_TYPE() == MUTUALIST) {
             //Host with mutualist gains 50% of CPU from mutualist
