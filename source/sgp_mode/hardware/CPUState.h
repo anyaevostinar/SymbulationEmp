@@ -42,16 +42,21 @@ public:
     ReproState state = ReproState::NONE;
     size_t queue_pos = 0;
   };
+
 protected:
   Stacks<uint32_t> stacks;
   input_buf_t input_buf;
   output_buf_t output_buffer;
   size_t task_env_id = 0; // Tracks current task ID environment used by this organism
   size_t num_tasks = 0;
-  // emp::BitVector used_resources;          // TODO - document use
   // NOTE - should this be in the CPU state? Or, move into organism class as "phenotype" information?
   emp::BitVector tasks_performed;
   emp::vector<size_t> tasks_performance_cnt;
+
+  // Track which outputs for each task have been credited.
+  // - Only give credit for repeats after all pairs have been used
+  // task outputs credited
+  emp::vector< std::set<uint32_t> > task_outputs_credited;
 
   emp::BitVector parent_tasks_performed;
 
@@ -66,23 +71,11 @@ protected:
 
   double survival_resource = 0.0; // TODO - move this out of CPUState
   size_t cpu_cycles_to_exec = 0;  // Used by world to adjust per-update cpu cycle allotment.
-  // size_t cpu_cycles_gained = 0;
-  // size_t cpu_cycles_lost = 0;
-
-  // emp::vector<size_t> available_dependencies;
-  // emp::Ptr<emp::vector<size_t>> shared_available_dependencies =
-  //     emp::NewPtr<emp::vector<size_t>>();
 
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
-  // int in_progress_repro = -1;
-  // bool repro_attempt = false;     // Flags whether organism has attempted reproduction.
-  // bool repro_in_progress = false;
-  // size_t repro_queue_pos = 0;
   ReproInfo repro_info;
 
-  // emp::Ptr<emp::vector<uint32_t>> internal_environment =
-  //     emp::NewPtr<emp::vector<uint32_t>>();
   emp::vector<size_t> jump_table;
 
   emp::Ptr<Organism> organism; // Unowned pointer to organism using this CPU.
@@ -120,6 +113,10 @@ public:
 
     // Reset output buffer
     output_buffer.clear();
+
+    // Reset tasks credited
+    task_outputs_credited.clear();
+    task_outputs_credited.resize(task_cnt, {});
 
     // Resize + 0-out
     // utils::ResizeClear(used_resources, num_tasks);
@@ -188,42 +185,6 @@ public:
     cpu_cycles_to_exec = 0;
     return cycles;
   }
-
-  // void SetCPUCyclesGained(size_t num) {
-  //   cpu_cycles_gained = num;
-  // }
-  // void GainCPUCycles(size_t gain) {
-  //   cpu_cycles_gained += gain;
-  // }
-
-  // size_t GetCPUCyclesGained(size_t num) const {
-  //   return cpu_cycles_gained;
-  // }
-
-  // void SetCPUCyclesLost(size_t num) {
-  //   cpu_cycles_lost = num;
-  // }
-  // void LoseCPUCycles(size_t loss) {
-  //   cpu_cycles_lost += loss;
-  // }
-  // size_t GetCPUCyclesLost(size_t num) const {
-  //   return cpu_cycles_lost;
-  // }
-  // // Adjust cpu cycles based on gains/losses
-  // void AdjustCPUCycles() {
-  //   int adjustment = (int)cpu_cycles_gained - (int)cpu_cycles_lost;
-  //   if (adjustment >= 0) {
-  //     cpu_cycles_to_exec += (size_t)adjustment;
-  //   } else {
-  //     adjustment *= -1;
-  //     cpu_cycles_to_exec -= (adjustment > cpu_cycles_to_exec) ?
-  //       0 : (size_t)adjustment;
-  //   }
-  //   cpu_cycles_lost = 0;
-  //   cpu_cycles_gained = 0;
-  // }
-
-
 
   void SetTaskEnvID(size_t id) { task_env_id = id; }
   size_t GetTaskEnvID() const { return task_env_id; }
@@ -317,13 +278,40 @@ public:
     emp_assert(task_id < tasks_performance_cnt.size());
     tasks_performance_cnt[task_id] = 0;
     tasks_performed.Set(task_id, false);
+    task_outputs_credited[task_id].clear();
   }
 
+  // NOTE - could move these into protected, then write a single wrapper function
+  //  Upside: less management
+  //  Downside: locked into credit checking
   void MarkTaskPerformed(size_t task_id) {
     emp_assert(task_id < tasks_performed.GetSize());
     emp_assert(task_id < tasks_performance_cnt.size());
     tasks_performed.Set(task_id, true);
     ++(tasks_performance_cnt[task_id]);
+  }
+
+  // Has this output value been credited for given task id?
+  bool OutputCredited(size_t task_id, uint32_t output_val) const {
+    emp_assert(task_id < task_outputs_credited.size());
+    return emp::Has(task_outputs_credited[task_id], output_val);
+  }
+  const std::set<uint32_t>& GetOutputsCredited(size_t task_id) const {
+    emp_assert(task_id < task_outputs_credited.size());
+    return task_outputs_credited[task_id];
+  }
+  // Credit the output value
+  void CreditOutputValue(size_t task_id, uint32_t output_val) {
+    emp_assert(task_id < task_outputs_credited.size());
+    task_outputs_credited[task_id].emplace(output_val);
+  }
+  void ResetCreditedOutputs(size_t task_id) {
+    task_outputs_credited[task_id].clear();
+  }
+  void ResetCreditedOutputs() {
+    for (auto& outputs : task_outputs_credited) {
+      outputs.clear();
+    }
   }
 
   size_t GetLineageTaskLossCount(size_t task_id) const {

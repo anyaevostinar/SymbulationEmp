@@ -45,6 +45,8 @@ public:
   using sgp_prog_t = typename sgp_hw_t::program_t;
   using task_env_t = tasks::LogicTaskEnvironment;
   using task_reqs_t = typename task_env_t::TaskReqInfo;
+  using task_io_bank_t = typename task_env_t::io_bank_t;
+  using task_io_t = typename task_io_bank_t::TaskIO;
   using mutator_t = SGPMutator<sgp_prog_t, Library>;
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
@@ -569,6 +571,7 @@ public:
     const auto& task_io = task_env.GetIOBank().GetIO(env_id);
     cpu_state.SetTaskEnvID(env_id);
     cpu_state.SetInputs(task_io.input_buffer);
+    cpu_state.ResetCreditedOutputs();
   }
 
   // Prototypes for setup methods

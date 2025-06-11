@@ -375,7 +375,7 @@ void SGPWorld::SetupNutrientInteractions() {
         );
         host.DecPoints(from_host);
         // NOTE - subtract to_steal or from_host?
-        const double from_world = task_points - to_steal;
+        // const double from_world = task_points - to_steal;
         // Take points from host
         return task_points;
       }

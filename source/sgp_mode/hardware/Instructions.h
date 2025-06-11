@@ -117,6 +117,14 @@ INST(IO, {
   a = state.GetInputBuffer().read();
 });
 
+// INST(Input, {
+//   a = state.GetInputBuffer().read();
+// });
+
+// INST(Output, {
+//   state.GetOutputBuffer().emplace_back(a);
+// });
+
 // NOTE - Discuss whether we want to be using custom jump table vs. using signalgp's
 //        module infrastructure.
 INST(JumpIfNEq, {

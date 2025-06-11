@@ -31,7 +31,6 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
       emp::WorldPosition(0, pop_id),
       static_cast<sgp_sym_t&>(*(GetSymAt(pop_id)))
     );
-
   }
 }
 
@@ -532,13 +531,23 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
       for (size_t task_id : task_ids) {
         // Is this a host task?
         if (!task_env.IsHostTask(task_id)) continue;
+        // Has this organism already gotten credit with this output on this task?
+        if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements
         auto& task_req_info = task_env.GetHostTaskReq(task_id);
         if (!CanPerformTask(cpu_state, task_req_info)) {
           continue;
         }
-        // Mark task as being performed
+        // Manage CPU state after completing a task:
+        //   (1) Mark task as being performed
         cpu_state.MarkTaskPerformed(task_id);
+        //   (2) Credit output
+        cpu_state.CreditOutputValue(task_id, val);
+        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
+        //       for this task in the task io bank.
+        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+          cpu_state.ResetCreditedOutputs(task_id);
+        }
         // Calc value, add to organism points
         host.SetPoints(
           task_req_info.fun_calc_task_val(
@@ -571,13 +580,24 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
       for (size_t task_id : task_ids) {
         // Is this a valid sym task?
         if (!task_env.IsSymTask(task_id)) continue;
+        // Has this organism already gotten credit with this output on this task?
+        if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements
         auto& task_req_info = task_env.GetSymTaskReq(task_id);
         if (!CanPerformTask(cpu_state, task_req_info)) {
           continue;
         }
-        // Mark task as being performed
+        // Manage CPU state after completing a task:
+        //   (1) Mark task as being performed
         cpu_state.MarkTaskPerformed(task_id);
+        //   (2) Credit output
+        cpu_state.CreditOutputValue(task_id, val);
+        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
+        //       for this task in the task io bank.
+        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+          cpu_state.ResetCreditedOutputs(task_id);
+        }
+        // Track success
         ++sym_task_successes[task_id];
 
         // Calc base task value based on task environment, task requirements, and
