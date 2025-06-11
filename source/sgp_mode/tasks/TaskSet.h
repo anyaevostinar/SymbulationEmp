@@ -69,7 +69,22 @@ protected:
       calc_output_fun(a_calc_output_fun),
       num_inputs(a_num_inputs),
       desc(a_desc)
-      { ; }
+    { ; }
+
+    output_t CalcOutput(const emp::vector<input_t>& input_vec) const {
+      return calc_output_fun(input_vec);
+    }
+
+    // Helper functions for one- and two-input cases
+    output_t CalcOutput(input_t a) {
+      emp_assert(num_inputs == 1);
+      return calc_output_fun({a});
+    }
+
+    output_t CalcOutput(input_t a, input_t b) {
+      emp_assert(num_inputs == 2);
+      return calc_output_fun({a, b});
+    }
 
   };
 
