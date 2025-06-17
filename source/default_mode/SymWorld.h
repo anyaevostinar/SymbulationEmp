@@ -179,7 +179,6 @@ public:
    * Purpose: To destruct the objects belonging to SymWorld to conserve memory.
    */
   virtual ~SymWorld() {
-    //std::cout << first_mut_host << " " << first_mut_sym << std::endl;
     if (data_node_hostintval) data_node_hostintval.Delete();
     if (data_node_symintval) data_node_symintval.Delete();
     if (data_node_freesymintval) data_node_freesymintval.Delete();
