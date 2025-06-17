@@ -15,6 +15,8 @@ class Host: public Organism {
 
 protected:
 
+  using taxon_info_t = double;
+
   /**
     *
     * Purpose: Represents the interaction value between the host and symbiont.
@@ -31,6 +33,27 @@ protected:
     *
   */
   int age = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of reproductive events in this host's lineage.
+    *
+  */
+  size_t reproductions = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips towards partner in this host's lineage.
+    *
+  */
+  size_t towards_partner_count = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips away from partner in this host's lineage.
+    *
+  */
+  size_t from_partner_count = 0;
 
   /**
     *
@@ -92,6 +115,20 @@ protected:
     *
   */
   bool dead = false;
+
+  /**
+    *
+    * Purpose: Represents the tag for this organism
+    *
+  */
+  emp::BitSet<TAG_LENGTH> tag;
+  
+  /**
+    * 
+    * Purpose: Tracks the taxon of this organism.
+    *
+  */
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
 
 public:
 
@@ -209,6 +246,67 @@ public:
     return  "Host";
   }
 
+
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(size_t _in) { reproductions = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  size_t GetReproCount() { return reproductions; }
+
+
+  /**
+    * Input: Set the flips towards a partner counter
+    *
+    * Output: None
+    *
+    * Purpose: To set the count of flips towards a partner in this lineage.
+    */
+  void SetTowardsPartnerCount(size_t _in) { towards_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips towards a partner count
+   *
+   * Purpose: To get the count of flips towards a partner in this lineage.
+   */
+  size_t GetTowardsPartnerCount() { return towards_partner_count; }
+
+
+  /**
+   * Input: Set the flips from a partner counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of flips from a partner in this lineage.
+   */
+  void SetFromPartnerCount(size_t _in) { from_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips from a partner count
+   *
+   * Purpose: To get the count of flips from a partner in this lineage.
+   */
+  size_t GetFromPartnerCount() { return from_partner_count; }
+
+
 /**
   * Input: None
   *
@@ -218,6 +316,13 @@ public:
   */
   double GetIntVal() const { return interaction_val;}
 
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
+    return my_taxon;
+  }
+
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
+    my_taxon = _in;
+  }
 
 /**
   * Input: None
@@ -329,6 +434,23 @@ public:
    */
   void ClearReproSyms() {repro_syms.resize(0);}
 
+  /**
+   * Input: The new tag
+   *
+   * Output: None
+   *
+   * Purpose: To set a host's tag.
+   */
+  void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
+  
+  /**
+   * Input: None
+   *
+   * Output: The host's tag.
+   *
+   * Purpose: To get a host's tag.
+   */
+  emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
 
   /**
    * Input: None
@@ -515,6 +637,7 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+    new_host->SetTag(GetTag());
     return new_host;
   }
 
@@ -528,7 +651,24 @@ public:
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
     host_baby->Mutate();
+    host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
+
+    if (my_config->TAG_MATCHING() && HasSym()) {
+      // do not xor to get 1 where bits are matching
+      emp::BitSet<TAG_LENGTH> sym_host_parent_matching = syms[0]->GetTag().XOR(tag).NOT();
+      emp::BitSet<TAG_LENGTH> sym_host_baby_matching = syms[0]->GetTag().XOR(host_baby->GetTag()).NOT();
+
+      // difference in matching-ness, with match in child
+      emp::BitSet<TAG_LENGTH> child_towards = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_baby_matching);
+
+      // difference in matching-ness, with match in parent
+      emp::BitSet<TAG_LENGTH> child_from = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_parent_matching);
+
+      host_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
+      host_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
+    }
+
     return host_baby;
   }
 
@@ -550,6 +690,10 @@ public:
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+    }
+
+    if (my_config->TAG_MATCHING()) {
+      tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
     }
   }
 
