@@ -29,8 +29,37 @@ public:
    *
    * Purpose: To construct an instance of PGGWorld
    */
-  PGGWorld(emp::Random& _random, emp::Ptr<SymConfigPGG> _config) : SymWorld(_random, _config) {
-    pgg_config = _config;
+  PGGWorld(emp::Random & _random, emp::Ptr<SymConfigPGG> _config) :
+    SymWorld(_random, _config) {
+      pgg_config = _config;
+      if (my_config->PHYLOGENY()) {
+        emp_assert(my_config->NUM_PHYLO_BINS() <= 100 &&
+          "PGG taxon calculation assumes you're using <= phylo bins");
+        // Set calc info function for symbiont taxa to include donation
+        // rate (as specified by 100's and 1000's places) and interaction
+        // value (as specified by 1's and 10's places)  
+        calc_sym_info_fun = [&](Organism & org){
+            size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
+            //classify orgs into bins base on interaction values,
+            //inclusive of lower bound, exclusive of upper
+            float size_of_bin = 2.0 / num_phylo_bins;
+            double int_val = org.GetIntVal();
+            float prog = (int_val + 1);
+            prog = (prog/size_of_bin) + (0.0000000000001);
+            size_t int_bin = (size_t) prog;
+            if (int_bin >= num_phylo_bins) int_bin = num_phylo_bins - 1;
+
+            double don_val = org.GetDonation();
+            size_of_bin = 1.0 / num_phylo_bins;
+            prog = (don_val);
+            prog = (prog/size_of_bin) + (0.0000000000001);
+            size_t don_bin = (size_t) prog;
+            if (don_bin >= num_phylo_bins) don_bin = num_phylo_bins - 1;
+
+            return int_bin + don_bin*100;
+          };
+        sym_sys->SetCalcInfoFun(calc_sym_info_fun);
+      }
   }
 
   /**
