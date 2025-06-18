@@ -366,48 +366,81 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
   auto & node4 = GetVerticalTransmissionSuccessCount(); 
-  auto & node5 = GetHorizontalTransmissionTagFailCount();
-  auto & node6 = GetHorizontalTransmissionSizeFailCount();
-
+  
   file.AddVar(update, "update", "Update");
   //horizontal transmission
-  file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.6", "Count for histogram bin for horizontal attempts with int val -1 to <-0.6");
-  file.AddHistBin(node1, 1, "horiz_attempt_-0.6_-0.2", "Count for histogram bin for horizontal attempts with int val -0.6 to <-0.2");
-  file.AddHistBin(node1, 2, "horiz_attempt_-0.2_0.2", "Count for histogram bin for horizontal attempts with int val -0.2 to <0.2");
-  file.AddHistBin(node1, 3, "horiz_attempt_0.2_0.6", "Count for histogram bin for horizontal attempts with int val 0.2 to <0.6");
-  file.AddHistBin(node1, 4, "horiz_attempt_0.6_1", "Count for histogram bin for horizontal attempts with int val 0.6 to 1", true);
+  file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.8", "Count for histogram bin for horizontal attempts with int val -1 to <-0.8");
+  file.AddHistBin(node1, 1, "horiz_attempt_-0.8_-0.6", "Count for histogram bin for horizontal attempts with int val -0.8 to <-0.6");
+  file.AddHistBin(node1, 2, "horiz_attempt_-0.6_0.4", "Count for histogram bin for horizontal attempts with int val -0.6 to <-0.4");
+  file.AddHistBin(node1, 3, "horiz_attempt_-0.4_0.2", "Count for histogram bin for horizontal attempts with int val -0.4 to <-0.2");
+  file.AddHistBin(node1, 4, "horiz_attempt_-0.2_0", "Count for histogram bin for horizontal attempts with int val -0.2 to <0");
+  file.AddHistBin(node1, 5, "horiz_attempt_0_0.2", "Count for histogram bin for horizontal attempts with int val 0 to <-0.2");
+  file.AddHistBin(node1, 6, "horiz_attempt_0.2_0.4", "Count for histogram bin for horizontal attempts with int val 0.2 to <0.4");
+  file.AddHistBin(node1, 7, "horiz_attempt_0.4_0.6", "Count for histogram bin for horizontal attempts with int val 0.4 to <0.6");
+  file.AddHistBin(node1, 8, "horiz_attempt_0.6_0.8", "Count for histogram bin for horizontal attempts with int val 0.6 to <0.8");
+  file.AddHistBin(node1, 9, "horiz_attempt_0.8_1", "Count for histogram bin for horizontal attempts with int val 0.8 to 1", true);
 
-  file.AddHistBin(node2, 0, "horiz_success_-1_-0.6", "Count for histogram bin for horizontal successes with int val -1 to <-0.6");
-  file.AddHistBin(node2, 1, "horiz_success_-0.6_-0.2", "Count for histogram bin for horizontal successes with int val -0.6 to <-0.2");
-  file.AddHistBin(node2, 2, "horiz_success_-0.2_0.2", "Count for histogram bin for horizontal successes with int val -0.2 to <0.2");
-  file.AddHistBin(node2, 3, "horiz_success_0.2_0.6", "Count for histogram bin for horizontal successes with int val 0.2 to <0.6");
-  file.AddHistBin(node2, 4, "horiz_success_0.6_1", "Count for histogram bin for horizontal successes with int val 0.6 to 1", true);
+  file.AddHistBin(node2, 0, "horiz_success_-1_-0.8", "Count for histogram bin for horizontal successes with int val -1 to <-0.8");
+  file.AddHistBin(node2, 1, "horiz_success_-0.8_-0.6", "Count for histogram bin for horizontal successes with int val -0.8 to <-0.6");
+  file.AddHistBin(node2, 2, "horiz_success_-0.6_0.4", "Count for histogram bin for horizontal successes with int val -0.6 to <-0.4");
+  file.AddHistBin(node2, 3, "horiz_success_-0.4_0.2", "Count for histogram bin for horizontal successes with int val -0.4 to <-0.2");
+  file.AddHistBin(node2, 4, "horiz_success_-0.2_0", "Count for histogram bin for horizontal successes with int val -0.2 to <0");
+  file.AddHistBin(node2, 5, "horiz_success_0_0.2", "Count for histogram bin for horizontal successes with int val 0 to <-0.2");
+  file.AddHistBin(node2, 6, "horiz_success_0.2_0.4", "Count for histogram bin for horizontal successes with int val 0.2 to <0.4");
+  file.AddHistBin(node2, 7, "horiz_success_0.4_0.6", "Count for histogram bin for horizontal successes with int val 0.4 to <0.6");
+  file.AddHistBin(node2, 8, "horiz_success_0.6_0.8", "Count for histogram bin for horizontal successes with int val 0.6 to <0.8");
+  file.AddHistBin(node2, 9, "horiz_success_0.8_1", "Count for histogram bin for horizontal successes with int val 0.8 to 1", true);
 
   //vertical transmission
-  file.AddHistBin(node3, 0, "vert_attempt_-1_-0.6", "Count for histogram bin for vertical attempts with int val -1 to <-0.6");
-  file.AddHistBin(node3, 1, "vert_attempt_-0.6_-0.2", "Count for histogram bin for vertical attempts with int val -0.6 to <-0.2");
-  file.AddHistBin(node3, 2, "vert_attempt_-0.2_0.2", "Count for histogram bin for vertical attempts with int val -0.2 to <0.2");
-  file.AddHistBin(node3, 3, "vert_attempt_0.2_0.6", "Count for histogram bin for vertical attempts with int val 0.2 to <0.6");
-  file.AddHistBin(node3, 4, "vert_attempt_0.6_1", "Count for histogram bin for vertical attempts with int val 0.6 to 1", true);
+  file.AddHistBin(node3, 0, "vert_attempt_-1_-0.8", "Count for histogram bin for vertical attempts with int val -1 to <-0.8");
+  file.AddHistBin(node3, 1, "vert_attempt_-0.8_-0.6", "Count for histogram bin for vertical attempts with int val -0.8 to <-0.6");
+  file.AddHistBin(node3, 2, "vert_attempt_-0.6_0.4", "Count for histogram bin for vertical attempts with int val -0.6 to <-0.4");
+  file.AddHistBin(node3, 3, "vert_attempt_-0.4_0.2", "Count for histogram bin for vertical attempts with int val -0.4 to <-0.2");
+  file.AddHistBin(node3, 4, "vert_attempt_-0.2_0", "Count for histogram bin for vertical attempts with int val -0.2 to <0");
+  file.AddHistBin(node3, 5, "vert_attempt_0_0.2", "Count for histogram bin for vertical attempts with int val 0 to <-0.2");
+  file.AddHistBin(node3, 6, "vert_attempt_0.2_0.4", "Count for histogram bin for vertical attempts with int val 0.2 to <0.4");
+  file.AddHistBin(node3, 7, "vert_attempt_0.4_0.6", "Count for histogram bin for vertical attempts with int val 0.4 to <0.6");
+  file.AddHistBin(node3, 8, "vert_attempt_0.6_0.8", "Count for histogram bin for vertical attempts with int val 0.6 to <0.8");
+  file.AddHistBin(node3, 9, "vert_attempt_0.8_1", "Count for histogram bin for vertical attempts with int val 0.8 to 1", true);
 
-  file.AddHistBin(node4, 0, "vert_success_-1_-0.6", "Count for histogram bin for vertical successes with int val -1 to <-0.6");
-  file.AddHistBin(node4, 1, "vert_success_-0.6_-0.2", "Count for histogram bin for vertical successes with int val -0.6 to <-0.2");
-  file.AddHistBin(node4, 2, "vert_success_-0.2_0.2", "Count for histogram bin for vertical successes with int val -0.2 to <0.2");
-  file.AddHistBin(node4, 3, "vert_success_0.2_0.6", "Count for histogram bin for vertical successes with int val 0.2 to <0.6");
-  file.AddHistBin(node4, 4, "vert_success_0.6_1", "Count for histogram bin for vertical successes with int val 0.6 to 1", true);
+  file.AddHistBin(node4, 0, "vert_success_-1_-0.8", "Count for histogram bin for vertical successes with int val -1 to <-0.8");
+  file.AddHistBin(node4, 1, "vert_success_-0.8_-0.6", "Count for histogram bin for vertical successes with int val -0.8 to <-0.6");
+  file.AddHistBin(node4, 2, "vert_success_-0.6_0.4", "Count for histogram bin for vertical successes with int val -0.6 to <-0.4");
+  file.AddHistBin(node4, 3, "vert_success_-0.4_0.2", "Count for histogram bin for vertical successes with int val -0.4 to <-0.2");
+  file.AddHistBin(node4, 4, "vert_success_-0.2_0", "Count for histogram bin for vertical successes with int val -0.2 to <0");
+  file.AddHistBin(node4, 5, "vert_success_0_0.2", "Count for histogram bin for vertical successes with int val 0 to <-0.2");
+  file.AddHistBin(node4, 6, "vert_success_0.2_0.4", "Count for histogram bin for vertical successes with int val 0.2 to <0.4");
+  file.AddHistBin(node4, 7, "vert_success_0.4_0.6", "Count for histogram bin for vertical successes with int val 0.4 to <0.6");
+  file.AddHistBin(node4, 8, "vert_success_0.6_0.8", "Count for histogram bin for vertical successes with int val 0.6 to <0.8");
+  file.AddHistBin(node4, 9, "vert_success_0.8_1", "Count for histogram bin for vertical successes with int val 0.8 to 1", true);
 
-  // horiz failure 
-  file.AddHistBin(node5, 0, "horiz_tagfail_-1_-0.6", "Count for histogram bin for horizontal tag failure with int val -1 to <-0.6");
-  file.AddHistBin(node5, 1, "horiz_tagfail_-0.6_-0.2", "Count for histogram bin for horizontal tag failure with int val -0.6 to <-0.2");
-  file.AddHistBin(node5, 2, "horiz_tagfail_-0.2_0.2", "Count for histogram bin for horizontal tag failure with int val -0.2 to <0.2");
-  file.AddHistBin(node5, 3, "horiz_tagfail_0.2_0.6", "Count for histogram bin for horizontal tag failure with int val 0.2 to <0.6");
-  file.AddHistBin(node5, 4, "horiz_tagfail_0.6_1", "Count for histogram bin for horizontal tag failure with int val 0.6 to 1", true);
+  // horiz failure, only relevant if tag matching is on
+  if (my_config->TAG_MATCHING()) {
+    auto& node5 = GetHorizontalTransmissionTagFailCount();
+    auto& node6 = GetHorizontalTransmissionSizeFailCount();
 
-  file.AddHistBin(node6, 0, "horiz_sizefail_-1_-0.6", "Count for histogram bin for horizontal size failure with int val -1 to <-0.6");
-  file.AddHistBin(node6, 1, "horiz_sizefail_-0.6_-0.2", "Count for histogram bin for horizontal size failure with int val -0.6 to <-0.2");
-  file.AddHistBin(node6, 2, "horiz_sizefail_-0.2_0.2", "Count for histogram bin for horizontal size failure with int val -0.2 to <0.2");
-  file.AddHistBin(node6, 3, "horiz_sizefail_0.2_0.6", "Count for histogram bin for horizontal size failure with int val 0.2 to <0.6");
-  file.AddHistBin(node6, 4, "horiz_sizefail_0.6_1", "Count for histogram bin for horizontal size failure with int val 0.6 to 1", true);
+    file.AddHistBin(node5, 0, "horiz_tagfail_-1_-0.8", "Count for histogram bin for horizontal tag failures with int val -1 to <-0.8");
+    file.AddHistBin(node5, 1, "horiz_tagfail_-0.8_-0.6", "Count for histogram bin for horizontal tag failures with int val -0.8 to <-0.6");
+    file.AddHistBin(node5, 2, "horiz_tagfail_-0.6_0.4", "Count for histogram bin for horizontal tag failures with int val -0.6 to <-0.4");
+    file.AddHistBin(node5, 3, "horiz_tagfail_-0.4_0.2", "Count for histogram bin for horizontal tag failures with int val -0.4 to <-0.2");
+    file.AddHistBin(node5, 4, "horiz_tagfail_-0.2_0", "Count for histogram bin for horizontal tag failures with int val -0.2 to <0");
+    file.AddHistBin(node5, 5, "horiz_tagfail_0_0.2", "Count for histogram bin for horizontal tag failures with int val 0 to <-0.2");
+    file.AddHistBin(node5, 6, "horiz_tagfail_0.2_0.4", "Count for histogram bin for horizontal tag failures with int val 0.2 to <0.4");
+    file.AddHistBin(node5, 7, "horiz_tagfail_0.4_0.6", "Count for histogram bin for horizontal tag failures with int val 0.4 to <0.6");
+    file.AddHistBin(node5, 8, "horiz_tagfail_0.6_0.8", "Count for histogram bin for horizontal tag failures with int val 0.6 to <0.8");
+    file.AddHistBin(node5, 9, "horiz_tagfail_0.8_1", "Count for histogram bin for horizontal tag failures with int val 0.8 to 1", true);
+
+    file.AddHistBin(node6, 0, "horiz_sizefail_-1_-0.8", "Count for histogram bin for horizontal size failures with int val -1 to <-0.8");
+    file.AddHistBin(node6, 1, "horiz_sizefail_-0.8_-0.6", "Count for histogram bin for horizontal size failures with int val -0.8 to <-0.6");
+    file.AddHistBin(node6, 2, "horiz_sizefail_-0.6_0.4", "Count for histogram bin for horizontal size failures with int val -0.6 to <-0.4");
+    file.AddHistBin(node6, 3, "horiz_sizefail_-0.4_0.2", "Count for histogram bin for horizontal size failures with int val -0.4 to <-0.2");
+    file.AddHistBin(node6, 4, "horiz_sizefail_-0.2_0", "Count for histogram bin for horizontal size failures with int val -0.2 to <0");
+    file.AddHistBin(node6, 5, "horiz_sizefail_0_0.2", "Count for histogram bin for horizontal size failures with int val 0 to <-0.2");
+    file.AddHistBin(node6, 6, "horiz_sizefail_0.2_0.4", "Count for histogram bin for horizontal size failures with int val 0.2 to <0.4");
+    file.AddHistBin(node6, 7, "horiz_sizefail_0.4_0.6", "Count for histogram bin for horizontal size failures with int val 0.4 to <0.6");
+    file.AddHistBin(node6, 8, "horiz_sizefail_0.6_0.8", "Count for histogram bin for horizontal size failures with int val 0.6 to <0.8");
+    file.AddHistBin(node6, 9, "horiz_sizefail_0.8_1", "Count for histogram bin for horizontal size failures with int val 0.8 to 1", true);
+  }
 
   file.PrintHeaderKeys();
 
@@ -940,7 +973,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanc
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionAttemptCount() {
   if (!data_node_attempts_horiztrans) {
     data_node_attempts_horiztrans.New();
-    data_node_attempts_horiztrans->SetupBins(-1.0, 1.4, 6);
+    data_node_attempts_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
   
   return *data_node_attempts_horiztrans;
@@ -958,7 +991,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionTagFailCount() {
   if (!data_node_tagfail_horiztrans) {
     data_node_tagfail_horiztrans.New();
-    data_node_tagfail_horiztrans->SetupBins(-1.0, 1.4, 6);
+    data_node_tagfail_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
 
   return *data_node_tagfail_horiztrans;
@@ -976,7 +1009,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSizeFailCount() {
   if (!data_node_sizefail_horiztrans) {
     data_node_sizefail_horiztrans.New();
-    data_node_sizefail_horiztrans->SetupBins(-1.0, 1.4, 6);
+    data_node_sizefail_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
 
   return *data_node_sizefail_horiztrans;
@@ -996,7 +1029,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSuccessCount() {
   if (!data_node_successes_horiztrans) {
     data_node_successes_horiztrans.New();
-    data_node_successes_horiztrans->SetupBins(-1.0, 1.4, 6);
+    data_node_successes_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
   
   return *data_node_successes_horiztrans;
@@ -1015,7 +1048,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionAttemptCount() {
   if (!data_node_attempts_verttrans) {
     data_node_attempts_verttrans.New();
-    data_node_attempts_verttrans->SetupBins(-1.0, 1.4, 6);
+    data_node_attempts_verttrans->SetupBins(-1.0, 1.2, 11);
   }
   return *data_node_attempts_verttrans;
 }
@@ -1033,7 +1066,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissio
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissionSuccessCount() {
   if (!data_node_successes_verttrans) {
     data_node_successes_verttrans.New();
-    data_node_successes_verttrans->SetupBins(-1.0, 1.4, 6);
+    data_node_successes_verttrans->SetupBins(-1.0, 1.2, 11);
   }
   
   return *data_node_successes_verttrans;
