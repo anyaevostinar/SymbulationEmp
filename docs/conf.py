@@ -39,7 +39,7 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.intersphinx',
     'breathe',
-    'exhale',
+    # 'exhale',
     'myst_parser',
     'sphinx_search.extension'
 ]
