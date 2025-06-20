@@ -85,6 +85,7 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
     THEN("Health hosts evolve to do fewer than 10 ORN tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
       //advance iterator to the ORN task
+      REQUIRE(world.GetTaskSet().NumTasks() > 3);
       for (size_t i = 0; i < 3; i++) {
         ++it;
       }
