@@ -1,4 +1,14 @@
 #include "../../sgp_mode/HealthHost.h"
+#include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/SGPConfigSetup.h"
+#include "../../sgp_mode/SGPHost.cc"
+#include "../../sgp_mode/SGPHost.h"
+#include "../../sgp_mode/SGPSymbiont.h"
+#include "../../sgp_mode/Tasks.cc"
+#include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+#include "../../sgp_mode/SGPDataNodes.h"
 
 //Tests to write:
 // Health host with parasite loses cycle 50% of time
