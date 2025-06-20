@@ -150,15 +150,15 @@ test-debug-pgg:
 
 test-sgp:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp]
+	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-sgp-all:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp],[sgp-integration]
+	./symbulation.test [sgp],[sgp-integration] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp]
+	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
@@ -183,4 +183,4 @@ clean:
 
 coverage:
 	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
