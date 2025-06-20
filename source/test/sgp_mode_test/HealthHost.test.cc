@@ -55,10 +55,10 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
+      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
