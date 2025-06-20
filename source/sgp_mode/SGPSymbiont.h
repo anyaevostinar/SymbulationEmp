@@ -73,7 +73,10 @@ public:
       cpu.state.shared_available_dependencies.Delete();
     }
     // Invalidate any in-progress reproduction
-    if (cpu.state.in_progress_repro != -1) {
+    if (cpu.state.in_progress_repro != -1 && my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
+      //TODO: figure out why the second part of this is necessary
+      std::cout << "Invalidating in-progress reproduction for symbiont "
+                << cpu.state.in_progress_repro << std::endl;
       my_world->to_reproduce[cpu.state.in_progress_repro].second =
           emp::WorldPosition::invalid_id;
     }
