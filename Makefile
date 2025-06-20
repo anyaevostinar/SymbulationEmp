@@ -183,4 +183,4 @@ clean:
 
 coverage:
 	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+	./symbulation.test || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
