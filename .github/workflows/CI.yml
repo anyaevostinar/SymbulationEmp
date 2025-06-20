@@ -26,7 +26,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Make tests
-        run: cd SymbulationEmp && make coverage
+        run: sudo apt-get update && sudo apt-get install gdb && cd SymbulationEmp && make coverage
         
       - name: Generate coverage
         run: cd SymbulationEmp && gcov -abcfu symbulation.test-main.cc
