@@ -153,7 +153,7 @@ public:
     if (GetDead()) {
       return;
     }
-
+    
     cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
     
 
