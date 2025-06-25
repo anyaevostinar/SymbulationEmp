@@ -7,8 +7,8 @@
 void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
                          bool shared) {
 
-  //Check whether organism is a symbiote with only the first task they perform being credited
-  if (!state.organism->IsHost() && state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT()){
+  
+  if (state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT()){
 
     //Iterates through all tasks and checks if any of them have been done
     bool donePreviousTask = false;
@@ -20,7 +20,7 @@ void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
       }
     }
 
-    //If no other tasks have been done, set it to have been completed 
+    //If no other tasks have been done, set the current task to have been completed 
     if(!donePreviousTask){
 
         state.tasks_performed->Set(task_id);
@@ -56,8 +56,8 @@ void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
     }
   }
   else{
-        //Organism is either a host or ONLY_FIRST_TASK_CREDIT is 0 
-        //and thus all tasks that have been completed should be marked as completed
+        
+        //Hosts and Symbionts get credit for all tasks they complete
 
         state.tasks_performed->Set(task_id);
         state.used_resources->Set(task_id);

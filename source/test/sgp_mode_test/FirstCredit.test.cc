@@ -9,9 +9,9 @@
 #include "../../catch/catch.hpp"
 
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a time", "[1CRED]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time", "[1CRED]"){
  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a time" << std::endl;
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -64,8 +64,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a t
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do more then 1 task", "[1CRED]"){
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do more then 1 task" << std::endl;
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task", "[1CRED]"){
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -114,15 +114,15 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do more then 1 task",
     std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
     tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted > 1);
+  REQUIRE(tasksCompleted == 2);
 
 
 }
 
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes are allowed to do no tasks", "[1CRED]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no tasks", "[1CRED]"){
  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes are allowed to do no tasks" << std::endl;
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no tasks" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -172,8 +172,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes are allowed to do no task
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes are allowed to do no tasks", "[1CRED]"){
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes are allowed to do no tasks" << std::endl;
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no tasks", "[1CRED]"){
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no tasks" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -225,10 +225,10 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes are allowed to do no task
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can do more then 1 task", "[1CRED]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task", "[1CRED]"){
   
   
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Hosts can do more then 1 task" << std::endl;
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -265,13 +265,13 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can do more then 1 task", "[1
           world.Update();
         }
 
-  //Checks to see how many tasks the host complete, 2 should be set to 1. 
+  //Checks to see how many tasks the host complete, only should be set to 1. 
   int tasksCompleted = 0;
   for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
     std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
     tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted > 1);
+  REQUIRE(tasksCompleted == 1);
 
 
 }
@@ -321,14 +321,14 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can do more then 1 task", "[1
     std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
     tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted > 1);
+  REQUIRE(tasksCompleted == 2);
 
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a time, using ALL tasks", "[1CRED]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time, using ALL tasks", "[1CRED]"){
  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a time, using ALL tasks" << std::endl;
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time, using ALL tasks" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -381,14 +381,14 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbiotes can only do 1 task at a t
     std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
     tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted <= 1);
+  REQUIRE(tasksCompleted == 1);
 
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do all tasks", "[1CRED]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks", "[1CRED]"){
  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do all tasks" << std::endl;
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks" << std::endl;
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -442,8 +442,124 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbiotes can do all tasks", "[1CRE
     std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
     tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted == CPU_BITSET_LENGTH);
+  REQUIRE(tasksCompleted == 9);
 
 
 }
 
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task, all task program version", "[1CRED]"){
+  
+  
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task, all task program version" << std::endl;
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.RANDOM_ANCESTOR(false);
+  config.SEED(2);
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(PARASITE);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.002);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(1);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  
+  //Builds program that does both NOT and NAND operations
+  ProgramBuilder program;
+  program.AddNot();
+  program.AddNand();
+  program.AddAnd();
+  program.AddOrn();
+  program.AddOr();
+  program.AddAndn();
+  program.AddNor();
+  program.AddXor();
+  program.AddEqu();
+
+  //Creates a host that does both Not and Nand operations
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+  
+  //Creates a symbiote that does both Not and Nand operations
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+  //Adds host to world and sym to host.
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+  
+  
+  for (int i = 0; i < 250; i++) {
+          
+          world.Update();
+        }
+
+  //Checks to see how many tasks the host complete, only 1 should be set to 1. 
+  int tasksCompleted = 0;
+  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
+    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
+  }
+  REQUIRE(tasksCompleted == 1);
+
+
+}
+
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can only do all tasks", "[1CRED]"){
+  
+  
+  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Hosts can only do all tasks" << std::endl;
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.RANDOM_ANCESTOR(false);
+  config.SEED(2);
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(PARASITE);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.002);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(0);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  
+  //Builds program that does both NOT and NAND operations
+  ProgramBuilder program;
+  program.AddNot();
+  program.AddNand();
+  program.AddAnd();
+  program.AddOrn();
+  program.AddOr();
+  program.AddAndn();
+  program.AddNor();
+  program.AddXor();
+  program.AddEqu();
+
+
+  //Creates a host that does both Not and Nand operations
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+  
+  //Creates a symbiote that does both Not and Nand operations
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+  //Adds host to world and sym to host.
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+  
+  
+  for (int i = 0; i < 250; i++) {
+          
+          world.Update();
+        }
+
+  //Checks to see how many tasks the host complete, 9 should be set to 1. 
+  int tasksCompleted = 0;
+  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
+    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
+  }
+  REQUIRE(tasksCompleted == 9);
+
+
+}
