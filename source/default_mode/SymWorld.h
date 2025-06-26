@@ -626,8 +626,6 @@ public:
   * Purpose: To allow access to syms at a specified location in the sym_pop.
   */
   emp::Ptr<Organism> GetSymAt(size_t location){
-    std::cout << "GetSymAt called with location: " << location << std::endl;
-    std::cout << "sym_pop size: " << sym_pop.size() << std::endl;
     if (location >= 0 && location < sym_pop.size()){
       return sym_pop[location];
     } else {

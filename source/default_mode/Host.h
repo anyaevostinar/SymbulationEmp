@@ -597,7 +597,6 @@ public:
    * Purpose: To handle ectosymbiosis.
    */
   double HandleEctosymbiosis(double resources, size_t location){
-    std::cout << "Handling ectosymbiosis for host at location: " << location << std::endl;
     double leftover_resources = resources;
     if(GetDoEctosymbiosis(location)){
       double sym_piece = leftover_resources / (syms.size() + 1); //if there are no endo syms, the ecto sym will handle all the resources
@@ -615,7 +614,6 @@ public:
    * Purpose: To determine whether a host should interact with a parallel sym
    */
   bool GetDoEctosymbiosis(size_t location){
-    std::cout << "GetDoEctosymbiosis called for host at location: " << location << std::endl;
     //a host is immune to ectosymbiosis if immunity is on and it has a sym.
     if (!my_config->ECTOSYMBIOSIS()) return false; //if the config setting is off, we immediately know that ectosymbiosis won't happen
     else{
