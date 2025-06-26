@@ -64,7 +64,7 @@ class HealthHost : public SGPHost {
         if (HasSym()) {
           if (sgp_config->STRESS_TYPE() == MUTUALIST) {
             //Host with mutualist gains 50% of CPU from mutualist
-            std::cout << sgp_config->CPU_TRANSFER_AMOUNT() << std::endl;
+    
             if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
               host_cycle = 2;
               sym_cycle = 0;
@@ -85,19 +85,10 @@ class HealthHost : public SGPHost {
           }
         }
         
-        //Loop variant of running CPU steps
+        //Loops running CPU steps
         for(int i = 0; i < host_cycle; i++){
           GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
         }
-
-        //TODO: Should this be in a little loop to avoid duplicate code?
-        //Probably doesn't matter that much
-        // if (host_cycle >= 1) {
-        //   GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-        // } 
-        // if (host_cycle == 2) {
-        //   GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-        // }
 
         if (HasSym() && sym_cycle > 0) { // let each sym do whatever they need to do
           for (int i = 0; i < sym_cycle; i++){
