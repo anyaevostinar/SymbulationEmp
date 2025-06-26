@@ -34,7 +34,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a t
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -48,7 +48,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a t
           world.Update();
         }
 
-  //Grabs symbiote from host, ensure that sym did not die in process.
+  //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -89,7 +89,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task",
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -103,7 +103,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task",
           
           world.Update();
         }
- //Grabs symbiote from host, ensure that sym did not die in process.
+ //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -144,7 +144,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no task
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
   
-  //Creates a symbiote that does not do any tasks
+  //Creates a symbiont that does not do any tasks
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -156,7 +156,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no task
           
           world.Update();
         }
-  //Grabs symbiote from host, ensure that sym did not die in process.
+  //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -195,7 +195,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no task
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
   
-  //Creates a symbiote that does not do any tasks
+  //Creates a symbiont that does not do any tasks
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -209,7 +209,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no task
           
           world.Update();
         }
-  //Grabs symbiote from host, ensure that sym did not die in process.
+  //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -252,7 +252,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task", "[1CRED]
   //Creates a host that does both Not and Nand operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -302,7 +302,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can do more then 1 task", "[1
   //Creates a host that does both Not and Nand operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -358,7 +358,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a t
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
-  //Creates a symbiote that completes all tasks
+  //Creates a symbiont that completes all tasks
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -370,7 +370,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a t
           
           world.Update();
         }
-  //Grabs symbiote from host, ensure that sym did not die in process.
+  //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -419,7 +419,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks", "[1CRE
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
-  //Creates a symbiote that completes all tasks
+  //Creates a symbiont that completes all tasks
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -431,7 +431,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks", "[1CRE
           
           world.Update();
         }
-  //Grabs symbiote from host, ensure that sym did not die in process.
+  //Grabs symbiont from host, ensure that sym did not die in process.
   emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
   emp::Ptr<Organism> Cur_Org = syms[0];
   emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
@@ -481,7 +481,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task, all task 
   //Creates a host that does both Not and Nand operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.
@@ -540,7 +540,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can only do all tasks", "[1CR
   //Creates a host that does both Not and Nand operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
   
-  //Creates a symbiote that does both Not and Nand operations
+  //Creates a symbiont that does both Not and Nand operations
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
   //Adds host to world and sym to host.

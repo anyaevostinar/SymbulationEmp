@@ -36,6 +36,7 @@
 #include "../test/sgp_mode_test/StressHost.test.cc"
 #include "../test/sgp_mode_test/FirstCredit.test.cc"
 #include "../test/sgp_mode_test/OnlyNOT.test.cc"
+#include "../test/sgp_mode_test/ParentTask.test.cc"
 //#include "../test/sgp_mode_test/HealthHost.test.cc"
 
 #include "../test/integration_test/spatial_structure/vt.test.cc"
