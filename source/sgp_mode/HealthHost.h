@@ -114,6 +114,7 @@ class HealthHost : public SGPHost {
         }   // if org has syms
 
       }
+      GrowOlder();
     }
 };
 #endif // HEALTHHOST_H
