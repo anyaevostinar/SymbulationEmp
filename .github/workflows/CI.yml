@@ -24,17 +24,6 @@ jobs:
       - name: run symbulation
         run: cd SymbulationEmp && make debug-default && ./symbulation_default -GRID_X 5 -GRID_Y 5
 
-      - name: Check CODECOV_TOKEN presence
-        run: |
-          if [ -z "${CODECOV_TOKEN}" ]; then
-            echo "CODECOV_TOKEN is NOT set"
-            exit 1
-          else
-            echo "CODECOV_TOKEN is set"
-          fi
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-
       # Runs a single command using the runners shell
       - name: Make tests
         run: sudo apt-get update && sudo apt-get install gdb && cd SymbulationEmp && make coverage
