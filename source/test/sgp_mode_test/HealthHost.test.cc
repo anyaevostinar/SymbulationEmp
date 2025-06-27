@@ -1,4 +1,14 @@
 #include "../../sgp_mode/HealthHost.h"
+#include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/SGPConfigSetup.h"
+#include "../../sgp_mode/SGPHost.cc"
+#include "../../sgp_mode/SGPHost.h"
+#include "../../sgp_mode/SGPSymbiont.h"
+#include "../../sgp_mode/Tasks.cc"
+#include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+#include "../../sgp_mode/SGPDataNodes.h"
 
 //Tests to write:
 // Health host with parasite loses cycle 50% of time
@@ -45,10 +55,10 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
+      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
