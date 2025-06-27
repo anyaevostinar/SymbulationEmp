@@ -9,9 +9,9 @@
 #include "../../catch/catch.hpp"
 
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time", "[1CRED]"){
- 
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time" << std::endl;
+
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can recieve credit for is 1", "[sgp]"){
+
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -26,46 +26,151 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a t
 
   SGPWorld world(random, &config, LogicTasks);
 
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
 
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+  WHEN("Symbiont and Host are able to complete both NOT and NAND tasks"){
+    
+    //Builds program that does both NOT and NAND operations
+    ProgramBuilder program;
+    program.AddNot();
+    program.AddNand();
 
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
+    //Creates a host that does both Not and Nand operations
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that does both Not and Nand operations
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
 
 
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
+    WHEN("Symbiont completes both NOT and NAND tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should only get credit for completing 1 task"){
+      REQUIRE(tasks_completed == 1);
+      }
+    }
 
-  //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, only 1 should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
+    WHEN("Host completes both NOT and NAND tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should only get credit for completing 1 task"){
+      REQUIRE(tasks_completed == 1);
+      }
+    }
   }
-  REQUIRE(tasksCompleted == 1);
 
+  WHEN("Symbiont and Host are able to complete all tasks"){
+    
+    //Builds program that does all tasks
+    ProgramBuilder program;
+    program.AddNot();
+    program.AddNand();
+    program.AddAnd();
+    program.AddOrn();
+    program.AddOr();
+    program.AddAndn();
+    program.AddNor();
+    program.AddXor();
+    program.AddEqu();
+
+    //Creates a host that can do all tasks
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that can do all tasks
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
+
+
+    WHEN("Symbiont completes all tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should only get credit for completing 1 task"){
+      REQUIRE(tasks_completed == 1);
+      }
+    }
+
+    WHEN("Host completes all tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should only get credit for completing 1 task"){
+      REQUIRE(tasks_completed == 1);
+      }
+    }
+  }
+
+  WHEN("Symbiont and Host are unable to complete any tasks"){
+    
+    //Empty Builder
+    ProgramBuilder program;
+    //Creates a host that cannot do any tasks
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that cannot do any tasks
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
+
+
+    WHEN("Symbiont completes no tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should not get credit for any tasks"){
+      REQUIRE(tasks_completed == 0);
+      }
+    }
+
+    WHEN("Host completes no tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should not get credit for any tasks"){
+      REQUIRE(tasks_completed == 0);
+      }
+    }
+  }
+  
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task", "[1CRED]"){
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task" << std::endl;
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all tasks they complete", "[sgp]"){
+
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -80,486 +185,141 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do more then 1 task",
 
   SGPWorld world(random, &config, LogicTasks);
 
-  
-   //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
 
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+  WHEN("Symbiont and Host are able to complete both NOT and NAND tasks"){
+    ProgramBuilder program;
+    program.AddNot();
+    program.AddNand();
 
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
+    //Creates a host that only does NOT operations
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that does both Not and Nand operations
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
 
 
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
- //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, there should be more then 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
+    WHEN("Symbiont completes both NOT and NAND tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should recieve credit for completing 2 tasks"){
+      REQUIRE(tasks_completed == 2);
+      }
+    }
+
+    WHEN("Host completes both NOT and NAND tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should recieve credit for completing 2 tasks"){
+      REQUIRE(tasks_completed == 2);
+      }
+    }
   }
-  REQUIRE(tasksCompleted == 2);
+
+  WHEN("Symbiont and Host are able to complete all tasks"){
+
+    //Builds program that completes all tasks
+    ProgramBuilder program;
+    program.AddNot();
+    program.AddNand();
+    program.AddAnd();
+    program.AddOrn();
+    program.AddOr();
+    program.AddAndn();
+    program.AddNor();
+    program.AddXor();
+    program.AddEqu();
+    //Creates a host that can do all tasks
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that can do all tasks
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
 
 
-}
+    WHEN("Symbiont completes all tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should get credit for completing all 9 tasks"){
+      REQUIRE(tasks_completed == 9);
+      }
+    }
 
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no tasks", "[1CRED]"){
- 
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts are allowed to do no tasks" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does no tasks
-  ProgramBuilder program;
-
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  
-  //Creates a symbiont that does not do any tasks
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-
-
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-  //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, there should be none. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
+    WHEN("Host completes all tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should get credit for completing all 9 tasks"){
+      REQUIRE(tasks_completed == 9);
+      }
+    }
   }
-  REQUIRE(tasksCompleted == 0);
+
+  WHEN("Symbiont and Host are unable to complete any tasks"){
+    //Empty Builder
+    ProgramBuilder program;
+    //Creates a host that cannot do any tasks
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+    
+    //Creates a symbiont that cannot do any tasks
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
 
 
-}
+    WHEN("Symbiont completes no tasks"){
+    
+      sym->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Symbiont should not get credit for any tasks"){
+      REQUIRE(tasks_completed == 0);
+      }
+    }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no tasks", "[1CRED]"){
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts are allowed to do no tasks" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does no tasks
-  ProgramBuilder program;
-
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  
-  //Creates a symbiont that does not do any tasks
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-
-
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-  //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, there should be none. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
+    WHEN("Host completes no tasks"){
+    
+      host->GetCPU().RunCPUStep(0, 100);
+      
+        int tasks_completed = 0;
+      for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+      }
+      THEN("Host should not get credit for any tasks"){
+      REQUIRE(tasks_completed == 0);
+      }
+    }
   }
-  REQUIRE(tasksCompleted == 0);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task", "[1CRED]"){
   
-  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-
-  //Creates a host that does both Not and Nand operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-
-  //Checks to see how many tasks the host complete, only should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 1);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can do more then 1 task", "[1CRED]"){
- 
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Hosts can do more then 1 task" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-
-  //Creates a host that does both Not and Nand operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
- 
-  //Checks to see how many tasks the host complete, 2 should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 2);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time, using ALL tasks", "[1CRED]"){
- 
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Symbionts can only do 1 task at a time, using ALL tasks" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  //Creates a program that can complete all tasks
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-  program.AddAnd();
-  program.AddOrn();
-  program.AddOr();
-  program.AddAndn();
-  program.AddNor();
-  program.AddXor();
-  program.AddEqu();
-
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
-  //Creates a symbiont that completes all tasks
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-  //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, only 1 should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 1);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks", "[1CRED]"){
- 
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Symbionts can do all tasks" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Creates a program that can complete all tasks
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-  program.AddAnd();
-  program.AddOrn();
-  program.AddOr();
-  program.AddAndn();
-  program.AddNor();
-  program.AddXor();
-  program.AddEqu();
-
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
-  //Creates a symbiont that completes all tasks
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-  //Grabs symbiont from host, ensure that sym did not die in process.
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
-  
-  //Checks to see how many tasks have been completed, all of them should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 9);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task, all task program version", "[1CRED]"){
-  
-  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 1, Hosts can only do 1 task, all task program version" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-  program.AddAnd();
-  program.AddOrn();
-  program.AddOr();
-  program.AddAndn();
-  program.AddNor();
-  program.AddXor();
-  program.AddEqu();
-
-  //Creates a host that does both Not and Nand operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-
-  //Checks to see how many tasks the host complete, only 1 should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 1);
-
-
-}
-
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, Hosts can only do all tasks", "[1CRED]"){
-  
-  
-  std::cout << "When ONLY_FIRST_TASK_CREDIT is 0, Hosts can only do all tasks" << std::endl;
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-  program.AddAnd();
-  program.AddOrn();
-  program.AddOr();
-  program.AddAndn();
-  program.AddNor();
-  program.AddXor();
-  program.AddEqu();
-
-
-  //Creates a host that does both Not and Nand operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-  
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(sym);
-  
-  
-  for (int i = 0; i < 250; i++) {
-          
-          world.Update();
-        }
-
-  //Checks to see how many tasks the host complete, 9 should be set to 1. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << host->GetCPU().state.tasks_performed->Get(i) << std::endl;
-    tasksCompleted += host->GetCPU().state.tasks_performed->Get(i);
-  }
-  REQUIRE(tasksCompleted == 9);
-
 
 }

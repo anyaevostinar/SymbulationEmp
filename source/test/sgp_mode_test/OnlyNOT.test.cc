@@ -8,7 +8,7 @@
 
 #include "../../catch/catch.hpp"
 
-TEST_CASE("Organisms, without mutation can only do NOT operations", "[ALLNOT]") {
+TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
      
   emp::Random random(1);
   SymConfigSGP config;

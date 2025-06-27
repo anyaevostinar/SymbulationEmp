@@ -10,9 +10,8 @@
 #include "../../catch/catch.hpp"
 
 
-TEST_CASE("If a symbiote reproduces, its child's parent_tasks_perforemd will be equivalent to the parents tasks", "[TaskTest]"){
- 
-  std::cout << "If a symbiote reproduces, its child's parent_tasks_perforemd will be equivalent to the parents tasks" << std::endl;
+TEST_CASE("Task Match properly returns whether a host/host's parnet and symbiont/symbiont's parent share any tasks", "[sgp]"){
+  
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
@@ -28,44 +27,54 @@ TEST_CASE("If a symbiote reproduces, its child's parent_tasks_perforemd will be 
 
   SGPWorld world(random, &config, LogicTasks);
 
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
 
   //Creates a host that only does NOT operations
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  emp::Ptr<SGPHost> host2 = emp::NewPtr<SGPHost>(&random, &world, &config, CreateEQUProgram(100));
-  //Creates a symbiote that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+  //Creates a symbiont that does both Not and Nand operations
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+
+
+  emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
-  world.AddOrgAt(host2, 1);
+  world.AddOrgAt(host_baby, 1);
   host->AddSymbiont(sym);
+  host_baby->AddSymbiont(sym_baby);
 
+  WHEN("Host and Symbiont have both performed NOT"){
+    host->GetCPU().state.tasks_performed->Set(0);
+    sym->GetCPU().state.tasks_performed->Set(0);
 
-  
-  for (int i = 0; i < 1000; i++) {
-          
-          world.Update();
-        }
+    THEN("TaskMatchCheck returns true when Host and Symbiont are the arguments"){
+      REQUIRE(world.TaskMatchCheck(sym, host));
+    }
+    
+    host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
+    sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
 
-  
-  REQUIRE(!host2->HasSym());
-  
-  emp::vector<emp::Ptr<Organism>> &syms = host->GetSymbionts();
-  emp::Ptr<Organism> Cur_Org = syms[0];
-  emp::Ptr<SGPSymbiont> Cur_Sym = Cur_Org.DynamicCast<SGPSymbiont>();
+    THEN("TaskMatchCheck returns true when the child of Host and the child of Symbiont are the arguments"){
+      REQUIRE(world.TaskMatchCheck(sym_baby, host_baby));
+    }
 
-  
-  //Checks to see how many tasks the syms parents have completed, there should be none. 
-  int tasksCompleted = 0;
-  for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
-    std::cout << Cur_Sym->GetCPU().state.parent_tasks_performed->Get(i) << std::endl;
-    tasksCompleted += Cur_Sym->GetCPU().state.parent_tasks_performed->Get(i);
   }
-  REQUIRE(tasksCompleted == 0);
-  
+  WHEN("Host has performed NOT and Symbiont has performed EQU"){
+    host->GetCPU().state.tasks_performed->Set(1);
+    sym->GetCPU().state.tasks_performed->Set(9);
+    THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
+      REQUIRE(!world.TaskMatchCheck(sym, host));
+    }
+
+    host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
+    sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
+
+    THEN("TaskMatchCheck returns false when the child of Host and the child of Symbiont are the arguments"){
+      REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
+    }
+  }
+
 
 
 }
