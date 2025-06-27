@@ -64,7 +64,8 @@ class HealthHost : public SGPHost {
         if (HasSym()) {
           if (sgp_config->STRESS_TYPE() == MUTUALIST) {
             //Host with mutualist gains 50% of CPU from mutualist
-            if (random->P(0.5)) {
+    
+            if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
               host_cycle = 2;
               sym_cycle = 0;
             } else {
@@ -74,7 +75,7 @@ class HealthHost : public SGPHost {
           }
           else if (sgp_config->STRESS_TYPE() == PARASITE) {
             //Host with parasite loses 50% of CPU to parasite
-            if (random->P(0.5)) {
+            if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
               host_cycle = 0;
               sym_cycle = 1;
             } else {
@@ -84,37 +85,36 @@ class HealthHost : public SGPHost {
           }
         }
         
-        //TODO: Should this be in a little loop to avoid duplicate code?
-        //Probably doesn't matter that much
-        if (host_cycle >= 1) {
-          GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
-        } 
-        if (host_cycle == 2) {
+        //Loops running CPU steps
+        for(int i = 0; i < host_cycle; i++){
           GetCPU().RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
         }
 
-        if (HasSym() && sym_cycle) { // let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
-        for (size_t j = 0; j < syms.size(); j++) {
-            emp::Ptr<Organism> curSym = syms[j];
-            if (GetDead()) {
-            return; // If previous symbiont killed host, we're done
-            }
-            // sym position should have host index as id and
-            // position in syms list + 1 as index (0 as fls index)
-            emp::WorldPosition sym_pos = emp::WorldPosition(j + 1, pos.GetIndex());
-            if (!curSym->GetDead()) {
-            curSym->Process(sym_pos);
-            }
-            if (curSym->GetDead()) {
-            syms.erase(syms.begin() + j); // if the symbiont dies during their
-                                            // process, remove from syms list
-            curSym.Delete();
-            }
+        if (HasSym() && sym_cycle > 0) { // let each sym do whatever they need to do
+          for (int i = 0; i < sym_cycle; i++){
+            emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
+            for (size_t j = 0; j < syms.size(); j++) {
+                emp::Ptr<Organism> curSym = syms[j];
+                if (GetDead()) {
+                return; // If previous symbiont killed host, we're done
+                }
+                // sym position should have host index as id and
+                // position in syms list + 1 as index (0 as fls index)
+                emp::WorldPosition sym_pos = emp::WorldPosition(j + 1, pos.GetIndex());
+                if (!curSym->GetDead()) {
+                curSym->Process(sym_pos);
+                }
+                if (curSym->GetDead()) {
+                syms.erase(syms.begin() + j); // if the symbiont dies during their
+                                                // process, remove from syms list
+                curSym.Delete();
+                }
+                
         } // for each sym in syms
         }   // if org has syms
 
-
+      }
+      GrowOlder();
     }
 };
 #endif // HEALTHHOST_H

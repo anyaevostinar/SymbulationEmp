@@ -49,7 +49,7 @@ struct CPUState {
 
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> used_resources = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>();
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(true);
+  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks_performed = emp::NewPtr<emp::BitSet<CPU_BITSET_LENGTH>>(false);
   int task_change_lose[CPU_BITSET_LENGTH] = { 0 };
   int task_change_gain[CPU_BITSET_LENGTH] = { 0 };
 
