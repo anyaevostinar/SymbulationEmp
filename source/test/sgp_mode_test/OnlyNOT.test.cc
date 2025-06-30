@@ -48,7 +48,6 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
   //Checks both that NOT is being done and no other operations are being done
   for (auto data : world.GetTaskSet()) {
     
-      std::cout << data.task.name << "  "<<data.n_succeeds_host<< std::endl;
       if(data.task.name != "NOT"){
     
        REQUIRE(data.n_succeeds_host == 0);
