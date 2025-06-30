@@ -10,12 +10,12 @@
 
 
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can recieve credit for is 1", "[sgp]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can receive credit for is 1", "[sgp]"){
 
   emp::Random random(1);
   SymConfigSGP config;
   config.RANDOM_ANCESTOR(false);
-  config.SEED(2);
+  config.SEED(1);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
   config.MUTATION_RATE(0.0);
@@ -49,12 +49,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should only get credit for completing 1 task"){
-      REQUIRE(tasks_completed == 1);
+        REQUIRE(tasks_completed == 1);
       }
     }
 
@@ -62,12 +62,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should only get credit for completing 1 task"){
-      REQUIRE(tasks_completed == 1);
+        REQUIRE(tasks_completed == 1);
       }
     }
   }
@@ -101,12 +101,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should only get credit for completing 1 task"){
-      REQUIRE(tasks_completed == 1);
+        REQUIRE(tasks_completed == 1);
       }
     }
 
@@ -114,12 +114,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should only get credit for completing 1 task"){
-      REQUIRE(tasks_completed == 1);
+        REQUIRE(tasks_completed == 1);
       }
     }
   }
@@ -143,12 +143,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should not get credit for any tasks"){
-      REQUIRE(tasks_completed == 0);
+        REQUIRE(tasks_completed == 0);
       }
     }
 
@@ -156,12 +156,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should not get credit for any tasks"){
-      REQUIRE(tasks_completed == 0);
+        REQUIRE(tasks_completed == 0);
       }
     }
   }
@@ -169,7 +169,7 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can reci
 
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all tasks they complete", "[sgp]"){
+TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms receive credit for all tasks they complete", "[sgp]"){
 
   emp::Random random(1);
   SymConfigSGP config;
@@ -206,12 +206,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should recieve credit for completing 2 tasks"){
-      REQUIRE(tasks_completed == 2);
+        REQUIRE(tasks_completed == 2);
       }
     }
 
@@ -219,12 +219,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should recieve credit for completing 2 tasks"){
-      REQUIRE(tasks_completed == 2);
+        REQUIRE(tasks_completed == 2);
       }
     }
   }
@@ -257,12 +257,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should get credit for completing all 9 tasks"){
-      REQUIRE(tasks_completed == 9);
+        REQUIRE(tasks_completed == 9);
       }
     }
 
@@ -270,12 +270,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should get credit for completing all 9 tasks"){
-      REQUIRE(tasks_completed == 9);
+        REQUIRE(tasks_completed == 9);
       }
     }
   }
@@ -298,12 +298,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       sym->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Symbiont should not get credit for any tasks"){
-      REQUIRE(tasks_completed == 0);
+        REQUIRE(tasks_completed == 0);
       }
     }
 
@@ -311,12 +311,12 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms recieve credit for all ta
     
       host->GetCPU().RunCPUStep(0, 100);
       
-        int tasks_completed = 0;
+      int tasks_completed = 0;
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
         tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
       }
       THEN("Host should not get credit for any tasks"){
-      REQUIRE(tasks_completed == 0);
+        REQUIRE(tasks_completed == 0);
       }
     }
   }
