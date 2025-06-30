@@ -62,7 +62,7 @@ TEST_CASE("Task Match properly returns whether a host/host's parnet and symbiont
   }
   WHEN("Host has performed NOT and Symbiont has performed EQU"){
     host->GetCPU().state.tasks_performed->Set(1);
-    sym->GetCPU().state.tasks_performed->Set(9);
+    sym->GetCPU().state.tasks_performed->Set(8);
     THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
       REQUIRE(!world.TaskMatchCheck(sym, host));
     }
