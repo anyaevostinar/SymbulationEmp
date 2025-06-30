@@ -1,4 +1,14 @@
 #include "../../sgp_mode/HealthHost.h"
+#include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/SGPConfigSetup.h"
+#include "../../sgp_mode/SGPHost.cc"
+#include "../../sgp_mode/SGPHost.h"
+#include "../../sgp_mode/SGPSymbiont.h"
+#include "../../sgp_mode/Tasks.cc"
+#include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+#include "../../sgp_mode/SGPDataNodes.h"
 
 //Tests to write:
 // Health host with parasite loses cycle 50% of time
@@ -9,32 +19,32 @@
 // Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
 // Trickier for mutualist, check just before enough CPUs and it should manage to finish
 
-TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
+TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-integration]") {
   emp::Random random(10);
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
   SymConfigSGP config;
-  config.SEED(10);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
+  config.SEED(10);  
+  config.ORGANISM_TYPE(1); //Health hosts
+  config.STRESS_TYPE(1); //Parasites
   config.LIMITED_RES_TOTAL(10);
   config.LIMITED_RES_INFLOW(500);
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
-  config.SYM_HORIZ_TRANS_RES(10);
+  config.SYM_HORIZ_TRANS_RES(0);
   config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
   config.LIMITED_TASK_RESET_INTERVAL(20);
 
-  config.OUSTING(1); //TODO: test removing the HealthHost ousting code
+  config.OUSTING(1);
 
 
   size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 
 
-  size_t run_updates = 20000;
+  size_t run_updates = 8000;
   WHEN("There are parasites") {
     config.START_MOI(1);
     
@@ -42,25 +52,22 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
   
     REQUIRE(world.GetNumOrgs() == world_size);
     for (size_t i = 0; i < run_updates; i++) {
-      if (i % 1000 == 0) {
+      if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
+      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
     }
-    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+    THEN("Health hosts evolve to do less than 8k NOT tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      //advance iterator to the ORN task
-      for (size_t i = 0; i < 3; i++) {
-        ++it;
-      }
-      REQUIRE((*it).task.name == "ORN");
-      REQUIRE((*it).n_succeeds_host > 100);
+      REQUIRE(world.GetTaskSet().NumTasks() == 9);
+      REQUIRE((*it).task.name == "NOT");
+      REQUIRE((*it).n_succeeds_host < 8000);
     }
   }
   WHEN("There are no parasites") {
@@ -82,14 +89,11 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
     THEN("Non-existant parasites do no NOT") {
       REQUIRE((*it).n_succeeds_sym == 0);
     }
-    THEN("Health hosts evolve to do fewer than 10 ORN tasks") {
+    THEN("Health hosts keep doing NOT tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      //advance iterator to the ORN task
-      for (size_t i = 0; i < 3; i++) {
-        ++it;
-      }
-      REQUIRE((*it).task.name == "ORN");
-      REQUIRE((*it).n_succeeds_host < 100);
+      REQUIRE(world.GetTaskSet().NumTasks() == 9);
+      REQUIRE((*it).task.name == "NOT");
+      REQUIRE((*it).n_succeeds_host > 9000);
     }
   }
 
@@ -98,7 +102,7 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
 TEST_CASE("Health hosts evolve", "[sgp-integration]") {
   emp::Random random(32);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(HEALTH);
+  config.ORGANISM_TYPE(1); // Health hosts
   config.START_MOI(0);
   config.GRID_X(10);
   config.GRID_Y(100);

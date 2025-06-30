@@ -224,6 +224,7 @@ public:
   }
 
   size_t NumTasks() const { return tasks.size(); }
+  size_t size() const { return tasks.size(); }
 
   // Provide access to data about task completion with an iterator
   struct TaskData {
