@@ -340,8 +340,19 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-  
-    return CreateParasiteNotProgram(PROGRAM_LENGTH);
+    if(config->DONATION_STEAL_INST() == 1){
+      if(config->STRESS_TYPE() == 1){
+         std::cout << "eyyy its parasite time" << std::endl;
+        return CreateParasiteNotProgram(PROGRAM_LENGTH);
+      }
+      else if(config->STRESS_TYPE() == 0){
+        return CreateMutualistNotProgram(PROGRAM_LENGTH);
+      }
+    }
+    else{
+      std::cout << "U said I cant steal.." << std::endl;
+      return CreateNotProgram(PROGRAM_LENGTH);
+    }
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
   }
