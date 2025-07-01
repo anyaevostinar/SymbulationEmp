@@ -25,8 +25,8 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp]") {
         THEN("Its own tasks are initially all marked as uncompleted") {
           REQUIRE(host_tasks->None());
         }
-        THEN("Its parent's tasks are all marked as successful") {
-          REQUIRE(parent_tasks->All());
+        THEN("Its parent's tasks are all marked as uncompleted") {
+          REQUIRE(parent_tasks->None());
         }
         for (int i = 0; i < 25; i++) {
           world.Update();
@@ -99,7 +99,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
     
     THEN("Host child inherits its parent's completed task bitset") {
       emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
-      REQUIRE(host_parent->GetCPU().state.parent_tasks_performed->All());
+      REQUIRE(host_parent->GetCPU().state.parent_tasks_performed->None());
 
       REQUIRE(host_parent->GetCPU().state.tasks_performed->Get(0));
       REQUIRE(host_parent->GetCPU().state.tasks_performed->CountOnes() == 1);
@@ -117,7 +117,9 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
       // gen 5 (host_gen5) parent tasks: NOT and NAND (gains NAND, loses EQU) : checks gain of >1
 
       enum TaskIndices {NOT_i = 0, NAND_i = 1, EQU_i = 8};
-
+      for (unsigned int i = 0; i < CPU_BITSET_LENGTH; i++) {
+         host_parent->GetCPU().state.parent_tasks_performed->Set(i);
+      }
       emp::Ptr<SGPHost> host_gen2 = (host_parent->Reproduce()).DynamicCast<SGPHost>();
       REQUIRE(host_gen2->GetCPU().state.task_change_lose[NOT_i] == 0);
       REQUIRE(host_gen2->GetCPU().state.task_change_gain[NOT_i] == 0);
@@ -198,14 +200,15 @@ TEST_CASE("SGPHost Reproduce", "[sgp]") {
     WHEN("The host parent has a symbiont") {
       host_parent->AddSymbiont(emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100)));
       emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
+      
       THEN("The host child tracks how its tasks compare to its parent's partner's tasks") {
 
         REQUIRE(host_baby->GetCPU().state.task_toward_partner[0] == 0);
-        REQUIRE(host_baby->GetCPU().state.task_from_partner[0] == 0);
+        REQUIRE(host_baby->GetCPU().state.task_from_partner[0] == 1);
 
         for (unsigned int i = 1; i < CPU_BITSET_LENGTH; i++) {
           REQUIRE(host_baby->GetCPU().state.task_toward_partner[i] == 0);
-          REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 1);
+          REQUIRE(host_baby->GetCPU().state.task_from_partner[i] == 0);
         }
       }
       host_baby.Delete();
