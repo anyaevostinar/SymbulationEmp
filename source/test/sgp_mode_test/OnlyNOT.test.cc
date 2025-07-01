@@ -8,7 +8,7 @@
 
 #include "../../catch/catch.hpp"
 
-TEST_CASE("Organisms, without mutation can only do NOT operations", "[EliasHE]") {
+TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
      
   emp::Random random(1);
   SymConfigSGP config;
@@ -29,7 +29,8 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[EliasHE]")
   };
 
   TestOrg organism;
-  // Empty builder
+
+  // NOT builder
   ProgramBuilder builder;
   (builder.AddNot)();
   CPU cpu(&organism, &world, builder.Build(100));
@@ -38,16 +39,17 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[EliasHE]")
   
   cpu.RunCPUStep(0, 100);
   
+  //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
   int all_ones_binary = 4294967295;
   cpu.state.input_buf.push(all_ones_binary);
   cpu.RunCPUStep(0, 100);
   world.Update();
 
+  //Checks both that NOT is being done and no other operations are being done
   for (auto data : world.GetTaskSet()) {
     
-      std::cout << data.task.name << "  "<<data.n_succeeds_host<< std::endl;
       if(data.task.name != "NOT"){
-        //std::cout << "I am not NOT I am "<< data.task.name << std::endl;
+    
        REQUIRE(data.n_succeeds_host == 0);
       }
       else{
