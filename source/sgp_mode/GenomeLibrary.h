@@ -30,8 +30,9 @@ using Library = sgpl::OpLibrary<
     //inst::Infect,
     // if-label doesn't make sense for SGP, same with *-head
     // and set-flow but this is required
-    sgpl::global::Anchor 
-    //inst::Steal
+    sgpl::global::Anchor,
+    inst::Steal,
+    inst::Donate
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
@@ -263,6 +264,16 @@ public:
     Add("Nand", 0, 0, 0);
     Add("SharedIO");
   }
+
+  void AddSteal(){
+    
+    Add("Steal");
+    //std::cout << "Adding Steal" << std::endl;
+  }
+
+  void AddDonate(){
+    Add("Donate");
+  }
 };
 
 sgpl::Program<Spec> CreateRandomProgram(size_t length) {
@@ -277,6 +288,27 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
+  return program.Build(length);
+}
+
+sgpl::Program<Spec> CreateParasiteNotProgram(size_t length) {
+  ProgramBuilder program;
+  program.AddSteal();
+  program.AddNot();
+  
+  return program.Build(length);
+}
+
+sgpl::Program<Spec> CreateMutualistNotProgram(size_t length) {
+  ProgramBuilder program;
+  program.AddNot();
+  program.AddDonate();
+  return program.Build(length);
+}
+
+sgpl::Program<Spec> CreateEquProgram(size_t length) {
+  ProgramBuilder program;
+  program.AddEqu();
   return program.Build(length);
 }
 
@@ -308,7 +340,8 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if (config->RANDOM_ANCESTOR()) {
     return CreateRandomProgram(PROGRAM_LENGTH);
   } else if (config->TASK_TYPE() == 1) {
-    return CreateNotProgram(PROGRAM_LENGTH);
+  
+    return CreateParasiteNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
   }
