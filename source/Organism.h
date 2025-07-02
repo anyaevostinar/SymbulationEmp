@@ -75,6 +75,7 @@ class Organism {
     std::cout << "MakeNew called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  
 
   //Symbiont functions
 
@@ -176,6 +177,14 @@ class Organism {
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void CycleTransfer(int _in){
+    std::cout << "CycleTransfer called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual int GetCyclesGiven(){
+    std::cout << "GetCyclesGiven called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Bacterium functions
   virtual double ProcessLysogenResources(double phage_inc_val){
