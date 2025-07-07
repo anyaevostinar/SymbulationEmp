@@ -129,7 +129,7 @@ TEST_CASE("Host Setup", "[sgp]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world should have no organisms"){
-      REQUIRE(world.GetNumOrgs() == 1);
+      REQUIRE(world.GetNumOrgs() == 0);
     }
   }
 
