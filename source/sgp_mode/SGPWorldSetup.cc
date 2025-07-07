@@ -25,7 +25,7 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
         break;
       default:
         std::cout << "Please request a supported sgp organism type" << std::endl;
-        break;
+        return;
     }
     
     if(sgp_config->START_MOI()==1){
@@ -86,6 +86,7 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
 
   if (sgp_config->TRACK_PARENT_TASKS()) {
+
     emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> grand_parent_tasks;
     emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_host_tasks;
 
