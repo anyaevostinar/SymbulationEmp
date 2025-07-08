@@ -91,10 +91,17 @@ public:
 
   float CheckOutput(CPUState &state, uint32_t output) override {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
+
+      
       if (state.input_buf[i] == 0)
         continue;
 
       emp::vector<uint32_t> inputs{state.input_buf[i], state.input_buf[i + 1]};
+      
+      //Check to make sure the answer is not equivalent to a input, stops easy points. 
+      if(inputs[0] == output || inputs[1] == output){
+        continue;
+      }
       if (n_inputs > 1 && inputs[1] == 0)
         continue;
 
@@ -217,6 +224,7 @@ public:
   }
 
   size_t NumTasks() const { return tasks.size(); }
+  size_t size() const { return tasks.size(); }
 
   // Provide access to data about task completion with an iterator
   struct TaskData {

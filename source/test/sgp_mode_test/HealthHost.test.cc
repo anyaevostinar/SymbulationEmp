@@ -1,22 +1,24 @@
 #include "../../sgp_mode/HealthHost.h"
+#include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/SGPConfigSetup.h"
+#include "../../sgp_mode/SGPHost.cc"
+#include "../../sgp_mode/SGPHost.h"
+#include "../../sgp_mode/SGPSymbiont.h"
+#include "../../sgp_mode/Tasks.cc"
+#include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+#include "../../sgp_mode/SGPDataNodes.h"
 
-//Tests to write:
-// Health host with parasite loses cycle 50% of time
-// Health host with mutualist gains cycle 50% of time
-  // in signalgp-lite/include/sgpl/hardware/Cpu.hpp there is GetCore(0)
-  // in signalgp-lite/include/sgpl/hardware/Core.hpp there is GetProgramCounter()
-  // that hopefully will show whether organism has advanced program counter
-// Also test with health host with NOT, give it just barely enough CPUs to finish, check whether it manages to complete NOT
-// Trickier for mutualist, check just before enough CPUs and it should manage to finish
 
-TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-integration]") {
+TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   emp::Random random(10);
+  
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
   SymConfigSGP config;
   config.SEED(10);
   config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
   config.LIMITED_RES_TOTAL(10);
   config.LIMITED_RES_INFLOW(500);
   config.VERTICAL_TRANSMISSION(0);
@@ -27,14 +29,127 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
   config.DONATION_STEAL_INST(0);
   config.LIMITED_TASK_RESET_INTERVAL(20);
 
-  config.OUSTING(1); //TODO: test removing the HealthHost ousting code
+  config.OUSTING(1);
+
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+  SGPWorld world(random, &config, LogicTasks);
+
+  emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
+  
+  WHEN("Parasites are present"){
+    config.STRESS_TYPE(PARASITE);
+    config.START_MOI(1);
+
+    emp::Ptr<SGPSymbiont> parasite_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+
+    host->AddSymbiont(parasite_symbiont);
+    
+    world.AddOrgAt(host, 0);
+
+    int total_times_skipped_cycle = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(initial_stack_location == new_stack_location) {
+        total_times_skipped_cycle++;
+      }
+    }
+    
+    REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
+    REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
+  }
+  WHEN("Symbionts are not present"){
+    config.START_MOI(0);
+    world.AddOrgAt(host, 0);
+
+    int total_times_skipped_cycle = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(initial_stack_location == new_stack_location) {
+        total_times_skipped_cycle++;
+      }
+    }
+
+    int total_times_gained_cycles = 0;
+    for (int i = 0; i < repeats; i++) {
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(new_stack_location - initial_stack_location == 8) {
+        total_times_gained_cycles++;
+      }
+    }
+    
+    REQUIRE((double)total_times_skipped_cycle/repeats == 0);
+    REQUIRE((double)total_times_gained_cycles/repeats == 0);
+  }
+  WHEN("Mutualists are present"){
+    config.START_MOI(1);
+    config.STRESS_TYPE(MUTUALIST);
+
+    emp::Ptr<SGPSymbiont> mutualist_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+
+    host->AddSymbiont(mutualist_symbiont);
+    
+
+    world.AddOrgAt(host, 0);
+
+    int total_times_gained_cycles = 0;
+    int repeats = 25;
+    for (int i = 0; i < repeats; i++) {
+      size_t initial_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      host->Process(0);
+      size_t new_stack_location = host->GetCPU().GetCPUPointer().GetCore(0).GetProgramCounter();
+      
+      if(new_stack_location - initial_stack_location == 8) {
+        total_times_gained_cycles++;
+      }
+    }
+    
+    REQUIRE((double)total_times_gained_cycles/repeats <= 0.55);
+    REQUIRE((double)total_times_gained_cycles/repeats >= 0.45);
+  }
+}
+
+
+TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-integration]") {
+  emp::Random random(10);
+  //TODO: The random number seed doesn't seem to be working, different values for the same seed
+
+  SymConfigSGP config;
+  config.SEED(10);  
+  config.ORGANISM_TYPE(1); //Health hosts
+  config.STRESS_TYPE(1); //Parasites
+  config.LIMITED_RES_TOTAL(10);
+  config.LIMITED_RES_INFLOW(500);
+  config.VERTICAL_TRANSMISSION(0);
+  config.HOST_REPRO_RES(100);
+  config.SYM_HORIZ_TRANS_RES(0);
+  config.THREAD_COUNT(1);
+  config.TASK_TYPE(1);
+  config.DONATION_STEAL_INST(0);
+  config.LIMITED_TASK_RESET_INTERVAL(20);
+
+  config.OUSTING(1);
 
 
   size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 
 
-  size_t run_updates = 20000;
+  size_t run_updates = 8000;
   WHEN("There are parasites") {
     config.START_MOI(1);
     
@@ -42,25 +157,22 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
   
     REQUIRE(world.GetNumOrgs() == world_size);
     for (size_t i = 0; i < run_updates; i++) {
-      if (i % 1000 == 0) {
+      if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
+      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
+    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
     }
-    THEN("Health hosts evolve to do 30 or more ORN tasks") {
+    THEN("Health hosts evolve to do less than 8k NOT tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      //advance iterator to the ORN task
-      for (size_t i = 0; i < 3; i++) {
-        ++it;
-      }
-      REQUIRE((*it).task.name == "ORN");
-      REQUIRE((*it).n_succeeds_host > 100);
+      REQUIRE(world.GetTaskSet().NumTasks() == 9);
+      REQUIRE((*it).task.name == "NOT");
+      REQUIRE((*it).n_succeeds_host < 8000);
     }
   }
   WHEN("There are no parasites") {
@@ -82,14 +194,11 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
     THEN("Non-existant parasites do no NOT") {
       REQUIRE((*it).n_succeeds_sym == 0);
     }
-    THEN("Health hosts evolve to do fewer than 10 ORN tasks") {
+    THEN("Health hosts keep doing NOT tasks") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      //advance iterator to the ORN task
-      for (size_t i = 0; i < 3; i++) {
-        ++it;
-      }
-      REQUIRE((*it).task.name == "ORN");
-      REQUIRE((*it).n_succeeds_host < 100);
+      REQUIRE(world.GetTaskSet().NumTasks() == 9);
+      REQUIRE((*it).task.name == "NOT");
+      REQUIRE((*it).n_succeeds_host > 9000);
     }
   }
 
@@ -98,7 +207,7 @@ TEST_CASE("Health hosts evolve more ORN with parasites than without", "[sgp-inte
 TEST_CASE("Health hosts evolve", "[sgp-integration]") {
   emp::Random random(32);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(HEALTH);
+  config.ORGANISM_TYPE(1); // Health hosts
   config.START_MOI(0);
   config.GRID_X(10);
   config.GRID_Y(100);
