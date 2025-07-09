@@ -14,9 +14,7 @@ using Library = sgpl::OpLibrary<
     // single argument math
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
-    // no copy or alloc
     inst::Reproduce, 
-    //inst::PrivateIO, 
     inst::SharedIO,
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
@@ -25,11 +23,6 @@ using Library = sgpl::OpLibrary<
     // no h-search
     //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
-    //inst::Reuptake,
-    //fls basics
-    //inst::Infect,
-    // if-label doesn't make sense for SGP, same with *-head
-    // and set-flow but this is required
     sgpl::global::Anchor 
     //inst::Steal
     >;

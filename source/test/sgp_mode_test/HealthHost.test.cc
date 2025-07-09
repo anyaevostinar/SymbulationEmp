@@ -124,7 +124,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
 }
 
 
-TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-integration]") {
+TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][integration]") {
   emp::Random random(10);
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
@@ -160,10 +160,8 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
-      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
@@ -188,8 +186,6 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       }
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Non-existant parasites do no NOT") {
       REQUIRE((*it).n_succeeds_sym == 0);
@@ -204,7 +200,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
 
 }
 
-TEST_CASE("Health hosts evolve", "[sgp-integration]") {
+TEST_CASE("Health hosts evolve", "[sgp][integration]") {
   emp::Random random(32);
   SymConfigSGP config;
   config.ORGANISM_TYPE(1); // Health hosts
