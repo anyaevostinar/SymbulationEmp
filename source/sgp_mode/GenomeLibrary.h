@@ -265,22 +265,17 @@ public:
     Add("SharedIO");
   }
 
-  void AddSteal(int steal_count){
+  void AddStartSteal(int steal_count){
     
     for (int i = 0; i < steal_count; i++){
-    Add("Steal");
-    
-    Add("Donate");
-    Add("Donate");
-    Add("Donate");
+      Add("Steal");
+      
+      Add("Donate");
+      Add("Donate");
+      Add("Donate");
     
     }
     Add("Steal");
-    //std::cout << "Adding Steal" << std::endl;
-  }
-
-  void AddDonate(){
-    Add("Donate");
   }
 };
 
@@ -301,7 +296,7 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 
 sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   ProgramBuilder program;
-  program.AddSteal(steal_count);
+  program.AddStartSteal(steal_count);
   program.AddNot();
   
   return program.Build(length);
@@ -310,7 +305,7 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
 sgpl::Program<Spec> CreateMutualistNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
-  program.AddDonate();
+  program.Add("Donate");;
   return program.Build(length);
 }
 
@@ -350,7 +345,6 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   } else if (config->TASK_TYPE() == 1) {
     if(config->DONATION_STEAL_INST() == 1){
       if(config->STRESS_TYPE() == 1){
-         std::cout << "eyyy its parasite time" << std::endl;
         return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
       }
       else if(config->STRESS_TYPE() == 0){
@@ -358,7 +352,6 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
       }
     }
     else{
-      std::cout << "U said I cant steal.." << std::endl;
       return CreateNotProgram(PROGRAM_LENGTH);
     }
   } else {

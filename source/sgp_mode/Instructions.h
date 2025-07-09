@@ -144,14 +144,10 @@ INST(Donate, {
       return;
     }
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-  
-      //New Donate implementation:
-      if(host->GetCyclesGiven() <= 0){
-        host->CycleTransfer(1);
+        if(host->GetCyclesGiven() <= 0){
+          host->CycleTransfer(1);
       }
     }
-  }
-  else{
   }
 });
 INST(Steal, {
@@ -159,15 +155,11 @@ INST(Steal, {
     if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
       return;
     }
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-
-      //New Steal Implementation
+    if (emp::Ptr<Organism> host = state.organism->GetHost()){
       if(host->GetCyclesGiven() >= 0){
-       host->CycleTransfer(-1);
+        host->CycleTransfer(-1);
       }
     }
-  }
-  else{
   }
 });
 

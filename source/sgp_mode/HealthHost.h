@@ -45,7 +45,17 @@ class HealthHost : public SGPHost {
         random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
     return host_baby;
   }
-  
+    void CycleTransfer(int amount) override {
+      cycles_given += amount;
+    }
+
+    int GetCyclesGiven(){
+      return cycles_given;
+    }
+
+    std::string const GetName() override{
+      return "HealthHost";
+    }
     /** 
      * Input: The location of the host.
      * 
@@ -72,16 +82,13 @@ class HealthHost : public SGPHost {
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle += 1;
                 sym_cycle -= 1;
-                //std::cout << "here a donation" << std::endl;
               }
               cycles_given = 0;
               
-            }
-            else if(cycles_given <= -1){
+            }else if(cycles_given <= -1){
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle -= 1;
                 sym_cycle += 1;
-                //std::cout << "here a steal >:)" << std::endl;
               }
               cycles_given = 0;
 
@@ -141,26 +148,6 @@ class HealthHost : public SGPHost {
 
       }
       GrowOlder();
-    }
-
-    void CycleTransfer(int amount) override {
-      // for (int i = 0; i < abs(amount/4); i++){
-      //   if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
-      //     cycles_given += amount/(abs(amount)) * 4; 
-      //   }
-      //   else{
-      //     break;
-      //   }
-      // }
-      cycles_given += amount;
-    }
-
-    int GetCyclesGiven(){
-      return cycles_given;
-    }
-
-    std::string const GetName() override{
-      return "HealthHost";
     }
 };
 
