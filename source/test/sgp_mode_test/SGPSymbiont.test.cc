@@ -61,20 +61,39 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
     }
     sym_baby.Delete();
   }
+}
 
-  TEST_CASE("Symbiont comparison operators", "[sgp]") {
+TEST_CASE("Symbiont comparison operators", "[sgp]") {
+  emp::Random random(31);
+	SymConfigSGP config;
+	SGPWorld world(random, &config, LogicTasks);
+	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+
+  WHEN("Parental task tracking is on") {
+
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+    config.TRACK_PARENT_TASKS(1);
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym_parent);
+
+    for (int i = 0; i < 25; i++) {
+      world.Update();
+    }
     emp::Ptr<SGPSymbiont> clone1 = emp::NewPtr<SGPSymbiont>(*sym_parent);
     emp::Ptr<SGPSymbiont> clone2 = emp::NewPtr<SGPSymbiont>(*sym_parent);
     emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
+
 
     THEN("Symbionts with the same genomes are equal") {
       REQUIRE(*sym_parent == *clone1);
       REQUIRE(*clone1 == *clone2);
     }
 
+
     THEN("Symbionts with different genomes are not equal") {
       REQUIRE_FALSE(*sym_parent == *different);
     }
+
 
     THEN("operator< reflects program ordering") {
       // Can't assert true/false without knowing bitcode ordering,
@@ -87,18 +106,23 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
     clone2.Delete();
     different.Delete();
   }
+}
 
-  TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp]") {
-    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-    sym->GetCPU().state.in_progress_repro = 3;
-    world.to_reproduce.resize(5);
-    world.to_reproduce[3].second = emp::WorldPosition(1, 2);
+TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp]") {
+  emp::Random random(31);
+	SymConfigSGP config;
+	SGPWorld world(random, &config, LogicTasks);
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  sym->GetCPU().state.in_progress_repro = 3;
+  world.to_reproduce.resize(5); 
+  world.to_reproduce[3].second = emp::WorldPosition(1, 2); 
 
-    REQUIRE(world.to_reproduce[3].second.IsValid());
-    sym.Delete();
 
-    THEN("Reproduction queue is invalidated after symbiont is destroyed") {
-      REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
-    }
+  REQUIRE(world.to_reproduce[3].second.IsValid());
+  sym.Delete(); 
+
+
+  THEN("Reproduction queue is invalidated after symbiont is destroyed") {
+    REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
   }
 }
