@@ -23,7 +23,6 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
 
   emp::Random random(61);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   WHEN("logic tasks are used") {
     // Make the ancestor genome do NOT
@@ -40,9 +39,5 @@ TEST_CASE("Ancestor CPU can reproduce", "[sgp]") {
     world.Update();
 
     REQUIRE(organism.reproduce_count == 1);
-
-    cpu.state.shared_available_dependencies.Delete();
-    cpu.state.used_resources.Delete();
-    cpu.state.internal_environment.Delete();
   }
 }

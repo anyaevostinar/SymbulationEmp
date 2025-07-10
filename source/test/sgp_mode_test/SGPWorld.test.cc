@@ -80,11 +80,12 @@ TEST_CASE("Host Setup", "[sgp]") {
   config.SEED(2);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.000);
-  
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
   config.ONLY_FIRST_TASK_CREDIT(1);
   config.HOST_REPRO_RES(10000);
+
+
 
   //world.SetupHosts requires a pointer for the number of hosts in the world
   unsigned long setupCount = 1;
@@ -98,9 +99,7 @@ TEST_CASE("Host Setup", "[sgp]") {
     REQUIRE(host->GetName() == "SGPHost");
     
     }
-    
   }
-
   WHEN("ORGANISM_TYPE Config is set to Health hosts"){
     config.ORGANISM_TYPE(1);
     SGPWorld world(random, &config, LogicTasks);
@@ -132,12 +131,12 @@ TEST_CASE("Host Setup", "[sgp]") {
       REQUIRE(world.GetNumOrgs() == 0);
     }
   }
-
+  
 }
 
 TEST_CASE("TaskMatchCheck", "[sgp]") {
   
-  emp::Random random(1);
+  emp::Random random(61);
   SymConfigSGP config;
   config.SEED(2);
   config.MUTATION_RATE(0.0);

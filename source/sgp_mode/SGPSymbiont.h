@@ -67,11 +67,6 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
-    if (!my_host) {
-      cpu.state.internal_environment.Delete();
-      cpu.state.used_resources.Delete();
-      cpu.state.shared_available_dependencies.Delete();
-    }
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1 && my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
       //TODO: figure out why the second part of the line above is necessary and also write a test
@@ -114,31 +109,6 @@ public:
    */
   unsigned int GetReproCount() { return reproductions; }
 
-  /**
-   * Input: The pointer to an organism that will be set as the symbiont's host
-   *
-   * Output: None
-   *
-   * Purpose: To set a symbiont's host
-   */
-  void SetHost(emp::Ptr<Organism> host) {
-    Symbiont::SetHost(host);
-    if (my_host) {
-      cpu.state.shared_available_dependencies.Delete();
-      cpu.state.used_resources.Delete();
-      cpu.state.internal_environment.Delete();
-
-      cpu.state.used_resources =
-        host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-      cpu.state.shared_available_dependencies =
-        host.DynamicCast<SGPHost>()->GetCPU()
-            .state.shared_available_dependencies;
-      cpu.state.internal_environment =
-        host.DynamicCast<SGPHost>()->GetCPU().state.internal_environment;
-    }
-  }
-
-
   void AddPoints(double _in) {
     if(my_host && _in == 5.0) {
       //Would need to check 5.0 check to check if sym actually did same task as host somehow
@@ -166,8 +136,6 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
-    if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {

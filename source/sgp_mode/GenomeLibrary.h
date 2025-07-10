@@ -14,24 +14,28 @@ using Library = sgpl::OpLibrary<
     // single argument math
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
-    // no copy or alloc
     inst::Reproduce, 
-    //inst::PrivateIO, 
     inst::SharedIO,
+    inst::Steal,
+    inst::Donate, 
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
+<<<<<<< HEAD
     //inst::Reuptake,
     //fls basics
     //inst::Infect,
     // if-label doesn't make sense for SGP, same with *-head
     // and set-flow but this is required
+    sgpl::global::Anchor,
+    inst::Steal,
+    inst::Donate
+=======
     sgpl::global::Anchor 
-    //inst::Steal
+>>>>>>> 17d71af84a0ec6ca450ce1e689ab130e29b74c2c
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
@@ -263,11 +267,17 @@ public:
     Add("Nand", 0, 0, 0);
     Add("SharedIO");
   }
-};
 
-sgpl::Program<Spec> CreateRandomProgram(size_t length) {
-  return sgpl::Program<Spec>(length);
-}
+  void AddSteal(){
+    
+    Add("Steal");
+    //std::cout << "Adding Steal" << std::endl;
+  }
+
+  void AddDonate(){
+    Add("Donate");
+  }
+};
 
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
   ProgramBuilder program;
@@ -277,20 +287,6 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
-  return program.Build(length);
-}
-
-
-sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  program.AddPrivateNand();
   return program.Build(length);
 }
 
@@ -305,9 +301,7 @@ sgpl::Program<Spec> CreateMutualistStart(size_t length) {
  * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if (config->RANDOM_ANCESTOR()) {
-    return CreateRandomProgram(PROGRAM_LENGTH);
-  } else if (config->TASK_TYPE() == 1) {
+  if (config->TASK_TYPE() == 1) {
     return CreateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);

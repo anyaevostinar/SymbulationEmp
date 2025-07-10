@@ -1,9 +1,12 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
+
 #include "CPUState.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+
+
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Program.hpp"
@@ -12,6 +15,17 @@
 #include <mutex>
 
 namespace inst {
+
+void AddOrganismPoints(CPUState state, uint32_t output) {
+  float score = state.world->GetTaskSet().CheckTasks(state, output, true);
+  if (score != 0.0) {
+    state.organism->AddPoints(score);
+    if (!state.organism->IsHost()) {
+      state.world->GetSymEarnedDataNode().WithMonitor(
+          [=](auto &m) { m.AddDatum(score); });
+    }
+  }
+}
 
 /**
  * Macro to easily create an instruction:
@@ -91,38 +105,6 @@ INST(Reproduce, {
   }
 });
 // Set output to value of register and set register to new input
-INST(PrivateIO, {
-  float score = state.world->GetTaskSet().CheckTasks(state, *a, false);
-  if (score != 0.0) {
-    if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
-    } else {
-      // A host loses 25% of points when performing private IO operations
-      score *= 1.0; //turning off penalty for now
-    }
-    state.organism->AddPoints(score);
-  }
-  uint32_t next;
-  if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
-    next = sgpl::tlrand.Get().GetUInt();
-  } else {
-    next = 1;
-  }
-  *a = next;
-  state.input_buf.push(next);
-});
-void AddOrganismPoints(CPUState state, uint32_t output) {
-  float score = state.world->GetTaskSet().CheckTasks(state, output, true);
-  if (score != 0.0) {
-    state.organism->AddPoints(score);
-    if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
-    }
-  }
-}
-// Set output to value of register and set register to new input
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
   uint32_t next;
@@ -135,8 +117,9 @@ INST(SharedIO, {
   state.input_buf.push(next);
 });
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
+
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Donate 20% of the total points of the symbiont-host system
@@ -147,15 +130,22 @@ INST(Donate, {
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
       state.world->GetSymDonatedDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(to_donate); });
-      host->AddPoints(to_donate *
-                      (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
+      host->AddPoints(to_donate);
       state.organism->AddPoints(-to_donate);
     }
+    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
+  
+      //New Donate implementation:
+      host->CycleTransfer(int(state.world->GetConfig()->CYCLES_PER_UPDATE()));
+
+
+    }
   }
-});
+  
+}});
 INST(Steal, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Steal 20% of the total points of the symbiont-host system
@@ -167,52 +157,10 @@ INST(Steal, {
       state.world->GetSymStolenDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(to_steal); });
       host->AddPoints(-to_steal);
-      // 10% of the stolen resources are lost
-      state.organism->AddPoints(
-          to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+      state.organism->AddPoints(to_steal);
     }
   }
-});
-
-INST(Reuptake, {
-  uint32_t next;
-  AddOrganismPoints(state, *a);
-  // Only get resources if the organism has values in their internal environment
-  if (state.internal_environment->size() > 0) {
-    // Take a resource from back of internal environment vector
-    next = state.internal_environment->back();
-    // Clear out the selected resource from Internal Environment
-    state.internal_environment->pop_back();
-    *a = next;
-    state.input_buf.push(next);
-  } else {
-    // Otherwise, reset the register to 0
-    *a = 0;
-  }
-});
-
-INST(Infect, {
-  if (state.world->GetConfig()->FREE_LIVING_SYMS()) {
-    // check that it is neither a host nor a hosted sym
-    if (state.organism->IsHost() || state.organism->GetHost() != nullptr) return;
-    int pop_index = state.location.GetPopID();
-    // check that there's an available host
-    if (state.world->IsOccupied(pop_index)) {
-      //check that there's enough space for infection
-      int syms_size = state.world->GetPop()[pop_index]->GetSymbionts().size();
-      if (syms_size < state.world->GetConfig()->SYM_LIMIT()) {
-        // extract the symbiont from the fls vector and decrement the free living org count, then
-        // add the sym to the host's sym list
-        state.world->GetPop()[pop_index]->AddSymbiont(state.world->ExtractSym(pop_index));
-        // change the location 
-        state.location = emp::WorldPosition(pop_index, syms_size);
-      }
-      else {
-        state.organism->SetDead(); // infection failed, set it dead and do deletion next update 
-      }
-    }
-  }
-});
+}});
 
 } // namespace inst
 

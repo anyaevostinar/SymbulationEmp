@@ -7,6 +7,8 @@ class HealthHost : public SGPHost {
 
     public:
 
+    int cycles_given = 0;
+
       /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -70,13 +72,30 @@ class HealthHost : public SGPHost {
             //Or setup function?
             return;
         }
-
+        
         int host_cycle = 1;
         int sym_cycle = 0;
         if (HasSym()) {
-          if (sgp_config->STRESS_TYPE() == MUTUALIST) {
+          
+          if(sgp_config->DONATION_STEAL_INST()){
+            sym_cycle = 1;
+
+            if(cycles_given >= int(sgp_config->CYCLES_PER_UPDATE())){
+              host_cycle += 1;
+              sym_cycle -= 1;
+              cycles_given -= int(sgp_config->CYCLES_PER_UPDATE());
+              
+            }
+            else if(cycles_given <= (-1 * int(sgp_config->CYCLES_PER_UPDATE()))){
+              host_cycle -= 1;
+              sym_cycle += 1;
+              cycles_given += int(sgp_config->CYCLES_PER_UPDATE());
+
+            }
+          }
+          else{
+            if (sgp_config->STRESS_TYPE() == MUTUALIST) {
             //Host with mutualist gains 50% of CPU from mutualist
-    
             if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
               host_cycle = 2;
               sym_cycle = 0;
@@ -94,6 +113,7 @@ class HealthHost : public SGPHost {
               host_cycle = 1;
               sym_cycle = 0;
             }
+          }
           }
         }
         
@@ -128,5 +148,15 @@ class HealthHost : public SGPHost {
       }
       GrowOlder();
     }
+
+    void CycleTransfer(int amount) override {
+      cycles_given += amount; 
+    }
+
+    int GetCyclesGiven(){
+      return cycles_given;
+    }
 };
+
+  
 #endif // HEALTHHOST_H
