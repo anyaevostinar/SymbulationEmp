@@ -27,7 +27,6 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
-  config.LIMITED_TASK_RESET_INTERVAL(20);
 
   config.OUSTING(1);
 
@@ -62,6 +61,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
     REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
     REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
   }
+
   WHEN("Symbionts are not present"){
     config.START_MOI(0);
     world.AddOrgAt(host, 0);
@@ -94,6 +94,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
     REQUIRE((double)total_times_skipped_cycle/repeats == 0);
     REQUIRE((double)total_times_gained_cycles/repeats == 0);
   }
+
   WHEN("Mutualists are present"){
     config.START_MOI(1);
     config.STRESS_TYPE(MUTUALIST);
@@ -124,7 +125,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
 }
 
 
-TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-integration]") {
+TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][integration]") {
   emp::Random random(10);
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
@@ -140,7 +141,6 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
   config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
-  config.LIMITED_TASK_RESET_INTERVAL(20);
 
   config.OUSTING(1);
 
@@ -160,10 +160,8 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       if (i % 100 == 0) {
         world.GetTaskSet().ResetTaskData();
       }
-      std::cout << "Update: " << i << std::endl;
       world.Update();
     }
-    std::cout << "after updates" << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Parasites do some NOT") {
       REQUIRE((*it).n_succeeds_sym > 0);
@@ -188,8 +186,6 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
       }
       world.Update();
     }
-    //std::cout << "Random: " << random.GetSeed() << std::endl;
-    //std::cout << "Random number: " << random.GetUInt() << std::endl;
     auto it = world.GetTaskSet().begin();
     THEN("Non-existant parasites do no NOT") {
       REQUIRE((*it).n_succeeds_sym == 0);
@@ -204,7 +200,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp-inte
 
 }
 
-TEST_CASE("Health hosts evolve", "[sgp-integration]") {
+TEST_CASE("Health hosts evolve", "[sgp][integration]") {
   emp::Random random(32);
   SymConfigSGP config;
   config.ORGANISM_TYPE(1); // Health hosts

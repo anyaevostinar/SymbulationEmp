@@ -50,11 +50,6 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
   file.AddVar(update, "update", "Update");
   file.AddTotal(host_count, "count", "Total number of hosts");
   file.AddTotal(endo_sym_count, "hosted_syms", "Total number of syms in a host");
-  
-  if (sgp_config->FREE_LIVING_SYMS()) {
-    auto& free_sym_count = GetCountFreeSymsDataNode();
-    file.AddTotal(free_sym_count, "free_syms", "Total number of free syms");
-  }
 
   file.PrintHeaderKeys();
   
