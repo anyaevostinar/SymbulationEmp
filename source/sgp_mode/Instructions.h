@@ -142,14 +142,11 @@ INST(Donate, {
     if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
 
       return;
-<<<<<<< HEAD
     }
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
         if(host->GetCyclesGiven() <= 0){
           host->CycleTransfer(1);
       }
-=======
->>>>>>> origin/complex-syms-clean
     }
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
   
@@ -166,14 +163,11 @@ INST(Steal, {
   if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
     if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
       return;
-<<<<<<< HEAD
     }
     if (emp::Ptr<Organism> host = state.organism->GetHost()){
       if(host->GetCyclesGiven() >= 0){
         host->CycleTransfer(-1);
       }
-=======
->>>>>>> origin/complex-syms-clean
     }
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
 
