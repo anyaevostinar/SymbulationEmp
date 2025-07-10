@@ -24,18 +24,7 @@ using Library = sgpl::OpLibrary<
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
     inst::JumpIfNEq, inst::JumpIfLess, 
-<<<<<<< HEAD
-    //inst::Reuptake,
-    //fls basics
-    //inst::Infect,
-    // if-label doesn't make sense for SGP, same with *-head
-    // and set-flow but this is required
-    sgpl::global::Anchor,
-    inst::Steal,
-    inst::Donate
-=======
     sgpl::global::Anchor 
->>>>>>> 17d71af84a0ec6ca450ce1e689ab130e29b74c2c
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
