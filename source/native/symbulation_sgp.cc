@@ -29,8 +29,14 @@ int symbulation_main(int argc, char *argv[]) {
   SymConfigSGP config;
   CheckConfigFile(config, argc, argv);
 
+  if (config.FREE_LIVING_SYMS()) {
+    std::cout << "Free living symbionts aren't currently supported" << std::endl;
+    exit(1);
+  }
+
   // stress hard-coded transmission modes
   if (config.ORGANISM_TYPE() == 2) {
+    //TODO: remove this since it should just be set correctly
     if (config.STRESS_TYPE() == 0) {
       // mutualists
       config.VERTICAL_TRANSMISSION(1.0);

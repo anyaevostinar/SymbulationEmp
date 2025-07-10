@@ -14,7 +14,6 @@ TEST_CASE("Task Match properly returns whether a host/host's parnet and symbiont
   
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
@@ -74,7 +73,4 @@ TEST_CASE("Task Match properly returns whether a host/host's parnet and symbiont
       REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
     }
   }
-
-
-
 }

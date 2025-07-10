@@ -14,17 +14,17 @@ using Library = sgpl::OpLibrary<
     // single argument math
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
-    // no copy or alloc
     inst::Reproduce, 
-    //inst::PrivateIO, 
     inst::SharedIO,
+    inst::Steal,
+    inst::Donate, 
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
+<<<<<<< HEAD
     //inst::Reuptake,
     //fls basics
     //inst::Infect,
@@ -33,6 +33,9 @@ using Library = sgpl::OpLibrary<
     sgpl::global::Anchor,
     inst::Steal,
     inst::Donate
+=======
+    sgpl::global::Anchor 
+>>>>>>> 17d71af84a0ec6ca450ce1e689ab130e29b74c2c
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
@@ -276,10 +279,6 @@ public:
   }
 };
 
-sgpl::Program<Spec> CreateRandomProgram(size_t length) {
-  return sgpl::Program<Spec>(length);
-}
-
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
   ProgramBuilder program;
   return program.Build(length);
@@ -288,41 +287,6 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreateParasiteNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddSteal();
-  program.AddNot();
-  
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreateMutualistNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddDonate();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreateEquProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddEqu();
-  return program.Build(length);
-}
-
-
-sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  program.AddPrivateNand();
   return program.Build(length);
 }
 
@@ -337,22 +301,8 @@ sgpl::Program<Spec> CreateMutualistStart(size_t length) {
  * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if (config->RANDOM_ANCESTOR()) {
-    return CreateRandomProgram(PROGRAM_LENGTH);
-  } else if (config->TASK_TYPE() == 1) {
-    if(config->DONATION_STEAL_INST() == 1){
-      if(config->STRESS_TYPE() == 1){
-         std::cout << "eyyy its parasite time" << std::endl;
-        return CreateParasiteNotProgram(PROGRAM_LENGTH);
-      }
-      else if(config->STRESS_TYPE() == 0){
-        return CreateMutualistNotProgram(PROGRAM_LENGTH);
-      }
-    }
-    else{
-      std::cout << "U said I cant steal.." << std::endl;
-      return CreateNotProgram(PROGRAM_LENGTH);
-    }
+  if (config->TASK_TYPE() == 1) {
+    return CreateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
   }

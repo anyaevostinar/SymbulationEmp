@@ -14,7 +14,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks an organism can rece
 
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(1);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
@@ -173,7 +172,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, organisms receive credit for all ta
 
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);

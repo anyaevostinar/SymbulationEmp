@@ -50,14 +50,14 @@ class CPU {
       }
       idx++;
     }
-
-    state.available_dependencies.resize(state.world->GetTaskSet().NumTasks());
-    state.shared_available_dependencies->resize(
-        state.world->GetTaskSet().NumTasks());
   }
 
 public:
   CPUState state;
+
+  sgpl::Cpu<Spec> GetCPUPointer() {
+    return cpu;
+  }
 
   /**
    * Constructs a new CPU for an ancestor organism, with either a random genome
@@ -153,21 +153,20 @@ public:
    *
    * Purpose: Get the phenotype of an organism
    */
-  emp::BitSet<CPU_BITSET_LENGTH> TasksPerformable() const {
-    // Make a temporary copy of this CPU so that its state isn't clobbered
-    CPU org_cpu = *this;
-    org_cpu.Reset();
-    org_cpu.state.available_dependencies = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-    // Turn off limited resources for this method
-    int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
-    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
+  // emp::BitSet<CPU_BITSET_LENGTH> TasksPerformable() const {
+  //   // Make a temporary copy of this CPU so that its state isn't clobbered
+  //   CPU org_cpu = *this;
+  //   org_cpu.Reset();
+  //   // Turn off limited resources for this method
+  //   int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
+  //   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
 
-    org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
+  //   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
 
-    // and then reset it to the previous value
-    org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
-    return *org_cpu.state.used_resources;
-  }
+  //   // and then reset it to the previous value
+  //   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
+  //   return *org_cpu.state.used_resources;
+  // }
 
   /*
    * Input: The identifier for a specific task
@@ -176,9 +175,9 @@ public:
    *
    * Purpose: To return whether or not the organism can perform the given task
    */
-  bool CanPerformTask(size_t task_id) const {
-    return TasksPerformable().Get(task_id);
-  }
+  // bool CanPerformTask(size_t task_id) const {
+  //   return TasksPerformable().Get(task_id);
+  // }
 
 private:
   /**
@@ -253,8 +252,7 @@ public:
         {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
         {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
         {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
-        {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
-        {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}};
+        {"Reproduce", 0}, {"PrivateIO", 1},  {"Donate", 0},   {"Steal", 0}};
 
     for (auto i : program) {
       PrintOp(i, arities, cpu.GetActiveCore().GetGlobalJumpTable(), out);

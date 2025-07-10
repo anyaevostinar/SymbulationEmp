@@ -6,7 +6,6 @@
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   emp::Random random(61);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
   // Ensure we can actually complete the task
@@ -32,10 +31,6 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   world.Update();
 
   REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
-
-  cpu.state.shared_available_dependencies.Delete();
-  cpu.state.used_resources.Delete();
-  cpu.state.internal_environment.Delete();
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
@@ -70,7 +65,6 @@ TEST_CASE("Generate EQU program", "[sgp]") {
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   emp::Random random(61);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SYM_HORIZ_TRANS_RES(100);
 
   SGPWorld world(random, &config, LogicTasks);
@@ -94,8 +88,4 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   for (auto data : world.GetTaskSet()) {
     REQUIRE(data.n_succeeds_host == 0);
   }
-
-  cpu.state.shared_available_dependencies.Delete();
-  cpu.state.used_resources.Delete();
-  cpu.state.internal_environment.Delete();
 }
