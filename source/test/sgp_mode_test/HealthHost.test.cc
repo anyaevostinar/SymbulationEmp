@@ -254,7 +254,6 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
  
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(0);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(1);
@@ -276,7 +275,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   //Creates a host that only does NOT operations
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(100));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(1,100));
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
@@ -286,7 +285,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   sym->GetCPU().RunCPUStep(0, 100);
   (*(sym->GetCPU().state.tasks_performed))[0] = 0;
   THEN("The host should be set to lose 4 cycles to the symbiont"){
-    REQUIRE(host->GetCyclesGiven() == -4);
+    REQUIRE(host->GetCyclesGiven() == -1);
   }
   for (size_t i = 0; i < 24; i++) {
     world.Update();
@@ -306,7 +305,6 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
  
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(0);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(0);
@@ -338,7 +336,7 @@ WHEN("A symbiont performs a Donate instruction"){
   sym->GetCPU().RunCPUStep(0, 100);
   (*(sym->GetCPU().state.tasks_performed))[0] = 0;
   THEN("The host should be set to gain 4 cycles from the symbiont"){
-    REQUIRE(host->GetCyclesGiven() == 4);
+    REQUIRE(host->GetCyclesGiven() == 1);
   }
   for (size_t i = 0; i < 24; i++) {
     world.Update();

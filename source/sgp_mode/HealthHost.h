@@ -128,18 +128,18 @@ class HealthHost : public SGPHost {
         //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
         //for when it recieves said bonus update. 
         //Allows for symbiont to reach steals but to still need them
-        if(sym_cycle == 0){
+        if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
           if(starting_updates > 0){
             sym_cycle += 1;
             starting_updates -= 1;
-            std::cout << "I am in the first 25" << std::endl;
+            //std::cout << "I am in the first 25" << std::endl;
           }
           else{
             honoray_cycles += 1;
             if(honoray_cycles == 40){
               starting_updates += 1;
               honoray_cycles = 0;
-              std::cout << "40/40" << std::endl;
+              //std::cout << "40/40" << std::endl;
             }
           }
         }
