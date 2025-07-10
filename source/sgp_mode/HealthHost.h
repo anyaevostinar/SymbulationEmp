@@ -78,7 +78,6 @@ class HealthHost : public SGPHost {
           if(sgp_config->DONATION_STEAL_INST()){
             sym_cycle = 1;
 
-<<<<<<< HEAD
             if(cycles_given >= 1){
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle += 1;
@@ -92,18 +91,6 @@ class HealthHost : public SGPHost {
                 sym_cycle += 1;
               }
               cycles_given = 0;
-=======
-            if(cycles_given >= int(sgp_config->CYCLES_PER_UPDATE())){
-              host_cycle += 1;
-              sym_cycle -= 1;
-              cycles_given -= int(sgp_config->CYCLES_PER_UPDATE());
-              
-            }
-            else if(cycles_given <= (-1 * int(sgp_config->CYCLES_PER_UPDATE()))){
-              host_cycle -= 1;
-              sym_cycle += 1;
-              cycles_given += int(sgp_config->CYCLES_PER_UPDATE());
->>>>>>> origin/complex-syms-clean
 
             }
           }
