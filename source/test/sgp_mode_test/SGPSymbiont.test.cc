@@ -69,8 +69,6 @@ TEST_CASE("Symbiont comparison operators", "[sgp]") {
 	SGPWorld world(random, &config, LogicTasks);
 	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
-  WHEN("Parental task tracking is on") {
-
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
     config.TRACK_PARENT_TASKS(1);
     world.AddOrgAt(host, 0);
@@ -83,30 +81,20 @@ TEST_CASE("Symbiont comparison operators", "[sgp]") {
     emp::Ptr<SGPSymbiont> clone2 = emp::NewPtr<SGPSymbiont>(*sym_parent);
     emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
 
+    REQUIRE(*sym_parent == *clone1);
+    REQUIRE(*clone1 == *clone2);
 
-    THEN("Symbionts with the same genomes are equal") {
-      REQUIRE(*sym_parent == *clone1);
-      REQUIRE(*clone1 == *clone2);
-    }
+    REQUIRE_FALSE(*sym_parent == *different);
 
-
-    THEN("Symbionts with different genomes are not equal") {
-      REQUIRE_FALSE(*sym_parent == *different);
-    }
-
-
-    THEN("operator< reflects program ordering") {
-      // Can't assert true/false without knowing bitcode ordering,
-      // assert that bitcode ordering is well-defined
-      bool lt = *sym_parent < *different || *different < *sym_parent;
-      REQUIRE(lt);
-    }
-
+    // Can't assert true/false without knowing bitcode ordering,
+    // assert that bitcode ordering is well-defined
+    bool lt = *sym_parent < *different || *different < *sym_parent;
+    REQUIRE(lt);
+    
     clone1.Delete();
     clone2.Delete();
     different.Delete();
   }
-}
 
 TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp]") {
   emp::Random random(31);
@@ -117,12 +105,13 @@ TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress repr
   world.to_reproduce.resize(5); 
   world.to_reproduce[3].second = emp::WorldPosition(1, 2); 
 
-
   REQUIRE(world.to_reproduce[3].second.IsValid());
-  sym.Delete(); 
 
-
-  THEN("Reproduction queue is invalidated after symbiont is destroyed") {
-    REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
+  WHEN("Symbionts is destroyed") {
+    sym.Delete(); 
+    
+    THEN("Reproduction queue is invalidated after symbiont is destroyed") {
+      REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
+    }
   }
 }
