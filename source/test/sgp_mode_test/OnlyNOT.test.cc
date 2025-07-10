@@ -54,6 +54,5 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
       else{
         REQUIRE(data.n_succeeds_host > 0);
       }
-    
   }
 }
