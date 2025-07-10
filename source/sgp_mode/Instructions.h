@@ -126,8 +126,7 @@ INST(Donate, {
                (state.organism->GetPoints() + host->GetPoints()) * 0.20);
       state.world->GetSymDonatedDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(to_donate); });
-      host->AddPoints(to_donate *
-                      (1.0 - state.world->GetConfig()->DONATE_PENALTY()));
+      host->AddPoints(to_donate);
       state.organism->AddPoints(-to_donate);
     }
   }
@@ -146,9 +145,7 @@ INST(Steal, {
       state.world->GetSymStolenDataNode().WithMonitor(
           [=](auto &m) { m.AddDatum(to_steal); });
       host->AddPoints(-to_steal);
-      // 10% of the stolen resources are lost
-      state.organism->AddPoints(
-          to_steal * (1.0 - state.world->GetConfig()->STEAL_PENALTY()));
+      state.organism->AddPoints(to_steal);
     }
   }
 });

@@ -64,9 +64,6 @@ class Scheduler {
           if (world.IsOccupied(id)) {
             callback(id, world.GetOrg(id));
           }
-          if (world.IsSymPopOccupied(id)) { 
-            callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
-          }
         }
       }
 
@@ -116,9 +113,6 @@ public:
     for (size_t id = 0; id < world.GetSize(); id++) {
       if (world.IsOccupied(id)) {
         callback(id, world.GetOrg(id));
-      }
-      if (world.IsSymPopOccupied(id)) {
-        callback(emp::WorldPosition(0, id), *world.GetSymAt(id));
       }
     }
   }

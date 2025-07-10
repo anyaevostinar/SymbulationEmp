@@ -27,7 +27,6 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
-  config.LIMITED_TASK_RESET_INTERVAL(20);
 
   config.OUSTING(1);
 
@@ -62,6 +61,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
     REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
     REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
   }
+
   WHEN("Symbionts are not present"){
     config.START_MOI(0);
     world.AddOrgAt(host, 0);
@@ -94,6 +94,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
     REQUIRE((double)total_times_skipped_cycle/repeats == 0);
     REQUIRE((double)total_times_gained_cycles/repeats == 0);
   }
+
   WHEN("Mutualists are present"){
     config.START_MOI(1);
     config.STRESS_TYPE(MUTUALIST);
@@ -140,7 +141,6 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
   config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
-  config.LIMITED_TASK_RESET_INTERVAL(20);
 
   config.OUSTING(1);
 

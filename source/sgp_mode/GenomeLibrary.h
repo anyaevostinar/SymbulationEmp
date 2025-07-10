@@ -16,15 +16,15 @@ using Library = sgpl::OpLibrary<
     // biological operations
     inst::Reproduce, 
     inst::SharedIO,
+    inst::Steal,
+    inst::Donate, 
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
     sgpl::global::Anchor 
-    //inst::Steal
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
@@ -258,10 +258,6 @@ public:
   }
 };
 
-sgpl::Program<Spec> CreateRandomProgram(size_t length) {
-  return sgpl::Program<Spec>(length);
-}
-
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
   ProgramBuilder program;
   return program.Build(length);
@@ -270,20 +266,6 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
-  return program.Build(length);
-}
-
-
-sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  program.AddPrivateNand();
   return program.Build(length);
 }
 
@@ -298,9 +280,7 @@ sgpl::Program<Spec> CreateMutualistStart(size_t length) {
  * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if (config->RANDOM_ANCESTOR()) {
-    return CreateRandomProgram(PROGRAM_LENGTH);
-  } else if (config->TASK_TYPE() == 1) {
+  if (config->TASK_TYPE() == 1) {
     return CreateNotProgram(PROGRAM_LENGTH);
   } else {
     return CreateReproProgram(PROGRAM_LENGTH);
