@@ -156,7 +156,11 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   config.RANDOM_ANCESTOR(false);
   config.SEED(0);
   config.ORGANISM_TYPE(HEALTH);
+<<<<<<< HEAD
   config.STRESS_TYPE(1);
+=======
+  config.STRESS_TYPE(PARASITE);
+>>>>>>> origin/complex-syms-clean
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.00);
   config.TRACK_PARENT_TASKS(1);
@@ -164,7 +168,10 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   config.ONLY_FIRST_TASK_CREDIT(1);
   config.HOST_REPRO_RES(10000);
   config.DONATION_STEAL_INST(1);
+<<<<<<< HEAD
   config.CPU_TRANSFER_CHANCE(1);
+=======
+>>>>>>> origin/complex-syms-clean
 
 
   SGPWorld world(random, &config, LogicTasks);
@@ -208,14 +215,21 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   config.RANDOM_ANCESTOR(false);
   config.SEED(0);
   config.ORGANISM_TYPE(HEALTH);
+<<<<<<< HEAD
   config.STRESS_TYPE(0);
+=======
+  config.STRESS_TYPE(PARASITE);
+>>>>>>> origin/complex-syms-clean
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.00);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
   config.ONLY_FIRST_TASK_CREDIT(1);
   config.DONATION_STEAL_INST(1);
+<<<<<<< HEAD
   config.CPU_TRANSFER_CHANCE(1);
+=======
+>>>>>>> origin/complex-syms-clean
 
   config.HOST_REPRO_RES(10000);
 
