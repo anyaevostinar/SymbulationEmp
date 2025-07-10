@@ -202,7 +202,6 @@ TEST_CASE("Organisms, without mutation will only recieve credit for NOT operatio
      
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
@@ -248,9 +247,6 @@ TEST_CASE("Organisms, without mutation will only recieve credit for NOT operatio
     
   }
 
-  cpu.state.shared_available_dependencies.Delete();
-  cpu.state.used_resources.Delete();
-  cpu.state.internal_environment.Delete();
 
 
 }
