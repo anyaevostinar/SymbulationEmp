@@ -220,7 +220,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a Host can receive c
 
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(1);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.002);
@@ -337,7 +336,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, hosts receive credit for all tasks 
 
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.002);
