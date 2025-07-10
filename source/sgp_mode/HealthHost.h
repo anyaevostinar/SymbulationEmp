@@ -132,14 +132,12 @@ class HealthHost : public SGPHost {
           if(starting_updates > 0){
             sym_cycle += 1;
             starting_updates -= 1;
-            //std::cout << "I am in the first 25" << std::endl;
           }
           else{
             honoray_cycles += 1;
             if(honoray_cycles == 40){
               starting_updates += 1;
               honoray_cycles = 0;
-              //std::cout << "40/40" << std::endl;
             }
           }
         }

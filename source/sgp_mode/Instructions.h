@@ -122,11 +122,11 @@ INST(Donate, {
     if (state.organism->IsHost()){
       return;
     }
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-        if(host->GetCyclesGiven() <= 0){
-          host->CycleTransfer(1);
-      }
+    emp::Ptr<Organism> host = state.organism->GetHost();
+    if(host->GetCyclesGiven() <= 0){
+      host->CycleTransfer(1);
     }
+    
     
   }
   
@@ -136,14 +136,14 @@ INST(Steal, {
     if (state.organism->IsHost()){
       return;
     }
-    if (emp::Ptr<Organism> host = state.organism->GetHost()){
-      if(host->GetCyclesGiven() >= 0){
+    emp::Ptr<Organism> host = state.organism->GetHost();
+    if(host->GetCyclesGiven() >= 0){
         host->CycleTransfer(-1);
       }
     }
    
   }
-});
+);
 
 } // namespace inst
 

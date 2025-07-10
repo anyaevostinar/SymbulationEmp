@@ -25,8 +25,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
   VALUE(CPU_TRANSFER_CHANCE, double, 0.5, "What is the chance for cycles to be stolen/donated?"),
   VALUE(CPU_TRANSFER_AMOUNT, double, 1, "How many updates should be stolen/donated by instruction based symbionts"),
-  VALUE(ONLY_FIRST_TASK_CREDIT, int, 0, "Should symbionts only get credit for their first task"),
-  VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutalists to parasties and vice versa")
+  VALUE(ONLY_FIRST_TASK_CREDIT, int, 0, "Should organisms only get credit for their first task"),
+  VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasties and vice versa")
 )
 
 #endif
