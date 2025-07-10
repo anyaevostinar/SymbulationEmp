@@ -317,13 +317,14 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
       else if(config->STRESS_TYPE() == 0){
         return CreateMutualistNotProgram(PROGRAM_LENGTH);
       }
+      else{
+        return CreateNotProgram(PROGRAM_LENGTH);
+      }
     }
-    else{
-      return CreateNotProgram(PROGRAM_LENGTH);
-    }
-  } else {
-    return CreateReproProgram(PROGRAM_LENGTH);
+    
   }
+  return CreateReproProgram(PROGRAM_LENGTH);
+  
 }
 
 #endif

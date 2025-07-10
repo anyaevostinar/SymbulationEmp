@@ -7,9 +7,13 @@ class HealthHost : public SGPHost {
 
     public:
 
+    //Tracks whether an update needs to be given to a symbiont or recieved from a symbiont
     int cycles_given = 0;
+
+    //Test variables that are currently used to give symbionts some starting cycles and then give them scraps throughout
+    //the rest of their updates.
     int honoray_cycles = 0;
-    int starting_updates = 25;
+    int starting_updates = 10;
 
       /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
@@ -119,17 +123,23 @@ class HealthHost : public SGPHost {
           }
           }
         }
-
+        
+        //This sequence checks if the symbiont will recieve a cycle, if it has not then it checks if
+        //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
+        //for when it recieves said bonus update. 
+        //Allows for symbiont to reach steals but to still need them
         if(sym_cycle == 0){
           if(starting_updates > 0){
             sym_cycle += 1;
             starting_updates -= 1;
+            std::cout << "I am in the first 25" << std::endl;
           }
           else{
             honoray_cycles += 1;
-            if(honoray_cycles == 10){
+            if(honoray_cycles == 40){
               starting_updates += 1;
               honoray_cycles = 0;
+              std::cout << "40/40" << std::endl;
             }
           }
         }
