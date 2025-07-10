@@ -27,10 +27,6 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   host.ClearReproSyms();
   host.SetPoints(0.0);
   for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
-    // world.GetUpdate() isn't changing since the whole world isn't being
-    // updated, so we need to do this resetting manually
-    if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
-      host.GetCPU().state.used_resources->reset();
     host.GetCPU().RunCPUStep(emp::WorldPosition::invalid_id,
                              world.GetConfig()->CYCLES_PER_UPDATE());
   }
@@ -40,8 +36,6 @@ double CheckSymbiont(SGPHost host, SGPSymbiont symbiont,
   host.AddSymbiont(&symbiont);
   symbiont.SetPoints(0.0);
   for (size_t i = 0; i < SYM_CHECK_UPDATES; i++) {
-    if (i % (30 / world.GetConfig()->CYCLES_PER_UPDATE()) == 0)
-      host.GetCPU().state.used_resources->reset();
     // Instead of randomly ordering the host and symbiont (like in
     // Host::Process()), alternate every update. That way it's deterministic and
     // we don't need to have access to the emp::Random.
