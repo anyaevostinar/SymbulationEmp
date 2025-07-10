@@ -14,25 +14,17 @@ using Library = sgpl::OpLibrary<
     // single argument math
     inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
     // biological operations
-    // no copy or alloc
     inst::Reproduce, 
-    //inst::PrivateIO, 
     inst::SharedIO,
+    inst::Steal,
+    inst::Donate, 
     // double argument math
     inst::Add, inst::Subtract, inst::Nand,
     // Stack manipulation
     inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
     // no h-search
-    //inst::Donate, 
     inst::JumpIfNEq, inst::JumpIfLess, 
-    //inst::Reuptake,
-    //fls basics
-    //inst::Infect,
-    // if-label doesn't make sense for SGP, same with *-head
-    // and set-flow but this is required
-    sgpl::global::Anchor,
-    inst::Steal,
-    inst::Donate
+    sgpl::global::Anchor 
     >;
 
 using Spec = sgpl::Spec<Library, CPUState>;
@@ -279,10 +271,6 @@ public:
   }
 };
 
-sgpl::Program<Spec> CreateRandomProgram(size_t length) {
-  return sgpl::Program<Spec>(length);
-}
-
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
   ProgramBuilder program;
   return program.Build(length);
@@ -316,33 +304,12 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
 }
 
 
-sgpl::Program<Spec> CreatePrivateNotProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreatePrivateNotNandProgram(size_t length) {
-  ProgramBuilder program;
-  program.AddPrivateNot();
-  program.AddPrivateNand();
-  return program.Build(length);
-}
-
-sgpl::Program<Spec> CreateMutualistStart(size_t length) {
-  ProgramBuilder program;
-  program.AddNand();
-  return program.BuildNoRepro(length);
-}
-
 /**
  * Picks what type of starting program should be created based on the config and
  * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if (config->RANDOM_ANCESTOR()) {
-    return CreateRandomProgram(PROGRAM_LENGTH);
-  } else if (config->TASK_TYPE() == 1) {
+  if (config->TASK_TYPE() == 1) {
     if(config->DONATION_STEAL_INST() == 1){
       if(config->STRESS_TYPE() == 1){
         return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());

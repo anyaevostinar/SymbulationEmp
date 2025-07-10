@@ -12,7 +12,6 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
      
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.ORGANISM_TYPE(HEALTH);
   config.STRESS_TYPE(PARASITE);
@@ -40,7 +39,7 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
   cpu.RunCPUStep(0, 100);
   
   //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
-  int all_ones_binary = 4294967295;
+  long all_ones_binary = 4294967295;
   cpu.state.input_buf.push(all_ones_binary);
   cpu.RunCPUStep(0, 100);
   world.Update();
@@ -57,10 +56,4 @@ TEST_CASE("Organisms, without mutation can only do NOT operations", "[sgp]") {
       }
     
   }
-
-  cpu.state.shared_available_dependencies.Delete();
-  cpu.state.used_resources.Delete();
-  cpu.state.internal_environment.Delete();
-
-
 }
