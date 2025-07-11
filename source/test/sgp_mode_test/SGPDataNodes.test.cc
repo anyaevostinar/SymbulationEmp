@@ -4,7 +4,6 @@ TEST_CASE("Checks for correct data files", "[DS]") {
      
   emp::Random random(1);
   SymConfigSGP config;
-  config.RANDOM_ANCESTOR(false);
   config.SEED(2);
   config.ORGANISM_TYPE(0);
   config.STRESS_TYPE(1);
