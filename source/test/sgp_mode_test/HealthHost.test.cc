@@ -1,3 +1,5 @@
+#include "../../sgp_mode/GenomeLibrary.h"
+#include "../../sgp_mode/CPU.h"
 #include "../../sgp_mode/HealthHost.h"
 #include "../../sgp_mode/SGPWorld.h"
 #include "../../sgp_mode/SGPWorldSetup.cc"

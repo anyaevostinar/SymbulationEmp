@@ -256,6 +256,16 @@ public:
     Add("Nand", 0, 0, 0);
     Add("SharedIO");
   }
+
+  void AddSteal(){
+    
+    Add("Steal");
+    //std::cout << "Adding Steal" << std::endl;
+  }
+
+  void AddDonate(){
+    Add("Donate");
+  }
 };
 
 sgpl::Program<Spec> CreateReproProgram(size_t length) {

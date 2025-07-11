@@ -1,9 +1,12 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
+
 #include "CPUState.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+
+
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Program.hpp"
@@ -114,8 +117,9 @@ INST(SharedIO, {
   state.input_buf.push(next);
 });
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
+
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Donate 20% of the total points of the symbiont-host system
@@ -129,11 +133,19 @@ INST(Donate, {
       host->AddPoints(to_donate);
       state.organism->AddPoints(-to_donate);
     }
+    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
+  
+      //New Donate implementation:
+      host->CycleTransfer(int(state.world->GetConfig()->CYCLES_PER_UPDATE()));
+
+
+    }
   }
-});
+  
+}});
 INST(Steal, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost() || state.organism->GetHost() == nullptr){
       return;
     if (emp::Ptr<Organism> host = state.organism->GetHost()) {
       // Steal 20% of the total points of the symbiont-host system
@@ -148,7 +160,7 @@ INST(Steal, {
       state.organism->AddPoints(to_steal);
     }
   }
-});
+}});
 
 } // namespace inst
 

@@ -34,6 +34,16 @@ public:
     : SGPHost(host) {}
 
   /**
+     * Input: None.
+     *
+     * Output: The string "StressHost"
+     *
+     * Purpose: Allows tests to check what class an Organism has
+     */
+  std::string const GetName() override{
+    return "StressHost";
+  }
+  /**
    * Input: None.
    *
    * Output: A new host with same properties as this host.
@@ -67,5 +77,6 @@ public:
     
     SGPHost::Process(pos);
   }
+
 };
 #endif // STRESSHOST_H
