@@ -1,9 +1,12 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
+
 #include "CPUState.h"
 #include "SGPWorld.h"
 #include "Tasks.h"
+
+
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
 #include "sgpl/program/Program.hpp"
@@ -113,42 +116,38 @@ INST(SharedIO, {
   *a = next;
   state.input_buf.push(next);
 });
+
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost()){
       return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-      // Donate 20% of the total points of the symbiont-host system
-      // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-      // couple of instructions
-      double to_donate =
-          fmin(state.organism->GetPoints(),
-               (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymDonatedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_donate); });
-      host->AddPoints(to_donate);
-      state.organism->AddPoints(-to_donate);
     }
+    emp::Ptr<Organism> host = state.organism->GetHost();
+    if(host->GetCyclesGiven() <= 0){
+      host->CycleTransfer(1);
+      state.world->GetDonateCount().WithMonitor(
+          [=](auto &m) { m.AddDatum(1); });
+    }
+    
+    
   }
+  
 });
 INST(Steal, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST()) {
-    if (state.organism->IsHost() || state.organism->GetHost() == nullptr)
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+    if (state.organism->IsHost()){
       return;
-    if (emp::Ptr<Organism> host = state.organism->GetHost()) {
-      // Steal 20% of the total points of the symbiont-host system
-      // This way, a sym can steal e.g. 40 or 60 percent of the host's points in
-      // a couple of instructions
-      double to_steal =
-          fmin(host->GetPoints(),
-               (state.organism->GetPoints() + host->GetPoints()) * 0.20);
-      state.world->GetSymStolenDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(to_steal); });
-      host->AddPoints(-to_steal);
-      state.organism->AddPoints(to_steal);
     }
+    emp::Ptr<Organism> host = state.organism->GetHost();
+    if(host->GetCyclesGiven() >= 0){
+        host->CycleTransfer(-1);
+        state.world->GetStealCount().WithMonitor(
+          [=](auto &m) { m.AddDatum(1); });
+      }
+    }
+   
   }
-});
+);
 
 } // namespace inst
 
