@@ -262,9 +262,9 @@ public:
     for (int i = 0; i < steal_count; i++){
       Add("Steal");
       
-      Add("Donate");
-      Add("Donate");
-      Add("Donate");
+      Add("Steal");
+      Add("Steal");
+      Add("Steal");
     
     }
     Add("Steal");
@@ -284,6 +284,8 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 
 sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   ProgramBuilder program;
+  program.Add("Steal");
+  program.Add("Steal");
   program.AddStartSteal(steal_count);
   program.AddNot();
   
@@ -321,6 +323,9 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
         return CreateNotProgram(PROGRAM_LENGTH);
       }
     }
+    else{
+        return CreateNotProgram(PROGRAM_LENGTH);
+      }
     
   }
   return CreateReproProgram(PROGRAM_LENGTH);

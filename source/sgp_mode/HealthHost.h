@@ -14,7 +14,7 @@ class HealthHost : public SGPHost {
     //the rest of their updates.
     int honoray_cycles = 0;
     int starting_updates = 10;
-
+    emp::Ptr<Organism> last_sym = NULL; 
       /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -52,7 +52,9 @@ class HealthHost : public SGPHost {
     return host_baby;
   }
     void CycleTransfer(int amount) override {
-      cycles_given += amount;
+      if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
+        cycles_given += amount;
+      }
     }
 
     int GetCyclesGiven(){
@@ -82,22 +84,50 @@ class HealthHost : public SGPHost {
         if (HasSym()) {
           
           if(sgp_config->DONATION_STEAL_INST()){
-            sym_cycle = 0;
+            
 
             if(cycles_given >= 1){
-              if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
-                host_cycle += 1;
-                sym_cycle -= 1;
-              }
-              cycles_given = 0;
               
-            }else if(cycles_given <= -1){
-              if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
-                host_cycle -= 1;
-                sym_cycle += 1;
-              }
+              host_cycle += 1;
+              sym_cycle -= 1;
+              
+              cycles_given = 0;
+            }
+            if(cycles_given <= -1){
+              
+              host_cycle = 0;
+              sym_cycle += 1;
+              
               cycles_given = 0;
 
+            }
+
+            //This sequence checks if the symbiont will recieve a cycle, if it has not then it checks if
+        //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
+        //for when it recieves said bonus update. 
+        //Allows for symbiont to reach steals but to still need them
+
+            if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
+              //Will delete later
+              // emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
+              // emp::Ptr<Organism> curSym = syms[0];
+              // if(last_sym != curSym){
+              //   last_sym = curSym;
+              //   starting_updates = sgp_config->STARTING_BONUS();
+              // }
+              
+              if(starting_updates > 0){
+                sym_cycle += 1;
+                starting_updates -= 1;
+              }
+              
+            }
+            if(starting_updates < 1){
+              honoray_cycles += 1;
+                if(honoray_cycles == sgp_config->BONUS_UPDATE_WAIT()){
+                  starting_updates += 1;
+                  honoray_cycles = 0;
+                }
             }
           }
           else{
@@ -122,25 +152,11 @@ class HealthHost : public SGPHost {
             }
           }
           }
+
+  
         }
         
-        //This sequence checks if the symbiont will recieve a cycle, if it has not then it checks if
-        //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
-        //for when it recieves said bonus update. 
-        //Allows for symbiont to reach steals but to still need them
-        if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
-          if(starting_updates > 0){
-            sym_cycle += 1;
-            starting_updates -= 1;
-          }
-          else{
-            honoray_cycles += 1;
-            if(honoray_cycles == 40){
-              starting_updates += 1;
-              honoray_cycles = 0;
-            }
-          }
-        }
+        
         
         //Loops running CPU steps
         for(int i = 0; i < host_cycle; i++){

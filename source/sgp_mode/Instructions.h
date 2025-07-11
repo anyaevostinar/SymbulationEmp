@@ -125,6 +125,8 @@ INST(Donate, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() <= 0){
       host->CycleTransfer(1);
+      state.world->GetDonateCount().WithMonitor(
+          [=](auto &m) { m.AddDatum(1); });
     }
     
     
@@ -139,6 +141,8 @@ INST(Steal, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() >= 0){
         host->CycleTransfer(-1);
+        state.world->GetStealCount().WithMonitor(
+          [=](auto &m) { m.AddDatum(1); });
       }
     }
    

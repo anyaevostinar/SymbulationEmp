@@ -26,7 +26,9 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(CPU_TRANSFER_CHANCE, double, 0.5, "What is the chance for cycles to be stolen/donated?"),
   VALUE(CPU_TRANSFER_AMOUNT, double, 1, "How many updates should be stolen/donated by instruction based symbionts"),
   VALUE(ONLY_FIRST_TASK_CREDIT, int, 0, "Should organisms only get credit for their first task"),
-  VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasties and vice versa")
+  VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasties and vice versa"),
+  VALUE(BONUS_UPDATE_WAIT, int, 40, "If DONATION_STEAL_INST is 1 how many updates till a symbiont recieves a free extra update"),
+  VALUE(STARTING_BONUS, int, 10, "How many bonus updates do symbionts start with")
 )
 
 #endif
