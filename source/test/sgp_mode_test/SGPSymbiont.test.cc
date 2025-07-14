@@ -4,21 +4,19 @@
 #include "../../sgp_mode/SGPDataNodes.h"
 
 TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
-	emp::Random random(31);
-	SymConfigSGP config;
-	SGPWorld world(random, &config, LogicTasks);
-	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-	
+  emp::Random random(31);
+  SymConfigSGP config;
+  SGPWorld world(random, &config, LogicTasks);
+  emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
-	THEN("Symbiont child increases its lineage reproduction count"){
-		emp::Ptr<SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<SGPSymbiont>();
-		REQUIRE(sym_parent->GetReproCount() == sym_baby->GetReproCount() - 1);
-		sym_baby.Delete();
+  THEN("Symbiont child increases its lineage reproduction count") {
+    emp::Ptr<SGPSymbiont> sym_baby = (sym_parent->Reproduce()).DynamicCast<SGPSymbiont>();
+    REQUIRE(sym_parent->GetReproCount() == sym_baby->GetReproCount() - 1);
+    sym_baby.Delete();
     sym_parent.Delete();
-	}
+  }
 
   WHEN("Parental task tracking is on") {
-
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
     config.TRACK_PARENT_TASKS(1);
     world.AddOrgAt(host, 0);
@@ -39,6 +37,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       REQUIRE(sym_baby->GetCPU().state.parent_tasks_performed->Get(0));
       REQUIRE(sym_baby->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
     }
+
 
     THEN("The symbiont child tracks any gains or loses in task completions") {
       // in this second generation, we expect the symbiont to gain the NOT task
@@ -61,5 +60,58 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
       }
     }
     sym_baby.Delete();
+  }
+}
+
+TEST_CASE("Symbiont comparison operators", "[sgp]") {
+  emp::Random random(31);
+	SymConfigSGP config;
+	SGPWorld world(random, &config, LogicTasks);
+	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+    config.TRACK_PARENT_TASKS(1);
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym_parent);
+
+    for (int i = 0; i < 25; i++) {
+      world.Update();
+    }
+    emp::Ptr<SGPSymbiont> clone1 = emp::NewPtr<SGPSymbiont>(*sym_parent);
+    emp::Ptr<SGPSymbiont> clone2 = emp::NewPtr<SGPSymbiont>(*sym_parent);
+    emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
+
+    REQUIRE(*sym_parent == *clone1);
+    REQUIRE(*clone1 == *clone2);
+
+    REQUIRE_FALSE(*sym_parent == *different);
+
+    // Can't assert true/false without knowing bitcode ordering,
+    // assert that bitcode ordering is well-defined
+    bool lt = *sym_parent < *different || *different < *sym_parent;
+    REQUIRE(lt);
+    
+    clone1.Delete();
+    clone2.Delete();
+    different.Delete();
+  }
+
+TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp]") {
+  emp::Random random(31);
+	SymConfigSGP config;
+	SGPWorld world(random, &config, LogicTasks);
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  sym->GetCPU().state.in_progress_repro = 3;
+  world.to_reproduce.resize(5); 
+  world.to_reproduce[3].second = emp::WorldPosition(1, 2); 
+
+  REQUIRE(world.to_reproduce[3].second.IsValid());
+
+  WHEN("Symbionts is destroyed") {
+    sym.Delete(); 
+    
+    THEN("Reproduction queue is invalidated after symbiont is destroyed") {
+      REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
+    }
   }
 }
