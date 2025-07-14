@@ -269,6 +269,19 @@ public:
     }
     Add("Steal");
   }
+
+  void AddStartDonate(int donate_count){
+    
+    for (int i = 0; i < donate_count; i++){
+      Add("Donate");
+      
+      Add("Donate");
+      Add("Donate");
+      Add("Donate");
+    
+    }
+    Add("Donate");
+  }
 };
 
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
@@ -292,10 +305,13 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   return program.Build(length);
 }
 
-sgpl::Program<Spec> CreateMutualistNotProgram(size_t length) {
+sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
   ProgramBuilder program;
+  
+  program.Add("Donate");
+  program.Add("Donate");
+  program.AddStartDonate(donate_count);
   program.AddNot();
-  program.Add("Donate");;
   return program.Build(length);
 }
 
@@ -317,7 +333,7 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
         return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
       }
       else if(config->STRESS_TYPE() == 0){
-        return CreateMutualistNotProgram(PROGRAM_LENGTH);
+        return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
       }
       else{
         return CreateNotProgram(PROGRAM_LENGTH);

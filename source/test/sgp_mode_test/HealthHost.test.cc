@@ -265,6 +265,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   config.HOST_REPRO_RES(10000);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
+  config.CPU_TRANSFER_AMOUNT(23);
 
 
   SGPWorld world(random, &config, LogicTasks);
@@ -275,7 +276,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   //Creates a host that only does NOT operations
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(1,100));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(100,config.CPU_TRANSFER_AMOUNT(23)));
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
@@ -287,10 +288,10 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   THEN("The host should be set to lose 4 cycles to the symbiont"){
     REQUIRE(host->GetCyclesGiven() == -1);
   }
-  for (size_t i = 0; i < 24; i++) {
+  for (size_t i = 0; i < 25; i++) {
     world.Update();
     }
-THEN("The symbiont should complete its task one update early"){
+THEN("The symbiont should complete its task in 25 updates"){
   REQUIRE(sym->GetCPU().state.tasks_performed->Get(0) == true);
 }
   world.Update();
@@ -315,7 +316,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   config.ONLY_FIRST_TASK_CREDIT(1);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
-
+  config.CPU_TRANSFER_AMOUNT(23);
   config.HOST_REPRO_RES(10000);
 
   SGPWorld world(random, &config, LogicTasks);
@@ -326,7 +327,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   //Creates a host that only does NOT operations
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateMutualistNotProgram(100));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateMutualistNotProgram(100, config.CPU_TRANSFER_AMOUNT(23)));
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
