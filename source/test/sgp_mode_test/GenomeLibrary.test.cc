@@ -36,7 +36,6 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
 TEST_CASE("Generate NOT program", "[sgp]") {
   TestGenome(emp::NewPtr<InputTask>(NOT), &ProgramBuilder::AddNot);
 }
-
 TEST_CASE("Generate NAND program", "[sgp]") {
   TestGenome(emp::NewPtr<InputTask>(NAND), &ProgramBuilder::AddNand);
 }
@@ -88,4 +87,25 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   for (auto data : world.GetTaskSet()) {
     REQUIRE(data.n_succeeds_host == 0);
   }
+}
+
+TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp]") {
+  ProgramBuilder builder;
+  size_t program_len = 100;
+
+  sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
+
+  REQUIRE(program.size() == program_len);
+
+  for (size_t i = program.size() - 5; i < program.size(); ++i) {
+    REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
+  }
+
+  for (auto &inst : program) {
+    REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
+  }
+
+  REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+  REQUIRE(program[0].tag == START_TAG);
+
 }
