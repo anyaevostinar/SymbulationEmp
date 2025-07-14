@@ -8,12 +8,12 @@ class HealthHost : public SGPHost {
     public:
 
     //Tracks whether an update needs to be given to a symbiont or recieved from a symbiont
-    int cycles_given = 0;
+    int cycles_given = 1;
 
     //Test variables that are currently used to give symbionts some starting cycles and then give them scraps throughout
     //the rest of their updates.
     int honoray_cycles = 0;
-    int starting_updates = 10;
+    int starting_updates = 4;
     emp::Ptr<Organism> last_sym = NULL; 
       /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
@@ -52,9 +52,10 @@ class HealthHost : public SGPHost {
     return host_baby;
   }
     void CycleTransfer(int amount) override {
-      if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
-        cycles_given += amount;
-      }
+      cycles_given += amount;
+      // if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
+      //   cycles_given += amount;
+      // }
     }
 
     int GetCyclesGiven(){
@@ -85,20 +86,26 @@ class HealthHost : public SGPHost {
           
           if(sgp_config->DONATION_STEAL_INST()){
             
-
+            
             if(cycles_given >= 1){
+              if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
+                host_cycle += 1;
+                sym_cycle -= 1;
+                cycles_given = 0;
+              }
               
-              host_cycle += 1;
-              sym_cycle -= 1;
               
-              cycles_given = 0;
+              //cycles_given = 0;
             }
             if(cycles_given <= -1){
               
-              host_cycle = 0;
-              sym_cycle += 1;
-              
-              cycles_given = 0;
+             
+              if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
+                host_cycle = 0;
+                sym_cycle += 1;
+                cycles_given = 0;
+              }
+              //cycles_given = 0;
 
             }
 
@@ -106,15 +113,17 @@ class HealthHost : public SGPHost {
         //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
         //for when it recieves said bonus update. 
         //Allows for symbiont to reach steals but to still need them
+            emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
+              emp::Ptr<Organism> curSym = syms[0];
+              if(last_sym != curSym){
+                last_sym = curSym;
+                cycles_given = 0;
+                starting_updates = 4;
+              }
 
             if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
-              //Will delete later
-              // emp::vector<emp::Ptr<Organism>> &syms = GetSymbionts();
-              // emp::Ptr<Organism> curSym = syms[0];
-              // if(last_sym != curSym){
-              //   last_sym = curSym;
-              //   starting_updates = sgp_config->STARTING_BONUS();
-              // }
+              
+              
               
               if(starting_updates > 0){
                 sym_cycle += 1;
