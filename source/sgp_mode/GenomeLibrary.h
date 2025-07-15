@@ -51,6 +51,14 @@ public:
     push_back(inst);
   }
 
+   void AddNop(uint8_t arg0 = 0, uint8_t arg1 = 0,
+           uint8_t arg2 = 0) {
+    sgpl::Instruction<Spec> inst;
+    inst.op_code = 0;
+    inst.args = {arg0, arg1, arg2};
+    push_back(inst);
+  }
+
   sgpl::Program<Spec> Build(size_t length) {
     Add("Reproduce");
 
@@ -259,28 +267,34 @@ public:
 
   void AddStartSteal(int steal_count){
     
+    int diff = 96/steal_count;
+   
     for (int i = 0; i < steal_count; i++){
+      
+      for (int x = 1; x < diff; x++){
+      AddNop();
+      
+      }
       Add("Steal");
       
-      Add("Steal");
-      Add("Steal");
-      Add("Steal");
-    
     }
-    Add("Steal");
+    
   }
 
   void AddStartDonate(int donate_count){
     
+    int diff = 96/donate_count;
+    int index = 1;
     for (int i = 0; i < donate_count; i++){
+      
+      for (int x = 1; x < diff; x++){
+      AddNop();
+      
+      
+      }
       Add("Donate");
       
-      Add("Donate");
-      Add("Donate");
-      Add("Donate");
-    
     }
-    Add("Donate");
   }
 };
 

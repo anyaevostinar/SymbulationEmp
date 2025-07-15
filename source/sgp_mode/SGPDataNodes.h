@@ -18,12 +18,12 @@ void SGPWorld::CreateDataFiles() {
 
   // SGP mode doesn't need int val files, and they have significant performance
   // overhead. Only the transmission file needs to be created for this mode.  
-  //SetUpTransmissionFile(sgp_config->FILE_PATH() + "TransmissionRates" +
-    //                    sgp_config->FILE_NAME() + file_ending)
-      //.SetTimingRepeat(sgp_config->DATA_INT());
-  //SetupSymDonatedFile(sgp_config->FILE_PATH() + "SymDonated" +
-  //                    sgp_config->FILE_NAME() + file_ending)
-  //    .SetTimingRepeat(sgp_config->DATA_INT());
+  SetUpTransmissionFile(sgp_config->FILE_PATH() + "TransmissionRates" +
+                        sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
+  SetupSymDonatedFile(sgp_config->FILE_PATH() + "SymDonated" +
+                      sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
   SetupTasksFile(sgp_config->FILE_PATH() + "Tasks" + sgp_config->FILE_NAME() +
                   file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());

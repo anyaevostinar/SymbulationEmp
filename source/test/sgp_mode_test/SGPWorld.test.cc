@@ -74,120 +74,173 @@ TEST_CASE("Baseline function", "[sgp]") {
   }
 }
 
-TEST_CASE("TaskMatchCheck", "[sgp]") {
+TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
   
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.SEED(2);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.000);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
-  config.HOST_REPRO_RES(10000);
+  GIVEN("An SGPWorld with no mutation"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(2);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.000);
+    config.TRACK_PARENT_TASKS(1);
+    config.VT_TASK_MATCH(1);
+    config.ONLY_FIRST_TASK_CREDIT(0);
+    config.HOST_REPRO_RES(10000);
 
-  SGPWorld world(random, &config, LogicTasks);
-
-
-  //Creates a host that only does NOT operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-  //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+    SGPWorld world(random, &config, LogicTasks);
 
 
-  emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-  emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+    //Creates a host that only does NOT operations
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+
+    //Creates a symbiont that only does NOT operations
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
 
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  world.AddOrgAt(host_baby, 1);
-  host->AddSymbiont(sym);
-  host_baby->AddSymbiont(sym_baby);
+    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+    emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
-  WHEN("Host and Symbiont have both performed NOT"){
-    host->GetCPU().state.tasks_performed->Set(0);
-    sym->GetCPU().state.tasks_performed->Set(0);
 
-    THEN("TaskMatchCheck returns true when Host and Symbiont are the arguments"){
-      REQUIRE(world.TaskMatchCheck(sym, host));
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_baby, 1);
+    host->AddSymbiont(sym);
+    host_baby->AddSymbiont(sym_baby);
+
+    WHEN("Host and Symbiont have both performed NOT"){
+      host->GetCPU().state.tasks_performed->Set(0);
+      sym->GetCPU().state.tasks_performed->Set(0);
+
+      THEN("TaskMatchCheck returns true when Host and Symbiont are the arguments"){
+        REQUIRE(world.TaskMatchCheck(sym, host));
+      }
+
     }
+    WHEN("Host has performed NOT and Symbiont has performed EQU"){
+      host->GetCPU().state.tasks_performed->Set(1);
+      sym->GetCPU().state.tasks_performed->Set(8);
+
+      THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(sym, host));
+      }
     
-    host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
-    sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
-
-    THEN("TaskMatchCheck returns true when the child of Host and the child of Symbiont are the arguments"){
-      REQUIRE(world.TaskMatchCheck(sym_baby, host_baby));
     }
 
   }
-  WHEN("Host has performed NOT and Symbiont has performed EQU"){
-    host->GetCPU().state.tasks_performed->Set(1);
-    sym->GetCPU().state.tasks_performed->Set(8);
-    THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
-      REQUIRE(!world.TaskMatchCheck(sym, host));
-    }
-
-    host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
-    sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
-
-    THEN("TaskMatchCheck returns false when the child of Host and the child of Symbiont are the arguments"){
-      REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
-    }
-  }
-
 }
 
-TEST_CASE("Organisms, without mutation will only recieve credit for NOT operations", "[sgp]") {
-     
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.000);
-  SGPWorld world(random, &config, LogicTasks);
-
-  // Mock Organism to check reproduction
-  class TestOrg : public Organism {
-  public:
-    bool IsHost() override { return true; }
-    void AddPoints(double p) override {}
-    double GetPoints() override { return 0; }
-  };
-
-  TestOrg organism;
-
-  // NOT builder
-  ProgramBuilder builder;
-  (builder.AddNot)();
-  CPU cpu(&organism, &world, builder.Build(100));
+TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
   
-  
-  
-  cpu.RunCPUStep(0, 100);
-  
-  //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
-  int all_ones_binary = 4294967295;
-  cpu.state.input_buf.push(all_ones_binary);
-  cpu.RunCPUStep(0, 100);
-  world.Update();
+  GIVEN("An SGPWorld where ONLY_FIRST_TASK_CREDIT is on and there is no mutation"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(2);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.000);
+    config.TRACK_PARENT_TASKS(1);
+    config.VT_TASK_MATCH(1);
+    config.ONLY_FIRST_TASK_CREDIT(1);
+    config.HOST_REPRO_RES(10000);
 
-  //Checks both that NOT is being done and no other operations are being done
-  for (auto data : world.GetTaskSet()) {
-    
-      if(data.task.name != "NOT"){
-    
-       REQUIRE(data.n_succeeds_host == 0);
+    SGPWorld world(random, &config, LogicTasks);
+
+
+    //Creates a host that only does NOT operations
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+
+    //Creates a symbiont that only does NOT operations
+    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+
+
+    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+    emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_baby, 1);
+    host->AddSymbiont(sym);
+    host_baby->AddSymbiont(sym_baby);
+
+    WHEN("Parent Host and Symbiont have both performed NOT"){
+      host->GetCPU().state.tasks_performed->Set(0);
+      sym->GetCPU().state.tasks_performed->Set(0);
+
+      host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
+      sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
+
+      THEN("TaskMatchCheck returns true when the child of Host and the child of Symbiont are the arguments"){
+        REQUIRE(world.TaskMatchCheck(sym_baby, host_baby));
       }
-      else{
-        REQUIRE(data.n_succeeds_host > 0);
+
+    }
+    WHEN("Parent Host has performed NOT and Parent Symbiont has performed EQU"){
+      host->GetCPU().state.tasks_performed->Set(1);
+      sym->GetCPU().state.tasks_performed->Set(8);
+
+      host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
+      sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
+
+      THEN("TaskMatchCheck returns false when the child of Host and the child of Symbiont are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
       }
-    
+    }
+
   }
+}
+
+TEST_CASE("Organisms, without mutation will only receive credit for NOT operations", "[sgp]") {
+     
+  GIVEN("An SGPWorld with no mutation"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(2);
+    config.ORGANISM_TYPE(HEALTH);
+    config.STRESS_TYPE(PARASITE);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.000);
+    SGPWorld world(random, &config, LogicTasks);
+
+    // Mock Organism to check reproduction
+    class TestOrg : public Organism {
+    public:
+      bool IsHost() override { return true; }
+      void AddPoints(double p) override {}
+      double GetPoints() override { return 0; }
+    };
+
+    TestOrg organism;
+
+    // NOT builder
+    ProgramBuilder builder;
+    (builder.AddNot)();
+    CPU cpu(&organism, &world, builder.Build(100));
+    
+    
+    
+    cpu.RunCPUStep(0, 100);
+    
+    //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
+    int all_ones_binary = 4294967295;
+    cpu.state.input_buf.push(all_ones_binary);
+    cpu.RunCPUStep(0, 100);
+    world.Update();
+
+    //Checks both that NOT is being done and no other operations are being done
+    for (auto data : world.GetTaskSet()) {
+      
+        if(data.task.name != "NOT"){
+      
+        REQUIRE(data.n_succeeds_host == 0);
+        }
+        else{
+          REQUIRE(data.n_succeeds_host > 0);
+        }
+      
+    }
 
 
+  }
 }
 
 TEST_CASE("Ousting is permitted", "[sgp]") {
