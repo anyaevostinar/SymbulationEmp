@@ -130,7 +130,7 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
 }
 
 TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
-  
+
   GIVEN("An SGPWorld where ONLY_FIRST_TASK_CREDIT is on and there is no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
