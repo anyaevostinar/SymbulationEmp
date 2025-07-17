@@ -110,7 +110,7 @@ emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
                 "sym_steal_ran", "Amount of times steal instructions were ran", true);
   
   GetDonateCount();
-  file.AddTotal(data_node_steal_count->UnsynchronizedGetMonitor(),
+  file.AddTotal(data_node_donate_count->UnsynchronizedGetMonitor(),
                 "sym_donate_ran", "Amount of times donate instructions were ran", true);
   
   file.PrintHeaderKeys();
