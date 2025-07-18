@@ -40,16 +40,6 @@ class HealthHost : public SGPHost {
   HealthHost(const SGPHost &host)
       : SGPHost(host) {}
 
-    /**
-     * Input: None.
-     *
-     * Output: The string "HealthHost"
-     *
-     * Purpose: Allows tests to check what class an Organism has
-     */
-    std::string const GetName() override{
-      return "HealthHost";
-    }
 
     /**
      * Input: None.
