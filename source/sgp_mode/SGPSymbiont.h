@@ -125,7 +125,7 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
-    float CheckTaskInteraction(float score, size_t task_id) {
+  float CheckTaskInteraction(float score, size_t task_id) {
     if(sgp_config->ORGANISM_TYPE() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
       bool host_performed = host->GetCPU().state.tasks_performed->Get(task_id);
