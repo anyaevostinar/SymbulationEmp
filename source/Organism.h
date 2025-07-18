@@ -247,5 +247,12 @@ class Organism {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
 
+
+  //SGPMode Symbiont Functions
+  virtual float CheckTaskInteraction(float score, size_t task_id) {
+    std::cout << "CheckTaskInteraction called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+
 };
 #endif
