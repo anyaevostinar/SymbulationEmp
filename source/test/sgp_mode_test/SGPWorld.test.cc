@@ -126,9 +126,8 @@ TEST_CASE("Host Setup", "[sgp]") {
   WHEN("ORGANISM_TYPE Config is set to an option that does not exist"){
     config.ORGANISM_TYPE(3);
     SGPWorld world(random, &config, LogicTasks);
-    world.SetupHosts(&setupCount);
-    THEN("The world should have no organisms"){
-      REQUIRE(world.GetNumOrgs() == 0);
+    THEN("An exception should be thrown"){
+      REQUIRE_THROWS(world.SetupHosts(&setupCount));
     }
   }
   

@@ -24,8 +24,9 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
       default:
-        //TODO: make this an assert and add to Host Setup Test
-        std::cout << "Please request a supported sgp organism type" << std::endl;
+       
+        throw "Please request a supported sgp organism type";
+
         return;
     }
     
