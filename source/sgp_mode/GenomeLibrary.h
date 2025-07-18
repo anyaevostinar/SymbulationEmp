@@ -265,6 +265,14 @@ public:
     Add("SharedIO");
   }
 
+
+   /**
+     * Input: The number of steal instrucctions to add.
+     *
+     * Output: None.
+     *
+     * Purpose: Spread out steal instructions throughout the organims genome.
+     */
   void AddStartSteal(int steal_count){
     
     int diff = 96/steal_count;
@@ -281,6 +289,13 @@ public:
     
   }
 
+  /**
+     * Input: The number of donate instructions to add.
+     *
+     * Output: None.
+     *
+     * Purpose: Spread out donate instructions throughout the organims genome.
+     */
   void AddStartDonate(int donate_count){
     
     int diff = 96/donate_count;
