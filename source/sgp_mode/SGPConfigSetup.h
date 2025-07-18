@@ -11,7 +11,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
   VALUE(THREAD_COUNT, size_t, 1, "Number of threads used to process organisms in parallel"),
   VALUE(TASK_TYPE, bool, 1, "1 for NOT + repro starting genome, 0 for repro starting program"),
-  VALUE(DONATION_STEAL_INST, bool, 1, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
+  VALUE(DONATION_STEAL_INST, bool, 0, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(ORGANISM_TYPE, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
@@ -24,8 +24,11 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
   VALUE(CPU_TRANSFER_CHANCE, double, 0.5, "What is the chance for cycles to be stolen/donated?"),
-  VALUE(ONLY_FIRST_TASK_CREDIT, int, 0, "Should symbionts only get credit for their first task")
-
+  VALUE(CPU_TRANSFER_AMOUNT, double, 1, "How many updates should be stolen/donated by instruction based symbionts"),
+  VALUE(ONLY_FIRST_TASK_CREDIT, int, 0, "Should organisms only get credit for their first task"),
+  VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasties and vice versa"),
+  VALUE(BONUS_UPDATE_WAIT, int, 5, "If DONATION_STEAL_INST is 1 how many updates till a symbiont receives a free extra update"),
+  VALUE(STARTING_BONUS, int, 1, "How many bonus updates do symbionts start with")
 )
 
 #endif
