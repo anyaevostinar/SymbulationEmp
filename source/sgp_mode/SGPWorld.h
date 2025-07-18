@@ -45,6 +45,10 @@ private:
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
   emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
+  emp::Ptr<SyncDataMonitor<int>> data_node_steal_count;
+  emp::Ptr<SyncDataMonitor<int>> data_node_donate_count;
+
+
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
@@ -176,9 +180,15 @@ public:
   SyncDataMonitor<double> &GetSymDonatedDataNode();
   SyncDataMonitor<double> &GetSymStolenDataNode();
   SyncDataMonitor<double> &GetSymEarnedDataNode();
+  SyncDataMonitor<int> &GetStealCount();
+  SyncDataMonitor<int> &GetDonateCount();
+
+
   void SetupTasksNodes();
 
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
+  emp::DataFile &SetupSymInstFile(const std::string &filename);
+
   emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
   void WriteTaskCombinationsFile(const std::string& filename);

@@ -27,6 +27,9 @@ void SGPWorld::CreateDataFiles() {
   SetupTasksFile(sgp_config->FILE_PATH() + "Tasks" + sgp_config->FILE_NAME() +
                   file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());
+  SetupSymInstFile(sgp_config->FILE_PATH() + "SymInstCount" +
+                        sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
 }
 
 
@@ -95,6 +98,21 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
       "sym_steal_calls", "Number of steal calls");
   file.AddTotal(data_node_sym_stolen->UnsynchronizedGetMonitor(),
                 "sym_points_stolen", "Points stolen by symbionts", true);
+  file.PrintHeaderKeys();
+  return file;
+}
+
+emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
+  auto &file = SetupFile(filename);
+  file.AddVar(update, "update", "Update");
+  GetStealCount();
+  file.AddTotal(data_node_steal_count->UnsynchronizedGetMonitor(),
+                "sym_steal_ran", "Amount of times steal instructions were ran", true);
+  
+  GetDonateCount();
+  file.AddTotal(data_node_donate_count->UnsynchronizedGetMonitor(),
+                "sym_donate_ran", "Amount of times donate instructions were ran", true);
+  
   file.PrintHeaderKeys();
   return file;
 }
@@ -261,6 +279,20 @@ SyncDataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
     data_node_sym_stolen.New();
   }
   return *data_node_sym_stolen;
+}
+
+SyncDataMonitor<int> &SGPWorld::GetStealCount() {
+  if (!data_node_steal_count) {
+    data_node_steal_count.New();
+  }
+  return *data_node_steal_count;
+}
+
+SyncDataMonitor<int> &SGPWorld::GetDonateCount() {
+  if (!data_node_donate_count) {
+    data_node_donate_count.New();
+  }
+  return *data_node_donate_count;
 }
 
 #endif

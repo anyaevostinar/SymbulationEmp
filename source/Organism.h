@@ -185,7 +185,6 @@ class Organism {
     std::cout << "GetCyclesGiven called from Organism" << std::endl;
     throw "Organism method called!";
   }
-
   //Bacterium functions
   virtual double ProcessLysogenResources(double phage_inc_val){
     std::cout << "ProcessLysogenResources called from Organism" << std::endl;

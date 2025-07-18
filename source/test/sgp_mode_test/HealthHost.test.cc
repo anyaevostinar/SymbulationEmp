@@ -249,3 +249,106 @@ TEST_CASE("Health hosts evolve", "[sgp][integration]") {
     }
   }
 } 
+
+TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction properly takes CPU cycles from HealthHost", "[sgp]"){
+ 
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(0);
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(1);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.00);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_REPRO_RES(10000);
+  config.DONATION_STEAL_INST(1);
+  config.CPU_TRANSFER_CHANCE(1);
+  config.CPU_TRANSFER_AMOUNT(23);
+
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  //Builds program that does both NOT and NAND operations
+
+
+  //Creates a host that only does NOT operations
+  emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
+  //Creates a symbiont that does both Not and Nand operations
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(100,config.CPU_TRANSFER_AMOUNT(23)));
+
+  //Adds host to world and sym to host.
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+    
+  WHEN("A symbiont performs a Steal instruction"){
+  sym->GetCPU().RunCPUStep(0, 100);
+  (*(sym->GetCPU().state.tasks_performed))[0] = 0;
+  THEN("The host should be set to lose 4 cycles to the symbiont"){
+    REQUIRE(host->GetCyclesGiven() == -1);
+  }
+  for (size_t i = 0; i < 25; i++) {
+    world.Update();
+    }
+THEN("The symbiont should complete its task in 25 updates"){
+  REQUIRE(sym->GetCPU().state.tasks_performed->Get(0) == true);
+}
+  world.Update();
+  THEN("The host should be unable to complete its task in 25 updates"){
+    REQUIRE(host->GetCPU().state.tasks_performed->Get(0) == false);
+  }
+}
+
+}
+
+TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction properly gives CPU cycles to HealthHost", "[sgp]"){
+ 
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(0);
+  config.ORGANISM_TYPE(HEALTH);
+  config.STRESS_TYPE(0);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.00);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.DONATION_STEAL_INST(1);
+  config.CPU_TRANSFER_CHANCE(1);
+  config.CPU_TRANSFER_AMOUNT(23);
+  config.HOST_REPRO_RES(10000);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  //Builds program that does both NOT and NAND operations
+
+
+  //Creates a host that only does NOT operations
+  emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
+  //Creates a symbiont that does both Not and Nand operations
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateMutualistNotProgram(100, config.CPU_TRANSFER_AMOUNT(23)));
+
+  //Adds host to world and sym to host.
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+    
+WHEN("A symbiont performs a Donate instruction"){
+  sym->GetCPU().RunCPUStep(0, 100);
+  (*(sym->GetCPU().state.tasks_performed))[0] = 0;
+  THEN("The host should be set to gain 4 cycles from the symbiont"){
+    REQUIRE(host->GetCyclesGiven() == 1);
+  }
+  for (size_t i = 0; i < 24; i++) {
+    world.Update();
+    }
+THEN("The host should complete its task one update early"){
+  REQUIRE(host->GetCPU().state.tasks_performed->Get(0) == true);
+}
+  world.Update();
+  THEN("The symbiont should be unable to complete its task in 25 updates"){
+    REQUIRE(sym->GetCPU().state.tasks_performed->Get(0) == false);
+  }
+
+}
+}
