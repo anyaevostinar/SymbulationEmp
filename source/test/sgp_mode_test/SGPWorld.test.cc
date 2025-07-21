@@ -94,7 +94,7 @@ TEST_CASE("Host Setup", "[sgp]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a SGPHost"){
-    emp::Ptr<SGPHost> host =  (world.GetOrgPtr(0)).Cast<SGPHost>();
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
 
     REQUIRE(host->GetName() == "SGPHost");
     
@@ -105,7 +105,7 @@ TEST_CASE("Host Setup", "[sgp]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a HealtHost"){
-    emp::Ptr<HealthHost> host = (world.GetOrgPtr(0)).Cast<HealthHost>();
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
      REQUIRE(host->GetName() == "HealthHost");
     
     }
@@ -116,7 +116,7 @@ TEST_CASE("Host Setup", "[sgp]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a StressHost"){
-    emp::Ptr<StressHost> host =  (world.GetOrgPtr(0)).Cast<StressHost>();
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
      REQUIRE(host->GetName() == "StressHost");
     
     }
