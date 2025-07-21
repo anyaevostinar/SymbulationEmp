@@ -39,6 +39,8 @@ class HealthHost : public SGPHost {
 
   HealthHost(const SGPHost &host)
       : SGPHost(host) {}
+
+
     /**
      * Input: None.
      *
