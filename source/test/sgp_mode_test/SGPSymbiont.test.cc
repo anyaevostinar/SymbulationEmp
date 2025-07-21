@@ -63,7 +63,6 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
   }
 }
 
-
 TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp]"){
   GIVEN("An SGPworld with ONLY_FIRST_TASK_CREDIT on "){
     emp::Random random(1);
