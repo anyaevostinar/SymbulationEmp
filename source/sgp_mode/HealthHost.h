@@ -53,17 +53,40 @@ class HealthHost : public SGPHost {
         random, GetWorld(), sgp_config, GetCPU().GetProgram(), GetIntVal());
     return host_baby;
   }
+
+    /**
+     * Input: An integer amount for the number of updates that are being transferred
+     *
+     * Output: None.
+     *
+     * Purpose: To change the number of cycles a host is set to give/be given.
+     */
     void CycleTransfer(int amount) override {
       cycles_given += amount;
     }
 
+    /**
+     * Input: None.
+     *
+     * Output: A integer for the amount of cycles the host is set to give/be given.
+     *
+     * Purpose: For symbionts to check if their host already owes cycles.
+     */
     int GetCyclesGiven(){
       return cycles_given;
     }
 
+     /**
+     * Input: None.
+     *
+     * Output: The string 'HealthHost', which is the name of this organism
+     *
+     * Purpose: Allows tests to check that an organism is of the proper type. 
+     */
     std::string const GetName() override{
       return "HealthHost";
     }
+    
     /** 
      * Input: The location of the host.
      * 

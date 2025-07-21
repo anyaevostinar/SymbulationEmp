@@ -7,6 +7,14 @@
 #include "SGPSymbiont.h"
 #include "SGPWorld.h"
 
+
+/**
+ * Input: A pointer to a long for the number of hosts to add to the world
+ *
+ * Output: None
+ *
+ * Purpose: Adds a number of hosts of a set type to the world. 
+ */
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
@@ -59,6 +67,14 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
   SymWorld::SendToGraveyard(org);
 }
 
+
+/**
+ * Input: An id for the the parent symbiont and a pointer to that symbiont. 
+ *
+ * Output: The id of a host that can be infected by the symbiont
+ *
+ * Purpose: Searches through up to 10 hosts in the world to find a host that the symbiont can infect. 
+ */
 int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
@@ -129,7 +145,14 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
 }
 
 
-
+ /**
+  * Input: Pointers to a symbiont offspring and the position of the symbiont's parent. 
+  *
+  * Output: Returns a WorldPosition pointer, a valid one for succesful 
+  * infection and an invalid for a failed infection
+  *
+  * Purpose: To get the location of where the symbiont offpsring can be added to. 
+  */
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
    size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
