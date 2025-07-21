@@ -276,7 +276,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   //Creates a host that only does NOT operations
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(100,config.CPU_TRANSFER_AMOUNT(23)));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateParasiteNotProgram(100,95));
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
@@ -327,7 +327,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   //Creates a host that only does NOT operations
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   //Creates a symbiont that does both Not and Nand operations
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateMutualistNotProgram(100, config.CPU_TRANSFER_AMOUNT(23)));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateMutualistNotProgram(100, 95));
 
   //Adds host to world and sym to host.
   world.AddOrgAt(host, 0);
