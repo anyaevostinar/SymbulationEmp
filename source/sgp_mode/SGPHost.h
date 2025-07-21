@@ -81,6 +81,17 @@ public:
     }
   }
 
+  /**
+     * Input: None.
+     *
+     * Output: The string "SGPHost"
+     *
+     * Purpose: Allows tests to check what class an Organism has
+     */
+  std::string const GetName() override{
+      return "SGPHost";
+  }
+
   bool operator<(const Organism &other) const {
     if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
       return cpu.GetProgram() < sgp->cpu.GetProgram();
@@ -176,6 +187,7 @@ public:
     }   // if org has syms
 
     GrowOlder();
+    
   }
 
   // Prototype for this host's reproduce method

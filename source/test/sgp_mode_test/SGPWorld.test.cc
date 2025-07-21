@@ -74,6 +74,66 @@ TEST_CASE("Baseline function", "[sgp]") {
   }
 }
 
+TEST_CASE("Host Setup", "[sgp]") {
+   emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(2);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.000);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_REPRO_RES(10000);
+
+
+
+  //world.SetupHosts requires a pointer for the number of hosts in the world
+  unsigned long setupCount = 1;
+  WHEN("ORGANISM_TYPE Config is set to SGP hosts"){
+    config.ORGANISM_TYPE(0);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&setupCount);
+    THEN("The world contains a SGPHost"){
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+
+    REQUIRE(host->GetName() == "SGPHost");
+    
+    }
+  }
+  WHEN("ORGANISM_TYPE Config is set to Health hosts"){
+    config.ORGANISM_TYPE(1);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&setupCount);
+    THEN("The world contains a HealtHost"){
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+     REQUIRE(host->GetName() == "HealthHost");
+    
+    }
+  }
+
+  WHEN("ORGANISM_TYPE Config is set to Stress hosts"){
+    config.ORGANISM_TYPE(2);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&setupCount);
+    THEN("The world contains a StressHost"){
+    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+     REQUIRE(host->GetName() == "StressHost");
+    
+    }
+  }
+
+  
+  WHEN("ORGANISM_TYPE Config is set to an option that does not exist"){
+    config.ORGANISM_TYPE(3);
+    SGPWorld world(random, &config, LogicTasks);
+    THEN("An exception should be thrown"){
+      REQUIRE_THROWS(world.SetupHosts(&setupCount));
+    }
+  }
+  
+}
+
+
 TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
   
   GIVEN("An SGPWorld with no mutation"){
