@@ -67,11 +67,11 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
 
 
 /**
- * Input: An id for the the current symbiont and a pointer to that symbiont. 
+ * Input: An id for the the parent symbiont and a pointer to that symbiont. 
  *
- * Output: None
+ * Output: The id of a host that can be infected by the symbiont
  *
- * Purpose: Searches through up to 10 hosts in the world to find one host that matches the symbionts task. 
+ * Purpose: Searches through up to 10 hosts in the world to find a host that the symbiont can infect. 
  */
 int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   // Attempt to find host that matches some tasks
@@ -143,12 +143,12 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
 
 
  /**
-  * Input: Pointers to a symbiont baby and the position of the symbionts parent. 
+  * Input: Pointers to a symbiont offspring and the position of the symbiont's parent. 
   *
-  * Output: Returns a worldPosition pointer, a valid one for succesful 
+  * Output: Returns a WorldPosition pointer, a valid one for succesful 
   * infection and an invalid for a failed infection
   *
-  * Purpose: To get the location of where the sym_baby can be added to. 
+  * Purpose: To get the location of where the symbiont offpsring can be added to. 
   */
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
    size_t i = parent_pos.GetPopID();

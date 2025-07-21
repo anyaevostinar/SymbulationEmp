@@ -267,11 +267,12 @@ public:
 
 
    /**
-     * Input: The number of steal instrucctions to add.
+     * Input: The number of steal instructions to add.
      *
      * Output: None.
      *
-     * Purpose: Spread out steal instructions throughout the organims genome.
+     * Purpose: Spread out steal instructions throughout the organim's genome in order to allow stealing 
+     * during a symbiont's entire genome and not just in one place. Without the spread of instructions symbionts were unable to steal regularly and died.
      */
   void AddStartSteal(int steal_count){
     
@@ -294,7 +295,8 @@ public:
      *
      * Output: None.
      *
-     * Purpose: Spread out donate instructions throughout the organims genome.
+     * Purpose: Spread out donate instructions throughout the organim's genome in order to allow donations 
+     * during a symbiont's entire genome and not just in one place. Without the spread of instructions symbionts were unable to donate regularly.
      */
   void AddStartDonate(int donate_count){
     

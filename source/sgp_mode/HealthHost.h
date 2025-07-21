@@ -53,7 +53,7 @@ class HealthHost : public SGPHost {
   }
 
     /**
-     * Input: None.
+     * Input: An integer amount for the number of updates that are being transferred
      *
      * Output: None.
      *
@@ -66,7 +66,7 @@ class HealthHost : public SGPHost {
     /**
      * Input: None.
      *
-     * Output: A interger for the amount of cycles the host is set to give/be given.
+     * Output: A integerfor the amount of cycles the host is set to give/be given.
      *
      * Purpose: For symbionts to check if their host already owes cycles.
      */
