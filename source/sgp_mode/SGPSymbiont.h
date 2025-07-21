@@ -125,6 +125,28 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
+  float CheckTaskInteraction(float score, size_t task_id) {
+    if(sgp_config->ORGANISM_TYPE() == 3){ //Nutrient mode
+      emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
+      bool host_performed = host->GetCPU().state.tasks_performed->Get(task_id);
+
+      int is_parasite = sgp_config->STRESS_TYPE();
+
+      if (is_parasite == 1  && host_performed) { //Parasite
+        double to_steal = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
+        double from_host = emp::Min(my_host->GetPoints(), to_steal); //parasite only can steal what's available
+        my_host->AddPoints(-from_host); 
+        score = from_host;
+      }
+      else if (is_parasite == 0 && host_performed) { //Mutualist 
+        double to_donate = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
+        my_host->AddPoints(to_donate);
+        score -= to_donate; // sym gets remainder that isn't donated
+      }
+    }
+    return score;
+  }
+
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
    * in the host (default -1 if it doesn't have a host)

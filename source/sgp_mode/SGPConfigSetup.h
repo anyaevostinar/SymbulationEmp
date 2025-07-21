@@ -16,6 +16,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(ORGANISM_TYPE, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
+  VALUE(NUTRIENT_DONATE_STEAL_PROP, double, 0.5, "What proportion of points should a symbiont donate to its host and what proportion of points should a symbiont steal from its host during nutrient type interactions"),
+
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(STRESS_TYPE, size_t, MUTUALIST, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
