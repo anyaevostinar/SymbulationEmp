@@ -66,7 +66,7 @@ class HealthHost : public SGPHost {
     /**
      * Input: None.
      *
-     * Output: A integerfor the amount of cycles the host is set to give/be given.
+     * Output: A integer for the amount of cycles the host is set to give/be given.
      *
      * Purpose: For symbionts to check if their host already owes cycles.
      */
