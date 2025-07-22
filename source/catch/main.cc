@@ -28,7 +28,6 @@
 #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
-#include "../test/sgp_mode_test/CPU.test.cc"
 #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
 #include "../test/sgp_mode_test/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/SGPHost.test.cc"

@@ -2,51 +2,19 @@
 #define SGPWORLD_H
 
 #include "../default_mode/SymWorld.h"
-#include "Scheduler.h"
 #include "Tasks.h"
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
 #include "SGPConfigSetup.h"
 
-/// Helper which synchronizes access to the DataMonitor with a mutex
-template <typename T, emp::data... MODS> class SyncDataMonitor {
-  std::mutex mutex;
-  emp::DataMonitor<T, MODS...> monitor;
-
-public:
-  /**
-   * Input: None
-   *
-   * Output: Reference to the underlying DataMonitor, without synchronization.
-   *
-   * Purpose: Accesses the underlying monitor without synchronization, should
-   * only be used when you're sure there's no multithreading going on.
-   */
-  emp::DataMonitor<T, MODS...> &UnsynchronizedGetMonitor() { return monitor; }
-
-  /**
-   * Input: An action to perform with the DataMonitor.
-   *
-   * Output: None
-   *
-   * Purpose: Calls the provided callback with the DataMonitor while holding the
-   * mutex, releasing it when it returns.
-   */
-  template <typename F> void WithMonitor(F f) {
-    std::lock_guard lock(mutex);
-    f(monitor);
-  }
-};
-
 class SGPWorld : public SymWorld {
 private:
-  Scheduler scheduler;
   TaskSet task_set;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_donated;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_stolen;
-  emp::Ptr<SyncDataMonitor<double>> data_node_sym_earned;
-  emp::Ptr<SyncDataMonitor<int>> data_node_steal_count;
-  emp::Ptr<SyncDataMonitor<int>> data_node_donate_count;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_stolen;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_earned;
+  emp::Ptr<emp::DataMonitor<int>> data_node_steal_count;
+  emp::Ptr<emp::DataMonitor<int>> data_node_donate_count;
 
 
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
@@ -63,7 +31,7 @@ public:
   emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
-      : SymWorld(r, _config), scheduler(*this, _config->THREAD_COUNT()),
+      : SymWorld(r, _config),
     task_set(task_set) {
     sgp_config = _config;
   }
@@ -112,21 +80,25 @@ public:
       total_res += sgp_config->LIMITED_RES_INFLOW();
     }
 
-    scheduler.ProcessOrgs([&](emp::WorldPosition pos, Organism &org) {
-      if (org.IsHost()) {
-        org.Process(pos);
-        if (org.GetDead()) DoDeath(pos);
-      }
-      else {
-        //have to check for death first, because it might have moved
-       // process takes worldposition, dosymdeath takes popid
-        if (org.GetDead()) DoSymDeath(pos.GetPopID());
-        else org.Process(pos);
-        if(IsSymPopOccupied(pos.GetPopID()) && org.GetDead()) DoSymDeath(pos.GetPopID());
-        
-      }
-    });
+    // emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
+    // for(size_t i : schedule) {
+    //   if (IsOccupied(i) == false) continue;
 
+    //   //else
+    //   pop[i]->Process(i);
+    //   if (pop[i]->GetDead()) DoDeath(i);
+    // }
+
+    for (size_t id = 0; id < GetSize(); id++) {
+      if (IsOccupied(id)) {
+        auto & org = pop[id];
+        org->Process(id);
+        if (org->GetDead()) DoDeath(id);
+      }
+    }
+
+
+    //TODO: move to a method
     for (auto org : to_reproduce) {
       if (!org.second.IsValid() || org.first->GetDead())
         continue;
@@ -158,6 +130,7 @@ public:
     to_reproduce.clear();
 
     // clean up the graveyard
+    // TODO move to a method in SymWorld so that it can be called here
     for (size_t i = 0; i < graveyard.size(); i++) {
       graveyard[i].Delete();
     }
@@ -177,11 +150,11 @@ public:
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
-  SyncDataMonitor<double> &GetSymDonatedDataNode();
-  SyncDataMonitor<double> &GetSymStolenDataNode();
-  SyncDataMonitor<double> &GetSymEarnedDataNode();
-  SyncDataMonitor<int> &GetStealCount();
-  SyncDataMonitor<int> &GetDonateCount();
+  emp::DataMonitor<double> &GetSymDonatedDataNode();
+  emp::DataMonitor<double> &GetSymStolenDataNode();
+  emp::DataMonitor<double> &GetSymEarnedDataNode();
+  emp::DataMonitor<int> &GetStealCount();
+  emp::DataMonitor<int> &GetDonateCount();
 
 
   void SetupTasksNodes();

@@ -26,7 +26,6 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(10);
-  config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
 
@@ -140,7 +139,6 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);
-  config.THREAD_COUNT(1);
   config.TASK_TYPE(1);
   config.DONATION_STEAL_INST(0);
 

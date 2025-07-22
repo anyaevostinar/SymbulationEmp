@@ -21,8 +21,7 @@ void AddOrganismPoints(CPUState state, uint32_t output) {
   if (score != 0.0) {
     state.organism->AddPoints(score);
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
+      state.world->GetSymEarnedDataNode().AddDatum(score);
     }
   }
 }
@@ -125,8 +124,7 @@ INST(Donate, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() <= 0){
       host->CycleTransfer(1);
-      state.world->GetDonateCount().WithMonitor(
-          [=](auto &m) { m.AddDatum(1); });
+      state.world->GetDonateCount().AddDatum(1);
     }
     
     
@@ -141,8 +139,7 @@ INST(Steal, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() >= 0){
         host->CycleTransfer(-1);
-        state.world->GetStealCount().WithMonitor(
-          [=](auto &m) { m.AddDatum(1); });
+        state.world->GetStealCount().AddDatum(1);
       }
     }
    
