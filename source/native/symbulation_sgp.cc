@@ -37,6 +37,7 @@ int symbulation_main(int argc, char *argv[]) {
   // stress hard-coded transmission modes
   if (config.ORGANISM_TYPE() == 2) {
     //TODO: remove this since it should just be set correctly
+    //TODO: or make it apply to all types
     if (config.STRESS_TYPE() == 0) {
       // mutualists
       config.VERTICAL_TRANSMISSION(1.0);

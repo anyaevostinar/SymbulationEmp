@@ -375,25 +375,20 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
  * creates it.
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if (config->TASK_TYPE() == 1) {
-    if(config->DONATION_STEAL_INST() == 1){
-      if(config->STRESS_TYPE() == 1){
-        return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
-      }
-      else if(config->STRESS_TYPE() == 0){
-        return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
-      }
-      else{
-        return CreateNotProgram(PROGRAM_LENGTH);
-      }
+  if(config->DONATION_STEAL_INST() == 1){
+    if(config->STRESS_TYPE() == 1){
+      return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+    }
+    else if(config->STRESS_TYPE() == 0){
+      return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
     else{
-        return CreateNotProgram(PROGRAM_LENGTH);
-      }
-    
+      return CreateNotProgram(PROGRAM_LENGTH);
+    }
   }
-  return CreateReproProgram(PROGRAM_LENGTH);
-  
+  else{
+      return CreateNotProgram(PROGRAM_LENGTH);
+    }
 }
 
 #endif

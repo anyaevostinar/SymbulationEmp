@@ -8,9 +8,6 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   SymConfigSGP config;
   config.SYM_HORIZ_TRANS_RES(100);
 
-  // Ensure we can actually complete the task
-  task->MarkAlwaysPerformable();
-
   SGPWorld world(random, &config, TaskSet{task});
 
   // Mock Organism to check reproduction
@@ -34,31 +31,31 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
 }
 
 TEST_CASE("Generate NOT program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NOT), &ProgramBuilder::AddNot);
+  TestGenome(emp::NewPtr<Task>(NOT), &ProgramBuilder::AddNot);
 }
 TEST_CASE("Generate NAND program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NAND), &ProgramBuilder::AddNand);
+  TestGenome(emp::NewPtr<Task>(NAND), &ProgramBuilder::AddNand);
 }
 TEST_CASE("Generate AND program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(AND), &ProgramBuilder::AddAnd);
+  TestGenome(emp::NewPtr<Task>(AND), &ProgramBuilder::AddAnd);
 }
 TEST_CASE("Generate ORN program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(ORN), &ProgramBuilder::AddOrn);
+  TestGenome(emp::NewPtr<Task>(ORN), &ProgramBuilder::AddOrn);
 }
 TEST_CASE("Generate OR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(OR), &ProgramBuilder::AddOr);
+  TestGenome(emp::NewPtr<Task>(OR), &ProgramBuilder::AddOr);
 }
 TEST_CASE("Generate ANDN program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(ANDN), &ProgramBuilder::AddAndn);
+  TestGenome(emp::NewPtr<Task>(ANDN), &ProgramBuilder::AddAndn);
 }
 TEST_CASE("Generate NOR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(NOR), &ProgramBuilder::AddNor);
+  TestGenome(emp::NewPtr<Task>(NOR), &ProgramBuilder::AddNor);
 }
 TEST_CASE("Generate XOR program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(XOR), &ProgramBuilder::AddXor);
+  TestGenome(emp::NewPtr<Task>(XOR), &ProgramBuilder::AddXor);
 }
 TEST_CASE("Generate EQU program", "[sgp]") {
-  TestGenome(emp::NewPtr<InputTask>(EQU), &ProgramBuilder::AddEqu);
+  TestGenome(emp::NewPtr<Task>(EQU), &ProgramBuilder::AddEqu);
 }
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
