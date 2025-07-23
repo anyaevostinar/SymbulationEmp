@@ -211,6 +211,39 @@ public:
     points -= amt;
   }
 
+  // TODO - discuss timing
+// NOTE - Go over reproduction
+void ProcessEndosymbiont(
+  const emp::WorldPosition& sym_pos
+) {
+  // NOTE - is there anything that should be moved here common to all endosymbionts?
+  // If symbiont is dead, no need to process it.
+  if (GetDead()) {
+    return;
+  }
+  GetHardware().GetCPUState().SetLocation(sym_pos);
+  my_world.before_endosym_process_sig.Trigger(sym_pos, this, GetHost());
+  // Cash in cycles for this update
+  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+  const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
+  for (size_t i = 0; i < cycles_to_exec; ++i) {
+    GetHardware().RunCPUStep(1);
+    my_world.after_endosym_cpu_step_sig.Trigger(sym_pos, this, GetHost());
+
+    // Did endosymbiont attempt to reproduce?
+    // NOTE - want to handle this after every clock cycle?
+    if (GetHardware().GetCPUState().ReproAttempt()) {
+      // upside to handling this here: we have direct access to organism
+      EndosymAttemptRepro(sym_pos, this, GetHost());
+    }
+
+  }
+  my_world.after_endosym_cpu_exec_sig.Trigger(sym_pos, this, GetHost());
+
+  GrowOlder();
+  my_world.after_endosym_process_sig.Trigger(sym_pos, this, GetHost());
+}
+
   /**
    * Input: The location of the symbiont, which includes the symbiont's position
    * in the host (default -1 if it doesn't have a host)
@@ -223,7 +256,7 @@ public:
    */
   void Process(emp::WorldPosition pos) {
     // Age the organism
-    GrowOlder();
+    
   }
 
   /**

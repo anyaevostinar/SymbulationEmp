@@ -4,6 +4,7 @@
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
 // #include "SGPWorld.h"
+#include "SGPConfigSetup.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/bits.hpp"
@@ -49,7 +50,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  // emp::Ptr<SymConfigSGP> sgp_config;
+  emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -79,8 +80,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   /**
@@ -98,8 +99,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -214,6 +215,7 @@ public:
    */
   emp::Ptr<world_t> GetWorld() { return my_world; }
 
+
   /**
    * Input: The location of the host.
    *
@@ -226,8 +228,127 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
+      // Update host location
+    GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
+    // NOTE - Will symbionts be able to modify host's cycles during *their* executation?
+    //        How do we want to handle that? (modify host's execution on next update?)
+    // NOTE - Will need to update/revist this if we have instruction-mediated interactions
+
+    // Hosts gain baseline number of CPU cycles
+    GetHardware().GetCPUState().GainCPUCycles(
+      sgp_config->CYCLES_PER_UPDATE()
+    );
+
+    // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
+    //        Currently endosyms go first and then hosts. This is to model endosyms
+    //        having opportunity to steal / donate cpu cycles and then host responding
+    //        to endosym behavior (but could argue it should be the other way around).
+    // Give endosymbionts their baseline CPU cycles
+    // Trigger signal to all endosymbionts that host is about to process
+    //   Gives endosymbionts chance to interact with host before it processes.
+    //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
+    emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+    for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+      emp_assert(!(syms[endosym_i]->IsHost()));
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+      const bool dead = cur_symbiont->GetDead();
+      // Skip if dead
+      if (dead) {
+        continue;
+      }
+      // Endosymbiont gains baseline number of CPU cycles
+      cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
+        sgp_config->CYCLES_PER_UPDATE()
+      );
+      my_world.before_endosym_host_process_sig.Trigger(
+        {endosym_i + 1, GetLocation().GetIndex()},
+        *cur_symbiont,
+        this
+      );
+    }
+
+    my_world.before_host_process_sig.Trigger(this);
+
+    // Host may have died as a result of this signal.
+    // NOTE - Do we want to return early here + do death?
+    //        Anywhere else we want to check for death?
+    if (GetDead()) {
+      return;
+    }
+
+    // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+    const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
+    // host.GetHardware().GetCPUState().LoseCPUCycles(cycles_to_execute);
+    // Execute organism hardware according to cycles_to_exec
+    // NOTE - Discuss possibility of host dying because of instruction executions.
+    //        As-is, still run hardware forward full amount regardless
+    for (size_t i = 0; i < cycles_to_exec; ++i) {
+      // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
+      // Execute 1 CPU cycle
+      GetHardware().RunCPUStep(1);
+
+      // Did host attempt to reproduce?
+      // NOTE - could move into a signal response
+      // NOTE - want to handle this after every clock cycle?
+      if (GetHardware().GetCPUState().ReproAttempt()) {
+        // upside to handling this here: we have direct access to organism
+        my_world.HostAttemptRepro(pos, this);
+      }
+
+      my_world.after_host_cpu_step_sig.Trigger(this);
+      // NOTE - Check death here?
+    }
+    my_world.after_host_cpu_exec_sig.Trigger(this);
+
+    // Handle any endosymbionts (configurable at setup-time)
+    // NOTE - is there any reason that this might need to be a functor?
+    ProcessEndosymbionts();
+    if (GetDead()) {
+      return;
+    }
+
     GrowOlder();
+    return;
   }
+
+  void ProcessEndosymbionts() {
+  // If host doesn't have a symbiont, return.
+  if (!HasSym()) {
+    return;
+  }
+  emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+  size_t sym_cnt = syms.size();
+  for (size_t sym_i = 0; sym_i < sym_cnt; /*sym_i handled internally*/) {
+    emp_assert(!(syms[sym_i]->IsHost()));
+    // If host is dead (e.g., because of previous symbiont), stop processing.
+    if (GetDead()) {
+      return;
+    }
+    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_i].Raw());
+    const bool dead = cur_symbiont->GetDead();
+    if (!dead) {
+      // Symbiont not dead, process it
+      // TODO - change to functor?
+      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
+      
+      cur_symbiont->Process({sym_i + 1, GetLocation().GetIndex()});
+      ++sym_i;
+    } else {
+      emp_assert(sym_cnt > 0);
+      // TODO - Check that it is okay to re-order symbionts to avoid erase calls
+      // Symbiont is dead, need to delete it.
+      cur_symbiont.Delete();
+      // Swap this symbiont with last in list, decrementing sym_cnt
+      std::swap(syms[sym_i], syms[--sym_cnt]);
+      // We will need to process what we just swapped into place, so
+      // re-process sym_i (don't increment it)
+    }
+  }
+  // Resize syms to remove deleted dead symbionts swapped to end
+  emp_assert(sym_cnt <= syms.size());
+  syms.resize(sym_cnt);
+  // TODO - signal?
+}
 
   /**
     * Input: None.
