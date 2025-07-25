@@ -63,7 +63,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
   }
 }
 
-TEST_CASE("SGPSymbiont CheckTaskInteraction in nutrient mode", "[sgp]") {
+TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
   emp::Random random(42);
   SymConfigSGP config;
   config.ORGANISM_TYPE(NUTRIENT);
@@ -79,31 +79,33 @@ TEST_CASE("SGPSymbiont CheckTaskInteraction in nutrient mode", "[sgp]") {
   host->AddSymbiont(sym);
 
   host->GetCPU().state.tasks_performed->Set(0);
-  // starting points
-  host->SetPoints(10.0);
+
+  double initial_host_points = 10.0;
   double sym_score = 8.0;
+  double expected_transfer = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
 
   WHEN("Parasite steals from host") {
     config.STRESS_TYPE(PARASITE);
-    double result = sym->CheckTaskInteraction(sym_score, 0);
+    host->SetPoints(initial_host_points);
+    double result = sym->DoTaskInteraction(sym_score, 0);
 
-    double expected_steal = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
-    double expected_actual = emp::Min(10.0, expected_steal);
-
-    REQUIRE(result == expected_actual);
-    REQUIRE(host->GetPoints() == 10.0 - expected_actual);
+    THEN("Symbiont receives expected amount and host loses the amount") {
+      REQUIRE(result == expected_transfer);
+      REQUIRE(host->GetPoints() == initial_host_points - expected_transfer);
+    }
   }
 
   WHEN("Mutualist donates to host") {
-    config.STRESS_TYPE(MUTUALIST); 
-    host->SetPoints(10.0); 
-    double result = sym->CheckTaskInteraction(sym_score, 0);
+    config.STRESS_TYPE(MUTUALIST);
+    host->SetPoints(initial_host_points);
+    double result = sym->DoTaskInteraction(sym_score, 0);
 
-    double expected_donation = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
-    double expected_score_remain = sym_score - expected_donation;
+    double expected_score_remain = sym_score - expected_transfer;
 
-    REQUIRE(result == expected_score_remain);
-    REQUIRE(host->GetPoints() == 10.0 + expected_donation);
+    THEN("Symbiont keep the expected score and host receives the donate amount") {
+      REQUIRE(result == expected_score_remain);
+      REQUIRE(host->GetPoints() == initial_host_points + expected_transfer);
+    }
   }
 }
 

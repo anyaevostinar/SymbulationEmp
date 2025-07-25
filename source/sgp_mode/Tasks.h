@@ -125,7 +125,7 @@ class TaskSet {
                           bool shared, float score) {
     if(!state.organism->IsHost()) {
       //currently only symbionts have special interactions on tasks, such as nutrient mode
-      score = state.organism->CheckTaskInteraction(score, task_id);
+      score = state.organism->DoTaskInteraction(score, task_id);
     } else if (state.organism->IsHost()){
       score = state.world.Cast<SymWorld>()->PullResources(score);
     }
