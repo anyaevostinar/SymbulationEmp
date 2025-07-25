@@ -23,6 +23,10 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
         new_org = emp::NewPtr<StressHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
         break;
+      case NUTRIENT:
+        new_org = emp::NewPtr<SGPHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+        break;
       default:
         std::cout << "Please request a supported sgp organism type" << std::endl;
         break;

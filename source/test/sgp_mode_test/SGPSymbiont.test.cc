@@ -63,6 +63,49 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
   }
 }
 
+TEST_CASE("SGPSymbiont CheckTaskInteraction in nutrient mode", "[sgp]") {
+  emp::Random random(42);
+  SymConfigSGP config;
+  config.ORGANISM_TYPE(NUTRIENT);
+  config.NUTRIENT_DONATE_STEAL_PROP(0.5);
+  SGPWorld world(random, &config, LogicTasks);
+
+  ProgramBuilder builder;
+  builder.AddNot(); //First task
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, builder.Build(100));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, builder.Build(100));
+
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+
+  host->GetCPU().state.tasks_performed->Set(0);
+  // starting points
+  host->SetPoints(10.0);
+  double sym_score = 8.0;
+
+  WHEN("Parasite steals from host") {
+    config.STRESS_TYPE(PARASITE);
+    double result = sym->CheckTaskInteraction(sym_score, 0);
+
+    double expected_steal = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
+    double expected_actual = emp::Min(10.0, expected_steal);
+
+    REQUIRE(result == expected_actual);
+    REQUIRE(host->GetPoints() == 10.0 - expected_actual);
+  }
+
+  WHEN("Mutualist donates to host") {
+    config.STRESS_TYPE(MUTUALIST); 
+    host->SetPoints(10.0); 
+    double result = sym->CheckTaskInteraction(sym_score, 0);
+
+    double expected_donation = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
+    double expected_score_remain = sym_score - expected_donation;
+
+    REQUIRE(result == expected_score_remain);
+    REQUIRE(host->GetPoints() == 10.0 + expected_donation);
+  }
+}
 
 TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp]"){
   GIVEN("An SGPworld with ONLY_FIRST_TASK_CREDIT on "){

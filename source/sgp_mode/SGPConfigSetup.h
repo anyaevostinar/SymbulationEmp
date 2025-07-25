@@ -3,7 +3,7 @@
 #include "../../Empirical/include/emp/config/config.hpp"
 #include "../ConfigSetup.h"
 
-enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS};
+enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS, NUTRIENT};
 enum StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
