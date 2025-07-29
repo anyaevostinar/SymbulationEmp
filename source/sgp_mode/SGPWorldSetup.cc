@@ -10,7 +10,7 @@
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
-    switch (sgp_config->ORGANISM_TYPE()) {
+    switch (sgp_config->INTERACTION_MECHANISM()) {
       case DEFAULT:
         new_org = emp::NewPtr<SGPHost>(
           &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());

@@ -15,8 +15,8 @@ TEST_CASE("Task Match properly returns whether a host/host's parnet and symbiont
   emp::Random random(1);
   SymConfigSGP config;
   config.SEED(2);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(PARASITE);
+  config.INTERACTION_MECHANISM(HEALTH);
+  config.SYMBIONT_TYPE(PARASITE);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);

@@ -195,8 +195,8 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
-    config.ORGANISM_TYPE(HEALTH);
-    config.STRESS_TYPE(PARASITE);
+    config.INTERACTION_MECHANISM(HEALTH);
+    config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.000);
     SGPWorld world(random, &config, LogicTasks);

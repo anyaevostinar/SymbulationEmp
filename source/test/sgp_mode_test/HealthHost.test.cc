@@ -20,7 +20,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
 
   SymConfigSGP config;
   config.SEED(10);
-  config.ORGANISM_TYPE(HEALTH);
+  config.INTERACTION_MECHANISM(HEALTH);
   config.LIMITED_RES_TOTAL(10);
   config.LIMITED_RES_INFLOW(500);
   config.VERTICAL_TRANSMISSION(0);
@@ -38,7 +38,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
   
   WHEN("Parasites are present"){
-    config.STRESS_TYPE(PARASITE);
+    config.SYMBIONT_TYPE(PARASITE);
     config.START_MOI(1);
 
     emp::Ptr<SGPSymbiont> parasite_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
@@ -99,7 +99,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
 
   WHEN("Mutualists are present"){
     config.START_MOI(1);
-    config.STRESS_TYPE(MUTUALIST);
+    config.SYMBIONT_TYPE(MUTUALIST);
 
     emp::Ptr<SGPSymbiont> mutualist_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
 
@@ -133,8 +133,8 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
 
   SymConfigSGP config;
   config.SEED(10);  
-  config.ORGANISM_TYPE(1); //Health hosts
-  config.STRESS_TYPE(1); //Parasites
+  config.INTERACTION_MECHANISM(1); //Health hosts
+  config.SYMBIONT_TYPE(1); //Parasites
   config.LIMITED_RES_TOTAL(10);
   config.LIMITED_RES_INFLOW(500);
   config.VERTICAL_TRANSMISSION(0);
@@ -205,7 +205,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
 TEST_CASE("Health hosts evolve", "[sgp][integration]") {
   emp::Random random(32);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(1); // Health hosts
+  config.INTERACTION_MECHANISM(1); // Health hosts
   config.START_MOI(0);
   config.GRID_X(10);
   config.GRID_Y(100);
@@ -255,8 +255,8 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   emp::Random random(1);
   SymConfigSGP config;
   config.SEED(0);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(1);
+  config.INTERACTION_MECHANISM(HEALTH);
+  config.SYMBIONT_TYPE(1);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.00);
   config.TRACK_PARENT_TASKS(1);
@@ -307,8 +307,8 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   emp::Random random(1);
   SymConfigSGP config;
   config.SEED(0);
-  config.ORGANISM_TYPE(HEALTH);
-  config.STRESS_TYPE(0);
+  config.INTERACTION_MECHANISM(HEALTH);
+  config.SYMBIONT_TYPE(0);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.00);
   config.TRACK_PARENT_TASKS(1);

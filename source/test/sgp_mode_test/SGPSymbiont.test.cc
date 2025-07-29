@@ -66,7 +66,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
 TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
   emp::Random random(42);
   SymConfigSGP config;
-  config.ORGANISM_TYPE(NUTRIENT);
+  config.INTERACTION_MECHANISM(NUTRIENT);
   config.NUTRIENT_DONATE_STEAL_PROP(0.5);
   SGPWorld world(random, &config, LogicTasks);
 
@@ -85,7 +85,7 @@ TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
   double expected_transfer = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
 
   WHEN("Parasite steals from host") {
-    config.STRESS_TYPE(PARASITE);
+    config.SYMBIONT_TYPE(PARASITE);
     host->SetPoints(initial_host_points);
     double result = sym->DoTaskInteraction(sym_score, 0);
 
@@ -96,7 +96,7 @@ TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
   }
 
   WHEN("Mutualist donates to host") {
-    config.STRESS_TYPE(MUTUALIST);
+    config.SYMBIONT_TYPE(MUTUALIST);
     host->SetPoints(initial_host_points);
     double result = sym->DoTaskInteraction(sym_score, 0);
 
@@ -114,8 +114,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can recei
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(1);
-    config.ORGANISM_TYPE(HEALTH);
-    config.STRESS_TYPE(PARASITE);
+    config.INTERACTION_MECHANISM(HEALTH);
+    config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
@@ -240,8 +240,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all ta
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
-    config.ORGANISM_TYPE(HEALTH);
-    config.STRESS_TYPE(PARASITE);
+    config.INTERACTION_MECHANISM(HEALTH);
+    config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);

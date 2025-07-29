@@ -126,11 +126,11 @@ public:
   CPU &GetCPU() { return cpu; }
 
   float DoTaskInteraction(float score, size_t task_id) {
-    if(sgp_config->ORGANISM_TYPE() == 3){ //Nutrient mode
+    if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
       bool host_performed = host->GetCPU().state.tasks_performed->Get(task_id);
 
-      int is_parasite = sgp_config->STRESS_TYPE();
+      int is_parasite = sgp_config->SYMBIONT_TYPE();
 
       if (is_parasite == 1  && host_performed) { //Parasite
         double to_steal = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;

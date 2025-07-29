@@ -118,7 +118,7 @@ INST(SharedIO, {
 });
 
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->SYMBIONT_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
     if (state.organism->IsHost()){
       return;
     }
@@ -134,7 +134,7 @@ INST(Donate, {
   
 });
 INST(Steal, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->STRESS_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->SYMBIONT_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
     if (state.organism->IsHost()){
       return;
     }

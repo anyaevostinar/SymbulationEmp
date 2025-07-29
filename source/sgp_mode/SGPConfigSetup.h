@@ -3,8 +3,8 @@
 #include "../../Empirical/include/emp/config/config.hpp"
 #include "../ConfigSetup.h"
 
-enum SGPOrganismType {DEFAULT = 0, HEALTH, STRESS, NUTRIENT};
-enum StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
+enum SGPInteractionMechanism {DEFAULT = 0, HEALTH, STRESS, NUTRIENT};
+enum SymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
@@ -13,14 +13,14 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(TASK_TYPE, bool, 1, "1 for NOT + repro starting genome, 0 for repro starting program"),
   VALUE(DONATION_STEAL_INST, bool, 0, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
-  VALUE(ORGANISM_TYPE, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
+  VALUE(INTERACTION_MECHANISM, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms)"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TRACK_PARENT_TASKS, bool, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
   VALUE(NUTRIENT_DONATE_STEAL_PROP, double, 0.5, "What proportion of points should a symbiont donate to its host and what proportion of points should a symbiont steal from its host during nutrient type interactions"),
 
 
   GROUP(STRESS, "Stress Settings"),
-  VALUE(STRESS_TYPE, size_t, MUTUALIST, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
+  VALUE(SYMBIONT_TYPE, size_t, MUTUALIST, "What kind of stress symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
