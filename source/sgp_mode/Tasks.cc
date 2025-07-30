@@ -4,9 +4,8 @@
 #include "Tasks.h"
 #include "SGPWorld.h"
 
-void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id,
-                         bool shared) {
-                          //TODO: remove shared parameter
+//TODO: why can't this be in the header file?
+void Task::MarkPerformed(CPUState &state, uint32_t output, size_t task_id) {
   if (state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT()){
     //Iterates through all tasks and checks if any of them have been done
     bool donePreviousTask = false;

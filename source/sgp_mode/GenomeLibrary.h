@@ -265,36 +265,57 @@ public:
     Add("SharedIO");
   }
 
+
+   /**
+     * Input: The number of steal instructions to add.
+     *
+     * Output: None.
+     *
+     * Purpose: Spread out steal instructions throughout the organim's genome in order to allow stealing 
+     * during a symbiont's entire genome and not just in one place. Without the spread of instructions symbionts were unable to steal regularly and died.
+     */
   void AddStartSteal(int steal_count){
     
-    int diff = 96/steal_count;
-   
-    for (int i = 0; i < steal_count; i++){
-      
-      for (int x = 1; x < diff; x++){
-      AddNop();
-      
+    if(steal_count > 0){
+      int diff = 96/steal_count;
+    
+      for (int i = 0; i < steal_count; i++){
+        Add("Steal");
+        for (int x = 1; x < (diff-1); x++){
+          AddNop();
+        
+        }
+        
+        
       }
-      Add("Steal");
-      
     }
     
   }
 
+  /**
+     * Input: The number of donate instructions to add.
+     *
+     * Output: None.
+     *
+     * Purpose: Spread out donate instructions throughout the organim's genome in order to allow donations 
+     * during a symbiont's entire genome and not just in one place. Without the spread of instructions symbionts were unable to donate regularly.
+     */
   void AddStartDonate(int donate_count){
     
-    int diff = 96/donate_count;
-    int index = 1;
-    for (int i = 0; i < donate_count; i++){
+    if(donate_count > 0){
+      int diff = 96/donate_count;
       
-      for (int x = 1; x < diff; x++){
-      AddNop();
-      
-      
+      for (int i = 0; i < donate_count; i++){
+        Add("Donate");
+        for (int x = 1; x < (diff-1); x++){
+          AddNop();
+        
+        }
+        
+        
       }
-      Add("Donate");
-      
     }
+    
   }
 };
 
@@ -311,8 +332,15 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 
 sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   ProgramBuilder program;
-  program.Add("Steal");
-  program.Add("Steal");
+  if(steal_count < 0){
+    steal_count = 0;
+    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+  }
+
+  if(steal_count > 95){
+    steal_count = 95;
+    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+  }
   program.AddStartSteal(steal_count);
   program.AddNot();
   
@@ -321,9 +349,15 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
 
 sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
   ProgramBuilder program;
-  
-  program.Add("Donate");
-  program.Add("Donate");
+  if(donate_count < 0){
+    donate_count = 0;
+    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+  }
+
+  if(donate_count > 95){
+    donate_count = 95;
+    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+  }
   program.AddStartDonate(donate_count);
   program.AddNot();
   return program.Build(length);

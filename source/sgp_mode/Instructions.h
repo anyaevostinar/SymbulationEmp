@@ -17,12 +17,11 @@
 namespace inst {
 
 void AddOrganismPoints(CPUState state, uint32_t output) {
-  float score = state.world->GetTaskSet().CheckTasks(state, output, true);
+  float score = state.world->GetTaskSet().CheckTasks(state, output);
   if (score != 0.0) {
     state.organism->AddPoints(score);
     if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().WithMonitor(
-          [=](auto &m) { m.AddDatum(score); });
+      state.world->GetSymEarnedDataNode().AddDatum(score);
     }
   }
 }
@@ -86,7 +85,6 @@ INST(Pop, {
 });
 INST(SwapStack, { std::swap(state.stack, state.stack2); });
 INST(Swap, { std::swap(*a, *b); });
-std::mutex reproduce_mutex;
 INST(Reproduce, {
   // Only one reproduction is allowed per update
   if (state.in_progress_repro != -1 || !state.location.IsValid())
@@ -96,15 +94,13 @@ INST(Reproduce, {
                       : state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
   if (state.organism->GetPoints() > points) {
     state.organism->AddPoints(-points);
-    // Add this organism to the queue to reproduce, using the mutex to avoid a
-    // data race
-    std::lock_guard<std::mutex> lock(reproduce_mutex);
     state.in_progress_repro = state.world->to_reproduce.size();
     state.world->to_reproduce.push_back(
         std::pair(state.organism, state.location));
   }
 });
 // Set output to value of register and set register to new input
+//TODO: change to just "IO" to not be confusing
 INST(SharedIO, {
   AddOrganismPoints(state, *a);
   uint32_t next;
@@ -125,8 +121,7 @@ INST(Donate, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() <= 0){
       host->CycleTransfer(1);
-      state.world->GetDonateCount().WithMonitor(
-          [=](auto &m) { m.AddDatum(1); });
+      state.world->GetDonateCount().AddDatum(1);
     }
     
     
@@ -141,8 +136,7 @@ INST(Steal, {
     emp::Ptr<Organism> host = state.organism->GetHost();
     if(host->GetCyclesGiven() >= 0){
         host->CycleTransfer(-1);
-        state.world->GetStealCount().WithMonitor(
-          [=](auto &m) { m.AddDatum(1); });
+        state.world->GetStealCount().AddDatum(1);
       }
     }
    

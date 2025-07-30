@@ -9,8 +9,6 @@ enum SymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
-  VALUE(THREAD_COUNT, size_t, 1, "Number of threads used to process organisms in parallel"),
-  VALUE(TASK_TYPE, bool, 1, "1 for NOT + repro starting genome, 0 for repro starting program"),
   VALUE(DONATION_STEAL_INST, bool, 0, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(INTERACTION_MECHANISM, size_t, DEFAULT, "What sgp organisms should population the world? (0 for default SGP, 1 for Health organisms, 2 for stress organisms, 3 for nutrient organisms)"),

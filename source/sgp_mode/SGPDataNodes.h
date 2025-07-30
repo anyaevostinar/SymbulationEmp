@@ -80,23 +80,23 @@ emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
   GetSymEarnedDataNode();
-  file.AddTotal(data_node_sym_earned->UnsynchronizedGetMonitor(),
+  file.AddTotal(GetSymEarnedDataNode(),
                 "sym_points_earned", "Points earned by symbionts", true);
   GetSymDonatedDataNode();
   file.AddFun<size_t>(
       [&]() {
-        return data_node_sym_donated->UnsynchronizedGetMonitor().GetCount();
+        return data_node_sym_donated->GetCount();
       },
       "sym_donate_calls", "Number of donate calls");
-  file.AddTotal(data_node_sym_donated->UnsynchronizedGetMonitor(),
+  file.AddTotal(GetSymDonatedDataNode(),
                 "sym_points_donated", "Points donated by symbionts", true);
   GetSymStolenDataNode();
   file.AddFun<size_t>(
       [&]() {
-        return data_node_sym_stolen->UnsynchronizedGetMonitor().GetCount();
+        return data_node_sym_stolen->GetCount();
       },
       "sym_steal_calls", "Number of steal calls");
-  file.AddTotal(data_node_sym_stolen->UnsynchronizedGetMonitor(),
+  file.AddTotal(GetSymStolenDataNode(),
                 "sym_points_stolen", "Points stolen by symbionts", true);
   file.PrintHeaderKeys();
   return file;
@@ -106,11 +106,11 @@ emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
   GetStealCount();
-  file.AddTotal(data_node_steal_count->UnsynchronizedGetMonitor(),
+  file.AddTotal(GetStealCount(),
                 "sym_steal_ran", "Amount of times steal instructions were ran", true);
   
   GetDonateCount();
-  file.AddTotal(data_node_donate_count->UnsynchronizedGetMonitor(),
+  file.AddTotal(GetDonateCount(),
                 "sym_donate_ran", "Amount of times donate instructions were ran", true);
   
   file.PrintHeaderKeys();
@@ -260,35 +260,35 @@ void SGPWorld::SetupTasksNodes() {
   }
 }
 
-SyncDataMonitor<double> &SGPWorld::GetSymEarnedDataNode() {
+emp::DataMonitor<double> &SGPWorld::GetSymEarnedDataNode() {
   if (!data_node_sym_earned) {
     data_node_sym_earned.New();
   }
   return *data_node_sym_earned;
 }
 
-SyncDataMonitor<double> &SGPWorld::GetSymDonatedDataNode() {
+emp::DataMonitor<double> &SGPWorld::GetSymDonatedDataNode() {
   if (!data_node_sym_donated) {
     data_node_sym_donated.New();
   }
   return *data_node_sym_donated;
 }
 
-SyncDataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
+emp::DataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
   if (!data_node_sym_stolen) {
     data_node_sym_stolen.New();
   }
   return *data_node_sym_stolen;
 }
 
-SyncDataMonitor<int> &SGPWorld::GetStealCount() {
+emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {
     data_node_steal_count.New();
   }
   return *data_node_steal_count;
 }
 
-SyncDataMonitor<int> &SGPWorld::GetDonateCount() {
+emp::DataMonitor<int> &SGPWorld::GetDonateCount() {
   if (!data_node_donate_count) {
     data_node_donate_count.New();
   }
