@@ -89,8 +89,8 @@ TEST_CASE("Host Setup", "[sgp]") {
 
   //world.SetupHosts requires a pointer for the number of hosts in the world
   unsigned long setupCount = 1;
-  WHEN("ORGANISM_TYPE Config is set to SGP hosts"){
-    config.ORGANISM_TYPE(0);
+  WHEN("INTERACTION_MECHANISM Config is set to SGP hosts"){
+    config.INTERACTION_MECHANISM(0);
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a SGPHost"){
@@ -100,8 +100,8 @@ TEST_CASE("Host Setup", "[sgp]") {
     
     }
   }
-  WHEN("ORGANISM_TYPE Config is set to Health hosts"){
-    config.ORGANISM_TYPE(1);
+  WHEN("INTERACTION_MECHANISM Config is set to Health hosts"){
+    config.INTERACTION_MECHANISM(1);
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a HealtHost"){
@@ -111,8 +111,8 @@ TEST_CASE("Host Setup", "[sgp]") {
     }
   }
 
-  WHEN("ORGANISM_TYPE Config is set to Stress hosts"){
-    config.ORGANISM_TYPE(2);
+  WHEN("INTERACTION_MECHANISM Config is set to Stress hosts"){
+    config.INTERACTION_MECHANISM(2);
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a StressHost"){
@@ -123,8 +123,8 @@ TEST_CASE("Host Setup", "[sgp]") {
   }
 
   
-  WHEN("ORGANISM_TYPE Config is set to an option that does not exist"){
-    config.ORGANISM_TYPE(3);
+  WHEN("INTERACTION_MECHANISM Config is set to an option that does not exist"){
+    config.INTERACTION_MECHANISM(4);
     SGPWorld world(random, &config, LogicTasks);
     THEN("An exception should be thrown"){
       REQUIRE_THROWS(world.SetupHosts(&setupCount));
