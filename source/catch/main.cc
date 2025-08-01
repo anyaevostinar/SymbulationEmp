@@ -35,6 +35,8 @@
 #include "../test/sgp_mode_test/StressHost.test.cc"
 #include "../test/sgp_mode_test/HealthHost.test.cc"
 #include "../test/sgp_mode_test/SGPDataNodes.test.cc"
+#include "../test/sgp_mode_test/tasks.test.cc"
+
 
 #include "../test/integration_test/spatial_structure/vt.test.cc"
 #include "../test/integration_test/lysogeny/plr.test.cc"
