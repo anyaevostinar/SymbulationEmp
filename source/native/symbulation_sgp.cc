@@ -13,7 +13,6 @@
 // included last. It still fixes include issues, but doesn't improve build time.
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
-#include "../sgp_mode/Tasks.cc"
 #include "../sgp_mode/SGPHost.cc"
 
 #include <fstream>

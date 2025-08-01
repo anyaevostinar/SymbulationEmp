@@ -7,7 +7,6 @@
 #include "../../sgp_mode/SGPHost.cc"
 #include "../../sgp_mode/SGPHost.h"
 #include "../../sgp_mode/SGPSymbiont.h"
-#include "../../sgp_mode/Tasks.cc"
 #include "../../default_mode/WorldSetup.cc"
 #include "../../default_mode/DataNodes.h"
 #include "../../sgp_mode/SGPDataNodes.h"

@@ -15,17 +15,6 @@
 #include <mutex>
 
 namespace inst {
-
-void AddOrganismPoints(CPUState state, uint32_t output) {
-  float score = state.world->GetTaskSet().CheckTasks(state, output);
-  if (score != 0.0) {
-    state.organism->AddPoints(score);
-    if (!state.organism->IsHost()) {
-      state.world->GetSymEarnedDataNode().AddDatum(score);
-    }
-  }
-}
-
 /**
  * Macro to easily create an instruction:
  * `INST(MyInstruction, { *a = *b + 2;})`. In the code block, operand registers
@@ -102,7 +91,8 @@ INST(Reproduce, {
 // Set output to value of register and set register to new input
 //TODO: change to just "IO" to not be confusing
 INST(SharedIO, {
-  AddOrganismPoints(state, *a);
+  state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT());
+  //std::cout << state.organism->GetPoints() << std::endl;
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
     next = sgpl::tlrand.Get().GetUInt();
