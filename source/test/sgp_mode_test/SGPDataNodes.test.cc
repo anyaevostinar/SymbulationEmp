@@ -8,8 +8,8 @@ TEST_CASE("Correct data files are created", "[sgp]") {
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
-    config.ORGANISM_TYPE(0);
-    config.STRESS_TYPE(1);
+    config.INTERACTION_MECHANISM(0);
+    config.SYMBIONT_TYPE(1);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.000);
     config.FILE_NAME("DataTest");
