@@ -376,10 +376,10 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if(config->DONATION_STEAL_INST() == 1){
-    if(config->STRESS_TYPE() == 1){
+    if(config->SYMBIONT_TYPE() == 1){
       return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
-    else if(config->STRESS_TYPE() == 0){
+    else if(config->SYMBIONT_TYPE() == 0){
       return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
     else{

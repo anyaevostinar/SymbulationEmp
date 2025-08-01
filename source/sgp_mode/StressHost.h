@@ -67,8 +67,8 @@ public:
     if (my_world->GetUpdate() % sgp_config->EXTINCTION_FREQUENCY() == 0) {
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
-        if (sgp_config->STRESS_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        else if (sgp_config->STRESS_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
+        if (sgp_config->SYMBIONT_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
         SetDead();

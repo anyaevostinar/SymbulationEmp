@@ -249,8 +249,8 @@ class Organism {
 
 
   //SGPMode Symbiont Functions
-  virtual float CheckTaskInteraction(float score, size_t task_id) {
-    std::cout << "CheckTaskInteraction called from Organism" << std::endl;
+  virtual float DoTaskInteraction(float score, size_t task_id) {
+    std::cout << "DoTaskInteraction called from Organism" << std::endl;
     throw "Organism method called!";
   }
 

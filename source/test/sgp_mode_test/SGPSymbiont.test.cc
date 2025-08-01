@@ -63,13 +63,59 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp]") {
   }
 }
 
+TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
+  emp::Random random(42);
+  SymConfigSGP config;
+  config.INTERACTION_MECHANISM(NUTRIENT);
+  config.NUTRIENT_DONATE_STEAL_PROP(0.5);
+  SGPWorld world(random, &config, LogicTasks);
+
+  ProgramBuilder builder;
+  builder.AddNot(); //First task
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, builder.Build(100));
+  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, builder.Build(100));
+
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(sym);
+
+  host->GetCPU().state.tasks_performed->Set(0);
+
+  double initial_host_points = 10.0;
+  double sym_score = 8.0;
+  double expected_transfer = config.NUTRIENT_DONATE_STEAL_PROP() * sym_score;
+
+  WHEN("Parasite steals from host") {
+    config.SYMBIONT_TYPE(PARASITE);
+    host->SetPoints(initial_host_points);
+    double result = sym->DoTaskInteraction(sym_score, 0);
+
+    THEN("Symbiont receives expected amount and host loses the amount") {
+      REQUIRE(result == expected_transfer);
+      REQUIRE(host->GetPoints() == initial_host_points - expected_transfer);
+    }
+  }
+
+  WHEN("Mutualist donates to host") {
+    config.SYMBIONT_TYPE(MUTUALIST);
+    host->SetPoints(initial_host_points);
+    double result = sym->DoTaskInteraction(sym_score, 0);
+
+    double expected_score_remain = sym_score - expected_transfer;
+
+    THEN("Symbiont keep the expected score and host receives the donate amount") {
+      REQUIRE(result == expected_score_remain);
+      REQUIRE(host->GetPoints() == initial_host_points + expected_transfer);
+    }
+  }
+}
+
 TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp]"){
   GIVEN("An SGPworld with ONLY_FIRST_TASK_CREDIT on "){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(1);
-    config.ORGANISM_TYPE(HEALTH);
-    config.STRESS_TYPE(PARASITE);
+    config.INTERACTION_MECHANISM(HEALTH);
+    config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
@@ -194,8 +240,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all ta
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
-    config.ORGANISM_TYPE(HEALTH);
-    config.STRESS_TYPE(PARASITE);
+    config.INTERACTION_MECHANISM(HEALTH);
+    config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
