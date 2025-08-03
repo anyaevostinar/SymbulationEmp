@@ -5,6 +5,7 @@
 #include "CPUState.h"
 #include <atomic>
 #include <string>
+#include <iostream>
 
 
 /**
@@ -27,9 +28,7 @@ public:
   
   ~Task(){}
 
-  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id);
-
-  float CheckOutput(CPUState &state, uint32_t output) {
+  bool IsSolved(CPUState &state, uint32_t output) {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
 
       
@@ -46,10 +45,10 @@ public:
         continue;
 
       if (task_fun(inputs) == output) {
-        return value;
+        return true;
       }
     }
-    return 0;
+    return false;
   }
 };
 
@@ -60,27 +59,24 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
-  float MarkPerformedTask(CPUState &state, uint32_t output, size_t task_id, float score) {
-    if(!state.organism->IsHost()) {
-      //currently only symbionts have special interactions on tasks, such as nutrient mode
-      score = state.organism->DoTaskInteraction(score, task_id);
-    } else if (state.organism->IsHost()){
-      score = state.world.Cast<SymWorld>()->PullResources(score);
-    }
-    if (score == 0.0) {
-      return score;
-    }
-
-    tasks[task_id]->MarkPerformed(state, output, task_id);
-
+  void MarkPerformedTask(CPUState &state, size_t task_id) {
+    // if(!state.organism->IsHost()) {
+    //   //currently only symbionts have special interactions on tasks, such as nutrient mode
+    //   score = state.organism->CheckTaskInteraction(score, task_id);
+    // } else if (state.organism->IsHost()){
+    //   score = state.world.Cast<SymWorld>()->PullResources(score);
+    // }
+    // if (score == 0.0) {
+    //   return score;
+    // }
+    state.tasks_performed->Set(task_id);
+   
     if (state.organism->IsHost())
       ++*n_succeeds_host[task_id];
     else{
       ++*n_succeeds_sym[task_id];
     }
-      
 
-    return score;
   }
 
 public:
@@ -118,6 +114,25 @@ public:
     }
   }
 
+
+  void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
+    int current_task = CheckTasks(state, output, is_only_task_credit);
+    if(current_task == -1){
+      return;
+    }
+    MarkPerformedTask(state, current_task);
+    int score = tasks[current_task]->value;
+    if(!state.organism->IsHost()) {
+      //currently only symbionts have special interactions on tasks, such as nutrient mode
+      score = state.organism->DoTaskInteraction(score, current_task);
+    } 
+    else if (state.organism->IsHost()){
+      score = state.world.Cast<SymWorld>()->PullResources(score);
+    }
+    //std::cout << "Added Points " << score << std::end;
+    state.organism->AddPoints(score);
+  }
+
   /**
    * Input: The current CPU state, the output to check against
    *
@@ -127,21 +142,39 @@ public:
    * Purpose: Checks whether a certain output produced by the organism completes
    * any tasks, and updates necessary state fields if so.
    */
-  float CheckTasks(CPUState &state, uint32_t output) {
+  int CheckTasks(CPUState &state, uint32_t output, bool is_only_task_credit) {
     // Check output tasks
     // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+    int current_task = -1;
     if (output == 0 || output == 1) {
-      return 0.0;
+      return current_task;
     }
 
     for (size_t i = 0; i < tasks.size(); i++) {
-      float score = tasks[i]->CheckOutput(state, output);
-      if (score > 0.0) {
-        score = MarkPerformedTask(state, output, i, score);
-        return score;
+      bool is_completed = tasks[i]->IsSolved(state, output);
+      if (is_completed) {
+        
+        current_task = i;
+        break;
       }
     }
-    return 0.0f;
+    if(current_task != -1 && is_only_task_credit){
+      if(!IsOnlyTask(state, current_task)){
+        current_task = -1;
+      }
+    }
+    return current_task;
+  }
+
+  bool IsOnlyTask(CPUState &state, int current_task){
+    bool no_other_tasks = true;
+    for (size_t i = 0; i < tasks.size(); i++) {
+      if(state.tasks_performed->Get(i) == 1 && i != current_task){
+        no_other_tasks = false;
+        break;
+      }
+    }
+    return no_other_tasks;
   }
 
   size_t NumTasks() const { return tasks.size(); }
