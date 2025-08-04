@@ -10,9 +10,6 @@
 class SGPWorld : public SymWorld {
 private:
   TaskSet task_set;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_stolen;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_earned;
   emp::Ptr<emp::DataMonitor<int>> data_node_steal_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_donate_count;
 
@@ -37,9 +34,7 @@ public:
   }
 
   ~SGPWorld() {
-    if(data_node_sym_donated) data_node_sym_donated.Delete();
-    if(data_node_sym_stolen) data_node_sym_stolen.Delete();
-    if(data_node_sym_earned) data_node_sym_earned.Delete();
+    
     // The vectors will delete themselves automatically
   }
 
@@ -150,9 +145,6 @@ public:
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
-  emp::DataMonitor<double> &GetSymDonatedDataNode();
-  emp::DataMonitor<double> &GetSymStolenDataNode();
-  emp::DataMonitor<double> &GetSymEarnedDataNode();
   emp::DataMonitor<int> &GetStealCount();
   emp::DataMonitor<int> &GetDonateCount();
 
@@ -162,7 +154,6 @@ public:
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymInstFile(const std::string &filename);
 
-  emp::DataFile &SetupSymDonatedFile(const std::string &filename);
   emp::DataFile &SetupTasksFile(const std::string &filename);
   void WriteTaskCombinationsFile(const std::string& filename);
   void WriteOrgReproHistFile(const std::string& filename);
