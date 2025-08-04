@@ -130,15 +130,15 @@ public:
    * and awards the proper amount of points.  
    */
   void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
-    int current_task = CheckTasks(state, output, is_only_task_credit);
-    if(current_task == -1){
+    int task_done_id = WhichTaskDone(state, output, is_only_task_credit);
+    if(task_done_id == -1){
       return;
     }
-    MarkPerformedTask(state, current_task);
-    int score = tasks[current_task]->value;
+    MarkPerformedTask(state, task_done_id);
+    int score = tasks[task_done_id]->value;
     if(!state.organism->IsHost()) {
       //currently only symbionts have special interactions on tasks, such as nutrient mode
-      score = state.organism->DoTaskInteraction(score, current_task);
+      score = state.organism->DoTaskInteraction(score, task_done_id);
     } 
     else if (state.organism->IsHost()){
       score = state.world.Cast<SymWorld>()->PullResources(score);
@@ -155,28 +155,28 @@ public:
    * Purpose: Checks whether a certain output produced by the organism completes
    * any tasks, and updates necessary state fields if so.
    */
-  int CheckTasks(CPUState &state, uint32_t output, bool is_only_task_credit) {
+  int WhichTaskDone(CPUState &state, uint32_t output, bool is_only_task_credit) {
     // Check output tasks
     // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
-    int current_task = -1;
+    int current_task_id = -1;
     if (output == 0 || output == 1) {
-      return current_task;
+      return current_task_id;
     }
 
     for (size_t i = 0; i < tasks.size(); i++) {
       bool is_completed = tasks[i]->IsSolved(state, output);
       if (is_completed) {
         
-        current_task = i;
+        current_task_id = i;
         break;
       }
     }
-    if(current_task != -1 && is_only_task_credit){
-      if(!IsOnlyTask(state, current_task)){
-        current_task = -1;
+    if(current_task_id != -1 && is_only_task_credit){
+      if(!IsOnlyTask(state, current_task_id)){
+        current_task_id = -1;
       }
     }
-    return current_task;
+    return current_task_id;
   }
 
   /**
@@ -187,10 +187,10 @@ public:
    * Purpose: Checks whether the organism has completed any tasks that were not this one. 
    * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points. 
    */
-  bool IsOnlyTask(CPUState &state, int current_task){
+  bool IsOnlyTask(CPUState &state, int task_done_id){
     bool no_other_tasks = true;
     for (size_t i = 0; i < tasks.size(); i++) {
-      if(state.tasks_performed->Get(i) == 1 && i != current_task){
+      if(state.tasks_performed->Get(i) == 1 && i != task_done_id){
         no_other_tasks = false;
         break;
       }
