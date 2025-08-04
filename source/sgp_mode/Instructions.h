@@ -88,20 +88,27 @@ INST(Reproduce, {
         std::pair(state.organism, state.location));
   }
 });
-// Set output to value of register and set register to new input
-//TODO: change to just "IO" to not be confusing
-INST(SharedIO, {
-  state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT());
-  //std::cout << state.organism->GetPoints() << std::endl;
+
+void AddNewInput(CPUState &state, uint32_t *output){
   uint32_t next;
   if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
     next = sgpl::tlrand.Get().GetUInt();
   } else {
     next = 1;
   }
-  *a = next;
+  *output = next;
   state.input_buf.push(next);
+}
+
+// Set output to value of register and set register to new input
+//TODO: change to just "IO" to not be confusing
+INST(SharedIO, {
+  state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT());
+  //TODO: Add helper method for adding new input
+  AddNewInput(state, a);
 });
+
+
 
 INST(Donate, {
   if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->SYMBIONT_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
