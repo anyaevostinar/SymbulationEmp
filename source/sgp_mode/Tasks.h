@@ -28,6 +28,13 @@ public:
   
   ~Task(){}
 
+  /**
+   * Input: The current CPU state, the output to check against
+   *
+   * Output: Boolean for if this task was solved
+   *
+   * Purpose: Checks whether the organism has completed this task.
+   */
   bool IsSolved(CPUState &state, uint32_t output) {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
 
@@ -59,16 +66,15 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
+  /**
+   * Input: The current CPU state, the id of the completed task
+   *
+   * Output: None
+   *
+   * Purpose: Marks the organism as having completed the task and increases this task's data counter by 1 for its
+   * organism type. 
+   */
   void MarkPerformedTask(CPUState &state, size_t task_id) {
-    // if(!state.organism->IsHost()) {
-    //   //currently only symbionts have special interactions on tasks, such as nutrient mode
-    //   score = state.organism->CheckTaskInteraction(score, task_id);
-    // } else if (state.organism->IsHost()){
-    //   score = state.world.Cast<SymWorld>()->PullResources(score);
-    // }
-    // if (score == 0.0) {
-    //   return score;
-    // }
     state.tasks_performed->Set(task_id);
    
     if (state.organism->IsHost())
@@ -115,6 +121,14 @@ public:
   }
 
 
+  /**
+   * Input: The current CPU state, the output to check against, whehter ONLY_FIRST_TASK_CREDIT is on
+   *
+   * Output: None
+   *
+   * Purpose: Checks whether any tasks were completed and if so marks them as completing for reproductive purposes
+   * and awards the proper amount of points.  
+   */
   void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
     int current_task = CheckTasks(state, output, is_only_task_credit);
     if(current_task == -1){
@@ -134,10 +148,9 @@ public:
   }
 
   /**
-   * Input: The current CPU state, the output to check against
+   * Input: The current CPU state, the output to check against, whehter ONLY_FIRST_TASK_CREDIT is on
    *
-   * Output: The score that the organism earned from any completed tasks, or 0
-   * if no tasks were completed.
+   * Output: the id of the completed task, if one was completed.
    *
    * Purpose: Checks whether a certain output produced by the organism completes
    * any tasks, and updates necessary state fields if so.
@@ -166,6 +179,14 @@ public:
     return current_task;
   }
 
+  /**
+   * Input: The current CPU state, the id of the completed task
+   *
+   * Output: Whether this task was the first type of task performed for this organism
+   *
+   * Purpose: Checks whether the organism has completed any tasks that were not this one. 
+   * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points. 
+   */
   bool IsOnlyTask(CPUState &state, int current_task){
     bool no_other_tasks = true;
     for (size_t i = 0; i < tasks.size(); i++) {
