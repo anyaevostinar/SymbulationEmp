@@ -130,11 +130,18 @@ public:
    * and awards the proper amount of points.  
    */
   void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
+
+    //Finds which task has been completed, if none have then end method here
     int task_done_id = WhichTaskDone(state, output, is_only_task_credit);
     if(task_done_id == -1){
       return;
     }
+
+    //For reproductive/infection purposes mark this organism as having done the completed task. 
     MarkPerformedTask(state, task_done_id);
+
+    //Grabs score for this task, checks to see if some points should be stolen and if there are
+    //enough resources in the world. Then adds the points to the organism. 
     int score = tasks[task_done_id]->value;
     if(!state.organism->IsHost()) {
       //currently only symbionts have special interactions on tasks, such as nutrient mode
@@ -143,7 +150,6 @@ public:
     else if (state.organism->IsHost()){
       score = state.world.Cast<SymWorld>()->PullResources(score);
     }
-    //std::cout << "Added Points " << score << std::end;
     state.organism->AddPoints(score);
   }
 
@@ -163,6 +169,8 @@ public:
       return current_task_id;
     }
 
+    //Iterates through all tasks, checks if they are solved by this output
+    //If they are that task becomes the current task
     for (size_t i = 0; i < tasks.size(); i++) {
       bool is_completed = tasks[i]->IsSolved(state, output);
       if (is_completed) {
@@ -171,6 +179,9 @@ public:
         break;
       }
     }
+
+    //Checks to see that if ONLY_FIRST_TASK_CREDIT is on that this task is the first one
+    //or has already been done. 
     if(current_task_id != -1 && is_only_task_credit){
       if(!IsOnlyTask(state, current_task_id)){
         current_task_id = -1;
@@ -185,7 +196,7 @@ public:
    * Output: Whether this task was the first type of task performed for this organism
    *
    * Purpose: Checks whether the organism has completed any tasks that were not this one. 
-   * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points. 
+   * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points or credit. 
    */
   bool IsOnlyTask(CPUState &state, int task_done_id){
     bool no_other_tasks = true;
@@ -237,9 +248,11 @@ public:
   }
 };
 
-// The 9 default logic tasks in Avida
-// These are checked top-to-bottom and the reward is given for the first one
-// that matches
+/* 
+ * The 9 default logic tasks in Avida
+ * These are checked top-to-bottom and the reward is given for the first one
+ * that matches
+*/
 const Task
     NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }},
     NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }},
