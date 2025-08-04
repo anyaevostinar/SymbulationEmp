@@ -136,7 +136,7 @@ public:
         double to_steal = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
         double from_host = emp::Min(my_host->GetPoints(), to_steal); //parasite only can steal what's available
         my_host->AddPoints(-from_host); 
-        score = from_host;
+        score += from_host;
       }
       else if (is_parasite == 0 && host_performed) { //Mutualist 
         double to_donate = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
