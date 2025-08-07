@@ -230,7 +230,307 @@ TEST_CASE("IsOnlyTask functionality", "[sgp]") {
   }
 }
 
-TEST_CASE("WhichTask Functionality", "[sgp]"){
+TEST_CASE("ProcessOutput Functionality", "[proc]"){
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(1);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.002);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(0);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  ProgramBuilder not_program;
+  not_program.AddNot();
+
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, not_program.Build(100));
+  world.AddOrgAt(host, 0);
+  GIVEN("Two Inputs"){
+    //These two inputs were chosen because their is no output for any opeartion that is the same as another output
+    host->GetCPU().state.input_buf.push(734856699);
+    host->GetCPU().state.input_buf.push(1177728054);
+
+  
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NOT bitwise opeartions to the binary form of 734856699
+      int not_output = 3560110596;
+      
+        host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,not_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed NOT"){
+        for (int i = 0; i < 9; i++){
+          if(i == 0){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for NOT"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "NOT"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+
+
+      
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NAND bitwise opeartions to the binary form of 734856699 and 1177728054
+      int nand_output = 4261411789;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,nand_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed NAND"){
+        for (int i = 0; i < 9; i++){
+          if(i == 1){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for NAND"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "NAND"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The AND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the AND bitwise opeartions to the binary form of 734856699 and 1177728054
+      int and_output = 33555506;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,and_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed AND"){
+        for (int i = 0; i < 9; i++){
+          if(i == 2){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for AND"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "AND"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The ORN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the ORN bitwise opeartions to the binary form of 734856699 and 1177728054
+      int orn_output = 3150794747;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,orn_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed ORN"){
+        for (int i = 0; i < 9; i++){
+          if(i == 3){
+         REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for ORN"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "ORN"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The OR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the OR bitwise opeartions to the binary form of 734856699 and 1177728054
+        int or_output = 1879029247;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,or_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed OR"){
+        for (int i = 0; i < 9; i++){
+          if(i == 4){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for OR"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "OR"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The ANDN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the ANDN bitwise opeartions to the binary form of 734856699 and 1177728054
+          int andn_output = 701301193;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,andn_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed ANDN"){
+        for (int i = 0; i < 9; i++){
+          if(i == 5){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for ANDN"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "ANDN"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The NOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NOR bitwise opeartions to the binary form of 734856699 and 1177728054
+          int nor_output = 2415938048;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,nor_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed NOR"){
+        for (int i = 0; i < 9; i++){
+          if(i == 6){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for NOR"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "NOR"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The XOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the XOR bitwise opeartions to the binary form of 734856699 and 1177728054
+          int xor_output = 1845473741;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,xor_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed XOR"){
+        for (int i = 0; i < 9; i++){
+          if(i == 7){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for XOR"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "XOR"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The EQU of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the EQU bitwise opeartions to the binary form of 734856699 and 1177728054
+          int equ_output = 2449493554;
+      host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,equ_output,0);
+        THEN("Organism should have 5 points"){
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("Organism should be marked as having performed EQU"){
+        for (int i = 0; i < 9; i++){
+          if(i == 8){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for EQU"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "EQU"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
+    }
+  }
+}
+
+TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
     emp::Random random(1);
   SymConfigSGP config;
   config.SEED(1);
@@ -248,92 +548,93 @@ TEST_CASE("WhichTask Functionality", "[sgp]"){
   emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, not_program.Build(100));
   world.AddOrgAt(host, 0);
   GIVEN("Two Inputs"){
-  host->GetCPU().state.input_buf.push(734856699);
-  host->GetCPU().state.input_buf.push(1177728054);
+    //These two inputs were chosen because their is no output for any opeartion that is the same as another output
+    host->GetCPU().state.input_buf.push(734856699);
+    host->GetCPU().state.input_buf.push(1177728054);
 
- 
+  
 
-  WHEN("WhichTaskDone is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the NOT bitwise opeartions to the binary form of 734856699
-    int not_output = 3560110596;
-    THEN("WhichTaskDone should return a 0"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,not_output,0);
-      REQUIRE(task_id == 0);
+    WHEN("WhichTaskDone is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NOT bitwise opeartions to the binary form of 734856699
+      int not_output = 3560110596;
+      THEN("WhichTaskDone should return a 0"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,not_output,0);
+        REQUIRE(task_id == 0);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NAND bitwise opeartions to the binary form of 734856699 and 1177728054
+      int nand_output = 4261411789;
+      THEN("WhichTaskDone should return a 1"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nand_output,0);
+        REQUIRE(task_id == 1);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The AND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the AND bitwise opeartions to the binary form of 734856699 and 1177728054
+      int and_output = 33555506;
+      THEN("WhichTaskDone should return a 2"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,and_output,0);
+        REQUIRE(task_id == 2);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The ORN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the ORN bitwise opeartions to the binary form of 734856699 and 1177728054
+      int orn_output = 3150794747;
+      THEN("WhichTaskDone should return a 3"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,orn_output,0);
+        REQUIRE(task_id == 3);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The OR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the OR bitwise opeartions to the binary form of 734856699 and 1177728054
+        int or_output = 1879029247;
+      THEN("WhichTaskDone should return a 4"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,or_output,0);
+        REQUIRE(task_id == 4);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The ANDN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the ANDN bitwise opeartions to the binary form of 734856699 and 1177728054
+          int andn_output = 701301193;
+      THEN("WhichTaskDone should return a 5"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,andn_output,0);
+        REQUIRE(task_id == 5);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The NOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NOR bitwise opeartions to the binary form of 734856699 and 1177728054
+          int nor_output = 2415938048;
+      THEN("WhichTaskDone should return a 6"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nor_output,0);
+        REQUIRE(task_id == 6);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The XOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the XOR bitwise opeartions to the binary form of 734856699 and 1177728054
+          int xor_output = 1845473741;
+      THEN("WhichTaskDone should return a 7"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,xor_output,0);
+        REQUIRE(task_id == 7);
+      }
+    }
+
+    WHEN("WhichTaskDone is run on an organism with those inputs, The EQU of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the EQU bitwise opeartions to the binary form of 734856699 and 1177728054
+          int equ_output = 2449493554;
+      THEN("WhichTaskDone should return a 8"){
+        int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,equ_output,0);
+        REQUIRE(task_id == 8);
+      }
     }
   }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the NAND bitwise opeartions to the binary form of 734856699 and 1177728054
-    int nand_output = 4261411789;
-    THEN("WhichTaskDone should return a 1"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nand_output,0);
-      REQUIRE(task_id == 1);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The AND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the AND bitwise opeartions to the binary form of 734856699 and 1177728054
-    int and_output = 33555506;
-    THEN("WhichTaskDone should return a 2"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,and_output,0);
-      REQUIRE(task_id == 2);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The ORN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the ORN bitwise opeartions to the binary form of 734856699 and 1177728054
-    int orn_output = 3150794747;
-    THEN("WhichTaskDone should return a 3"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,orn_output,0);
-      REQUIRE(task_id == 3);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The OR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the OR bitwise opeartions to the binary form of 734856699 and 1177728054
-      int or_output = 1879029247;
-    THEN("WhichTaskDone should return a 4"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,or_output,0);
-      REQUIRE(task_id == 4);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The ANDN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the ANDN bitwise opeartions to the binary form of 734856699 and 1177728054
-        int andn_output = 701301193;
-    THEN("WhichTaskDone should return a 5"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,andn_output,0);
-      REQUIRE(task_id == 5);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The NOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the NOR bitwise opeartions to the binary form of 734856699 and 1177728054
-        int nor_output = 2415938048;
-    THEN("WhichTaskDone should return a 6"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nor_output,0);
-      REQUIRE(task_id == 6);
-    }
-  }
-
-  WHEN("WhichTaskDone is run on an organism with those inputs, The XOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the XOR bitwise opeartions to the binary form of 734856699 and 1177728054
-        int xor_output = 1845473741;
-    THEN("WhichTaskDone should return a 7"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,xor_output,0);
-      REQUIRE(task_id == 7);
-    }
-  }
-
-   WHEN("WhichTaskDone is run on an organism with those inputs, The EQU of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
-    //The result of applying the EQU bitwise opeartions to the binary form of 734856699 and 1177728054
-        int equ_output = 2449493554;
-    THEN("WhichTaskDone should return a 8"){
-      int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,equ_output,0);
-      REQUIRE(task_id == 8);
-    }
-  }
-}
 }
 
 TEST_CASE("Task completion edge cases", "[sgp]") { // IsSolved Edge casses documentation
