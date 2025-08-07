@@ -9,9 +9,7 @@ public:
 
 
   /**
-   * Constructs a new StressHost as an ancestor organism, with either a random
-   * genome or a blank genome that knows how to do a simple task depending on
-   * the config setting RANDOM_ANCESTOR.
+   * Constructs a new StressHost as an ancestor organism with a blank genome that knows how to do a simple task
    */
   StressHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
     emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,

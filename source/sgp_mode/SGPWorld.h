@@ -34,7 +34,6 @@ public:
   }
 
   ~SGPWorld() {
-    
     // The vectors will delete themselves automatically
   }
 
@@ -75,15 +74,6 @@ public:
       total_res += sgp_config->LIMITED_RES_INFLOW();
     }
 
-    // emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
-    // for(size_t i : schedule) {
-    //   if (IsOccupied(i) == false) continue;
-
-    //   //else
-    //   pop[i]->Process(i);
-    //   if (pop[i]->GetDead()) DoDeath(i);
-    // }
-
     for (size_t id = 0; id < GetSize(); id++) {
       if (IsOccupied(id)) {
         auto & org = pop[id];
@@ -92,8 +82,6 @@ public:
       }
     }
 
-
-    //TODO: move to a method
     for (auto org : to_reproduce) {
       if (!org.second.IsValid() || org.first->GetDead())
         continue;

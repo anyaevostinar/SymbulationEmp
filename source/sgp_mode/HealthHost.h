@@ -15,11 +15,9 @@ class HealthHost : public SGPHost {
     int honoray_cycles = 0;
     int starting_updates = 1;
     emp::Ptr<Organism> last_sym = NULL; 
-      /**
-   * Constructs a new SGPHost as an ancestor organism, with either a random
-   * genome or a blank genome that knows how to do a simple task depending on
-   * the config setting RANDOM_ANCESTOR.
-   */
+  /**
+   * Constructs a new SGPHost as an ancestor organism with a blank genome that knows how to do a simple task
+  */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
           emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
           emp::vector<emp::Ptr<Organism>> _syms = {},
@@ -27,7 +25,7 @@ class HealthHost : public SGPHost {
           double _points = 0.0)
       : SGPHost(_random, _world, _config, _intval, _syms, _repro_syms, _points){}
 
-        /**
+  /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
@@ -97,8 +95,6 @@ class HealthHost : public SGPHost {
     void Process(emp::WorldPosition pos) override {
         if (GetDead()) {
             // Handle the case where the host is dead
-            //TODO: can this be handled somewhere else so it doesn't get duplicated?
-            //Or setup function?
             return;
         }
         
@@ -108,30 +104,23 @@ class HealthHost : public SGPHost {
           
           if(sgp_config->DONATION_STEAL_INST()){
             
-            
             if(cycles_given >= 1){
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle += 1;
                 sym_cycle -= 1;
                 cycles_given = 0;
               }
-              
-              
-              //cycles_given = 0;
             }
+
             if(cycles_given <= -1){
-              
-             
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle = 0;
                 sym_cycle += 1;
                 cycles_given = 0;
               }
-              //cycles_given = 0;
-
             }
 
-            //This sequence checks if the symbiont will receive a cycle, if it has not then it checks if
+          //This sequence checks if the symbiont will receive a cycle, if it has not then it checks if
           //one of its bonus updates is left, if so it uses one, if not it ticks up the counter
           //for when it receives said bonus update. 
           //Allows for symbiont to reach steals but to still need them
@@ -145,13 +134,10 @@ class HealthHost : public SGPHost {
 
             if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
               
-              
-              
               if(starting_updates > 0){
                 sym_cycle += 1;
                 starting_updates -= 1;
               }
-              
             }
             if(starting_updates < 1){
               honoray_cycles += 1;
@@ -183,10 +169,7 @@ class HealthHost : public SGPHost {
             }
           }
           }
-
-  
         }
-        
         
         
         //Loops running CPU steps
@@ -214,14 +197,12 @@ class HealthHost : public SGPHost {
                 curSym.Delete();
                 }
                 
-        } // for each sym in syms
-        }   // if org has syms
-
+        } 
+        } 
       }
       GrowOlder();
     }
 
 };
 
-  
 #endif // HEALTHHOST_H

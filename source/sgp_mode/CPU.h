@@ -60,9 +60,7 @@ public:
   }
 
   /**
-   * Constructs a new CPU for an ancestor organism, with either a random genome
-   * or a blank genome that knows how to do a simple task depending on the
-   * config setting RANDOM_ANCESTOR.
+   * Constructs a new CPU for an ancestor organism with a blank genome that knows how to do a simple task
    */
   CPU(emp::Ptr<Organism> organism, emp::Ptr<SGPWorld> world)
       : program(CreateStartProgram(world->GetConfig())),
@@ -144,40 +142,6 @@ public:
    * Purpose: To Get the Program of an Organism from its CPU
    */
   const sgpl::Program<Spec> &GetProgram() const { return program; }
-
-  /**
-   * Input: None
-   *
-   * Output: A length 64 emp bitset which describes the phenotype of organism
-   * such that the ith bit in the bitset marks the completion of task i.
-   *
-   * Purpose: Get the phenotype of an organism
-   */
-  // emp::BitSet<CPU_BITSET_LENGTH> TasksPerformable() const {
-  //   // Make a temporary copy of this CPU so that its state isn't clobbered
-  //   CPU org_cpu = *this;
-  //   org_cpu.Reset();
-  //   // Turn off limited resources for this method
-  //   int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
-  //   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
-
-  //   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
-
-  //   // and then reset it to the previous value
-  //   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
-  //   return *org_cpu.state.used_resources;
-  // }
-
-  /*
-   * Input: The identifier for a specific task
-   *
-   * Output: a boolean representing a program's ability to do a specific task
-   *
-   * Purpose: To return whether or not the organism can perform the given task
-   */
-  // bool CanPerformTask(size_t task_id) const {
-  //   return TasksPerformable().Get(task_id);
-  // }
 
 private:
   /**

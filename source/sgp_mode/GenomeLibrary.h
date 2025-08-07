@@ -64,7 +64,6 @@ public:
 
     sgpl::Program<Spec> program;
     // Set everything to 0 - this makes them no-ops since that's the first
-    // inst in the library
     program.resize(length - size());
     program[0].op_code = Library::GetOpCode("Global Anchor");
     program[0].tag = START_TAG;
@@ -368,7 +367,6 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
   program.AddEqu();
   return program.Build(length);
 }
-
 
 /**
  * Picks what type of starting program should be created based on the config and

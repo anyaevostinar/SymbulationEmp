@@ -73,7 +73,6 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-
 emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
@@ -215,7 +214,6 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   out_file.close();
 }
 
-
 void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());
@@ -231,7 +229,6 @@ void SGPWorld::SetupTasksNodes() {
     });
   }
 }
-
 
 emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {

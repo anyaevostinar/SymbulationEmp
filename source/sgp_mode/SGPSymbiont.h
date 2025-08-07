@@ -29,9 +29,7 @@ protected:
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
-   * Constructs a new SGPSymbiont as an ancestor organism, with either a random
-   * genome or a blank genome that knows how to do a simple task depending on
-   * the config setting RANDOM_ANCESTOR.
+   * Constructs a new SGPSymbiont as an ancestor organism with a blank genome that knows how to do a simple task
    */
   SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
               emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
@@ -111,8 +109,6 @@ public:
 
   void AddPoints(double _in) {
     if(my_host && _in == 5.0) {
-      //Would need to check 5.0 check to check if sym actually did same task as host somehow
-      //my_host->AddPoints(-_in * 0.5);
     }
     points += _in;
   }
@@ -125,6 +121,14 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
+
+  /**
+  * Input: score the symbiont's current taks score, task_id the ID of the task performed 
+  *
+  * Output: Adjusted score after interaction
+  *
+  * Purpose: Handle nutrient mode task interaction, donate or steal
+  */
   float DoTaskInteraction(float score, size_t task_id) {
     if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
@@ -134,14 +138,16 @@ public:
 
       if (is_parasite == 1  && host_performed) { //Parasite
         double to_steal = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
-        double from_host = emp::Min(my_host->GetPoints(), to_steal); //parasite only can steal what's available
+        //parasite only can steal what's available
+        double from_host = emp::Min(my_host->GetPoints(), to_steal);
         my_host->AddPoints(-from_host); 
         score += from_host;
       }
       else if (is_parasite == 0 && host_performed) { //Mutualist 
         double to_donate = sgp_config->NUTRIENT_DONATE_STEAL_PROP() * score;
         my_host->AddPoints(to_donate);
-        score -= to_donate; // sym gets remainder that isn't donated
+        // sym gets remainder that isn't donated
+        score -= to_donate; 
       }
     }
     return score;

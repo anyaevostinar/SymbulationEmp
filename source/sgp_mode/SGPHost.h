@@ -34,9 +34,7 @@ protected:
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
-   * Constructs a new SGPHost as an ancestor organism, with either a random
-   * genome or a blank genome that knows how to do a simple task depending on
-   * the config setting RANDOM_ANCESTOR.
+   * Constructs a new SGPHost as an ancestor organism with a blank genome that knows how to do a simple task
    */
   SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
           emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
@@ -154,10 +152,6 @@ public:
    * processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
-    //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      //cpu.state.used_resources->reset();
-    // Instead of calling Host::Process, do the important stuff here
-    // Our instruction handles reproduction
     if (GetDead()) {
       return;
     }
