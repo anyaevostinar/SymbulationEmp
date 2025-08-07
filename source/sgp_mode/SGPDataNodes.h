@@ -21,9 +21,6 @@ void SGPWorld::CreateDataFiles() {
   SetUpTransmissionFile(sgp_config->FILE_PATH() + "TransmissionRates" +
                         sgp_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());
-  SetupSymDonatedFile(sgp_config->FILE_PATH() + "SymDonated" +
-                      sgp_config->FILE_NAME() + file_ending)
-      .SetTimingRepeat(sgp_config->DATA_INT());
   SetupTasksFile(sgp_config->FILE_PATH() + "Tasks" + sgp_config->FILE_NAME() +
                   file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());
@@ -76,31 +73,6 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-emp::DataFile &SGPWorld::SetupSymDonatedFile(const std::string &filename) {
-  auto &file = SetupFile(filename);
-  file.AddVar(update, "update", "Update");
-  GetSymEarnedDataNode();
-  file.AddTotal(GetSymEarnedDataNode(),
-                "sym_points_earned", "Points earned by symbionts", true);
-  GetSymDonatedDataNode();
-  file.AddFun<size_t>(
-      [&]() {
-        return data_node_sym_donated->GetCount();
-      },
-      "sym_donate_calls", "Number of donate calls");
-  file.AddTotal(GetSymDonatedDataNode(),
-                "sym_points_donated", "Points donated by symbionts", true);
-  GetSymStolenDataNode();
-  file.AddFun<size_t>(
-      [&]() {
-        return data_node_sym_stolen->GetCount();
-      },
-      "sym_steal_calls", "Number of steal calls");
-  file.AddTotal(GetSymStolenDataNode(),
-                "sym_points_stolen", "Points stolen by symbionts", true);
-  file.PrintHeaderKeys();
-  return file;
-}
 
 emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
   auto &file = SetupFile(filename);
@@ -260,26 +232,6 @@ void SGPWorld::SetupTasksNodes() {
   }
 }
 
-emp::DataMonitor<double> &SGPWorld::GetSymEarnedDataNode() {
-  if (!data_node_sym_earned) {
-    data_node_sym_earned.New();
-  }
-  return *data_node_sym_earned;
-}
-
-emp::DataMonitor<double> &SGPWorld::GetSymDonatedDataNode() {
-  if (!data_node_sym_donated) {
-    data_node_sym_donated.New();
-  }
-  return *data_node_sym_donated;
-}
-
-emp::DataMonitor<double> &SGPWorld::GetSymStolenDataNode() {
-  if (!data_node_sym_stolen) {
-    data_node_sym_stolen.New();
-  }
-  return *data_node_sym_stolen;
-}
 
 emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {

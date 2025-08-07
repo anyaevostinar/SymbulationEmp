@@ -5,6 +5,7 @@
 #include "CPUState.h"
 #include <atomic>
 #include <string>
+#include <iostream>
 
 
 /**
@@ -27,9 +28,14 @@ public:
   
   ~Task(){}
 
-  void MarkPerformed(CPUState &state, uint32_t output, size_t task_id);
-
-  float CheckOutput(CPUState &state, uint32_t output) {
+  /**
+   * Input: The current CPU state, the output to check against
+   *
+   * Output: Boolean for if this task was solved
+   *
+   * Purpose: Checks whether the organism has completed this task.
+   */
+  bool IsSolved(CPUState &state, uint32_t output) {
     for (size_t i = 0; i < state.input_buf.size(); i++) {
 
       
@@ -46,10 +52,10 @@ public:
         continue;
 
       if (task_fun(inputs) == output) {
-        return value;
+        return true;
       }
     }
-    return 0;
+    return false;
   }
 };
 
@@ -60,27 +66,23 @@ class TaskSet {
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_host;
   emp::vector<emp::Ptr<std::atomic<size_t>>> n_succeeds_sym;
 
-  float MarkPerformedTask(CPUState &state, uint32_t output, size_t task_id, float score) {
-    if(!state.organism->IsHost()) {
-      //currently only symbionts have special interactions on tasks, such as nutrient mode
-      score = state.organism->DoTaskInteraction(score, task_id);
-    } else if (state.organism->IsHost()){
-      score = state.world.Cast<SymWorld>()->PullResources(score);
-    }
-    if (score == 0.0) {
-      return score;
-    }
-
-    tasks[task_id]->MarkPerformed(state, output, task_id);
-
+  /**
+   * Input: The current CPU state, the id of the completed task
+   *
+   * Output: None
+   *
+   * Purpose: Marks the organism as having completed the task and increases this task's data counter by 1 for its
+   * organism type. 
+   */
+  void MarkPerformedTask(CPUState &state, size_t task_id) {
+    state.tasks_performed->Set(task_id);
+   
     if (state.organism->IsHost())
       ++*n_succeeds_host[task_id];
     else{
       ++*n_succeeds_sym[task_id];
     }
-      
 
-    return score;
   }
 
 public:
@@ -118,30 +120,93 @@ public:
     }
   }
 
+
   /**
-   * Input: The current CPU state, the output to check against
+   * Input: The current CPU state, the output to check against, whehter ONLY_FIRST_TASK_CREDIT is on
    *
-   * Output: The score that the organism earned from any completed tasks, or 0
-   * if no tasks were completed.
+   * Output: None
+   *
+   * Purpose: Checks whether any tasks were completed and if so marks them as completing for reproductive purposes
+   * and awards the proper amount of points.  
+   */
+  void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
+
+    //Finds which task has been completed, if none have then end method here
+    int task_done_id = WhichTaskDone(state, output, is_only_task_credit);
+    if(task_done_id == -1){
+      return;
+    }
+
+    //For reproductive/infection purposes mark this organism as having done the completed task. 
+    MarkPerformedTask(state, task_done_id);
+
+    //Grabs score for this task, checks to see if some points should be stolen and if there are
+    //enough resources in the world. Then adds the points to the organism. 
+    int score = tasks[task_done_id]->value;
+    if(!state.organism->IsHost()) {
+      //currently only symbionts have special interactions on tasks, such as nutrient mode
+      score = state.organism->DoTaskInteraction(score, task_done_id);
+    } 
+    else if (state.organism->IsHost()){
+      score = state.world.Cast<SymWorld>()->PullResources(score);
+    }
+    state.organism->AddPoints(score);
+  }
+
+  /**
+   * Input: The current CPU state, the output to check against, whehter ONLY_FIRST_TASK_CREDIT is on
+   *
+   * Output: the id of the completed task, if one was completed.
    *
    * Purpose: Checks whether a certain output produced by the organism completes
    * any tasks, and updates necessary state fields if so.
    */
-  float CheckTasks(CPUState &state, uint32_t output) {
+  int WhichTaskDone(CPUState &state, uint32_t output, bool is_only_task_credit) {
     // Check output tasks
     // Special case so they can't cheat at e.g. NOR (0110, 1011 --> 0)
+    int current_task_id = -1;
     if (output == 0 || output == 1) {
-      return 0.0;
+      return current_task_id;
     }
 
+    //Iterates through all tasks, checks if they are solved by this output
+    //If they are that task becomes the current task
     for (size_t i = 0; i < tasks.size(); i++) {
-      float score = tasks[i]->CheckOutput(state, output);
-      if (score > 0.0) {
-        score = MarkPerformedTask(state, output, i, score);
-        return score;
+      bool is_completed = tasks[i]->IsSolved(state, output);
+      if (is_completed) {
+        
+        current_task_id = i;
+        break;
       }
     }
-    return 0.0f;
+
+    //Checks to see that if ONLY_FIRST_TASK_CREDIT is on that this task is the first one
+    //or has already been done. 
+    if(current_task_id != -1 && is_only_task_credit){
+      if(!IsOnlyTask(state, current_task_id)){
+        current_task_id = -1;
+      }
+    }
+    return current_task_id;
+  }
+
+  /**
+   * Input: The current CPU state, the id of the completed task
+   *
+   * Output: Whether this task was the first type of task performed for this organism
+   *
+   * Purpose: Checks whether the organism has completed any tasks that were not this one. 
+   * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points or credit. 
+   */
+  bool IsOnlyTask(CPUState &state, int task_done_id){
+    bool no_other_tasks = true;
+    for (size_t i = 0; i < tasks.size(); i++) {
+      if(state.tasks_performed->Get(i) == 1 && i != task_done_id){
+        no_other_tasks = false;
+        break;
+      }
+    }
+    return no_other_tasks;
   }
 
   size_t NumTasks() const { return tasks.size(); }
@@ -183,9 +248,11 @@ public:
   }
 };
 
-// The 9 default logic tasks in Avida
-// These are checked top-to-bottom and the reward is given for the first one
-// that matches
+/* 
+ * The 9 default logic tasks in Avida
+ * These are checked top-to-bottom and the reward is given for the first one
+ * that matches
+*/
 const Task
     NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }},
     NAND = {"NAND", 2, 5.0, [](auto &x) { return ~(x[0] & x[1]); }},

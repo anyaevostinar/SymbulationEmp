@@ -34,7 +34,6 @@ TEST_CASE("Correct data files are created", "[sgp]") {
     
     THEN("All correct data files are created"){
       REQUIRE(std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
-      REQUIRE(std::filesystem::exists("SymDonatedDataTest_SEED2.data"));
       REQUIRE(std::filesystem::exists("TasksDataTest_SEED2.data"));
       REQUIRE(std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
     }
@@ -55,22 +54,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
           REQUIRE(str == "100,1,0");
         }
       }
-    std::ifstream file2("SymDonatedDataTest_SEED2.data");
-    std::string str2; 
-    THEN("The SymDonated File should contain 3 lines"){
-      std::getline(file2, str2);
-        THEN("The first should be a header"){
-          REQUIRE(str2 == "update,sym_points_earned,sym_donate_calls,sym_points_donated,sym_steal_calls,sym_points_stolen");
-        }
-        std::getline(file2, str2);
-        THEN("The second should be all zeroes because there are no symbionts to steal"){
-          REQUIRE(str2 == "0,0,0,0,0,0");
-        }
-        std::getline(file2, str2);
-        THEN("The third should be be at 100 updates and everything else be zero as there are no symbionts"){
-          REQUIRE(str2 == "100,0,0,0,0,0");
-        }
-    }
+    
 
     std::ifstream file3("TasksDataTest_SEED2.data");
     std::string str3; 
@@ -130,7 +114,6 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       
       THEN("All correct data files are created"){
         REQUIRE(std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
-        REQUIRE(std::filesystem::exists("SymDonatedDataTest_SEED2.data"));
         REQUIRE(std::filesystem::exists("TasksDataTest_SEED2.data"));
         REQUIRE(std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
       }
@@ -151,22 +134,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
             REQUIRE(str == "100,2,2");
           }
         }
-      std::ifstream file2("SymDonatedDataTest_SEED2.data");
-      std::string str2; 
-      THEN("The SymDonated File should contain 3 lines"){
-        std::getline(file2, str2);
-          THEN("The first should be a header"){
-            REQUIRE(str2 == "update,sym_points_earned,sym_donate_calls,sym_points_donated,sym_steal_calls,sym_points_stolen");
-          }
-          std::getline(file2, str2);
-          THEN("The second should be all zeroes because the symbionts have earned no points yet"){
-            REQUIRE(str2 == "0,0,0,0,0,0");
-          }
-          std::getline(file2, str2);
-          THEN("The third should be be at 100 updates the symbionts should have earend 20 points now"){
-            REQUIRE(str2 == "100,35,0,0,0,0");
-          }
-      }
+    
 
       std::ifstream file3("TasksDataTest_SEED2.data");
       std::string str3; 
@@ -204,13 +172,11 @@ TEST_CASE("Correct data files are created", "[sgp]") {
 
 
       std::filesystem::remove("OrganismCountsDataTest_SEED2.data");
-      std::filesystem::remove("SymDonatedDataTest_SEED2.data");
       std::filesystem::remove("TasksDataTest_SEED2.data");
       std::filesystem::remove("TransmissionRatesDataTest_SEED2.data");
 
       THEN("All previously created data files have been removed"){
         REQUIRE(!std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
-        REQUIRE(!std::filesystem::exists("SymDonatedDataTest_SEED2.data"));
         REQUIRE(!std::filesystem::exists("TasksDataTest_SEED2.data"));
         REQUIRE(!std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
       }

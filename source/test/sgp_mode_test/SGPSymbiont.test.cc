@@ -90,7 +90,7 @@ TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
     double result = sym->DoTaskInteraction(sym_score, 0);
 
     THEN("Symbiont receives expected amount and host loses the amount") {
-      REQUIRE(result == expected_transfer);
+      REQUIRE(result == expected_transfer + sym_score);
       REQUIRE(host->GetPoints() == initial_host_points - expected_transfer);
     }
   }
