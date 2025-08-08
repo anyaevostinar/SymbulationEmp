@@ -31,11 +31,15 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       world.Update();
     }
     
-    
+    world.WriteTaskCombinationsFile("EndingTaskCombinationsDataTest_SEED2.data");
+    world.WriteOrgReproHistFile("OrgReproHistDataTest_SEED2.data");
     THEN("All correct data files are created"){
       REQUIRE(std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
       REQUIRE(std::filesystem::exists("TasksDataTest_SEED2.data"));
       REQUIRE(std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
+
+      REQUIRE(std::filesystem::exists("EndingTaskCombinationsDataTest_SEED2.data"));
+      REQUIRE(std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
     }
     // Create a text string, which is used to output the text file
       std::ifstream file("OrganismCountsDataTest_SEED2.data");
@@ -89,6 +93,20 @@ TEST_CASE("Correct data files are created", "[sgp]") {
           REQUIRE(str4 == "100,0,0,0,0");
         }
     }
+
+    std::ifstream file5("EndingTaskCombinationsDataTest_SEED2.data");
+    std::string str5; 
+    THEN("The EndingTaskCombinations File should contain 2 lines"){
+      std::getline(file5, str5);
+        THEN("The first should be a header"){
+          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+        }
+        std::getline(file5, str5);
+        THEN("The second should be 1 organism completing soley the NOT task"){
+          REQUIRE(str5 == "000000001,1,0,0,0");
+        }
+        
+    }
   }
 
     WHEN("The World is ran for 200 Updates with 2 hosts and 1 symbiont"){
@@ -112,10 +130,15 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       }
       
       
+      world.WriteTaskCombinationsFile("EndingTaskCombinationsDataTest_SEED2.data");
+      world.WriteOrgReproHistFile("OrgReproHistDataTest_SEED2.data");
       THEN("All correct data files are created"){
         REQUIRE(std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
         REQUIRE(std::filesystem::exists("TasksDataTest_SEED2.data"));
         REQUIRE(std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
+
+        REQUIRE(std::filesystem::exists("EndingTaskCombinationsDataTest_SEED2.data"));
+        REQUIRE(std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
       }
       // Create a text string, which is used to output the text file
         std::ifstream file("OrganismCountsDataTest_SEED2.data");
@@ -170,15 +193,35 @@ TEST_CASE("Correct data files are created", "[sgp]") {
           }
       }
 
+      std::ifstream file5("EndingTaskCombinationsDataTest_SEED2.data");
+      std::string str5; 
+      THEN("The EndingTaskCombinations File should contain 2 lines"){
+      std::getline(file5, str5);
+        THEN("The first should be a header"){
+          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+        }
+        std::getline(file5, str5);
+        THEN("The second should be 4 organisms completing soley the NOT task, 2 hosts and 2 symbionts"){
+          REQUIRE(str5 == "000000001,2,2,0,0");
+        }
+        
+    }
+
 
       std::filesystem::remove("OrganismCountsDataTest_SEED2.data");
       std::filesystem::remove("TasksDataTest_SEED2.data");
       std::filesystem::remove("TransmissionRatesDataTest_SEED2.data");
 
+      std::filesystem::remove("EndingTaskCombinationsDataTest_SEED2.data");
+      std::filesystem::remove("OrgReproHistDataTest_SEED2.data");
+
       THEN("All previously created data files have been removed"){
         REQUIRE(!std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
         REQUIRE(!std::filesystem::exists("TasksDataTest_SEED2.data"));
         REQUIRE(!std::filesystem::exists("TransmissionRatesDataTest_SEED2.data"));
+
+        REQUIRE(!std::filesystem::exists("EndingTaskCombinationsDataTest_SEED2.data"));
+        REQUIRE(!std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
       }
 
     }
