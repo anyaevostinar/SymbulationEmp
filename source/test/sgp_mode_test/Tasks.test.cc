@@ -230,7 +230,7 @@ TEST_CASE("IsOnlyTask functionality", "[sgp]") {
   }
 }
 
-TEST_CASE("ProcessOutput Functionality", "[proc]"){
+TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp]"){
   emp::Random random(1);
   SymConfigSGP config;
   config.SEED(1);
@@ -667,6 +667,64 @@ TEST_CASE("Task completion edge cases", "[sgp]") { // IsSolved Edge casses docum
       // Test with output 1
       bool is_solved_1 = not_task.IsSolved(host->GetCPU().state, 1);
       REQUIRE(is_solved_1 == false);
+    }
+  }
+}
+
+TEST_CASE("ProcessOutput Functionality with LogicTasksDiff", "[sgp]"){
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(1);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.002);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
+  config.ONLY_FIRST_TASK_CREDIT(0);
+  config.DIFFERENT_TASK_VALUES(1);
+
+  SGPWorld world(random, &config, LogicTasksDiff);
+
+  ProgramBuilder not_program;
+  not_program.AddNot();
+
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, not_program.Build(100));
+  world.AddOrgAt(host, 0);
+  GIVEN("Two Inputs"){
+    //These two inputs were chosen because there is no output for any operation that is the same as another output
+    host->GetCPU().state.input_buf.push(734856699);
+    host->GetCPU().state.input_buf.push(1177728054);
+
+  
+
+    WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
+      //The result of applying the NOT bitwise opeartions to the binary form of 734856699
+      long not_output = 3560110596;
+      
+        host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,not_output,0);
+        THEN("Organism should have 2 points"){
+          REQUIRE(host->GetPoints() == 2);
+        }
+        THEN("Organism should be marked as having performed NOT"){
+        for (int i = 0; i < 9; i++){
+          if(i == 0){
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 1);
+          }
+          else{
+          REQUIRE(host->GetCPU().state.tasks_performed->Get(i) == 0);
+          }
+          }
+        }
+        THEN("World data should have marked 1 completion for NOT"){
+          for (auto data : world.GetTaskSet()) {
+              if(data.task.name == "NOT"){
+          
+              REQUIRE(data.n_succeeds_host == 1);
+              }
+              else{
+                REQUIRE(data.n_succeeds_host == 0);
+              }
+          }
+        }
     }
   }
 }

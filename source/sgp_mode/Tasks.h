@@ -262,12 +262,29 @@ const Task
     ANDN = {"ANDN", 2,        5.0, [](auto &x) { return x[0] & ~x[1]; }},
     NOR = {"NOR", 2,        5.0, [](auto &x) { return ~(x[0] | x[1]); }},
     XOR = {"XOR", 2,        5.0, [](auto &x) { return x[0] ^ x[1]; }},
-    EQU = {"EQU", 2,        5.0, [](auto &x) { return ~(x[0] ^ x[1]); }};
+    EQU = {"EQU", 2,        5.0, [](auto &x) { return ~(x[0] ^ x[1]); }},
+    NOT_2 = {"NOT", 1, 2.0, [](auto &x) { return ~x[0]; }},
+    NAND_2 = {"NAND", 2, 2.0, [](auto &x) { return ~(x[0] & x[1]); }},
+    AND_4 = {"AND", 2, 4.0, [](auto &x) { return x[0] & x[1]; }},
+    ORN_4 = {"ORN", 2, 4.0, [](auto &x) { return x[0] | ~x[1]; }},
+    OR_6 = {"OR", 2, 6.0, [](auto &x) { return x[0] | x[1]; }},
+    ANDN_6 = {"ANDN", 2,        6.0, [](auto &x) { return x[0] & ~x[1]; }},
+    NOR_8 = {"NOR", 2,        8.0, [](auto &x) { return ~(x[0] | x[1]); }},
+    XOR_8 = {"XOR", 2,        8.0, [](auto &x) { return x[0] ^ x[1]; }},
+    EQU_10 = {"EQU", 2,        10.0, [](auto &x) { return ~(x[0] ^ x[1]); }};
+
 const TaskSet LogicTasks{
     emp::NewPtr<Task>(NOT), emp::NewPtr<Task>(NAND),
     emp::NewPtr<Task>(AND), emp::NewPtr<Task>(ORN),
     emp::NewPtr<Task>(OR),  emp::NewPtr<Task>(ANDN),
     emp::NewPtr<Task>(NOR), emp::NewPtr<Task>(XOR),
     emp::NewPtr<Task>(EQU)};
+
+const TaskSet LogicTasksDiff{
+  emp::NewPtr<Task>(NOT_2), emp::NewPtr<Task>(NAND_2),
+  emp::NewPtr<Task>(AND_4), emp::NewPtr<Task>(ORN_4),
+  emp::NewPtr<Task>(OR_6),  emp::NewPtr<Task>(ANDN_6),
+  emp::NewPtr<Task>(NOR_8), emp::NewPtr<Task>(XOR_8),
+  emp::NewPtr<Task>(EQU_10)};
 
 #endif

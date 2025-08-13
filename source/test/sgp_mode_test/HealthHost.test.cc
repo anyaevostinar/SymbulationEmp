@@ -29,6 +29,7 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
 
   config.OUSTING(1);
 
+  size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 
   emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNotProgram(100));
