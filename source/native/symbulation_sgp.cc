@@ -33,29 +33,12 @@ int symbulation_main(int argc, char *argv[]) {
     exit(1);
   }
 
-  // stress hard-coded transmission modes
-  if (config.INTERACTION_MECHANISM() == 2) {
-    //TODO: remove this since it should just be set correctly
-    if (config.SYMBIONT_TYPE() == 0) {
-      // mutualists
-      config.VERTICAL_TRANSMISSION(1.0);
-      config.HORIZ_TRANS(0);
-    }
-    else if (config.SYMBIONT_TYPE() == 1) {
-      // parasites
-      config.VERTICAL_TRANSMISSION(0);
-      config.HORIZ_TRANS(1);
-    }
-  }
-
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  TaskSet task_set;
+  TaskSet task_set = LogicTasks;
   if(config.DIFFERENT_TASK_VALUES()) {
     task_set = LogicTasksDiff;
-  } else {
-    task_set = LogicTasks;
   }
 
   SGPWorld world(random, &config, task_set);
