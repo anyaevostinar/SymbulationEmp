@@ -92,7 +92,7 @@ public:
       return "SGPHost";
   }
 
-  bool operator<(const Organism &other) const {
+  bool operator<(const Organism &other) const override {
     if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
       return cpu.GetProgram() < sgp->cpu.GetProgram();
     } else {
@@ -100,7 +100,7 @@ public:
     }
   }
 
-  bool operator==(const Organism &other) const {
+  bool operator==(const Organism &other) const override {
     if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
       return cpu.GetProgram() == sgp->cpu.GetProgram();
     } else {
@@ -153,7 +153,7 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
-  void Process(emp::WorldPosition pos) {
+  void Process(emp::WorldPosition pos) override {
     //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
       //cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
@@ -191,7 +191,7 @@ public:
   }
 
   // Prototype for this host's reproduce method
-  emp::Ptr<Organism> Reproduce();
+  emp::Ptr<Organism> Reproduce() override;
 
   /**
    * Input: None.
@@ -200,7 +200,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew() {
+  emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     
@@ -214,7 +214,7 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
-  void Mutate() {
+  void Mutate() override {
     Host::Mutate();
 
     cpu.Mutate();

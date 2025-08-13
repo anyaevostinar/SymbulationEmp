@@ -72,7 +72,7 @@ class HealthHost : public SGPHost {
      *
      * Purpose: For symbionts to check if their host already owes cycles.
      */
-    int GetCyclesGiven(){
+    int GetCyclesGiven() override {
       return cycles_given;
     }
 

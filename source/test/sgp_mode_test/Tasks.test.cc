@@ -256,7 +256,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOT bitwise opeartions to the binary form of 734856699
-      int not_output = 3560110596;
+      long not_output = 3560110596;
       
         host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,not_output,0);
         THEN("Organism should have 5 points"){
@@ -290,7 +290,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NAND bitwise opeartions to the binary form of 734856699 and 1177728054
-      int nand_output = 4261411789;
+      long nand_output = 4261411789;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,nand_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -320,7 +320,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The AND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the AND bitwise opeartions to the binary form of 734856699 and 1177728054
-      int and_output = 33555506;
+      long and_output = 33555506;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,and_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -350,7 +350,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The ORN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the ORN bitwise opeartions to the binary form of 734856699 and 1177728054
-      int orn_output = 3150794747;
+      long orn_output = 3150794747;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,orn_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -380,7 +380,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The OR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the OR bitwise opeartions to the binary form of 734856699 and 1177728054
-        int or_output = 1879029247;
+      long or_output = 1879029247;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,or_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -410,7 +410,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The ANDN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the ANDN bitwise opeartions to the binary form of 734856699 and 1177728054
-          int andn_output = 701301193;
+      long andn_output = 701301193;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,andn_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -440,7 +440,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOR bitwise opeartions to the binary form of 734856699 and 1177728054
-          int nor_output = 2415938048;
+      long nor_output = 2415938048;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,nor_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -470,7 +470,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The XOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the XOR bitwise opeartions to the binary form of 734856699 and 1177728054
-          int xor_output = 1845473741;
+      long xor_output = 1845473741;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,xor_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -500,7 +500,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 
     WHEN("ProcessOutput is run on an organism with those inputs, The EQU of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the EQU bitwise opeartions to the binary form of 734856699 and 1177728054
-          int equ_output = 2449493554;
+      long equ_output = 2449493554;
       host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,equ_output,0);
         THEN("Organism should have 5 points"){
           REQUIRE(host->GetPoints() == 5);
@@ -531,7 +531,7 @@ TEST_CASE("ProcessOutput Functionality", "[proc]"){
 }
 
 TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
-    emp::Random random(1);
+  emp::Random random(1);
   SymConfigSGP config;
   config.SEED(1);
   config.MUTATION_RATE(0.0);
@@ -556,7 +556,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOT bitwise opeartions to the binary form of 734856699
-      int not_output = 3560110596;
+      long not_output = 3560110596;
       THEN("WhichTaskDone should return a 0"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,not_output,0);
         REQUIRE(task_id == 0);
@@ -565,7 +565,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NAND bitwise opeartions to the binary form of 734856699 and 1177728054
-      int nand_output = 4261411789;
+      long nand_output = 4261411789;
       THEN("WhichTaskDone should return a 1"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nand_output,0);
         REQUIRE(task_id == 1);
@@ -574,7 +574,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The AND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the AND bitwise opeartions to the binary form of 734856699 and 1177728054
-      int and_output = 33555506;
+      long and_output = 33555506;
       THEN("WhichTaskDone should return a 2"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,and_output,0);
         REQUIRE(task_id == 2);
@@ -583,7 +583,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The ORN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the ORN bitwise opeartions to the binary form of 734856699 and 1177728054
-      int orn_output = 3150794747;
+      long orn_output = 3150794747;
       THEN("WhichTaskDone should return a 3"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,orn_output,0);
         REQUIRE(task_id == 3);
@@ -592,7 +592,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The OR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the OR bitwise opeartions to the binary form of 734856699 and 1177728054
-        int or_output = 1879029247;
+      long or_output = 1879029247;
       THEN("WhichTaskDone should return a 4"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,or_output,0);
         REQUIRE(task_id == 4);
@@ -601,7 +601,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The ANDN of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the ANDN bitwise opeartions to the binary form of 734856699 and 1177728054
-          int andn_output = 701301193;
+      long andn_output = 701301193;
       THEN("WhichTaskDone should return a 5"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,andn_output,0);
         REQUIRE(task_id == 5);
@@ -610,7 +610,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The NOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOR bitwise opeartions to the binary form of 734856699 and 1177728054
-          int nor_output = 2415938048;
+      long nor_output = 2415938048;
       THEN("WhichTaskDone should return a 6"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,nor_output,0);
         REQUIRE(task_id == 6);
@@ -619,7 +619,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The XOR of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the XOR bitwise opeartions to the binary form of 734856699 and 1177728054
-          int xor_output = 1845473741;
+      long xor_output = 1845473741;
       THEN("WhichTaskDone should return a 7"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,xor_output,0);
         REQUIRE(task_id == 7);
@@ -628,7 +628,7 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
 
     WHEN("WhichTaskDone is run on an organism with those inputs, The EQU of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the EQU bitwise opeartions to the binary form of 734856699 and 1177728054
-          int equ_output = 2449493554;
+      long equ_output = 2449493554;
       THEN("WhichTaskDone should return a 8"){
         int task_id = host->GetCPU().state.world->GetTaskSet().WhichTaskDone(host->GetCPU().state,equ_output,0);
         REQUIRE(task_id == 8);

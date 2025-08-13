@@ -100,9 +100,13 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   * Output: Whether host and symbiont parent are able to accomplish
   * at least one task in common
   *
-  * Purpose: To check for task matching before vertical transmission
+  * Purpose: To check for task matching before transmission
   */
 bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
+
+  if(sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
+    return true;
+  }
 
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks;
   emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
