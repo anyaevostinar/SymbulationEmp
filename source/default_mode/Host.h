@@ -429,6 +429,25 @@ public:
    */
   void AddPoints(double _in) {points += _in;}
 
+  /**
+   * Input: The symbiont index position to remove (remember it should be 1-indexed)
+   * 
+   * Output: The removed symbiont or null if invalid index given
+   * 
+   * Purpose: To allow removal of a symbiont
+   */
+  emp::Ptr<Organism> RemoveSymbiont(int index) {
+    int num_syms = syms.size();
+    if(index < 1 || index > num_syms) {
+      return nullptr;
+    } else {
+      emp::Ptr<Organism> to_remove = syms[index-1];
+      syms.erase(syms.begin() + (index-1)); 
+      to_remove->SetHost(nullptr);
+      return to_remove;
+    }
+
+  }
 
   /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
@@ -687,7 +706,7 @@ public:
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
-          //sym position should have host index as id and
+          //sym position should have host index as pop_id and
           //position in syms list + 1 as index (0 as fls index)
           emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
           if(!cur_sym->GetDead()){

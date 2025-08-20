@@ -71,6 +71,9 @@ public:
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
+        //Symbionts get to escape  during a stress death event
+        //TODO: sym do birth for each symbiont
+        //Make sure to remove them from this host
         SetDead();
       }
     }

@@ -156,6 +156,9 @@ class Organism {
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<Organism> RemoveSymbiont(int _in)
+   {std::cout << "RemoveSymbiont called from Organism" << std::endl;
+     throw "Organism method called!";}
   virtual int AddSymbiont(emp::Ptr<Organism> _in)
    {std::cout << "AddSymbiont called from Organism" << std::endl;
      throw "Organism method called!";}

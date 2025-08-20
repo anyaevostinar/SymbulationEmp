@@ -43,7 +43,6 @@ TEST_CASE("GetDominantInfo", "[sgp]") {
 TEST_CASE("Baseline function", "[sgp]") {
   emp::Random random(61);
   SymConfigSGP config;
-  config.FREE_LIVING_SYMS(1);
   config.GRID_X(2);
   config.GRID_Y(2);
 
@@ -54,15 +53,13 @@ TEST_CASE("Baseline function", "[sgp]") {
   emp::Ptr<SGPHost> infected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
   emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
   emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
-  emp::Ptr<SGPSymbiont> free_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
 
   infected_host->AddSymbiont(hosted_symbiont);
   world.AddOrgAt(infected_host, 0);
   world.AddOrgAt(uninfected_host, 1);
-  world.AddOrgAt(free_symbiont, emp::WorldPosition(0, 0));
   
   THEN("Organisms can be added to the world") {
-    REQUIRE(world.GetNumOrgs() == 3);
+    REQUIRE(world.GetNumOrgs() == 2);
   }
 
   for (int i = 0; i < 10; i++) {
@@ -70,7 +67,7 @@ TEST_CASE("Baseline function", "[sgp]") {
   }
 
   THEN("Organisms persist and are managed by the world") {
-    REQUIRE(world.GetNumOrgs() == 3);
+    REQUIRE(world.GetNumOrgs() == 2);
   }
 }
 
@@ -450,4 +447,51 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   world.Update(); // clean up the graveyard
 
   REQUIRE(world.GetGraveyard().size() == 0);
+}
+
+TEST_CASE("SymDoBirth can handle transfering Stress Symbiont during stress event", "[sgp]") {
+  GIVEN("An SGPWorld with no mutation"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(2);
+    config.INTERACTION_MECHANISM(STRESS);
+    config.SYMBIONT_TYPE(PARASITE);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.000);
+    config.TRACK_PARENT_TASKS(1);
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(2, 2);
+
+    emp::Ptr<StressHost> old_host = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<StressHost> new_host = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+
+    //New host and symbiont have performed NOT
+    //(not old host to prevent symbiont from trying to reinfect it)
+    new_host->GetCPU().state.tasks_performed->Set(0);
+    symbiont->GetCPU().state.tasks_performed->Set(0);
+
+    old_host->AddSymbiont(symbiont);
+    world.AddOrgAt(old_host, emp::WorldPosition(0,0));
+    world.AddOrgAt(new_host, emp::WorldPosition(1,0));
+
+    REQUIRE(old_host->GetSymbionts().size() == 1);
+    REQUIRE(new_host->GetSymbionts().size() == 0);
+    REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == old_host);
+
+    WHEN("SymDoBirth is called with an existing symbiont") {
+      //call symdobirth with the existing symbiont
+      old_host->RemoveSymbiont(1); //Need to remove manually
+      //WorldPosition index is 1-indexed location in host and pop_id is host's location in the world
+      emp::WorldPosition location = world.SymDoBirth(symbiont, emp::WorldPosition(1,0));
+      THEN("That symbiont transfers to a new host successfully") {
+        REQUIRE(location.GetIndex() == 1);
+        REQUIRE(location.GetPopID() ==1);
+        REQUIRE(old_host->GetSymbionts().size() == 0);
+        REQUIRE(new_host->GetSymbionts().size() == 1);
+        REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == new_host);
+      }
+    }
+
+  }
 }

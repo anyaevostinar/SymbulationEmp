@@ -502,6 +502,51 @@ TEST_CASE("Host Reproduce", "[default]"){
     random.Delete();
 }
 
+TEST_CASE("RemoveSymbiont", "[default]") {
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 0;
+
+  GIVEN("A Host with a single symbiont") {
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+    size_t pos = host->AddSymbiont(symbiont);
+    REQUIRE(host->GetSymbionts().size() == 1);
+    REQUIRE(symbiont->GetHost() == host);
+
+    WHEN("RemoveSymbiont is called with correct index"){
+      emp::Ptr<Organism> removed_sym = host->RemoveSymbiont(1);
+
+      THEN("Symbiont correctly removed") {
+        REQUIRE(host->GetSymbionts().size() == 0);
+        REQUIRE(symbiont->GetHost() == nullptr);
+        REQUIRE(removed_sym == symbiont);
+      }
+    }
+
+    WHEN("RemoveSymbiont is called with invalid index") {
+      emp::Ptr<Organism> null_sym = host->RemoveSymbiont(2);
+
+      THEN("RemoveSymbiont returns null pointer and nothing changes") {
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(symbiont->GetHost() == host);
+        REQUIRE(null_sym == nullptr);
+      }
+    }
+
+    WHEN("RemoveSymbiont is called with index 0") {
+      emp::Ptr<Organism> null_sym = host->RemoveSymbiont(0);
+
+      THEN("RemoveSymbiont returns null pointer and nothing changes") {
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(symbiont->GetHost() == host);
+        REQUIRE(null_sym == nullptr);
+      }
+    }
+  }
+}
+
 TEST_CASE("AddSymbiont", "[default]"){
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
   SymConfigBase config;
