@@ -368,6 +368,13 @@ public:
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+      if(new_org->HasSym()) {
+        //Sometimes we add the symbionts before putting the organism into the world, which messes up the syms' location
+        for(size_t j = 0; j < new_org->GetSymbionts().size(); j++){
+          emp::Ptr<Organism> cur_sym = new_org->GetSymbionts()[j];
+          cur_sym->SetLocation(emp::WorldPosition(j+1, pos.GetIndex()));
+        }
+      }
       
 
     } else { //if it is not a host, then add it to the sym population

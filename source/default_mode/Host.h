@@ -500,6 +500,7 @@ public:
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
+       _in->SetLocation(emp::WorldPosition(syms.size(), location.GetIndex()));
       return syms.size();
     } else {
       _in.Delete();
