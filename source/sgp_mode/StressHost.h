@@ -72,8 +72,11 @@ public:
       }
       if (random->P(death_chance)) {
         //Symbionts get to escape  during a stress death event
-        //TODO: sym do birth for each symbiont
-        //Make sure to remove them from this host
+        for (size_t j = 0; j < syms.size(); j++) {
+          emp::Ptr<Organism> cur_sym = syms[j];
+          RemoveSymbiont(j+1); //RemoveSymbiont uses 1-indexed value
+          my_world->SymDoBirth(cur_sym, emp::WorldPosition(j+1, pos.GetIndex()));
+        }
         SetDead();
       }
     }
