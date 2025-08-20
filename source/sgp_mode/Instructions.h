@@ -84,8 +84,7 @@ INST(Reproduce, {
   if (state.organism->GetPoints() > points) {
     state.organism->AddPoints(-points);
     state.in_progress_repro = state.world->to_reproduce.size();
-    state.world->to_reproduce.push_back(
-        std::pair(state.organism, state.location));
+    state.world->to_reproduce.push_back(state.organism);
   }
 });
 

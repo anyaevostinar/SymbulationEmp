@@ -32,12 +32,20 @@ class Organism {
   virtual double GetPoints() {
     std::cout << "GetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::WorldPosition GetLocation() {
+    std::cout << "GetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void SetIntVal(double _in) {
     std::cout << "SetIntVal called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void SetPoints(double _in) {
     std::cout << "SetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetLocation(emp::WorldPosition _in) {
+    std::cout << "SetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void AddPoints(double _in) {
     std::cout << "AddPoints called from Organism" << std::endl;
     throw "Organism method called!";}

@@ -76,8 +76,7 @@ public:
   ~SGPHost() {
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
-      my_world->to_reproduce[cpu.state.in_progress_repro].second =
-          emp::WorldPosition::invalid_id;
+      my_world->to_reproduce[cpu.state.in_progress_repro] = nullptr;
     }
   }
 
@@ -136,6 +135,18 @@ public:
   CPU &GetCPU() { return cpu; }
 
   /**
+   * Input: A new world position
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the organism's world position
+   */
+  void SetLocation(emp::WorldPosition _in) override {
+    cpu.state.location = _in;
+    Host::SetLocation(_in);
+  } 
+
+  /**
    * Input: None
    * 
    * Output: A pointer to the world this host belongs to.
@@ -154,8 +165,6 @@ public:
    * processing alive syms.
    */
   void Process(emp::WorldPosition pos) override {
-    //if (my_world->GetUpdate() % my_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-      //cpu.state.used_resources->reset();
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {

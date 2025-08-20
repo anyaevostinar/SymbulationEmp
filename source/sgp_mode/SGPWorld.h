@@ -25,7 +25,7 @@ private:
   */
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
-  emp::vector<std::pair<emp::Ptr<Organism>, emp::WorldPosition>> to_reproduce;
+  emp::vector<emp::Ptr<Organism>> to_reproduce;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config),
@@ -95,20 +95,20 @@ public:
 
     //TODO: move to a method
     for (auto org : to_reproduce) {
-      if (!org.second.IsValid() || org.first->GetDead())
+      if (org == nullptr || org->GetDead())
         continue;
-      emp::Ptr<Organism> child = org.first->Reproduce();
+      emp::Ptr<Organism> child = org->Reproduce();
       if (child->IsHost()) {
         // Host::Reproduce() doesn't take care of vertical transmission, that
         // happens here
-        for (auto &sym : org.first->GetSymbionts()) {
+        for (auto &sym : org->GetSymbionts()) {
           // don't vertically transmit if they must task match but don't
-          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org.first)) continue;
+          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
           sym->VerticalTransmission(child);
         }
-        DoBirth(child, org.second);
+        DoBirth(child, org->GetLocation());
       } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, org.second);
+        emp::WorldPosition new_pos = SymDoBirth(child, org->GetLocation());
         // Because we're not calling HorizontalTransmission, we need to adjust
         // these data nodes here
         emp::DataMonitor<int> &data_node_attempts_horiztrans =

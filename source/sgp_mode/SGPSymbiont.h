@@ -70,8 +70,7 @@ public:
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1 && my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
       //TODO: figure out why the second part of the line above is necessary and also write a test
-      my_world->to_reproduce[cpu.state.in_progress_repro].second =
-          emp::WorldPosition::invalid_id;
+      my_world->to_reproduce[cpu.state.in_progress_repro] = nullptr;
     }
   }
 

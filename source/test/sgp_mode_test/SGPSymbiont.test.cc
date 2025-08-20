@@ -395,17 +395,15 @@ TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress repr
 	SymConfigSGP config;
 	SGPWorld world(random, &config, LogicTasks);
   emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  sym->SetLocation(emp::WorldPosition(1, 2));
   sym->GetCPU().state.in_progress_repro = 3;
   world.to_reproduce.resize(5); 
-  world.to_reproduce[3].second = emp::WorldPosition(1, 2); 
-
-  REQUIRE(world.to_reproduce[3].second.IsValid());
 
   WHEN("Symbionts is destroyed") {
     sym.Delete(); 
     
     THEN("Reproduction queue is invalidated after symbiont is destroyed") {
-      REQUIRE_FALSE(world.to_reproduce[3].second.IsValid());
+      REQUIRE(world.to_reproduce[3] == nullptr);
     }
   }
 }

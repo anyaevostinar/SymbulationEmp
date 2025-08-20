@@ -65,8 +65,7 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
  */
 void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
   if (org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro != -1) {
-    to_reproduce[org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro].second =
-      emp::WorldPosition::invalid_id;
+    to_reproduce[org.DynamicCast<SGPSymbiont>()->GetCPU().state.in_progress_repro] = nullptr;
   }
   SymWorld::SendToGraveyard(org);
 }

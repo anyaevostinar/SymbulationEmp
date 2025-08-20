@@ -355,6 +355,7 @@ public:
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
+    new_org->SetLocation(pos);
 
     //SYMBIONTS have position in the overall world as their ID
     //HOSTS have position in the overall world as their index
@@ -367,6 +368,7 @@ public:
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+      
 
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID

@@ -87,6 +87,13 @@ protected:
   */
   emp::Ptr<emp::Taxon<int>> my_taxon = NULL;
 
+  /**
+   * 
+   * Purpose: To track location in the world
+   * 
+   */
+  emp::WorldPosition location;
+
 public:
   /**
    * The constructor for symbiont
@@ -194,6 +201,15 @@ public:
    * Purpose: To get a symbiont's points.
    */
   double GetPoints() {return points;}
+
+  /**
+   * Input: None
+   * 
+   * Output: The world position of the organism
+   * 
+   * Purpose: To get the world position of the organism
+   */
+  emp::WorldPosition GetLocation() {return location;}
 
 
   /**
@@ -313,6 +329,15 @@ public:
    * Purpose: To increment a symbiont's points
    */
   void AddPoints(double _in) { points += _in;}
+
+  /**
+   * Input: A new world position
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the organism's world position
+   */
+  void SetLocation(emp::WorldPosition _in) {location = _in;} 
 
   /**
    * Input: None
