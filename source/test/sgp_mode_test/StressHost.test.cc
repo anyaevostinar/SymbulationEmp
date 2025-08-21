@@ -164,3 +164,44 @@ TEST_CASE("Parasites transfer during stress event", "[sgp]") {
     }
   }
 }
+
+TEST_CASE("Safe time configuration option", "[sgp]") {
+  emp::Random random(62);
+  SymConfigSGP config;
+  config.INTERACTION_MECHANISM(STRESS);
+  config.EXTINCTION_FREQUENCY(10);
+  config.SAFE_TIME(20);
+  config.GRID_X(10);
+  config.GRID_Y(10);
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+
+  double parasite_death_chance = 0.5; 
+  double mutualist_death_chance = 0.125; 
+  double base_death_chance = 0.25;
+  config.PARASITE_DEATH_CHANCE(parasite_death_chance);
+  config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
+  config.BASE_DEATH_CHANCE(base_death_chance);
+
+  SGPWorld world(random, &config, LogicTasks);
+
+  WHEN("There are stress symbionts in the world"){
+    config.START_MOI(1);
+    world.SetupHosts(&world_size);
+    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+    REQUIRE(world.GetNumOrgs() == world_size);
+    WHEN("Stress symbionts are mutualists and it's during the safe time"){
+      config.SYMBIONT_TYPE(MUTUALIST);
+      world.Update();
+      THEN("No hosts die") {
+        REQUIRE(world.GetNumOrgs() == world_size);
+      }
+    }
+    WHEN("Stress symbionts are parasites and it's during the safe time") {
+      config.SYMBIONT_TYPE(PARASITE);
+      world.Update();
+      THEN("No hosts die") {        
+        REQUIRE(world.GetNumOrgs() == world_size);
+      }
+    }
+  }
+}

@@ -57,21 +57,38 @@ public:
   }
 
   /**
+   * Input: None
+   * 
+   * Output: Boolean for whether the current update should have an extinction event happen
+   * 
+   * Purpose: To calculate if its an extinction update
+   */
+  bool IsExtinctionUpdate() {
+    if (my_world->GetUpdate() < sgp_config->SAFE_TIME()) {
+      return false;
+    } else if (my_world->GetUpdate() % sgp_config->EXTINCTION_FREQUENCY() == 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Input: The location of the host.
    *
    * Output: None
    *
-   * Purpose: TBD
+   * Purpose: To run one update of the host
    */
   void Process(emp::WorldPosition pos) override {
-    if (my_world->GetUpdate() % sgp_config->EXTINCTION_FREQUENCY() == 0) {
+    if (IsExtinctionUpdate()) {
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
         if (sgp_config->SYMBIONT_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
-        //Symbionts get to escape  during a stress death event
+        //Symbionts get to escape  during an extinction event
         for (size_t j = 0; j < syms.size(); j++) {
           emp::Ptr<Organism> cur_sym = syms[j];
           RemoveSymbiont(j+1); //RemoveSymbiont uses 1-indexed value
