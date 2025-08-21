@@ -163,6 +163,9 @@ test-debug-sgp:
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 
+test-executable-debug:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+
 test-all:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }

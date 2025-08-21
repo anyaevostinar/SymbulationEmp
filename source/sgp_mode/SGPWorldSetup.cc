@@ -177,4 +177,31 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
       return emp::WorldPosition();
     }
   }
+
+
+ /**
+  * Input: Pointers to a symbiont and the position of the symbiont. 
+  * Note that the position of the symbiont is a WorldPosition with index as 1-index position
+  * in host's syms list and pop_id as host's location in the world
+  *
+  * Output: Returns a WorldPosition pointer, a valid one for succesful 
+  * infection and an invalid for a failed infection
+  *
+  * Purpose: To place a symbiont in a new location or host in the world. 
+  */
+  emp::WorldPosition SGPWorld::SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos) {
+   size_t i = cur_pos.GetPopID();
+    int new_host_pos = GetNeighborHost(i, symbiont);
+    if (new_host_pos > -1) { //-1 means no living neighbors
+      int new_index = pop[new_host_pos]->AddSymbiont(symbiont);
+      if(new_index > 0){ //sym successfully infected
+        return emp::WorldPosition(new_index, new_host_pos);
+      } else { //sym got killed trying to infect
+        return emp::WorldPosition();
+      }
+    } else {
+      symbiont.Delete();
+      return emp::WorldPosition();
+    }
+  }
 #endif

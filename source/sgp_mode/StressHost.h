@@ -92,7 +92,7 @@ public:
         for (size_t j = 0; j < syms.size(); j++) {
           emp::Ptr<Organism> cur_sym = syms[j];
           RemoveSymbiont(j+1); //RemoveSymbiont uses 1-indexed value
-          my_world->SymDoBirth(cur_sym, emp::WorldPosition(j+1, pos.GetIndex()));
+          my_world->SymFindHost(cur_sym, emp::WorldPosition(j+1, pos.GetIndex()));
         }
         SetDead();
       }

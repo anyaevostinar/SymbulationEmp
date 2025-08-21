@@ -120,6 +120,7 @@ TEST_CASE("Parasites transfer during stress event", "[sgp]") {
   size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 
+
   WHEN("There are stress parasites with 100% kill rate in the world"){
     config.START_MOI(1);
     double parasite_death_chance = 1.0; 
@@ -145,13 +146,9 @@ TEST_CASE("Parasites transfer during stress event", "[sgp]") {
       world.AddOrgAt(host,i);
     }
 
-
-
     for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
     REQUIRE(world.GetNumOrgs() == world_size);
-      
     world.Update();
-
     THEN("Half the hosts died but the remaining got infected by fleeing parasites") {        
       REQUIRE(world.GetNumOrgs() == 50);
       int surviving_syms = 0;

@@ -141,6 +141,10 @@ public:
   int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
 
+  // Prototypes for sym transfering
+  emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
+
+
   // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
