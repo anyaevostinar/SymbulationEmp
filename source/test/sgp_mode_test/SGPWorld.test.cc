@@ -449,7 +449,7 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   REQUIRE(world.GetGraveyard().size() == 0);
 }
 
-TEST_CASE("SymDoBirth can handle transfering Stress Symbiont during stress event", "[sgp]") {
+TEST_CASE("SymFindHost can handle transfering Stress Symbiont during stress event", "[sgp]") {
   GIVEN("An SGPWorld with no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
@@ -479,11 +479,10 @@ TEST_CASE("SymDoBirth can handle transfering Stress Symbiont during stress event
     REQUIRE(new_host->GetSymbionts().size() == 0);
     REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == old_host);
 
-    WHEN("SymDoBirth is called with an existing symbiont") {
-      //call symdobirth with the existing symbiont
+    WHEN("SymFindHost is called with an existing symbiont") {
       old_host->RemoveSymbiont(1); //Need to remove manually
       //WorldPosition index is 1-indexed location in host and pop_id is host's location in the world
-      emp::WorldPosition location = world.SymDoBirth(symbiont, emp::WorldPosition(1,0));
+      emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1,0));
       THEN("That symbiont transfers to a new host successfully") {
         REQUIRE(location.GetIndex() == 1);
         REQUIRE(location.GetPopID() ==1);
