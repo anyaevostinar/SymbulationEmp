@@ -161,9 +161,9 @@ public:
   }
 
   // TODO - is there a reason we might want to support different start tags?
-  void Reset(size_t task_cnt) {
-    cpu.Reset();
-    state.Reset(task_cnt);
+  void Reset(size_t task_count) {
+    // cpu.Reset(); TODO - can get rid of because InitializeState resets cpu
+    state.Reset(task_count);
     InitializeState();
   }
 

@@ -63,6 +63,8 @@ public:
     const emp::WorldPosition&  /* parent_pos */
   )>;
 
+  // Are host and endosymbiont compatible?
+  // At the moment, task match based on parent vs current
   using fun_compatibility_check_t = std::function<bool(
     const sgp_host_t&,
     const sgp_sym_t&
@@ -89,6 +91,7 @@ public:
 
   // Used for any snapshot info that should be added to the config snapshot file
   // in addition to values in sgp_config object.
+  // TODO - move this to own file
   struct ConfigSnapshotEntry {
 
     std::string param;    ///< Parameter name
@@ -305,6 +308,7 @@ protected:
   )> after_freeliving_sym_cpu_exec_sig;
 
   // ---- Endosymbiont process signals / functors ----
+  // Happens before this endosymbiont's host is processed
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_pos */
     sgp_sym_t&,                /* sym */

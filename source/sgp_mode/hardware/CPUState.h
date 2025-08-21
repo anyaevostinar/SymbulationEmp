@@ -51,7 +51,7 @@ protected:
   size_t num_tasks = 0;
   // NOTE - should this be in the CPU state? Or, move into organism class as "phenotype" information?
   emp::BitVector tasks_performed;
-  emp::vector<size_t> tasks_performance_cnt;
+  emp::vector<size_t> tasks_performance_count;
 
   // Track which outputs for each task have been credited.
   // - Only give credit for repeats after all pairs have been used
@@ -87,11 +87,11 @@ public:
   CPUState(
     emp::Ptr<world_t> world,
     emp::Ptr<Organism> organism,
-    size_t task_cnt = 0,
+    size_t task_count = 0,
     size_t stack_limit = org_info::DEFAULT_STACK_SIZE_LIMIT
   ) :
     stacks(2),
-    num_tasks(task_cnt),
+    num_tasks(task_count),
     organism(organism),
     world_ptr(world)
   {
@@ -101,8 +101,8 @@ public:
 
   // Reset state values for given num_tasks.
   // NOTE - does not update/clear organism pointer or world pointer.
-  void Reset(size_t task_cnt)  {
-    num_tasks = task_cnt;
+  void Reset(size_t task_count)  {
+    num_tasks = task_count;
     // Clear stacks
     stacks.ClearAll();
     stacks.SetActive(0);
@@ -116,14 +116,14 @@ public:
 
     // Reset tasks credited
     task_outputs_credited.clear();
-    task_outputs_credited.resize(task_cnt, {});
+    task_outputs_credited.resize(task_count, {});
 
     // Resize + 0-out
     // utils::ResizeClear(used_resources, num_tasks);
     utils::ResizeClear(tasks_performed, num_tasks);
     utils::ResizeClear(parent_tasks_performed, num_tasks);
 
-    utils::ResizeFill(tasks_performance_cnt, num_tasks, 0);
+    utils::ResizeFill(tasks_performance_count, num_tasks, 0);
     utils::ResizeFill(lineage_task_change_loss, num_tasks, 0);
     utils::ResizeFill(lineage_task_change_gain, num_tasks, 0);
     utils::ResizeFill(lineage_task_converge_partner, num_tasks, 0);
@@ -267,16 +267,16 @@ public:
     parent_tasks_performed.Set(task_id, performed);
   }
 
-  const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_cnt; }
-  emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_cnt; }
+  const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_count; }
+  emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_count; }
   size_t GetTaskPerformanceCount(size_t task_id) const {
-    emp_assert(task_id < tasks_performance_cnt.size());
-    return tasks_performance_cnt[task_id];
+    emp_assert(task_id < tasks_performance_count.size());
+    return tasks_performance_count[task_id];
   }
 
   void ResetTaskPerformance(size_t task_id) {
-    emp_assert(task_id < tasks_performance_cnt.size());
-    tasks_performance_cnt[task_id] = 0;
+    emp_assert(task_id < tasks_performance_count.size());
+    tasks_performance_count[task_id] = 0;
     tasks_performed.Set(task_id, false);
     task_outputs_credited[task_id].clear();
   }
@@ -286,9 +286,9 @@ public:
   //  Downside: locked into credit checking
   void MarkTaskPerformed(size_t task_id) {
     emp_assert(task_id < tasks_performed.GetSize());
-    emp_assert(task_id < tasks_performance_cnt.size());
+    emp_assert(task_id < tasks_performance_count.size());
     tasks_performed.Set(task_id, true);
-    ++(tasks_performance_cnt[task_id]);
+    ++(tasks_performance_count[task_id]);
   }
 
   // Has this output value been credited for given task id?

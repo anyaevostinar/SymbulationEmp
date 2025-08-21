@@ -131,6 +131,8 @@ public:
     );
   }
 
+  // TODO - add note about not working with requiring all inputs in input buffer
+  // to be used
   void AddTask_Not(program_t& program) {
     // io   r0
     // nand r0, r0, r0
@@ -308,11 +310,11 @@ public:
     return program;
   }
 
-  program_t CreateRandomProgram(size_t length) {
-    // Program constructor will initialize program randomly.
-    // Be sure to pass instruction rectifier to remove any disabled instructions.
-    return program_t(length, rectifier);
-  }
+  // program_t CreateRandomProgram(size_t length) {
+  //   // Program constructor will initialize program randomly.
+  //   // Be sure to pass instruction rectifier to remove any disabled instructions.
+  //   return program_t(length, rectifier);
+  // }
 
   program_t CreateReproProgram(size_t length) {
     program_t program;
@@ -349,10 +351,6 @@ public:
     program.Rectify(rectifier);
     return program;
   }
-
-  // NOTE - program builder doesn't need to know about mutualist start vs parasite start
-  //        World has config details, so world should be responsible for knowing
-  //        what a start program is.
 
 };
 

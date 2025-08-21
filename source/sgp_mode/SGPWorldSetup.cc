@@ -488,9 +488,7 @@ void SGPWorld::SetupSymReproduction() {
   // }
 
   // Configure sym do birth function
-  // QUESTION - Is this setup function appropriate for this? Different setup function more appropriate?
-  // QUESTION - Do we want to support free-living and horizontal transmission simultaneously?
-  //            (current/original verison of code does not)
+  // Don't need to simultaneously support free-living *and* horizontal transmission
   if (sgp_config.FREE_LIVING_SYMS()) {
     // Configure sym birth in free-living symbiont mode
     fun_sym_do_birth = [this](
@@ -720,16 +718,11 @@ void SGPWorld::SetupTaskEnvironment() {
     sgp_config.TASK_IO_UNIQUE_OUTPUT()
   );
 
-  // TODO - configure offspring to have parent task profiles in cpustate
-
-  // NOTE - discuss whether we want to reset parent after reproduction
-  //        Currently, inconsistent between host do birth, sym do birth, vert trans
-  //        because vert trans doesn't know sym offspring until after
-
   // Configure oganism input buffers / environment id
   // NOTE - now that assigning new env io is in a function, could
   //        hardcode these calls in "ProcessOrg" functions.
   //        If this isn't something we want to configure at runtime, should do that.
+  // TODO - Move assign new env to where host_do_birth_sig
   before_host_do_birth_sig.AddAction(
     [this](
       sgp_host_t& host_offspring,
@@ -751,6 +744,8 @@ void SGPWorld::SetupTaskEnvironment() {
     }
   );
 
+  // Inconsistent between host do birth, sym do birth, vert trans
+  // because vert trans doesn't know sym offspring until after
   after_sym_vert_transmission_sig.AddAction(
     [this](
       emp::Ptr<sgp_sym_t> sym_offspring_ptr,
@@ -773,6 +768,7 @@ void SGPWorld::SetupTaskEnvironment() {
   //        fully for this update
   // NOTE - discuss whether we want ability to configure this differently for different
   //        kinds of organisms
+  // TODO - Move this into Process functions
   after_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
       ProcessHostOutputBuffer(host);

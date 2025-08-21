@@ -139,8 +139,8 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
     return;
   }
   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
-  size_t sym_cnt = syms.size();
-  for (size_t sym_i = 0; sym_i < sym_cnt; /*sym_i handled internally*/) {
+  size_t sym_count = syms.size();
+  for (size_t sym_i = 0; sym_i < sym_count; /*sym_i handled internally*/) {
     emp_assert(!(syms[sym_i]->IsHost()));
     // If host is dead (e.g., because of previous symbiont), stop processing.
     if (host.GetDead()) {
@@ -159,19 +159,19 @@ void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
       );
       ++sym_i;
     } else {
-      emp_assert(sym_cnt > 0);
+      emp_assert(sym_count > 0);
       // TODO - Check that it is okay to re-order symbionts to avoid erase calls
       // Symbiont is dead, need to delete it.
       cur_symbiont.Delete();
-      // Swap this symbiont with last in list, decrementing sym_cnt
-      std::swap(syms[sym_i], syms[--sym_cnt]);
+      // Swap this symbiont with last in list, decrementing sym_count
+      std::swap(syms[sym_i], syms[--sym_count]);
       // We will need to process what we just swapped into place, so
       // re-process sym_i (don't increment it)
     }
   }
   // Resize syms to remove deleted dead symbionts swapped to end
-  emp_assert(sym_cnt <= syms.size());
-  syms.resize(sym_cnt);
+  emp_assert(sym_count <= syms.size());
+  syms.resize(sym_count);
   // TODO - signal?
 }
 
