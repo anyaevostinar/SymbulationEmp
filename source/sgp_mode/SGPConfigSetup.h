@@ -28,13 +28,14 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
   VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
 
-  GROUP(SGP_MUTATION, "SGP mutation group"),
-  VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
-
   // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
   VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
-  VALUE(TRACK_PARENT_TASKS, bool, false, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 for no, 1 for yes"),
+  VALUE(TASK_PROFILE_MODE, std::string, "parent-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.?"),
+  VALUE(HOST_SYM_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for hosts/symbiont for transmission? always, task-any-match, task-stronger-match"),
+
+  GROUP(SGP_MUTATION, "SGP mutation group"),
+  VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),

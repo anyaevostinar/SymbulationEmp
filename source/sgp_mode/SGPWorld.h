@@ -65,10 +65,14 @@ public:
 
   // Are host and endosymbiont compatible?
   // At the moment, task match based on parent vs current
+  // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
   using fun_compatibility_check_t = std::function<bool(
-    const sgp_host_t&,
-    const sgp_sym_t&
+    sgp_host_t&,
+    sgp_sym_t&
   )>;
+
+  using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
+  using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
@@ -177,6 +181,15 @@ protected:
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
   fun_compatibility_check_t fun_host_sym_compatibility_check;
+
+  // Configurable function that accesses task profile to be used for hosts.
+  // - E.g., do we want to use parent tasks, current tasks, etc.
+  fun_get_host_task_profile_t fun_get_host_task_profile;
+
+  // Configurable function that accesses task profile to be used for symbionts.
+  // By keeping host/sym functions separately, we could configure them independently.
+  //    E.g., if we want hosts to use their full profile vs syms using first task only
+  fun_get_sym_task_profile_t fun_get_sym_task_profile;
 
   // begin_update_sig - Triggers at the beginning of an Update call.
   //  Triggers before schedule update, before processing any organisms.

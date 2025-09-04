@@ -10,14 +10,14 @@ namespace sgpmode::utils {
 // TODO - write test
 // Do any bits match between bits_a and bits_b?
 template<size_t NUM_BITS>
-bool AnyMatch(
+bool AnyMatchingOnes(
   const emp::BitSet<NUM_BITS>& bits_a,
   const emp::BitSet<NUM_BITS>& bits_b
 ) {
   return bits_a.HasOverlap(bits_b);
 }
 
-bool AnyMatch(
+bool AnyMatchingOnes(
   const emp::BitVector& bits_a,
   const emp::BitVector& bits_b
 ) {
@@ -26,10 +26,19 @@ bool AnyMatch(
 
 // Return number of matching bits between two bit sets.
 template<size_t NUM_BITS>
-size_t SimpleMatchCoeff(
+size_t MatchingOnesCount(
   const emp::BitSet<NUM_BITS>& bits_a,
   const emp::BitSet<NUM_BITS>& bits_b
 ) {
+  return bits_a.AND(bits_b).CountOnes();
+}
+
+// Return number of matching bits between two bit sets.
+size_t MatchingOnesCount(
+  const emp::BitVector& bits_a,
+  const emp::BitVector& bits_b
+) {
+  emp_assert(bits_a.GetSize() == bits_b.GetSize());
   return bits_a.AND(bits_b).CountOnes();
 }
 
