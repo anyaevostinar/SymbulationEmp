@@ -321,10 +321,7 @@ void SGPWorld::SetupNutrientInteractions() {
       auto& host_state = host.GetHardware().GetCPUState();
       const bool host_performed = host_state.GetParentTaskPerformed(task_id);
       if (!host_performed) {
-        // Task match, no interaction between host and mutualist.
-        // NOTE - Do we want this or do we want still earning reduced amount?
-        // Probably not - no incentive for mutualistm?
-        // What happens when they don't donate?
+        // Task mismatch, no interaction between host and mutualist.
         return task_points;
       } else {
         // Task mismtach, donate proportion of earned task points to host.
@@ -398,31 +395,6 @@ void SGPWorld::SetupPopStructure() {
   }
   // Resize world capacity to max_world_size
   // Resize(max_world_size); // TODO - move ethis back here
-
-  // Setup function that gets host neighbor (used for symbiont)
-  // TODO - add different configuration options for this?
-  fun_find_host_for_horizontal_trans = [this](
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
-  ) -> std::optional<emp::WorldPosition> {
-    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-      emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
-      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
-        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-        emp_assert(neighbor_org_ptr->IsHost());
-        // Cast neighbor as sgp_host_t ptr.
-        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-        const bool compatible = fun_host_sym_compatibility_check(
-          *neighbor_host_ptr,
-          *sym_parent_ptr
-        );
-        if (compatible) {
-          return std::optional<emp::WorldPosition>{candidate_pos};
-        }
-      }
-    }
-    return std::nullopt;
-  };
 }
 
 void SGPWorld::SetupScheduler() {
@@ -556,33 +528,125 @@ void SGPWorld::SetupSymReproduction() {
 
 void SGPWorld::SetupHostSymInteractions() {
   std::cout << "Setup Host-symbiont interactions" << std::endl;
+
+  // Setup what we use for host/symbiont task profiles
+  // PARENT-ALL
+  // PARENT-FIRST
+  // SELF-ALL
+  // SELF-FIRST
+  // TODO - Create an enum!
+  if (sgp_config.TASK_PROFILE_MODE() == "parent-all") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetParentTasksPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetParentTasksPerformed();
+    };
+  } else if (sgp_config.TASK_PROFILE_MODE() == "parent-first") {
+    // TODO
+  } else if (sgp_config.TASK_PROFILE_MODE() == "self-all") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetTasksPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetTasksPerformed();
+    };
+  } else if (sgp_config.TASK_PROFILE_MODE() == "self-first") {
+    // TODO
+  } else {
+    std::cout << "Unrecognized TASK_PROFILE_MODE: " << sgp_config.TASK_PROFILE_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
+  }
+
   // Setup function that determines host-symbiont compatibility
-  // TODO - Will probably need to shift this bool config to a categorical config
-  //        if we want to accomodate anything like tag matching for compatibility
-  //        checking.
-  if (sgp_config.TRACK_PARENT_TASKS()) {
-    // Host-symbiont compatibility determined by their parent task profiles
+  if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "always") {
+    // Host and symbiont are always compatible
     fun_host_sym_compatibility_check = [this](
-      const sgp_host_t& host,
-      const sgp_sym_t& sym
+      sgp_host_t& host,
+      sgp_sym_t& sym
     ) -> bool {
-      // Get tasks from host/sym
-      const emp::BitVector& host_parent_tasks = host.GetHardware().GetCPUState().GetParentTasksPerformed();
-      const emp::BitVector& sym_parent_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
-      return utils::AnyMatch(host_parent_tasks, sym_parent_tasks);
+      return true;
+    };
+  } else if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "task-any-match") {
+    // Host and symbiont are compatible only if they have at least one matching task in their respective task profiles
+    // task profile is determined by TASK_PROFILE_MODE
+    fun_host_sym_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      return utils::AnyMatchingOnes(host_task_profile, sym_task_profile);
+    };
+  } else if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "task-stronger-match") {
+    // If host has no endosymbionts, mark as compatible.
+    // If host has endosymbionts, mark as compatible only if incoming symbiont is a stronger
+    //  task profile match than existing endosymbionts.
+    // NOTE - Would prefer to preferentially oust weakest match, but would need to override
+    //        AddSymbiont function in Host.h to support preferential ousting.
+    fun_host_sym_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      if (host.HasSym()) {
+        const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
+        const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+        const size_t match_strength = utils::MatchingOnesCount(
+          incoming_sym_task_profile,
+          host_task_profile
+        );
+        // NOTE - might as well remove const from arguments because we'd be allowed to modify
+        //        endosymbionts through the pointer...
+        bool strongest_match = true;
+        for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+          emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+          const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+          const size_t endosym_match_strength = utils::MatchingOnesCount(
+            endosym_profile,
+            host_task_profile
+          );
+          // NOTE: >= vs >
+          if (endosym_match_strength >= match_strength) {
+            strongest_match = false;
+            break;
+          }
+        }
+        return strongest_match;
+      } else {
+        return true;
+      }
     };
   } else {
-    // Host-symbiont compatibility determined by their task profiles
-    fun_host_sym_compatibility_check = [this](
-      const sgp_host_t& host,
-      const sgp_sym_t& sym
-    ) -> bool {
-      // Get tasks from host/sym
-      const emp::BitVector& host_parent_tasks = host.GetHardware().GetCPUState().GetTasksPerformed();
-      const emp::BitVector& sym_parent_tasks = sym.GetHardware().GetCPUState().GetTasksPerformed();
-      return utils::AnyMatch(host_parent_tasks, sym_parent_tasks);
-    };
+    std::cout << "Unrecognized HOST_SYM_COMPATIBILITY_MODE: " << sgp_config.HOST_SYM_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
   }
+
+  // Setup function that gets host neighbor (used for symbiont)
+  // TODO - add different configuration options for this?
+  fun_find_host_for_horizontal_trans = [this](
+    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  ) -> std::optional<emp::WorldPosition> {
+    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+      emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
+      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
+        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
+        emp_assert(neighbor_org_ptr->IsHost());
+        // Cast neighbor as sgp_host_t ptr.
+        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
+        const bool compatible = fun_host_sym_compatibility_check(
+          *neighbor_host_ptr,
+          *sym_parent_ptr
+        );
+        if (compatible) {
+          return std::optional<emp::WorldPosition>{candidate_pos};
+        }
+      }
+    }
+    return std::nullopt;
+  };
 
   // Configure stress
   if (sgp_config.ENABLE_STRESS()) {
