@@ -482,11 +482,47 @@ bool SGPWorld::EndosymAttemptVertTransmission(
   return success;
 }
 
+// Process any symbiont offspring that "escaped" the stress event
+// TODO - try removing original sym on escape, and then processing repro here
+void SGPWorld::ProcessStressEscapees() {
+  emp_assert(repro_queue.GetSize() == 0);
+  for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
+    // (1) Find place to AddSymbiont
+    auto& escapee_info = symbiont_stress_escapees[esc_i];
+    bool success = false;
+    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+      emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
+      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
+        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
+        emp_assert(neighbor_org_ptr->IsHost());
+        // Cast neighbor as sgp_host_t ptr.
+        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
+        // Check whether escapee can infect?
+        // NOTE - For now, always successfully infect
+        // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
+        AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState());
+        int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+        // AddSymbiont might fail (but when it does, it deletes the offspring)
+        // so not possible to keep attempting until actual success
+        success = true;
+        break;
+      }
+    }
+    // If sym didn't successfully infect, delete it.
+    if (!success) {
+      escapee_info.sym_offspring.Delete();
+    }
+  }
+  symbiont_stress_escapees.clear();
+  // TODO - add data collection for successful escapes
+}
+
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
   for (size_t i = 0; i < graveyard.size(); ++i) {
     // NOTE - Does this need to call DoDeath?
     //        the original implementation (in old Update function) does not
+    GetCPUState(graveyard[i]).ResetReproState();
     graveyard[i].Delete();
   }
   graveyard.clear();
@@ -531,6 +567,9 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
       for (size_t task_id : task_ids) {
         // Is this a host task?
         if (!task_env.IsHostTask(task_id)) continue;
+        // Not first task
+        const bool not_first_task = sgp_config.ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
+        if (not_first_task) continue;
         // Has this organism already gotten credit with this output on this task?
         if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements
@@ -580,6 +619,9 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
       for (size_t task_id : task_ids) {
         // Is this a valid sym task?
         if (!task_env.IsSymTask(task_id)) continue;
+        // Not first task
+        const bool not_first_task = sgp_config.ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
+        if (not_first_task) continue;
         // Has this organism already gotten credit with this output on this task?
         if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements

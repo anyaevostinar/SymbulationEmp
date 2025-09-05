@@ -111,6 +111,24 @@ public:
 
   };
 
+  struct StressEscapee {
+    emp::Ptr<sgp_sym_t> sym_offspring;
+    // emp::WorldPosition escape_location;
+    emp::BitVector parent_task_profile;
+    size_t escape_location;
+
+    StressEscapee() = default;
+    StressEscapee(
+      emp::Ptr<sgp_sym_t> sym,
+      const emp::BitVector& tasks,
+      size_t loc
+    ) :
+      sym_offspring(sym),
+      parent_task_profile(tasks),
+      escape_location(loc)
+    { }
+  };
+
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
@@ -124,6 +142,8 @@ protected:
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
+
+  emp::vector<StressEscapee> symbiont_stress_escapees;
 
   // Flag for whether setup has been run.
   bool setup = false;
@@ -418,6 +438,8 @@ protected:
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
 
+  void ProcessStressEscapees();
+
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
   void SetupOrgMode();
@@ -534,6 +556,8 @@ public:
 
     // Process reproduction queue
     DoReproduction();
+
+    ProcessStressEscapees();
 
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();

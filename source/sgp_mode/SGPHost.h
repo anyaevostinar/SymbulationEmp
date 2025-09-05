@@ -247,6 +247,9 @@ public:
     offspring_cpu_state.SetParentTasksPerformed(
       cpu_state.GetTasksPerformed()
     );
+    offspring_cpu_state.SetParentFirstTaskPerformed(
+      cpu_state.GetFirstTaskPerformed()
+    );
 
     // NOTE - Discuss how we use this information + how it's updated
     // NOTE - This was previously behind a config setting; do we want to re-add

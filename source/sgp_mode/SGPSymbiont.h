@@ -270,6 +270,9 @@ public:
     offspring_cpu_state.SetParentTasksPerformed(
       hardware.GetCPUState().GetTasksPerformed()
     );
+    offspring_cpu_state.SetParentFirstTaskPerformed(
+      hardware.GetCPUState().GetFirstTaskPerformed()
+    );
     // Update "lineage" information
     // NOTE - This functionality is shared across symbiont/hosts.
     //        Could move into its own struct that manages/centralizes this logic.

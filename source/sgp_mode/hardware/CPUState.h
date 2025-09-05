@@ -53,12 +53,16 @@ protected:
   emp::BitVector tasks_performed;
   emp::vector<size_t> tasks_performance_count;
 
+  emp::BitVector first_task_performed;
+  // size_t first_task_performed_id = (size_t)-1;
+
   // Track which outputs for each task have been credited.
   // - Only give credit for repeats after all pairs have been used
   // task outputs credited
   emp::vector< std::set<uint32_t> > task_outputs_credited;
 
   emp::BitVector parent_tasks_performed;
+  emp::BitVector parent_first_task_performed;
 
   // NOTE - should this be tracked by the systematics instead?
   // NOTE - shifted int to size_t, looked like these were only ever positive numbers
@@ -122,6 +126,9 @@ public:
     // utils::ResizeClear(used_resources, num_tasks);
     utils::ResizeClear(tasks_performed, num_tasks);
     utils::ResizeClear(parent_tasks_performed, num_tasks);
+    // first_task_performed_id = (size_t)-1;
+    utils::ResizeClear(first_task_performed, num_tasks);
+    utils::ResizeClear(parent_first_task_performed, num_tasks);
 
     utils::ResizeFill(tasks_performance_count, num_tasks, 0);
     utils::ResizeFill(lineage_task_change_loss, num_tasks, 0);
@@ -257,15 +264,31 @@ public:
   emp::BitVector& GetTasksPerformed() { return tasks_performed; }
   bool GetTaskPerformed(size_t task_id) const { return tasks_performed.Get(task_id); }
 
+  const emp::BitVector& GetFirstTaskPerformed() const { return first_task_performed; }
+  emp::BitVector& GetFirstTaskPerformed() { return first_task_performed; }
+
   const emp::BitVector& GetParentTasksPerformed() const { return parent_tasks_performed; }
   emp::BitVector& GetParentTasksPerformed() { return parent_tasks_performed; }
+
   bool GetParentTaskPerformed(size_t task_id) const { return parent_tasks_performed.Get(task_id); }
+
   void SetParentTasksPerformed(const emp::BitVector& parent_tasks) {
     parent_tasks_performed.Import(parent_tasks);
   }
   void SetParentTaskPerformed(size_t task_id, bool performed=true) {
     parent_tasks_performed.Set(task_id, performed);
   }
+
+  const emp::BitVector& GetParentFirstTaskPerformed() const { return parent_first_task_performed; }
+  emp::BitVector& GetParentFirstTaskPerformed() { return parent_first_task_performed; }
+  void SetParentFirstTaskPerformed(const emp::BitVector& parent_first_task) {
+    parent_first_task_performed.Import(parent_first_task);
+  }
+  void SetParentFirstTaskPerformed(size_t task_id, bool performed=true) {
+    parent_first_task_performed.Clear();
+    parent_first_task_performed.Set(task_id, performed);
+  }
+
 
   const emp::vector<size_t>& GetTaskPerformanceCounts() const { return tasks_performance_count; }
   emp::vector<size_t>& GetTaskPerformanceCounts() { return tasks_performance_count; }
@@ -279,6 +302,7 @@ public:
     tasks_performance_count[task_id] = 0;
     tasks_performed.Set(task_id, false);
     task_outputs_credited[task_id].clear();
+    first_task_performed.Set(task_id, false);
   }
 
   // NOTE - could move these into protected, then write a single wrapper function
@@ -287,8 +311,13 @@ public:
   void MarkTaskPerformed(size_t task_id) {
     emp_assert(task_id < tasks_performed.GetSize());
     emp_assert(task_id < tasks_performance_count.size());
+    if (!tasks_performed.Any()) {
+      // first_task_performed_id = task_id;
+      first_task_performed.Set(task_id, true);
+    }
     tasks_performed.Set(task_id, true);
     ++(tasks_performance_count[task_id]);
+
   }
 
   // Has this output value been credited for given task id?
