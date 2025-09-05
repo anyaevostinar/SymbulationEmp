@@ -569,7 +569,9 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
         if (!task_env.IsHostTask(task_id)) continue;
         // Not first task
         const bool not_first_task = sgp_config.ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
-        if (not_first_task) continue;
+        if (not_first_task) {
+          continue;
+        }
         // Has this organism already gotten credit with this output on this task?
         if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements

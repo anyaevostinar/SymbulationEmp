@@ -281,44 +281,44 @@ void SGPWorld::SetupStressInteractions() {
         if (!stress_extinction_update) return;
         // If host has a symbiont, death_chance = parasite death chance
         // Otherwise, base death chance.
-        const double death_chance = (host.HasSym()) ?
-          sgp_config.PARASITE_DEATH_CHANCE() :
-          sgp_config.BASE_DEATH_CHANCE();
-        // Kill host with chosen probability
-        if (random_ptr->P(death_chance)) {
-          // Allow Symbionts opportunity to escape
-          auto& endosymbionts = host.GetSymbionts();
-          const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-          for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
-            // Check if symbiont matches task profile
-            emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-            const bool can_escape = utils::AnyMatchingOnes(
-              host_task_profile,
-              endosym_task_profile
+        double death_chance = sgp_config.BASE_DEATH_CHANCE();
+
+        auto& endosymbionts = host.GetSymbionts();
+        const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+        for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
+          // Check if symbiont matches task profile
+          emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
+          const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+          const bool can_escape = utils::AnyMatchingOnes(
+            host_task_profile,
+            endosym_task_profile
+          );
+          if (can_escape) {
+            death_chance = sgp_config.PARASITE_DEATH_CHANCE();
+            // Endosymbiont gets opportunity to horizontally transmit
+            emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+            symbiont_stress_escapees.emplace_back(
+              static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+              endosym_task_profile,
+              endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
             );
-            if (can_escape) {
-              // Endosymbiont gets opportunity to horizontally transmit
-              emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
-              // symbiont_stress_escapees.emplace_back(
-              //   static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-              //   endosym_task_profile,
-              //   endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
-              // );
-              // BOOKMARK
-              // NOTE: calling SymDoBirth here can break the repro_queue (by ousting something else).
-              // // SymDoBirth triggers an attempted horizontal transmission for
-              // // endosymbionts.
-              // //   SymDoBirth --> Calls attempt horizontal transmission
-              SymDoBirth(
-                sym_offspring,
-                {sym_i + 1, host.GetLocation().GetIndex()}
-              );
-              // Once we leave this signal, the host (and this symbiont) will
-              // potentially be deleted.
-              // So, we need to handle the reproduction here (versus putting it into the queue) .
-            }
+            // BOOKMARK
+            // NOTE: calling SymDoBirth here can break the repro_queue (by ousting something else).
+            // // SymDoBirth triggers an attempted horizontal transmission for
+            // // endosymbionts.
+            // //   SymDoBirth --> Calls attempt horizontal transmission
+            // SymDoBirth(
+            //   sym_offspring,
+            //   {sym_i + 1, host.GetLocation().GetIndex()}
+            // );
+            // Once we leave this signal, the host (and this symbiont) will
+            // potentially be deleted.
+            // So, we need to handle the reproduction here (versus putting it into the queue) .
           }
+        }
+
+          // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
           host.SetDead();
         }
       }
