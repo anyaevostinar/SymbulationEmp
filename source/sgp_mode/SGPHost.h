@@ -6,7 +6,7 @@
 // #include "SGPWorld.h"
 
 #include "emp/base/Ptr.hpp"
-#include "emp/bits/bits.hpp"
+#include "emp/bits/Bits.hpp"
 
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
