@@ -187,6 +187,12 @@ void SGPWorld::SetupHealthInteractions() {
   } else if (GetHealthSymType() == health_sym_mode_t::PARASITE) {
     // Symbionts are hardcoded as health parasites.
     // Parasitic health endosymbionts may steal a proportion of the host's CPU cycles
+
+    // --
+    // From Anya's current version:
+    //  if interaction, parasite's cycles come from stealing on match;
+    //  if no interaction, parasite's cycles on from world, no stealing
+
     before_endosym_host_process_sig.AddAction(
       [this](
         const emp::WorldPosition& sym_pos,
@@ -197,8 +203,6 @@ void SGPWorld::SetupHealthInteractions() {
         // If symbiont is dead or doesn't have a host, skip.
         if (sym.GetDead()) { return; }
         auto& host_state = host.GetHardware().GetCPUState();
-        // Drain parasite CPU cycles (can only gain via stealing)
-        // sym_state.SetCPUCyclesToExec(0);
         // Will sym steal?
         bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
         const auto& host_task_profile = fun_get_host_task_profile(host);
@@ -213,8 +217,11 @@ void SGPWorld::SetupHealthInteractions() {
         // How much?
         const double host_cycles = (double)host_state.GetCPUCyclesToExec();
         const size_t sym_steal = (size_t)(((double)interact) * (steal_prop * host_cycles));
+        // Set parasite CPU cycles
+        // - Open question to how we want to do this
+        sym_state.SetCPUCyclesToExec((size_t)(0.5 * sgp_config.CYCLES_PER_UPDATE()));
         // Adjust sym and host states
-        sym_state.GainCPUCycles(sym_steal);
+        sym_state.GainCPUCycles(2 * sym_steal);
         host_state.LoseCPUCycles(sym_steal);
       }
     );

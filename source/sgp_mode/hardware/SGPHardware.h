@@ -40,7 +40,6 @@ protected:
   cpu_t cpu;
   program_t program;
   cpu_state_t state;       // cpu_t Peripheral
-
   /**
    * Input: The instruction to print, and the context needed to print it.
    *
@@ -90,7 +89,6 @@ protected:
   // TODO - should this be launching cores? At the moment, it needs to.
   void InitializeState() {
     cpu.InitializeAnchors(program);
-
     LaunchCPU(state.GetWorld().START_TAG);
 
     // NOTE - this is awkward: it requires that a CPU core be launched to run.
@@ -199,6 +197,7 @@ public:
     // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
     // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
     sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
+    state.IncCPUCyclesSinceRepro(n_cycles);
     // sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 

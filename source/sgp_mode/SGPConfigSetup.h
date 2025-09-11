@@ -23,6 +23,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(DONATION_STEAL_INST, bool, true, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(SYM_DONATE_PROP, double, 0.2, "Proportion of points for sym to donate to host on donate"),
   VALUE(SYM_STEAL_PROP, double, 0.2, "Proportion of points for sym to steal from host on steal"),
+  VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
+  VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
 
   VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
   VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
@@ -63,7 +65,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
   VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
-  VALUE(ONLY_FIRST_TASK_CREDIT, bool, false, "Only give organism credit for one task (whatever they do first)?"),
+  VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),
+  VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give sym credit for one task (whatever they do first)?"),
 
   GROUP(DATA, "Data settings"),
   VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")

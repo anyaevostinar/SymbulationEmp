@@ -101,7 +101,11 @@ INST(Swap, { std::swap(a, b); });
 INST(Reproduce, {
   const emp::WorldPosition& org_loc = state.GetLocation();
   // Check whether this attempt at reproduction is allowed.
-  const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid() || state.ReproAttempt();
+  const bool too_soon = (state.IsHost()) ?
+    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().HOST_MIN_CYCLES_BEFORE_REPRO() :
+    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().SYM_MIN_CYCLES_BEFORE_REPRO();
+  const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
+                               || state.ReproAttempt() || too_soon;
   if (invalid_attempt) {
     return;
   }

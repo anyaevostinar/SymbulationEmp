@@ -111,6 +111,48 @@ public:
 
   };
 
+  // Collection of current update statistics
+  // Calculated only when CurrentUpdateInfo data file is updated.
+  struct CurrentUpdateData {
+    emp::vector<size_t> host_task_in_profile_counts;
+    emp::vector<size_t> host_task_in_parent_org_counts;
+    emp::vector<size_t> host_task_in_current_org_counts;
+
+    emp::vector<size_t> sym_task_in_profile_counts;
+    emp::vector<size_t> sym_task_in_parent_org_counts;
+    emp::vector<size_t> sym_task_in_current_org_counts;
+
+    emp::vector<size_t> host_sym_profile_matches_by_task;
+    emp::vector<size_t> host_sym_profile_mismatches_by_task;
+    size_t host_sym_perfect_matches_total;
+    size_t host_sym_any_matches_total;
+
+    size_t num_tasks;
+
+    // Reset Current update data, adjust task count
+    void Reset(size_t task_count) {
+      num_tasks = task_count;
+
+      utils::ResizeFill(host_task_in_profile_counts, num_tasks, 0);
+      utils::ResizeFill(host_task_in_parent_org_counts, num_tasks, 0);
+      utils::ResizeFill(host_task_in_current_org_counts, num_tasks, 0);
+      utils::ResizeFill(sym_task_in_profile_counts, num_tasks, 0);
+      utils::ResizeFill(sym_task_in_parent_org_counts, num_tasks, 0);
+      utils::ResizeFill(sym_task_in_current_org_counts, num_tasks, 0);
+      utils::ResizeFill(host_sym_profile_matches_by_task, num_tasks, 0);
+      utils::ResizeFill(host_sym_profile_mismatches_by_task, num_tasks, 0);
+
+      host_sym_perfect_matches_total = 0;
+      host_sym_any_matches_total = 0;
+    }
+
+    // Reset current task data, use same number of tasks as before
+    void Reset() {
+      Reset(num_tasks);
+    }
+
+  } current_update_data;
+
   struct StressEscapee {
     emp::Ptr<sgp_sym_t> sym_offspring;
     // emp::WorldPosition escape_location;
@@ -691,6 +733,8 @@ public:
   emp::DataFile& SetupTasksFile(const std::string& filepath);
   void WriteTaskCombinationsFile(const std::string& filepath);
   void WriteOrgReproHistFile(const std::string& filepath);
+  emp::DataFile& SetupCurrentUpdateInfoFile(const std::string& filepath);
+  void CollectCurrentUpdateData();
 
   void CreateDataFiles() override;
 

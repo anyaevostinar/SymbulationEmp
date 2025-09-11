@@ -79,6 +79,7 @@ protected:
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   ReproInfo repro_info;
+  size_t cpu_cycles_since_repro = 0;
 
   emp::vector<size_t> jump_table;
 
@@ -143,6 +144,7 @@ public:
     // cpu_cycles_lost = 0.0;
 
     ResetReproState();
+    cpu_cycles_since_repro = 0;
 
     jump_table.clear();
 
@@ -258,6 +260,14 @@ public:
    void ResetReproState() {
     repro_info.state = ReproState::NONE;
     repro_info.queue_pos = 0;
+  }
+
+  size_t GetCPUCyclesSinceRepro() const { return cpu_cycles_since_repro; }
+  void IncCPUCyclesSinceRepro(size_t inc_amount = 1) {
+    cpu_cycles_since_repro += inc_amount;
+  }
+  void SetCPUCyclesSinceRepro(size_t value) {
+    cpu_cycles_since_repro = value;
   }
 
   const emp::BitVector& GetTasksPerformed() const { return tasks_performed; }

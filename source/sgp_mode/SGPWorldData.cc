@@ -36,7 +36,14 @@ void SGPWorld::CreateDataFiles() {
   // Setup tasks file
   std::filesystem::path tasks_fpath = output_dir / ("Tasks.csv");
   SetupTasksFile(tasks_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+  // Setup current update information file
+  std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo.csv");
+  SetupCurrentUpdateInfoFile(cur_update_info_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+  // TODO - add prefun to above file
+
   // BOOKMARK
+
+
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -192,6 +199,151 @@ emp::DataFile& SGPWorld::SetupTasksFile(const std::string& filepath) {
 
   file.PrintHeaderKeys();
   return file;
+}
+
+emp::DataFile& SGPWorld::SetupCurrentUpdateInfoFile(const std::string& filepath) {
+  auto& file = SetupFile(filepath);
+
+  // Configure current_update_data
+  const size_t num_tasks = task_env.GetTaskCount();
+  current_update_data.Reset(num_tasks);
+
+  file.AddPreFun(
+    [this]() {
+      CollectCurrentUpdateData();
+    }
+  );
+
+  file.AddVar(update, "update", "World update");
+
+  // Repeated for loops here to make output file easier to see tasks being completed
+  // at a glance
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.host_task_in_profile_counts[task_i]; },
+       name + "_in_host_profile_counts"
+    );
+  }
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.sym_task_in_profile_counts[task_i]; },
+      name + "_in_sym_profile_counts"
+    );
+  }
+
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.host_task_in_parent_org_counts[task_i]; },
+      name + "_in_host_parent_org_counts"
+    );
+  }
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.sym_task_in_parent_org_counts[task_i]; },
+      name + "_in_sym_parent_org_counts"
+    );
+  }
+
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.host_task_in_current_org_counts[task_i]; },
+      name + "_in_host_current_org_counts"
+    );
+  }
+
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.sym_task_in_current_org_counts[task_i]; },
+      name + "_in_sym_current_org_counts"
+    );
+  }
+
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.host_sym_profile_matches_by_task[task_i]; },
+      name + "_host_sym_profile_matches"
+    );
+  }
+  for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
+    const std::string& name = task_env.GetTaskSet().GetName(task_i);
+    file.AddFun<size_t>(
+      [this, task_i]() { return current_update_data.host_sym_profile_mismatches_by_task[task_i]; },
+      name + "_host_sym_profile_mismatches"
+    );
+  }
+
+  file.AddVar(
+    current_update_data.host_sym_perfect_matches_total,
+    "host_sym_perfect_matches_total"
+  );
+  file.AddVar(
+    current_update_data.host_sym_any_matches_total,
+    "host_sym_any_matches_total"
+  );
+
+  file.PrintHeaderKeys();
+  return file;
+}
+
+void SGPWorld::CollectCurrentUpdateData() {
+  // Reset current update data
+  current_update_data.Reset();
+
+  for (size_t pop_id = 0; pop_id < max_world_size; ++pop_id) {
+    if (IsOccupied(pop_id)) {
+      // Occupied by host
+      auto& org = GetOrg(pop_id);
+      emp_assert(org.IsHost());
+      sgp_host_t& host = static_cast<sgp_host_t&>(org);
+      // (1) Update host task counts
+      const auto& host_task_profile = fun_get_host_task_profile(host);
+      auto& host_cpu_state = host.GetHardware().GetCPUState();
+      for (size_t task_i = 0; task_i < task_env.GetTaskCount(); ++task_i) {
+        current_update_data.host_task_in_profile_counts[task_i] += (size_t)host_task_profile.Get(task_i);
+        current_update_data.host_task_in_parent_org_counts[task_i] += (size_t)host_cpu_state.GetParentTaskPerformed(task_i);
+        current_update_data.host_task_in_current_org_counts[task_i] += (size_t)host_cpu_state.GetTaskPerformed(task_i);
+      }
+      // (2) Update endosymbiont task counts + matching/mismatching info
+      emp::vector<emp::Ptr<Organism>>& endosyms = host.GetSymbionts();
+      for (size_t sym_i = 0; sym_i < endosyms.size(); ++sym_i) {
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosyms[sym_i].Raw());
+        const auto& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+        auto& endosym_cpu_state = endosym_ptr->GetHardware().GetCPUState();
+        bool any_match = false;
+        bool all_match = true;
+        for (size_t task_i = 0; task_i < task_env.GetTaskCount(); ++task_i) {
+          // Update sym task counts
+          current_update_data.sym_task_in_profile_counts[task_i] += (size_t)endosym_task_profile.Get(task_i);
+          current_update_data.sym_task_in_parent_org_counts[task_i] += (size_t)endosym_cpu_state.GetParentTaskPerformed(task_i);
+          current_update_data.sym_task_in_current_org_counts[task_i] += (size_t)endosym_cpu_state.GetTaskPerformed(task_i);
+          // Update matches/mismatches with host
+          const bool task_match = (endosym_task_profile.Get(task_i) && host_task_profile.Get(task_i));
+          const bool task_mismatch = (endosym_task_profile.Get(task_i) != host_task_profile.Get(task_i));
+          current_update_data.host_sym_profile_matches_by_task[task_i] += (size_t)task_match;
+          current_update_data.host_sym_profile_mismatches_by_task[task_i] += (size_t)task_mismatch;
+          any_match = any_match || task_match; // NOTE - Task match requires that both are doing the task
+          all_match = all_match && !task_mismatch;
+        }
+        // Update perfect / any matches totals
+        current_update_data.host_sym_perfect_matches_total += (size_t)all_match;
+        current_update_data.host_sym_any_matches_total += (size_t)any_match;
+      }
+    }
+
+    if (IsSymPopOccupied(pop_id)) {
+      // Occupied by free-living symbiont
+      emp_assert(false, "Not implemented yet");
+    }
+  }
+
+
 }
 
 void SGPWorld::SnapshotConfig(const std::string& filename) {

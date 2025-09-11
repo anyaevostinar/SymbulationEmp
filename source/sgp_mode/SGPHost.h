@@ -243,6 +243,8 @@ public:
     auto& cpu_state = hardware.GetCPUState();
 
     host_offspring->SetReproCount(reproductions + 1);
+    cpu_state.SetCPUCyclesSinceRepro(0);
+    offspring_cpu_state.SetCPUCyclesSinceRepro(0);
     // Offspring needs to be given parent's (this) task profile
     offspring_cpu_state.SetParentTasksPerformed(
       cpu_state.GetTasksPerformed()
