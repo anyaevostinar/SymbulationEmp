@@ -489,6 +489,7 @@ void SGPWorld::ProcessStressEscapees() {
   for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
     // (1) Find place to AddSymbiont
     auto& escapee_info = symbiont_stress_escapees[esc_i];
+
     bool success = false;
     for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
       emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
@@ -498,17 +499,12 @@ void SGPWorld::ProcessStressEscapees() {
         // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
         // Check whether escapee can infect?
-        // TODO - Clean up compatibility naming / configuration for this
-        // TODO - make this work the same as horizontal transmission compatibility
-        bool can_infect = !neighbor_host_ptr->HasSym();
-        const bool any_matching_ones = utils::AnyMatchingOnes(
-          escapee_info.parent_task_profile,
-          fun_get_host_task_profile(*neighbor_host_ptr)
+        const bool can_infect = NoBetterMatchingSymbionts(
+          *neighbor_host_ptr,
+          escapee_info.parent_task_profile
         );
-        can_infect = can_infect || any_matching_ones;
         // TODO - add stress infect success tracking
         if (!can_infect) continue;
-        // NOTE - For now, always successfully infect
         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
         AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState());
         int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);

@@ -63,12 +63,18 @@ public:
     const emp::WorldPosition&  /* parent_pos */
   )>;
 
-  // Are host and endosymbiont compatible?
+  // Are host and endosymbiont compatible for horizontal transmission?
   // At the moment, task match based on parent vs current
   // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
-  using fun_compatibility_check_t = std::function<bool(
+  using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
     sgp_host_t&,
     sgp_sym_t&
+  )>;
+
+  // Determines whether two task profiles are "compatible" with one another.
+  using fun_task_profile_compatibility_t = std::function<bool(
+    const emp::BitVector&,
+    const emp::BitVector&
   )>;
 
   using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
@@ -242,7 +248,9 @@ protected:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-  fun_compatibility_check_t fun_host_sym_compatibility_check;
+  fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
+
+  fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
   // Configurable function that accesses task profile to be used for hosts.
   // - E.g., do we want to use parent tasks, current tasks, etc.
@@ -739,6 +747,36 @@ public:
   void CreateDataFiles() override;
 
   void SnapshotConfig(const std::string& filename="run_config.csv");
+
+  bool NoBetterMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+    if (host.HasSym()) {
+      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const size_t match_strength = utils::MatchingOnesCount(
+        profile,
+        host_task_profile
+      );
+      // NOTE - might as well remove const from arguments because we'd be allowed to modify
+      //        endosymbionts through the pointer...
+      bool strongest_match = true;
+      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+        const size_t endosym_match_strength = utils::MatchingOnesCount(
+          endosym_profile,
+          host_task_profile
+        );
+        // NOTE: >= vs >
+        if (endosym_match_strength > match_strength) {
+          strongest_match = false;
+          break;
+        }
+      }
+      return strongest_match;
+    } else {
+      return true;
+    }
+  }
+
 };
 
 }

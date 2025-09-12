@@ -141,7 +141,7 @@ void SGPWorld::SetupOrgMode() {
   }
 
 }
-
+// TODO - use compatibility check to determine interaction
 void SGPWorld::SetupHealthInteractions() {
   emp_assert(sgp_config.ENABLE_HEALTH());
   std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
@@ -167,10 +167,11 @@ void SGPWorld::SetupHealthInteractions() {
 
         const auto& host_task_profile = fun_get_host_task_profile(host);
         const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-        interact = interact && utils::AnyMatchingOnes(
-          host_task_profile,
-          sym_task_profile
-        );
+        // interact = interact && utils::AnyMatchingOnes(
+        //   host_task_profile,
+        //   sym_task_profile
+        // );
+        interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
 
         const double donate_prop = sgp_config.MUTUALIST_CYCLE_GAIN_PROP();
         emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
@@ -207,10 +208,11 @@ void SGPWorld::SetupHealthInteractions() {
         bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
         const auto& host_task_profile = fun_get_host_task_profile(host);
         const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-        interact = interact && utils::AnyMatchingOnes(
-          host_task_profile,
-          sym_task_profile
-        );
+        // interact = interact && utils::AnyMatchingOnes(
+        //   host_task_profile,
+        //   sym_task_profile
+        // );
+        interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
 
         const double steal_prop = sgp_config.PARASITE_CYCLE_LOSS_PROP();
         emp_assert(steal_prop <= 1.0 && steal_prop >= 0.0);
@@ -219,7 +221,7 @@ void SGPWorld::SetupHealthInteractions() {
         const size_t sym_steal = (size_t)(((double)interact) * (steal_prop * host_cycles));
         // Set parasite CPU cycles
         // - Open question to how we want to do this
-        sym_state.SetCPUCyclesToExec((size_t)(0.5 * sgp_config.CYCLES_PER_UPDATE()));
+        sym_state.SetCPUCyclesToExec((size_t)(sgp_config.PARASITE_BASE_CYCLE_PROP() * sgp_config.CYCLES_PER_UPDATE()));
         // Adjust sym and host states
         sym_state.GainCPUCycles(sgp_config.PARASITE_CYCLE_STEAL_MULTIPLIER() * sym_steal);
         host_state.LoseCPUCycles(sym_steal);
@@ -259,20 +261,21 @@ void SGPWorld::SetupStressInteractions() {
         // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
         // Otherwise, base death chance.
         const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-        bool any_match = false;
+        bool interact = false;
         auto& endosymbionts = host.GetSymbionts();
         for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
             // Check if symbiont matches task profile
             emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            any_match = utils::AnyMatchingOnes(
-              host_task_profile,
-              fun_get_sym_task_profile(*endosym_ptr)
-            );
-            if (any_match) {
+            // interact = utils::AnyMatchingOnes(
+            //   host_task_profile,
+            //   fun_get_sym_task_profile(*endosym_ptr)
+            // );
+            interact = interact && fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+            if (interact) {
               break;
             }
         }
-        const double death_chance = (any_match) ?
+        const double death_chance = (interact) ?
           sgp_config.MUTUALIST_DEATH_CHANCE() :
           sgp_config.BASE_DEATH_CHANCE();
         // Kill host with chosen probability
@@ -296,10 +299,11 @@ void SGPWorld::SetupStressInteractions() {
           // Check if symbiont matches task profile
           emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
           const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-          const bool can_escape = utils::AnyMatchingOnes(
-            host_task_profile,
-            endosym_task_profile
-          );
+          // const bool can_escape = utils::AnyMatchingOnes(
+          //   host_task_profile,
+          //   endosym_task_profile
+          // );
+          const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
           if (can_escape) {
             death_chance = sgp_config.PARASITE_DEATH_CHANCE();
             // Endosymbiont gets opportunity to horizontally transmit
@@ -313,14 +317,6 @@ void SGPWorld::SetupStressInteractions() {
                 endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
               );
             }
-            // BOOKMARK
-            // // SymDoBirth triggers an attempted horizontal transmission for
-            // // endosymbionts.
-            // //   SymDoBirth --> Calls attempt horizontal transmission
-            // SymDoBirth(
-            //   sym_offspring,
-            //   {sym_i + 1, host.GetLocation().GetIndex()}
-            // );
             // Once we leave this signal, the host (and this symbiont) will
             // potentially be deleted.
             // So, we need to handle the reproduction here (versus putting it into the queue) .
@@ -419,7 +415,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
         // return 0.0;
-        return 0.25 * task_points; // TODO <- parameterize!
+        return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points; // TODO <- parameterize!
       } else {
         // Task mismtach, donate proportion of earned task points to host.
         // Can't try to steal less than 0 or more than task was worth
@@ -619,66 +615,63 @@ void SGPWorld::SetupHostSymInteractions() {
     exit(-1);
   }
 
-  // Setup function that determines host-symbiont compatibility
-  if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "always") {
-    // Host and symbiont are always compatible
-    fun_host_sym_compatibility_check = [this](
+  // Setup function that determines task profile compatibility
+  // Task profile is determined by TASK_PROFILE_MODE
+  if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "always") {
+    // Task profiles are always compatible no matter their makeup.
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return true;
+    };
+  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-any-match") {
+    // Task profiles are compatible if they have at least one shared task between them.
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return utils::AnyMatchingOnes(a, b);
+    };
+  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return a == b;
+    };
+  } else {
+    std::cout << "Unrecognized TASK_PROFILE_COMPATIBILITY_MODE: " << sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
+  }
+
+  if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "always") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
       sgp_sym_t& sym
     ) -> bool {
       return true;
     };
-  } else if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "task-any-match") {
-    // Host and symbiont are compatible only if they have at least one matching task in their respective task profiles
-    // task profile is determined by TASK_PROFILE_MODE
-    fun_host_sym_compatibility_check = [this](
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-compatible") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
       sgp_sym_t& sym
     ) -> bool {
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
-      return utils::AnyMatchingOnes(host_task_profile, sym_task_profile);
+      const auto& host_profile = fun_get_host_task_profile(host);
+      const auto& sym_profile = fun_get_sym_task_profile(sym);
+      return fun_task_profile_compatibility_check(host_profile, sym_profile);
     };
-  } else if (sgp_config.HOST_SYM_COMPATIBILITY_MODE() == "task-stronger-match") {
-    // If host has no endosymbionts, mark as compatible.
-    // If host has endosymbionts, mark as compatible only if incoming symbiont is a stronger
-    //  task profile match than existing endosymbionts.
-    // NOTE - Would prefer to preferentially oust weakest match, but would need to override
-    //        AddSymbiont function in Host.h to support preferential ousting.
-    fun_host_sym_compatibility_check = [this](
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-match") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
       sgp_sym_t& sym
     ) -> bool {
-      if (host.HasSym()) {
-        const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
-        const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-        const size_t match_strength = utils::MatchingOnesCount(
-          incoming_sym_task_profile,
-          host_task_profile
-        );
-        // NOTE - might as well remove const from arguments because we'd be allowed to modify
-        //        endosymbionts through the pointer...
-        bool strongest_match = true;
-        for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
-          emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
-          const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
-          const size_t endosym_match_strength = utils::MatchingOnesCount(
-            endosym_profile,
-            host_task_profile
-          );
-          // NOTE: >= vs >
-          if (endosym_match_strength > match_strength) {
-            strongest_match = false;
-            break;
-          }
-        }
-        return strongest_match;
-      } else {
-        return true;
-      }
+      const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
+      return NoBetterMatchingSymbionts(host, incoming_sym_task_profile);
     };
   } else {
-    std::cout << "Unrecognized HOST_SYM_COMPATIBILITY_MODE: " << sgp_config.HOST_SYM_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Unrecognized HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE: " << sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() << std::endl;
     std::cout << "Exiting." << std::endl;
     exit(-1);
   }
@@ -696,7 +689,7 @@ void SGPWorld::SetupHostSymInteractions() {
         emp_assert(neighbor_org_ptr->IsHost());
         // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-        const bool compatible = fun_host_sym_compatibility_check(
+        const bool compatible = fun_host_sym_horizontal_trans_compatibility_check(
           *neighbor_host_ptr,
           *sym_parent_ptr
         );
