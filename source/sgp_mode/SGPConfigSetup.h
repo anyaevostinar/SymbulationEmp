@@ -46,6 +46,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
+  VALUE(PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION, size_t, 1, "Number of offspring stress parasite can produce when host dies during stress event"),
 
   // NOTE - HEALTH_X is less descriptive than STRESS_X; shift language to HEALTH_INTERACTION_X?
   GROUP(HEALTH, "Health interaction settings"),
@@ -53,6 +54,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HEALTH_TYPE, std::string, "mutualist", "What kind of health symbionts are used?"),
   VALUE(MUTUALIST_CYCLE_GAIN_PROP, double, 1.0, "Proportion of cycles gained when host has health mutualist (1.0 = gain additional 100\% of base cycles)"),
   VALUE(PARASITE_CYCLE_LOSS_PROP, double, 0.5, "Proportion of cycles lost when host has health parasite"),
+  VALUE(PARASITE_CYCLE_STEAL_MULTIPLIER, double, 1.0, "Parasite gained cycles = (host cycles * parasite cycle loss prop) * multiplier"),
   VALUE(HEALTH_INTERACTION_CHANCE, double, 0.5, "Probability of host-symbiont health interaction each update"),
 
   GROUP(NUTRIENT, "Nutrient interaction settings"),
@@ -60,6 +62,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(NUTRIENT_TYPE, std::string, "mutualist", "What kind of nutrient symbionts are used?"),
   VALUE(NUTRIENT_DONATE_PROP, double, 0.5, "When symbiont donates resources to a host, what proportion is donated?"),
   VALUE(NUTRIENT_STEAL_PROP, double, 0.5, "When symbiont steals resources from a host, what proportion is stolen?"),
+  VALUE(NUTRIENT_INTERACTION_MULTIPLIER, double, 1.0, "Multiplier to apply to gain amount"),
 
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
   VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),

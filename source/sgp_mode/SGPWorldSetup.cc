@@ -221,7 +221,7 @@ void SGPWorld::SetupHealthInteractions() {
         // - Open question to how we want to do this
         sym_state.SetCPUCyclesToExec((size_t)(0.5 * sgp_config.CYCLES_PER_UPDATE()));
         // Adjust sym and host states
-        sym_state.GainCPUCycles(2 * sym_steal);
+        sym_state.GainCPUCycles(sgp_config.PARASITE_CYCLE_STEAL_MULTIPLIER() * sym_steal);
         host_state.LoseCPUCycles(sym_steal);
       }
     );
@@ -303,14 +303,17 @@ void SGPWorld::SetupStressInteractions() {
           if (can_escape) {
             death_chance = sgp_config.PARASITE_DEATH_CHANCE();
             // Endosymbiont gets opportunity to horizontally transmit
-            emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
-            symbiont_stress_escapees.emplace_back(
-              static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-              endosym_task_profile,
-              endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
-            );
+            // By using this queue, offspring of parasites avoid getting into hosts that will die to the
+            // current stress event.
+            for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
+              emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+              symbiont_stress_escapees.emplace_back(
+                static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+                endosym_task_profile,
+                endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+              );
+            }
             // BOOKMARK
-            // NOTE: calling SymDoBirth here can break the repro_queue (by ousting something else).
             // // SymDoBirth triggers an attempted horizontal transmission for
             // // endosymbionts.
             // //   SymDoBirth --> Calls attempt horizontal transmission
@@ -391,7 +394,7 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         // Donate points to host
-        host.AddPoints(to_donate);
+        host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
         // Return task points minus donated value for symbiont to earn
         return task_points - to_donate;
       }
@@ -415,7 +418,8 @@ void SGPWorld::SetupNutrientInteractions() {
         // Task mismatch, no interaction between host and parasite.
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
-        return 0.0;
+        // return 0.0;
+        return 0.25 * task_points; // TODO <- parameterize!
       } else {
         // Task mismtach, donate proportion of earned task points to host.
         // Can't try to steal less than 0 or more than task was worth
@@ -433,7 +437,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // NOTE - subtract to_steal or from_host?
         // const double from_world = task_points - to_steal;
         // Take points from host
-        return task_points;
+        return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
@@ -551,10 +555,10 @@ void SGPWorld::SetupSymReproduction() {
       sgp_host_t& host_parent,
       const emp::WorldPosition& parent_pos
     ) -> bool {
-      return fun_host_sym_compatibility_check(
-        host_offspring,
-        sym
-      );
+      // Check if host profile and sym profile have any overlap?
+      auto& host_profile = fun_get_host_task_profile(host_parent);
+      auto& sym_profile = fun_get_sym_task_profile(sym);
+      return utils::AnyMatchingOnes(host_profile, sym_profile);
     };
   } else {
     // Otherwise, allow attempt in all cases.

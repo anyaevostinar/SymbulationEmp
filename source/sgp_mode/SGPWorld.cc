@@ -498,6 +498,16 @@ void SGPWorld::ProcessStressEscapees() {
         // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
         // Check whether escapee can infect?
+        // TODO - Clean up compatibility naming / configuration for this
+        // TODO - make this work the same as horizontal transmission compatibility
+        bool can_infect = !neighbor_host_ptr->HasSym();
+        const bool any_matching_ones = utils::AnyMatchingOnes(
+          escapee_info.parent_task_profile,
+          fun_get_host_task_profile(*neighbor_host_ptr)
+        );
+        can_infect = can_infect || any_matching_ones;
+        // TODO - add stress infect success tracking
+        if (!can_infect) continue;
         // NOTE - For now, always successfully infect
         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
         AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState());
@@ -597,6 +607,11 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
             host.GetPoints()
           )
         );
+        // Enforce point limits
+        const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
+        if (host.GetPoints() > max_points) {
+          host.SetPoints(max_points);
+        }
         ++host_task_successes[task_id];
       }
     }
@@ -660,6 +675,14 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
         task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
+        // // Enforce limits on points
+        const double max_points = 1.05 * sgp_config.SYM_HORIZ_TRANS_RES();
+        if (sym.GetPoints() > max_points) {
+          sym.SetPoints(max_points);
+        }
+        // if (sym.GetPoints() > (1.5 * sgp_config.SYM_HORIZ_TRANS_RES())) {
+        //   sym.SetPoints(1.5 * sgp_config.SYM_HORIZ_TRANS_RES());
+        // }
       }
     }
   }
