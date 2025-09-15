@@ -239,14 +239,14 @@ void SGPWorld::SetupHealthInteractions() {
 
 void SGPWorld::SetupStressInteractions() {
   emp_assert(sgp_config.ENABLE_STRESS());
-  std::cout << "Setting up stress host-endosymbiont interactions." << std::endl;
-
   // Setup extinction variable
   // At beginning of update, determine whether an extinction event occurs
   begin_update_sig.AddAction(
     [this]() {
       const size_t u = GetUpdate();
-      stress_extinction_update = (u > 0) && (u % sgp_config.STRESS_FREQUENCY()) == 0;
+      // Note: not applying stress on the final update; when we record data for the final update, don't want stress
+      //       skewing the numbers.
+      stress_extinction_update = (u > 0) && ((u % sgp_config.STRESS_FREQUENCY()) == 0) && !(u >= (sgp_config.UPDATES() - 1));
     }
   );
 

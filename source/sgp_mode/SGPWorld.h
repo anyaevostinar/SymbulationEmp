@@ -192,6 +192,7 @@ protected:
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
 
   emp::vector<StressEscapee> symbiont_stress_escapees;
+  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
 
   // Flag for whether setup has been run.
   bool setup = false;

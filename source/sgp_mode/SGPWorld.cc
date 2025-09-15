@@ -483,10 +483,19 @@ bool SGPWorld::EndosymAttemptVertTransmission(
 }
 
 // Process any symbiont offspring that "escaped" the stress event
-// TODO - try removing original sym on escape, and then processing repro here
 void SGPWorld::ProcessStressEscapees() {
   emp_assert(repro_queue.GetSize() == 0);
-  for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
+
+  // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
+  escapee_ids.resize(symbiont_stress_escapees.size(), 0);
+  std::iota(
+    escapee_ids.begin(),
+    escapee_ids.end(),
+    0
+  );
+  emp::Shuffle(*random_ptr, escapee_ids);
+  // for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
+  for (size_t esc_i : escapee_ids) {
     // (1) Find place to AddSymbiont
     auto& escapee_info = symbiont_stress_escapees[esc_i];
 
