@@ -415,7 +415,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
         // return 0.0;
-        return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points; // TODO <- parameterize!
+        return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
       } else {
         // Task mismtach, donate proportion of earned task points to host.
         // Can't try to steal less than 0 or more than task was worth

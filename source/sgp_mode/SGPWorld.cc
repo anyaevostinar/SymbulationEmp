@@ -612,11 +612,11 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
             host.GetPoints()
           )
         );
-        // Enforce point limits
-        const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
-        if (host.GetPoints() > max_points) {
-          host.SetPoints(max_points);
-        }
+        // // Enforce point limits
+        // const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
+        // if (host.GetPoints() > max_points) {
+        //   host.SetPoints(max_points);
+        // }
         ++host_task_successes[task_id];
       }
     }
@@ -681,10 +681,7 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
         // // Enforce limits on points
-        const double max_points = 1.05 * sgp_config.SYM_HORIZ_TRANS_RES();
-        if (sym.GetPoints() > max_points) {
-          sym.SetPoints(max_points);
-        }
+        // const double max_points = sgp_config.SYM_HORIZ_TRANS_RES();
         // if (sym.GetPoints() > (1.5 * sgp_config.SYM_HORIZ_TRANS_RES())) {
         //   sym.SetPoints(1.5 * sgp_config.SYM_HORIZ_TRANS_RES());
         // }
