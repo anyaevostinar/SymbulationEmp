@@ -270,7 +270,7 @@ void SGPWorld::SetupStressInteractions() {
             //   host_task_profile,
             //   fun_get_sym_task_profile(*endosym_ptr)
             // );
-            interact = interact && fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+            interact = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
             if (interact) {
               break;
             }
@@ -323,7 +323,7 @@ void SGPWorld::SetupStressInteractions() {
           }
         }
 
-          // Kill host with chosen probability
+        // Kill host with chosen probability
         if (random_ptr->P(death_chance)) {
           host.SetDead();
         }
@@ -647,12 +647,14 @@ void SGPWorld::SetupHostSymInteractions() {
   }
 
   if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "always") {
-    fun_host_sym_horizontal_trans_compatibility_check = [this](
+    fun_host_sym_horizontal_trans_compatibility_check = [](
       sgp_host_t& host,
       sgp_sym_t& sym
-    ) -> bool {
-      return true;
-    };
+    ) -> bool { return true; };
+    fun_host_sym_stress_trans_compatibility_check = [](
+      sgp_host_t& host,
+      const emp::BitVector& profile
+    ) -> bool { return true; };
   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-compatible") {
     fun_host_sym_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
@@ -662,13 +664,40 @@ void SGPWorld::SetupHostSymInteractions() {
       const auto& sym_profile = fun_get_sym_task_profile(sym);
       return fun_task_profile_compatibility_check(host_profile, sym_profile);
     };
-  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-match") {
+    fun_host_sym_stress_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      const emp::BitVector& profile
+    ) -> bool {
+      const auto& host_profile = fun_get_host_task_profile(host);
+      return fun_task_profile_compatibility_check(host_profile, profile);
+    };
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-strictly-stronger-match") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
+      return NoBetterOrEquallyMatchingSymbionts(host, incoming_sym_task_profile);
+    };
+    fun_host_sym_stress_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      const emp::BitVector& profile
+    ) -> bool {
+      return NoBetterOrEquallyMatchingSymbionts(host, profile);
+    };
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-or-equal-match") {
     fun_host_sym_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
       sgp_sym_t& sym
     ) -> bool {
       const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
       return NoBetterMatchingSymbionts(host, incoming_sym_task_profile);
+    };
+    fun_host_sym_stress_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      const emp::BitVector& profile
+    ) -> bool {
+      return  NoBetterMatchingSymbionts(host, profile);
     };
   } else {
     std::cout << "Unrecognized HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE: " << sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() << std::endl;
@@ -791,6 +820,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       if (task_env.IsSymTask(not_task_id)) {
         new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
         new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
+        new_sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
       }
       // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);

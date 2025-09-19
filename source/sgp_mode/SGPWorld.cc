@@ -508,7 +508,7 @@ void SGPWorld::ProcessStressEscapees() {
         // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
         // Check whether escapee can infect?
-        const bool can_infect = NoBetterMatchingSymbionts(
+        const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
           *neighbor_host_ptr,
           escapee_info.parent_task_profile
         );

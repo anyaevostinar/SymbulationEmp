@@ -251,6 +251,12 @@ protected:
   // - Used to check eligibility for vertical / horizontal transmission, etc.
   fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
 
+  // Function used to check compatibility between host and symbiont that reproduced
+  // via a stress event.
+  // - Can't use same function as when checking horizontal transmission compatibility because
+  //   we no longer have access to the symbiont parent for a stress transmission event.
+  std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
+
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
   // Configurable function that accesses task profile to be used for hosts.
@@ -768,6 +774,35 @@ public:
         );
         // NOTE: >= vs >
         if (endosym_match_strength > match_strength) {
+          strongest_match = false;
+          break;
+        }
+      }
+      return strongest_match;
+    } else {
+      return true;
+    }
+  }
+
+  bool NoBetterOrEquallyMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+    if (host.HasSym()) {
+      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const size_t match_strength = utils::MatchingOnesCount(
+        profile,
+        host_task_profile
+      );
+      // NOTE - might as well remove const from arguments because we'd be allowed to modify
+      //        endosymbionts through the pointer...
+      bool strongest_match = true;
+      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+        const size_t endosym_match_strength = utils::MatchingOnesCount(
+          endosym_profile,
+          host_task_profile
+        );
+        // NOTE: >= vs >
+        if (endosym_match_strength >= match_strength) {
           strongest_match = false;
           break;
         }
