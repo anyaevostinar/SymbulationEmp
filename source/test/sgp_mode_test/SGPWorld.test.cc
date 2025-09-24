@@ -156,6 +156,9 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       THEN("TaskMatchCheck returns true") {
         REQUIRE(world.TaskMatchCheck(sym, host));
       }
+
+      host.Delete();
+      sym.Delete();
     }
 
     WHEN("Host and symbiont do the same task") {
@@ -170,9 +173,10 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       THEN("TaskMatchCheck returns true") {
         REQUIRE(world.TaskMatchCheck(sym, host));
       }
-    }
-    
 
+      host.Delete();
+      sym.Delete();
+    }
   }
 
   GIVEN("A world in health mode") {
@@ -190,6 +194,9 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       THEN("TaskMatchCheck returns false") {
         REQUIRE(!world.TaskMatchCheck(sym, host));
       }
+
+      host.Delete();
+      sym.Delete();
     }
 
     WHEN("Host and symbiont do the same task") {
@@ -204,9 +211,10 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       THEN("TaskMatchCheck returns true") {
         REQUIRE(world.TaskMatchCheck(sym, host));
       }
-    }
-    
 
+      host.Delete();
+      sym.Delete();
+    }
   }
 
   GIVEN("A world in stress mode") {
@@ -225,6 +233,9 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       THEN("TaskMatchCheck returns false") {
         REQUIRE(!world.TaskMatchCheck(sym, host));
       }
+
+      host.Delete();
+      sym.Delete();
     }
 
     WHEN("Host and symbiont do the same task") {
@@ -236,17 +247,15 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       //Creates a symbiont that is marked as having done NOT
       emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
       sym->GetCPU().state.tasks_performed->Set(1); 
-      
 
       THEN("TaskMatchCheck returns true") {
         REQUIRE(world.TaskMatchCheck(sym, host));
       }
+
+      host.Delete();
+      sym.Delete();
     }
-    
-
   }
-
-
 }
 
 TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
