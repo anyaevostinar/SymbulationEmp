@@ -58,6 +58,7 @@ struct CPUState {
   // If this organism is queued for reproduction, this stores its position in
   // the queue. When the organism dies, its queue slot will be invalidated.
   int in_progress_repro = -1;
+  size_t cpu_cycles_since_repro = 0; // how many cycles it's been since the owner org reproduced
   emp::vector<size_t> jump_table;
 
   emp::Ptr<Organism> organism;

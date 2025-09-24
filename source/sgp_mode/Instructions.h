@@ -78,6 +78,13 @@ INST(Reproduce, {
   // Only one reproduction is allowed per update
   if (state.in_progress_repro != -1 || !state.location.IsValid())
     return;
+
+  // check that enough cycles have been executed
+  size_t cycles_required_for_repro = state.organism->IsHost()
+                      ? state.world->GetConfig()->HOST_MIN_CYCLES_BEFORE_REPRO()
+                      : state.world->GetConfig()->SYM_MIN_CYCLES_BEFORE_REPRO();
+  if(state.cpu_cycles_since_repro < cycles_required_for_repro) return;
+
   double points = state.organism->IsHost()
                       ? state.world->GetConfig()->HOST_REPRO_RES()
                       : state.world->GetConfig()->SYM_HORIZ_TRANS_RES();
@@ -85,6 +92,7 @@ INST(Reproduce, {
     state.organism->AddPoints(-points);
     state.in_progress_repro = state.world->to_reproduce.size();
     state.world->to_reproduce.push_back(state.organism);
+    state.cpu_cycles_since_repro = 0;
   }
 });
 
