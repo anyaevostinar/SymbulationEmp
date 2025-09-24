@@ -3,18 +3,14 @@ TEST_CASE("Reproduce instruction", "[sgp]") {
     // reproduce fails if:
     // pos is invalid
     // repro happened once this update already
-    // not enough points (sym)
-    // not enough points (host)
-    // not enough cycles (sym)
-    // no enough cycles (host)
+    // not enough points
+    // not enough cycles
 
     // otherwise, reproduce succeeds. in which case:
-    // point total is decremented (host)
-    // point total is decremented (sym)
-    // state marked as reproduction in progress (host)
-    // state marked as reproduction in progress (sym)
-    // org position added to repro queue (host)
-    // org position added to repro queue (sym)  
+    // point total is decremented
+    // state marked as reproduction in progress
+    // org position added to repro queue
+    // cycles since repro is set to 0
 
     emp::Random random(26);
     SymConfigSGP config;
@@ -76,7 +72,7 @@ TEST_CASE("Reproduce instruction", "[sgp]") {
 
             THEN("The host is added to the reproduction queue"){
                 REQUIRE(world.to_reproduce.size() == 1);
-                REQUIRE(world.to_reproduce.at(0) == host);
+                REQUIRE(world.to_reproduce.at(0).DynamicCast<SGPHost>() == host);
             }
             THEN("The host is charged points for reproduction"){
                 REQUIRE(host->GetPoints() == start_point_amount - host_repro_res);
@@ -125,7 +121,7 @@ TEST_CASE("Reproduce instruction", "[sgp]") {
             symbiont->GetCPU().RunCPUStep(fake_pos, 1);
             THEN("The symbiont is added to the reproduction queue"){
                 REQUIRE(world.to_reproduce.size() == 1);
-                REQUIRE(world.to_reproduce.at(0) == symbiont);
+                REQUIRE(world.to_reproduce.at(0).DynamicCast<SGPSymbiont>() == symbiont);
             }
             THEN("The symbiont is charged points for reproduction"){
                 REQUIRE(symbiont->GetPoints() == start_point_amount - sym_horiz_trans_res);
