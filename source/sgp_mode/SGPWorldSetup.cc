@@ -182,7 +182,9 @@ void SGPWorld::SetupHealthInteractions() {
         emp_assert(sym_donate >= 0);
         sym_state.LoseCPUCycles(emp::Min(sym_donate, sym_state.GetCPUCyclesToExec()));
         // Adjust host's cpu cycles
-        host.GetHardware().GetCPUState().GainCPUCycles(sym_donate);
+        host.GetHardware().GetCPUState().GainCPUCycles(
+          sgp_config.MUTUALIST_CYCLE_DONATE_MULTIPLIER() * sym_donate
+        );
       }
     );
   } else if (GetHealthSymType() == health_sym_mode_t::PARASITE) {
@@ -295,17 +297,15 @@ void SGPWorld::SetupStressInteractions() {
 
         auto& endosymbionts = host.GetSymbionts();
         const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+        // emp::vector<size_t> escapee_ids;
         for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
           // Check if symbiont matches task profile
           emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
           const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-          // const bool can_escape = utils::AnyMatchingOnes(
-          //   host_task_profile,
-          //   endosym_task_profile
-          // );
           const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
           if (can_escape) {
             death_chance = sgp_config.PARASITE_DEATH_CHANCE();
+            // escapee_ids.emplace_back(sym_i);
             // Endosymbiont gets opportunity to horizontally transmit
             // By using this queue, offspring of parasites avoid getting into hosts that will die to the
             // current stress event.
@@ -326,6 +326,21 @@ void SGPWorld::SetupStressInteractions() {
         // Kill host with chosen probability
         if (random_ptr->P(death_chance)) {
           host.SetDead();
+          // ------
+          // Give escapees a chance to escape!
+          // for (size_t escapee_id : escapee_ids) {
+          //   emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
+          //   const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+          //   for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
+          //     emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+          //     symbiont_stress_escapees.emplace_back(
+          //       static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+          //       endosym_task_profile,
+          //       endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+          //     );
+          //   }
+          // }
+          // ------
         }
       }
     );
@@ -417,7 +432,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // return 0.0;
         return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
       } else {
-        // Task mismtach, donate proportion of earned task points to host.
+        // Task match, donate proportion of earned task points to host.
         // Can't try to steal less than 0 or more than task was worth
         const double to_steal = std::clamp(
           sgp_config.NUTRIENT_STEAL_PROP() * task_points,
