@@ -120,7 +120,10 @@ public:
 
     state.location = location;
 
+    
     sgpl::execute_cpu_n_cycles<Spec>(n_cycles, cpu, program, state);
+
+    state.cpu_cycles_since_repro += n_cycles;
   }
 
   /**
