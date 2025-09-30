@@ -503,3 +503,69 @@ TEST_CASE("SymFindHost can handle transfering Stress Symbiont during stress even
 
   }
 }
+
+
+
+
+TEST_CASE("Preferential ousting", "[sgp]"){
+  // pref ousting settings
+  // 0 = no preferential ousting, 
+  // 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust
+  // 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust
+
+  emp::Random random(89);
+  SymConfigSGP config;
+  SGPWorld world(random, &config, LogicTasks);
+  config.OUSTING(1);
+
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+  emp::Ptr<SGPSymbiont> target_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+  emp::Ptr<SGPSymbiont> incoming_symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+  host->AddSymbiont(target_symbiont);
+
+  WHEN("An ousting symbiont has worse task match with a host than the existing symbiont does"){
+    WHEN("Preferential ousting is off"){ // sanity check that setting is toggleable
+      config.PREFERENTIAL_OUSTING(0);
+      THEN("Ousting succeeds"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      }
+    }
+    WHEN("Preferential ousting is on & same or better task match is permitted"){
+      config.PREFERENTIAL_OUSTING(1);
+      THEN("Ousting fails"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+      }
+    }
+  }
+  WHEN("An ousting symbiont has equal task match with a host than the existing symbiont does"){
+    WHEN("Strictly better task match is required"){
+      config.PREFERENTIAL_OUSTING(1);
+      THEN("Ousting fails"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+      }
+    }
+    WHEN("Same or better task match is permitted"){
+      config.PREFERENTIAL_OUSTING(2);
+      THEN("Ousting succeeds"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      }
+    }
+  }
+  WHEN("An ousting symbiont has better task match with a host than the existing symbiont does"){
+    WHEN("Strictly better task match is required"){
+      config.PREFERENTIAL_OUSTING(1);
+      THEN("Ousting succeeds"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      }
+    }
+    WHEN("Same or better task match is permitted"){
+      config.PREFERENTIAL_OUSTING(2);
+      THEN("Ousting succeeds"){
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      }
+    }
+  }
+  
+  incoming_symbiont_parent.Delete();
+  host.Delete();
+}

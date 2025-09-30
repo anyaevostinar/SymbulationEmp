@@ -166,6 +166,12 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
     int new_host_pos = GetNeighborHost(i, parent);
     if (new_host_pos > -1) { //-1 means no living neighbors
+      if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
+        if(!PreferentialOustingAllowed(parent, pop[new_host_pos])){
+          sym_baby.Delete();
+          return emp::WorldPosition();
+        }
+      }
       int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
       if(new_index > 0){ //sym successfully infected
         return emp::WorldPosition(new_index, new_host_pos);
@@ -193,6 +199,12 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
    size_t i = cur_pos.GetPopID();
     int new_host_pos = GetNeighborHost(i, symbiont);
     if (new_host_pos > -1) { //-1 means no living neighbors
+      if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
+        if(!PreferentialOustingAllowed(symbiont, pop[new_host_pos])){
+          symbiont.Delete();
+          return emp::WorldPosition();
+        }
+      }
       int new_index = pop[new_host_pos]->AddSymbiont(symbiont);
       if(new_index > 0){ //sym successfully infected
         return emp::WorldPosition(new_index, new_host_pos);
@@ -203,5 +215,19 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
       symbiont.Delete();
       return emp::WorldPosition();
     }
+  }
+
+
+  /**
+  * Input: Pointers to a symbiont and a host.
+  *
+  * Output: Returns a bool if the incoming symbiont should be allowed to oust
+  *
+  * Purpose: Caclulate preferential ousting success
+  */
+  bool SGPWorld::PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host){
+    emp::Ptr<SGPSymbiont> incoming_symbiont = sym_parent.DynamicCast<SGPSymbiont>();
+    
+    return true; 
   }
 #endif
