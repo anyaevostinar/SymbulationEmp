@@ -523,49 +523,163 @@ TEST_CASE("Preferential ousting", "[sgp]"){
   emp::Ptr<SGPSymbiont> incoming_symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
   host->AddSymbiont(target_symbiont);
 
+  // host w/out parent: 000001101
+  // host w/ parent:    100001101
+  host->GetCPU().state.tasks_performed->Set(8);
+  host->GetCPU().state.tasks_performed->Set(6);
+  host->GetCPU().state.tasks_performed->Set(5);
+  host->GetCPU().state.parent_tasks_performed->Set(0);
+  host->GetCPU().state.parent_tasks_performed->Set(6);
+
+  // hosted sym w/out parent: 000001001
+  // hosted sym w/ parent:    100001001
+  target_symbiont->GetCPU().state.tasks_performed->Set(8);
+  target_symbiont->GetCPU().state.tasks_performed->Set(5);
+  target_symbiont->GetCPU().state.parent_tasks_performed->Set(5);
+  target_symbiont->GetCPU().state.parent_tasks_performed->Set(0);
+
   WHEN("An ousting symbiont has worse task match with a host than the existing symbiont does"){
+    // incoming sym w/out parent: 000000001
+    // hosted sym w/ parent:      000001001
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(5);
+    
     WHEN("Preferential ousting is off"){ // sanity check that setting is toggleable
       config.PREFERENTIAL_OUSTING(0);
       THEN("Ousting succeeds"){
         REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
       }
     }
-    WHEN("Preferential ousting is on & same or better task match is permitted"){
-      config.PREFERENTIAL_OUSTING(1);
-      THEN("Ousting fails"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+    WHEN("Preferential ousting is on"){
+      WHEN("Parental tasks are used"){
+        config.TRACK_PARENT_TASKS(1);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
+      }
+      WHEN("Parental tasks are not used"){
+        config.TRACK_PARENT_TASKS(0);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
       }
     }
   }
+
+
   WHEN("An ousting symbiont has equal task match with a host than the existing symbiont does"){
-    WHEN("Strictly better task match is required"){
-      config.PREFERENTIAL_OUSTING(1);
-      THEN("Ousting fails"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+    // host w/out parent: 000001101
+    // host w/ parent:    100001101
+
+    // hosted sym w/out parent: 000001001 // match 2/3
+    // hosted sym w/ parent:    100001001 // match 3/4
+
+    // incoming sym w/out parent: 000000101 // match 2/3
+    // hosted sym w/ parent:      000001101 // match 3/4
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(6);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(8);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(5);
+    
+    WHEN("Preferential ousting is on"){
+      WHEN("Parental tasks are used"){
+        config.TRACK_PARENT_TASKS(1);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
       }
-    }
-    WHEN("Same or better task match is permitted"){
-      config.PREFERENTIAL_OUSTING(2);
-      THEN("Ousting succeeds"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      WHEN("Parental tasks are not used"){
+        config.TRACK_PARENT_TASKS(0);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+          }
+        }
       }
     }
   }
+
   WHEN("An ousting symbiont has better task match with a host than the existing symbiont does"){
-    WHEN("Strictly better task match is required"){
-      config.PREFERENTIAL_OUSTING(1);
-      THEN("Ousting succeeds"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+    // host w/out parent: 000001101
+    // host w/ parent:    100001101
+
+    // hosted sym w/out parent: 000001001 // match 2/3
+    // hosted sym w/ parent:    100001001 // match 3/4
+
+    // incoming sym w/out parent: 000001101 // match 3/3
+    // hosted sym w/ parent:      100001101 // match 4/4
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(6);
+    incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(5);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(0);
+    
+    WHEN("Preferential ousting is on"){
+      WHEN("Parental tasks are used"){
+        config.TRACK_PARENT_TASKS(1);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
       }
-    }
-    WHEN("Same or better task match is permitted"){
-      config.PREFERENTIAL_OUSTING(2);
-      THEN("Ousting succeeds"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+      WHEN("Parental tasks are not used"){
+        config.TRACK_PARENT_TASKS(0);
+        WHEN("Same or better task match is required"){
+          config.PREFERENTIAL_OUSTING(1);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
+        WHEN("Strictly better task match is required"){
+          config.PREFERENTIAL_OUSTING(2);
+          THEN("Ousting fails"){
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          }
+        }
       }
     }
   }
-  
   incoming_symbiont_parent.Delete();
   host.Delete();
 }

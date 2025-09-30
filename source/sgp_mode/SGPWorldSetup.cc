@@ -228,6 +228,33 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   bool SGPWorld::PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host){
     emp::Ptr<SGPSymbiont> incoming_symbiont = sym_parent.DynamicCast<SGPSymbiont>();
     
+    emp::BitSet<CPU_BITSET_LENGTH> host_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+      (*host.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed).OR(*host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed) :
+      *host.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
+
+    emp::BitSet<CPU_BITSET_LENGTH> incoming_sym_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+      (*sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed).OR(*sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed) :
+      *sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+
+    for(emp::Ptr<Organism> sym : host->GetSymbionts()){
+      emp::BitSet<CPU_BITSET_LENGTH> target_sym_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+        (*sym.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed).OR(*sym.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed) :
+        *sym.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+
+      if(sgp_config->PREFERENTIAL_OUSTING() == 1){
+        // if has worse task match with any hosted sym, fail
+        if(host_tasks.AND(incoming_sym_tasks).CountOnes() < host_tasks.AND(target_sym_tasks).CountOnes()){
+          return false;
+        }
+      }
+      else if(sgp_config->PREFERENTIAL_OUSTING() == 2){
+        // if has equal or worse task match with any hosted sym, fail
+        if(host_tasks.AND(incoming_sym_tasks).CountOnes() <= host_tasks.AND(target_sym_tasks).CountOnes()){
+          return false;
+        }
+      }
+    }
+
     return true; 
   }
 #endif
