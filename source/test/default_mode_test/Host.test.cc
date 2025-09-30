@@ -523,6 +523,7 @@ TEST_CASE("RemoveSymbiont", "[default]") {
         REQUIRE(symbiont->GetHost() == nullptr);
         REQUIRE(removed_sym == symbiont);
       }
+      removed_sym.Delete();
     }
 
     WHEN("RemoveSymbiont is called with invalid index") {
@@ -544,7 +545,9 @@ TEST_CASE("RemoveSymbiont", "[default]") {
         REQUIRE(null_sym == nullptr);
       }
     }
+    host.Delete();
   }
+  random.Delete();
 }
 
 TEST_CASE("AddSymbiont", "[default]"){
