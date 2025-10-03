@@ -130,7 +130,6 @@ TEST_CASE("Host Setup", "[sgp]") {
   
 }
 
-
 TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
 
   emp::Random random(1);
@@ -458,7 +457,64 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   REQUIRE(world.GetGraveyard().size() == 0);
 }
 
-TEST_CASE("SymFindHost can handle transfering Stress Symbiont during stress event", "[sgp]") {
+TEST_CASE("SGP SymDoBirth", "[sgp]") {
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(2);
+  config.INTERACTION_MECHANISM(STRESS);
+  config.SYMBIONT_TYPE(PARASITE);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.000);
+  config.TRACK_PARENT_TASKS(1);
+  SGPWorld world(random, &config, LogicTasks);
+  world.Resize(2, 2);
+
+  emp::Ptr<StressHost> source_host = emp::NewPtr<StressHost>(&random, &world, &config);
+  emp::Ptr<StressHost> target_host = emp::NewPtr<StressHost>(&random, &world, &config);
+
+  emp::Ptr<SGPSymbiont> symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  emp::Ptr<SGPSymbiont> target_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  
+  source_host->AddSymbiont(symbiont_parent);
+  target_host->AddSymbiont(target_symbiont);
+
+  emp::WorldPosition parent_pos = emp::WorldPosition(1,0);
+  emp::Ptr<Organism> symbiont_offspring = symbiont_parent->Reproduce();
+  
+  target_host->GetCPU().state.tasks_performed->Set(0);
+  target_host->GetCPU().state.tasks_performed->Set(1);
+  symbiont_parent->GetCPU().state.tasks_performed->Set(0);
+  target_symbiont->GetCPU().state.tasks_performed->Set(0);
+
+  world.AddOrgAt(source_host, 0);
+  world.AddOrgAt(target_host, 1);
+
+  WHEN("Preferential ousting is on and the target host has a symbiont") {
+    config.OUSTING(1);
+    config.PREFERENTIAL_OUSTING(2);
+    WHEN("The incoming symbiont has a better match"){
+      symbiont_parent->GetCPU().state.tasks_performed->Set(1);
+      world.SymDoBirth(symbiont_offspring, parent_pos);
+      THEN("The incoming symbiont successfully ousts"){
+        REQUIRE(target_host->HasSym());
+        REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<SGPSymbiont>() == symbiont_offspring); 
+        REQUIRE(world.GetGraveyard().size() == 1);
+        REQUIRE(world.GetGraveyard().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
+      }
+      world.GetGraveyard().at(0).Delete();
+    }
+    WHEN("The incoming symbiont has a worse match"){
+      target_symbiont->GetCPU().state.tasks_performed->Set(1);
+      world.SymDoBirth(symbiont_offspring, parent_pos);
+      THEN("The incoming symbiont does not oust") {
+        REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
+      }
+    }
+  }
+}
+
+
+TEST_CASE("SymFindHost can handle transferring Stress Symbiont during stress event", "[sgp]") {
   GIVEN("An SGPWorld with no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
@@ -500,12 +556,46 @@ TEST_CASE("SymFindHost can handle transfering Stress Symbiont during stress even
         REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == new_host);
       }
     }
+    WHEN("Preferential ousting is on and the target host has a symbiont") {
+      config.OUSTING(1);
+      config.PREFERENTIAL_OUSTING(2);
 
+      new_host->GetCPU().state.tasks_performed->Set(1);
+      emp::Ptr<SGPSymbiont> target_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+      new_host->AddSymbiont(target_symbiont);
+      WHEN("The incoming symbiont has a better match"){
+        symbiont->GetCPU().state.tasks_performed->Set(1);
+        target_symbiont->GetCPU().state.tasks_performed->Set(0);
+
+        old_host->RemoveSymbiont(1);
+        emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1, 0));
+        THEN("That symbiont transfers to a new host successfully") {
+          REQUIRE(location.GetIndex() == 1);
+          REQUIRE(location.GetPopID() == 1);
+          REQUIRE(old_host->GetSymbionts().size() == 0);
+          REQUIRE(new_host->GetSymbionts().size() == 1);
+          REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == new_host);
+          REQUIRE(world.GetGraveyard().size() == 1);
+          REQUIRE(world.GetGraveyard().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
+        }
+        world.GetGraveyard().at(0).Delete();
+      }
+      WHEN("The incoming symbiont has a worse match") {
+        target_symbiont->GetCPU().state.tasks_performed->Set(0);
+        target_symbiont->GetCPU().state.tasks_performed->Set(1);
+
+        old_host->RemoveSymbiont(1);
+        emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1, 0));
+        THEN("That symbiont fails to transfer to a new host") {
+          REQUIRE(location.IsValid() == false);
+          REQUIRE(old_host->GetSymbionts().size() == 0);
+          REQUIRE(new_host->GetSymbionts().size() == 1);
+          REQUIRE(target_symbiont->GetHost().DynamicCast<StressHost>() == new_host);
+        }
+      }
+    }
   }
 }
-
-
-
 
 TEST_CASE("Preferential ousting", "[sgp]"){
   // pref ousting settings
