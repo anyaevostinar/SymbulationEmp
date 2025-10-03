@@ -497,7 +497,7 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
       world.SymDoBirth(symbiont_offspring, parent_pos);
       THEN("The incoming symbiont successfully ousts"){
         REQUIRE(target_host->HasSym());
-        REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<SGPSymbiont>() == symbiont_offspring); 
+        REQUIRE(target_host->GetSymbionts().at(0) == symbiont_offspring); 
         REQUIRE(world.GetGraveyard().size() == 1);
         REQUIRE(world.GetGraveyard().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
       }
