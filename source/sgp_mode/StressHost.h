@@ -1,7 +1,7 @@
 #ifndef STRESSHOST_H
 #define STRESSHOST_H
 
-#include "SGPHost.h"
+#include "SGPSymbiont.h"
 
 class StressHost : public SGPHost {
 
@@ -85,14 +85,27 @@ public:
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
         if (sgp_config->SYMBIONT_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE(); 
       }
       if (random->P(death_chance)) {
-        //Symbionts get to escape  during an extinction event
-        for (size_t j = 0; j < syms.size(); j++) {
-          emp::Ptr<Organism> cur_sym = syms[j];
-          RemoveSymbiont(j+1); //RemoveSymbiont uses 1-indexed value
-          my_world->SymFindHost(cur_sym, emp::WorldPosition(j+1, pos.GetIndex()));
+        if (sgp_config->SYMBIONTS_ESCAPE()) {
+          //Symbionts get to escape  during an extinction event
+          for (size_t j = 0; j < syms.size(); j++) {
+            emp::Ptr<Organism> cur_sym = syms[j];
+            RemoveSymbiont(j + 1); //RemoveSymbiont uses 1-indexed value
+            my_world->SymFindHost(cur_sym, emp::WorldPosition(j + 1, pos.GetIndex()));
+          }
+        }
+        if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
+          for (size_t j = 0; j < syms.size(); j++) {
+            if (my_world->TaskMatchCheck(syms[j], this)) {
+              emp::BitSet<CPU_BITSET_LENGTH> parent_tasks = *syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+              if (sgp_config->TRACK_PARENT_TASKS()) parent_tasks = parent_tasks.OR(*syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed);
+              for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
+                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), parent_tasks));
+              }
+            }
+          }
         }
         SetDead();
       }

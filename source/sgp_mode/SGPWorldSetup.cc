@@ -130,7 +130,7 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
         //host and parent host can do task then sym baby can infect
         return true;
       }
-  }
+    }
   }
   else {
     parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
@@ -184,7 +184,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   * Note that the position of the symbiont is a WorldPosition with index as 1-index position
   * in host's syms list and pop_id as host's location in the world
   *
-  * Output: Returns a WorldPosition pointer, a valid one for succesful 
+  * Output: Returns a WorldPosition pointer, a valid one for successful 
   * infection and an invalid for a failed infection
   *
   * Purpose: To place a symbiont in a new location or host in the world. 
@@ -203,5 +203,49 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
       symbiont.Delete();
       return emp::WorldPosition();
     }
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None.
+   *
+   * Purpose: Attempts to inject all of the stress escapee offspring in the
+   * stress escapee offspring vector into hosts; if no host can be found,
+   * the offspring is killed.
+   */
+  void SGPWorld::ProcessStressEscapeeOffspring() {
+    for (auto escapee_data : symbiont_stress_escapee_offspring) {
+      // TODO:stress escape data nodes
+
+      emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> sym_parent_tasks = escapee_data.escapee_offspring.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
+      bool matching = false;
+      emp::WorldPosition neighbor;
+      for (int i = 0; i < 10 && !matching; i++) {
+        neighbor = GetRandomNeighborPos(escapee_data.parent_pos);
+        if (neighbor.IsValid() && IsOccupied(neighbor)) {
+          //check if neighbor host does any task that parent sym did & return if so
+          emp::Ptr<SGPHost> host = pop[neighbor.GetIndex()].DynamicCast<SGPHost>();
+          for (int i = CPU_BITSET_LENGTH - 1; i > -1 && !matching; i--) {
+            if (sgp_config->TRACK_PARENT_TASKS()) {
+              matching = (sym_parent_tasks->Get(i) || escapee_data.grandparent_tasks.Get(i)) &&
+                (host->GetCPU().state.tasks_performed->Get(i) || host->GetCPU().state.parent_tasks_performed->Get(i));
+            }
+            else {
+              matching = sym_parent_tasks->Get(i) && host->GetCPU().state.tasks_performed->Get(i);
+            }
+          }
+        }
+      }
+
+      if (matching && neighbor.IsValid() && IsOccupied(neighbor)) {
+        int new_index = pop[neighbor.GetIndex()]->AddSymbiont(escapee_data.escapee_offspring);
+      }
+      else {
+        escapee_data.escapee_offspring.Delete();
+      }
+    }
+
+    symbiont_stress_escapee_offspring.clear();
   }
 #endif
