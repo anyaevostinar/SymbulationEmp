@@ -33,6 +33,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
   VALUE(SAFE_TIME, size_t, 0, "How many updates at the beginning of the experiment should we wait before starting extinction events?"),
+  VALUE(SYMBIONTS_ESCAPE, bool, 1, "Do symbionts get the chance to escape their host if it dies during an extinction event? (0 for no, 1 for yes)"),
+  VALUE(PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION, size_t, 0, "How many offspring can stress parasite produce for free (no points or cycles required) when host dies during stress event?"),
 )
 
 #endif

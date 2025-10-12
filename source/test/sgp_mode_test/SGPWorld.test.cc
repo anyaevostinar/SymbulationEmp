@@ -773,3 +773,121 @@ TEST_CASE("Preferential ousting", "[sgp]"){
   incoming_symbiont_parent.Delete();
   host.Delete();
 }
+TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp]") {
+  GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
+    emp::Random random(61);
+    SymConfigSGP config;
+    SGPWorld world(random, &config, LogicTasks);
+
+    config.SYM_LIMIT(2);
+    config.EXTINCTION_FREQUENCY(1);
+    config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(3);
+    config.TRACK_PARENT_TASKS(1);
+    config.INTERACTION_MECHANISM(STRESS);
+    config.SYMBIONT_TYPE(1);
+
+    emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> non_matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+
+    host->AddSymbiont(matching_symbiont);
+    host->AddSymbiont(non_matching_symbiont);
+    
+    REQUIRE(host->GetSymbionts().size() == 2);
+
+    host->GetCPU().state.tasks_performed->Set(0);
+    host->GetCPU().state.tasks_performed->Set(1);
+    matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+    
+    world.AddOrgAt(host, 0);
+
+    WHEN("A host dies"){
+      config.BASE_DEATH_CHANCE(1);
+      config.PARASITE_DEATH_CHANCE(1);
+
+      host->Process(0);
+      REQUIRE(host->GetDead() == true);
+      THEN("Matching parasites place offspring in the free reproduction vector") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 3);
+        emp::Ptr<SGPSymbiont> symbiont_1 = world.symbiont_stress_escapee_offspring.at(0).escapee_offspring.DynamicCast<SGPSymbiont>();
+        emp::Ptr<SGPSymbiont> symbiont_2 = world.symbiont_stress_escapee_offspring.at(1).escapee_offspring.DynamicCast<SGPSymbiont>();
+        emp::Ptr<SGPSymbiont> symbiont_3 = world.symbiont_stress_escapee_offspring.at(2).escapee_offspring.DynamicCast<SGPSymbiont>();
+
+        REQUIRE(symbiont_1 != symbiont_2);
+        REQUIRE(symbiont_1->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_1->GetCPU().state.parent_tasks_performed->Get(0) == 1);
+        REQUIRE(symbiont_2->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_2->GetCPU().state.parent_tasks_performed->Get(0) == 1);
+        REQUIRE(symbiont_3->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_3->GetCPU().state.parent_tasks_performed->Get(0) == 1);
+      }
+
+      THEN("Non-matching parasites do not place offspring in the free reproduction vector") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() != 6);
+      }
+    }
+    WHEN("A host does not die") {
+      config.BASE_DEATH_CHANCE(0);
+      config.PARASITE_DEATH_CHANCE(0);
+
+      REQUIRE(host->GetDead() == false);
+      THEN("Its parasites do not place offspring in the free reproduction vector") {
+        // it seems that in Alex's version, symbionts can place in the vector even if symbionts don't die?
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+      }
+    }
+  }
+}
+
+TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
+  WHEN("There are symbionts in the queue") {
+    emp::Random random(69);
+    SymConfigSGP config;
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(10);
+
+    config.SYM_LIMIT(2);
+    config.EXTINCTION_FREQUENCY(1);
+    config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(6);
+    config.TRACK_PARENT_TASKS(1);
+    config.INTERACTION_MECHANISM(STRESS);
+    config.SYMBIONT_TYPE(1);
+    config.BASE_DEATH_CHANCE(0);
+    config.PARASITE_DEATH_CHANCE(1);
+    config.SYM_HORIZ_TRANS_RES(100);
+    config.SYM_MIN_CYCLES_BEFORE_REPRO(50);
+    
+    emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<StressHost> host_2 = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<StressHost> host_3 = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+
+    host->AddSymbiont(matching_symbiont);
+
+    host->GetCPU().state.tasks_performed->Set(0);
+    host_2->GetCPU().state.tasks_performed->Set(0); // vulnerable (to infection) surviving host
+    host_3->GetCPU().state.tasks_performed->Set(1); // non-vulnerable surviving host
+    matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_2, 1);
+    world.AddOrgAt(host_3, 2);
+
+    REQUIRE(world.GetNumOrgs() == 3);
+
+    world.Update();
+    REQUIRE(world.GetNumOrgs() == 2);
+    THEN("They are placed or deleted") {
+      REQUIRE(world.IsOccupied(0) == false);
+      REQUIRE(world.IsOccupied(1) == true); // host_2 should have survived
+      REQUIRE(world.IsOccupied(2) == true); // host_3 should have survived
+
+      REQUIRE(host_2->GetSymbionts().size() > 0); // with six offspring, let's expect the vulnerable host to be infected 
+      REQUIRE(host_2->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(0) == true);
+      REQUIRE(host_3->GetSymbionts().size() == 0); // and the non-matching host to be spared  
+    }
+    THEN("The queue is left empty") {
+      REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+    }
+  }
+}
