@@ -156,7 +156,7 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
   * Note that the position of symbiont parent is a WorldPosition with index as 1-index position
   * in host's syms list and pop_id as host's location in the world
   *
-  * Output: Returns a WorldPosition pointer, a valid one for succesful 
+  * Output: Returns a WorldPosition pointer, a valid one for successful 
   * infection and an invalid for a failed infection
   *
   * Purpose: To place a symbiont in a new location or host in the world. 
@@ -223,7 +223,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   *
   * Output: Returns a bool if the incoming symbiont should be allowed to oust
   *
-  * Purpose: Caclulate preferential ousting success
+  * Purpose: Calculate preferential ousting success
   */
   bool SGPWorld::PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host){
     emp::Ptr<SGPSymbiont> incoming_symbiont = sym_parent.DynamicCast<SGPSymbiont>();
