@@ -513,7 +513,6 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
   }
 }
 
-
 TEST_CASE("SymFindHost can handle transferring Stress Symbiont during stress event", "[sgp]") {
   GIVEN("An SGPWorld with no mutation"){
     emp::Random random(1);
@@ -674,7 +673,7 @@ TEST_CASE("Preferential ousting", "[sgp]"){
     }
   }
 
-
+  
   WHEN("An ousting symbiont has equal task match with a host than the existing symbiont does"){
     // host w/out parent: 000001101
     // host w/ parent:    100001101
@@ -773,6 +772,7 @@ TEST_CASE("Preferential ousting", "[sgp]"){
   incoming_symbiont_parent.Delete();
   host.Delete();
 }
+
 TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp]") {
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(61);
@@ -888,6 +888,84 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
     }
     THEN("The queue is left empty") {
       REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+    }
+  }
+}
+
+TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp]") {
+  
+  GIVEN("Stress is the interaction mechanism") {
+    emp::Random random(69);
+    SymConfigSGP config;
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(10);
+    config.EXTINCTION_FREQUENCY(1);
+    config.INTERACTION_MECHANISM(STRESS);
+    config.SYM_LIMIT(2);
+
+    // create organisms
+    emp::Ptr<StressHost> matching_host = emp::NewPtr<StressHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+    emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+    emp::Ptr<SGPSymbiont> other_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+    
+    emp::Ptr<StressHost> non_matching_host = emp::NewPtr<StressHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+    emp::Ptr<SGPSymbiont> non_matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
+
+    // set task profiles
+    matching_host->GetCPU().state.tasks_performed->Set(8);
+    matching_host->GetCPU().state.tasks_performed->Set(0);
+    matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+
+    non_matching_host->GetCPU().state.tasks_performed->Set(8);
+    non_matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+
+    // place organisms
+    size_t matching_pos = 0;
+    size_t non_matching_pos = 1;
+    matching_host->AddSymbiont(matching_symbiont);
+    matching_host->AddSymbiont(other_symbiont);
+    non_matching_host->AddSymbiont(non_matching_symbiont);
+
+    world.AddOrgAt(matching_host, matching_pos);
+    world.AddOrgAt(non_matching_host, non_matching_pos);
+
+    // check placement
+    REQUIRE(world.GetNumOrgs() == 2);
+    REQUIRE(matching_host->GetSymbionts().size() == 2);
+
+    WHEN("Task matching is required for symbiotic behavior") {
+      config.TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR(1);
+      WHEN("Symbionts are parasitic") {
+        config.BASE_DEATH_CHANCE(0);
+        config.PARASITE_DEATH_CHANCE(1);
+        config.SYMBIONT_TYPE(PARASITE);
+
+        world.Update();
+        REQUIRE(world.GetNumOrgs() == 1);
+
+        THEN("Hosts with matching parasites are assigned the parasite death chance") {
+          REQUIRE(world.IsOccupied(matching_pos) == false);
+        }
+        THEN("Hosts with non-matching parasites are assigned the base death chance") {
+          REQUIRE(world.IsOccupied(non_matching_pos) == true);
+        }
+      }
+
+      WHEN("Symbionts are mutualistic") {
+        config.BASE_DEATH_CHANCE(1);
+        config.MUTUALIST_DEATH_CHANCE(0);
+        config.SYMBIONT_TYPE(MUTUALIST);
+
+        world.Update();
+        REQUIRE(world.GetNumOrgs() == 1);
+
+        THEN("Hosts with matching mutualists are assigned the mutualist death chance") {
+          REQUIRE(world.IsOccupied(matching_pos) == true);
+        }
+        THEN("Hosts with non-matching mutualists are assigned the base death chance") {
+          REQUIRE(world.IsOccupied(non_matching_pos) == false);
+        }
+      }
     }
   }
 }
