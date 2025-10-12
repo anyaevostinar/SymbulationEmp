@@ -26,6 +26,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a host execute before it can reproduce?"),
   VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a symbiont execute before it can reproduce?"),
   VALUE(PREFERENTIAL_OUSTING, size_t, 0, "Should preferential ousting be on, and if so how? (0 = no preferential ousting, 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust, 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust)"),
+  VALUE(TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR, bool, 0, "Is a task match between host and symbiont required for symbiotic behavior (e.g. bestowal of mutualist death change, in stress mode) to occur? (0 for no, 1 for yes)"),
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(EXTINCTION_FREQUENCY, size_t, 2000, "How often should extinction events occur (in updates)?"),

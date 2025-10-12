@@ -84,8 +84,13 @@ public:
     if (IsExtinctionUpdate()) {
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
-        if (sgp_config->SYMBIONT_TYPE() == MUTUALIST) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        else if (sgp_config->SYMBIONT_TYPE() == PARASITE) death_chance = sgp_config->PARASITE_DEATH_CHANCE(); 
+        bool tasks_satisfactory = !sgp_config->TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR();
+        for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
+          tasks_satisfactory = my_world->TaskMatchCheck(syms[j], this);
+        }
+        
+        if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && tasks_satisfactory) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
         if (sgp_config->SYMBIONTS_ESCAPE()) {
