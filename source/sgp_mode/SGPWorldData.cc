@@ -5,6 +5,9 @@
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
 
+#include "emp/datastructs/map_utils.hpp"
+#include "emp/math/info_theory.hpp"
+
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -288,6 +291,83 @@ emp::DataFile& SGPWorld::SetupCurrentUpdateInfoFile(const std::string& filepath)
     "host_sym_any_matches_total"
   );
 
+  // Record task profile diversity measures
+  file.AddFun<size_t>(
+    [this]() -> size_t {
+      return current_update_data.host_parent_tasks_performed.size();
+    },
+    "host_parent_num_task_sets",
+    "How many distinct task sets represented among all host parent tasks performed?"
+  );
+  file.AddFun<double>(
+    [this]() -> double {
+      const auto& task_set_counts = current_update_data.host_parent_tasks_performed;
+      emp::vector<size_t> counts(task_set_counts.size());
+      utils::CollectMapValues(task_set_counts, counts);
+      // Calculate entropy
+      return emp::Entropy(counts);
+    },
+    "host_parent_entropy_task_sets",
+    "Entropy of distinct task sets represented among all host parent tasks performed."
+  );
+
+  file.AddFun<size_t>(
+    [this]() -> size_t {
+      return current_update_data.host_current_tasks_performed.size();
+    },
+    "host_current_num_task_sets",
+    "How many distinct task sets represented among all host current tasks performed?"
+  );
+  file.AddFun<double>(
+    [this]() -> double {
+      const auto& task_set_counts = current_update_data.host_current_tasks_performed;
+      emp::vector<size_t> counts(task_set_counts.size());
+      utils::CollectMapValues(task_set_counts, counts);
+      // Calculate entropy
+      return emp::Entropy(counts);
+    },
+    "host_current_entropy_task_sets",
+    "Entropy of distinct task sets represented among all host current tasks performed."
+  );
+
+  file.AddFun<size_t>(
+    [this]() -> size_t {
+      return current_update_data.sym_parent_tasks_performed.size();
+    },
+    "sym_parent_num_task_sets",
+    "How many distinct task sets represented among all sym parent tasks performed?"
+  );
+  file.AddFun<double>(
+    [this]() -> double {
+      const auto& task_set_counts = current_update_data.sym_parent_tasks_performed;
+      emp::vector<size_t> counts(task_set_counts.size());
+      utils::CollectMapValues(task_set_counts, counts);
+      // Calculate entropy
+      return emp::Entropy(counts);
+    },
+    "sym_parent_entropy_task_sets",
+    "Entropy of distinct task sets represented among all host parent tasks performed."
+  );
+
+  file.AddFun<size_t>(
+    [this]() -> size_t {
+      return current_update_data.sym_current_tasks_performed.size();
+    },
+    "sym_current_num_task_sets",
+    "How many distinct task sets represented among all sym current tasks performed?"
+  );
+  file.AddFun<double>(
+    [this]() -> double {
+      const auto& task_set_counts = current_update_data.sym_current_tasks_performed;
+      emp::vector<size_t> counts(task_set_counts.size());
+      utils::CollectMapValues(task_set_counts, counts);
+      // Calculate entropy
+      return emp::Entropy(counts);
+    },
+    "sym_current_entropy_task_sets",
+    "Entropy of distinct task sets represented among all sym current tasks performed."
+  );
+
   file.PrintHeaderKeys();
   return file;
 }
@@ -310,6 +390,15 @@ void SGPWorld::CollectCurrentUpdateData() {
         current_update_data.host_task_in_parent_org_counts[task_i] += (size_t)host_cpu_state.GetParentTaskPerformed(task_i);
         current_update_data.host_task_in_current_org_counts[task_i] += (size_t)host_cpu_state.GetTaskPerformed(task_i);
       }
+      // - Update counts of host parent/current task performance profiles
+      utils::AddToCountingMap(
+        current_update_data.host_parent_tasks_performed,
+        host_cpu_state.GetParentTasksPerformed()
+      );
+      utils::AddToCountingMap(
+        current_update_data.host_current_tasks_performed,
+        host_cpu_state.GetTasksPerformed()
+      );
       // (2) Update endosymbiont task counts + matching/mismatching info
       emp::vector<emp::Ptr<Organism>>& endosyms = host.GetSymbionts();
       for (size_t sym_i = 0; sym_i < endosyms.size(); ++sym_i) {
@@ -334,6 +423,15 @@ void SGPWorld::CollectCurrentUpdateData() {
         // Update perfect / any matches totals
         current_update_data.host_sym_perfect_matches_total += (size_t)all_match;
         current_update_data.host_sym_any_matches_total += (size_t)any_match;
+        // Update endosymbiont parent/current task performance counts
+        utils::AddToCountingMap(
+          current_update_data.sym_parent_tasks_performed,
+          endosym_cpu_state.GetParentTasksPerformed()
+        );
+        utils::AddToCountingMap(
+          current_update_data.sym_current_tasks_performed,
+          endosym_cpu_state.GetTasksPerformed()
+        );
       }
     }
 
@@ -343,6 +441,11 @@ void SGPWorld::CollectCurrentUpdateData() {
     }
   }
 
+  // Calculate diversity of task profiles
+  // entropy_host_parent_task_sets
+  // entropy_host_current_task_sets
+  // entropy_sym_parent_task_sets
+  // entropy_sym_current_task_sets
 
 }
 

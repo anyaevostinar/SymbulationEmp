@@ -135,6 +135,10 @@ public:
 
     size_t num_tasks;
 
+    std::unordered_map<emp::BitVector, size_t> host_parent_tasks_performed;
+    std::unordered_map<emp::BitVector, size_t> host_current_tasks_performed;
+    std::unordered_map<emp::BitVector, size_t> sym_parent_tasks_performed;
+    std::unordered_map<emp::BitVector, size_t> sym_current_tasks_performed;
     // Reset Current update data, adjust task count
     void Reset(size_t task_count) {
       num_tasks = task_count;
@@ -147,6 +151,11 @@ public:
       utils::ResizeFill(sym_task_in_current_org_counts, num_tasks, 0);
       utils::ResizeFill(host_sym_profile_matches_by_task, num_tasks, 0);
       utils::ResizeFill(host_sym_profile_mismatches_by_task, num_tasks, 0);
+
+      host_parent_tasks_performed.clear();
+      host_current_tasks_performed.clear();
+      sym_parent_tasks_performed.clear();
+      sym_current_tasks_performed.clear();
 
       host_sym_perfect_matches_total = 0;
       host_sym_any_matches_total = 0;
