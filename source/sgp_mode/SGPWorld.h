@@ -7,6 +7,23 @@
 #include "emp/data/DataNode.hpp"
 #include "SGPConfigSetup.h"
 
+struct StressEscapeeOffspring{
+  emp::Ptr<Organism> escapee_offspring;
+  size_t parent_pos;
+  emp::BitSet<CPU_BITSET_LENGTH>& grandparent_tasks;
+
+  StressEscapeeOffspring(
+    emp::Ptr<Organism> sym,
+    size_t loc,
+    emp::BitSet<CPU_BITSET_LENGTH>& _tasks
+  ) :
+    escapee_offspring(sym),
+    parent_pos(loc),
+    grandparent_tasks(_tasks)
+  {
+  }
+};
+
 class SGPWorld : public SymWorld {
 private:
   TaskSet task_set;
@@ -26,6 +43,7 @@ private:
   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   emp::vector<emp::Ptr<Organism>> to_reproduce;
+  emp::vector<StressEscapeeOffspring> symbiont_stress_escapee_offspring;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config),
@@ -34,8 +52,11 @@ public:
   }
 
   ~SGPWorld() {
-    
     // The vectors will delete themselves automatically
+
+    for (auto escapee_data : symbiont_stress_escapee_offspring) {
+      escapee_data.escapee_offspring.Delete();
+    }
   }
 
   /**
@@ -55,6 +76,7 @@ public:
    * Purpose: Allows accessing the world's sgp config.
    */
   const emp::Ptr<SymConfigSGP> GetConfig() const { return sgp_config; }
+
 
   /**
    * Input: None
@@ -124,6 +146,7 @@ public:
     }
     to_reproduce.clear();
 
+    ProcessStressEscapeeOffspring();
     // clean up the graveyard
     // TODO move to a method in SymWorld so that it can be called here
     for (size_t i = 0; i < graveyard.size(); i++) {
@@ -142,10 +165,10 @@ public:
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
   bool PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host);
 
-  // Prototypes for sym transfering
+  // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
-
-
+  void ProcessStressEscapeeOffspring();
+  
   // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
