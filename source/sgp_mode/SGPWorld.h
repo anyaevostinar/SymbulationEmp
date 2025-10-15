@@ -759,6 +759,7 @@ public:
   void WriteOrgReproHistFile(const std::string& filepath);
   emp::DataFile& SetupCurrentUpdateInfoFile(const std::string& filepath);
   void CollectCurrentUpdateData();
+  emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
 
   void CreateDataFiles() override;
 

@@ -42,11 +42,9 @@ void SGPWorld::CreateDataFiles() {
   // Setup current update information file
   std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo.csv");
   SetupCurrentUpdateInfoFile(cur_update_info_fpath).SetTimingRepeat(sgp_config.DATA_INT());
-  // TODO - add prefun to above file
-
-  // BOOKMARK
-
-
+  // Setup file for symbiont interaction values
+  std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues.csv");
+  SetupSymbiontInteractionValuesFile(sym_int_vals_fpath).SetTimingRepeat(sgp_config.DATA_INT());
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -241,6 +239,80 @@ emp::DataFile& SGPWorld::SetupTasksFile(const std::string& filepath) {
   }
 
   file.PrintHeaderKeys();
+  return file;
+}
+
+emp::DataFile& SGPWorld::SetupSymbiontInteractionValuesFile(const std::string& filepath) {
+  // NOTE - Writing a new function here instead of using SetupSymIntValFile in base class
+  //        to optimize timing of looping over population to collect sym interaction values
+  //        Base class version loops every update. Don't need to loop so often.
+  //        Can just collect data before updating output file.
+  auto& file = SetupFile(filepath);
+  // Setup symintval data node
+  // Not using GetSymIntValDataNode to allow optimization of when we
+  // scan population for these data.
+  if (data_node_symintval != nullptr) {
+    data_node_symintval.Delete();
+  }
+  data_node_symintval.New();
+  // Create symcount node
+  if (data_node_symcount != nullptr) {
+    data_node_symcount.Delete();
+  }
+  data_node_symcount.New();
+  // SetupBins pulled from GetSymIntValDataNode() funciton in base class.
+  data_node_symintval->SetupBins(-1.0, 1.1, 21);
+
+  file.AddPreFun(
+    [this]() {
+      // Assert that organism count data nodes have been updated for this update.
+      // Should happen for OrgCounts data file
+      data_node_symintval->Reset();
+      data_node_symcount->Reset();
+      for (size_t pop_i = 0; pop_i < pop.size(); ++pop_i) {
+        if (IsOccupied(pop_i)) {
+          emp::vector<emp::Ptr<Organism>>& syms = pop[pop_i]->GetSymbionts();
+          data_node_symcount->AddDatum(syms.size());
+          for (size_t sym_i = 0; sym_i < syms.size(); ++sym_i) {
+            data_node_symintval->AddDatum(syms[sym_i]->GetIntVal());
+          }
+        }
+        if (sym_pop[pop_i]) {
+          data_node_symintval->AddDatum(sym_pop[pop_i]->GetIntVal());
+          data_node_symcount->AddDatum(1);
+        }
+      }
+    }
+  );
+
+  file.AddVar(update, "update", "Update");
+  file.AddMean(*data_node_symintval, "mean_intval", "Average symbiont interaction value");
+  file.AddTotal(*data_node_symcount, "count", "Total number of symbionts");
+
+  //interaction val histogram
+  file.AddHistBin(*data_node_symintval, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
+  file.AddHistBin(*data_node_symintval, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
+  file.AddHistBin(*data_node_symintval, 2, "Hist_-0.8", "Count for histogram bin -0.8 to <-0.7");
+  file.AddHistBin(*data_node_symintval, 3, "Hist_-0.7", "Count for histogram bin -0.7 to <-0.6");
+  file.AddHistBin(*data_node_symintval, 4, "Hist_-0.6", "Count for histogram bin -0.6 to <-0.5");
+  file.AddHistBin(*data_node_symintval, 5, "Hist_-0.5", "Count for histogram bin -0.5 to <-0.4");
+  file.AddHistBin(*data_node_symintval, 6, "Hist_-0.4", "Count for histogram bin -0.4 to <-0.3");
+  file.AddHistBin(*data_node_symintval, 7, "Hist_-0.3", "Count for histogram bin -0.3 to <-0.2");
+  file.AddHistBin(*data_node_symintval, 8, "Hist_-0.2", "Count for histogram bin -0.2 to <-0.1");
+  file.AddHistBin(*data_node_symintval, 9, "Hist_-0.1", "Count for histogram bin -0.1 to <0.0");
+  file.AddHistBin(*data_node_symintval, 10, "Hist_0.0", "Count for histogram bin 0.0 to <0.1");
+  file.AddHistBin(*data_node_symintval, 11, "Hist_0.1", "Count for histogram bin 0.1 to <0.2");
+  file.AddHistBin(*data_node_symintval, 12, "Hist_0.2", "Count for histogram bin 0.2 to <0.3");
+  file.AddHistBin(*data_node_symintval, 13, "Hist_0.3", "Count for histogram bin 0.3 to <0.4");
+  file.AddHistBin(*data_node_symintval, 14, "Hist_0.4", "Count for histogram bin 0.4 to <0.5");
+  file.AddHistBin(*data_node_symintval, 15, "Hist_0.5", "Count for histogram bin 0.5 to <0.6");
+  file.AddHistBin(*data_node_symintval, 16, "Hist_0.6", "Count for histogram bin 0.6 to <0.7");
+  file.AddHistBin(*data_node_symintval, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
+  file.AddHistBin(*data_node_symintval, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
+  file.AddHistBin(*data_node_symintval, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+
+  file.PrintHeaderKeys();
+
   return file;
 }
 
