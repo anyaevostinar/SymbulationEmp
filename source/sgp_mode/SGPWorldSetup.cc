@@ -287,71 +287,110 @@ void SGPWorld::SetupStressInteractions() {
       }
     );
   } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {
-    // Use parasite death chance
-    before_host_process_sig.AddAction(
-      [this](sgp_host_t& host) {
-        if (!stress_extinction_update) return;
-        // If host has a symbiont, death_chance = parasite death chance
-        // Otherwise, base death chance.
-        double death_chance = sgp_config.BASE_DEATH_CHANCE();
-
-        auto& endosymbionts = host.GetSymbionts();
-        const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-        // emp::vector<size_t> escapee_ids;
-        for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
-          // Check if symbiont matches task profile
-          emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-          const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-          const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
-          if (can_escape) {
-            death_chance = sgp_config.PARASITE_DEATH_CHANCE();
-            // escapee_ids.emplace_back(sym_i);
-            // Endosymbiont gets opportunity to horizontally transmit
-            // By using this queue, offspring of parasites avoid getting into hosts that will die to the
-            // current stress event.
-            for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
-              emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
-              symbiont_stress_escapees.emplace_back(
-                static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-                endosym_task_profile,
-                endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
-              );
+    if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match") {
+      // Parasites that match with their host get to produce escapees regardless
+      // of whether host dies
+      before_host_process_sig.AddAction(
+        [this](sgp_host_t& host) {
+          if (!stress_extinction_update) return;
+          // If host has a symbiont, death_chance = parasite death chance
+          // Otherwise, base death chance.
+          double death_chance = sgp_config.BASE_DEATH_CHANCE();
+          auto& endosymbionts = host.GetSymbionts();
+          const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+          for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
+            // Check if symbiont matches task profile
+            emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
+            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+            const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+            if (can_escape) {
+              death_chance = sgp_config.PARASITE_DEATH_CHANCE();
+              // Endosymbiont gets opportunity to horizontally transmit
+              // By using this queue, offspring of parasites avoid getting into hosts that will die to the
+              // current stress event.
+              for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
+                emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+                symbiont_stress_escapees.emplace_back(
+                  static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+                  endosym_task_profile,
+                  endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+                );
+              }
+              // Once we leave this signal, the host (and this symbiont) will
+              // potentially be deleted.
+              // So, we need to handle the reproduction here (versus putting it into the queue).
             }
+          }
+          // Kill host with chosen probability
+          if (random_ptr->P(death_chance)) {
+            host.SetDead();
+          }
+        }
+      );
+    } else if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match-host-death") {
+      // Parasites that match with their host get to produce escapees only when
+      // their host dies.
+      before_host_process_sig.AddAction(
+        [this](sgp_host_t& host) {
+          if (!stress_extinction_update) return;
+          // If host has a symbiont, death_chance = parasite death chance
+          // Otherwise, base death chance.
+          double death_chance = sgp_config.BASE_DEATH_CHANCE();
+          auto& endosymbionts = host.GetSymbionts();
+          const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+          emp::vector<size_t> escapee_ids;
+          for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
+            // Check if symbiont matches task profile
+            emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
+            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+            const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+            if (can_escape) {
+              death_chance = sgp_config.PARASITE_DEATH_CHANCE();
+              escapee_ids.emplace_back(sym_i);
+            }
+          }
+          // Kill host with chosen probability + allow escapees.
+          if (random_ptr->P(death_chance)) {
+            // ------
+            // Give any escapees a chance to escape!
             // Once we leave this signal, the host (and this symbiont) will
             // potentially be deleted.
             // So, we need to handle the reproduction here (versus putting it into the queue) .
+            for (size_t escapee_id : escapee_ids) {
+              emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
+              const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+              for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
+                emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+                symbiont_stress_escapees.emplace_back(
+                  static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+                  endosym_task_profile,
+                  endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+                );
+              }
+            }
+            // ------
+            // Mark host as dead
+            host.SetDead();
           }
         }
-
-        // Kill host with chosen probability
-        if (random_ptr->P(death_chance)) {
-          host.SetDead();
-          // ------
-          // Give escapees a chance to escape!
-          // for (size_t escapee_id : escapee_ids) {
-          //   emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
-          //   const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-          //   for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
-          //     emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
-          //     symbiont_stress_escapees.emplace_back(
-          //       static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-          //       endosym_task_profile,
-          //       endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
-          //     );
-          //   }
-          // }
-          // ------
-        }
-      }
-    );
+      );
+    } else {
+      std::cout << "Unknown PARASITE_ESCAPEE_TIMING option: " << sgp_config.PARASITE_ESCAPEE_TIMING() << std::endl;
+      exit(-1);
+    }
   } else if (GetStressSymType() == stress_sym_mode_t::INTERACTION_VALUE_BASED) {
+    // This mode assumes: [mutualist death chance <= base death chance <= parasite death chance]
+    // We use symbiont's interaciton value to scale death chance between mutualist:base or base:parasite
+    emp_assert(sgp_config.BASE_DEATH_CHANCE() <= sgp_config.PARASITE_DEATH_CHANCE());
+    emp_assert(sgp_config.BASE_DEATH_CHANCE() >= sgp_config.MUTUALIST_DEATH_CHANCE());
+    // NOTE - this is implementing assuming 1 host / 1 parasite
     before_host_process_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
-        // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
-        // Otherwise, base death chance.
         const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+        emp::vector<size_t> escapee_ids; // Any parasite escapees?
         bool interact = false;
+        double endosym_interaction_value = 0.0;
         auto& endosymbionts = host.GetSymbionts();
         for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
           // Check if symbiont matches task profile
@@ -361,16 +400,58 @@ void SGPWorld::SetupStressInteractions() {
             fun_get_sym_task_profile(*endosym_ptr)
           );
           if (interact) {
+            endosym_interaction_value = endosym_ptr->GetIntVal();
+            if (endosym_interaction_value < 0.0) {
+              escapee_ids.emplace_back(sym_i);
+            }
             break;
           }
         }
-        const double death_chance = 0.0;
-        // TODO update death chance
-        // const double death_chance = (interact) ?
-        //   sgp_config.MUTUALIST_DEATH_CHANCE() :
-        //   sgp_config.BASE_DEATH_CHANCE();
-        // Kill host with chosen probability
+        // Calculate death chance based on endosymbiont interaction value
+        const double base_death_chance = sgp_config.BASE_DEATH_CHANCE();
+        const double mutualist_death_chance = sgp_config.MUTUALIST_DEATH_CHANCE();
+        const double parasite_death_chance = sgp_config.PARASITE_DEATH_CHANCE();
+        double death_chance = base_death_chance;
+        emp_assert(endosym_interaction_value >= -1.0);
+        emp_assert(endosym_interaction_value <= 1.0);
+        if (interact && (endosym_interaction_value < 0.0)) {
+          // Parasitic interaction
+          // Lots of asserts to ensure death chance working as expected.
+          emp_assert(base_death_chance <= parasite_death_chance);
+          const double chance_range = parasite_death_chance - base_death_chance;
+          // Death chance is already base death chance, adjust up by value scaled
+          //   by interaction value.
+          death_chance += (chance_range * (-1 * endosym_interaction_value));
+          emp_assert(death_chance <= parasite_death_chance);
+          emp_assert(death_chance >= base_death_chance);
+        } else if (interact && (endosym_interaction_value > 0.0)) {
+          // Mutualistic interaction
+          emp_assert(base_death_chance >= mutualist_death_chance);
+          const double chance_range = base_death_chance - mutualist_death_chance;
+          death_chance -= (chance_range * endosym_interaction_value);
+          emp_assert(death_chance <= base_death_chance);
+          emp_assert(death_chance >= mutualist_death_chance);
+        } // Otherwise, interaction value == 0.0, no interaction (neutral).
+
+        // Kill host with chosen probability + allow any parasite escapees out
         if (random_ptr->P(death_chance)) {
+          // ------
+          // Give any escapees a chance to escape!
+          // Once we leave this signal, the host (and this symbiont) will
+          // potentially be deleted.
+          // So, we need to handle the reproduction here (versus putting it into the queue) .
+          for (size_t escapee_id : escapee_ids) {
+            emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
+            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
+            for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
+              emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
+              symbiont_stress_escapees.emplace_back(
+                static_cast<sgp_sym_t*>(sym_offspring.Raw()),
+                endosym_task_profile,
+                endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+              );
+            }
+          }
           host.SetDead();
         }
       }

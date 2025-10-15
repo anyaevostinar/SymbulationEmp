@@ -48,6 +48,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
   VALUE(PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION, size_t, 1, "Number of offspring stress parasite can produce when host dies during stress event"),
+  VALUE(PARASITE_ESCAPEE_TIMING, std::string, "on-match-host-death", "When should parasites have the opportunity to produce escapees during a stress event? Options: on-match-host-death, on-match"),
 
   // NOTE - HEALTH_X is less descriptive than STRESS_X; shift language to HEALTH_INTERACTION_X?
   GROUP(HEALTH, "Health interaction settings"),
