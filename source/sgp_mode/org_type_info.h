@@ -12,9 +12,9 @@ namespace sgpmode::org_info {
 const size_t DEFAULT_STACK_SIZE_LIMIT = 16;
 
 enum class SGPOrganismType { DEFAULT = 0 };
-enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
-enum class HealthSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
-enum class NutrientSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
+enum class StressSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL, INTERACTION_VALUE_BASED };
+enum class HealthSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL, INTERACTION_VALUE_BASED };
+enum class NutrientSymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL, INTERACTION_VALUE_BASED };
 
 // Mapping from commandline string configuration to organism type.
 std::unordered_map<std::string, SGPOrganismType> sgp_org_type_map = {
@@ -25,21 +25,24 @@ std::unordered_map<std::string, SGPOrganismType> sgp_org_type_map = {
 std::unordered_map<std::string, StressSymbiontType> sgp_stress_sym_type_map = {
   {"mutualist", StressSymbiontType::MUTUALIST},
   {"parasite", StressSymbiontType::PARASITE},
-  {"neutral", StressSymbiontType::NEUTRAL}
+  {"neutral", StressSymbiontType::NEUTRAL},
+  {"interaction-value", StressSymbiontType::INTERACTION_VALUE_BASED}
 };
 
 // Mapping from commandline health symbiont type string to health symbiont type.
 std::unordered_map<std::string, HealthSymbiontType> sgp_health_sym_type_map = {
   {"mutualist", HealthSymbiontType::MUTUALIST},
   {"parasite", HealthSymbiontType::PARASITE},
-  {"neutral", HealthSymbiontType::NEUTRAL}
+  {"neutral", HealthSymbiontType::NEUTRAL},
+  {"interaction-value", HealthSymbiontType::INTERACTION_VALUE_BASED}
 };
 
 // Mapping from commandline nutrient symbiont type string to nutrient symbiont type.
 std::unordered_map<std::string, NutrientSymbiontType> sgp_nutrient_sym_type_map = {
   {"mutualist", NutrientSymbiontType::MUTUALIST},
   {"parasite", NutrientSymbiontType::PARASITE},
-  {"neutral", NutrientSymbiontType::NEUTRAL}
+  {"neutral", NutrientSymbiontType::NEUTRAL},
+  {"interaction-value", NutrientSymbiontType::INTERACTION_VALUE_BASED}
 };
 
 bool IsValidOrganismType(const std::string& type_str) {

@@ -344,6 +344,37 @@ void SGPWorld::SetupStressInteractions() {
         }
       }
     );
+  } else if (GetStressSymType() == stress_sym_mode_t::INTERACTION_VALUE_BASED) {
+    before_host_process_sig.AddAction(
+      [this](sgp_host_t& host) {
+        if (!stress_extinction_update) return;
+        // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
+        // Otherwise, base death chance.
+        const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+        bool interact = false;
+        auto& endosymbionts = host.GetSymbionts();
+        for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
+          // Check if symbiont matches task profile
+          emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
+          interact = fun_task_profile_compatibility_check(
+            host_task_profile,
+            fun_get_sym_task_profile(*endosym_ptr)
+          );
+          if (interact) {
+            break;
+          }
+        }
+        const double death_chance = 0.0;
+        // TODO update death chance
+        // const double death_chance = (interact) ?
+        //   sgp_config.MUTUALIST_DEATH_CHANCE() :
+        //   sgp_config.BASE_DEATH_CHANCE();
+        // Kill host with chosen probability
+        if (random_ptr->P(death_chance)) {
+          host.SetDead();
+        }
+      }
+    );
   } else if (GetStressSymType() == stress_sym_mode_t::NEUTRAL) {
     // Symbionts have no effect on hosts with respect to stress event.
     before_host_process_sig.AddAction(
