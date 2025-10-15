@@ -167,15 +167,10 @@ void SGPWorld::SetupHealthInteractions() {
 
         const auto& host_task_profile = fun_get_host_task_profile(host);
         const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-        // interact = interact && utils::AnyMatchingOnes(
-        //   host_task_profile,
-        //   sym_task_profile
-        // );
         interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
 
         const double donate_prop = sgp_config.MUTUALIST_CYCLE_GAIN_PROP();
         emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
-        // const double sym_cycles = (double)sym_state.GetCPUCyclesGained();
         const double sym_cycles = (double)sym_state.GetCPUCyclesToExec();
         // How much will sym donate?
         size_t sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles));
@@ -210,10 +205,6 @@ void SGPWorld::SetupHealthInteractions() {
         bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
         const auto& host_task_profile = fun_get_host_task_profile(host);
         const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-        // interact = interact && utils::AnyMatchingOnes(
-        //   host_task_profile,
-        //   sym_task_profile
-        // );
         interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
 
         const double steal_prop = sgp_config.PARASITE_CYCLE_LOSS_PROP();
@@ -232,7 +223,61 @@ void SGPWorld::SetupHealthInteractions() {
   } else if (GetHealthSymType() == health_sym_mode_t::INTERACTION_VALUE_BASED) {
     // Symbiont interaction value used to determine whether symbiont is a mutualist
     //   or parasite. Interaction intensity scales according to interaction value.
-    // TODO
+    before_endosym_host_process_sig.AddAction(
+      [this](
+        const emp::WorldPosition& sym_pos,
+        sgp_sym_t& sym,
+        sgp_host_t& host
+      ) {
+        auto& sym_state = sym.GetHardware().GetCPUState();
+        // If symbiont is dead or doesn't have a host, skip.
+        if (sym.GetDead()) { return; }
+        auto& host_state = host.GetHardware().GetCPUState();
+        // Will host and symbiont interact?
+        bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
+        const auto& host_task_profile = fun_get_host_task_profile(host);
+        const auto& sym_task_profile = fun_get_sym_task_profile(sym);
+        interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+        const double sym_interaction_value = sym.GetIntVal();
+        emp_assert(sym_interaction_value >= -1.0);
+        emp_assert(sym_interaction_value <= 1.0 );
+        if (interact && (sym_interaction_value < 0.0)) {
+          // Parasitic interaction
+          // Steal proportion bounded: [0:cycle_loss_prop]
+          emp_assert(sgp_config.PARASITE_CYCLE_LOSS_PROP() <= 1.0);
+          emp_assert(sgp_config.PARASITE_CYCLE_LOSS_PROP() >= 0.0);
+          const double steal_prop = (-1 * sym_interaction_value) * sgp_config.PARASITE_CYCLE_LOSS_PROP();
+          emp_assert(steal_prop <= 1.0 && steal_prop >= 0.0);
+          // How much?
+          const double host_cycles = (double)host_state.GetCPUCyclesToExec();
+          const size_t sym_steal = (size_t)(steal_prop * host_cycles);
+          // Set parasite CPU cycles
+          // - Open question to how we want to do this
+          sym_state.SetCPUCyclesToExec(
+            (size_t)(sgp_config.PARASITE_BASE_CYCLE_PROP() * sgp_config.CYCLES_PER_UPDATE())
+          );
+          // Adjust sym and host states
+          sym_state.GainCPUCycles(sgp_config.PARASITE_CYCLE_STEAL_MULTIPLIER() * sym_steal);
+          host_state.LoseCPUCycles(sym_steal);
+        } else if (interact && (sym_interaction_value > 0.0)) {
+          // Mutualistic interaction
+          // Donate bounded: [0:cycle_gain_prop]
+          emp_assert(sgp_config.MUTUALIST_CYCLE_GAIN_PROP() <= 1.0);
+          emp_assert(sgp_config.MUTUALIST_CYCLE_GAIN_PROP() >= 0.0);
+          const double donate_prop = sym_interaction_value * sgp_config.MUTUALIST_CYCLE_GAIN_PROP();
+          emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
+          const double sym_cycles = (double)sym_state.GetCPUCyclesToExec();
+          // How much will sym donate?
+          size_t sym_donate = (size_t)(donate_prop * sym_cycles);
+          emp_assert(sym_donate >= 0);
+          sym_state.LoseCPUCycles(emp::Min(sym_donate, sym_state.GetCPUCyclesToExec()));
+          // Adjust host's cpu cycles
+          host.GetHardware().GetCPUState().GainCPUCycles(
+            sgp_config.MUTUALIST_CYCLE_DONATE_MULTIPLIER() * sym_donate
+          );
+        } // Otherwise, no/neutral interaction.
+      }
+    );
   } else if (GetHealthSymType() == health_sym_mode_t::NEUTRAL) {
     // Symbionts are hardcoded as health neutralists.
     // Not health interaction here?
