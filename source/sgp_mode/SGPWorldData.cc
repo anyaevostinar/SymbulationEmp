@@ -33,9 +33,9 @@ void SGPWorld::CreateDataFiles() {
   // Setup transmission file
   std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
   SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
-  // Setup sym donated file
-  std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
-  SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  // // Setup sym donated file
+  // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
+  // SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup tasks file
   std::filesystem::path tasks_fpath = output_dir / ("Tasks.csv");
   SetupTasksFile(tasks_fpath).SetTimingRepeat(sgp_config.DATA_INT());
@@ -51,16 +51,56 @@ void SGPWorld::CreateDataFiles() {
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
   auto& file = SetupFile(filepath);
-  auto& host_count = GetHostCountDataNode();
-  auto& endosym_count = GetCountHostedSymsDataNode();
-  auto& freeliving_sym_count = GetCountFreeSymsDataNode();
+  // NOTE: Not using GetHostCountDataNode() to create to avoid adding
+  //       counting loop to OnUpdate. Just call counting loop before outputting
+  //       count file line.
+  // (1) Create host count data node
+  if (data_node_hostcount != nullptr) {
+    data_node_hostcount.Delete();
+  }
+  data_node_hostcount.New();
+  // (2) Create hosted syms data node
+  if (data_node_hostedsymcount != nullptr) {
+    data_node_hostedsymcount.Delete();
+  }
+  data_node_hostedsymcount.New();
+  // (3) Create free syms data node
+  if (data_node_freesymcount != nullptr) {
+    data_node_freesymcount.Delete();
+  }
+  data_node_freesymcount.New();
+
+  // auto& host_count = GetHostCountDataNode();
+  // auto& endosym_count = GetCountHostedSymsDataNode();
+  // auto& freeliving_sym_count = GetCountFreeSymsDataNode();
+
+  // Calculate counts before updating file.
+  // NOTE - this happens less frequently than what base class's data nodes would
+  //        be updated!
+  file.AddPreFun(
+    [this]() {
+      // Update: host count node, hosted syms node, free syms node
+      data_node_hostcount->Reset();
+      data_node_hostedsymcount->Reset();
+      data_node_freesymcount->Reset();
+      for (size_t pop_i = 0; pop_i < pop.size(); ++pop_i) {
+        if (IsOccupied(pop_i)) {
+          data_node_hostcount->AddDatum(1);
+          data_node_hostedsymcount->AddDatum(pop[pop_i]->GetSymbionts().size());
+        }
+        if (sym_pop[pop_i]) {
+          data_node_freesymcount->AddDatum(1);
+        }
+      }
+    }
+  );
 
   file.AddVar(update, "update", "World update");
-  file.AddTotal(host_count, "host_count", "Total number of hosts");
-  file.AddTotal(endosym_count, "hosted_sym_count", "Total number of syms in a host");
+  file.AddTotal(*data_node_hostcount, "host_count", "Total number of hosts");
+  file.AddTotal(*data_node_hostedsymcount, "hosted_sym_count", "Total number of syms in a host");
   // NOTE - this was previously only on file if in free living syms mode
   //        do we want to have a variable number of columns per run?
-  file.AddTotal(freeliving_sym_count, "free_sym_count", "Total number of free-living syms");
+  file.AddTotal(*data_node_freesymcount, "free_sym_count", "Total number of free-living syms");
   file.PrintHeaderKeys();
   return file;
 }

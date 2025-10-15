@@ -229,6 +229,10 @@ void SGPWorld::SetupHealthInteractions() {
         host_state.LoseCPUCycles(sym_steal);
       }
     );
+  } else if (GetHealthSymType() == health_sym_mode_t::INTERACTION_VALUE_BASED) {
+    // Symbiont interaction value used to determine whether symbiont is a mutualist
+    //   or parasite. Interaction intensity scales according to interaction value.
+    // TODO
   } else if (GetHealthSymType() == health_sym_mode_t::NEUTRAL) {
     // Symbionts are hardcoded as health neutralists.
     // Not health interaction here?
@@ -563,6 +567,11 @@ void SGPWorld::SetupNutrientInteractions() {
         return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
       }
     };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
+    // Symbiont interaction value determines whether interaction is parasitic (negative)
+    //   or mutualistic (positive). Interacition intensity is scaled by symbiont's
+    //   interaction value.
+    // TODO
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
     // Keep default behavior
   } else {
