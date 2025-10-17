@@ -251,7 +251,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
       }
 
       if (matching && neighbor.IsValid() && IsOccupied(neighbor)) {
-        int new_index = pop[neighbor.GetIndex()]->AddSymbiont(escapee_data.escapee_offspring);
+        pop[neighbor.GetIndex()]->AddSymbiont(escapee_data.escapee_offspring);
       }
       else {
         escapee_data.escapee_offspring.Delete();
