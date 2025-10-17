@@ -329,22 +329,23 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   world.AddOrgAt(host, 0);
   host->AddSymbiont(sym);
     
-WHEN("A symbiont performs a Donate instruction"){
-  sym->GetCPU().RunCPUStep(0, 100);
-  (*(sym->GetCPU().state.tasks_performed))[0] = 0;
-  THEN("The host should be set to gain 4 cycles from the symbiont"){
-    REQUIRE(host->GetCyclesGiven() == 1);
-  }
-  for (size_t i = 0; i < 24; i++) {
-    world.Update();
+  WHEN("A symbiont performs a Donate instruction"){
+    sym->GetCPU().RunCPUStep(0, 100);
+    (*(sym->GetCPU().state.tasks_performed))[0] = 0;
+    THEN("The host should be set to gain 4 cycles from the symbiont"){
+      REQUIRE(host->GetCyclesGiven() == 1);
     }
-THEN("The host should complete its task one update early"){
-  REQUIRE(host->GetCPU().state.tasks_performed->Get(0) == true);
-}
-  world.Update();
-  THEN("The symbiont should be unable to complete its task in 25 updates"){
-    REQUIRE(sym->GetCPU().state.tasks_performed->Get(0) == false);
-  }
 
-}
+    for (size_t i = 0; i < 24; i++) {
+      world.Update();
+    }
+    THEN("The host should complete its task one update early"){
+      REQUIRE(host->GetCPU().state.tasks_performed->Get(0) == true);
+    }
+
+    world.Update();
+    THEN("The symbiont should be unable to complete its task in 25 updates"){
+      REQUIRE(sym->GetCPU().state.tasks_performed->Get(0) == false);
+    }
+  }
 }
