@@ -52,8 +52,11 @@ public:
   }
 
   ~SGPWorld() {
-    // The vectors will delete themselves automatically
+    // data node deletes 
+    if (data_node_steal_count) data_node_steal_count.Delete();
+    if (data_node_donate_count) data_node_donate_count.Delete();
 
+    // The vectors will delete themselves automatically
     for (auto escapee_data : symbiont_stress_escapee_offspring) {
       escapee_data.escapee_offspring.Delete();
     }
