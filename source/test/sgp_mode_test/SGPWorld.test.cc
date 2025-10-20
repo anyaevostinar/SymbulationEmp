@@ -636,7 +636,7 @@ TEST_CASE("Preferential ousting", "[sgp]"){
     WHEN("Preferential ousting is off"){ // sanity check that setting is toggleable
       config.PREFERENTIAL_OUSTING(0);
       THEN("Ousting succeeds"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
       }
     }
     WHEN("Preferential ousting is on"){
@@ -645,13 +645,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
       }
@@ -660,13 +660,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
       }
@@ -694,13 +694,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
       }
@@ -709,13 +709,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == false);
           }
         }
       }
@@ -742,13 +742,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
       }
@@ -757,13 +757,13 @@ TEST_CASE("Preferential ousting", "[sgp]"){
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent->GetInfectionTaskSet(), host) == true);
           }
         }
       }
