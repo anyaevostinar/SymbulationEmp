@@ -121,12 +121,8 @@ public:
     ProcessReproductionQueue();
     
     ProcessStressEscapeeOffspring();
-    // clean up the graveyard
-    // TODO move to a method in SymWorld so that it can be called here
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
-    }
-    graveyard.clear();
+    
+    CleanupGraveyard();
   }
 
   // Prototypes for setup methods

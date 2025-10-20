@@ -795,6 +795,20 @@ public:
     return result;
   }
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To loop over and delete elements in the graveyard.
+   */
+  void CleanupGraveyard() {
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
+  }
+
 
   /**
    * Input: None
@@ -830,10 +844,7 @@ public:
     } // for each cell in schedule
   
     // clean up the graveyard
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
-    }
-    graveyard.clear();
+    CleanupGraveyard();
   } // Update()
 };// SymWorld class
 #endif
