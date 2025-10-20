@@ -170,7 +170,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     int new_host_pos = GetNeighborHost(i, parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
     if (new_host_pos > -1) { //-1 means no living neighbors
       if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
-        if(!PreferentialOustingAllowed(parent, pop[new_host_pos])){
+        if(!PreferentialOustingAllowed(parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), pop[new_host_pos])){
           sym_baby.Delete();
           return emp::WorldPosition();
         }
@@ -203,7 +203,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     int new_host_pos = GetNeighborHost(i, symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
     if (new_host_pos > -1) { //-1 means no living neighbors
       if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
-        if(!PreferentialOustingAllowed(symbiont, pop[new_host_pos])){
+        if(!PreferentialOustingAllowed(symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), pop[new_host_pos])){
           symbiont.Delete();
           return emp::WorldPosition();
         }
@@ -271,9 +271,8 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   *
   * Purpose: Calculate preferential ousting success
   */
-  bool SGPWorld::PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host){
+  bool SGPWorld::PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host){
     emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = host.DynamicCast<SGPHost>()->GetInfectionTaskSet(); 
-    emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
       emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();

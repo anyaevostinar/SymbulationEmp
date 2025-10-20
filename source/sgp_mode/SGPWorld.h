@@ -140,7 +140,7 @@ public:
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
   int GetNeighborHost(size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks);
   bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
-  bool PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host);
+  bool PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host);
 
   // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
