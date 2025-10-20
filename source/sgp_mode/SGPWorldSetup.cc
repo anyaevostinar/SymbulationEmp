@@ -196,8 +196,13 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
    * the offspring is killed.
    */
   void SGPWorld::ProcessStressEscapeeOffspring() {
-    // todo: shuffle escapees 
-    for (auto escapee_data : symbiont_stress_escapee_offspring) {
+    // Shuffle escapees to avoid latecomer bias 
+    emp::vector<size_t> e(symbiont_stress_escapee_offspring.size());
+    std::iota(e.begin(), e.end(), 0);
+    emp::Shuffle(*random_ptr, e);
+
+    for (size_t escapee_i : e) {
+      StressEscapeeOffspring& escapee_data = symbiont_stress_escapee_offspring[escapee_i];
       // TODO:stress escape data nodes
 
       emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> sym_parent_tasks = escapee_data.escapee_offspring.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
