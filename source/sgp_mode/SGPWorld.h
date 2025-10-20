@@ -118,37 +118,8 @@ public:
     }
 
 
-    //TODO: move to a method
-    for (auto org : to_reproduce) {
-      if (org == nullptr || org->GetDead())
-        continue;
-      emp::Ptr<Organism> child = org->Reproduce();
-      if (child->IsHost()) {
-        // Host::Reproduce() doesn't take care of vertical transmission, that
-        // happens here
-        for (auto &sym : org->GetSymbionts()) {
-          // don't vertically transmit if they must task match but don't
-          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
-          sym->VerticalTransmission(child);
-        }
-        DoBirth(child, org->GetLocation());
-      } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, org->GetLocation());
-        // Because we're not calling HorizontalTransmission, we need to adjust
-        // these data nodes here
-        emp::DataMonitor<int> &data_node_attempts_horiztrans =
-            GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
-
-        emp::DataMonitor<int> &data_node_successes_horiztrans =
-            GetHorizontalTransmissionSuccessCount();
-        if (new_pos.IsValid()) {
-          data_node_successes_horiztrans.AddDatum(1);
-        }
-      }
-    }
-    to_reproduce.clear();
-
+    ProcessReproductionQueue();
+    
     ProcessStressEscapeeOffspring();
     // clean up the graveyard
     // TODO move to a method in SymWorld so that it can be called here
@@ -161,6 +132,9 @@ public:
   // Prototypes for setup methods
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
+
+  // Update helper methods
+  void ProcessReproductionQueue();
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
