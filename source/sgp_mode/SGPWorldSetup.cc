@@ -131,7 +131,7 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
   * Purpose: To place a symbiont in a new location or host in the world. 
   */
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
-   size_t i = parent_pos.GetPopID();
+    size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
     int new_host_pos = GetNeighborHost(i, parent);
     if (new_host_pos > -1) { //-1 means no living neighbors
@@ -165,7 +165,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   * Purpose: To place a symbiont in a new location or host in the world. 
   */
   emp::WorldPosition SGPWorld::SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos) {
-   size_t i = cur_pos.GetPopID();
+    size_t i = cur_pos.GetPopID();
     int new_host_pos = GetNeighborHost(i, symbiont);
     if (new_host_pos > -1) { //-1 means no living neighbors
       if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
