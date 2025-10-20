@@ -167,24 +167,7 @@ bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, em
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
-    int new_host_pos = GetNeighborHost(i, parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
-    if (new_host_pos > -1) { //-1 means no living neighbors
-      if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
-        if(!PreferentialOustingAllowed(parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), pop[new_host_pos])){
-          sym_baby.Delete();
-          return emp::WorldPosition();
-        }
-      }
-      int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
-      if(new_index > 0){ //sym successfully infected
-        return emp::WorldPosition(new_index, new_host_pos);
-      } else { //sym got killed trying to infect
-        return emp::WorldPosition();
-      }
-    } else {
-      sym_baby.Delete();
-      return emp::WorldPosition();
-    }
+    return PlaceSymbiontInHost(sym_baby, parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), i);
   }
 
 
@@ -200,24 +183,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   */
   emp::WorldPosition SGPWorld::SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos) {
     size_t i = cur_pos.GetPopID();
-    int new_host_pos = GetNeighborHost(i, symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
-    if (new_host_pos > -1) { //-1 means no living neighbors
-      if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
-        if(!PreferentialOustingAllowed(symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), pop[new_host_pos])){
-          symbiont.Delete();
-          return emp::WorldPosition();
-        }
-      }
-      int new_index = pop[new_host_pos]->AddSymbiont(symbiont);
-      if(new_index > 0){ //sym successfully infected
-        return emp::WorldPosition(new_index, new_host_pos);
-      } else { //sym got killed trying to infect
-        return emp::WorldPosition();
-      }
-    } else {
-      symbiont.Delete();
-      return emp::WorldPosition();
-    }
+    return PlaceSymbiontInHost(symbiont, symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), i);
   }
 
   /**
@@ -230,42 +196,24 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
    * the offspring is killed.
    */
   void SGPWorld::ProcessStressEscapeeOffspring() {
+    // todo: shuffle escapees 
     for (auto escapee_data : symbiont_stress_escapee_offspring) {
       // TODO:stress escape data nodes
 
       emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> sym_parent_tasks = escapee_data.escapee_offspring.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
-      bool matching = false;
-      emp::WorldPosition neighbor;
-      for (int i = 0; i < 10 && !matching; i++) {
-        neighbor = GetRandomNeighborPos(escapee_data.parent_pos);
-        if (neighbor.IsValid() && IsOccupied(neighbor)) {
-          //check if neighbor host does any task that parent sym did & return if so
-          emp::Ptr<SGPHost> host = pop[neighbor.GetIndex()].DynamicCast<SGPHost>();
-          for (int i = CPU_BITSET_LENGTH - 1; i > -1 && !matching; i--) {
-            if (sgp_config->TRACK_PARENT_TASKS()) {
-              matching = (sym_parent_tasks->Get(i) || escapee_data.grandparent_tasks.Get(i)) &&
-                (host->GetCPU().state.tasks_performed->Get(i) || host->GetCPU().state.parent_tasks_performed->Get(i));
-            }
-            else {
-              matching = sym_parent_tasks->Get(i) && host->GetCPU().state.tasks_performed->Get(i);
-            }
-          }
-        }
-      }
-
-      if (matching && neighbor.IsValid() && IsOccupied(neighbor)) {
-        pop[neighbor.GetIndex()]->AddSymbiont(escapee_data.escapee_offspring);
-      }
-      else {
-        escapee_data.escapee_offspring.Delete();
-      }
+      emp::BitSet<CPU_BITSET_LENGTH> sym_infection_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+        (*sym_parent_tasks).OR(escapee_data.grandparent_tasks) :
+        *sym_parent_tasks;
+      
+      // todo : test for pref ousting
+      emp::WorldPosition new_pos = PlaceSymbiontInHost(escapee_data.escapee_offspring, sym_infection_tasks, escapee_data.parent_pos);
     }
 
     symbiont_stress_escapee_offspring.clear();
   }
 
   /**
-  * Input: Pointers to a symbiont and a host.
+  * Input: A reference to a symbiont task set and a pointer to a host.
   *
   * Output: Returns a bool if the incoming symbiont should be allowed to oust
   *
@@ -292,6 +240,36 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     }
 
     return true; 
+  }
+
+  /**
+  * Input: Pointers to the symbiont to be placed, the taskset to use for infection, and the source position
+  *
+  * Output: Returns the WorldPosition of the symbiont if it's placed successfully or -1 otherwise
+  *
+  * Purpose: Place a symbiont based on the passed task set
+  */
+  emp::WorldPosition SGPWorld::PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos) {
+    int new_host_pos = GetNeighborHost(source_pos, symbiont_infection_tasks);
+    if (new_host_pos > -1) { //-1 means no living neighbors
+      if (sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()) {
+        if (!PreferentialOustingAllowed(symbiont_infection_tasks, pop[new_host_pos])) {
+          symbiont.Delete();
+          return emp::WorldPosition();
+        }
+      }
+      int new_index = pop[new_host_pos]->AddSymbiont(symbiont);
+      if (new_index > 0) { //sym successfully infected
+        return emp::WorldPosition(new_index, new_host_pos);
+      }
+      else { //sym got killed trying to infect
+        return emp::WorldPosition();
+      }
+    }
+    else {
+      symbiont.Delete();
+      return emp::WorldPosition();
+    }
   }
 
 #endif

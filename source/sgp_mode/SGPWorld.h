@@ -142,6 +142,9 @@ public:
   bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
   bool PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host);
 
+  // Prototypes for symbiont placement
+  emp::WorldPosition PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos);
+
   // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
   void ProcessStressEscapeeOffspring();
