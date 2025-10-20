@@ -21,19 +21,19 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
     switch (sgp_config->INTERACTION_MECHANISM()) {
       case DEFAULT:
         new_org = emp::NewPtr<SGPHost>(
-          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
         break;
       case HEALTH:
         new_org = emp::NewPtr<HealthHost>(
-          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
         break;
       case STRESS:
         new_org = emp::NewPtr<StressHost>(
-          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
         break;
       case NUTRIENT:
         new_org = emp::NewPtr<SGPHost>(
-          &GetRandom(), this, sgp_config, CreateNotProgram(100), sgp_config->HOST_INT());
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
         break;
       default:
        
