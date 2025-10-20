@@ -124,6 +124,21 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
+  /**
+   * Input: None
+   *
+   * Output: A pointer to the task set used for task match checking
+   *
+   * Purpose: To retrieve the task set used for task match checking
+   */
+  emp::BitSet<CPU_BITSET_LENGTH> GetInfectionTaskSet() {
+    emp::BitSet<CPU_BITSET_LENGTH> sym_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
+      (*cpu.state.tasks_performed).OR(*cpu.state.parent_tasks_performed) :
+      *cpu.state.tasks_performed;
+    return sym_tasks;
+  }
+
+
   float DoTaskInteraction(float score, size_t task_id) {
     if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
