@@ -107,46 +107,15 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
     return true;
   }
 
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks;
-  emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks;
+  emp::BitSet<CPU_BITSET_LENGTH> host_infection_tasks = host_parent.DynamicCast<SGPHost>()->GetInfectionTaskSet();
+  emp::BitSet<CPU_BITSET_LENGTH> sym_infection_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
-  if (sgp_config->TRACK_PARENT_TASKS()) {
-
-    emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> grand_parent_tasks;
-    emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_host_tasks;
-
-    grand_parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
-    parent_host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
-
-    parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-    host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
-
-
-    for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
-
-      if ((parent_tasks->Get(i) || grand_parent_tasks->Get(i)) && (host_tasks->Get(i) || parent_host_tasks->Get(i))) {
-
-        //If either parent sym or grandparent sym can do task 
-        //host and parent host can do task then sym baby can infect
-        return true;
-      }
+  for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
+    if (sym_infection_tasks.Get(i) && host_infection_tasks.Get(i)) {
+      return true;
     }
   }
-  else {
-    parent_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-    host_tasks = host_parent.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
-
-    for (int i = host_tasks - 1; i > -1; i--) {
-
-     
-      if (parent_tasks->Get(i) && host_tasks->Get(i)) {
-      
-        //both parent sym and host can do this task, symbiont baby can infect
-        return true;
-      }
-  }
-}
- 
+  
   return false;
 }
 
