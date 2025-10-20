@@ -107,8 +107,8 @@ bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> 
     return true;
   }
 
-  emp::BitSet<CPU_BITSET_LENGTH> host_infection_tasks = host_parent.DynamicCast<SGPHost>()->GetInfectionTaskSet();
-  emp::BitSet<CPU_BITSET_LENGTH> sym_infection_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
+  emp::BitSet<CPU_BITSET_LENGTH>& host_infection_tasks = host_parent.DynamicCast<SGPHost>()->GetInfectionTaskSet();
+  emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
   for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
     if (sym_infection_tasks.Get(i) && host_infection_tasks.Get(i)) {
@@ -238,11 +238,11 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   * Purpose: Calculate preferential ousting success
   */
   bool SGPWorld::PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host){
-    emp::BitSet<CPU_BITSET_LENGTH> host_tasks = host.DynamicCast<SGPHost>()->GetInfectionTaskSet(); 
-    emp::BitSet<CPU_BITSET_LENGTH> incoming_sym_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
+    emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = host.DynamicCast<SGPHost>()->GetInfectionTaskSet(); 
+    emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
-      emp::BitSet<CPU_BITSET_LENGTH> target_sym_tasks = sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
+      emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
       if(sgp_config->PREFERENTIAL_OUSTING() == 1){
         // if has worse task match with any hosted sym, fail

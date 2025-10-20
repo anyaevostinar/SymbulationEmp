@@ -137,15 +137,17 @@ public:
   /**
    * Input: None
    *
-   * Output: A pointer to the task set used for task match checking
+   * Output: A reference to the task set used for task match checking
    *
    * Purpose: To retrieve the task set used for task match checking
    */
-  emp::BitSet<CPU_BITSET_LENGTH> GetInfectionTaskSet() {
-    emp::BitSet<CPU_BITSET_LENGTH> host_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
-      (*cpu.state.tasks_performed).OR(*cpu.state.parent_tasks_performed) :
-      *cpu.state.tasks_performed;
-    return host_tasks;
+  emp::BitSet<CPU_BITSET_LENGTH>& GetInfectionTaskSet() {
+    if (sgp_config->TRACK_PARENT_TASKS()) {
+      return (*cpu.state.parent_tasks_performed).OR_SELF(*cpu.state.tasks_performed);
+    }
+    else {
+      return *cpu.state.tasks_performed;
+    }
   }
 
   /**
