@@ -210,8 +210,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
         (*sym_parent_tasks).OR(escapee_data.grandparent_tasks) :
         *sym_parent_tasks;
       
-      // todo : test for pref ousting
-      emp::WorldPosition new_pos = PlaceSymbiontInHost(escapee_data.escapee_offspring, sym_infection_tasks, escapee_data.parent_pos);
+      PlaceSymbiontInHost(escapee_data.escapee_offspring, sym_infection_tasks, escapee_data.parent_pos);
     }
 
     symbiont_stress_escapee_offspring.clear();
