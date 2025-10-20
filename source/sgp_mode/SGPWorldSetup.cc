@@ -87,7 +87,7 @@ void SGPWorld::ProcessReproductionQueue() {
       // happens here
       for (auto& sym : org->GetSymbionts()) {
         // don't vertically transmit if they must task match but don't
-        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
+        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), org.DynamicCast<SGPHost>()->GetInfectionTaskSet())) continue;
         sym->VerticalTransmission(child);
       }
       DoBirth(child, org->GetLocation());
@@ -123,7 +123,7 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
     emp::WorldPosition neighbor = GetRandomNeighborPos(id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
       //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont, GetOrgPtr(neighbor.GetIndex()))) {
+      if (TaskMatchCheck(symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), GetOrgPtr(neighbor.GetIndex()).DynamicCast<SGPHost>()->GetInfectionTaskSet())) {
         return neighbor.GetIndex();
       }
     }
