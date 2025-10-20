@@ -132,21 +132,6 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   return -1;
 }
 
- /**
-  * Input: Pointers to a host and to a symbiont
-  *
-  * Output: Whether host and symbiont parent are able to accomplish
-  * at least one task in common
-  *
-  * Purpose: To check for task matching before transmission
-  */
-bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
-  emp::BitSet<CPU_BITSET_LENGTH>& host_infection_tasks = host_parent.DynamicCast<SGPHost>()->GetInfectionTaskSet();
-  emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
-
-  return TaskMatchCheck(sym_infection_tasks, host_infection_tasks);
-}
-
 /**
   * Input: References to symbiont and host task sets
   *
