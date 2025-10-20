@@ -117,13 +117,13 @@ void SGPWorld::ProcessReproductionQueue() {
  *
  * Purpose: Searches through up to 10 hosts in the world to find a host that the symbiont can infect. 
  */
-int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
+int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks){
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
-    emp::WorldPosition neighbor = GetRandomNeighborPos(id);
+    emp::WorldPosition neighbor = GetRandomNeighborPos(source_id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
       //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), GetOrgPtr(neighbor.GetIndex()).DynamicCast<SGPHost>()->GetInfectionTaskSet())) {
+      if (TaskMatchCheck(symbiont_tasks, GetOrgPtr(neighbor.GetIndex()).DynamicCast<SGPHost>()->GetInfectionTaskSet())) {
         return neighbor.GetIndex();
       }
     }
@@ -167,7 +167,7 @@ bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, em
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
-    int new_host_pos = GetNeighborHost(i, parent);
+    int new_host_pos = GetNeighborHost(i, parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
     if (new_host_pos > -1) { //-1 means no living neighbors
       if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
         if(!PreferentialOustingAllowed(parent, pop[new_host_pos])){
@@ -200,7 +200,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   */
   emp::WorldPosition SGPWorld::SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos) {
     size_t i = cur_pos.GetPopID();
-    int new_host_pos = GetNeighborHost(i, symbiont);
+    int new_host_pos = GetNeighborHost(i, symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet());
     if (new_host_pos > -1) { //-1 means no living neighbors
       if(sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()){
         if(!PreferentialOustingAllowed(symbiont, pop[new_host_pos])){
@@ -293,6 +293,6 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     }
 
     return true; 
- }
-  
+  }
+
 #endif

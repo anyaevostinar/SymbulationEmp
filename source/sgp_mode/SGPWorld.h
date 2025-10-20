@@ -138,14 +138,14 @@ public:
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
+  int GetNeighborHost(size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks);
   bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
   bool PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host);
 
   // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
   void ProcessStressEscapeeOffspring();
-  
+
   // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
