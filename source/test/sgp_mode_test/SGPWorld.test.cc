@@ -153,7 +153,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -170,7 +170,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -191,7 +191,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+        REQUIRE(!world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -208,7 +208,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -230,7 +230,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+        REQUIRE(!world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -248,7 +248,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
       host.Delete();
@@ -294,8 +294,8 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
       host->GetCPU().state.tasks_performed->Set(0);
       sym->GetCPU().state.tasks_performed->Set(0);
 
-      THEN("TaskMatchCheck returns true when Host and Symbiont are the arguments"){
-        REQUIRE(world.TaskMatchCheck(sym, host));
+      THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
+        REQUIRE(world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
 
     }
@@ -303,8 +303,8 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
       host->GetCPU().state.tasks_performed->Set(1);
       sym->GetCPU().state.tasks_performed->Set(8);
 
-      THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+      THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(sym->GetInfectionTaskSet(), host->GetInfectionTaskSet()));
       }
     
     }
@@ -352,8 +352,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
       host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
 
-      THEN("TaskMatchCheck returns true when the child of Host and the child of Symbiont are the arguments"){
-        REQUIRE(world.TaskMatchCheck(sym_baby, host_baby));
+      THEN("TaskMatchCheck returns true when the task set of the host child and the task set of the symbiont child are the arguments"){
+        REQUIRE(world.TaskMatchCheck(sym_baby->GetInfectionTaskSet(), host_baby->GetInfectionTaskSet()));
       }
 
     }
@@ -364,8 +364,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
       host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
 
-      THEN("TaskMatchCheck returns false when the child of Host and the child of Symbiont are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
+      THEN("TaskMatchCheck returns false when the task set of the host child and the task set of the symbiont child are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(sym_baby->GetInfectionTaskSet(), host_baby->GetInfectionTaskSet()));
       }
     }
 
