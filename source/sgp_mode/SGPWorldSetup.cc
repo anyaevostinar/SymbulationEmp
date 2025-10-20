@@ -141,23 +141,33 @@ int SGPWorld::GetNeighborHost (size_t id, emp::Ptr<Organism> symbiont){
   * Purpose: To check for task matching before transmission
   */
 bool SGPWorld::TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent) {
-
-  if(sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
-    return true;
-  }
-
   emp::BitSet<CPU_BITSET_LENGTH>& host_infection_tasks = host_parent.DynamicCast<SGPHost>()->GetInfectionTaskSet();
   emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = sym_parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
 
+  return TaskMatchCheck(sym_infection_tasks, host_infection_tasks);
+}
+
+/**
+  * Input: References to symbiont and host task sets
+  *
+  * Output: Whether host and symbiont task sets are able to accomplish
+  * at least one task in common
+  *
+  * Purpose: To check for task matching before transmission
+  */
+bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks) {
+  if (sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
+    return true;
+  }
+
   for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
-    if (sym_infection_tasks.Get(i) && host_infection_tasks.Get(i)) {
+    if (symbiont_tasks.Get(i) && host_tasks.Get(i)) {
       return true;
     }
   }
-  
+
   return false;
 }
-
 
  /**
   * Input: Pointers to a symbiont offspring and the position of the symbiont's parent. 

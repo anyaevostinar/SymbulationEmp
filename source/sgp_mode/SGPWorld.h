@@ -139,6 +139,7 @@ public:
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
   int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
+  bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
   bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
   bool PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host);
 
