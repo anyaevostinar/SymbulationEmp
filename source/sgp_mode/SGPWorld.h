@@ -10,12 +10,12 @@
 struct StressEscapeeOffspring{
   emp::Ptr<Organism> escapee_offspring;
   size_t parent_pos;
-  emp::BitSet<CPU_BITSET_LENGTH>& grandparent_tasks;
+  emp::BitSet<CPU_BITSET_LENGTH> grandparent_tasks;
 
   StressEscapeeOffspring(
     emp::Ptr<Organism> sym,
     size_t loc,
-    emp::BitSet<CPU_BITSET_LENGTH>& _tasks
+    emp::BitSet<CPU_BITSET_LENGTH> _tasks
   ) :
     escapee_offspring(sym),
     parent_pos(loc),

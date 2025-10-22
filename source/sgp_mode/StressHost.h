@@ -101,13 +101,12 @@ public:
             my_world->SymFindHost(cur_sym, emp::WorldPosition(j + 1, pos.GetIndex()));
           }
         }
-        if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
-            if (my_world->TaskMatchCheck(syms[j].DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), GetInfectionTaskSet())) {
-              emp::BitSet<CPU_BITSET_LENGTH> parent_tasks = *syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-              if (sgp_config->TRACK_PARENT_TASKS()) parent_tasks = parent_tasks.OR(*syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed);
+            emp::BitSet<CPU_BITSET_LENGTH> sym_infection_tasks = syms[j].DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
+            if (my_world->TaskMatchCheck(sym_infection_tasks, GetInfectionTaskSet())) {
               for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
-                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), parent_tasks));
+                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
               }
             }
           }

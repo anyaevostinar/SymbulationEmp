@@ -192,11 +192,10 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
    * Output: None.
    *
    * Purpose: Attempts to inject all of the stress escapee offspring in the
-   * stress escapee offspring vector into hosts; if no host can be found,
-   * the offspring is killed.
+   * stress escapee offspring vector into hosts
    */
   void SGPWorld::ProcessStressEscapeeOffspring() {
-    // Shuffle escapees to avoid latecomer bias 
+    // Shuffle escapees to avoid timing bias 
     emp::vector<size_t> e(symbiont_stress_escapee_offspring.size());
     std::iota(e.begin(), e.end(), 0);
     emp::Shuffle(*random_ptr, e);
@@ -204,13 +203,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     for (size_t escapee_i : e) {
       StressEscapeeOffspring& escapee_data = symbiont_stress_escapee_offspring[escapee_i];
       // TODO:stress escape data nodes
-
-      emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> sym_parent_tasks = escapee_data.escapee_offspring.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
-      emp::BitSet<CPU_BITSET_LENGTH> sym_infection_tasks = (sgp_config->TRACK_PARENT_TASKS()) ?
-        (*sym_parent_tasks).OR(escapee_data.grandparent_tasks) :
-        *sym_parent_tasks;
-      
-      PlaceSymbiontInHost(escapee_data.escapee_offspring, sym_infection_tasks, escapee_data.parent_pos);
+      PlaceSymbiontInHost(escapee_data.escapee_offspring, escapee_data.grandparent_tasks, escapee_data.parent_pos);
     }
 
     symbiont_stress_escapee_offspring.clear();

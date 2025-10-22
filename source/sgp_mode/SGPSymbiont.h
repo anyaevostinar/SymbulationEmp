@@ -133,7 +133,7 @@ public:
    */
   emp::BitSet<CPU_BITSET_LENGTH>& GetInfectionTaskSet() {
     if (sgp_config->TRACK_PARENT_TASKS()) {
-      return (*cpu.state.parent_tasks_performed).OR_SELF(*cpu.state.tasks_performed);
+      return *cpu.state.parent_tasks_performed;
     }
     else {
       return *cpu.state.tasks_performed;
