@@ -203,7 +203,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     for (size_t escapee_i : e) {
       StressEscapeeOffspring& escapee_data = symbiont_stress_escapee_offspring[escapee_i];
       // TODO:stress escape data nodes
-      PlaceSymbiontInHost(escapee_data.escapee_offspring, escapee_data.grandparent_tasks, escapee_data.parent_pos);
+      PlaceSymbiontInHost(escapee_data.escapee_offspring, escapee_data.infection_tasks, escapee_data.parent_pos);
     }
 
     symbiont_stress_escapee_offspring.clear();

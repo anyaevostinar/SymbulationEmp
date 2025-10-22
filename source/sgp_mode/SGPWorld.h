@@ -10,7 +10,7 @@
 struct StressEscapeeOffspring{
   emp::Ptr<Organism> escapee_offspring;
   size_t parent_pos;
-  emp::BitSet<CPU_BITSET_LENGTH> grandparent_tasks;
+  emp::BitSet<CPU_BITSET_LENGTH> infection_tasks;
 
   StressEscapeeOffspring(
     emp::Ptr<Organism> sym,
@@ -19,7 +19,7 @@ struct StressEscapeeOffspring{
   ) :
     escapee_offspring(sym),
     parent_pos(loc),
-    grandparent_tasks(_tasks)
+    infection_tasks(_tasks)
   {
   }
 };
