@@ -134,21 +134,6 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
-  /**
-   * Input: None
-   *
-   * Output: A reference to the task set used for task match checking
-   *
-   * Purpose: To retrieve the task set used for task match checking
-   */
-  emp::BitSet<CPU_BITSET_LENGTH>& GetInfectionTaskSet() {
-    if (sgp_config->TRACK_PARENT_TASKS()) {
-      return *cpu.state.parent_tasks_performed;
-    }
-    else {
-      return *cpu.state.tasks_performed;
-    }
-  }
 
   /**
    * Input: A new world position

@@ -86,7 +86,7 @@ public:
       if (HasSym()) {
         bool tasks_satisfactory = !sgp_config->TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR();
         for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
-          tasks_satisfactory = my_world->TaskMatchCheck(syms[j].DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), GetInfectionTaskSet());
+          tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
         }
         
         if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
@@ -103,8 +103,8 @@ public:
         }
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
-            emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = syms[j].DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
-            if (my_world->TaskMatchCheck(sym_infection_tasks, GetInfectionTaskSet())) {
+            emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
+            if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
               for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
                 my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
               }

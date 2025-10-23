@@ -27,10 +27,9 @@ struct StressEscapeeOffspring{
 class SGPWorld : public SymWorld {
 private:
   TaskSet task_set;
+
   emp::Ptr<emp::DataMonitor<int>> data_node_steal_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_donate_count;
-
-
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
@@ -45,10 +44,15 @@ public:
   emp::vector<emp::Ptr<Organism>> to_reproduce;
   emp::vector<StressEscapeeOffspring> symbiont_stress_escapee_offspring;
 
+  // The task profile retriever function
+  std::function< emp::BitSet<CPU_BITSET_LENGTH>& (const emp::Ptr<Organism>)> fun_get_task_profile;
+
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config),
     task_set(task_set) {
     sgp_config = _config;
+
+    SetupTaskProfileFun();
   }
 
   ~SGPWorld() {
@@ -117,7 +121,6 @@ public:
       }
     }
 
-
     ProcessReproductionQueue();
     
     ProcessStressEscapeeOffspring();
@@ -128,6 +131,7 @@ public:
   // Prototypes for setup methods
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
+  void SetupTaskProfileFun();
 
   // Update helper methods
   void ProcessReproductionQueue();
@@ -151,7 +155,6 @@ public:
   // Prototypes for data node methods
   emp::DataMonitor<int> &GetStealCount();
   emp::DataMonitor<int> &GetDonateCount();
-
 
   void SetupTasksNodes();
 

@@ -37,6 +37,7 @@
 #include "../test/sgp_mode_test/SGPDataNodes.test.cc"
 #include "../test/sgp_mode_test/Tasks.test.cc"
 #include "../test/sgp_mode_test/Instructions.test.cc"
+#include "../test/sgp_mode_test/SGPWorldSetup.test.cc"
 
 #include "../test/integration_test/spatial_structure/vt.test.cc"
 #include "../test/integration_test/lysogeny/plr.test.cc"

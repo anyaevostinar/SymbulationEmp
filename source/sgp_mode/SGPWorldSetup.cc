@@ -57,6 +57,36 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
 }
 
 /**
+  * Input: None
+  *
+  * Output: None
+  *
+  * Purpose: Setup the task profile retriever function.
+  */
+void SGPWorld::SetupTaskProfileFun() {
+  if (sgp_config->TRACK_PARENT_TASKS()) {
+    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  emp::BitSet<CPU_BITSET_LENGTH>&{
+      if (org->IsHost()) {
+        return *org.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+      }
+      else {
+        return *org.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
+      }
+    };
+  }
+  else {
+    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  emp::BitSet<CPU_BITSET_LENGTH>&{
+      if (org->IsHost()) {
+        return *org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
+      }
+      else {
+        return *org.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
+      }
+    };
+  }
+}
+
+/**
  * Input: An organism pointer to add to the graveyard
  *
  * Output: None
@@ -87,7 +117,7 @@ void SGPWorld::ProcessReproductionQueue() {
       // happens here
       for (auto& sym : org->GetSymbionts()) {
         // don't vertically transmit if they must task match but don't
-        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), org.DynamicCast<SGPHost>()->GetInfectionTaskSet())) continue;
+        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(fun_get_task_profile(sym), fun_get_task_profile(org))) continue;
         sym->VerticalTransmission(child);
       }
       DoBirth(child, org->GetLocation());
@@ -123,7 +153,7 @@ int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>&
     emp::WorldPosition neighbor = GetRandomNeighborPos(source_id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
       //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont_tasks, GetOrgPtr(neighbor.GetIndex()).DynamicCast<SGPHost>()->GetInfectionTaskSet())) {
+      if (TaskMatchCheck(symbiont_tasks, fun_get_task_profile(GetOrgPtr(neighbor.GetIndex())))) {
         return neighbor.GetIndex();
       }
     }
@@ -167,7 +197,7 @@ bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, em
 emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     emp::Ptr<Organism> parent = GetOrgPtr(i)->GetSymbionts()[parent_pos.GetIndex()-1];
-    return PlaceSymbiontInHost(sym_baby, parent.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), i);
+    return PlaceSymbiontInHost(sym_baby, fun_get_task_profile(parent), i);
   }
 
 
@@ -183,7 +213,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   */
   emp::WorldPosition SGPWorld::SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos) {
     size_t i = cur_pos.GetPopID();
-    return PlaceSymbiontInHost(symbiont, symbiont.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet(), i);
+    return PlaceSymbiontInHost(symbiont, fun_get_task_profile(symbiont), i);
   }
 
   /**
@@ -217,10 +247,10 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   * Purpose: Calculate preferential ousting success
   */
   bool SGPWorld::PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host){
-    emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = host.DynamicCast<SGPHost>()->GetInfectionTaskSet(); 
+    emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = fun_get_task_profile(host);
 
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
-      emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = sym.DynamicCast<SGPSymbiont>()->GetInfectionTaskSet();
+      emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = fun_get_task_profile(sym);
 
       if(sgp_config->PREFERENTIAL_OUSTING() == 1){
         // if has worse task match with any hosted sym, fail
