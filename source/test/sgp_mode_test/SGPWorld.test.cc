@@ -153,7 +153,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -170,7 +170,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -191,7 +191,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -208,7 +208,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -230,7 +230,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(2); 
 
       THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -248,7 +248,7 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       sym->GetCPU().state.tasks_performed->Set(1); 
 
       THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(sym, host));
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -290,21 +290,21 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
     host->AddSymbiont(sym);
     host_baby->AddSymbiont(sym_baby);
 
-    WHEN("Host and Symbiont have both performed NOT"){
-      host->GetCPU().state.tasks_performed->Set(0);
-      sym->GetCPU().state.tasks_performed->Set(0);
+    WHEN("Host and Symbiont parents have both performed NOT"){
+      host->GetCPU().state.parent_tasks_performed->Set(0);
+      sym->GetCPU().state.parent_tasks_performed->Set(0);
 
-      THEN("TaskMatchCheck returns true when Host and Symbiont are the arguments"){
-        REQUIRE(world.TaskMatchCheck(sym, host));
+      THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
     }
-    WHEN("Host has performed NOT and Symbiont has performed EQU"){
-      host->GetCPU().state.tasks_performed->Set(1);
-      sym->GetCPU().state.tasks_performed->Set(8);
+    WHEN("Host parent has performed NOT and Symbiont parent has performed EQU"){
+      host->GetCPU().state.parent_tasks_performed->Set(1);
+      sym->GetCPU().state.parent_tasks_performed->Set(8);
 
-      THEN("TaskMatchCheck returns false when Host and Symbiont are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(sym, host));
+      THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
     
     }
@@ -352,8 +352,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
       host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
 
-      THEN("TaskMatchCheck returns true when the child of Host and the child of Symbiont are the arguments"){
-        REQUIRE(world.TaskMatchCheck(sym_baby, host_baby));
+      THEN("TaskMatchCheck returns true when the task set of the host child and the task set of the symbiont child are the arguments"){
+        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
       }
 
     }
@@ -364,8 +364,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
       host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
       sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
 
-      THEN("TaskMatchCheck returns false when the child of Host and the child of Symbiont are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(sym_baby, host_baby));
+      THEN("TaskMatchCheck returns false when the task set of the host child and the task set of the symbiont child are the arguments"){
+        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
       }
     }
 
@@ -481,10 +481,12 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
   emp::WorldPosition parent_pos = emp::WorldPosition(1,0);
   emp::Ptr<Organism> symbiont_offspring = symbiont_parent->Reproduce();
   
-  target_host->GetCPU().state.tasks_performed->Set(0);
-  target_host->GetCPU().state.tasks_performed->Set(1);
-  symbiont_parent->GetCPU().state.tasks_performed->Set(0);
-  target_symbiont->GetCPU().state.tasks_performed->Set(0);
+  // TRACK_PARENT_TASKS is on, so comparison for symbiont_offspring's injection is occurring between
+  // symbiont_parent's parent tasks (symbiont_offspring's grandparent tasks), target_host's parent tasks, and target_symbiont's parent tasks
+  target_host->GetCPU().state.parent_tasks_performed->Set(0);
+  target_host->GetCPU().state.parent_tasks_performed->Set(1);
+  symbiont_parent->GetCPU().state.parent_tasks_performed->Set(0);
+  target_symbiont->GetCPU().state.parent_tasks_performed->Set(0);
 
   world.AddOrgAt(source_host, 0);
   world.AddOrgAt(target_host, 1);
@@ -493,7 +495,7 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
     config.OUSTING(1);
     config.PREFERENTIAL_OUSTING(2);
     WHEN("The incoming symbiont has a better match"){
-      symbiont_parent->GetCPU().state.tasks_performed->Set(1);
+      symbiont_parent->GetCPU().state.parent_tasks_performed->Set(1);
       world.SymDoBirth(symbiont_offspring, parent_pos);
       THEN("The incoming symbiont successfully ousts"){
         REQUIRE(target_host->HasSym());
@@ -504,7 +506,7 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
       world.GetGraveyard().at(0).Delete();
     }
     WHEN("The incoming symbiont has a worse match"){
-      target_symbiont->GetCPU().state.tasks_performed->Set(1);
+      target_symbiont->GetCPU().state.parent_tasks_performed->Set(1);
       world.SymDoBirth(symbiont_offspring, parent_pos);
       THEN("The incoming symbiont does not oust") {
         REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
@@ -522,7 +524,8 @@ TEST_CASE("SymFindHost can handle transferring Stress Symbiont during stress eve
     config.SYMBIONT_TYPE(PARASITE);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.000);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(0);
+    config.SYMBIONTS_ESCAPE(1);
     SGPWorld world(random, &config, LogicTasks);
     world.Resize(2, 2);
 
@@ -612,61 +615,71 @@ TEST_CASE("Preferential ousting", "[sgp]"){
   emp::Ptr<SGPSymbiont> incoming_symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
   host->AddSymbiont(target_symbiont);
 
-  // host w/out parent: 000001101
-  // host w/ parent:    100001101
+  // host self:   000001101
+  // host parent: 100000100
   host->GetCPU().state.tasks_performed->Set(8);
   host->GetCPU().state.tasks_performed->Set(6);
   host->GetCPU().state.tasks_performed->Set(5);
   host->GetCPU().state.parent_tasks_performed->Set(0);
   host->GetCPU().state.parent_tasks_performed->Set(6);
 
-  // hosted sym w/out parent: 000001001
-  // hosted sym w/ parent:    100001001
+  // hosted sym self:   000001001
+  // hosted sym parent: 100000100
   target_symbiont->GetCPU().state.tasks_performed->Set(8);
   target_symbiont->GetCPU().state.tasks_performed->Set(5);
-  target_symbiont->GetCPU().state.parent_tasks_performed->Set(5);
+  target_symbiont->GetCPU().state.parent_tasks_performed->Set(6);
   target_symbiont->GetCPU().state.parent_tasks_performed->Set(0);
 
   WHEN("An ousting symbiont has worse task match with a host than the existing symbiont does"){
-    // incoming sym w/out parent: 000000001
-    // hosted sym w/ parent:      000001001
+    // host self:   000001101
+    // host parent: 100000100
+
+    // hosted sym self:   000001001 // match 2/3
+    // hosted sym parent: 100000100 // match 2/2
+
+    // incoming sym self:   000000001 // match 1/3
+    // incoming sym parent: 000000100 // match 1/2
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
-    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(5);
-    
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(6);
+
     WHEN("Preferential ousting is off"){ // sanity check that setting is toggleable
       config.PREFERENTIAL_OUSTING(0);
       THEN("Ousting succeeds"){
-        REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+        REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
       }
     }
     WHEN("Preferential ousting is on"){
       WHEN("Parental tasks are used"){
         config.TRACK_PARENT_TASKS(1);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
       }
       WHEN("Parental tasks are not used"){
         config.TRACK_PARENT_TASKS(0);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
       }
@@ -675,47 +688,51 @@ TEST_CASE("Preferential ousting", "[sgp]"){
 
   
   WHEN("An ousting symbiont has equal task match with a host than the existing symbiont does"){
-    // host w/out parent: 000001101
-    // host w/ parent:    100001101
+    // host self:   000001101
+    // host parent: 100000100
 
-    // hosted sym w/out parent: 000001001 // match 2/3
-    // hosted sym w/ parent:    100001001 // match 3/4
+    // hosted sym self:   000001001 // match 2/3
+    // hosted sym parent: 100000100 // match 2/2
 
-    // incoming sym w/out parent: 000000101 // match 2/3
-    // hosted sym w/ parent:      000001101 // match 3/4
+    // incoming sym self:   000000101 // match 2/3
+    // incoming sym parent: 100000100 // match 2/2
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(6);
-    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(8);
-    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(5);
-    
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(0);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(6);
+
     WHEN("Preferential ousting is on"){
       WHEN("Parental tasks are used"){
         config.TRACK_PARENT_TASKS(1);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
       }
       WHEN("Parental tasks are not used"){
         config.TRACK_PARENT_TASKS(0);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
           THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == false);
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
           }
         }
       }
@@ -723,47 +740,54 @@ TEST_CASE("Preferential ousting", "[sgp]"){
   }
 
   WHEN("An ousting symbiont has better task match with a host than the existing symbiont does"){
-    // host w/out parent: 000001101
-    // host w/ parent:    100001101
+    // host self:   000001101
+    // host parent: 101000100
 
-    // hosted sym w/out parent: 000001001 // match 2/3
-    // hosted sym w/ parent:    100001001 // match 3/4
+    // hosted sym self:   000001001 // match 2/3
+    // hosted sym parent: 100000100 // match 2/3
 
-    // incoming sym w/out parent: 000001101 // match 3/3
-    // hosted sym w/ parent:      100001101 // match 4/4
+    // incoming sym self:   000001101 // match 3/3
+    // incoming sym parent: 101000100 // match 3/3
+    host->GetCPU().state.parent_tasks_performed->Set(2);
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(8);
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(6);
     incoming_symbiont_parent->GetCPU().state.tasks_performed->Set(5);
     incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(0);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(2);
+    incoming_symbiont_parent->GetCPU().state.parent_tasks_performed->Set(6);
     
     WHEN("Preferential ousting is on"){
       WHEN("Parental tasks are used"){
         config.TRACK_PARENT_TASKS(1);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
       }
       WHEN("Parental tasks are not used"){
         config.TRACK_PARENT_TASKS(0);
+        world.SetupTaskProfileFun();
+
         WHEN("Same or better task match is required"){
           config.PREFERENTIAL_OUSTING(1);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
         WHEN("Strictly better task match is required"){
           config.PREFERENTIAL_OUSTING(2);
-          THEN("Ousting fails"){
-            REQUIRE(world.PreferentialOustingAllowed(incoming_symbiont_parent, host) == true);
+          THEN("Ousting succeeds"){
+            REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
           }
         }
       }
@@ -777,7 +801,6 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(61);
     SymConfigSGP config;
-    SGPWorld world(random, &config, LogicTasks);
 
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
@@ -785,6 +808,9 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
+    config.SYMBIONTS_ESCAPE(0);
+
+    SGPWorld world(random, &config, LogicTasks);
 
     emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config);
     emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
@@ -795,9 +821,9 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     
     REQUIRE(host->GetSymbionts().size() == 2);
 
-    host->GetCPU().state.tasks_performed->Set(0);
-    host->GetCPU().state.tasks_performed->Set(1);
-    matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+    host->GetCPU().state.parent_tasks_performed->Set(1);
+    matching_symbiont->GetCPU().state.tasks_performed->Set(0); // this gets used to create the parent task set for the escapees
+    matching_symbiont->GetCPU().state.parent_tasks_performed->Set(1); // this gets used to determine escapee infection ability
     
     world.AddOrgAt(host, 0);
 
@@ -832,7 +858,6 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
 
       REQUIRE(host->GetDead() == false);
       THEN("Its parasites do not place offspring in the free reproduction vector") {
-        // it seems that in Alex's version, symbionts can place in the vector even if symbionts don't die?
         REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
       }
     }
@@ -843,11 +868,9 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
   WHEN("There are symbionts in the queue") {
     emp::Random random(69);
     SymConfigSGP config;
-    SGPWorld world(random, &config, LogicTasks);
-    world.Resize(10);
-
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
+    config.SYMBIONTS_ESCAPE(0);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(6);
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
@@ -856,38 +879,102 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
     config.PARASITE_DEATH_CHANCE(1);
     config.SYM_HORIZ_TRANS_RES(100);
     config.SYM_MIN_CYCLES_BEFORE_REPRO(50);
-    
+    config.HOST_MIN_CYCLES_BEFORE_REPRO(100);
+
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(10);
+
     emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config);
     emp::Ptr<StressHost> host_2 = emp::NewPtr<StressHost>(&random, &world, &config);
     emp::Ptr<StressHost> host_3 = emp::NewPtr<StressHost>(&random, &world, &config);
-    emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
 
-    host->AddSymbiont(matching_symbiont);
-
-    host->GetCPU().state.tasks_performed->Set(0);
-    host_2->GetCPU().state.tasks_performed->Set(0); // vulnerable (to infection) surviving host
-    host_3->GetCPU().state.tasks_performed->Set(1); // non-vulnerable surviving host
-    matching_symbiont->GetCPU().state.tasks_performed->Set(0);
+    host->AddSymbiont(symbiont);
 
     world.AddOrgAt(host, 0);
     world.AddOrgAt(host_2, 1);
     world.AddOrgAt(host_3, 2);
 
     REQUIRE(world.GetNumOrgs() == 3);
+    
+    WHEN("Preferential ousting is off") {
+      host->GetCPU().state.parent_tasks_performed->Set(0); 
+      host_2->GetCPU().state.parent_tasks_performed->Set(0); // vulnerable (to infection) surviving host
+      host_3->GetCPU().state.parent_tasks_performed->Set(1); // non-vulnerable surviving host
+      symbiont->GetCPU().state.parent_tasks_performed->Set(0);
+      symbiont->GetCPU().state.tasks_performed->Set(1);
 
-    world.Update();
-    REQUIRE(world.GetNumOrgs() == 2);
-    THEN("They are placed or deleted") {
-      REQUIRE(world.IsOccupied(0) == false);
-      REQUIRE(world.IsOccupied(1) == true); // host_2 should have survived
-      REQUIRE(world.IsOccupied(2) == true); // host_3 should have survived
+      
+      world.Update();
+      REQUIRE(world.GetNumOrgs() == 2);
+      THEN("Symbionts are placed or deleted") {
+        REQUIRE(world.IsOccupied(0) == false);
+        REQUIRE(world.IsOccupied(1) == true); // host_2 should have survived
+        REQUIRE(world.IsOccupied(2) == true); // host_3 should have survived
 
-      REQUIRE(host_2->GetSymbionts().size() > 0); // with six offspring, let's expect the vulnerable host to be infected 
-      REQUIRE(host_2->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(0) == true);
-      REQUIRE(host_3->GetSymbionts().size() == 0); // and the non-matching host to be spared  
+        REQUIRE(host_2->GetSymbionts().size() > 0); // with six offspring, let's expect the vulnerable host to be infected 
+        REQUIRE(host_2->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(1) == true);
+        REQUIRE(host_3->GetSymbionts().size() == 0); // and the non-matching host to be spared  
+      }
+      THEN("The queue is left empty") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+      }
     }
-    THEN("The queue is left empty") {
-      REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+    
+    WHEN("Preferential ousting is on") {
+      config.TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR(1); // have some survivors
+      config.OUSTING(1);
+      config.PREFERENTIAL_OUSTING(2);
+      config.PARASITE_DEATH_CHANCE(0.8);
+
+      emp::Ptr<StressHost> host_4 = emp::NewPtr<StressHost>(&random, &world, &config);
+      world.AddOrgAt(host_4, 3);
+
+      emp::Ptr<SGPSymbiont> symbiont_3 = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+      host_3->AddSymbiont(symbiont_3);
+      emp::Ptr<SGPSymbiont> symbiont_4 = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+      host_4->AddSymbiont(symbiont_4);
+
+      // most can do one common task 
+      host->GetCPU().state.parent_tasks_performed->Set(6);   // infected but not parasitized
+      host_2->GetCPU().state.parent_tasks_performed->Set(0); // uninfected
+      host_3->GetCPU().state.parent_tasks_performed->Set(0); // parasitized
+      host_4->GetCPU().state.parent_tasks_performed->Set(0); // parasitized
+
+      symbiont->GetCPU().state.parent_tasks_performed->Set(0);
+      
+      symbiont_3->GetCPU().state.parent_tasks_performed->Set(0);
+      symbiont_3->GetCPU().state.tasks_performed->Set(5);    // used as a tag to identify self (it doesn't get ousted by an escapee offspring)
+      
+      symbiont_4->GetCPU().state.parent_tasks_performed->Set(0);
+      symbiont_4->GetCPU().state.parent_tasks_performed->Set(6);
+      symbiont_4->GetCPU().state.tasks_performed->Set(2);    // used as a tag to identify escapee offspring
+
+      world.Update();
+      REQUIRE(world.GetNumOrgs() > 1);
+      THEN("Host at position 0 survives and has its symbiont ousted by an escapee offspring from position 3") { // host
+        // strictly better ousting is required, host and symbiont have 0/1 match and host and symbiont_4 have 1/1 match
+        REQUIRE(world.IsOccupied(0));
+        REQUIRE(host->HasSym());
+        REQUIRE(host->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(2) == true);
+      }
+      THEN("Host at position 1 survives and is infected") { // host_2
+        REQUIRE(world.IsOccupied(1));
+        REQUIRE(host_2->HasSym() );
+        REQUIRE(host_2->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(2) == true);
+      }
+      THEN("Host at position 2 survives and does not have its symbiont ousted") { // host_3
+        // strictly better ousting is required, host_3 and symbiont_3 have the best possible match 1/1
+        REQUIRE(world.IsOccupied(2));
+        REQUIRE(host_3->HasSym());
+        REQUIRE(host_3->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed->Get(5) == true);
+      }
+      THEN("Host at position 3 dies") { // host_4
+        REQUIRE(world.IsOccupied(3) == false);
+      }
+      THEN("The queue is left empty") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+      }
     }
   }
 }

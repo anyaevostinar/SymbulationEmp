@@ -68,7 +68,7 @@ public:
    */
   ~SGPSymbiont() {
     // Invalidate any in-progress reproduction
-    if (cpu.state.in_progress_repro != -1 && my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
+    if (cpu.state.in_progress_repro != -1 && (int)my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
       //TODO: figure out why the second part of the line above is necessary and also write a test
       my_world->to_reproduce[cpu.state.in_progress_repro] = nullptr;
     }
@@ -123,6 +123,7 @@ public:
    * Purpose: Allows accessing the symbiont's CPU.
    */
   CPU &GetCPU() { return cpu; }
+
 
   float DoTaskInteraction(float score, size_t task_id) {
     if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode

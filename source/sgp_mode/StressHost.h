@@ -86,7 +86,7 @@ public:
       if (HasSym()) {
         bool tasks_satisfactory = !sgp_config->TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR();
         for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
-          tasks_satisfactory = my_world->TaskMatchCheck(syms[j], this);
+          tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
         }
         
         if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
@@ -101,13 +101,12 @@ public:
             my_world->SymFindHost(cur_sym, emp::WorldPosition(j + 1, pos.GetIndex()));
           }
         }
-        if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
-            if (my_world->TaskMatchCheck(syms[j], this)) {
-              emp::BitSet<CPU_BITSET_LENGTH> parent_tasks = *syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed;
-              if (sgp_config->TRACK_PARENT_TASKS()) parent_tasks = parent_tasks.OR(*syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed);
+            emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
+            if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
               for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
-                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), parent_tasks));
+                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
               }
             }
           }

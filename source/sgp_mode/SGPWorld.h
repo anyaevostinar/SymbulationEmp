@@ -10,16 +10,16 @@
 struct StressEscapeeOffspring{
   emp::Ptr<Organism> escapee_offspring;
   size_t parent_pos;
-  emp::BitSet<CPU_BITSET_LENGTH>& grandparent_tasks;
+  emp::BitSet<CPU_BITSET_LENGTH> infection_tasks;
 
   StressEscapeeOffspring(
     emp::Ptr<Organism> sym,
     size_t loc,
-    emp::BitSet<CPU_BITSET_LENGTH>& _tasks
+    emp::BitSet<CPU_BITSET_LENGTH> _tasks
   ) :
     escapee_offspring(sym),
     parent_pos(loc),
-    grandparent_tasks(_tasks)
+    infection_tasks(_tasks)
   {
   }
 };
@@ -27,10 +27,9 @@ struct StressEscapeeOffspring{
 class SGPWorld : public SymWorld {
 private:
   TaskSet task_set;
+
   emp::Ptr<emp::DataMonitor<int>> data_node_steal_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_donate_count;
-
-
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
@@ -45,15 +44,23 @@ public:
   emp::vector<emp::Ptr<Organism>> to_reproduce;
   emp::vector<StressEscapeeOffspring> symbiont_stress_escapee_offspring;
 
+  // The task profile retriever function
+  std::function< emp::BitSet<CPU_BITSET_LENGTH>& (const emp::Ptr<Organism>)> fun_get_task_profile;
+
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config),
     task_set(task_set) {
     sgp_config = _config;
+
+    SetupTaskProfileFun();
   }
 
   ~SGPWorld() {
-    // The vectors will delete themselves automatically
+    // data node deletes 
+    if (data_node_steal_count) data_node_steal_count.Delete();
+    if (data_node_donate_count) data_node_donate_count.Delete();
 
+    // The vectors will delete themselves automatically
     for (auto escapee_data : symbiont_stress_escapee_offspring) {
       escapee_data.escapee_offspring.Delete();
     }
@@ -114,68 +121,40 @@ public:
       }
     }
 
-
-    //TODO: move to a method
-    for (auto org : to_reproduce) {
-      if (org == nullptr || org->GetDead())
-        continue;
-      emp::Ptr<Organism> child = org->Reproduce();
-      if (child->IsHost()) {
-        // Host::Reproduce() doesn't take care of vertical transmission, that
-        // happens here
-        for (auto &sym : org->GetSymbionts()) {
-          // don't vertically transmit if they must task match but don't
-          if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(sym, org)) continue;
-          sym->VerticalTransmission(child);
-        }
-        DoBirth(child, org->GetLocation());
-      } else {
-        emp::WorldPosition new_pos = SymDoBirth(child, org->GetLocation());
-        // Because we're not calling HorizontalTransmission, we need to adjust
-        // these data nodes here
-        emp::DataMonitor<int> &data_node_attempts_horiztrans =
-            GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
-
-        emp::DataMonitor<int> &data_node_successes_horiztrans =
-            GetHorizontalTransmissionSuccessCount();
-        if (new_pos.IsValid()) {
-          data_node_successes_horiztrans.AddDatum(1);
-        }
-      }
-    }
-    to_reproduce.clear();
-
+    ProcessReproductionQueue();
+    
     ProcessStressEscapeeOffspring();
-    // clean up the graveyard
-    // TODO move to a method in SymWorld so that it can be called here
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
-    }
-    graveyard.clear();
+    
+    CleanupGraveyard();
   }
 
   // Prototypes for setup methods
   void SetupHosts(long unsigned int *POP_SIZE) override;
   void SetupSymbionts(long unsigned int *total_syms) override;
+  void SetupTaskProfileFun();
+
+  // Update helper methods
+  void ProcessReproductionQueue();
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost(size_t id, emp::Ptr<Organism> symbiont);
-  bool TaskMatchCheck(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host_parent);
-  bool PreferentialOustingAllowed(emp::Ptr<Organism> sym_parent, emp::Ptr<Organism> host);
+  int GetNeighborHost(size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks);
+  bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
+  bool PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host);
+
+  // Prototypes for symbiont placement
+  emp::WorldPosition PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos);
 
   // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
   void ProcessStressEscapeeOffspring();
-  
+
   // Prototype for graveyard handling method
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   // Prototypes for data node methods
   emp::DataMonitor<int> &GetStealCount();
   emp::DataMonitor<int> &GetDonateCount();
-
 
   void SetupTasksNodes();
 

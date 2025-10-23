@@ -198,7 +198,7 @@ public:
    * Purpose: Checks whether the organism has completed any tasks that were not this one. 
    * If so then if ONLY_FIRST_TASK_CREDIT is on they should not receive points or credit. 
    */
-  bool IsOnlyTask(CPUState &state, int task_done_id){
+  bool IsOnlyTask(CPUState &state, size_t task_done_id){
     bool no_other_tasks = true;
     for (size_t i = 0; i < tasks.size(); i++) {
       if(state.tasks_performed->Get(i) == 1 && i != task_done_id){

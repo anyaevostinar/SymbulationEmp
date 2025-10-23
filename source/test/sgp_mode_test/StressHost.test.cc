@@ -117,6 +117,7 @@ TEST_CASE("Parasites transfer during stress event", "[sgp]") {
   config.EXTINCTION_FREQUENCY(1);
   config.GRID_X(10);
   config.GRID_Y(10);
+  config.SYMBIONTS_ESCAPE(1);
   size_t world_size = config.GRID_X() * config.GRID_Y();
   SGPWorld world(random, &config, LogicTasks);
 

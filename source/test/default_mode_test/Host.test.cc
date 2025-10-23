@@ -511,7 +511,7 @@ TEST_CASE("RemoveSymbiont", "[default]") {
   GIVEN("A Host with a single symbiont") {
     emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config, int_val);
     emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-    size_t pos = host->AddSymbiont(symbiont);
+    host->AddSymbiont(symbiont);
     REQUIRE(host->GetSymbionts().size() == 1);
     REQUIRE(symbiont->GetHost() == host);
 
