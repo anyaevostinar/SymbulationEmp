@@ -10,12 +10,12 @@
 struct StressEscapeeOffspring{
   emp::Ptr<Organism> escapee_offspring;
   size_t parent_pos;
-  emp::BitSet<CPU_BITSET_LENGTH> infection_tasks;
+  const emp::BitSet<CPU_BITSET_LENGTH> infection_tasks;
 
   StressEscapeeOffspring(
     emp::Ptr<Organism> sym,
     size_t loc,
-    emp::BitSet<CPU_BITSET_LENGTH> _tasks
+    const emp::BitSet<CPU_BITSET_LENGTH> _tasks
   ) :
     escapee_offspring(sym),
     parent_pos(loc),
@@ -45,7 +45,7 @@ public:
   emp::vector<StressEscapeeOffspring> symbiont_stress_escapee_offspring;
 
   // The task profile retriever function
-  std::function< emp::BitSet<CPU_BITSET_LENGTH>& (const emp::Ptr<Organism>)> fun_get_task_profile;
+  std::function<const emp::BitSet<CPU_BITSET_LENGTH>& (const emp::Ptr<Organism>)> fun_get_task_profile;
 
   SGPWorld(emp::Random &r, emp::Ptr<SymConfigSGP> _config, TaskSet task_set)
       : SymWorld(r, _config),
@@ -138,12 +138,12 @@ public:
 
   // Prototypes for reproduction handling methods
   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) override;
-  int GetNeighborHost(size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks);
-  bool TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
-  bool PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host);
+  int GetNeighborHost(size_t source_id, const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks);
+  bool TaskMatchCheck(const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, const emp::BitSet<CPU_BITSET_LENGTH>& host_tasks);
+  bool PreferentialOustingAllowed(const emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host);
 
   // Prototypes for symbiont placement
-  emp::WorldPosition PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos);
+  emp::WorldPosition PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos);
 
   // Prototypes for sym transferring
   emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);

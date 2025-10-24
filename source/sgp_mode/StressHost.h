@@ -103,7 +103,7 @@ public:
         }
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
-            emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
+            const emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
             if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
               for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
                 my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
