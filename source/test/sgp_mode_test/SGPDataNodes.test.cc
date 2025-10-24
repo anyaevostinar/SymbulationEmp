@@ -40,6 +40,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
 
       REQUIRE(std::filesystem::exists("EndingTaskCombinationsDataTest_SEED2.data"));
       REQUIRE(std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
+      REQUIRE(std::filesystem::exists("SymInstCountDataTest_SEED2.data"));
     }
     // Create a text string, which is used to output the text file
       std::ifstream file("OrganismCountsDataTest_SEED2.data");
@@ -204,8 +205,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
         THEN("The second should be 4 organisms completing solely the NOT task, 2 hosts and 2 symbionts"){
           REQUIRE(str5 == "000000001,2,2,0,0");
         }
-        
-    }
+      }
 
 
       std::filesystem::remove("OrganismCountsDataTest_SEED2.data");
@@ -214,6 +214,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
 
       std::filesystem::remove("EndingTaskCombinationsDataTest_SEED2.data");
       std::filesystem::remove("OrgReproHistDataTest_SEED2.data");
+      std::filesystem::remove("SymInstCountDataTest_SEED2.data");
 
       THEN("All previously created data files have been removed"){
         REQUIRE(!std::filesystem::exists("OrganismCountsDataTest_SEED2.data"));
@@ -222,6 +223,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
 
         REQUIRE(!std::filesystem::exists("EndingTaskCombinationsDataTest_SEED2.data"));
         REQUIRE(!std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
+        REQUIRE(!std::filesystem::exists("SymInstCountDataTest_SEED2.data"));
       }
 
     }
