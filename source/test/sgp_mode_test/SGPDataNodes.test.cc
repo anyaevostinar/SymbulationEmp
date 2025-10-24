@@ -142,22 +142,22 @@ TEST_CASE("Correct data files are created", "[sgp]") {
         REQUIRE(std::filesystem::exists("OrgReproHistDataTest_SEED2.data"));
       }
       // Create a text string, which is used to output the text file
-        std::ifstream file("OrganismCountsDataTest_SEED2.data");
-        std::string str; 
-        THEN("The OrganismCount file should contain 3 lines"){
-          std::getline(file, str);
-          THEN("The first should be a header"){
-            REQUIRE(str == "update,count,hosted_syms");
-          }
-          std::getline(file, str);
-          THEN("The second should be 2 hosts and 1 sym alive at update 0"){
-            REQUIRE(str == "0,2,1");
-          }
-          std::getline(file, str);
-          THEN("The third should be 2 hosts and 2 sym alive at update 100"){
-            REQUIRE(str == "100,2,2");
-          }
+      std::ifstream file("OrganismCountsDataTest_SEED2.data");
+      std::string str; 
+      THEN("The OrganismCount file should contain 3 lines"){
+        std::getline(file, str);
+        THEN("The first should be a header"){
+          REQUIRE(str == "update,count,hosted_syms");
         }
+        std::getline(file, str);
+        THEN("The second should be 2 hosts and 1 sym alive at update 0"){
+          REQUIRE(str == "0,2,1");
+        }
+        std::getline(file, str);
+        THEN("The third should be 2 hosts and 2 sym alive at update 100"){
+          REQUIRE(str == "100,2,2");
+        }
+      }
     
 
       std::ifstream file3("TasksDataTest_SEED2.data");
