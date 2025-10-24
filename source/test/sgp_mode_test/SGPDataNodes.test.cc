@@ -102,7 +102,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
           REQUIRE(str5 == "task_profile,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
         std::getline(file5, str5);
-        THEN("The second should be 1 organism completing soley the NOT task"){
+        THEN("The second should be 1 organism completing solely the NOT task"){
           REQUIRE(str5 == "000000001,1,0,0,0");
         }
         
@@ -184,7 +184,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
             REQUIRE(str4 == "update,attempts_horiztrans,successes_horiztrans,attempts_verttrans,successes_verttrans");
           }
           std::getline(file4, str4);
-          THEN("The second should be all zeroes because the syms have been unable to attemp transmissions yet"){
+          THEN("The second should be all zeroes because the syms have been unable to attempt transmissions yet"){
             REQUIRE(str4 == "0,0,0,0,0");
           }
           std::getline(file4, str4);
@@ -201,7 +201,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
           REQUIRE(str5 == "task_profile,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
         std::getline(file5, str5);
-        THEN("The second should be 4 organisms completing soley the NOT task, 2 hosts and 2 symbionts"){
+        THEN("The second should be 4 organisms completing solely the NOT task, 2 hosts and 2 symbionts"){
           REQUIRE(str5 == "000000001,2,2,0,0");
         }
         
