@@ -30,6 +30,8 @@ private:
 
   emp::Ptr<emp::DataMonitor<int>> data_node_steal_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_donate_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_stress_escapee_offspring_attempt_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_stress_escapee_offspring_success_count;
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
@@ -59,6 +61,8 @@ public:
     // data node deletes 
     if (data_node_steal_count) data_node_steal_count.Delete();
     if (data_node_donate_count) data_node_donate_count.Delete();
+    if (data_node_stress_escapee_offspring_attempt_count) data_node_stress_escapee_offspring_attempt_count.Delete();
+    if (data_node_stress_escapee_offspring_success_count) data_node_stress_escapee_offspring_success_count.Delete();
 
     // The vectors will delete themselves automatically
     for (auto escapee_data : symbiont_stress_escapee_offspring) {
@@ -155,13 +159,15 @@ public:
   // Prototypes for data node methods
   emp::DataMonitor<int> &GetStealCount();
   emp::DataMonitor<int> &GetDonateCount();
+  emp::DataMonitor<size_t>& GetStressEscapeeOffspringAttemptCount();
+  emp::DataMonitor<size_t>& GetStressEscapeeOffspringSuccessCount();
 
   void SetupTasksNodes();
 
   emp::DataFile &SetUpOrgCountFile(const std::string &filename);
   emp::DataFile &SetupSymInstFile(const std::string &filename);
-
   emp::DataFile &SetupTasksFile(const std::string &filename);
+  void SetupTransmissionFileColumns(emp::DataFile& file);
   void WriteTaskCombinationsFile(const std::string& filename);
   void WriteOrgReproHistFile(const std::string& filename);
 

@@ -90,6 +90,25 @@ emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
 }
 
 /**
+ * Input: The address of the file object
+ *
+ * Output: None
+ *
+ * Purpose: To add the stress repro escapee attempts and successes 
+ * as columns in the transmission file.
+ */
+void SGPWorld::SetupTransmissionFileColumns(emp::DataFile& file) {
+  SymWorld::SetupTransmissionFileColumns(file);
+  if (sgp_config->INTERACTION_MECHANISM() == STRESS) {
+    emp::DataMonitor<size_t>& escapee_attempts = GetStressEscapeeOffspringAttemptCount();
+    emp::DataMonitor<size_t>& escapee_successes = GetStressEscapeeOffspringSuccessCount();
+
+    file.AddTotal(escapee_attempts, "stress_escapee_offspring_attempts", "Total number of stress offspring who attempted to escape", true);
+    file.AddTotal(escapee_successes, "stress_escapee_offspring_successes", "Total number of stress offspring who succeeded in escaping (they were validly placed)", true);
+  }
+}
+
+/**
  * Input: The address of the string representing the file to be
  * created's name
  *
@@ -242,4 +261,35 @@ emp::DataMonitor<int> &SGPWorld::GetDonateCount() {
   return *data_node_donate_count;
 }
 
+/**
+ * Input: None
+ *
+ * Output: A reference to the data node storing the count of
+ * stress escapee offspring (successful or not)
+ *
+ * Purpose: To set up and return the data node storing the count
+ * of attempted stress escapee offspring
+ */
+emp::DataMonitor<size_t>& SGPWorld::GetStressEscapeeOffspringAttemptCount() {
+  if (!data_node_stress_escapee_offspring_attempt_count) {
+    data_node_stress_escapee_offspring_attempt_count.New();
+  }
+  return *data_node_stress_escapee_offspring_attempt_count;
+}
+
+/**
+ * Input: None
+ *
+ * Output: A reference to the data node storing the count of successful
+ * stress escapee offspring
+ *
+ * Purpose: To set up and return the data node storing the count
+ * of successful stress escapee offspring
+ */
+emp::DataMonitor<size_t>& SGPWorld::GetStressEscapeeOffspringSuccessCount() {
+  if (!data_node_stress_escapee_offspring_success_count) {
+    data_node_stress_escapee_offspring_success_count.New();
+  }
+  return *data_node_stress_escapee_offspring_success_count;
+}
 #endif
