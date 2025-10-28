@@ -99,7 +99,7 @@ emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
  */
 void SGPWorld::SetupTransmissionFileColumns(emp::DataFile& file) {
   SymWorld::SetupTransmissionFileColumns(file);
-  if (sgp_config->INTERACTION_MECHANISM() == STRESS) {
+  if (sgp_config->INTERACTION_MECHANISM() == STRESS && sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
     emp::DataMonitor<size_t>& escapee_attempts = GetStressEscapeeOffspringAttemptCount();
     emp::DataMonitor<size_t>& escapee_successes = GetStressEscapeeOffspringSuccessCount();
 
