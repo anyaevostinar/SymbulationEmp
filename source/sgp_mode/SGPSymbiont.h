@@ -201,8 +201,8 @@ public:
     sym_baby->SetReproCount(reproductions + 1);
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
+    sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
     if (sgp_config->TRACK_PARENT_TASKS()) {
-      sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
       //inherit towards-from tracking
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
 

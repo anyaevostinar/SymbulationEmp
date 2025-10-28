@@ -125,7 +125,8 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
   std::unordered_map<std::string, int[4]> matching_task_counts;
   for (size_t i = 0; i < pop.size(); i++) {
     if (!IsOccupied(i)) continue;
-    std::string host_matching_tasks = fun_get_task_profile(pop[i]).ToBinaryString();
+    emp::Ptr<SGPHost> host = pop[i].DynamicCast<SGPHost>();
+    std::string host_matching_tasks = host->GetCPU().state.parent_tasks_performed->ToBinaryString();
     if (emp::Has(matching_task_counts, host_matching_tasks)) {
       matching_task_counts[host_matching_tasks][0]++;
     }
@@ -133,9 +134,9 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
       matching_task_counts[host_matching_tasks][0] = 1;// { 1, 0, 0, 0 };
 
     }
-    emp::vector<emp::Ptr<Organism>> syms = pop[i]->GetSymbionts();
+    emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
     for (size_t j = 0; j < syms.size(); j++) {
-      std::string sym_matching_tasks = fun_get_task_profile(syms[j]).ToBinaryString();
+      std::string sym_matching_tasks = syms[j].DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->ToBinaryString();
       if (emp::Has(matching_task_counts, sym_matching_tasks)) {
         matching_task_counts[sym_matching_tasks][1]++;
       }
@@ -171,7 +172,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
 
 
   // write all the combinations and counts to the data file
-  out_file << "task_profile,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts\n";
+  out_file << "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts\n";
   for (auto& key_value : matching_task_counts) {
     // each "key_value" is a bitstring key with a pair (int,int) value
     out_file << key_value.first << "," << std::to_string(key_value.second[0]) << ",";

@@ -100,7 +100,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
     THEN("The EndingTaskCombinations File should contain 2 lines"){
       std::getline(file5, str5);
         THEN("The first should be a header"){
-          REQUIRE(str5 == "task_profile,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
         std::getline(file5, str5);
         THEN("The second should be 1 organism completing solely the NOT task"){
@@ -199,7 +199,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       THEN("The EndingTaskCombinations File should contain 2 lines"){
       std::getline(file5, str5);
         THEN("The first should be a header"){
-          REQUIRE(str5 == "task_profile,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
         std::getline(file5, str5);
         THEN("The second should be 4 organisms completing solely the NOT task, 2 hosts and 2 symbionts"){
