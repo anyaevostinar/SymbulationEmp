@@ -43,28 +43,28 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       REQUIRE(std::filesystem::exists("SymInstCountDataTest_SEED2.data"));
     }
     // Create a text string, which is used to output the text file
-      std::ifstream file("OrganismCountsDataTest_SEED2.data");
-      std::string str; 
-      THEN("The OrganismCount file should contain 3 lines"){
-        std::getline(file, str);
-        THEN("The first should be a header"){
-          REQUIRE(str == "update,count,hosted_syms");
-        }
-        std::getline(file, str);
-        THEN("The second should be 1 host alive at update 0"){
-          REQUIRE(str == "0,1,0");
-        }
-        std::getline(file, str);
-        THEN("The third should be 1 host alive at update 100"){
-          REQUIRE(str == "100,1,0");
-        }
+    std::ifstream file("OrganismCountsDataTest_SEED2.data");
+    std::string str; 
+    THEN("The OrganismCount file should contain 3 lines"){
+      std::getline(file, str);
+      THEN("The first should be a header"){
+        REQUIRE(str == "update,count,hosted_syms");
       }
+      std::getline(file, str);
+      THEN("The second should be 1 host alive at update 0"){
+        REQUIRE(str == "0,1,0");
+      }
+      std::getline(file, str);
+      THEN("The third should be 1 host alive at update 100"){
+        REQUIRE(str == "100,1,0");
+      }
+    }
     
 
     std::ifstream file3("TasksDataTest_SEED2.data");
     std::string str3; 
     THEN("The Task File should contain 3 lines"){
-      std::getline(file3, str3);
+        std::getline(file3, str3);
         THEN("The first should be a header"){
           REQUIRE(str3 == "update,host_task_NOT,sym_task_NOT,host_task_NAND,sym_task_NAND,host_task_AND,sym_task_AND,host_task_ORN,sym_task_ORN,host_task_OR,sym_task_OR,host_task_ANDN,sym_task_ANDN,host_task_NOR,sym_task_NOR,host_task_XOR,sym_task_XOR,host_task_EQU,sym_task_EQU");
         }
@@ -81,7 +81,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
     std::ifstream file4("TransmissionRatesDataTest_SEED2.data");
     std::string str4; 
     THEN("The TransmissionRates File should contain 3 lines"){
-      std::getline(file4, str4);
+        std::getline(file4, str4);
         THEN("The first should be a header"){
           REQUIRE(str4 == "update,attempts_horiztrans,successes_horiztrans,attempts_verttrans,successes_verttrans");
         }
@@ -98,7 +98,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
     std::ifstream file5("EndingTaskCombinationsDataTest_SEED2.data");
     std::string str5; 
     THEN("The EndingTaskCombinations File should contain 2 lines"){
-      std::getline(file5, str5);
+        std::getline(file5, str5);
         THEN("The first should be a header"){
           REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
@@ -180,7 +180,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       std::ifstream file4("TransmissionRatesDataTest_SEED2.data");
       std::string str4; 
       THEN("The TransmissionRates File should contain 3 lines"){
-        std::getline(file4, str4);
+          std::getline(file4, str4);
           THEN("The first should be a header"){
             REQUIRE(str4 == "update,attempts_horiztrans,successes_horiztrans,attempts_verttrans,successes_verttrans");
           }
@@ -197,7 +197,7 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       std::ifstream file5("EndingTaskCombinationsDataTest_SEED2.data");
       std::string str5; 
       THEN("The EndingTaskCombinations File should contain 3 lines"){
-      std::getline(file5, str5);
+        std::getline(file5, str5);
         THEN("The first should be a header"){
           REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
         }
