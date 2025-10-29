@@ -152,8 +152,8 @@ int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>&
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(source_id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
-      //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont_tasks, fun_get_task_profile(GetOrgPtr(neighbor.GetIndex())))) {
+      //if we check task matching, check if neighbor host does any task that parent sym did & return if so
+      if (sgp_config->HT_TASK_MATCH() == 0 || TaskMatchCheck(symbiont_tasks, fun_get_task_profile(GetOrgPtr(neighbor.GetIndex())))) {
         return neighbor.GetIndex();
       }
     }
