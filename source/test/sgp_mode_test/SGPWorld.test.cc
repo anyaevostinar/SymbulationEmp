@@ -866,7 +866,7 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
 
 TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
   WHEN("There are symbionts in the queue") {
-    emp::Random random(69);
+    emp::Random random(19);
     SymConfigSGP config;
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
@@ -880,6 +880,8 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
     config.SYM_HORIZ_TRANS_RES(100);
     config.SYM_MIN_CYCLES_BEFORE_REPRO(50);
     config.HOST_MIN_CYCLES_BEFORE_REPRO(100);
+    config.GRID_X(10);
+    config.GRID_Y(10);
 
     SGPWorld world(random, &config, LogicTasks);
     world.Resize(10);
@@ -982,7 +984,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
 TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp]") {
   
   GIVEN("Stress is the interaction mechanism") {
-    emp::Random random(69);
+    emp::Random random(68);
     SymConfigSGP config;
     SGPWorld world(random, &config, LogicTasks);
     world.Resize(10);

@@ -195,16 +195,13 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
 
 
 /**
- * Input: The address of the string representing the suffixes for the files to be created.
+ * Input: The reference of the datafile which is being constructed.
  *
  * Output: None.
  *
- * Purpose: To setup and write to the files that track the counts of attempted
- * tranmissions.
+ * Purpose: To setup the columns tracking symbiont transmission.
  */
-
-emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
-  auto & file = SetupFile(filename);
+void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
@@ -219,9 +216,20 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
   //vertical transmission
   file.AddTotal(node3, "attempts_verttrans", "Total number of vertical transmission attempts", true);
   file.AddTotal(node4, "successes_verttrans", "Total number of vertical transmission successes", true);
+}
 
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track symbiont transmission
+ */
+emp::DataFile& SymWorld::SetUpTransmissionFile(const std::string& filename) {
+  auto& file = SetupFile(filename);
+  SetupTransmissionFileColumns(file);
   file.PrintHeaderKeys();
-
   return file;
 }
 
