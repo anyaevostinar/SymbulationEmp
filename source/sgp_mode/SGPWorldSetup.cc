@@ -171,10 +171,6 @@ int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>&
   * Purpose: To check for task matching before transmission
   */
 bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks) {
-  if (sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
-    return true;
-  }
-
   for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
     if (symbiont_tasks.Get(i) && host_tasks.Get(i)) {
       return true;
