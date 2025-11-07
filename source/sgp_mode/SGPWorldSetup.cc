@@ -65,7 +65,7 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
   */
 void SGPWorld::SetupTaskProfileFun() {
   if (sgp_config->TRACK_PARENT_TASKS()) {
-    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  emp::BitSet<CPU_BITSET_LENGTH>&{
+    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
       }
@@ -147,7 +147,7 @@ void SGPWorld::ProcessReproductionQueue() {
  *
  * Purpose: Searches through up to 10 hosts in the world to find a host that the symbiont can infect. 
  */
-int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks){
+int SGPWorld::GetNeighborHost (size_t source_id, const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks){
   // Attempt to find host that matches some tasks
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(source_id);
@@ -170,7 +170,7 @@ int SGPWorld::GetNeighborHost (size_t source_id, emp::BitSet<CPU_BITSET_LENGTH>&
   *
   * Purpose: To check for task matching before transmission
   */
-bool SGPWorld::TaskMatchCheck(emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, emp::BitSet<CPU_BITSET_LENGTH>& host_tasks) {
+bool SGPWorld::TaskMatchCheck(const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, const emp::BitSet<CPU_BITSET_LENGTH>& host_tasks) {
   if (sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
     return true;
   }
@@ -230,10 +230,15 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     std::iota(e.begin(), e.end(), 0);
     emp::Shuffle(*random_ptr, e);
 
+    emp::DataMonitor<size_t>& escapee_sucess_data_node = GetStressEscapeeOffspringSuccessCount();
+
     for (size_t escapee_i : e) {
       StressEscapeeOffspring& escapee_data = symbiont_stress_escapee_offspring[escapee_i];
       // TODO:stress escape data nodes
-      PlaceSymbiontInHost(escapee_data.escapee_offspring, escapee_data.infection_tasks, escapee_data.parent_pos);
+      emp::WorldPosition new_pos = PlaceSymbiontInHost(escapee_data.escapee_offspring, escapee_data.infection_tasks, escapee_data.parent_pos);
+      if (new_pos.IsValid()) {
+        escapee_sucess_data_node.AddDatum(1);
+      }
     }
 
     symbiont_stress_escapee_offspring.clear();
@@ -246,11 +251,11 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   *
   * Purpose: Calculate preferential ousting success
   */
-  bool SGPWorld::PreferentialOustingAllowed(emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host){
-    emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = fun_get_task_profile(host);
+  bool SGPWorld::PreferentialOustingAllowed(const emp::BitSet<CPU_BITSET_LENGTH>& incoming_sym_tasks, emp::Ptr<Organism> host){
+    const emp::BitSet<CPU_BITSET_LENGTH>& host_tasks = fun_get_task_profile(host);
 
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
-      emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = fun_get_task_profile(sym);
+      const emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = fun_get_task_profile(sym);
 
       if(sgp_config->PREFERENTIAL_OUSTING() == 1){
         // if has worse task match with any hosted sym, fail
@@ -276,7 +281,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
   *
   * Purpose: Place a symbiont based on the passed task set
   */
-  emp::WorldPosition SGPWorld::PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos) {
+  emp::WorldPosition SGPWorld::PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos) {
     int new_host_pos = GetNeighborHost(source_pos, symbiont_infection_tasks);
     if (new_host_pos > -1) { //-1 means no living neighbors
       if (sgp_config->OUSTING() && sgp_config->PREFERENTIAL_OUSTING() && (int)pop[new_host_pos]->GetSymbionts().size() == sgp_config->SYM_LIMIT()) {

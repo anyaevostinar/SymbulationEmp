@@ -505,6 +505,7 @@ public:
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
   emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
   emp::DataFile & SetUpTransmissionFile(const std::string & filename);
+  virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();

@@ -36,12 +36,15 @@ int symbulation_main(int argc, char *argv[]) {
   config.Write(std::cout);
   emp::Random random(config.SEED());
 
-  TaskSet task_set = LogicTasks;
+  const TaskSet* task_set;
   if(config.DIFFERENT_TASK_VALUES()) {
-    task_set = LogicTasksDiff;
+    task_set = &LogicTasksDiff;
+  }
+  else {
+    task_set = &LogicTasks;
   }
 
-  SGPWorld world(random, &config, task_set);
+  SGPWorld world(random, &config, *task_set);
 
   world.Setup();
   world.CreateDataFiles();

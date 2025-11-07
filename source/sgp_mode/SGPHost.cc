@@ -17,9 +17,9 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
   host_baby->SetReproCount(reproductions + 1);
   // This organism is reproducing, so it must have gotten off the queue
   cpu.state.in_progress_repro = -1;
-  if (sgp_config->TRACK_PARENT_TASKS()) {
-    host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
 
+  host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+  if (sgp_config->TRACK_PARENT_TASKS()) {
     for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
       host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
       host_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
