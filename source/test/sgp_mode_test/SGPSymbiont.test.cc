@@ -109,8 +109,8 @@ TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp]") {
   }
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp]"){
-  GIVEN("An SGPworld with ONLY_FIRST_TASK_CREDIT on "){
+TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp]"){
+  GIVEN("An SGPworld with SYM_ONLY_FIRST_TASK_CREDIT on "){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(1);
@@ -120,7 +120,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can recei
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
     config.SYM_ONLY_FIRST_TASK_CREDIT(1);
 
     SGPWorld world(random, &config, LogicTasks);
@@ -236,8 +235,8 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can recei
   }
 }
 
-TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all tasks they complete", "[sgp]"){
-  GIVEN("An SGPworld with ONLY_FIRST_TASK_CREDIT off"){
+TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all tasks they complete", "[sgp]"){
+  GIVEN("An SGPworld with SYM_ONLY_FIRST_TASK_CREDIT off"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -247,7 +246,6 @@ TEST_CASE("When ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all ta
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.HOST_ONLY_FIRST_TASK_CREDIT(0);
     config.SYM_ONLY_FIRST_TASK_CREDIT(0);
 
     SGPWorld world(random, &config, LogicTasks);
