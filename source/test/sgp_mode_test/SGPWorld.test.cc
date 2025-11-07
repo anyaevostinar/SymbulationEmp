@@ -79,7 +79,8 @@ TEST_CASE("Host Setup", "[sgp]") {
   config.MUTATION_SIZE(0.000);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(1);
   config.HOST_REPRO_RES(10000);
 
 
@@ -267,7 +268,8 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
     config.MUTATION_SIZE(0.000);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.ONLY_FIRST_TASK_CREDIT(0);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(0);
     config.HOST_REPRO_RES(10000);
 
     SGPWorld world(random, &config, LogicTasks);
@@ -322,7 +324,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
     config.MUTATION_SIZE(0.000);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.ONLY_FIRST_TASK_CREDIT(1);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
     config.HOST_REPRO_RES(10000);
 
     SGPWorld world(random, &config, LogicTasks);

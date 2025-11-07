@@ -12,7 +12,8 @@ TEST_CASE("When only first task credit is on","[sgp]"){
     config.MUTATION_SIZE(0.002);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.ONLY_FIRST_TASK_CREDIT(1);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
 
     SGPWorld world(random, &config, LogicTasks);
 
@@ -73,7 +74,8 @@ TEST_CASE("Task integration scoring and marking", "[sgp]") {
   world.AddOrgAt(host, 0);
 
   WHEN("OnlyFirstTaskCredit is OFF") {
-    config.ONLY_FIRST_TASK_CREDIT(0);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(0);
 
     THEN("Should receive score when task completed") {
       int initial_points = host->GetPoints();
@@ -96,7 +98,8 @@ TEST_CASE("Task integration scoring and marking", "[sgp]") {
   }
 
   WHEN("OnlyFirstTaskCredit is ON") {
-    config.ONLY_FIRST_TASK_CREDIT(1);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
 
     int initial_points = host->GetPoints();
     host->GetCPU().RunCPUStep(0, 100);
@@ -153,7 +156,8 @@ TEST_CASE("IsOnlyTask functionality", "[sgp]") {
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(1);
 
   SGPWorld world(random, &config, LogicTasks);
 
@@ -238,7 +242,8 @@ TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp]"){
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(0);
 
   SGPWorld world(random, &config, LogicTasks);
 
@@ -538,7 +543,8 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp]"){
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(0);
 
   SGPWorld world(random, &config, LogicTasks);
 
@@ -645,7 +651,8 @@ TEST_CASE("Task completion edge cases", "[sgp]") { // IsSolved Edge casses docum
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(0);
 
   SGPWorld world(random, &config, LogicTasks);
 
@@ -679,7 +686,8 @@ TEST_CASE("ProcessOutput Functionality with LogicTasksDiff", "[sgp]"){
   config.MUTATION_SIZE(0.002);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(0);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(0);
   config.DIFFERENT_TASK_VALUES(1);
 
   SGPWorld world(random, &config, LogicTasksDiff);
