@@ -4,54 +4,135 @@
 
 #include "../../catch/catch.hpp"
 
-TEST_CASE("When only first task credit is on","[sgp]"){
-    emp::Random random(1);
-    SymConfigSGP config;
-    config.SEED(1);
-    config.MUTATION_RATE(0.0);
-    config.MUTATION_SIZE(0.002);
-    config.TRACK_PARENT_TASKS(1);
-    config.VT_TASK_MATCH(1);
-    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
-    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
+TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp]"){
+  emp::Random random(1);
+  SymConfigSGP config;
+  config.SEED(1);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.002);
+  config.TRACK_PARENT_TASKS(1);
+  config.VT_TASK_MATCH(1);
 
-    SGPWorld world(random, &config, LogicTasks);
+  SGPWorld world(random, &config, LogicTasks);
 
+  //Builds program that does both NOT and NAND operations
+  ProgramBuilder program;
+  program.AddNot();
+  program.AddNand();
+  
+  //Creates a host that does both Not and Nand operations
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+  
+  //Creates a symbiont that can not do any tasks
+  emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
 
-    WHEN("Hosts are able to complete both NOT and NAND tasks"){
-      
-      //Builds program that does both NOT and NAND operations
-      ProgramBuilder program;
-      program.AddNot();
-      program.AddNand();
-      ProgramBuilder empty_program;
-
-      //Creates a host that does both Not and Nand operations
-      emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-      
-      //Creates a symbiont that can not do any tasks
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, empty_program.Build(100));
-
-      //Adds host to world and sym to host.
-      world.AddOrgAt(host, 0);
-      host->AddSymbiont(sym);
-
-
-      WHEN("Host completes both NOT and NAND tasks"){
-      
+  //Adds host to world and sym to host.
+  world.AddOrgAt(host, 0);
+  host->AddSymbiont(symbiont);
+  GIVEN("A host and symbiont can theoretically do both NOT and NAND tasks"){
+    WHEN("Only first task credit for hosts is on"){
+      config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+  
+      WHEN("Only first task credit for symbionts is off"){
+        config.SYM_ONLY_FIRST_TASK_CREDIT(0);
         host->GetCPU().RunCPUStep(0, 100);
-        
-        int tasks_completed = 0;
-        for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+        symbiont->GetCPU().RunCPUStep(0, 100);
+        THEN("The host only gets credit for NOT"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
-        }
-        THEN("Host should only get credit for completing 1 task"){
+          }
+
           REQUIRE(tasks_completed == 1);
-            REQUIRE(host->GetPoints() == 5);
-          
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("The symbiont gets credit for both NOT and NAND"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += symbiont->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 2);
+          REQUIRE(symbiont->GetPoints() == 10);
+        }
+      }
+      WHEN("Only first task credit for symbionts is on"){
+        config.SYM_ONLY_FIRST_TASK_CREDIT(1);
+        host->GetCPU().RunCPUStep(0, 100);
+        symbiont->GetCPU().RunCPUStep(0, 100);
+        THEN("The host only gets credit for NOT"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 1);
+          REQUIRE(host->GetPoints() == 5);
+        }
+        THEN("The symbiont only gets credit for NOT"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += symbiont->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 1);
+          REQUIRE(symbiont->GetPoints() == 5);
         }
       }
     }
+
+    
+    WHEN("Only first task credit for hosts is off"){
+      config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+
+      WHEN("Only first task credit for symbionts is on"){
+        config.SYM_ONLY_FIRST_TASK_CREDIT(1);
+        host->GetCPU().RunCPUStep(0, 100);
+        symbiont->GetCPU().RunCPUStep(0, 100);
+        THEN("The host gets credit for both NOT and NAND"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 2);
+          REQUIRE(host->GetPoints() == 10);
+        }
+        THEN("The symbiont only gets credit for NOT"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += symbiont->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 1);
+          REQUIRE(symbiont->GetPoints() == 5);
+        }
+      }
+      WHEN("Only first task credit for symbionts is off"){
+        config.SYM_ONLY_FIRST_TASK_CREDIT(0);
+        host->GetCPU().RunCPUStep(0, 100);
+        symbiont->GetCPU().RunCPUStep(0, 100);
+        THEN("The host gets credit for both NOT and NAND"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 2);
+          REQUIRE(host->GetPoints() == 10);
+        }
+        THEN("The symbiont gets credit for both NOT and NAND"){
+          int tasks_completed = 0;
+          for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+          tasks_completed += symbiont->GetCPU().state.tasks_performed->Get(i);
+          }
+
+          REQUIRE(tasks_completed == 2);
+          REQUIRE(symbiont->GetPoints() == 10);
+        }
+      }
+    }
+  }
 }
 
 TEST_CASE("Task integration scoring and marking", "[sgp]") {
