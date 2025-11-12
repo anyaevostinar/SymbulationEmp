@@ -19,6 +19,9 @@ emp::Ptr<Organism> SGPHost::Reproduce() {
   cpu.state.in_progress_repro = -1;
 
   host_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+  if (sgp_config->TRACK_PARENT_TASKS() == 2) {
+    host_baby->GetCPU().state.parent_or_current_tasks_performed->Import(*GetCPU().state.tasks_performed);
+  }
   if (sgp_config->TRACK_PARENT_TASKS()) {
     for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
       host_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];

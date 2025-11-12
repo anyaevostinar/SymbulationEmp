@@ -64,7 +64,17 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
   * Purpose: Setup the task profile retriever function.
   */
 void SGPWorld::SetupTaskProfileFun() {
-  if (sgp_config->TRACK_PARENT_TASKS()) {
+  if (sgp_config->TRACK_PARENT_TASKS() == 2) {
+    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
+      if (org->IsHost()) {
+        return (*org.DynamicCast<SGPHost>()->GetCPU().state.parent_or_current_tasks_performed).OR_SELF(*org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed);
+      }
+      else {
+        return (*org.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_or_current_tasks_performed).OR_SELF(*org.DynamicCast<SGPSymbiont>()->GetCPU().state.tasks_performed);
+      }
+    };
+  }
+  else if (sgp_config->TRACK_PARENT_TASKS() == 1) {
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
@@ -72,10 +82,10 @@ void SGPWorld::SetupTaskProfileFun() {
       else {
         return *org.DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed;
       }
-    };
+      };
   }
-  else {
-    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  emp::BitSet<CPU_BITSET_LENGTH>&{
+  else if (sgp_config->TRACK_PARENT_TASKS() == 0) {
+    fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
       }

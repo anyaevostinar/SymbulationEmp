@@ -89,6 +89,7 @@ public:
   ~CPU() {
     state.parent_tasks_performed.Delete();
     state.tasks_performed.Delete();
+    state.parent_or_current_tasks_performed.Delete();
   }
 
   /**
