@@ -11,10 +11,11 @@ TEST_CASE("SetupTaskProfileFun", "[sgp]") {
 		emp::Ptr<SGPHost> host_parent = emp::NewPtr<SGPHost>(&random, &world, &config);
 		emp::Ptr<SGPSymbiont> symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
 
-		host_parent->GetCPU().state.tasks_performed->Set(0);
+		host_parent->GetCPU().state.tasks_performed->Set(1);
+		symbiont_parent->GetCPU().state.tasks_performed->Set(8);
 		symbiont_parent->GetCPU().state.tasks_performed->Set(7);
 
-		emp::Ptr<SGPHost> host = host_parent->Reproduce().DynamicCast<SGPHost>();
+		emp::Ptr<SGPHost> host = host_parent->Reproduce().DynamicCast<SGPHost>(); // parent tasks get imported to the ORed bitset on repro
 		emp::Ptr<SGPSymbiont> symbiont = symbiont_parent->Reproduce().DynamicCast<SGPSymbiont>();
 
 		host->GetCPU().state.tasks_performed->Set(0);
