@@ -93,15 +93,8 @@ public:
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE && tasks_satisfactory) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
       if (random->P(death_chance)) {
-        if (sgp_config->SYMBIONTS_ESCAPE()) {
-          //Symbionts get to escape  during an extinction event
-          for (size_t j = 0; j < syms.size(); j++) {
-            emp::Ptr<Organism> cur_sym = syms[j];
-            RemoveSymbiont(j + 1); //RemoveSymbiont uses 1-indexed value
-            my_world->SymFindHost(cur_sym, emp::WorldPosition(j + 1, pos.GetIndex()));
-          }
-        }
-        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
+        // escapee offspring go first (so that parent sym is not removed before they can use it!)
+        if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
             const emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
             if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
@@ -112,6 +105,14 @@ public:
             }
           }
         }
+        if (sgp_config->SYMBIONTS_ESCAPE()) {
+          //Symbionts get to escape  during an extinction event
+          for (size_t j = 0; j < syms.size(); j++) {
+            emp::Ptr<Organism> cur_sym = syms[j];
+            RemoveSymbiont(j + 1); //RemoveSymbiont uses 1-indexed value
+            my_world->SymFindHost(cur_sym, emp::WorldPosition(j + 1, pos.GetIndex()));
+          }
+        } 
         SetDead();
       }
     }
