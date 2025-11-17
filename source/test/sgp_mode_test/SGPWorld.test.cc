@@ -79,7 +79,8 @@ TEST_CASE("Host Setup", "[sgp]") {
   config.MUTATION_SIZE(0.000);
   config.TRACK_PARENT_TASKS(1);
   config.VT_TASK_MATCH(1);
-  config.ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(1);
   config.HOST_REPRO_RES(10000);
 
 
@@ -152,8 +153,8 @@ TEST_CASE("TaskMaskCheck Unit Test", "[sgp]") {
       emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
       sym->GetCPU().state.tasks_performed->Set(2); 
 
-      THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+      THEN("TaskMatchCheck returns false") {
+        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
 
       host.Delete();
@@ -267,7 +268,8 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
     config.MUTATION_SIZE(0.000);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.ONLY_FIRST_TASK_CREDIT(0);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(0);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(0);
     config.HOST_REPRO_RES(10000);
 
     SGPWorld world(random, &config, LogicTasks);
@@ -312,9 +314,8 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp]") {
   }
 }
 
-TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
-
-  GIVEN("An SGPWorld where ONLY_FIRST_TASK_CREDIT is on and there is no mutation"){
+TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
+  GIVEN("An SGPWorld where HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TASK_CREDIT is on and there is no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -322,7 +323,8 @@ TEST_CASE("TaskMatchCheck when ONLY_FIRST_TASK_CREDIT is 1", "[sgp]") {
     config.MUTATION_SIZE(0.000);
     config.TRACK_PARENT_TASKS(1);
     config.VT_TASK_MATCH(1);
-    config.ONLY_FIRST_TASK_CREDIT(1);
+    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
     config.HOST_REPRO_RES(10000);
 
     SGPWorld world(random, &config, LogicTasks);
@@ -1055,6 +1057,70 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp]") {
           REQUIRE(world.IsOccupied(non_matching_pos) == false);
         }
       }
+    }
+  }
+}
+
+TEST_CASE("GetNeighborHost", "[sgp]") {
+  emp::Random random(13);
+  SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.TRACK_PARENT_TASKS(0);
+
+  SGPWorld world(random, &config, LogicTasks);
+  world.Resize(2);
+
+  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
+  emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+  host->AddSymbiont(symbiont);
+
+  size_t source_index = 0;
+  world.AddOrgAt(host, source_index);
+
+  WHEN("There exists a nearby host") {
+    int neighbor_index = 1;
+    emp::Ptr<SGPHost> neighbor_host = emp::NewPtr<SGPHost>(&random, &world, &config);
+    world.AddOrgAt(neighbor_host, neighbor_index);
+
+    WHEN("The nearby host has matching tasks with the incoming symbiont") {
+      neighbor_host->GetCPU().state.tasks_performed->Set(8);
+      symbiont->GetCPU().state.tasks_performed->Set(8);
+
+      WHEN("Task matching is not required for horizontal transmission") {
+        config.HT_TASK_MATCH(0);
+        THEN("The position of the nearby, matching host is returned"){
+          REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == neighbor_index);
+        }
+      }
+      WHEN("Task matching is required for horizontal transmission") {
+        config.HT_TASK_MATCH(1);
+        THEN("The position of the nearby, matching host is returned") {
+          REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == neighbor_index);
+        }
+      }
+    }
+
+    WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
+      neighbor_host->GetCPU().state.tasks_performed->Set(6);
+      symbiont->GetCPU().state.tasks_performed->Set(8);
+
+      WHEN("Task matching is not required for horizontal transmission") {
+        config.HT_TASK_MATCH(0);
+        THEN("The position of the nearby, non-matching host is returned") {
+          REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == neighbor_index);
+        }
+      }
+      WHEN("Task matching is required for horizontal transmission") {
+        config.HT_TASK_MATCH(1);
+        THEN("-1 (no neighbor) is returned") {
+          REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == -1);
+        }
+      }
+    }
+  }
+  WHEN("There does not exist a nearby host") {
+    THEN("-1 (no neighbor) is returned") {
+      REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == -1);
     }
   }
 }
