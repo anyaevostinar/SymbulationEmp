@@ -110,7 +110,12 @@ void AddNewInput(CPUState &state, uint32_t *output){
 // Set output to value of register and set register to new input
 //TODO: change to just "IO" to not be confusing
 INST(SharedIO, {
-  state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->ONLY_FIRST_TASK_CREDIT());
+  if(state.organism->IsHost()){
+    state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->HOST_ONLY_FIRST_TASK_CREDIT());
+  } else {
+    state.world->GetTaskSet().ProcessOutput(state, *a, state.world->GetConfig()->SYM_ONLY_FIRST_TASK_CREDIT());
+  }
+  
   //TODO: Add helper method for adding new input
   AddNewInput(state, a);
 });

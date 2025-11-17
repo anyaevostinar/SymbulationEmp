@@ -152,8 +152,8 @@ int SGPWorld::GetNeighborHost (size_t source_id, const emp::BitSet<CPU_BITSET_LE
   for (int i = 0; i < 10; i++) {
     emp::WorldPosition neighbor = GetRandomNeighborPos(source_id);
     if (neighbor.IsValid() && IsOccupied(neighbor)){
-      //check if neighbor host does any task that parent sym did & return if so
-      if (TaskMatchCheck(symbiont_tasks, fun_get_task_profile(GetOrgPtr(neighbor.GetIndex())))) {
+      //if we check task matching, check if neighbor host does any task that parent sym did & return if so
+      if (sgp_config->HT_TASK_MATCH() == 0 || TaskMatchCheck(symbiont_tasks, fun_get_task_profile(GetOrgPtr(neighbor.GetIndex())))) {
         return neighbor.GetIndex();
       }
     }
@@ -171,10 +171,6 @@ int SGPWorld::GetNeighborHost (size_t source_id, const emp::BitSet<CPU_BITSET_LE
   * Purpose: To check for task matching before transmission
   */
 bool SGPWorld::TaskMatchCheck(const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_tasks, const emp::BitSet<CPU_BITSET_LENGTH>& host_tasks) {
-  if (sgp_config->INTERACTION_MECHANISM() == NUTRIENT) {
-    return true;
-  }
-
   for (int i = CPU_BITSET_LENGTH - 1; i > -1; i--) {
     if (symbiont_tasks.Get(i) && host_tasks.Get(i)) {
       return true;
