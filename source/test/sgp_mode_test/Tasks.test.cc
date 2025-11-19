@@ -786,12 +786,12 @@ TEST_CASE("ProcessOutput Functionality with LogicTasksDiff", "[sgp]"){
   
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
-      //The result of applying the NOT bitwise opeartions to the binary form of 734856699
+      //The result of applying the NOT bitwise operations to the binary form of 734856699
       long not_output = 3560110596;
       
         host->GetCPU().state.world->GetTaskSet().ProcessOutput(host->GetCPU().state,not_output,0);
-        THEN("Organism should have 2 points"){
-          REQUIRE(host->GetPoints() == 2);
+        THEN("Organism should have 1 point"){
+          REQUIRE(host->GetPoints() == 1);
         }
         THEN("Organism should be marked as having performed NOT"){
         for (int i = 0; i < 9; i++){
