@@ -97,16 +97,19 @@ TEST_CASE("Correct data files are created", "[sgp]") {
 
     std::ifstream file5("EndingTaskCombinationsDataTest_SEED2.data");
     std::string str5; 
-    THEN("The EndingTaskCombinations File should contain 2 lines"){
+    THEN("The EndingTaskCombinations File should contain 3 lines"){
         std::getline(file5, str5);
         THEN("The first should be a header"){
-          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+          REQUIRE(str5 == "task_completions,host_parent_count,sym_parent_count,host_count,symbiont_count");
         }
         std::getline(file5, str5);
-        THEN("The second should be 1 host with a parent who completed nothing"){
+        THEN("The second should be 1 host who completed NOT") {
+          REQUIRE(str5 == "000000001,0,0,1,0");
+        }
+        std::getline(file5, str5);
+        THEN("The third should be 1 host parent who completed nothing"){
           REQUIRE(str5 == "000000000,1,0,0,0");
         }
-        
     }
   }
 
@@ -199,11 +202,11 @@ TEST_CASE("Correct data files are created", "[sgp]") {
       THEN("The EndingTaskCombinations File should contain 3 lines"){
         std::getline(file5, str5);
         THEN("The first should be a header"){
-          REQUIRE(str5 == "parent_task_completions,host_count,symbiont_count,can_inf_hosts,can_inf_symbionts");
+          REQUIRE(str5 == "task_completions,host_parent_count,sym_parent_count,host_count,symbiont_count");
         }
         std::getline(file5, str5);
-        THEN("The second should be 1 symbiont whose parent completed solely the NOT task"){
-          REQUIRE(str5 == "000000001,0,1,0,0");
+        THEN("The second should be 1 symbiont parent, 2 hosts, and 2 symbionts who completed solely the NOT task"){
+          REQUIRE(str5 == "000000001,0,1,2,2");
         }
         std::getline(file5, str5);
         THEN("The third should be 2 hosts and 1 symbiont whose parents completed nothing"){
