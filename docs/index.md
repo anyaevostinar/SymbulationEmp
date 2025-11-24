@@ -35,7 +35,7 @@ api/library_root
 :caption: Contributing to Symbulation
 :maxdepth: 0
 
-dev/Symbulation-development-practices
+dev/symbulation-development-practices
 dev/getting-started
 dev/contribution-guidelines-and-review
 dev/adding-documentation

@@ -1,8 +1,7 @@
 sphinx>5.0
-exhale
+breathe>=4.33.1
 sphinx-rtd-theme
 coverxygen
-breathe
 myst-parser
 Jinja2
 readthedocs-sphinx-search
