@@ -2,6 +2,8 @@
 #define CONFIG_H
 #include "../Empirical/include/emp/config/config.hpp"
 
+const int TAG_LENGTH = 32;
+
 EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(MAIN, "Global Settings"),
     VALUE(SEED, int, 10, "What value should the random seed be? If seed <= 0, then it is randomly re-chosen."),
@@ -28,13 +30,21 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SYM_INFECTION_FAILURE_RATE, double, 0, "The chance (between 0 and 1) that a sym will be killed by the world while trying to infect a host"),
     VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),
     VALUE(SYM_AGE_MAX, int, -1, "The maximum updates symbionts are allowed to live, -1 for infinite"),
-    VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
-    VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be sepeated into if phylogeny is on?"),
     VALUE(NO_MUT_UPDATES, int, 0, "How many updates should be run after the end of UPDATES with all mutation turned off?"),
     VALUE(PHAGE_EXCLUDE, bool, 0, "Do symbionts have a decreasing chance of getting into the host the more symbionts are already infecting it? (0 for no, 1 for yes)"), // todo: alias phage_exclude, and change name to sym_exclude
     VALUE(OUSTING, bool, 0, "Should ousting (incoming symbiont kills and replaces existing symbiont) be turned on? (0 for no, 1 for yes)"),
+    VALUE(FREE_HT_FAILURE, bool, 0, "Should failing to infect a host with horizontally transmitted offspring on the basis of the host already being full cost the parent symbiont any points? (0 for trying and failing still costs, 1 for free failure)"),
+    VALUE(WRITE_ORG_DUMP_FILE, bool, 0, "Should all end-of-experiment organisms pairs be written (with their behavior values and reproduction counts) to a data file? (0 for no, 1 for yes)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
+    
+    GROUP(PHYLOGENY, "PHYLOGENY"),
+    VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
+    VALUE(TRACK_PHYLOGENY_INTERACTIONS, bool, 0, "Should the world keep track of interactions between hosts and symbionts, then write the count of all (including historical) interactions committed by tracked taxa? (0 for no, 1 for yes)?"),
+    VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
+    VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
+    VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
+    VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values"),
 
     GROUP(MUTATION, "Mutation"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
@@ -48,6 +58,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(INT_VAL_MUT_RATE, double, -1, "The overall mutation rate of the interaction value trait in symbionts, -1 makes it same as mutation rate as determined by tranmission mode"),
     VALUE(HORIZ_MUTATION_SIZE, double, -1, "Standard deviation of the distribution to mutate by for horizontal transmission, if -1 MUTATION_SIZE used"),
     VALUE(HORIZ_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for horizontal transmission, if -1 MUTATION_RATE used"),
+    VALUE(SYM_WITHIN_LIFETIME_MUTATION_RATE, double, 0, "Value 0 to 1 of probability of mutation for symbiont every time step"),
 
     GROUP(ECTOSYMBIOSIS, "Settings for ectosymbiosis and free-living symbionts"),
     VALUE(FREE_LIVING_SYMS, bool, 0, "Are symbionts able to live outside of the host?"),
@@ -57,6 +68,12 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FREE_SYM_RES_DISTRIBUTE, int, 0, "Number of resources to give to each free-living symbiont each update if they are available"),
     VALUE(FREE_SYM_REPRO_RES, double, -1, "How many resources required for free living symbiont reproduction. If -1, use the horizontal transmission required point value."),
 
-    
-)
+    GROUP(TAG_MATCHING, "Settings for tag matching"),
+    VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
+    VALUE(TAG_DISTANCE, double, 0.125, "What is the Poisson mean for divergence allowed between tags for a successful infection? (1 = perfect mismatch, 0 = perfect match)"),
+    VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
+    VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
+    VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
+    VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)"),
+  )
 #endif
