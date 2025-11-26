@@ -4,8 +4,8 @@ This section provides auto-generated documentation for the core classes in Symbu
 
 ## Core Classes
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 1
 
-host_docs
-sym_docs
+Host_h
+Sym_h
 ```
