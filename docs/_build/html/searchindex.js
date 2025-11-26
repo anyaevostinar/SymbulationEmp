@@ -1,1 +1,0 @@
-Search.setIndex({docnames:["contents"],envversion:52,filenames:["contents.rst"],objects:{},objnames:{},objtypes:{},terms:{index:0,instal:0,modul:0,page:0,project:0,run:0,search:0},titles:["Welcome to Symbulation\u2019s documentation!"],titleterms:{document:0,indic:0,symbul:0,tabl:0,welcom:0}})
