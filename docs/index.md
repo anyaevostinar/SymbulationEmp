@@ -27,8 +27,7 @@ top left!
 projects/index
 QuickStartGuides/index
 ALIFE2022Tutorial/index
-api/library_root
-
+api/index
 ```
 
 ```{toctree}

@@ -45,7 +45,7 @@ extensions = [
 
 # Setup the breathe extension
 breathe_projects = {
-    "Symbulation": "./doxyoutput/xml"
+    "Symbulation": "./_build/breathe/doxygen/auto/xml"
 }
 breathe_default_project = "Symbulation"
 
