@@ -90,8 +90,9 @@ class HealthHost : public SGPHost {
      * 
      * Output: None
      * 
-     * Purpose: Runs all functions a HealthHost completes each update, including status changes/checks 
-     * and running CPU cycles for both itself and any symbionts if they have them
+     * Purpose: To process the host, meaning: running its program code, which can
+     * include reproduction and acquisition of resources; removing dead syms;
+     * processing alive syms; Giving CPU cycles to syms; Receiving CPU cycles from syms;. 
      */
     void Process(emp::WorldPosition pos) override {
         if (GetDead()) {
