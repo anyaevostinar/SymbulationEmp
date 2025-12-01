@@ -609,9 +609,7 @@ public:
   }
 
 
-  /**
-   * Definitions of data node functions, expanded in DataNodes.h
-   */
+  //Definitions of data node functions, expanded in DataNodes.h
   virtual void CreateDataFiles();
   void MapPhylogenyInteractions();
   void WritePhylogenyFile(const std::string & filename);
@@ -662,9 +660,7 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostVarianceDataNode();
 
 
-  /**
-   * Definitions of setup functions, expanded in WorldSetup.cc
-   */
+  //Definitions of setup functions, expanded in WorldSetup.cc
   virtual void Setup();
   virtual void SetupHosts(long unsigned int* POP_SIZE);
   virtual void SetupSymbionts(long unsigned int* total_syms);
