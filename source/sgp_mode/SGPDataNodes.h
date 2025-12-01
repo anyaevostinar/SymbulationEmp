@@ -56,6 +56,16 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
   return file;
 }
 
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track 
+ * task counts in the world.
+ * This includes the amount of each task completed for hosts and symbionts.
+ */
 emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
@@ -73,7 +83,15 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track 
+ * the amount of Donate and Steal instructions ran
+ */
 emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");

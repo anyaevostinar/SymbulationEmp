@@ -10,15 +10,13 @@ class HealthHost : public SGPHost {
     //Tracks whether an update needs to be given to a symbiont or received from a symbiont
     int cycles_given = 1;
 
-    //Test variables that are currently used to give symbionts some starting cycles and then give them scraps throughout
+    //Variables that are currently used to give symbionts some starting cycles and then give them scraps throughout
     //the rest of their updates.
     int honoray_cycles = 0;
     int starting_updates = 1;
     emp::Ptr<Organism> last_sym = NULL; 
       /**
-   * Constructs a new SGPHost as an ancestor organism, with either a random
-   * genome or a blank genome that knows how to do a simple task depending on
-   * the config setting RANDOM_ANCESTOR.
+   * Constructs a new SGPHost as an ancestor organism, with a blank genome that knows how to do a simple task.
    */
   HealthHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
           emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
@@ -92,7 +90,8 @@ class HealthHost : public SGPHost {
      * 
      * Output: None
      * 
-     * Purpose: TBD
+     * Purpose: Runs all functions a HealthHost completes each update, including status changes/checks 
+     * and running CPU cycles for both itself and any symbionts if they have them
      */
     void Process(emp::WorldPosition pos) override {
         if (GetDead()) {
@@ -116,8 +115,6 @@ class HealthHost : public SGPHost {
                 cycles_given = 0;
               }
               
-              
-              //cycles_given = 0;
             }
             if(cycles_given <= -1){
               
@@ -127,7 +124,7 @@ class HealthHost : public SGPHost {
                 sym_cycle += 1;
                 cycles_given = 0;
               }
-              //cycles_given = 0;
+              
 
             }
 
@@ -214,8 +211,8 @@ class HealthHost : public SGPHost {
                 curSym.Delete();
                 }
                 
-        } // for each sym in syms
-        }   // if org has syms
+        } 
+        }   
 
       }
       GrowOlder();
