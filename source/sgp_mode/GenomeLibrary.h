@@ -102,15 +102,6 @@ public:
     Add("SharedIO");
   }
 
-  void AddPrivateNot() {
-    // privateio   r0
-    // nand       r0, r0, r0
-    // privateio   r0
-    Add("PrivateIO");
-    Add("Nand");
-    Add("PrivateIO");
-  }
-
   void AddNand() {
     // sharedio   r0
     // sharedio   r1
@@ -120,17 +111,6 @@ public:
     Add("SharedIO", 1);
     Add("Nand", 0, 1, 0);
     Add("SharedIO");
-  }
-
-  void AddPrivateNand() {
-    // sharedio   r0
-    // sharedio   r1
-    // nand       r0, r1, r0
-    // sharedio   r0
-    Add("PrivateIO");
-    Add("PrivateIO", 1);
-    Add("Nand", 0, 1, 0);
-    Add("PrivateIO");
   }
 
   void AddAnd() {
@@ -371,8 +351,11 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
 
 
 /**
- * Picks what type of starting program should be created based on the config and
- * creates it.
+ * Input: A config file
+ *
+ * Output: Program for starting symbionts based on config
+ *
+ * Purpose: Assigns the correct program to the starting symbionts of the world
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if(config->DONATION_STEAL_INST() == 1){
