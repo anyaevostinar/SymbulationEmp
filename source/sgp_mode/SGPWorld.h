@@ -123,10 +123,12 @@ public:
     emp::vector<size_t> host_task_in_profile_counts;
     emp::vector<size_t> host_task_in_parent_org_counts;
     emp::vector<size_t> host_task_in_current_org_counts;
+    emp::vector<size_t> host_generations;
 
     emp::vector<size_t> sym_task_in_profile_counts;
     emp::vector<size_t> sym_task_in_parent_org_counts;
     emp::vector<size_t> sym_task_in_current_org_counts;
+    emp::vector<size_t> sym_generations;
 
     emp::vector<size_t> host_sym_profile_matches_by_task;
     emp::vector<size_t> host_sym_profile_mismatches_by_task;
@@ -151,6 +153,9 @@ public:
       utils::ResizeFill(sym_task_in_current_org_counts, num_tasks, 0);
       utils::ResizeFill(host_sym_profile_matches_by_task, num_tasks, 0);
       utils::ResizeFill(host_sym_profile_mismatches_by_task, num_tasks, 0);
+
+      host_generations.clear();
+      sym_generations.clear();
 
       host_parent_tasks_performed.clear();
       host_current_tasks_performed.clear();

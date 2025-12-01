@@ -7,6 +7,7 @@
 
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/math/info_theory.hpp"
+#include "emp/math/stats.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -331,6 +332,46 @@ emp::DataFile& SGPWorld::SetupCurrentUpdateInfoFile(const std::string& filepath)
 
   file.AddVar(update, "update", "World update");
 
+  file.AddFun<double>(
+    [this]() -> double {
+      const double avg_gen = (current_update_data.host_generations.size()) ?
+        emp::Mean(current_update_data.host_generations) :
+        0;
+      return avg_gen;
+    },
+    "host_mean_generations"
+  );
+
+  file.AddFun<double>(
+    [this]() -> double {
+      const double var_gen = (current_update_data.host_generations.size()) ?
+        emp::Variance(current_update_data.host_generations) :
+        0;
+      return var_gen;
+    },
+    "host_variance_generations"
+  );
+
+  file.AddFun<double>(
+    [this]() -> double {
+      const double avg_gen = (current_update_data.sym_generations.size()) ?
+        emp::Mean(current_update_data.sym_generations) :
+        0;
+      return avg_gen;
+    },
+    "sym_mean_generations"
+  );
+
+  file.AddFun<double>(
+    [this]() -> double {
+      const double var_gen = (current_update_data.sym_generations.size()) ?
+        emp::Variance(current_update_data.sym_generations) :
+        0;
+      return var_gen;
+    },
+    "sym_variance_generations"
+  );
+
   // Repeated for loops here to make output file easier to see tasks being completed
   // at a glance
   for (size_t task_i = 0; task_i < num_tasks; ++task_i) {
@@ -484,6 +525,7 @@ emp::DataFile& SGPWorld::SetupCurrentUpdateInfoFile(const std::string& filepath)
   return file;
 }
 
+// NOTE - This isn't setup to handle free-living symbionts!
 void SGPWorld::CollectCurrentUpdateData() {
   // Reset current update data
   current_update_data.Reset();
@@ -497,6 +539,10 @@ void SGPWorld::CollectCurrentUpdateData() {
       // (1) Update host task counts
       const auto& host_task_profile = fun_get_host_task_profile(host);
       auto& host_cpu_state = host.GetHardware().GetCPUState();
+      // (1.5) Update host generations
+      current_update_data.host_generations.emplace_back(
+        host.GetReproCount()
+      );
       for (size_t task_i = 0; task_i < task_env.GetTaskCount(); ++task_i) {
         current_update_data.host_task_in_profile_counts[task_i] += (size_t)host_task_profile.Get(task_i);
         current_update_data.host_task_in_parent_org_counts[task_i] += (size_t)host_cpu_state.GetParentTaskPerformed(task_i);
@@ -515,6 +561,10 @@ void SGPWorld::CollectCurrentUpdateData() {
       emp::vector<emp::Ptr<Organism>>& endosyms = host.GetSymbionts();
       for (size_t sym_i = 0; sym_i < endosyms.size(); ++sym_i) {
         emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosyms[sym_i].Raw());
+        // Update symbiont generations
+        current_update_data.sym_generations.emplace_back(
+          endosym_ptr->GetReproCount()
+        );
         const auto& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
         auto& endosym_cpu_state = endosym_ptr->GetHardware().GetCPUState();
         bool any_match = false;
