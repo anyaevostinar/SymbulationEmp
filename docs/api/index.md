@@ -7,7 +7,7 @@ This section provides auto-generated documentation for the core classes in Symbu
 :maxdepth: 1
 
 Host_h
-Sym_h
+Symbiont_h
 SymWorld_h
 ```
 
@@ -15,16 +15,16 @@ SymWorld_h
 ```{toctree}
 :maxdepth: 1
 
-EffHost_h
-EffSym_h
-EffWorld_h
+EfficientHost_h
+EfficientSymbiont_h
+EfficientWorld_h
 ```
 
 ## Lysis Mode Classes
 ```{toctree}
 :maxdepth: 1
 
-Bact_h
+Bacterium_h
 Phage_h
 LysisWorld_h
 ```
@@ -34,7 +34,7 @@ LysisWorld_h
 :maxdepth: 1
 
 pggHost_h
-pggSym_h
+pggSymbiont_h
 pggWorld_h
 ```
 
@@ -42,6 +42,6 @@ pggWorld_h
 ```{toctree}
 :maxdepth: 1
 
-symAnim_h
+SymAnimate_h
 ```
 
