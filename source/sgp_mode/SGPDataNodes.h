@@ -31,8 +31,7 @@ void SGPWorld::CreateDataFiles() {
 
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: The address of the DataFile that has been created.
  *
@@ -57,8 +56,7 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: The address of the DataFile that has been created.
  *
@@ -84,8 +82,7 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input:A reference to the string that will be used as the files name
  *
  * Output: The address of the DataFile that has been created.
  *
@@ -127,8 +124,7 @@ void SGPWorld::SetupTransmissionFileColumns(emp::DataFile& file) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: None
  *
@@ -201,8 +197,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: None
  *
@@ -252,7 +247,7 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
  *
  * Output: None
  *
- * Purpose: To set up and the data node storing the count 
+ * Purpose: To set up the data node storing the count 
  * of each task completed for hosts and symbionts
  */
 void SGPWorld::SetupTasksNodes() {
@@ -276,7 +271,7 @@ void SGPWorld::SetupTasksNodes() {
  *
  * Output: Data monitor for the number of steal instruction ran
  *
- * Purpose: To check and edit the data for steal instructions
+ * Purpose: Get Steal count data node and create it if it doesn't already exist
  */
 emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {
@@ -290,7 +285,7 @@ emp::DataMonitor<int> &SGPWorld::GetStealCount() {
  *
  * Output: Data monitor for the number of donate instruction ran
  *
- * Purpose: To check and edit the data for donate instructions
+ * Purpose: Get Donate count data node and create it if it doesn't already exist
  */
 emp::DataMonitor<int> &SGPWorld::GetDonateCount() {
   if (!data_node_donate_count) {

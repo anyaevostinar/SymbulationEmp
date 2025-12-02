@@ -246,6 +246,7 @@ public:
    * Output: None
    *
    * Purpose: Resets the count of all tasks to 0 for both symbionts and hosts
+   * Used during the creation of the task data file and also for tests that check task counts
    */
   void ResetTaskData() {
     for (size_t i = 0; i < tasks.size(); i++) {
@@ -261,7 +262,8 @@ public:
  * that matches
  *
  * Two of each logic task are stored, one where all tasks are worth 5 points
- * and one where harder tasks are worth more points
+ * and one where harder tasks are worth more points. 
+ * The SGP config DIFFERENT_TASK_VALUES enables differing points among tasks
 */
 const Task
     NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }},
@@ -283,7 +285,7 @@ const Task
     XOR_8 = {"XOR", 2,   8.0, [](auto &x) { return x[0] ^ x[1]; }},
     EQU_16 = {"EQU", 2,  16.0, [](auto &x) { return ~(x[0] ^ x[1]); }};
 
-//Set of tasks where all tasks are worth 5 points
+//Set of tasks where all tasks are worth 5 points, used when DIFFERENT_TASK_VALUES is 0
 const TaskSet LogicTasks{
     emp::NewPtr<Task>(NOT), emp::NewPtr<Task>(NAND),
     emp::NewPtr<Task>(AND), emp::NewPtr<Task>(ORN),
@@ -291,7 +293,7 @@ const TaskSet LogicTasks{
     emp::NewPtr<Task>(NOR), emp::NewPtr<Task>(XOR),
     emp::NewPtr<Task>(EQU)};
 
-//Set of tasks where harder tasks are worth more points
+//Set of tasks where harder tasks are worth more points, used when DIFFERENT_TASK_VALUES is 1
 const TaskSet LogicTasksDiff{
   emp::NewPtr<Task>(NOT_1), emp::NewPtr<Task>(NAND_1),
   emp::NewPtr<Task>(AND_2), emp::NewPtr<Task>(ORN_2),
