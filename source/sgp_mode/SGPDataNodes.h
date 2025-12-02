@@ -247,7 +247,14 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   out_file.close();
 }
 
-
+/**
+ * Input: None
+ *
+ * Output: None
+ *
+ * Purpose: To set up and the data node storing the count 
+ * of each task completed for hosts and symbionts
+ */
 void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());

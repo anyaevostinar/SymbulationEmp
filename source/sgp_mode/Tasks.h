@@ -126,7 +126,7 @@ public:
    *
    * Output: None
    *
-   * Purpose: Checks whether any tasks were completed and if so marks them as completing for reproductive purposes
+   * Purpose: Checks whether any tasks were completed and if so marks them as completed for reproductive purposes
    * and awards the proper amount of points.  
    */
   void ProcessOutput(CPUState &state, uint32_t output, bool is_only_task_credit){
@@ -240,6 +240,13 @@ public:
 
   Iterator end() const { return Iterator{*this, tasks.size()}; }
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Resets the count of all tasks to 0 for both symbionts and hosts
+   */
   void ResetTaskData() {
     for (size_t i = 0; i < tasks.size(); i++) {
       n_succeeds_host[i]->store(0);
@@ -252,6 +259,9 @@ public:
  * The 9 default logic tasks in Avida
  * These are checked top-to-bottom and the reward is given for the first one
  * that matches
+ *
+ * Two of each logic task are stored, one where all tasks are worth 5 points
+ * and one where harder tasks are worth more points
 */
 const Task
     NOT = {"NOT", 1, 5.0, [](auto &x) { return ~x[0]; }},
@@ -273,6 +283,7 @@ const Task
     XOR_8 = {"XOR", 2,   8.0, [](auto &x) { return x[0] ^ x[1]; }},
     EQU_16 = {"EQU", 2,  16.0, [](auto &x) { return ~(x[0] ^ x[1]); }};
 
+//Set of tasks where all tasks are worth 5 points
 const TaskSet LogicTasks{
     emp::NewPtr<Task>(NOT), emp::NewPtr<Task>(NAND),
     emp::NewPtr<Task>(AND), emp::NewPtr<Task>(ORN),
@@ -280,6 +291,7 @@ const TaskSet LogicTasks{
     emp::NewPtr<Task>(NOR), emp::NewPtr<Task>(XOR),
     emp::NewPtr<Task>(EQU)};
 
+//Set of tasks where harder tasks are worth more points
 const TaskSet LogicTasksDiff{
   emp::NewPtr<Task>(NOT_1), emp::NewPtr<Task>(NAND_1),
   emp::NewPtr<Task>(AND_2), emp::NewPtr<Task>(ORN_2),
