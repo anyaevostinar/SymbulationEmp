@@ -59,6 +59,7 @@ public:
     push_back(inst);
   }
 
+
   sgpl::Program<Spec> Build(size_t length) {
     Add("Reproduce");
 
@@ -278,7 +279,8 @@ public:
      * Output: None.
      *
      * Purpose: Spread out donate instructions throughout the organism's genome in order to allow donations 
-     * during a symbiont's entire genome and not just in one place. Without the spread of instructions symbionts were unable to donate regularly.
+     * during a symbiont's entire genome and not just in one place. Without the spread of 
+     * instructions symbionts were unable to donate regularly.
      */
   void AddStartDonate(int donate_count){
     
@@ -299,17 +301,39 @@ public:
   }
 };
 
+
+/**
+ * Input: Total length of program
+ *
+ * Output: Program that contains only a Reproduce instruction
+ *
+ * Purpose: Used for testing reproduction
+ */
 sgpl::Program<Spec> CreateReproProgram(size_t length) {
   ProgramBuilder program;
   return program.Build(length);
 }
 
+/**
+ * Input: Total length of program
+ *
+ * Output: Program that performs a NOT operation
+ *
+ * Purpose: Creates the program for the majority of starting organisms
+ */
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
   ProgramBuilder program;
   program.AddNot();
   return program.Build(length);
 }
 
+/**
+ * Input: Total length of program and the number of steal instructions that should be in the program
+ *
+ * Output: Program that performs a NOT operation and contains steal instructions
+ *
+ * Purpose: Creates a program for starting parasite symbionts when DONATION_STEAL_INST is enabled
+ */
 sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   ProgramBuilder program;
   if(steal_count < 0){
@@ -327,6 +351,14 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   return program.Build(length);
 }
 
+
+/**
+ * Input: Total length of program and the number of donate instructions that should be in the program
+ *
+ * Output: Program that performs a NOT operation and contains donate instructions
+ *
+ * Purpose: Creates a program for starting mutualist symbionts when DONATION_STEAL_INST is enabled
+ */
 sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
   ProgramBuilder program;
   if(donate_count < 0){
@@ -343,6 +375,14 @@ sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
   return program.Build(length);
 }
 
+
+/**
+ * Input: Total length of program
+ *
+ * Output: Program that performs the EQU operation
+ *
+ * Purpose: Creates a program that is able to perform EQU and reproduce, used for testing
+ */
 sgpl::Program<Spec> CreateEquProgram(size_t length) {
   ProgramBuilder program;
   program.AddEqu();

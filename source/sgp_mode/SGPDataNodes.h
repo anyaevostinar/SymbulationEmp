@@ -271,7 +271,13 @@ void SGPWorld::SetupTasksNodes() {
   }
 }
 
-
+/**
+ * Input: None
+ *
+ * Output: Data monitor for the number of steal instruction ran
+ *
+ * Purpose: To check and edit the data for steal instructions
+ */
 emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {
     data_node_steal_count.New();
@@ -279,6 +285,13 @@ emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   return *data_node_steal_count;
 }
 
+/**
+ * Input: None
+ *
+ * Output: Data monitor for the number of donate instruction ran
+ *
+ * Purpose: To check and edit the data for donate instructions
+ */
 emp::DataMonitor<int> &SGPWorld::GetDonateCount() {
   if (!data_node_donate_count) {
     data_node_donate_count.New();
