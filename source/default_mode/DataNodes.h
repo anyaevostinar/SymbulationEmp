@@ -18,14 +18,14 @@ void SymWorld::CreateDataFiles(){
 
   SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetUpTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetUpReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   if(my_config->FREE_LIVING_SYMS() == 1){
-    SetUpFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+    SetupFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
   if (my_config->TAG_MATCHING()) {
-    SetUpTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+    SetupTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
 }
 
@@ -154,7 +154,7 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
  * infection chances from the total population, free symbionts,
  * and hosted symbionts.
  */
-emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
+emp::DataFile & SymWorld::SetupFreeLivingSymFile(const std::string & filename){
   auto & file = SetupFile(filename);
   auto & node1 = GetSymCountDataNode(); //count
   auto & node2 = GetCountFreeSymsDataNode();
@@ -201,7 +201,7 @@ emp::DataFile & SymWorld::SetUpFreeLivingSymFile(const std::string & filename){
  * If tag matching is on, this file also tracks tag similarity / 
  * dissimilarity to parents / partners. 
  */
-emp::DataFile& SymWorld::SetUpReproHistFile(const std::string& filename) {
+emp::DataFile& SymWorld::SetupReproHistFile(const std::string& filename) {
   auto& file = SetupFile(filename);
   auto& host_repro_count_node = GetHostReproCountDataNode();
   auto& sym_repro_count_node = GetSymReproCountDataNode();
@@ -360,7 +360,7 @@ void SymWorld::MapPhylogenyInteractions() {
  * transmissions.
  */
 
-emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
+emp::DataFile & SymWorld::SetupTransmissionFile(const std::string & filename){
   auto & file = SetupFile(filename);
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
@@ -454,7 +454,7 @@ emp::DataFile & SymWorld::SetUpTransmissionFile(const std::string & filename){
  *
  * Purpose: To write the tag distances of host-symbionts over time.
  */
-emp::DataFile& SymWorld::SetUpTagDistFile(const std::string& filename) {
+emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
   auto& file = SetupFile(filename);
   auto& tag_dist_node = GetTagDistanceDataNode();
 
