@@ -50,7 +50,7 @@ breathe_projects = {
 breathe_default_project = "Symbulation"
 
 breathe_projects_source = {
-    "auto" : ( "../source", ["default_mode/Host.h", "default_mode/Symbiont.h","default_mode/SymWorld.h","efficient_mode/EfficientHost.h"
+    "auto" : ( "../source", ["default_mode/Host.h", "default_mode/Symbiont.h","default_mode/SymWorld.h","default_mode/DataNodes.h","default_mode/WorldSetup.cc","efficient_mode/EfficientHost.h"
     ,"efficient_mode/EfficientSymbiont.h","efficient_mode/EfficientWorld.h","lysis_mode/Bacterium.h","lysis_mode/Phage.h","lysis_mode/LysisWorld.h",
     "pgg_mode/PGGHost.h","pgg_mode/PGGSymbiont.h","pgg_mode/PGGWorld.h","SymAnimate.h"] )
 }
