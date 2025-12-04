@@ -98,11 +98,8 @@ INST(Reproduce, {
 
 void AddNewInput(CPUState &state, uint32_t *output){
   uint32_t next;
-  if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
-    next = sgpl::tlrand.Get().GetUInt();
-  } else {
-    next = 1;
-  }
+  next = sgpl::tlrand.Get().GetUInt();
+ 
   *output = next;
   state.input_buf.push(next);
 }
