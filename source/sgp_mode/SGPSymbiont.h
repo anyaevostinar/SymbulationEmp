@@ -124,7 +124,14 @@ public:
    */
   CPU &GetCPU() { return cpu; }
 
-
+  /**
+   * Input: Score of completed task, id of completed task
+   *
+   * Output: Calculated score to be received post interaction
+   *
+   * Purpose: Adjusts score that symbiont will receive based on whether it is giving some of its points to host
+   * or stealing some of the hosts points. 
+   */
   float DoTaskInteraction(float score, size_t task_id) {
     if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();

@@ -31,8 +31,7 @@ void SGPWorld::CreateDataFiles() {
 
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: The address of the DataFile that has been created.
  *
@@ -56,6 +55,15 @@ emp::DataFile &SGPWorld::SetUpOrgCountFile(const std::string &filename) {
   return file;
 }
 
+/**
+ * Input: A reference to the string that will be used as the files name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track 
+ * task counts in the world.
+ * This includes the amount of each task completed for hosts and symbionts.
+ */
 emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
@@ -73,7 +81,14 @@ emp::DataFile &SGPWorld::SetupTasksFile(const std::string &filename) {
   return file;
 }
 
-
+/**
+ * Input:A reference to the string that will be used as the files name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track 
+ * the amount of Donate and Steal instructions ran
+ */
 emp::DataFile &SGPWorld::SetupSymInstFile(const std::string &filename) {
   auto &file = SetupFile(filename);
   file.AddVar(update, "update", "Update");
@@ -109,8 +124,7 @@ void SGPWorld::SetupTransmissionFileColumns(emp::DataFile& file) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: None
  *
@@ -183,8 +197,7 @@ void SGPWorld::WriteTaskCombinationsFile(const std::string& filename) {
 }
 
 /**
- * Input: The address of the string representing the file to be
- * created's name
+ * Input: A reference to the string that will be used as the files name
  *
  * Output: None
  *
@@ -229,7 +242,14 @@ void SGPWorld::WriteOrgReproHistFile(const std::string& filename) {
   out_file.close();
 }
 
-
+/**
+ * Input: None
+ *
+ * Output: None
+ *
+ * Purpose: To set up the data node storing the count 
+ * of each task completed for hosts and symbionts
+ */
 void SGPWorld::SetupTasksNodes() {
   if (!data_node_host_tasks.size()) {
     data_node_host_tasks.resize(task_set.NumTasks());
@@ -246,7 +266,13 @@ void SGPWorld::SetupTasksNodes() {
   }
 }
 
-
+/**
+ * Input: None
+ *
+ * Output: Data monitor for the number of steal instruction ran
+ *
+ * Purpose: Get Steal count data node and create it if it doesn't already exist
+ */
 emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   if (!data_node_steal_count) {
     data_node_steal_count.New();
@@ -254,6 +280,13 @@ emp::DataMonitor<int> &SGPWorld::GetStealCount() {
   return *data_node_steal_count;
 }
 
+/**
+ * Input: None
+ *
+ * Output: Data monitor for the number of donate instruction ran
+ *
+ * Purpose: Get Donate count data node and create it if it doesn't already exist
+ */
 emp::DataMonitor<int> &SGPWorld::GetDonateCount() {
   if (!data_node_donate_count) {
     data_node_donate_count.New();
