@@ -37,8 +37,6 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(DONATION_STEAL_INST, bool, 0, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasites and vice versa"),
   VALUE(CPU_TRANSFER_AMOUNT, double, 1, "How many updates should be stolen/donated by instruction based symbionts"),
-  VALUE(BONUS_UPDATE_WAIT, int, 5, "If DONATION_STEAL_INST is 1 how many updates till a symbiont receives a free extra update"),
-  VALUE(STARTING_BONUS, int, 1, "How many bonus updates do symbionts start with"),
 
 )
 

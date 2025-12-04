@@ -138,7 +138,7 @@ class HealthHost : public SGPHost {
               if(last_sym != curSym){
                 last_sym = curSym;
                 cycles_given = 0;
-                starting_updates = sgp_config->STARTING_BONUS();
+                starting_updates = 1;
               }
 
             if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
@@ -153,7 +153,7 @@ class HealthHost : public SGPHost {
             }
             if(starting_updates < 1){
               honoray_cycles += 1;
-                if(honoray_cycles == sgp_config->BONUS_UPDATE_WAIT()){
+                if(honoray_cycles == 5){
                   starting_updates += 1;
                   honoray_cycles = 0;
                 }
