@@ -517,90 +517,6 @@ TEST_CASE("SGP SymDoBirth", "[sgp]") {
   }
 }
 
-TEST_CASE("SymFindHost can handle transferring Stress Symbiont during stress event", "[sgp]") {
-  GIVEN("An SGPWorld with no mutation"){
-    emp::Random random(1);
-    SymConfigSGP config;
-    config.SEED(2);
-    config.INTERACTION_MECHANISM(STRESS);
-    config.SYMBIONT_TYPE(PARASITE);
-    config.MUTATION_RATE(0.0);
-    config.MUTATION_SIZE(0.000);
-    config.TRACK_PARENT_TASKS(0);
-    config.SYMBIONTS_ESCAPE(1);
-    SGPWorld world(random, &config, LogicTasks);
-    world.Resize(2, 2);
-
-    emp::Ptr<StressHost> old_host = emp::NewPtr<StressHost>(&random, &world, &config);
-    emp::Ptr<StressHost> new_host = emp::NewPtr<StressHost>(&random, &world, &config);
-    emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
-
-    //New host and symbiont have performed NOT
-    //(not old host to prevent symbiont from trying to reinfect it)
-    new_host->GetCPU().state.tasks_performed->Set(0);
-    symbiont->GetCPU().state.tasks_performed->Set(0);
-
-    old_host->AddSymbiont(symbiont);
-    world.AddOrgAt(old_host, emp::WorldPosition(0,0));
-    world.AddOrgAt(new_host, emp::WorldPosition(1,0));
-
-    REQUIRE(old_host->GetSymbionts().size() == 1);
-    REQUIRE(new_host->GetSymbionts().size() == 0);
-    REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == old_host);
-
-    WHEN("SymFindHost is called with an existing symbiont") {
-      old_host->RemoveSymbiont(1); //Need to remove manually
-      //WorldPosition index is 1-indexed location in host and pop_id is host's location in the world
-      emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1,0));
-      THEN("That symbiont transfers to a new host successfully") {
-        REQUIRE(location.GetIndex() == 1);
-        REQUIRE(location.GetPopID() ==1);
-        REQUIRE(old_host->GetSymbionts().size() == 0);
-        REQUIRE(new_host->GetSymbionts().size() == 1);
-        REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == new_host);
-      }
-    }
-    WHEN("Preferential ousting is on and the target host has a symbiont") {
-      config.OUSTING(1);
-      config.PREFERENTIAL_OUSTING(2);
-
-      new_host->GetCPU().state.tasks_performed->Set(1);
-      emp::Ptr<SGPSymbiont> target_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
-      new_host->AddSymbiont(target_symbiont);
-      WHEN("The incoming symbiont has a better match"){
-        symbiont->GetCPU().state.tasks_performed->Set(1);
-        target_symbiont->GetCPU().state.tasks_performed->Set(0);
-
-        old_host->RemoveSymbiont(1);
-        emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1, 0));
-        THEN("That symbiont transfers to a new host successfully") {
-          REQUIRE(location.GetIndex() == 1);
-          REQUIRE(location.GetPopID() == 1);
-          REQUIRE(old_host->GetSymbionts().size() == 0);
-          REQUIRE(new_host->GetSymbionts().size() == 1);
-          REQUIRE(symbiont->GetHost().DynamicCast<StressHost>() == new_host);
-          REQUIRE(world.GetGraveyard().size() == 1);
-          REQUIRE(world.GetGraveyard().at(0).DynamicCast<SGPSymbiont>() == target_symbiont);
-        }
-        world.GetGraveyard().at(0).Delete();
-      }
-      WHEN("The incoming symbiont has a worse match") {
-        target_symbiont->GetCPU().state.tasks_performed->Set(0);
-        target_symbiont->GetCPU().state.tasks_performed->Set(1);
-
-        old_host->RemoveSymbiont(1);
-        emp::WorldPosition location = world.SymFindHost(symbiont, emp::WorldPosition(1, 0));
-        THEN("That symbiont fails to transfer to a new host") {
-          REQUIRE(location.IsValid() == false);
-          REQUIRE(old_host->GetSymbionts().size() == 0);
-          REQUIRE(new_host->GetSymbionts().size() == 1);
-          REQUIRE(target_symbiont->GetHost().DynamicCast<StressHost>() == new_host);
-        }
-      }
-    }
-  }
-}
-
 TEST_CASE("Preferential ousting", "[sgp]"){
   // pref ousting settings
   // 0 = no preferential ousting, 
@@ -810,7 +726,7 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
-    config.SYMBIONTS_ESCAPE(0);
+
 
     SGPWorld world(random, &config, LogicTasks);
 
@@ -872,7 +788,6 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
     SymConfigSGP config;
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
-    config.SYMBIONTS_ESCAPE(0);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(6);
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);

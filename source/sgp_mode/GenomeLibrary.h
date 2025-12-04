@@ -338,12 +338,12 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
   ProgramBuilder program;
   if(steal_count < 0){
     steal_count = 0;
-    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+    std::cout << "HEALTH_INST_COUNT was too low, has been clamped to 0" << std::endl;
   }
 
   if(steal_count > 95){
     steal_count = 95;
-    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+    std::cout << "HEALTH_INST_COUNT was too high, has been clamped to 95" << std::endl;
   }
   program.AddStartSteal(steal_count);
   program.AddNot();
@@ -363,12 +363,12 @@ sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
   ProgramBuilder program;
   if(donate_count < 0){
     donate_count = 0;
-    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+    std::cout << "HEALTH_INST_COUNT was too low, has been clamped to 0" << std::endl;
   }
 
   if(donate_count > 95){
     donate_count = 95;
-    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+    std::cout << "HEALTH_INST_COUNT was too high, has been clamped to 95" << std::endl;
   }
   program.AddStartDonate(donate_count);
   program.AddNot();
@@ -400,10 +400,10 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if(config->DONATION_STEAL_INST() == 1){
     if(config->SYMBIONT_TYPE() == 1){
-      return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateParasiteNotProgram(PROGRAM_LENGTH, config->HEALTH_INST_COUNT());
     }
     else if(config->SYMBIONT_TYPE() == 0){
-      return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateMutualistNotProgram(PROGRAM_LENGTH, config->HEALTH_INST_COUNT());
     }
     else{
       return CreateNotProgram(PROGRAM_LENGTH);

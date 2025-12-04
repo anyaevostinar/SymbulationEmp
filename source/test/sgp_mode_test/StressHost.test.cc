@@ -110,58 +110,6 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
   }
 }
 
-TEST_CASE("Parasites transfer during stress event", "[sgp]") {
-  emp::Random random(61);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(STRESS);
-  config.EXTINCTION_FREQUENCY(1);
-  config.GRID_X(10);
-  config.GRID_Y(10);
-  config.SYMBIONTS_ESCAPE(1);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
-  SGPWorld world(random, &config, LogicTasks);
-
-
-  WHEN("There are stress parasites with 100% kill rate in the world"){
-    config.START_MOI(1);
-    double parasite_death_chance = 1.0; 
-    config.PARASITE_DEATH_CHANCE(parasite_death_chance);
-    config.BASE_DEATH_CHANCE(0);
-    config.SYMBIONT_TYPE(PARASITE);
-    
-
-    //50 empty hosts that "do" NAND
-    for(int i=0; i<50; i++) {
-      emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config, CreateReproProgram(100));
-      host->GetCPU().state.tasks_performed->Set(1); //"Does" NAND
-      world.AddOrgAt(host, i);
-    }
-
-    //50 infected hosts that "do" NOT, infected with "NAND" parasites
-    for(int i = 50; i<100; i++) {
-      emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config, CreateNotProgram(100));
-      host->GetCPU().state.tasks_performed->Set(0);
-      emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateReproProgram(100));
-      symbiont->GetCPU().state.tasks_performed->Set(1);
-      host->AddSymbiont(symbiont);
-      world.AddOrgAt(host,i);
-    }
-
-    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
-    REQUIRE(world.GetNumOrgs() == world_size);
-    world.Update();
-    THEN("Half the hosts died but the remaining got infected by fleeing parasites") {        
-      REQUIRE(world.GetNumOrgs() == 50);
-      int surviving_syms = 0;
-      for(int i = 0; i < 50; i ++) {
-        if(world.GetPop()[i]->HasSym()) {
-          surviving_syms += 1;
-        }
-      }
-      REQUIRE(surviving_syms > 0);
-    }
-  }
-}
 
 TEST_CASE("Safe time configuration option", "[sgp]") {
   emp::Random random(62);
