@@ -621,10 +621,10 @@ public:
   emp::vector<emp::Ptr<emp::Taxon<taxon_info_t>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
-  emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
-  emp::DataFile & SetUpReproHistFile(const std::string& filename);
-  emp::DataFile & SetUpTransmissionFile(const std::string & filename);
-  emp::DataFile & SetUpTagDistFile(const std::string& filename);
+  emp::DataFile & SetupFreeLivingSymFile(const std::string & filename);
+  emp::DataFile & SetupReproHistFile(const std::string& filename);
+  emp::DataFile & SetupTransmissionFile(const std::string & filename);
+  emp::DataFile & SetupTagDistFile(const std::string& filename);
   emp::DataFile & SetupSymDiversityFile(const std::string & filename);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
