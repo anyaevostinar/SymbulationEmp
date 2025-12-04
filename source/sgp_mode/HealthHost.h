@@ -111,7 +111,7 @@ class HealthHost : public SGPHost {
             
             if(cycles_given >= 1){
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
-                host_cycle += 1;
+                host_cycle += sgp_config->SYNERGY();
                 sym_cycle -= 1;
                 cycles_given = 0;
               }
@@ -122,7 +122,7 @@ class HealthHost : public SGPHost {
              
               if(random->P(sgp_config->CPU_TRANSFER_CHANCE())){
                 host_cycle = 0;
-                sym_cycle += 1;
+                sym_cycle += sgp_config->SYNERGY();
                 cycles_given = 0;
               }
               
@@ -163,7 +163,7 @@ class HealthHost : public SGPHost {
             if (sgp_config->SYMBIONT_TYPE() == MUTUALIST) {
             //Host with mutualist gains 50% of CPU from mutualist
             if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
-              host_cycle = 2;
+              host_cycle = 1 + sgp_config->SYNERGY();
               sym_cycle = 0;
             } else {
               host_cycle = 1;
@@ -174,7 +174,7 @@ class HealthHost : public SGPHost {
             //Host with parasite loses 50% of CPU to parasite
             if (random->P(sgp_config->CPU_TRANSFER_CHANCE())) {
               host_cycle = 0;
-              sym_cycle = 1;
+              sym_cycle = sgp_config->SYNERGY();
             } else {
               host_cycle = 1;
               sym_cycle = 0;

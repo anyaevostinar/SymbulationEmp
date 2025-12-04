@@ -260,7 +260,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   config.HOST_REPRO_RES(10000);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
-  config.CPU_TRANSFER_AMOUNT(23);
+  config.HEALTH_INST_COUNT(23);
 
 
   SGPWorld world(random, &config, LogicTasks);
@@ -314,7 +314,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   config.SYM_ONLY_FIRST_TASK_CREDIT(1);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
-  config.CPU_TRANSFER_AMOUNT(23);
+  config.HEALTH_INST_COUNT(23);
   config.HOST_REPRO_RES(10000);
 
   SGPWorld world(random, &config, LogicTasks);

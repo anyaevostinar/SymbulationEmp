@@ -35,7 +35,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(HEALTH INSTRUCTIONS, "Health Instruction Settings"),
   VALUE(DONATION_STEAL_INST, bool, 0, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasites and vice versa"),
-  VALUE(CPU_TRANSFER_AMOUNT, double, 1, "How many updates should be stolen/donated by instruction based symbionts"),
+  VALUE(HEALTH_INST_COUNT, size_t, 1, "How many steal/donate instructions should a symbiont start with"),
 
 )
 
