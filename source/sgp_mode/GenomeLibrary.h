@@ -3,6 +3,8 @@
 
 #include "Instructions.h"
 #include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/operations/flow_global/JumpIfNot.hpp"
+#include "sgpl/operations/flow_local/JumpIfNot.hpp"
 #include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
@@ -10,20 +12,21 @@
 #include <limits>
 
 using Library = sgpl::OpLibrary<
-    sgpl::Nop<>,
-    // single argument math
-    inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
-    // biological operations
+    
+
+    sgpl::Nop<0>, 
+    sgpl::Nop<1>, 
+    sgpl::Nop<2>, 
+    sgpl::BitwiseShift, 
+    sgpl::Increment, 
+    sgpl::Decrement, 
+    sgpl::Add, 
+    sgpl::Subtract, 
+    sgpl::global::JumpIfNot, 
+    sgpl::local::JumpIfNot,
     inst::Reproduce, 
     inst::SharedIO,
-    inst::Steal,
-    inst::Donate, 
-    // double argument math
-    inst::Add, inst::Subtract, inst::Nand,
-    // Stack manipulation
-    inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-    // no h-search
-    inst::JumpIfNEq, inst::JumpIfLess, 
+    inst::Nand,
     sgpl::global::Anchor 
     >;
 
@@ -66,11 +69,13 @@ public:
     sgpl::Program<Spec> program;
     // Set everything to 0 - this makes them no-ops since that's the first
     // inst in the library
+    
     program.resize(length - size());
     program[0].op_code = Library::GetOpCode("Global Anchor");
     program[0].tag = START_TAG;
 
     program.insert(program.end(), begin(), end());
+   
 
     return program;
   }
@@ -322,6 +327,7 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
  * Purpose: Creates the program for the majority of starting organisms
  */
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
+ 
   ProgramBuilder program;
   program.AddNot();
   return program.Build(length);

@@ -16,6 +16,7 @@
  * Purpose: Adds a number of hosts of a set type to the world. 
  */
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
+
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
     switch (sgp_config->INTERACTION_MECHANISM()) {

@@ -32,10 +32,13 @@ class CPU {
    * Should be called when a new CPU is created or the program is changed.
    */
   void InitializeState() {
+   
     cpu.InitializeAnchors(program);
 
-    uint8_t JumpNeq = Library::GetOpCode("JumpIfNEq");
-    uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
+    
+    uint8_t GlobalJumpNot = Library::GetOpCode("Global Jump If Not");
+    
+    //uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
     if (!cpu.HasActiveCore()) {
       cpu.DoLaunchCore(START_TAG);
     }
@@ -43,7 +46,7 @@ class CPU {
     size_t idx = 0;
     state.jump_table.resize(100);
     for (auto &i : program) {
-      if (i.op_code == JumpNeq || i.op_code == JumpLess) {
+      if (i.op_code == GlobalJumpNot) {
         auto entry = table.MatchRegulated(i.tag);
         state.jump_table[idx] =
             entry.size() > 0 ? table.GetVal(entry.front()) : idx + 1;
