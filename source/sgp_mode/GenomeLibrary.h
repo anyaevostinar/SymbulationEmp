@@ -334,6 +334,55 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 }
 
 /**
+ * Input: Total length of program & a config file
+ *
+ * Output: Program that performs the operation specified by STARTING_OP
+ *
+ * Purpose: Creates the program for the majority of starting organisms
+ */
+sgpl::Program<Spec> CreateAnyProgram(size_t length, int starting_task) {
+ 
+  ProgramBuilder program;
+  switch (starting_task) {
+      case NONETASK:
+        
+        break;
+      case NOTTASK:
+        program.AddNot();
+        break;
+      case NANDTASK:
+        program.AddNand();
+        break;
+      case ANDTASK:
+        program.AddAnd();
+        break;
+      case ORNTASK:
+        program.AddOrn();
+        break;
+      case ORTASK:
+        program.AddOr();
+        break;
+      case ANDNTASK:
+        program.AddAndn();
+        break;
+      case NORTASK:
+        program.AddNor();
+        break;
+      case XORTASK:
+        program.AddXor();
+        break;
+      case EQUTASK:
+        program.AddEqu();
+        break;
+      default:
+       
+        throw "Please request a supported task type";
+       
+  }
+  return program.Build(length);
+}
+
+/**
  * Input: Total length of program and the number of steal instructions that should be in the program
  *
  * Output: Program that performs a NOT operation and contains steal instructions
