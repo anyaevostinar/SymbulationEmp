@@ -84,7 +84,7 @@ public:
     if (IsExtinctionUpdate()) {
       double death_chance = sgp_config->BASE_DEATH_CHANCE();
       if (HasSym()) {
-        bool tasks_satisfactory = !sgp_config->TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR();
+        bool tasks_satisfactory = false;
         for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
           tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
         }

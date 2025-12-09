@@ -7,6 +7,8 @@ class HealthHost : public SGPHost {
 
     public:
 
+    bool donation_steal_inst = false
+
     //Tracks whether an update needs to be given to a symbiont or received from a symbiont
     int cycles_given = 1;
 
@@ -106,7 +108,7 @@ class HealthHost : public SGPHost {
         int sym_cycle = 0;
         if (HasSym()) {
           
-          if(sgp_config->DONATION_STEAL_INST()){
+          if(donation_steal_inst){
             
             
             if(cycles_given >= 1){
@@ -141,7 +143,7 @@ class HealthHost : public SGPHost {
                 starting_updates = 1;
               }
 
-            if(sym_cycle == 0 && sgp_config->DONATION_STEAL_INST()){
+            if(sym_cycle == 0 && donation_steal_inst){
               
               
               
