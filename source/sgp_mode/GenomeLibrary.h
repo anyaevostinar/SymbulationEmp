@@ -334,62 +334,27 @@ sgpl::Program<Spec> CreateNotProgram(size_t length) {
 }
 
 /**
- * Input: Total length of program & a config file
+ * Input: Total length of program
  *
- * Output: Program that performs the operation specified by STARTING_OP
+ * Output: Program that performs a NAND operation
  *
  * Purpose: Creates the program for the majority of starting organisms
  */
-sgpl::Program<Spec> CreateAnyProgram(size_t length, int starting_task) {
+sgpl::Program<Spec> CreateNandProgram(size_t length) {
  
   ProgramBuilder program;
-  switch (starting_task) {
-      case NONETASK:
-        
-        break;
-      case NOTTASK:
-        program.AddNot();
-        break;
-      case NANDTASK:
-        program.AddNand();
-        break;
-      case ANDTASK:
-        program.AddAnd();
-        break;
-      case ORNTASK:
-        program.AddOrn();
-        break;
-      case ORTASK:
-        program.AddOr();
-        break;
-      case ANDNTASK:
-        program.AddAndn();
-        break;
-      case NORTASK:
-        program.AddNor();
-        break;
-      case XORTASK:
-        program.AddXor();
-        break;
-      case EQUTASK:
-        program.AddEqu();
-        break;
-      default:
-       
-        throw "Please request a supported task type";
-       
-  }
+  program.AddNand();
   return program.Build(length);
 }
 
 /**
  * Input: Total length of program and the number of steal instructions that should be in the program
  *
- * Output: Program that performs a NOT operation and contains steal instructions
+ * Output: Program that performs a NAND operation and contains steal instructions
  *
  * Purpose: Creates a program for starting parasite symbionts when DONATION_STEAL_INST is enabled
  */
-sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
+sgpl::Program<Spec> CreateParasiteNandProgram(size_t length, int steal_count) {
   ProgramBuilder program;
   if(steal_count < 0){
     steal_count = 0;
@@ -401,7 +366,7 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
     std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
   }
   program.AddStartSteal(steal_count);
-  program.AddNot();
+  program.AddNand();
   
   return program.Build(length);
 }
@@ -410,11 +375,11 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
 /**
  * Input: Total length of program and the number of donate instructions that should be in the program
  *
- * Output: Program that performs a NOT operation and contains donate instructions
+ * Output: Program that performs a NAND operation and contains donate instructions
  *
  * Purpose: Creates a program for starting mutualist symbionts when DONATION_STEAL_INST is enabled
  */
-sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
+sgpl::Program<Spec> CreateMutualistNandProgram(size_t length, int donate_count) {
   ProgramBuilder program;
   if(donate_count < 0){
     donate_count = 0;
@@ -426,7 +391,7 @@ sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
     std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
   }
   program.AddStartDonate(donate_count);
-  program.AddNot();
+  program.AddNand();
   return program.Build(length);
 }
 
@@ -455,17 +420,17 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   if(config->DONATION_STEAL_INST() == 1){
     if(config->SYMBIONT_TYPE() == 1){
-      return CreateParasiteNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateParasiteNandProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
     else if(config->SYMBIONT_TYPE() == 0){
-      return CreateMutualistNotProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateMutualistNandProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
     else{
-      return CreateNotProgram(PROGRAM_LENGTH);
+      return CreateNandProgram(PROGRAM_LENGTH);
     }
   }
   else{
-      return CreateNotProgram(PROGRAM_LENGTH);
+      return CreateNandProgram(PROGRAM_LENGTH);
     }
 }
 

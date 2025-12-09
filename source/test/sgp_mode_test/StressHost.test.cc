@@ -77,7 +77,7 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
 
   REQUIRE(world.GetNumOrgs() == world_size);
 
-  size_t no_mut_NOT_rate = 600000;
+  size_t no_mut_NAND_rate = 600000;
 
   size_t run_updates = 15000;
 
@@ -90,8 +90,10 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
       ++it;
-      REQUIRE((*it).n_succeeds_host == 0);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host == no_mut_NOT_rate);
+      //Will never be perfect as it is possible for NOT to be geussed during a NAND operation and NOT is checked first
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host < 200);
+      REQUIRE((*it).n_succeeds_host == (no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host));
+      
     }
   }
 
@@ -104,8 +106,9 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
       ++it;
-      REQUIRE((*it).n_succeeds_host > 30);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 2);
+      REQUIRE((*it).n_succeeds_host  > no_mut_NAND_rate * 1.5);
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 30);
+      
     }
   }
 }

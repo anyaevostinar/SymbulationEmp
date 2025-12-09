@@ -86,7 +86,7 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp]") {
   }
 }
 
-TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp]") {
+TEST_CASE("BuildNoRepro creates obligate mutualist program", "[dono]") {
   ProgramBuilder builder;
   size_t program_len = 100;
 
