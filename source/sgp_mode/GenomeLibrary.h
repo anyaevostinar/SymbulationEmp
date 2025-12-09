@@ -15,8 +15,6 @@ using Library = sgpl::OpLibrary<
     
 
     sgpl::Nop<0>, 
-    sgpl::Nop<1>, 
-    sgpl::Nop<2>, 
     sgpl::BitwiseShift, 
     sgpl::Increment, 
     sgpl::Decrement, 
