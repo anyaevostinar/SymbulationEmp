@@ -150,6 +150,7 @@ public:
   emp::WorldPosition PlaceSymbiontInHost(emp::Ptr<Organism> symbiont, const emp::BitSet<CPU_BITSET_LENGTH>& symbiont_infection_tasks, size_t source_pos);
 
   // Prototypes for sym transferring
+  emp::WorldPosition SymFindHost(emp::Ptr<Organism> symbiont, emp::WorldPosition cur_pos);
   void ProcessStressEscapeeOffspring();
 
   // Prototype for graveyard handling method

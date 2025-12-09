@@ -4,7 +4,7 @@ TEST_CASE("Extinction event probabilities", "[sgp]") {
   emp::Random random(62);
   SymConfigSGP config;
   config.INTERACTION_MECHANISM(STRESS);
-  config.EXTINCTION_FREQUENCY(10);
+  config.EXTINCTION_FREQUENCY(26);
   config.GRID_X(10);
   config.GRID_Y(10);
   size_t world_size = config.GRID_X() * config.GRID_Y();

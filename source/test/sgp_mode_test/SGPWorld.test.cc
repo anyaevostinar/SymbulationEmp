@@ -841,7 +841,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp]") {
     }
     
     WHEN("Preferential ousting is on") {
-      config.TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR(1); // have some survivors
+      
       config.OUSTING(1);
       config.PREFERENTIAL_OUSTING(2);
       config.PARASITE_DEATH_CHANCE(0.8);
@@ -940,7 +940,7 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp]") {
     REQUIRE(matching_host->GetSymbionts().size() == 2);
 
     WHEN("Task matching is required for symbiotic behavior") {
-      config.TASK_MATCH_FOR_SYMBIOTIC_BEHAVIOR(1);
+      
       WHEN("Symbionts are parasitic") {
         config.BASE_DEATH_CHANCE(0);
         config.PARASITE_DEATH_CHANCE(1);

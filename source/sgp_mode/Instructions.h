@@ -120,8 +120,8 @@ INST(SharedIO, {
 
 
 INST(Donate, {
-  bool donation_steal_inst = false
-  bool transition_evolution = false
+  bool donation_steal_inst = false;
+  bool transition_evolution = false;
   if (donation_steal_inst && (state.world->GetConfig()->SYMBIONT_TYPE() == 0 || transition_evolution)) {
     if (state.organism->IsHost()){
       return;
@@ -137,8 +137,8 @@ INST(Donate, {
   
 });
 INST(Steal, {
-  bool donation_steal_inst = false
-  bool transition_evolution = false
+  bool donation_steal_inst = false;
+  bool transition_evolution = false;
   if (donation_steal_inst && (state.world->GetConfig()->SYMBIONT_TYPE() == 1 || transition_evolution)) {
     if (state.organism->IsHost()){
       return;

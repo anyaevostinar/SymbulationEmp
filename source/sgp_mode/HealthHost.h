@@ -7,7 +7,7 @@ class HealthHost : public SGPHost {
 
     public:
 
-    bool donation_steal_inst = false
+    bool donation_steal_inst = false;
 
     //Tracks whether an update needs to be given to a symbiont or received from a symbiont
     int cycles_given = 1;

@@ -88,7 +88,6 @@ public:
         for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
           tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
         }
-        
         if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
         else if (sgp_config->SYMBIONT_TYPE() == PARASITE && tasks_satisfactory) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
       }
