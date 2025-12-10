@@ -399,8 +399,8 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
 
-  bool donation_steal_inst = false;
-  if(donation_steal_inst){
+  
+  if(config->DONATION_STEAL_INST()){
     if(config->SYMBIONT_TYPE() == 1){
       return CreateParasiteNotProgram(PROGRAM_LENGTH, 25);
     }
