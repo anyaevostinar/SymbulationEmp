@@ -90,10 +90,10 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
       ++it;
-      //Will never be perfect as it is possible for NOT to be geussed during a NAND operation and NOT is checked first
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host < 200);
-      REQUIRE((*it).n_succeeds_host == (no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host));
-      
+      //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
+      REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
+      ++it;
+      REQUIRE((*it).n_succeeds_host == 0);
     }
   }
 
@@ -105,13 +105,13 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
     THEN("Stress hosts accrue more mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
       ++it;
-      REQUIRE((*it).n_succeeds_host  > no_mut_NAND_rate * 1.5);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 30);
+      REQUIRE((*it).n_succeeds_host > 3000);
       
     }
   }
-}
+} 
 
 TEST_CASE("Parasites transfer during stress event", "[sgp]") {
   emp::Random random(61);

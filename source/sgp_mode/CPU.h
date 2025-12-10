@@ -266,7 +266,7 @@ public:
     emp::map<std::string, size_t> arities{
         {"Nop-0", 0},{"Bitwise Shift", 1}, {"Increment", 1},
         {"Decrement", 1}, {"Add", 3}, {"Subtract", 3}, 
-        {"Nand", 3},{"Reproduce", 0}, {"SharedIO", 1}};
+        {"Nand", 3},{"Reproduce", 0}, {"SharedIO", 1},{"Donate",0},{"Steal",0}};
       
 
     for (auto i : program) {

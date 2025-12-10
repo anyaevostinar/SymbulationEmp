@@ -25,6 +25,7 @@ using Library = sgpl::OpLibrary<
     inst::Reproduce, 
     inst::SharedIO,
     inst::Nand,
+    inst::Donate, inst::Steal,
     sgpl::global::Anchor 
     >;
 
@@ -359,9 +360,9 @@ sgpl::Program<Spec> CreateParasiteNandProgram(size_t length, int steal_count) {
     std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
   }
 
-  if(steal_count > 95){
-    steal_count = 95;
-    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+  if(steal_count > 94){
+    steal_count = 94;
+    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 94" << std::endl;
   }
   program.AddStartSteal(steal_count);
   program.AddNand();
