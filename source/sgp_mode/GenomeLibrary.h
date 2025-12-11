@@ -421,10 +421,10 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   
   if(config->DONATION_STEAL_INST()){
     if(config->SYMBIONT_TYPE() == 1){
-      return CreateParasiteNandProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateParasiteNandProgram(PROGRAM_LENGTH, 94);
     }
     else if(config->SYMBIONT_TYPE() == 0){
-      return CreateMutualistNandProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
+      return CreateMutualistNandProgram(PROGRAM_LENGTH, 94);
     }
     else{
       return CreateNandProgram(PROGRAM_LENGTH);
