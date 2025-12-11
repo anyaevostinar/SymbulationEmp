@@ -249,7 +249,6 @@ TEST_CASE("GetStressEscapeeOffspringAttemptCount", "[sgp]") {
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
-    config.SYMBIONTS_ESCAPE(0);
     config.PARASITE_DEATH_CHANCE(1);
 
     SGPWorld world(random, &config, LogicTasks);
@@ -287,7 +286,6 @@ TEST_CASE("GetStressEscapeeOffspringSuccessCount", "[sgp]") {
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
-    config.SYMBIONTS_ESCAPE(0);
     config.BASE_DEATH_CHANCE(0);
     config.PARASITE_DEATH_CHANCE(1);
     config.GRID(1);

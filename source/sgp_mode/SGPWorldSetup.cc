@@ -206,8 +206,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     return PlaceSymbiontInHost(sym_baby, fun_get_task_profile(parent), i);
   }
 
-
- /**
+  /**
   * Input: Pointers to a symbiont and the position of the symbiont. 
   * Note that the position of the symbiont is a WorldPosition with index as 1-index position
   * in host's syms list and pop_id as host's location in the world
