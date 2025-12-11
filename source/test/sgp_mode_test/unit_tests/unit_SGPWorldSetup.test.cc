@@ -1,4 +1,4 @@
-#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
 
 TEST_CASE("SetupTaskProfileFun", "[sgp]") {
 	emp::Random random(61);
