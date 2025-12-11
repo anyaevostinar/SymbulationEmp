@@ -32,10 +32,13 @@ class CPU {
    * Should be called when a new CPU is created or the program is changed.
    */
   void InitializeState() {
+   
     cpu.InitializeAnchors(program);
 
-    uint8_t JumpNeq = Library::GetOpCode("JumpIfNEq");
-    uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
+    
+    uint8_t GlobalJumpNot = Library::GetOpCode("Global Jump If Not");
+    
+    //uint8_t JumpLess = Library::GetOpCode("JumpIfLess");
     if (!cpu.HasActiveCore()) {
       cpu.DoLaunchCore(START_TAG);
     }
@@ -43,7 +46,7 @@ class CPU {
     size_t idx = 0;
     state.jump_table.resize(100);
     for (auto &i : program) {
-      if (i.op_code == JumpNeq || i.op_code == JumpLess) {
+      if (i.op_code == GlobalJumpNot) {
         auto entry = table.MatchRegulated(i.tag);
         state.jump_table[idx] =
             entry.size() > 0 ? table.GetVal(entry.front()) : idx + 1;
@@ -200,7 +203,7 @@ private:
     if (arities.count(name)) {
       // Simple instruction
       out << "    " << emp::to_lower(name);
-      for (size_t i = 0; i < 12 - name.length(); i++) {
+      for (size_t i = 0; i < 17 - name.length(); i++) {
         out << ' ';
       }
       size_t arity = arities.at(name);
@@ -226,9 +229,17 @@ private:
         tag_name = "<nowhere>";
       }
 
-      if (name == "JumpIfNEq" || name == "JumpIfLess") {
-        out << "    " << emp::to_lower(name);
-        for (size_t i = 0; i < 12 - name.length(); i++) {
+      if (name == "Global Jump If Not" || name == "Local Jump If Not") {
+        std::string small_name = "";
+        if(name == "Global Jump If Not"){
+          small_name = "global jumpifnot";
+        }
+        else{
+          small_name = "local jumpifnot";
+        }
+        
+        out << "    " << emp::to_lower(small_name);
+        for (size_t i = 0; i < 17 - small_name.length(); i++) {
           out << ' ';
         }
         out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
@@ -253,10 +264,10 @@ public:
    */
   void PrintCode(std::ostream &out = std::cout) {
     emp::map<std::string, size_t> arities{
-        {"Nop-0", 0},     {"ShiftLeft", 1}, {"ShiftRight", 1}, {"Increment", 1},
-        {"Decrement", 1}, {"Push", 1},      {"Pop", 1},        {"SwapStack", 0},
-        {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
-        {"Reproduce", 0}, {"SharedIO", 1},  {"Donate", 0},   {"Steal", 0}};
+        {"Nop-0", 0},{"Bitwise Shift", 1}, {"Increment", 1},
+        {"Decrement", 1}, {"Add", 3}, {"Subtract", 3}, 
+        {"Nand", 3},{"Reproduce", 0}, {"SharedIO", 1},{"Donate",0},{"Steal",0}};
+      
 
     for (auto i : program) {
       PrintOp(i, arities, cpu.GetActiveCore().GetGlobalJumpTable(), out);

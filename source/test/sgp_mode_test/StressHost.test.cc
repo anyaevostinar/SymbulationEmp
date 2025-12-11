@@ -77,7 +77,7 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
 
   REQUIRE(world.GetNumOrgs() == world_size);
 
-  size_t no_mut_NOT_rate = 600000;
+  size_t no_mut_NAND_rate = 600000;
 
   size_t run_updates = 15000;
 
@@ -90,8 +90,10 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
       ++it;
+      //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
+      REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
+      ++it;
       REQUIRE((*it).n_succeeds_host == 0);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host == no_mut_NOT_rate);
     }
   }
 
@@ -103,12 +105,13 @@ TEST_CASE("Stress hosts evolve", "[sgp]") {
     THEN("Stress hosts accrue more mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
       auto it = world.GetTaskSet().begin();
+      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
       ++it;
-      REQUIRE((*it).n_succeeds_host > 30);
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > no_mut_NOT_rate * 2);
+      REQUIRE((*it).n_succeeds_host > 3000);
+      
     }
   }
-}
+} 
 
 
 TEST_CASE("Safe time configuration option", "[sgp]") {

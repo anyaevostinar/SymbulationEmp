@@ -3,6 +3,8 @@
 
 #include "Instructions.h"
 #include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/operations/flow_global/JumpIfNot.hpp"
+#include "sgpl/operations/flow_local/JumpIfNot.hpp"
 #include "sgpl/program/Instruction.hpp"
 #include "sgpl/program/Program.hpp"
 #include "sgpl/spec/Spec.hpp"
@@ -10,20 +12,20 @@
 #include <limits>
 
 using Library = sgpl::OpLibrary<
-    sgpl::Nop<>,
-    // single argument math
-    inst::ShiftLeft, inst::ShiftRight, inst::Increment, inst::Decrement,
-    // biological operations
+    
+
+    sgpl::Nop<0>, 
+    sgpl::BitwiseShift, 
+    sgpl::Increment, 
+    sgpl::Decrement, 
+    sgpl::Add, 
+    sgpl::Subtract, 
+    sgpl::global::JumpIfNot, 
+    sgpl::local::JumpIfNot,
     inst::Reproduce, 
     inst::SharedIO,
-    inst::Steal,
-    inst::Donate, 
-    // double argument math
-    inst::Add, inst::Subtract, inst::Nand,
-    // Stack manipulation
-    inst::Push, inst::Pop, inst::SwapStack, inst::Swap,
-    // no h-search
-    inst::JumpIfNEq, inst::JumpIfLess, 
+    inst::Nand,
+    inst::Donate, inst::Steal,
     sgpl::global::Anchor 
     >;
 
@@ -66,11 +68,13 @@ public:
     sgpl::Program<Spec> program;
     // Set everything to 0 - this makes them no-ops since that's the first
     // inst in the library
+    
     program.resize(length - size());
     program[0].op_code = Library::GetOpCode("Global Anchor");
     program[0].tag = START_TAG;
 
     program.insert(program.end(), begin(), end());
+   
 
     return program;
   }
@@ -322,31 +326,46 @@ sgpl::Program<Spec> CreateReproProgram(size_t length) {
  * Purpose: Creates the program for the majority of starting organisms
  */
 sgpl::Program<Spec> CreateNotProgram(size_t length) {
+ 
   ProgramBuilder program;
   program.AddNot();
   return program.Build(length);
 }
 
 /**
+ * Input: Total length of program
+ *
+ * Output: Program that performs a NAND operation
+ *
+ * Purpose: Creates the program for the majority of starting organisms
+ */
+sgpl::Program<Spec> CreateNandProgram(size_t length) {
+ 
+  ProgramBuilder program;
+  program.AddNand();
+  return program.Build(length);
+}
+
+/**
  * Input: Total length of program and the number of steal instructions that should be in the program
  *
- * Output: Program that performs a NOT operation and contains steal instructions
+ * Output: Program that performs a NAND operation and contains steal instructions
  *
  * Purpose: Creates a program for starting parasite symbionts when DONATION_STEAL_INST is enabled
  */
-sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
+sgpl::Program<Spec> CreateParasiteNandProgram(size_t length, int steal_count) {
   ProgramBuilder program;
   if(steal_count < 0){
     steal_count = 0;
     
   }
 
-  if(steal_count > 95){
-    steal_count = 95;
-    
+  if(steal_count > 94){
+    steal_count = 94;
+    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 94" << std::endl;
   }
   program.AddStartSteal(steal_count);
-  program.AddNot();
+  program.AddNand();
   
   return program.Build(length);
 }
@@ -355,11 +374,11 @@ sgpl::Program<Spec> CreateParasiteNotProgram(size_t length, int steal_count) {
 /**
  * Input: Total length of program and the number of donate instructions that should be in the program
  *
- * Output: Program that performs a NOT operation and contains donate instructions
+ * Output: Program that performs a NAND operation and contains donate instructions
  *
  * Purpose: Creates a program for starting mutualist symbionts when DONATION_STEAL_INST is enabled
  */
-sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
+sgpl::Program<Spec> CreateMutualistNandProgram(size_t length, int donate_count) {
   ProgramBuilder program;
   if(donate_count < 0){
     donate_count = 0;
@@ -371,7 +390,7 @@ sgpl::Program<Spec> CreateMutualistNotProgram(size_t length, int donate_count) {
     
   }
   program.AddStartDonate(donate_count);
-  program.AddNot();
+  program.AddNand();
   return program.Build(length);
 }
 
@@ -402,17 +421,17 @@ sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
   
   if(config->DONATION_STEAL_INST()){
     if(config->SYMBIONT_TYPE() == 1){
-      return CreateParasiteNotProgram(PROGRAM_LENGTH, 25);
+      return CreateParasiteNandProgram(PROGRAM_LENGTH, 94);
     }
     else if(config->SYMBIONT_TYPE() == 0){
-      return CreateMutualistNotProgram(PROGRAM_LENGTH, 25);
+      return CreateMutualistNandProgram(PROGRAM_LENGTH, 94);
     }
     else{
-      return CreateNotProgram(PROGRAM_LENGTH);
+      return CreateNandProgram(PROGRAM_LENGTH);
     }
   }
   else{
-      return CreateNotProgram(PROGRAM_LENGTH);
+      return CreateNandProgram(PROGRAM_LENGTH);
     }
 }
 
