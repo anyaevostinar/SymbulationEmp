@@ -25,8 +25,8 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp]") {
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(10);
-  config.DONATION_STEAL_INST(0);
 
+  config.SYNERGY(1);
   config.OUSTING(1);
 
   SGPWorld world(random, &config, LogicTasks);
@@ -128,6 +128,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp]") {
   //TODO: The random number seed doesn't seem to be working, different values for the same seed
 
   SymConfigSGP config;
+  config.SYNERGY(1);
   config.SEED(10);  
   config.INTERACTION_MECHANISM(1); //Health hosts
   config.SYMBIONT_TYPE(1); //Parasites
@@ -136,7 +137,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp]") {
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);
-  config.DONATION_STEAL_INST(0);
+ 
 
   config.OUSTING(1);
 
@@ -204,6 +205,7 @@ TEST_CASE("Health hosts evolve", "[sgp][integration]") {
   config.GRID_X(10);
   config.GRID_Y(100);
   config.HOST_REPRO_RES(20);
+  config.SYNERGY(1);
   size_t world_size = config.GRID_X() * config.GRID_Y();
 
   SGPWorld world(random, &config, LogicTasks);
@@ -245,7 +247,6 @@ TEST_CASE("Health hosts evolve", "[sgp][integration]") {
     }
   }
 } 
-
 TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction properly takes CPU cycles from HealthHost", "[sgp]"){
  
   emp::Random random(1);
@@ -262,7 +263,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
   config.HOST_REPRO_RES(10000);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
-  config.CPU_TRANSFER_AMOUNT(94);
+
 
 
   SGPWorld world(random, &config, LogicTasks);
@@ -314,7 +315,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
   config.SYM_ONLY_FIRST_TASK_CREDIT(1);
   config.DONATION_STEAL_INST(1);
   config.CPU_TRANSFER_CHANCE(1);
-  config.CPU_TRANSFER_AMOUNT(94);
+ 
   config.HOST_REPRO_RES(10000);
 
   SGPWorld world(random, &config, LogicTasks);

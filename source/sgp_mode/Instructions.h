@@ -98,11 +98,8 @@ INST(Reproduce, {
 
 void AddNewInput(CPUState &state, uint32_t *output){
   uint32_t next;
-  if (state.world->GetConfig()->RANDOM_IO_INPUT()) {
-    next = sgpl::tlrand.Get().GetUInt();
-  } else {
-    next = 1;
-  }
+  next = sgpl::tlrand.Get().GetUInt();
+ 
   *output = next;
   state.input_buf.push(next);
 }
@@ -123,7 +120,7 @@ INST(SharedIO, {
 
 
 INST(Donate, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->SYMBIONT_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+  if (state.world->GetConfig()->DONATION_STEAL_INST() == 1 && (state.world->GetConfig()->SYMBIONT_TYPE() == 0 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
     if (state.organism->IsHost()){
       return;
     }
@@ -138,7 +135,7 @@ INST(Donate, {
   
 });
 INST(Steal, {
-  if (state.world->GetConfig()->DONATION_STEAL_INST() && (state.world->GetConfig()->SYMBIONT_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
+  if (state.world->GetConfig()->DONATION_STEAL_INST() == 1 && (state.world->GetConfig()->SYMBIONT_TYPE() == 1 || state.world->GetConfig()->ALLOW_TRANSITION_EVOLUTION() == 1)) {
     if (state.organism->IsHost()){
       return;
     }

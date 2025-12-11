@@ -357,7 +357,7 @@ sgpl::Program<Spec> CreateParasiteNandProgram(size_t length, int steal_count) {
   ProgramBuilder program;
   if(steal_count < 0){
     steal_count = 0;
-    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+    
   }
 
   if(steal_count > 94){
@@ -382,12 +382,12 @@ sgpl::Program<Spec> CreateMutualistNandProgram(size_t length, int donate_count) 
   ProgramBuilder program;
   if(donate_count < 0){
     donate_count = 0;
-    std::cout << "CPU_TRANSFER_AMOUNT was too low, has been clamped to 0" << std::endl;
+    
   }
 
   if(donate_count > 95){
     donate_count = 95;
-    std::cout << "CPU_TRANSFER_AMOUNT was too high, has been clamped to 95" << std::endl;
+    
   }
   program.AddStartDonate(donate_count);
   program.AddNand();
@@ -417,7 +417,9 @@ sgpl::Program<Spec> CreateEquProgram(size_t length) {
  * Purpose: Assigns the correct program to the starting symbionts of the world
  */
 sgpl::Program<Spec> CreateStartProgram(emp::Ptr<SymConfigSGP> config) {
-  if(config->DONATION_STEAL_INST() == 1){
+
+  
+  if(config->DONATION_STEAL_INST()){
     if(config->SYMBIONT_TYPE() == 1){
       return CreateParasiteNandProgram(PROGRAM_LENGTH, config->CPU_TRANSFER_AMOUNT());
     }
