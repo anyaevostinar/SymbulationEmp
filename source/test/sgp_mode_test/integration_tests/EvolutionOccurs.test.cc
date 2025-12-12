@@ -13,6 +13,11 @@
 #include "../../../sgp_mode/StressHost.h"
 
 
+//Tests to Add, possibly to this file, maybe to another:
+//Pref Ousting leads to syms closer matching hosts tasks
+//
+
+
 TEST_CASE("Health hosts evolve", "[sgp][integration]") {
   emp::Random random(32);
   SymConfigSGP config;
