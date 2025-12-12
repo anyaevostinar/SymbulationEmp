@@ -27,6 +27,11 @@ void SGPWorld::CreateDataFiles() {
   SetupSymInstFile(sgp_config->FILE_PATH() + "SymInstCount" +
                         sgp_config->FILE_NAME() + file_ending)
       .SetTimingRepeat(sgp_config->DATA_INT());
+  if (sgp_config->ALLOW_TRANSITION_EVOLUTION()) {
+    SetupSymIntValFile(sgp_config->FILE_PATH() + "SymVals" +
+      sgp_config->FILE_NAME() + file_ending)
+      .SetTimingRepeat(sgp_config->DATA_INT());
+  }
 }
 
 
