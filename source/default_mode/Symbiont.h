@@ -574,6 +574,13 @@ public:
     return sym_baby;
   }
 
+
+  virtual bool MeetsRequirements() {
+    if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
+      return true;
+    }
+    return false;
+  }
   /**
    * Input: The pointer to the organism that is the new host baby
    *
@@ -582,19 +589,24 @@ public:
    * Purpose: To allow for vertical transmission to occur
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+
+    
     if (my_world->WillTransmit()) {
-      // Vertical transmission data nodes
-      // Attempt vs success for vertical transmission is just whether it has enough resources
-      my_world->GetVerticalTransmissionAttemptCount().AddDatum(1);
 
-      // If the world permits vertical transmission and the sym has enough resources, transmit!
-      if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
-        emp::Ptr<Organism> sym_baby = Reproduce();
-        points -= my_config->SYM_VERT_TRANS_RES();
-        host_baby->AddSymbiont(sym_baby);
+        // Vertical transmission data nodes
+        // Attempt vs success for vertical transmission is just whether it has enough resources
+        my_world->GetVerticalTransmissionAttemptCount().AddDatum(1);
 
-        my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
-      }
+        // If the world permits vertical transmission and the sym has enough resources, transmit!
+        if(MeetsRequirements()){
+          emp::Ptr<Organism> sym_baby = Reproduce();
+          points -= my_config->SYM_VERT_TRANS_RES();
+          host_baby->AddSymbiont(sym_baby);
+          my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
+        }
+
+        
+      
     }
   }
 

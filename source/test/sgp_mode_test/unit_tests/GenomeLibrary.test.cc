@@ -277,3 +277,74 @@ TEST_CASE("All programs are built correctly","[sgp][sgp-unit]"){
     }
   }
 }
+
+TEST_CASE("CreateStartProgram()", "[sgp][sgp-unit]"){
+
+  SymConfigSGP config;
+  WHEN("Donation steal inst is off"){
+    config.DONATION_STEAL_INST(0);
+    sgpl::Program<Spec> program = CreateStartProgram(&config);
+
+    THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      }
+  }
+  WHEN("Donation steal inst is on"){
+    config.DONATION_STEAL_INST(1);
+    WHEN("Symbiont type is Mutualist"){
+      config.SYMBIONT_TYPE(MUTUALIST);
+      sgpl::Program<Spec> program = CreateStartProgram(&config);
+      size_t donate_count = 0;
+      for (size_t i = 1; i < program.size(); ++i) {
+        if(program[i].op_code == Library::GetOpCode("Donate")){
+          donate_count += 1;
+        }
+      }
+      REQUIRE(donate_count == 94);
+
+      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      }
+      
+    }
+    WHEN("Symbiont type is Parasite"){
+      config.SYMBIONT_TYPE(PARASITE);
+      sgpl::Program<Spec> program = CreateStartProgram(&config);
+      size_t steal_count = 0;
+      for (size_t i = 1; i < program.size(); ++i) {
+        if(program[i].op_code == Library::GetOpCode("Steal")){
+          steal_count += 1;
+        }
+      }
+      REQUIRE(steal_count == 94);
+      
+      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      }
+    }
+    WHEN("Symbiont type is Neutral"){
+      config.SYMBIONT_TYPE(2);
+      sgpl::Program<Spec> program = CreateStartProgram(&config);
+
+      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      }
+    }
+  }
+}

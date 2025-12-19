@@ -64,7 +64,7 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
   
 }
 
-TEST_CASE("TaskMaskCheck Unit Test", "[sgp][sgp-unit]") {
+TEST_CASE("TaskMatchCheck Unit Test", "[sgp][sgp-unit]") {
 
   emp::Random random(1);
   SymConfigSGP config;
