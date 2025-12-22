@@ -21,7 +21,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
     sym_parent.Delete();
   }
 
-  WHEN("Parental task tracking is on") {
+  WHEN("Parental task tracking is set to ParentOnly") {
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
     config.TRACK_PARENT_TASKS(1);
     world.AddOrgAt(host, 0);
@@ -66,6 +66,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
     }
     sym_baby.Delete();
   }
+  
 }
 
 TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]")
@@ -94,31 +95,145 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]")
     config.VERTICAL_TRANSMISSION(1);
     WHEN("Vertical Task Match is on"){
       config.VT_TASK_MATCH(1);
-      WHEN("Host and Symbiont share a matching task"){
-        sym->GetCPU().state.tasks_performed->Set(0);
-        host->GetCPU().state.tasks_performed->Set(0);
-        
-        for(int i = 0; i < 26; i++){
+      WHEN("Track Parent Tasks is off"){
+        config.TRACK_PARENT_TASKS(0);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host->GetCPU().state.tasks_performed->Set(0);
           
-          world.Update();
-        }
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
 
-        THEN("Symbiont vertically transmits"){
-          REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-          REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
+          THEN("Symbiont vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          sym->GetCPU().state.parent_tasks_performed->Set(0);
+          host->GetCPU().state.parent_tasks_performed->Set(0);
+          
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont does not vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          host->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not vertically transmit"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
       }
-      WHEN("Host and Symbiont do not share a matching task"){
-        
-        host->GetCPU().state.tasks_performed->Set(0);
-       
-        for(int i = 0; i < 26; i++){
+      WHEN("Track Parent Tasks is Parent Only"){
+        config.TRACK_PARENT_TASKS(1);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host->GetCPU().state.tasks_performed->Set(0);
           
-          world.Update();
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont does not vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
-        THEN("Symbiont does not vertically transmit"){
-          REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-          REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          sym->GetCPU().state.parent_tasks_performed->Set(0);
+          host->GetCPU().state.parent_tasks_performed->Set(0);
+          
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          host->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not vertically transmit"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+          }
+        }
+      }
+      WHEN("Track Parent Tasks is set to both parent or child"){
+        config.TRACK_PARENT_TASKS(2);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host->GetCPU().state.tasks_performed->Set(0);
+          
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont does not vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          sym->GetCPU().state.parent_or_current_tasks_performed->Set(0);
+          host->GetCPU().state.parent_or_current_tasks_performed->Set(0);
+          
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont vertically transmits"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          host->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not vertically transmit"){
+            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
       }
     }
@@ -178,6 +293,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]")
   config.SYM_HORIZ_TRANS_RES(0);
   config.VERTICAL_TRANSMISSION(0);
 
+
   SGPWorld world(random, &config, LogicTasks);
   ProgramBuilder builder;
   ProgramBuilder symbuilder;
@@ -194,31 +310,147 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]")
     config.HORIZ_TRANS(1);
     WHEN("Horizontal Task Match is on"){
       config.HT_TASK_MATCH(1);
-      WHEN("Host and Symbiont share a matching task"){
-        sym->GetCPU().state.tasks_performed->Set(0);
-        host2->GetCPU().state.tasks_performed->Set(0);
-        
-        for(int i = 0; i < 26; i++){
+      WHEN("Track Parent Tasks is off"){
+        config.TRACK_PARENT_TASKS(0);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host2->GetCPU().state.tasks_performed->Set(0);
           
-          world.Update();
-        }
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
 
-        THEN("Symbiont horizontally transmits"){
-          REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-          REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+          THEN("Symbiont horizontally transmits"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          
+          sym->GetCPU().state.parent_tasks_performed->Set(0);
+          host2->GetCPU().state.parent_tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not horizontally transmit"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          sym->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not horizontally transmit"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
       }
-      WHEN("Host and Symbiont do not share a matching task"){
-        
-        sym->GetCPU().state.tasks_performed->Set(0);
-       
-        for(int i = 0; i < 26; i++){
+
+      WHEN("Track Parent Tasks is set to parent only"){
+        config.TRACK_PARENT_TASKS(1);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host2->GetCPU().state.tasks_performed->Set(0);
           
-          world.Update();
+          for(int i = 0; i < 26; i++){
+        
+            world.Update();
+          }
+
+          THEN("Symbiont does not horizontally transmits"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
-        THEN("Symbiont does not horizontally transmit"){
-          REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-          REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          
+          sym->GetCPU().state.parent_tasks_performed->Set(0);
+          host2->GetCPU().state.parent_tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont horizontally transmits"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          sym->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not horizontally transmit"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+          }
+        }
+      }
+
+      WHEN("Track Parent Tasks is set to both parent or child"){
+        config.TRACK_PARENT_TASKS(2);
+        //Selects correct task match function based on config
+        //used here to avoid having to create new worlds and organism
+        world.SetupTaskProfileFun();
+        WHEN("Only Host and Symbiont share a matching task"){
+          sym->GetCPU().state.tasks_performed->Set(0);
+          host2->GetCPU().state.tasks_performed->Set(0);
+          
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+
+          THEN("Symbiont does not horizontally transmits"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Only Host parent and Symbiont parent share a matching task"){
+          
+          sym->GetCPU().state.parent_or_current_tasks_performed->Set(0);
+          host2->GetCPU().state.parent_or_current_tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont horizontally transmits"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+          }
+        }
+        WHEN("Host and Symbiont do not share a matching task"){
+          
+          sym->GetCPU().state.tasks_performed->Set(0);
+        
+          for(int i = 0; i < 26; i++){
+            
+            world.Update();
+          }
+          THEN("Symbiont does not horizontally transmit"){
+            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+          }
         }
       }
     }
@@ -265,196 +497,3 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]")
   }
 
 }
-
-TEST_CASE("SGPSymbiont Horizontal with Vertical Transmission", "[sgp][sgp-functional]")
-
-{
-  emp::Random random(42);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(DEFAULT);
-  config.GRID_X(10);
-  config.GRID_Y(10);
-  config.HOST_REPRO_RES(1);
-  config.SYM_HORIZ_TRANS_RES(0);
-  config.SYM_VERT_TRANS_RES(0);
-  
-
-
-  SGPWorld world(random, &config, LogicTasks);
-  ProgramBuilder builder1;
-  ProgramBuilder builder2;
-  ProgramBuilder symbuilder;
-  builder1.AddNand();
-  symbuilder.AddNot(); //First task
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, builder1.Build(100));
-  emp::Ptr<SGPHost> host2 = emp::NewPtr<SGPHost>(&random, &world, &config, builder2.Build(100));
-  emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, symbuilder.Build(100));
-
-  world.AddOrgAt(host, 0);
-  world.AddOrgAt(host2,1);
-  host->AddSymbiont(sym);
-  REQUIRE(world.GetNumOrgs() == 2);
-  WHEN("Horizontal & Vertical Transmission is on"){
-    config.HORIZ_TRANS(1);
-    config.VERTICAL_TRANSMISSION(1);
-    
-    WHEN("Horizontal & Vertical Task Match is on"){
-      config.HT_TASK_MATCH(1);
-      config.VT_TASK_MATCH(1);
-      WHEN("Ousting is enabled"){
-        config.OUSTING(1);
-      
-        WHEN("current Host, sibling host and Symbiont share a matching task"){
-          sym->GetCPU().state.tasks_performed->Set(1);
-          host->GetCPU().state.tasks_performed->Set(0);
-          host2->GetCPU().state.tasks_performed->Set(1);
-          
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-
-          THEN("Symbiont horizontally & vertically transmits"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        }
-        WHEN("current Host, sibling host and Symbiont do not share a matching task"){
-          
-          sym->GetCPU().state.tasks_performed->Set(0);
-        
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-          THEN("Symbiont does not horizontally or vertically transmit"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
-          }
-        
-      }
-    }
-    WHEN("Ousting is disabled"){
-        config.OUSTING(0);
-      
-        WHEN("current Host, sibling host and Symbiont share a matching task"){
-          sym->GetCPU().state.tasks_performed->Set(1);
-          host->GetCPU().state.tasks_performed->Set(0);
-          host2->GetCPU().state.tasks_performed->Set(1);
-          
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-
-          THEN("Symbiont vertically transmits and attempts but fails to horizontally transmit"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        }
-        WHEN("current Host, sibling host and Symbiont do not share a matching task"){
-          
-          sym->GetCPU().state.tasks_performed->Set(0);
-        
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-          THEN("Symbiont does not horizontally or vertically transmit"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 0);
-          }
-        
-      }
-    }
-    }
-    WHEN("Horizontal & Vertical Task Match is off"){
-      config.HT_TASK_MATCH(0);
-      config.VT_TASK_MATCH(0);
-      WHEN("Ousting is enabled"){
-        config.OUSTING(1);
-      
-        WHEN("current Host, sibling host and Symbiont share a matching task"){
-          sym->GetCPU().state.tasks_performed->Set(1);
-          host->GetCPU().state.tasks_performed->Set(0);
-          host2->GetCPU().state.tasks_performed->Set(1);
-          
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-
-          THEN("Symbiont horizontally & vertically transmits"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        }
-        WHEN("current Host, sibling host and Symbiont do not share a matching task"){
-          
-          sym->GetCPU().state.tasks_performed->Set(0);
-        
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-          THEN("Symbiont horizontally and vertically transmits"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        
-      }
-    }
-    WHEN("Ousting is disabled"){
-        config.OUSTING(0);
-      
-        WHEN("current Host, sibling host and Symbiont share a matching task"){
-          sym->GetCPU().state.tasks_performed->Set(1);
-          host->GetCPU().state.tasks_performed->Set(0);
-          host2->GetCPU().state.tasks_performed->Set(1);
-          
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-
-          THEN("Symbiont vertically transmits and attempts but fails to horizontally transmit"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        }
-        WHEN("current Host, sibling host and Symbiont do not share a matching task"){
-          
-          sym->GetCPU().state.tasks_performed->Set(0);
-        
-          for(int i = 0; i < 26; i++){
-            
-            world.Update();
-          }
-          THEN("Symbiont vertically transmits and attempts but fails to horizontally transmit"){
-            REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-            REQUIRE(world.GetVerticalTransmissionAttemptCount().GetTotal() == 1);
-            REQUIRE(world.GetVerticalTransmissionSuccessCount().GetTotal() == 1);
-          }
-        
-      }
-    }
-    }
-  }
-
-
-}  
