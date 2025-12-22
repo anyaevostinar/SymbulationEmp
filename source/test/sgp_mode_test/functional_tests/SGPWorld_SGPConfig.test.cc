@@ -43,34 +43,43 @@ TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
-  emp::Random random(61);
-  SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
-  config.OUSTING(1);
-  config.SYM_LIMIT(1);
+  GIVEN("An SGPworld with Ousting enabled"){
+    emp::Random random(61);
+    SymConfigSGP config;
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.OUSTING(1);
+    config.SYM_LIMIT(1);
 
-  SGPWorld world(random, &config, LogicTasks);
-  world.Resize(2, 2);
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(2, 2);
 
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
 
-  host->AddSymbiont(old_symbiont);
-  world.AddOrgAt(host, 0);
-
-  REQUIRE(host->GetSymbionts().size() == 1);
-  REQUIRE(world.GetGraveyard().size() == 0);
-
-  host->AddSymbiont(new_symbiont);
-
-  REQUIRE(host->GetSymbionts().size() == 1);
-  REQUIRE(world.GetGraveyard().size() == 1);
-
-  world.Update(); // clean up the graveyard
-
-  REQUIRE(world.GetGraveyard().size() == 0);
+    WHEN("A Host with a Symbiont is added to the world"){
+      host->AddSymbiont(old_symbiont);
+      world.AddOrgAt(host, 0);
+      THEN("The Host has one Symbiont and the graveyard is empty"){
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(world.GetGraveyard().size() == 0);
+      }
+      WHEN("Another Symbiont is added to Host"){
+        host->AddSymbiont(new_symbiont);
+        THEN("The Host has one symbiont and the graveyard has one organism"){
+          REQUIRE(host->GetSymbionts().size() == 1);
+          REQUIRE(world.GetGraveyard().size() == 1);
+        }
+        WHEN("The world is updated"){
+          world.Update(); // clean up the graveyard
+          THEN("The graveyard is empty"){
+            REQUIRE(world.GetGraveyard().size() == 0);
+          }
+        }
+      }
+    }
+  }
 }
 
 TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
@@ -216,16 +225,18 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
     world.Update();
 
     //Checks both that NOT is being done and no other operations are being done
-    for (auto data : world.GetTaskSet()) {
-      
-        if(data.task.name != "NOT"){
-      
-        REQUIRE(data.n_succeeds_host == 0);
-        }
-        else{
-          REQUIRE(data.n_succeeds_host > 0);
-        }
-      
+    THEN("The Organism will only be able to complete the NOT task"){
+      for (auto data : world.GetTaskSet()) {
+        
+          if(data.task.name != "NOT"){
+        
+          REQUIRE(data.n_succeeds_host == 0);
+          }
+          else{
+            REQUIRE(data.n_succeeds_host > 0);
+          }
+        
+      }
     }
 
 

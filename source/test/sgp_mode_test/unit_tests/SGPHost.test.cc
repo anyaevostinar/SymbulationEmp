@@ -25,42 +25,56 @@ TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduc
 
 
 TEST_CASE("Host comparison operators", "[sgp][sgp-unit]") {
-    emp::Random random(31);
-	SymConfigSGP config;
-	SGPWorld world(random, &config, LogicTasks);
-	
+    GIVEN("A world and a host"){
+        emp::Random random(31);
+        SymConfigSGP config;
+        SGPWorld world(random, &config, LogicTasks);
+        
 
-    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-    config.TRACK_PARENT_TASKS(1);
-    world.AddOrgAt(host, 0);
-   
-
-    //Make sure the host is still equal even after having lived a while
-    for (int i = 0; i < 25; i++) {
-      world.Update();
-    }
-    emp::Ptr<SGPHost> clone1 = emp::NewPtr<SGPHost>(*host);
-    emp::Ptr<SGPHost> clone2 = emp::NewPtr<SGPHost>(*host);
-    emp::Ptr<SGPHost> different = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(99)); // For comparing
-
-    REQUIRE(*host == *clone1);
-    REQUIRE(*clone1 == *clone2);
-
-    REQUIRE_FALSE(*host == *different);
-
+        emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
+        config.TRACK_PARENT_TASKS(1);
+        world.AddOrgAt(host, 0);
     
-    emp::Ptr<Organism> host_remade = host->MakeNew();
-    REQUIRE(*host_remade == *host);
 
-    // Can't assert true/false without knowing bitcode ordering,
-    // assert that bitcode ordering is well-defined
-    bool lt = *host < *different || *different < *host;
-    REQUIRE(lt);
-    
-    clone1.Delete();
-    clone2.Delete();
-    different.Delete();
+        //Make sure the host is still equal even after having lived a while
+        for (int i = 0; i < 25; i++) {
+        world.Update();
+        }
+        WHEN("2 hosts that are clones of original host and one host that is different are created"){
+            emp::Ptr<SGPHost> clone1 = emp::NewPtr<SGPHost>(*host);
+            emp::Ptr<SGPHost> clone2 = emp::NewPtr<SGPHost>(*host);
+            emp::Ptr<SGPHost> different = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(99)); // For comparing
+
+            THEN("host is equal to first clone"){
+                REQUIRE(*host == *clone1);
+            }
+            THEN("The first clone is equal to the second clone"){
+                REQUIRE(*clone1 == *clone2);
+            }
+
+            THEN("The first clone is not equal to the different host"){
+                REQUIRE_FALSE(*host == *different);
+            }
+
+            
+            WHEN("A host is created using the MakeNew function of SGPHost"){
+                emp::Ptr<Organism> host_remade = host->MakeNew();
+                THEN("MakeNew produces an identical host"){
+                    REQUIRE(*host_remade == *host);
+                }
+            }
+            // Can't assert true/false without knowing bitcode ordering,
+            // assert that bitcode ordering is well-defined
+            bool lt = *host < *different || *different < *host;
+            REQUIRE(lt);
+            
+            clone1.Delete();
+            clone2.Delete();
+            different.Delete();
+            
+        }
   }
+}
 
 TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
     emp::Random random(31);

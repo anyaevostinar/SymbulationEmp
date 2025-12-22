@@ -68,10 +68,11 @@ TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress repr
 }
 
 TEST_CASE("Symbiont comparison operators", "[sgp][sgp-unit]") {
-  emp::Random random(31);
-	SymConfigSGP config;
-	SGPWorld world(random, &config, LogicTasks);
-	emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+  GIVEN("A world, a host and a symbiont"){
+    emp::Random random(31);
+    SymConfigSGP config;
+    SGPWorld world(random, &config, LogicTasks);
+    emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
     config.TRACK_PARENT_TASKS(1);
@@ -82,21 +83,29 @@ TEST_CASE("Symbiont comparison operators", "[sgp][sgp-unit]") {
     for (int i = 0; i < 25; i++) {
       world.Update();
     }
-    emp::Ptr<SGPSymbiont> clone1 = emp::NewPtr<SGPSymbiont>(*sym_parent);
-    emp::Ptr<SGPSymbiont> clone2 = emp::NewPtr<SGPSymbiont>(*sym_parent);
-    emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
+    WHEN("2 symbionts that are clones of original symbiont and one host symbiont is different are created"){
+      emp::Ptr<SGPSymbiont> clone1 = emp::NewPtr<SGPSymbiont>(*sym_parent);
+      emp::Ptr<SGPSymbiont> clone2 = emp::NewPtr<SGPSymbiont>(*sym_parent);
+      emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
+      THEN("symbiont is equal to first clone"){
+        REQUIRE(*sym_parent == *clone1);
+      }
+      THEN("The first clone is equal to the second clone"){
+        REQUIRE(*clone1 == *clone2);
+      }
+      
+      THEN("The original symbiont is not equal to the different host"){
+        REQUIRE_FALSE(*sym_parent == *different);
+      }
 
-    REQUIRE(*sym_parent == *clone1);
-    REQUIRE(*clone1 == *clone2);
-
-    REQUIRE_FALSE(*sym_parent == *different);
-
-    // Can't assert true/false without knowing bitcode ordering,
-    // assert that bitcode ordering is well-defined
-    bool lt = *sym_parent < *different || *different < *sym_parent;
-    REQUIRE(lt);
-    
-    clone1.Delete();
-    clone2.Delete();
-    different.Delete();
+      // Can't assert true/false without knowing bitcode ordering,
+      // assert that bitcode ordering is well-defined
+      bool lt = *sym_parent < *different || *different < *sym_parent;
+      REQUIRE(lt);
+      
+      clone1.Delete();
+      clone2.Delete();
+      different.Delete();
+    }
   }
+}

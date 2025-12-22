@@ -4,30 +4,36 @@
 #include "../../../catch/catch.hpp"
 
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
-  emp::Random random(61);
-  SymConfigSGP config;
-  config.SYM_HORIZ_TRANS_RES(100);
+  GIVEN("An SGPWorld and an organism"){
+    emp::Random random(61);
+    SymConfigSGP config;
+    config.SYM_HORIZ_TRANS_RES(100);
 
-  SGPWorld world(random, &config, TaskSet{task});
+    SGPWorld world(random, &config, TaskSet{task});
 
-  // Mock Organism to check reproduction
-  class TestOrg : public Organism {
-  public:
-    bool IsHost() override { return true; }
-    void AddPoints(double p) override {}
-    double GetPoints() override { return 0; }
-  };
+    // Mock Organism to check reproduction
+    class TestOrg : public Organism {
+    public:
+      bool IsHost() override { return true; }
+      void AddPoints(double p) override {}
+      double GetPoints() override { return 0; }
+    };
 
-  TestOrg organism;
-  ProgramBuilder builder;
-  // Call the provided method reference
-  (builder.*method)();
-  CPU cpu(&organism, &world, builder.Build(100));
+    TestOrg organism;
+    WHEN("The host has the specified program"){
+      ProgramBuilder builder;
+      // Call the provided method reference
+      (builder.*method)();
+      CPU cpu(&organism, &world, builder.Build(100));
 
-  cpu.RunCPUStep(0, 100);
-  world.Update();
+      cpu.RunCPUStep(0, 100);
+      world.Update();
 
-  REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
+      THEN("Host is able to complete the specified task"){
+        REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
+      }
+    }
+  }
 }
 
 TEST_CASE("Generate NOT program", "[sgp][sgp-functional]") {
@@ -59,29 +65,35 @@ TEST_CASE("Generate EQU program", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp][sgp-functional]") {
-  emp::Random random(61);
-  SymConfigSGP config;
-  config.SYM_HORIZ_TRANS_RES(100);
+  GIVEN("A World and an Organism"){
+    emp::Random random(61);
+    SymConfigSGP config;
+    config.SYM_HORIZ_TRANS_RES(100);
 
-  SGPWorld world(random, &config, LogicTasks);
+    SGPWorld world(random, &config, LogicTasks);
 
-  // Mock Organism to check reproduction
-  class TestOrg : public Organism {
-  public:
-    bool IsHost() override { return true; }
-    void AddPoints(double p) override {}
-    double GetPoints() override { return 0; }
-  };
+    
+    // Mock Organism to check reproduction
+    class TestOrg : public Organism {
+    public:
+      bool IsHost() override { return true; }
+      void AddPoints(double p) override {}
+      double GetPoints() override { return 0; }
+    };
+    
+    TestOrg organism;
+    // Empty builder
+    WHEN("The Organism has an empty program"){
+      ProgramBuilder builder;
+      CPU cpu(&organism, &world, builder.Build(100));
 
-  TestOrg organism;
-  // Empty builder
-  ProgramBuilder builder;
-  CPU cpu(&organism, &world, builder.Build(100));
-
-  cpu.RunCPUStep(0, 100);
-  world.Update();
-
-  for (auto data : world.GetTaskSet()) {
-    REQUIRE(data.n_succeeds_host == 0);
-  }
+      cpu.RunCPUStep(0, 100);
+      world.Update();
+      THEN("The Organism cannot complete any tasks"){
+        for (auto data : world.GetTaskSet()) {
+          REQUIRE(data.n_succeeds_host == 0);
+        }
+      }
+    }
+}
 }

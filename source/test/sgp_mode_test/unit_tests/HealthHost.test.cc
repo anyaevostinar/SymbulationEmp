@@ -55,9 +55,10 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp][sgp-
         total_times_skipped_cycle++;
       }
     }
-    
-    REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
-    REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
+    THEN("Host loses around half of it's cycles to parasite"){
+      REQUIRE((double)total_times_skipped_cycle/repeats <= 0.55);
+      REQUIRE((double)total_times_skipped_cycle/repeats >= 0.45);
+    }
   }
 
   WHEN("Symbionts are not present"){
@@ -88,9 +89,10 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp][sgp-
         total_times_gained_cycles++;
       }
     }
-    
-    REQUIRE((double)total_times_skipped_cycle/repeats == 0);
-    REQUIRE((double)total_times_gained_cycles/repeats == 0);
+    THEN("Host does not gain or lose cycles"){
+      REQUIRE((double)total_times_skipped_cycle/repeats == 0);
+      REQUIRE((double)total_times_gained_cycles/repeats == 0);
+    }
   }
 
   WHEN("Mutualists are present"){
@@ -117,8 +119,10 @@ TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp][sgp-
       }
     }
     
-    REQUIRE((double)total_times_gained_cycles/repeats <= 0.55);
-    REQUIRE((double)total_times_gained_cycles/repeats >= 0.45);
+    THEN("Host gains around half of the mutualists' cycles"){
+      REQUIRE((double)total_times_gained_cycles/repeats <= 0.55);
+      REQUIRE((double)total_times_gained_cycles/repeats >= 0.45);
+    }
   }
 }
 
