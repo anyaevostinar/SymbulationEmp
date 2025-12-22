@@ -11,6 +11,9 @@
 #include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPDataNodes.h"
 
+/**
+ * This file is dedicated to testing the HealthHost specific instructions Donate and Steal
+ */
 
 TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction properly takes CPU cycles from HealthHost", "[sgp][sgp-functional]"){
  

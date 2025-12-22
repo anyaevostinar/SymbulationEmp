@@ -4,6 +4,9 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to unit tests for SGPHost
+ */
 
 TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
      emp::Random random(31);

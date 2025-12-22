@@ -2,6 +2,10 @@
 #include <fstream>
 #include <string>
 
+/**
+ * This file is dedicated to ensuring that SGPDataNodes create the correct files and track data correctly 
+ */
+
 TEST_CASE("Correct data files are created", "[sgp][sgp-functional]") {
   
   GIVEN("A World with no mutation"){

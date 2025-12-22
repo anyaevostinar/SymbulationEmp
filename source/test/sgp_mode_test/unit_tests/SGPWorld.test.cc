@@ -4,6 +4,10 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to unit tests for SGPWorld
+ */
+
 TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
    emp::Random random(1);
   SymConfigSGP config;

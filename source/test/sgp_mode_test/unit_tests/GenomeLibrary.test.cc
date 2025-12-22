@@ -3,6 +3,10 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to unit tests for GenomeLibrary
+ */
+
 TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp][sgp-unit]") {
   GIVEN("A program created by BuildNoRepro"){
     ProgramBuilder builder;

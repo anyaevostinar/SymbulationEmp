@@ -2,6 +2,10 @@
 #include <fstream>
 #include <string>
 
+/**
+ * This file is dedicated to testing StressHost specific data nodes
+ */
+
 TEST_CASE("GetStressEscapeeOffspringAttemptCount", "[sgp][sgp-functional]") {
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(32);

@@ -4,6 +4,12 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to testing StressHost specifc aspects. 
+ * This includes free rerpoduction on extinction, Task Matching for symbiont interactions and Safe Time pre extinction
+ */
+
+
 TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp][sgp-functional]") {
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(61);

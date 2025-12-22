@@ -3,6 +3,11 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to testing GenomeLibrary in ensuring that functions create
+ * programs that complete the correct task
+ */
+
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
   GIVEN("An SGPWorld and an organism"){
     emp::Random random(61);

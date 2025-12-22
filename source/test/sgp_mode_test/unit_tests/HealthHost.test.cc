@@ -11,6 +11,9 @@
 #include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPDataNodes.h"
 
+/**
+ * This file is dedicated to unit tests for HealthHost
+ */
 
 TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp][sgp-unit]") {
   emp::Random random(10);

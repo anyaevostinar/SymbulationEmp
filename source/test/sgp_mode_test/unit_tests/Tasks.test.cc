@@ -4,6 +4,10 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to unit tests for Tasks
+ */
+
 TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp][sgp-unit]"){
   emp::Random random(1);
   SymConfigSGP config;

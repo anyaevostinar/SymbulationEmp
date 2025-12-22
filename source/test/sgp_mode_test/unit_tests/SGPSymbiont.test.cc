@@ -3,6 +3,10 @@
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPDataNodes.h"
 
+/**
+ * This file is dedicated to unit tests for SGPSymbiont
+ */
+
 TEST_CASE("SGPSymbiont DoTaskInteraction in nutrient mode", "[sgp][sgp-unit]") {
   emp::Random random(42);
   SymConfigSGP config;
