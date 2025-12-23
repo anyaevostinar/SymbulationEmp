@@ -12,33 +12,36 @@
 
 
 TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
-  emp::Random random(61);
-  SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+
+  GIVEN("An SGPWorld"){
+    emp::Random random(61);
+    SymConfigSGP config;
+    config.GRID_X(2);
+    config.GRID_Y(2);
 
 
-  SGPWorld world(random, &config, LogicTasks);
-  world.Resize(2,2);
+    SGPWorld world(random, &config, LogicTasks);
+    world.Resize(2,2);
 
-  emp::Ptr<SGPHost> infected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
-  emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
+    emp::Ptr<SGPHost> infected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
 
-  infected_host->AddSymbiont(hosted_symbiont);
-  world.AddOrgAt(infected_host, 0);
-  world.AddOrgAt(uninfected_host, 1);
-  
-  THEN("Organisms can be added to the world") {
-    REQUIRE(world.GetNumOrgs() == 2);
-  }
+    infected_host->AddSymbiont(hosted_symbiont);
+    world.AddOrgAt(infected_host, 0);
+    world.AddOrgAt(uninfected_host, 1);
+    
+    THEN("Organisms can be added to the world") {
+      REQUIRE(world.GetNumOrgs() == 2);
+    }
 
-  for (int i = 0; i < 10; i++) {
-    world.Update();
-  }
+    for (int i = 0; i < 10; i++) {
+      world.Update();
+    }
 
-  THEN("Organisms persist and are managed by the world") {
-    REQUIRE(world.GetNumOrgs() == 2);
+    THEN("Organisms persist and are managed by the world") {
+      REQUIRE(world.GetNumOrgs() == 2);
+    }
   }
 }
 
@@ -83,108 +86,112 @@ TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
-  emp::Random random(32);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(1); // Health hosts
-  config.START_MOI(0);
-  config.GRID_X(10);
-  config.GRID_Y(100);
-  config.HOST_REPRO_RES(20);
-  config.SYNERGY(1);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  GIVEN("An SGPWorld where Health is the interaction mechanism with no symbionts"){
+    emp::Random random(32);
+    SymConfigSGP config;
+    config.INTERACTION_MECHANISM(1); // Health hosts
+    config.START_MOI(0);
+    config.GRID_X(10);
+    config.GRID_Y(100);
+    config.HOST_REPRO_RES(20);
+    config.SYNERGY(1);
+    size_t world_size = config.GRID_X() * config.GRID_Y();
 
-  SGPWorld world(random, &config, LogicTasks);
-  world.SetupHosts(&world_size);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&world_size);
 
-  REQUIRE(world.GetNumOrgs() == world_size);
+    REQUIRE(world.GetNumOrgs() == world_size);
 
-  size_t no_mut_NAND_rate = 600000;
+    size_t no_mut_NAND_rate = 600000;
 
-  size_t run_updates = 15000;
+    size_t run_updates = 15000;
 
-  WHEN("Mutation size is 0") {
-    config.MUTATION_SIZE(0); //  chance
-    for (size_t i = 0; i < run_updates; i++) {
-      world.Update();
+    WHEN("Mutation size is 0") {
+      config.MUTATION_SIZE(0); //  chance
+      for (size_t i = 0; i < run_updates; i++) {
+        world.Update();
+      }
+      THEN("Health hosts do not accrue mutations late in an experiment") {
+        REQUIRE(world.GetNumOrgs() == world_size);
+        auto it = world.GetTaskSet().begin();
+        ++it;
+        //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
+        REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
+        ++it;
+        REQUIRE((*it).n_succeeds_host == 0);
+      }
     }
-    THEN("Health hosts do not accrue mutations late in an experiment") {
-      REQUIRE(world.GetNumOrgs() == world_size);
-      auto it = world.GetTaskSet().begin();
-      ++it;
-      //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
-      REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
-      ++it;
-      REQUIRE((*it).n_succeeds_host == 0);
-    }
-  }
 
-  WHEN("Mutation size is greater than 0") {
-    config.MUTATION_SIZE(0.0002);
-    for (size_t i = 0; i < run_updates; i++) {
-      world.Update();
+    WHEN("Mutation size is greater than 0") {
+      config.MUTATION_SIZE(0.0002);
+      for (size_t i = 0; i < run_updates; i++) {
+        world.Update();
+      }
+      THEN("Health hosts accrue more mutations late in an experiment") {
+        REQUIRE(world.GetNumOrgs() == world_size);
+        auto it = world.GetTaskSet().begin();
+        REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
+        ++it;
+        REQUIRE((*it).n_succeeds_host > 3000);
+      }
     }
-    THEN("Health hosts accrue more mutations late in an experiment") {
-      REQUIRE(world.GetNumOrgs() == world_size);
-      auto it = world.GetTaskSet().begin();
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
-      ++it;
-      REQUIRE((*it).n_succeeds_host > 3000);
-    }
-  }
-} 
+  } 
+}
 
 
 TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
-  emp::Random random(32);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(STRESS);
-  config.START_MOI(0);
-  config.EXTINCTION_FREQUENCY(100000);
-  config.GRID_X(10);
-  config.GRID_Y(100);
-  config.HOST_REPRO_RES(20);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  GIVEN("An SGPWorld where Stress is the interaction mechanism with no symbionts"){
+    emp::Random random(32);
+    SymConfigSGP config;
+    config.INTERACTION_MECHANISM(STRESS);
+    config.START_MOI(0);
+    config.EXTINCTION_FREQUENCY(100000);
+    config.GRID_X(10);
+    config.GRID_Y(100);
+    config.HOST_REPRO_RES(20);
+    size_t world_size = config.GRID_X() * config.GRID_Y();
 
-  SGPWorld world(random, &config, LogicTasks);
-  world.SetupHosts(&world_size);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&world_size);
 
-  REQUIRE(world.GetNumOrgs() == world_size);
+    REQUIRE(world.GetNumOrgs() == world_size);
 
-  size_t no_mut_NAND_rate = 600000;
+    size_t no_mut_NAND_rate = 600000;
 
-  size_t run_updates = 15000;
+    size_t run_updates = 15000;
 
-  WHEN("Mutation size is 0") {
-    config.MUTATION_SIZE(0); //  chance
-    for (size_t i = 0; i < run_updates; i++) {
-      world.Update();
+    WHEN("Mutation size is 0") {
+      config.MUTATION_SIZE(0); //  chance
+      for (size_t i = 0; i < run_updates; i++) {
+        world.Update();
+      }
+      THEN("Stress hosts do not accrue mutations late in an experiment") {
+        REQUIRE(world.GetNumOrgs() == world_size);
+        auto it = world.GetTaskSet().begin();
+        ++it;
+        //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
+        REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
+        ++it;
+        REQUIRE((*it).n_succeeds_host == 0);
+      }
     }
-    THEN("Stress hosts do not accrue mutations late in an experiment") {
-      REQUIRE(world.GetNumOrgs() == world_size);
-      auto it = world.GetTaskSet().begin();
-      ++it;
-      //There can never be exactly no_mut_NAND_rate NAND tasks completed as it will ocassionally guess NOT
-      REQUIRE((*it).n_succeeds_host == no_mut_NAND_rate - (*world.GetTaskSet().begin()).n_succeeds_host);
-      ++it;
-      REQUIRE((*it).n_succeeds_host == 0);
-    }
-  }
 
-  WHEN("Mutation size is greater than 0") {
-    config.MUTATION_SIZE(0.0002);
-    for (size_t i = 0; i < run_updates; i++) {
-      world.Update();
+    WHEN("Mutation size is greater than 0") {
+      config.MUTATION_SIZE(0.0002);
+      for (size_t i = 0; i < run_updates; i++) {
+        world.Update();
+      }
+      THEN("Stress hosts accrue more mutations late in an experiment") {
+        REQUIRE(world.GetNumOrgs() == world_size);
+        auto it = world.GetTaskSet().begin();
+        REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
+        ++it;
+        REQUIRE((*it).n_succeeds_host > 3000);
+        
+      }
     }
-    THEN("Stress hosts accrue more mutations late in an experiment") {
-      REQUIRE(world.GetNumOrgs() == world_size);
-      auto it = world.GetTaskSet().begin();
-      REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
-      ++it;
-      REQUIRE((*it).n_succeeds_host > 3000);
-      
-    }
-  }
-} 
+  } 
+}
 
 
 TEST_CASE("Organisms, without mutation will only receive credit for NOT operations", "[sgp][sgp-functional]") {
@@ -244,62 +251,64 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
 }
 
 TEST_CASE("Extinction event probabilities", "[sgp][sgp-integration]") {
-  emp::Random random(62);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(STRESS);
-  config.EXTINCTION_FREQUENCY(26);
-  config.GRID_X(10);
-  config.GRID_Y(10);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  GIVEN("An SGPWorld where Stress is the interaction mechanism"){
+    emp::Random random(62);
+    SymConfigSGP config;
+    config.INTERACTION_MECHANISM(STRESS);
+    config.EXTINCTION_FREQUENCY(26);
+    config.GRID_X(10);
+    config.GRID_Y(10);
+    size_t world_size = config.GRID_X() * config.GRID_Y();
 
-  double parasite_death_chance = 0.5; 
-  double mutualist_death_chance = 0.125; 
-  double base_death_chance = 0.25;
-  config.PARASITE_DEATH_CHANCE(parasite_death_chance);
-  config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
-  config.BASE_DEATH_CHANCE(base_death_chance);
+    double parasite_death_chance = 0.5; 
+    double mutualist_death_chance = 0.125; 
+    double base_death_chance = 0.25;
+    config.PARASITE_DEATH_CHANCE(parasite_death_chance);
+    config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
+    config.BASE_DEATH_CHANCE(base_death_chance);
 
-  SGPWorld world(random, &config, LogicTasks);
+    SGPWorld world(random, &config, LogicTasks);
 
-  WHEN("There are stress symbionts in the world"){
-    config.START_MOI(1);
-    world.SetupHosts(&world_size);
-    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
-    REQUIRE(world.GetNumOrgs() == world_size);
-    WHEN("Stress symbionts are mutualists"){
-      config.SYMBIONT_TYPE(MUTUALIST);
-      world.Update();
-      THEN("Hosts are less likely to die during the extinction event") {
-        REQUIRE(world.GetNumOrgs() < world_size * (1 - mutualist_death_chance) + 10);
-        REQUIRE(world.GetNumOrgs() > world_size * (1 - mutualist_death_chance) - 10);
+    WHEN("There are stress symbionts in the world"){
+      config.START_MOI(1);
+      world.SetupHosts(&world_size);
+      for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+      REQUIRE(world.GetNumOrgs() == world_size);
+      WHEN("Stress symbionts are mutualists"){
+        config.SYMBIONT_TYPE(MUTUALIST);
+        world.Update();
+        THEN("Hosts are less likely to die during the extinction event") {
+          REQUIRE(world.GetNumOrgs() < world_size * (1 - mutualist_death_chance) + 10);
+          REQUIRE(world.GetNumOrgs() > world_size * (1 - mutualist_death_chance) - 10);
+        }
+      }
+      WHEN("Stress symbionts are parasites") {
+        config.SYMBIONT_TYPE(PARASITE);
+        world.Update();
+        THEN("Hosts are more likely to die during the extinction event") {        
+          REQUIRE(world.GetNumOrgs() < world_size * (1 - parasite_death_chance) + 10);
+          REQUIRE(world.GetNumOrgs() > world_size * (1 - parasite_death_chance) - 10);
+        }
+      }
+      WHEN("Stress symbionts are neutrals"){
+        config.SYMBIONT_TYPE(NEUTRAL);
+        world.Update();
+        THEN("Hosts die according to the default extinction probability during the extinction event") {        
+          REQUIRE(world.GetNumOrgs() < world_size * (1 - base_death_chance) + 10);
+          REQUIRE(world.GetNumOrgs() > world_size * (1 - base_death_chance) - 10);
+        }
       }
     }
-    WHEN("Stress symbionts are parasites") {
-      config.SYMBIONT_TYPE(PARASITE);
+    WHEN("There are no stress symbionts in the world") {
+      config.START_MOI(0);
+      world.SetupHosts(&world_size);
+      for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+      REQUIRE(world.GetNumOrgs() == world_size);
       world.Update();
-      THEN("Hosts are more likely to die during the extinction event") {        
-        REQUIRE(world.GetNumOrgs() < world_size * (1 - parasite_death_chance) + 10);
-        REQUIRE(world.GetNumOrgs() > world_size * (1 - parasite_death_chance) - 10);
-      }
-    }
-    WHEN("Stress symbionts are neutrals"){
-      config.SYMBIONT_TYPE(NEUTRAL);
-      world.Update();
-      THEN("Hosts die according to the default extinction probability during the extinction event") {        
+      THEN("Hosts die according to the default extinction probability during the extinction event") {
         REQUIRE(world.GetNumOrgs() < world_size * (1 - base_death_chance) + 10);
         REQUIRE(world.GetNumOrgs() > world_size * (1 - base_death_chance) - 10);
       }
-    }
-  }
-  WHEN("There are no stress symbionts in the world") {
-    config.START_MOI(0);
-    world.SetupHosts(&world_size);
-    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
-    REQUIRE(world.GetNumOrgs() == world_size);
-    world.Update();
-    THEN("Hosts die according to the default extinction probability during the extinction event") {
-      REQUIRE(world.GetNumOrgs() < world_size * (1 - base_death_chance) + 10);
-      REQUIRE(world.GetNumOrgs() > world_size * (1 - base_death_chance) - 10);
     }
   }
 }
