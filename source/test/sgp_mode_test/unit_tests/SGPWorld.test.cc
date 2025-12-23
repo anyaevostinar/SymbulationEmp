@@ -76,124 +76,28 @@ TEST_CASE("TaskMatchCheck Unit Test", "[sgp][sgp-unit]") {
 
 
   SGPWorld world(random, &config, LogicTasks);
-  ProgramBuilder program;
-
-  GIVEN("An SGPWorld where Nutrient is the interaction mechanism") {
-    config.INTERACTION_MECHANISM(NUTRIENT);
-
-    WHEN("Host and symbiont do different tasks") {
-      //Creates a host that is marked as having done NOT
-      emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NAND
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(2); 
-
-      THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
-    }
-
-    WHEN("Host and symbiont do the same task") {
-      //Creates a host that is marked as having done NOT
-      emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NOT
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(1); 
-
-      THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
+  emp::BitSet<CPU_BITSET_LENGTH> host_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
+  emp::BitSet<CPU_BITSET_LENGTH> sym_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
+  WHEN("Host and sym do different tasks"){
+    host_tasks_performed.Set(1);
+    sym_tasks_performed.Set(2);
+    
+    THEN("TaskMatchCheck returns false") {
+      REQUIRE(!world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
     }
   }
 
-  GIVEN("An SGPWorld where Health is the interaction mechanism") {
-    config.INTERACTION_MECHANISM(HEALTH);
-
-    WHEN("Host and symbiont do different tasks") {
-      //Creates a host that is marked as having done NOT
-      emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NAND
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(2); 
-
-      THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
-    }
-
-    WHEN("Host and symbiont do the same task") {
-      //Creates a host that is marked as having done NOT
-      emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NOT
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(1); 
-
-      THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
+  WHEN("Host and sym do a similar task"){
+    host_tasks_performed.Set(1);
+    sym_tasks_performed.Set(1);
+    
+    THEN("TaskMatchCheck returns true") {
+      REQUIRE(world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
     }
   }
 
-  GIVEN("An SGPWorld where Stress is the interaction mechanism") {
-    config.INTERACTION_MECHANISM(STRESS);
-
-    WHEN("Host and symbiont do different tasks") {
-      //Creates a host that is marked as having done NOT
-      ProgramBuilder program;
-      emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NAND
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(2); 
-
-      THEN("TaskMatchCheck returns false") {
-        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
-    }
-
-    WHEN("Host and symbiont do the same task") {
-      //Creates a host that is marked as having done NOT
-      ProgramBuilder program;
-      emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config, program.Build(100));
-      host->GetCPU().state.tasks_performed->Set(1);
-
-      //Creates a symbiont that is marked as having done NOT
-      emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-      sym->GetCPU().state.tasks_performed->Set(1); 
-
-      THEN("TaskMatchCheck returns true") {
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-      }
-
-      host.Delete();
-      sym.Delete();
-    }
   }
-}
+
 
 TEST_CASE("TaskMatchCheck for parents", "[sgp][sgp-unit]") {
   
