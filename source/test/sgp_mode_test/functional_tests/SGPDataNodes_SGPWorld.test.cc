@@ -2,9 +2,13 @@
 #include <fstream>
 #include <string>
 
+/**
+ * This file is dedicated to ensuring that SGPDataNodes create the correct files and track data correctly 
+ */
+
 TEST_CASE("Correct data files are created", "[sgp][sgp-functional]") {
   
-  GIVEN("A World with no mutation"){
+  GIVEN("An SGPWorld with no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);

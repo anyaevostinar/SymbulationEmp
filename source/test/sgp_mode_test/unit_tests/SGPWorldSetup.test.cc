@@ -1,5 +1,9 @@
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 
+/**
+ * This file is dedicated to unit tests for SGPWorldSetup
+ */
+
 TEST_CASE("SetupTaskProfileFun", "[sgp][sgp-unit]") {
 	emp::Random random(61);
 	SymConfigSGP config;

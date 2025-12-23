@@ -4,6 +4,9 @@
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPDataNodes.h"
 
+/**
+ * This file is dedicated to ensuring that HOST_ONLY_FIRST_TASK_CREDIT works correctly with SGPHost
+ */
 
 TEST_CASE("When HOST_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a Host can receive credit for is 1", "[sgp][sgp-functional]"){
 

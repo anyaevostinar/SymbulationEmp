@@ -4,6 +4,12 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to testing StressHost specifc aspects. 
+ * This includes free rerpoduction on extinction, Task Matching for symbiont interactions and Safe Time pre extinction
+ */
+
+
 TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp][sgp-functional]") {
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(61);
@@ -189,7 +195,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
 
 TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-functional]") {
   
-  GIVEN("Stress is the interaction mechanism") {
+  GIVEN("An SGPWorld where Stress is the interaction mechanism") {
     emp::Random random(68);
     SymConfigSGP config;
     SGPWorld world(random, &config, LogicTasks);
@@ -267,41 +273,43 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-f
 
 
 TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
-  emp::Random random(62);
-  SymConfigSGP config;
-  config.INTERACTION_MECHANISM(STRESS);
-  config.EXTINCTION_FREQUENCY(10);
-  config.SAFE_TIME(20);
-  config.GRID_X(10);
-  config.GRID_Y(10);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  GIVEN("An SGPWorld where Stress is the interaction mechanism") {
+    emp::Random random(62);
+    SymConfigSGP config;
+    config.INTERACTION_MECHANISM(STRESS);
+    config.EXTINCTION_FREQUENCY(10);
+    config.SAFE_TIME(20);
+    config.GRID_X(10);
+    config.GRID_Y(10);
+    size_t world_size = config.GRID_X() * config.GRID_Y();
 
-  double parasite_death_chance = 0.5; 
-  double mutualist_death_chance = 0.125; 
-  double base_death_chance = 0.25;
-  config.PARASITE_DEATH_CHANCE(parasite_death_chance);
-  config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
-  config.BASE_DEATH_CHANCE(base_death_chance);
+    double parasite_death_chance = 0.5; 
+    double mutualist_death_chance = 0.125; 
+    double base_death_chance = 0.25;
+    config.PARASITE_DEATH_CHANCE(parasite_death_chance);
+    config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
+    config.BASE_DEATH_CHANCE(base_death_chance);
 
-  SGPWorld world(random, &config, LogicTasks);
+    SGPWorld world(random, &config, LogicTasks);
 
-  WHEN("There are stress symbionts in the world"){
-    config.START_MOI(1);
-    world.SetupHosts(&world_size);
-    for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
-    REQUIRE(world.GetNumOrgs() == world_size);
-    WHEN("Stress symbionts are mutualists and it's during the safe time"){
-      config.SYMBIONT_TYPE(MUTUALIST);
-      world.Update();
-      THEN("No hosts die") {
-        REQUIRE(world.GetNumOrgs() == world_size);
+    WHEN("There are stress symbionts in the world"){
+      config.START_MOI(1);
+      world.SetupHosts(&world_size);
+      for (size_t i = 0; i < config.EXTINCTION_FREQUENCY() - 1; i++) world.Update();
+      REQUIRE(world.GetNumOrgs() == world_size);
+      WHEN("Stress symbionts are mutualists and it's during the safe time"){
+        config.SYMBIONT_TYPE(MUTUALIST);
+        world.Update();
+        THEN("No hosts die") {
+          REQUIRE(world.GetNumOrgs() == world_size);
+        }
       }
-    }
-    WHEN("Stress symbionts are parasites and it's during the safe time") {
-      config.SYMBIONT_TYPE(PARASITE);
-      world.Update();
-      THEN("No hosts die") {        
-        REQUIRE(world.GetNumOrgs() == world_size);
+      WHEN("Stress symbionts are parasites and it's during the safe time") {
+        config.SYMBIONT_TYPE(PARASITE);
+        world.Update();
+        THEN("No hosts die") {        
+          REQUIRE(world.GetNumOrgs() == world_size);
+        }
       }
     }
   }

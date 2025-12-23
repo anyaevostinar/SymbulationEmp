@@ -3,24 +3,36 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to unit tests for GenomeLibrary
+ */
+
 TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp][sgp-unit]") {
-  ProgramBuilder builder;
-  size_t program_len = 100;
+  GIVEN("A program created by BuildNoRepro"){
+    ProgramBuilder builder;
+    size_t program_len = 100;
 
-  sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
+    sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
 
-  REQUIRE(program.size() == program_len);
+    REQUIRE(program.size() == program_len);
 
-  for (size_t i = program.size() - 5; i < program.size(); ++i) {
-    REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
+    THEN("The last 5 instructions of the program is Donate"){
+      for (size_t i = program.size() - 5; i < program.size(); ++i) {
+        REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
+      }
+    }
+
+    THEN("The program does not have the reproduce instruction"){
+      for (auto &inst : program) {
+        REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
+      }
+    }
+
+    THEN("The program starts with a Global Anchor"){
+      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      REQUIRE(program[0].tag == START_TAG);
+    }
   }
-
-  for (auto &inst : program) {
-    REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
-  }
-
-  REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-  REQUIRE(program[0].tag == START_TAG);
 
 }
 
