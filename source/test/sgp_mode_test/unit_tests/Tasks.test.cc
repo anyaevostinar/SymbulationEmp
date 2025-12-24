@@ -229,7 +229,7 @@ TEST_CASE("Task integration scoring and marking", "[sgp][sgp-unit]") {
 }
 
 TEST_CASE("IsOnlyTask functionality", "[sgp][sgp-unit]") {
-  GIVEN("an organism"){
+  GIVEN("a TaskSet"){
     emp::Random random(1);
     SymConfigSGP config;
     SGPWorld world(random, &config, LogicTasks);
@@ -392,14 +392,14 @@ TEST_CASE("WhichTaskDone Functionality", "[sgp][sgp-unit]"){
 }
 
 TEST_CASE("Task completion edge cases", "[sgp][sgp-unit]") { // IsSolved Edge casses documentation
-  GIVEN("A host"){
+  GIVEN("A Task"){
     emp::Random random(1);
     SymConfigSGP config;
     SGPWorld world(random, &config, LogicTasks);
 
     Organism org;
     CPUState state(&org,&world);
-    WHEN("Testing output values of 0 and 1") {
+    WHEN("Testing output values of 0 and 1 as a solution for the task") {
      
       THEN("Outputs of 0 and 1 should not be considered valid task completions") {
         // Create a NOT task to test with
