@@ -4,12 +4,12 @@
 #include "../../../catch/catch.hpp"
 
 /**
- * This file is dedicated to testing GenomeLibrary in ensuring that functions create
- * programs that complete the correct task
+ * This file is dedicated to testing GenomeLibrary & SGPWorld in ensuring that functions of GenomeLibrary create
+ * programs that complete the correct task and that SGPWorld properly collects that data
  */
 
 void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
-  GIVEN("An SGPWorld and an organism"){
+  GIVEN("A program to complete the specified task"){
     emp::Random random(61);
     SymConfigSGP config;
     config.SYM_HORIZ_TRANS_RES(100);
@@ -25,16 +25,16 @@ void TestGenome(emp::Ptr<Task> task, void (ProgramBuilder::*method)()) {
     };
 
     TestOrg organism;
-    WHEN("The host has the specified program"){
-      ProgramBuilder builder;
-      // Call the provided method reference
-      (builder.*method)();
-      CPU cpu(&organism, &world, builder.Build(100));
+    ProgramBuilder builder;
+    // Call the provided method reference
+    (builder.*method)();
+    CPU cpu(&organism, &world, builder.Build(100));
 
+    WHEN("The entire program is run"){
       cpu.RunCPUStep(0, 100);
       world.Update();
 
-      THEN("Host is able to complete the specified task"){
+      THEN("The world returns a completion of that task"){
         REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host > 0);
       }
     }
@@ -70,14 +70,13 @@ TEST_CASE("Generate EQU program", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp][sgp-functional]") {
-  GIVEN("A World and an Organism"){
+  GIVEN("A host with an empty program"){
     emp::Random random(61);
     SymConfigSGP config;
     config.SYM_HORIZ_TRANS_RES(100);
 
     SGPWorld world(random, &config, LogicTasks);
 
-    
     // Mock Organism to check reproduction
     class TestOrg : public Organism {
     public:
@@ -88,17 +87,15 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp][sgp-functional]") {
     
     TestOrg organism;
     // Empty builder
-    WHEN("The Organism has an empty program"){
-      ProgramBuilder builder;
-      CPU cpu(&organism, &world, builder.Build(100));
-
-      cpu.RunCPUStep(0, 100);
-      world.Update();
-      THEN("The Organism cannot complete any tasks"){
-        for (auto data : world.GetTaskSet()) {
-          REQUIRE(data.n_succeeds_host == 0);
-        }
+    ProgramBuilder builder;
+    CPU cpu(&organism, &world, builder.Build(100));
+    
+    cpu.RunCPUStep(0, 100);
+    world.Update();
+    THEN("The Host cannot complete any tasks"){
+      for (auto data : world.GetTaskSet()) {
+        REQUIRE(data.n_succeeds_host == 0);
       }
     }
-}
+  }
 }

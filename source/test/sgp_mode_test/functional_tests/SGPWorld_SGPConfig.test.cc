@@ -9,16 +9,12 @@
  * configuration settings of interest.
  */
 
-
-
 TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
-
   GIVEN("An SGPWorld"){
     emp::Random random(61);
     SymConfigSGP config;
     config.GRID_X(2);
     config.GRID_Y(2);
-
 
     SGPWorld world(random, &config, LogicTasks);
     world.Resize(2,2);
@@ -34,11 +30,9 @@ TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
     THEN("Organisms can be added to the world") {
       REQUIRE(world.GetNumOrgs() == 2);
     }
-
     for (int i = 0; i < 10; i++) {
       world.Update();
     }
-
     THEN("Organisms persist and are managed by the world") {
       REQUIRE(world.GetNumOrgs() == 2);
     }
@@ -46,7 +40,7 @@ TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
-  GIVEN("An SGPworld with Ousting enabled"){
+  GIVEN("a host infected with a symbiont in a world where ousting is enabled"){
     emp::Random random(61);
     SymConfigSGP config;
     config.GRID_X(2);
@@ -61,29 +55,28 @@ TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
     emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
     emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
 
-    WHEN("A Host with a Symbiont is added to the world"){
-      host->AddSymbiont(old_symbiont);
-      world.AddOrgAt(host, 0);
-      THEN("The Host has one Symbiont and the graveyard is empty"){
+    host->AddSymbiont(old_symbiont);
+    world.AddOrgAt(host, 0);
+    THEN("The Host has one Symbiont and the graveyard is empty"){
+      REQUIRE(host->GetSymbionts().size() == 1);
+      REQUIRE(world.GetGraveyard().size() == 0);
+    }
+    WHEN("Another Symbiont is added to Host"){
+      host->AddSymbiont(new_symbiont);
+      THEN("The Host has one symbiont and the graveyard has one organism"){
         REQUIRE(host->GetSymbionts().size() == 1);
-        REQUIRE(world.GetGraveyard().size() == 0);
+        REQUIRE(world.GetGraveyard().size() == 1);
       }
-      WHEN("Another Symbiont is added to Host"){
-        host->AddSymbiont(new_symbiont);
-        THEN("The Host has one symbiont and the graveyard has one organism"){
-          REQUIRE(host->GetSymbionts().size() == 1);
-          REQUIRE(world.GetGraveyard().size() == 1);
-        }
-        WHEN("The world is updated"){
-          world.Update(); // clean up the graveyard
-          THEN("The graveyard is empty"){
-            REQUIRE(world.GetGraveyard().size() == 0);
-          }
+      WHEN("The world is updated"){
+        world.Update(); // clean up the graveyard
+        THEN("The graveyard is empty"){
+          REQUIRE(world.GetGraveyard().size() == 0);
         }
       }
     }
   }
 }
+
 
 TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld where Health is the interaction mechanism with no symbionts"){
@@ -103,7 +96,6 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
     REQUIRE(world.GetNumOrgs() == world_size);
 
     size_t no_mut_NAND_rate = 600000;
-
     size_t run_updates = 15000;
 
     WHEN("Mutation size is 0") {
@@ -157,7 +149,6 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
     REQUIRE(world.GetNumOrgs() == world_size);
 
     size_t no_mut_NAND_rate = 600000;
-
     size_t run_updates = 15000;
 
     WHEN("Mutation size is 0") {
@@ -187,7 +178,6 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
         REQUIRE((*world.GetTaskSet().begin()).n_succeeds_host >= no_mut_NAND_rate * 5);
         ++it;
         REQUIRE((*it).n_succeeds_host > 3000);
-        
       }
     }
   } 
@@ -195,8 +185,7 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
 
 
 TEST_CASE("Organisms, without mutation will only receive credit for NOT operations", "[sgp][sgp-functional]") {
-     
-  GIVEN("An SGPWorld with no mutation"){
+  GIVEN("An organism programmed to only complete the NOT operation"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -220,9 +209,6 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
     ProgramBuilder builder;
     (builder.AddNot)();
     CPU cpu(&organism, &world, builder.Build(100));
-    
-    
-    
     cpu.RunCPUStep(0, 100);
     
     //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
@@ -234,19 +220,14 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
     //Checks both that NOT is being done and no other operations are being done
     THEN("The Organism will only be able to complete the NOT task"){
       for (auto data : world.GetTaskSet()) {
-        
           if(data.task.name != "NOT"){
-        
-          REQUIRE(data.n_succeeds_host == 0);
+            REQUIRE(data.n_succeeds_host == 0);
           }
           else{
             REQUIRE(data.n_succeeds_host > 0);
           }
-        
       }
     }
-
-
   }
 }
 
@@ -282,6 +263,7 @@ TEST_CASE("Extinction event probabilities", "[sgp][sgp-integration]") {
           REQUIRE(world.GetNumOrgs() > world_size * (1 - mutualist_death_chance) - 10);
         }
       }
+      
       WHEN("Stress symbionts are parasites") {
         config.SYMBIONT_TYPE(PARASITE);
         world.Update();
@@ -290,6 +272,7 @@ TEST_CASE("Extinction event probabilities", "[sgp][sgp-integration]") {
           REQUIRE(world.GetNumOrgs() > world_size * (1 - parasite_death_chance) - 10);
         }
       }
+
       WHEN("Stress symbionts are neutrals"){
         config.SYMBIONT_TYPE(NEUTRAL);
         world.Update();
@@ -299,6 +282,7 @@ TEST_CASE("Extinction event probabilities", "[sgp][sgp-integration]") {
         }
       }
     }
+
     WHEN("There are no stress symbionts in the world") {
       config.START_MOI(0);
       world.SetupHosts(&world_size);

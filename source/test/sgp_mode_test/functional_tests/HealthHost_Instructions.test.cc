@@ -16,8 +16,7 @@
  */
 
 TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction properly takes CPU cycles from HealthHost", "[sgp][sgp-functional]"){
-  
-  GIVEN("An SGPWorld with mutation disabled populated with parasites"){
+  GIVEN("A health host and parasite that only do NAND"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(0);
@@ -33,10 +32,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
     config.DONATION_STEAL_INST(1);
     config.CPU_TRANSFER_CHANCE(1);
 
-
-
     SGPWorld world(random, &config, LogicTasks);
-
 
     //Creates a host that only does NAND operations
     emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNandProgram(100));
@@ -47,32 +43,30 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
     world.AddOrgAt(host, 0);
     host->AddSymbiont(sym);
       
-    WHEN("A symbiont performs a Steal instruction"){
-      sym->GetCPU().RunCPUStep(0, 100);
-      (*(sym->GetCPU().state.tasks_performed))[1] = 0;
-      THEN("The host should be set to lose 4 cycles to the symbiont"){
+    WHEN("The parasite performs a Steal instruction"){
+      sym->GetCPU().RunCPUStep(0, 4);
+      THEN("The host should be set to lose 4 cycles to the parasite"){
         REQUIRE(host->GetCyclesGiven() == -1);
       }
 
-      for (size_t i = 0; i < 25; i++) {
+      for (size_t i = 0; i < 24; i++) {
         world.Update();
       }
-      THEN("The symbiont should complete its task in 25 updates"){
+      THEN("The parasite should complete its task in 24 updates"){
         REQUIRE(sym->GetCPU().state.tasks_performed->Get(1) == true);
       }
 
       world.Update();
-      THEN("The host should be unable to complete its task in 25 updates"){
+      world.Update();
+      THEN("The host should be unable to complete its task in 26 updates"){
         REQUIRE(host->GetCPU().state.tasks_performed->Get(1) == false);
       }
     }
   }
-
 }
 
 TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction properly gives CPU cycles to HealthHost", "[sgp][sgp-functional]"){
- 
-  GIVEN("An SGPWorld with mutation disabled populated with mutualists"){
+  GIVEN("A health host and mutualist that only do NAND"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(0);
@@ -86,13 +80,9 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
     config.SYM_ONLY_FIRST_TASK_CREDIT(1);
     config.DONATION_STEAL_INST(1);
     config.CPU_TRANSFER_CHANCE(1);
-  
     config.HOST_REPRO_RES(10000);
 
     SGPWorld world(random, &config, LogicTasks);
-
-
-
 
     //Creates a host that only does NAND operations
     emp::Ptr<HealthHost> host = emp::NewPtr<HealthHost>(&random, &world, &config, CreateNandProgram(100));
@@ -103,10 +93,9 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
     world.AddOrgAt(host, 0);
     host->AddSymbiont(sym);
       
-    WHEN("A symbiont performs a Donate instruction"){
-      sym->GetCPU().RunCPUStep(0, 100);
-      (*(sym->GetCPU().state.tasks_performed))[1] = 0;
-      THEN("The host should be set to gain 4 cycles from the symbiont"){
+    WHEN("The mutualist performs a Donate instruction"){
+      sym->GetCPU().RunCPUStep(0, 4);
+      THEN("The host should be set to gain 4 cycles from the mutualist"){
         REQUIRE(host->GetCyclesGiven() == 1);
       }
 
@@ -119,7 +108,8 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
       }
 
       world.Update();
-      THEN("The symbiont should be unable to complete its task in 25 updates"){
+      world.Update();
+      THEN("The mutualist should be unable to complete its task in 25 updates"){
         REQUIRE(sym->GetCPU().state.tasks_performed->Get(1) == false);
       }
     }

@@ -31,8 +31,6 @@ TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp][sgp-functional]"
     host->GetCPU().state.input_buf.push(734856699);
     host->GetCPU().state.input_buf.push(1177728054);
 
-  
-
     WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOT bitwise opeartions to the binary form of 734856699
       long not_output = 3560110596;
@@ -62,9 +60,6 @@ TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp][sgp-functional]"
               }
           }
         }
-
-
-      
     }
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NAND of the two inputs, and ONLY_FIRST_TASK_CREDIT is 0"){
@@ -332,8 +327,6 @@ TEST_CASE("ProcessOutput Functionality with LogicTasksDiff", "[sgp][sgp-function
     //These two inputs were chosen because there is no output for any operation that is the same as another output
     host->GetCPU().state.input_buf.push(734856699);
     host->GetCPU().state.input_buf.push(1177728054);
-
-  
 
     WHEN("ProcessOutput is run on an organism with those inputs, The NOT of the first input, and ONLY_FIRST_TASK_CREDIT is 0"){
       //The result of applying the NOT bitwise operations to the binary form of 734856699

@@ -9,7 +9,6 @@
  * This includes free rerpoduction on extinction, Task Matching for symbiont interactions and Safe Time pre extinction
  */
 
-
 TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp][sgp-functional]") {
   GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
     emp::Random random(61);
@@ -21,7 +20,6 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     config.TRACK_PARENT_TASKS(1);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
-
 
     SGPWorld world(random, &config, LogicTasks);
 
@@ -65,6 +63,7 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
         REQUIRE(world.symbiont_stress_escapee_offspring.size() != 6);
       }
     }
+
     WHEN("A host does not die") {
       config.BASE_DEATH_CHANCE(0);
       config.PARASITE_DEATH_CHANCE(0);
@@ -110,7 +109,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
     world.AddOrgAt(host_3, 2);
 
     REQUIRE(world.GetNumOrgs() == 3);
-    
+
     WHEN("Preferential ousting is off") {
       host->GetCPU().state.parent_tasks_performed->Set(0); 
       host_2->GetCPU().state.parent_tasks_performed->Set(0); // vulnerable (to infection) surviving host
@@ -118,7 +117,6 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
       symbiont->GetCPU().state.parent_tasks_performed->Set(0);
       symbiont->GetCPU().state.tasks_performed->Set(1);
 
-      
       world.Update();
       REQUIRE(world.GetNumOrgs() == 2);
       THEN("Symbionts are placed or deleted") {
@@ -134,9 +132,8 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
         REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
       }
     }
-    
+
     WHEN("Preferential ousting is on") {
-      
       config.OUSTING(1);
       config.PREFERENTIAL_OUSTING(2);
       config.PARASITE_DEATH_CHANCE(0.8);
@@ -194,7 +191,6 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-functional]") {
-  
   GIVEN("An SGPWorld where Stress is the interaction mechanism") {
     emp::Random random(68);
     SymConfigSGP config;
@@ -235,7 +231,6 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-f
     REQUIRE(matching_host->GetSymbionts().size() == 2);
 
     WHEN("Task matching is required for symbiotic behavior") {
-      
       WHEN("Symbionts are parasitic") {
         config.BASE_DEATH_CHANCE(0);
         config.PARASITE_DEATH_CHANCE(1);
@@ -271,7 +266,6 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-f
   }
 }
 
-
 TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld where Stress is the interaction mechanism") {
     emp::Random random(62);
@@ -304,6 +298,7 @@ TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
           REQUIRE(world.GetNumOrgs() == world_size);
         }
       }
+      
       WHEN("Stress symbionts are parasites and it's during the safe time") {
         config.SYMBIONT_TYPE(PARASITE);
         world.Update();

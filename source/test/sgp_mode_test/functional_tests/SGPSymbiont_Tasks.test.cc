@@ -8,7 +8,7 @@
  */
 
 TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can receive credit for is 1", "[sgp][sgp-functional]"){
-  GIVEN("An SGPworld with SYM_ONLY_FIRST_TASK_CREDIT on "){
+  GIVEN("A symbiont in a world where HOST_ONLY_FIRST_TASK_CREDIT is on"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(1);
@@ -22,9 +22,7 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can r
 
     SGPWorld world(random, &config, LogicTasks);
 
-
-    WHEN("Symbionts are able to complete both NOT and NAND tasks"){
-      
+    WHEN("the symbiont is able to complete both NOT and NAND tasks"){
       //Builds program that does both NOT and NAND operations
       ProgramBuilder program;
       program.AddNot();
@@ -41,25 +39,20 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can r
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes both NOT and NAND tasks"){
-      
+      WHEN("the symbiont completes both NOT and NAND tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should only get credit for completing 1 task"){
+        THEN("the symbiont should only get credit for completing 1 task"){
           REQUIRE(tasks_completed == 1);
         }
       }
-
-
     }
 
-    WHEN("Symbionts are able to complete all tasks"){
-      
+    WHEN("the symbiont is able to complete all tasks"){
       //Builds program that does all tasks
       ProgramBuilder program;
       program.AddNot();
@@ -83,24 +76,20 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can r
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes all tasks"){
-      
+      WHEN("the symbiont completes all tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should only get credit for completing 1 task"){
+        THEN("the symbiont should only get credit for completing 1 task"){
           REQUIRE(tasks_completed == 1);
         }
       }
-
     }
 
-    WHEN("Symbionts are unable to complete any tasks"){
-      
+    WHEN("the symbiont is unable to complete any tasks"){
       //Empty Builder
       ProgramBuilder program;
       //Creates a host that cannot do any tasks
@@ -113,28 +102,23 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a symbiont can r
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes no tasks"){
-      
+      WHEN("the symbiont completes no tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should not get credit for any tasks"){
+        THEN("the symbiont should not get credit for any tasks"){
           REQUIRE(tasks_completed == 0);
         }
       }
-
     }
-    
-
   }
 }
 
 TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for all tasks they complete", "[sgp][sgp-functional]"){
-  GIVEN("An SGPworld with SYM_ONLY_FIRST_TASK_CREDIT off"){
+  GIVEN("A symbiont in a world where HOST_ONLY_FIRST_TASK_CREDIT off"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -148,8 +132,7 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for al
 
     SGPWorld world(random, &config, LogicTasks);
 
-
-    WHEN("Symbionts are able to complete both NOT and NAND tasks"){
+    WHEN("the symbiont is able to complete both NOT and NAND tasks"){
       ProgramBuilder program;
       program.AddNot();
       program.AddNand();
@@ -165,24 +148,20 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for al
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes both NOT and NAND tasks"){
-      
+      WHEN("the symbiont completes both NOT and NAND tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should recieve credit for completing 2 tasks"){
+        THEN("the symbiont should recieve credit for completing 2 tasks"){
           REQUIRE(tasks_completed == 2);
         }
       }
-
     }
 
-    WHEN("Symbionts are able to complete all tasks"){
-
+    WHEN("the symbiont is able to complete all tasks"){
       //Builds program that completes all tasks
       ProgramBuilder program;
       program.AddNot();
@@ -206,23 +185,20 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for al
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes all tasks"){
-      
+      WHEN("the symbiont completes all tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should get credit for completing all 9 tasks"){
+        THEN("the symbiont should get credit for completing all 9 tasks"){
           REQUIRE(tasks_completed == 9);
         }
       }
-
     }
-
-    WHEN("Symbionts are unable to complete any tasks"){
+    
+    WHEN("the symbiont is unable to complete any tasks"){
       //Empty Builder
       ProgramBuilder program;
       //Creates a host that cannot do any tasks
@@ -235,22 +211,17 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for al
       world.AddOrgAt(host, 0);
       host->AddSymbiont(sym);
 
-
-      WHEN("Symbiont completes no tasks"){
-      
+      WHEN("the symbiont completes no tasks"){
         sym->GetCPU().RunCPUStep(0, 100);
         
         int tasks_completed = 0;
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Symbiont should not get credit for any tasks"){
+        THEN("the symbiont should not get credit for any tasks"){
           REQUIRE(tasks_completed == 0);
         }
       }
-
     }
-    
-
   }
 }

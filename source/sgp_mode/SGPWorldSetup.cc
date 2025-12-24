@@ -124,8 +124,7 @@ void SGPWorld::ProcessReproductionQueue() {
       continue;
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
-      // Host::Reproduce() doesn't take care of vertical transmission, that
-      // happens here 
+      // Host::Reproduce() doesn't take care of vertical transmission, that happens here 
       for (auto& sym : org->GetSymbionts()) {
         sym->VerticalTransmission(child);
       }

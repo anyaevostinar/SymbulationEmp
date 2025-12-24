@@ -20,6 +20,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
       config.MUTATION_RATE(0);
       config.MUTATION_SIZE(0);
       config.TRACK_PARENT_TASKS(1);
+
       WHEN("A host can only perform NOT") {
         WHEN("It is of the first generation (does not have parents)") {
           emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
@@ -46,6 +47,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
             REQUIRE(host_tasks->All());
           }
         }
+
         WHEN("It has a parent who could only perform NOT") {
           emp::Ptr<SGPHost> parent_host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
           world.AddOrgAt(parent_host, 0);
@@ -137,7 +139,6 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
             REQUIRE(host_gen2->GetCPU().state.task_change_gain[i] == 0);
           }
 
-
           host_gen2->GetCPU().state.tasks_performed->Set(NAND_i);
           emp::Ptr<SGPHost> host_gen3 = (host_gen2->Reproduce()).DynamicCast<SGPHost>();
           for (unsigned int i = 0; i < CPU_BITSET_LENGTH; i++) {
@@ -190,12 +191,13 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
               REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 0);
             }
           }
-
+          
           host_gen2.Delete();
           host_gen3.Delete();
           host_gen4.Delete();
           host_gen5.Delete();
         }
+
         WHEN("The host parent has no symbiont") {
           emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
           THEN("The host child inherits the lineage's partner task flip count with no modifications"){
@@ -206,6 +208,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
           }
           host_baby.Delete();
         }
+
         WHEN("The host parent has a symbiont") {
           host_parent->AddSymbiont(emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100)));
           emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();

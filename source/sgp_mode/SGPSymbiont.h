@@ -178,12 +178,25 @@ public:
     GrowOlder();
   }
 
-
-
-  bool MeetsRequirements() override{
-    bool task_match_fail = sgp_config->VT_TASK_MATCH() && !my_world->TaskMatchCheck(my_world->fun_get_task_profile(this), my_world->fun_get_task_profile(my_host));
-    return (Symbiont::MeetsRequirements() && !task_match_fail);
+  /**
+   * Input: None
+   *
+   * Output: Whether the symbiont is able to vertically transmit
+   *
+   * Purpose: To answer if this symbiont has enough points to vertically transmit
+   * and if required, matches tasks with the host
+   */
+  bool MeetsVTRequirements() override{
+    if(sgp_config->VT_TASK_MATCH()){
+      bool task_match_success = my_world->TaskMatchCheck(my_world->fun_get_task_profile(this), my_world->fun_get_task_profile(my_host));
+      if(!task_match_success){
+        return false;
+      }
+    }
+    
+    return Symbiont::MeetsVTRequirements();
   }
+
   /**
    * Input: The pointer to the organism that is the new host baby
    *

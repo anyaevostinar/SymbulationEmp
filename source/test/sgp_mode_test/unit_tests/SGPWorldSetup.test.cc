@@ -34,7 +34,6 @@ TEST_CASE("SetupTaskProfileFun", "[sgp][sgp-unit]") {
 			REQUIRE(world.fun_get_task_profile(symbiont).Get(7) == 1);
 			REQUIRE(world.fun_get_task_profile(symbiont).Get(8) == 1);
 		}
-
 		host.Delete();
 		symbiont.Delete();
 		host_parent.Delete();
@@ -60,7 +59,6 @@ TEST_CASE("SetupTaskProfileFun", "[sgp][sgp-unit]") {
 			REQUIRE(world.fun_get_task_profile(symbiont).CountOnes() == 1);
 			REQUIRE(world.fun_get_task_profile(symbiont).Get(8) == 1);
 		}
-
 		host.Delete();
 		symbiont.Delete();
 	}
@@ -84,7 +82,6 @@ TEST_CASE("SetupTaskProfileFun", "[sgp][sgp-unit]") {
 			REQUIRE(world.fun_get_task_profile(symbiont).CountOnes() == 1);
 			REQUIRE(world.fun_get_task_profile(symbiont).Get(7) == 1);
 		}
-
 		host.Delete();
 		symbiont.Delete();
 	}

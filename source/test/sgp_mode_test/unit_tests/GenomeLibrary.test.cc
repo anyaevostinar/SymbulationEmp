@@ -143,6 +143,7 @@ TEST_CASE("All programs are built correctly","[sgp][sgp-unit]"){
       REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
     }
   }
+  
   WHEN("A OR program is built"){
     builder.AddOr();
     sgpl::Program<Spec> program = builder.Build(program_len);
@@ -305,6 +306,7 @@ TEST_CASE("CreateStartProgram()", "[sgp][sgp-unit]"){
         REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
   }
+
   WHEN("Donation steal inst is on"){
     config.DONATION_STEAL_INST(1);
     WHEN("Symbiont type is Mutualist"){
@@ -327,6 +329,7 @@ TEST_CASE("CreateStartProgram()", "[sgp][sgp-unit]"){
       }
       
     }
+
     WHEN("Symbiont type is Parasite"){
       config.SYMBIONT_TYPE(PARASITE);
       sgpl::Program<Spec> program = CreateStartProgram(&config);
@@ -346,6 +349,7 @@ TEST_CASE("CreateStartProgram()", "[sgp][sgp-unit]"){
         REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
+
     WHEN("Symbiont type is Neutral"){
       config.SYMBIONT_TYPE(2);
       sgpl::Program<Spec> program = CreateStartProgram(&config);

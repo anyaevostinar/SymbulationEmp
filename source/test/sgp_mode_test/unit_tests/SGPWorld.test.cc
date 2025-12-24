@@ -1,7 +1,6 @@
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
-
 #include "../../../catch/catch.hpp"
 
 /**
@@ -9,7 +8,7 @@
  */
 
 TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
-   emp::Random random(1);
+  emp::Random random(1);
   SymConfigSGP config;
   config.SEED(2);
   config.MUTATION_RATE(0.0);
@@ -20,8 +19,6 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
   config.SYM_ONLY_FIRST_TASK_CREDIT(1);
   config.HOST_REPRO_RES(10000);
 
-
-
   //world.SetupHosts requires a pointer for the number of hosts in the world
   unsigned long setupCount = 1;
   WHEN("INTERACTION_MECHANISM Config is set to SGP hosts"){
@@ -29,20 +26,18 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a SGPHost"){
-    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-
-    REQUIRE(host->GetName() == "SGPHost");
-    
+      emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+      REQUIRE(host->GetName() == "SGPHost");
     }
   }
+
   WHEN("INTERACTION_MECHANISM Config is set to Health hosts"){
     config.INTERACTION_MECHANISM(1);
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a HealtHost"){
-    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-     REQUIRE(host->GetName() == "HealthHost");
-    
+      emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+      REQUIRE(host->GetName() == "HealthHost");
     }
   }
 
@@ -51,13 +46,11 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
     SGPWorld world(random, &config, LogicTasks);
     world.SetupHosts(&setupCount);
     THEN("The world contains a StressHost"){
-    emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-     REQUIRE(host->GetName() == "StressHost");
-    
+      emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+      REQUIRE(host->GetName() == "StressHost");
     }
   }
 
-  
   WHEN("INTERACTION_MECHANISM Config is set to an option that does not exist"){
     config.INTERACTION_MECHANISM(4);
     SGPWorld world(random, &config, LogicTasks);
@@ -65,43 +58,40 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
       REQUIRE_THROWS(world.SetupHosts(&setupCount));
     }
   }
-  
 }
 
 TEST_CASE("TaskMatchCheck Unit Test", "[sgp][sgp-unit]") {
+  GIVEN("Two task sets"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(2);
 
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.SEED(2);
+    SGPWorld world(random, &config, LogicTasks);
+    emp::BitSet<CPU_BITSET_LENGTH> host_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
+    emp::BitSet<CPU_BITSET_LENGTH> sym_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
 
+    WHEN("The two task sets share no completed tasks"){
+      host_tasks_performed.Set(1);
+      sym_tasks_performed.Set(2);
+      
+      THEN("TaskMatchCheck returns false") {
+        REQUIRE(!world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
+      }
+    }
 
-  SGPWorld world(random, &config, LogicTasks);
-  emp::BitSet<CPU_BITSET_LENGTH> host_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
-  emp::BitSet<CPU_BITSET_LENGTH> sym_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
-  WHEN("Host and sym do different tasks"){
-    host_tasks_performed.Set(1);
-    sym_tasks_performed.Set(2);
-    
-    THEN("TaskMatchCheck returns false") {
-      REQUIRE(!world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
+    WHEN("The two task sets share a completed task"){
+      host_tasks_performed.Set(1);
+      sym_tasks_performed.Set(1);
+      
+      THEN("TaskMatchCheck returns true") {
+        REQUIRE(world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
+      }
     }
   }
-
-  WHEN("Host and sym do a similar task"){
-    host_tasks_performed.Set(1);
-    sym_tasks_performed.Set(1);
-    
-    THEN("TaskMatchCheck returns true") {
-      REQUIRE(world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
-    }
-  }
-
-  }
-
+}
 
 TEST_CASE("TaskMatchCheck for parents", "[sgp][sgp-unit]") {
-  
-  GIVEN("An SGPWorld with no mutation"){
+  GIVEN("A host and a symbiont"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -115,48 +105,38 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp][sgp-unit]") {
 
     SGPWorld world(random, &config, LogicTasks);
 
-
     //Creates a host that only does NOT operations
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
     //Creates a symbiont that only does NOT operations
     emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
-
-    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-    emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
-
     //Adds host to world and sym to host.
     world.AddOrgAt(host, 0);
-    world.AddOrgAt(host_baby, 1);
     host->AddSymbiont(sym);
-    host_baby->AddSymbiont(sym_baby);
 
-    WHEN("Host and Symbiont parents have both performed NOT"){
+    WHEN("The host's and symbiont's parents have both performed NOT"){
       host->GetCPU().state.parent_tasks_performed->Set(0);
       sym->GetCPU().state.parent_tasks_performed->Set(0);
 
       THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
         REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
-
     }
-    WHEN("Host parent has performed NOT and Symbiont parent has performed EQU"){
+
+    WHEN("The host's parent has performed NOT and the symbiont's parent has performed EQU"){
       host->GetCPU().state.parent_tasks_performed->Set(1);
       sym->GetCPU().state.parent_tasks_performed->Set(8);
 
       THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
         REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
       }
-    
     }
-
   }
 }
 
 TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TASK_CREDIT is 1", "[sgp][sgp-unit]") {
-  GIVEN("An SGPWorld where HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TASK_CREDIT is on and there is no mutation"){
+  GIVEN("A parent host infected with a parent symbiont and a child host infected with a child symbiont"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -170,17 +150,14 @@ TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TA
 
     SGPWorld world(random, &config, LogicTasks);
 
-
     //Creates a host that only does NOT operations
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
     //Creates a symbiont that only does NOT operations
     emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
-
     emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
 
     //Adds host to world and sym to host.
     world.AddOrgAt(host, 0);
@@ -188,7 +165,7 @@ TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TA
     host->AddSymbiont(sym);
     host_baby->AddSymbiont(sym_baby);
 
-    WHEN("Parent Host and Symbiont have both performed NOT"){
+    WHEN("The parent host and the parent symbiont have both performed NOT"){
       host->GetCPU().state.tasks_performed->Set(0);
       sym->GetCPU().state.tasks_performed->Set(0);
 
@@ -198,9 +175,9 @@ TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TA
       THEN("TaskMatchCheck returns true when the task set of the host child and the task set of the symbiont child are the arguments"){
         REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
       }
-
     }
-    WHEN("Parent Host has performed NOT and Parent Symbiont has performed EQU"){
+
+    WHEN("The parent host has performed NOT and the parent symbiont has performed EQU"){
       host->GetCPU().state.tasks_performed->Set(1);
       sym->GetCPU().state.tasks_performed->Set(8);
 
@@ -211,11 +188,11 @@ TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TA
         REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
       }
     }
-
   }
 }
+
 TEST_CASE("SGP SymDoBirth", "[sgp][sgp-unit]") {
-  GIVEN("An SGPWorld where Stress is the interaction mechanism"){
+  GIVEN("A target host and an incoming symbiont"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -263,6 +240,7 @@ TEST_CASE("SGP SymDoBirth", "[sgp][sgp-unit]") {
         }
         world.GetGraveyard().at(0).Delete();
       }
+
       WHEN("The incoming symbiont has a worse match"){
         target_symbiont->GetCPU().state.parent_tasks_performed->Set(1);
         world.SymDoBirth(symbiont_offspring, parent_pos);
@@ -279,12 +257,12 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
   // 0 = no preferential ousting, 
   // 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust
   // 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust
-  GIVEN("An SGPWorld with ousting enabled"){
+  GIVEN("A host infected with a symbiont"){
     emp::Random random(89);
     SymConfigSGP config;
-    SGPWorld world(random, &config, LogicTasks);
     config.OUSTING(1);
-
+    SGPWorld world(random, &config, LogicTasks);
+    
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
     emp::Ptr<SGPSymbiont> target_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
     emp::Ptr<SGPSymbiont> incoming_symbiont_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
@@ -323,6 +301,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
           REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
         }
       }
+
       WHEN("Preferential ousting is on"){
         WHEN("Parental tasks are used"){
           config.TRACK_PARENT_TASKS(1);
@@ -334,6 +313,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
               REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
             }
           }
+
           WHEN("Strictly better task match is required"){
             config.PREFERENTIAL_OUSTING(2);
             THEN("Ousting fails"){
@@ -341,6 +321,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
             }
           }
         }
+
         WHEN("Parental tasks are not used"){
           config.TRACK_PARENT_TASKS(0);
           world.SetupTaskProfileFun();
@@ -351,6 +332,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
               REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == false);
             }
           }
+
           WHEN("Strictly better task match is required"){
             config.PREFERENTIAL_OUSTING(2);
             THEN("Ousting fails"){
@@ -362,7 +344,6 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
       
     }
 
-    
     WHEN("An ousting symbiont has equal task match with a host than the existing symbiont does"){
       // host self:   000001101
       // host parent: 100000100
@@ -388,6 +369,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
               REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
             }
           }
+
           WHEN("Strictly better task match is required"){
             config.PREFERENTIAL_OUSTING(2);
             THEN("Ousting fails"){
@@ -395,6 +377,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
             }
           }
         }
+
         WHEN("Parental tasks are not used"){
           config.TRACK_PARENT_TASKS(0);
           world.SetupTaskProfileFun();
@@ -405,6 +388,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
               REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
             }
           }
+
           WHEN("Strictly better task match is required"){
             config.PREFERENTIAL_OUSTING(2);
             THEN("Ousting fails"){
@@ -450,6 +434,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
             }
           }
         }
+
         WHEN("Parental tasks are not used"){
           config.TRACK_PARENT_TASKS(0);
           world.SetupTaskProfileFun();
@@ -460,6 +445,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
               REQUIRE(world.PreferentialOustingAllowed(world.fun_get_task_profile(incoming_symbiont_parent), host) == true);
             }
           }
+
           WHEN("Strictly better task match is required"){
             config.PREFERENTIAL_OUSTING(2);
             THEN("Ousting succeeds"){
@@ -475,7 +461,7 @@ TEST_CASE("PreferentialOustingAllowed", "[sgp][sgp-unit]"){
 }
 
 TEST_CASE("GetNeighborHost", "[sgp][sgp-unit]") {
-  GIVEN("An SGPWorld with a host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont"){
     emp::Random random(13);
     SymConfigSGP config;
     config.SYM_LIMIT(1);
@@ -506,6 +492,7 @@ TEST_CASE("GetNeighborHost", "[sgp][sgp-unit]") {
             REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == neighbor_index);
           }
         }
+
         WHEN("Task matching is required for horizontal transmission") {
           config.HT_TASK_MATCH(1);
           THEN("The position of the nearby, matching host is returned") {
@@ -524,6 +511,7 @@ TEST_CASE("GetNeighborHost", "[sgp][sgp-unit]") {
             REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == neighbor_index);
           }
         }
+
         WHEN("Task matching is required for horizontal transmission") {
           config.HT_TASK_MATCH(1);
           THEN("-1 (no neighbor) is returned") {
@@ -532,6 +520,7 @@ TEST_CASE("GetNeighborHost", "[sgp][sgp-unit]") {
         }
       }
     }
+
     WHEN("There does not exist a nearby host") {
       THEN("-1 (no neighbor) is returned") {
         REQUIRE(world.GetNeighborHost(source_index, *symbiont->GetCPU().state.tasks_performed) == -1);
@@ -539,6 +528,7 @@ TEST_CASE("GetNeighborHost", "[sgp][sgp-unit]") {
     }
   }
 }
+
 TEST_CASE("GetDominantInfo", "[sgp][sgp-unit]") {
   GIVEN("An SGPWorld"){
     emp::Random random(61);

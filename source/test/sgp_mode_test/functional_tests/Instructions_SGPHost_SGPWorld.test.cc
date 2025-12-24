@@ -14,8 +14,7 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
     // state marked as reproduction in progress
     // org position added to repro queue
     // cycles since repro is set to 0
-
-    GIVEN("An SGPWorld and a program with the Reproduce instruction"){
+    GIVEN("A program only containing the reproduce instruction"){
         emp::Random random(26);
         SymConfigSGP config;
         SGPWorld world(random, &config, LogicTasks);
@@ -31,7 +30,6 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
         config.HOST_REPRO_RES(host_repro_res);
         config.SYM_HORIZ_TRANS_RES(sym_horiz_trans_res);
 
-        
         // create repro program
         sgpl::Program<Spec> program;
         // Set everything to 0 - this makes them no-ops since that's the first
@@ -43,7 +41,7 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
             program[i].op_code = Library::GetOpCode("Reproduce");
         }
 
-        WHEN("A host reproduce instruction is called"){
+        WHEN("A host is created with that program"){
             size_t start_point_amount = host_repro_res + 7;
             emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program);
             
@@ -94,7 +92,7 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
             host.Delete();
         }
 
-        WHEN("A symbiont reproduce instruction is called"){
+        WHEN("A symbiont is created with that program"){
             size_t start_point_amount = sym_horiz_trans_res + 7;
             emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program);
             
@@ -120,7 +118,7 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
                     REQUIRE(symbiont->GetCPU().state.cpu_cycles_since_repro == sym_min_cycles);
                 }
             }
-
+            
             WHEN("The symbiont has completed enough CPU cycles"){
                 symbiont->GetCPU().RunCPUStep(fake_pos, sym_min_cycles);
                 symbiont->GetCPU().RunCPUStep(fake_pos, 1);
@@ -140,6 +138,5 @@ TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
             }
             symbiont.Delete();
         }
-
     }
 }
