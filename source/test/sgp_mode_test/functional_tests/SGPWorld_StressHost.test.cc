@@ -265,7 +265,6 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-f
   }
 }
 
-
 TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
   emp::Random random(62);
   SymConfigSGP config;

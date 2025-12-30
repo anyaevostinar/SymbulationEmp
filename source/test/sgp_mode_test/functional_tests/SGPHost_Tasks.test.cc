@@ -166,7 +166,7 @@ TEST_CASE("When HOST_ONLY_FIRST_TASK_CREDIT is 0, hosts receive credit for all t
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += host->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("Host should recieve credit for completing 2 tasks"){
+        THEN("Host should receive credit for completing 2 tasks"){
           REQUIRE(tasks_completed == 2);
         }
       }

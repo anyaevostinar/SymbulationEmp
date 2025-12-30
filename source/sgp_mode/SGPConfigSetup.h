@@ -18,7 +18,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, 0, "Should hosts only get credit for their first task? (0 for no, 1 for yes)"),
   VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, 0, "Should symbionts only get credit for their first task? (0 for no, 1 for yes)"),
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a host execute before it can reproduce?"),
-  VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a symbiont execute before it can reproduce?"),
+  VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a symbiont execute before it can horizontally reproduce?"),
   VALUE(PREFERENTIAL_OUSTING, size_t, 0, "Should preferential ousting be on, and if so how? (0 = no preferential ousting, 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust, 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust)"),
   VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasites and vice versa"),
   

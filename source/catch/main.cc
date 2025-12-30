@@ -34,6 +34,7 @@
 #include "../test/sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
+#include "../test/sgp_mode_test/unit_tests/StressHost.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Tasks.test.cc"
 
 
