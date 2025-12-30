@@ -155,7 +155,7 @@ TEST_CASE("When SYM_ONLY_FIRST_TASK_CREDIT is 0, symbionts receive credit for al
         for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
           tasks_completed += sym->GetCPU().state.tasks_performed->Get(i);
         }
-        THEN("the symbiont should recieve credit for completing 2 tasks"){
+        THEN("the symbiont should receive credit for completing 2 tasks"){
           REQUIRE(tasks_completed == 2);
         }
       }

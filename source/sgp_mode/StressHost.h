@@ -74,6 +74,37 @@ public:
   }
 
   /**
+   * Input: None
+   *
+   * Output: Double probability of death during an extinction update
+   *
+   * Purpose: To calculate a host's death chance based on their symbiont status
+   */
+  double GetDeathChance() {
+    double death_chance = sgp_config->BASE_DEATH_CHANCE();
+    if (HasSym()) {
+      bool tasks_satisfactory = false;
+      size_t j = 0;
+      for (; j < syms.size() && !tasks_satisfactory; j++) {
+        tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
+      }
+      if (sgp_config->ALLOW_TRANSITION_EVOLUTION() && tasks_satisfactory) {
+        // assumption: MUTUALIST_DEATH_CHANCE <= BASE_DEATH_CHANCE <= PARASITE_DEATH_CHANCE
+        // todo: check assumption
+        
+        double sym_int_val = syms[j-1]->GetIntVal();
+        double interval = sgp_config->BASE_DEATH_CHANCE() - sgp_config->MUTUALIST_DEATH_CHANCE();
+        if (sym_int_val < 0) interval = sgp_config->PARASITE_DEATH_CHANCE() - sgp_config->BASE_DEATH_CHANCE();
+        death_chance = sgp_config->BASE_DEATH_CHANCE() + (-1 * sym_int_val * interval);
+      }
+      else {
+        if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
+        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && tasks_satisfactory) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
+      }
+    }
+    return death_chance;
+  }
+  /**
    * Input: The location of the host.
    *
    * Output: None
@@ -82,15 +113,7 @@ public:
    */
   void Process(emp::WorldPosition pos) override {
     if (IsExtinctionUpdate()) {
-      double death_chance = sgp_config->BASE_DEATH_CHANCE();
-      if (HasSym()) {
-        bool tasks_satisfactory = false;
-        for (size_t j = 0; j < syms.size() && !tasks_satisfactory; j++) {
-          tasks_satisfactory = my_world->TaskMatchCheck(my_world->fun_get_task_profile(syms[j]), my_world->fun_get_task_profile(this));
-        }
-        if (sgp_config->SYMBIONT_TYPE() == MUTUALIST && tasks_satisfactory) death_chance = sgp_config->MUTUALIST_DEATH_CHANCE();
-        else if (sgp_config->SYMBIONT_TYPE() == PARASITE && tasks_satisfactory) death_chance = sgp_config->PARASITE_DEATH_CHANCE();
-      }
+      double death_chance = GetDeathChance();
       if (random->P(death_chance)) {
         // escapee offspring go first (so that parent sym is not removed before they can use it!)
         if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
