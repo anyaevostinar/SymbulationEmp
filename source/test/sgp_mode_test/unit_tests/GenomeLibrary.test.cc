@@ -36,257 +36,259 @@ TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp][sgp-unit]") 
 
 }
 
-TEST_CASE("All programs are built correctly","[sgp][sgp-unit]"){
-  size_t program_len = 100;
-  ProgramBuilder builder;
-  WHEN("A NOT program is built"){
-    builder.AddNot();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+TEST_CASE("All task specific programs are built correctly","[sgp][sgp-unit]"){
+  GIVEN("A program builder"){
+    size_t program_len = 100;
+    ProgramBuilder builder;
+    WHEN("A NOT program is built"){
+      builder.AddNot();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 93 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 4); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 93 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 4); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A NAND program is built"){
-    builder.AddNand();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A NAND program is built"){
+      builder.AddNand();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 92 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 5); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 92 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 5); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A AND program is built"){
-    builder.AddAnd();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A AND program is built"){
+      builder.AddAnd();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 91 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 6); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 91 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 6); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A ORN program is built"){
-    builder.AddOrn();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A ORN program is built"){
+      builder.AddOrn();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 91 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 6); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 91 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 6); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
-  
-  WHEN("A OR program is built"){
-    builder.AddOr();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    
+    WHEN("A OR program is built"){
+      builder.AddOr();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 90 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 7); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 90 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 7); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A ANDN program is built"){
-    builder.AddAndn();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A ANDN program is built"){
+      builder.AddAndn();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 90 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 7); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 90 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 7); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A NOR program is built"){
-    builder.AddNor();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A NOR program is built"){
+      builder.AddNor();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 89 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 8); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 89 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 8); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A XOR program is built"){
-    builder.AddXor();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A XOR program is built"){
+      builder.AddXor();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
+      }
 
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
 
-    THEN("The program contains 88 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 9); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program contains 88 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 9); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
       }
     }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
-    }
-  }
 
-  WHEN("A EQU program is built"){
-    builder.AddEqu();
-    sgpl::Program<Spec> program = builder.Build(program_len);
+    WHEN("A EQU program is built"){
+      builder.AddEqu();
+      sgpl::Program<Spec> program = builder.Build(program_len);
 
-    THEN("The program is of length 100"){
-    REQUIRE(program.size() == program_len);
-    }
-
-    THEN("The program starts with a global anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-    }
-
-    THEN("The program contains 87 nop instructions in a row"){
-    for (size_t i = 1; i < (program.size() - 10); ++i) {
-      REQUIRE(program[i].op_code == 0);
+      THEN("The program is of length 100"){
+      REQUIRE(program.size() == program_len);
       }
-    }
-    THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-      REQUIRE(program[90].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[92].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-      REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-      REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains 87 nop instructions in a row"){
+      for (size_t i = 1; i < (program.size() - 10); ++i) {
+        REQUIRE(program[i].op_code == 0);
+        }
+      }
+      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
+        REQUIRE(program[90].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[92].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
+        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
+        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      }
     }
   }
 }

@@ -8,7 +8,7 @@
 
 TEST_CASE("Correct data files are created", "[sgp][sgp-functional]") {
   
-  GIVEN("An SGPWorld with no mutation"){
+  GIVEN("An SGPWorld with no mutation that is configured to create data files"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);

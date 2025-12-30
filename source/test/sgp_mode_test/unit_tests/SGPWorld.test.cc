@@ -51,6 +51,16 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
     }
   }
 
+  WHEN("INTERACTION_MECHANISM Config is set to Nutrient Mode"){
+    config.INTERACTION_MECHANISM(3);
+    SGPWorld world(random, &config, LogicTasks);
+    world.SetupHosts(&setupCount);
+    THEN("The world contains a SGPHost, Nutrient mode does not have it's own SGPHost subclass"){
+      emp::Ptr<Organism> host =  world.GetOrgPtr(0);
+      REQUIRE(host->GetName() == "SGPHost");
+    }
+  }
+
   WHEN("INTERACTION_MECHANISM Config is set to an option that does not exist"){
     config.INTERACTION_MECHANISM(4);
     SGPWorld world(random, &config, LogicTasks);
@@ -114,78 +124,64 @@ TEST_CASE("TaskMatchCheck for parents", "[sgp][sgp-unit]") {
     //Adds host to world and sym to host.
     world.AddOrgAt(host, 0);
     host->AddSymbiont(sym);
+    
+    WHEN("TRACK_PARENT_TASKS is parent only"){
+      WHEN("The host's and symbiont's parents have both performed NOT"){
+        host->GetCPU().state.parent_tasks_performed->Set(0);
+        sym->GetCPU().state.parent_tasks_performed->Set(0);
 
-    WHEN("The host's and symbiont's parents have both performed NOT"){
-      host->GetCPU().state.parent_tasks_performed->Set(0);
-      sym->GetCPU().state.parent_tasks_performed->Set(0);
+        THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
+          REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+        }
+      }
+      
+      WHEN("The host and symbiont have both performed NOT"){
+        host->GetCPU().state.tasks_performed->Set(0);
+        sym->GetCPU().state.tasks_performed->Set(0);
+        WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
+          host->GetCPU().state.parent_tasks_performed->Set(1);
+          sym->GetCPU().state.parent_tasks_performed->Set(8);
 
-      THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
+            REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          }
+        }
+      }
+      WHEN("The host and symbiont have performed no tasks"){
+        WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
+          host->GetCPU().state.parent_tasks_performed->Set(1);
+          sym->GetCPU().state.parent_tasks_performed->Set(8);
+
+          THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
+            REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          }
+        }
       }
     }
+    WHEN("TRACK_PARENT_TASKS is parent or child"){
+      config.TRACK_PARENT_TASKS(2);
+      world.SetupTaskProfileFun();
+      WHEN("The host and symbiont have both performed NOT"){
+        host->GetCPU().state.tasks_performed->Set(0);
+        sym->GetCPU().state.tasks_performed->Set(0);
+        WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
+          host->GetCPU().state.parent_tasks_performed->Set(1);
+          sym->GetCPU().state.parent_tasks_performed->Set(8);
 
-    WHEN("The host's parent has performed NOT and the symbiont's parent has performed EQU"){
-      host->GetCPU().state.parent_tasks_performed->Set(1);
-      sym->GetCPU().state.parent_tasks_performed->Set(8);
-
-      THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
+            REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          }
+        }
       }
-    }
-  }
-}
+      WHEN("The host and symbiont have performed no tasks"){
+        WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
+          host->GetCPU().state.parent_tasks_performed->Set(1);
+          sym->GetCPU().state.parent_tasks_performed->Set(8);
 
-TEST_CASE("TaskMatchCheck when HOST_ONLY_FIRST_TASK_CREDIT and SYM_ONLY_FIRST_TASK_CREDIT is 1", "[sgp][sgp-unit]") {
-  GIVEN("A parent host infected with a parent symbiont and a child host infected with a child symbiont"){
-    emp::Random random(1);
-    SymConfigSGP config;
-    config.SEED(2);
-    config.MUTATION_RATE(0.0);
-    config.MUTATION_SIZE(0.000);
-    config.TRACK_PARENT_TASKS(1);
-    config.VT_TASK_MATCH(1);
-    config.HOST_ONLY_FIRST_TASK_CREDIT(1);
-    config.SYM_ONLY_FIRST_TASK_CREDIT(1);
-    config.HOST_REPRO_RES(10000);
-
-    SGPWorld world(random, &config, LogicTasks);
-
-    //Creates a host that only does NOT operations
-    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
-    //Creates a symbiont that only does NOT operations
-    emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-
-    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
-    emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-
-    //Adds host to world and sym to host.
-    world.AddOrgAt(host, 0);
-    world.AddOrgAt(host_baby, 1);
-    host->AddSymbiont(sym);
-    host_baby->AddSymbiont(sym_baby);
-
-    WHEN("The parent host and the parent symbiont have both performed NOT"){
-      host->GetCPU().state.tasks_performed->Set(0);
-      sym->GetCPU().state.tasks_performed->Set(0);
-
-      host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
-      sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
-
-      THEN("TaskMatchCheck returns true when the task set of the host child and the task set of the symbiont child are the arguments"){
-        REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
-      }
-    }
-
-    WHEN("The parent host has performed NOT and the parent symbiont has performed EQU"){
-      host->GetCPU().state.tasks_performed->Set(1);
-      sym->GetCPU().state.tasks_performed->Set(8);
-
-      host_baby->GetCPU().state.parent_tasks_performed->Import(*(host->GetCPU().state.tasks_performed));
-      sym_baby->GetCPU().state.parent_tasks_performed->Import(*(sym->GetCPU().state.tasks_performed));
-
-      THEN("TaskMatchCheck returns false when the task set of the host child and the task set of the symbiont child are the arguments"){
-        REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym_baby), world.fun_get_task_profile(host_baby)));
+          THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
+            REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
+          }
+        }
       }
     }
   }

@@ -15,6 +15,7 @@
  * This file is dedicated to unit tests for HealthHost
  */
 
+ 
 TEST_CASE("Health host with symbiont loses/gains cycle 50% of time", "[sgp][sgp-unit]") {
   GIVEN("A health host"){
     emp::Random random(10);
