@@ -111,12 +111,13 @@ TEST_CASE("Symbiont > & < operator","[sgp][sgp-unit]"){
 
     emp::Ptr<SGPSymbiont> sym_parent = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
     emp::Ptr<SGPSymbiont> different = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(99)); // For comparing
-      
-    THEN("One symbiont is less then the other symbiont"){
-      // Can't assert true/false without knowing bitcode ordering,
-      // assert that bitcode ordering is well-defined
-      bool lt = *sym_parent < *different || *different < *sym_parent;
-      REQUIRE(lt);
+    WHEN("The two symbionts are compared"){
+      THEN("One symbiont is less then the other symbiont"){
+        // Can't assert true/false without knowing bitcode ordering,
+        // assert that bitcode ordering is well-defined
+        bool lt = *sym_parent < *different || *different < *sym_parent;
+        REQUIRE(lt);
+      }
     }
   }
 }

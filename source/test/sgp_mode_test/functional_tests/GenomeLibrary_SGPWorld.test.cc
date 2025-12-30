@@ -89,12 +89,13 @@ TEST_CASE("Empty ProgramBuilder can't do tasks", "[sgp][sgp-functional]") {
     // Empty builder
     ProgramBuilder builder;
     CPU cpu(&organism, &world, builder.Build(100));
-    
-    cpu.RunCPUStep(0, 100);
-    world.Update();
-    THEN("The Host cannot complete any tasks"){
-      for (auto data : world.GetTaskSet()) {
-        REQUIRE(data.n_succeeds_host == 0);
+    WHEN("The entire genome of the host is run"){
+      cpu.RunCPUStep(0, 100);
+      world.Update();
+      THEN("The Host does not complete any tasks"){
+        for (auto data : world.GetTaskSet()) {
+          REQUIRE(data.n_succeeds_host == 0);
+        }
       }
     }
   }

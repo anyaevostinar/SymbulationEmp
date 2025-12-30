@@ -65,12 +65,13 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
         
         emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
         emp::Ptr<SGPHost> different = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(99)); // For comparing
-
-        THEN("One host is less then the other host"){
-            // Can't assert true/false without knowing bitcode ordering,
-            // assert that bitcode ordering is well-defined
-            bool lt = *host < *different || *different < *host;
-            REQUIRE(lt);      
+        WHEN("The two hosts are compared"){
+            THEN("One host is less then the other host"){
+                // Can't assert true/false without knowing bitcode ordering,
+                // assert that bitcode ordering is well-defined
+                bool lt = *host < *different || *different < *host;
+                REQUIRE(lt);      
+            }
         }
     }
 }
@@ -94,20 +95,22 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
 }
 
 TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
-    GIVEN("A host"){
+    GIVEN("An SGPWorld and a host"){
         emp::Random random(31);
         SymConfigSGP config;
         SGPWorld world(random, &config, LogicTasks);
         emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-        world.AddOrgAt(host, 0);
-        
-        THEN("Repro count of the host is 0"){
-            REQUIRE(host->GetReproCount() == 0);
-        }
-        WHEN("The host's repro count is increased by 1"){
-            host->SetReproCount(1);
-            THEN("Repro count of the host is 1"){
-                REQUIRE(host->GetReproCount() == 1);
+        WHEN("The host is added to the world"){
+            world.AddOrgAt(host, 0);
+            
+            THEN("Repro count of the host is 0"){
+                REQUIRE(host->GetReproCount() == 0);
+            }
+            WHEN("The host's repro count is increased by 1"){
+                host->SetReproCount(1);
+                THEN("Repro count of the host is 1"){
+                    REQUIRE(host->GetReproCount() == 1);
+                }
             }
         }
     }

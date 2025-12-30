@@ -23,24 +23,26 @@ TEST_CASE("Baseline function", "[sgp][sgp-functional]") {
     emp::Ptr<SGPHost> uninfected_host = emp::NewPtr<SGPHost>(&random, &world, &config);
     emp::Ptr<SGPSymbiont> hosted_symbiont = emp::NewPtr<SGPSymbiont> (&random, &world, &config);
 
-    infected_host->AddSymbiont(hosted_symbiont);
-    world.AddOrgAt(infected_host, 0);
-    world.AddOrgAt(uninfected_host, 1);
-    
-    THEN("Organisms can be added to the world") {
-      REQUIRE(world.GetNumOrgs() == 2);
-    }
-    for (int i = 0; i < 10; i++) {
-      world.Update();
-    }
-    THEN("Organisms persist and are managed by the world") {
-      REQUIRE(world.GetNumOrgs() == 2);
+    WHEN("There is an attempt to add organisms to the world"){
+      infected_host->AddSymbiont(hosted_symbiont);
+      world.AddOrgAt(infected_host, 0);
+      world.AddOrgAt(uninfected_host, 1);
+      
+      THEN("Organisms can be added to the world") {
+        REQUIRE(world.GetNumOrgs() == 2);
+      }
+      for (int i = 0; i < 10; i++) {
+        world.Update();
+      }
+      THEN("Organisms persist and are managed by the world") {
+        REQUIRE(world.GetNumOrgs() == 2);
+      }
     }
   }
 }
 
 TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
-  GIVEN("a host infected with a symbiont in a world where ousting is enabled"){
+  GIVEN("An SGPworld with Ousting enabled"){
     emp::Random random(61);
     SymConfigSGP config;
     config.GRID_X(2);
@@ -54,23 +56,24 @@ TEST_CASE("Ousting is permitted", "[sgp][sgp-functional]") {
     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config);
     emp::Ptr<SGPSymbiont> old_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
     emp::Ptr<SGPSymbiont> new_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
-
-    host->AddSymbiont(old_symbiont);
-    world.AddOrgAt(host, 0);
-    THEN("The Host has one Symbiont and the graveyard is empty"){
-      REQUIRE(host->GetSymbionts().size() == 1);
-      REQUIRE(world.GetGraveyard().size() == 0);
-    }
-    WHEN("Another Symbiont is added to Host"){
-      host->AddSymbiont(new_symbiont);
-      THEN("The Host has one symbiont and the graveyard has one organism"){
+    WHEN("A Host with a Symbiont is added to the world"){
+      host->AddSymbiont(old_symbiont);
+      world.AddOrgAt(host, 0);
+      THEN("The Host has one Symbiont and the graveyard is empty"){
         REQUIRE(host->GetSymbionts().size() == 1);
-        REQUIRE(world.GetGraveyard().size() == 1);
+        REQUIRE(world.GetGraveyard().size() == 0);
       }
-      WHEN("The world is updated"){
-        world.Update(); // clean up the graveyard
-        THEN("The graveyard is empty"){
-          REQUIRE(world.GetGraveyard().size() == 0);
+      WHEN("Another Symbiont is added to Host"){
+        host->AddSymbiont(new_symbiont);
+        THEN("The Host has one symbiont and the graveyard has one organism"){
+          REQUIRE(host->GetSymbionts().size() == 1);
+          REQUIRE(world.GetGraveyard().size() == 1);
+        }
+        WHEN("The world is updated"){
+          world.Update(); // clean up the graveyard
+          THEN("The graveyard is empty"){
+            REQUIRE(world.GetGraveyard().size() == 0);
+          }
         }
       }
     }
@@ -185,7 +188,7 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
 
 
 TEST_CASE("Organisms, without mutation will only receive credit for NOT operations", "[sgp][sgp-functional]") {
-  GIVEN("An organism programmed to only complete the NOT operation"){
+  GIVEN("An SGPWorld with no mutation"){
     emp::Random random(1);
     SymConfigSGP config;
     config.SEED(2);
@@ -204,28 +207,29 @@ TEST_CASE("Organisms, without mutation will only receive credit for NOT operatio
     };
 
     TestOrg organism;
+    WHEN("An organism programmed to only complete the NOT operation is created"){
+      // NOT builder
+      ProgramBuilder builder;
+      (builder.AddNot)();
+      CPU cpu(&organism, &world, builder.Build(100));
+      cpu.RunCPUStep(0, 100);
+      
+      //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
+      long all_ones_binary = 4294967295;
+      cpu.state.input_buf.push(all_ones_binary);
+      cpu.RunCPUStep(0, 100);
+      world.Update();
 
-    // NOT builder
-    ProgramBuilder builder;
-    (builder.AddNot)();
-    CPU cpu(&organism, &world, builder.Build(100));
-    cpu.RunCPUStep(0, 100);
-    
-    //The result of a AND bitwise operations when one of the inputs, in binary, is all ones will be the other input
-    long all_ones_binary = 4294967295;
-    cpu.state.input_buf.push(all_ones_binary);
-    cpu.RunCPUStep(0, 100);
-    world.Update();
-
-    //Checks both that NOT is being done and no other operations are being done
-    THEN("The Organism will only be able to complete the NOT task"){
-      for (auto data : world.GetTaskSet()) {
-          if(data.task.name != "NOT"){
-            REQUIRE(data.n_succeeds_host == 0);
-          }
-          else{
-            REQUIRE(data.n_succeeds_host > 0);
-          }
+      //Checks both that NOT is being done and no other operations are being done
+      THEN("The Organism will only be able to complete the NOT task"){
+        for (auto data : world.GetTaskSet()) {
+            if(data.task.name != "NOT"){
+              REQUIRE(data.n_succeeds_host == 0);
+            }
+            else{
+              REQUIRE(data.n_succeeds_host > 0);
+            }
+        }
       }
     }
   }

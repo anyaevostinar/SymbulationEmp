@@ -10,31 +10,32 @@
  */
 
 TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp][sgp-unit]"){
-  emp::Random random(1);
-  SymConfigSGP config;
-  config.SEED(1);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
-  config.VT_TASK_MATCH(1);
-
-  SGPWorld world(random, &config, LogicTasks);
-
-  //Builds program that does both NOT and NAND operations
-  ProgramBuilder program;
-  program.AddNot();
-  program.AddNand();
-    
-  //Creates a host that does both Not and Nand operations
-  emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
-    
-  //Creates a symbiont that can not do any tasks
-  emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
-
-  //Adds host to world and sym to host.
-  world.AddOrgAt(host, 0);
-  host->AddSymbiont(symbiont);
   GIVEN("A host and symbiont can theoretically do both NOT and NAND tasks"){
+    emp::Random random(1);
+    SymConfigSGP config;
+    config.SEED(1);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.002);
+    config.TRACK_PARENT_TASKS(1);
+    config.VT_TASK_MATCH(1);
+
+    SGPWorld world(random, &config, LogicTasks);
+
+    //Builds program that does both NOT and NAND operations
+    ProgramBuilder program;
+    program.AddNot();
+    program.AddNand();
+      
+    //Creates a host that does both Not and Nand operations
+    emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, program.Build(100));
+      
+    //Creates a symbiont that can not do any tasks
+    emp::Ptr<SGPSymbiont> symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, program.Build(100));
+
+    //Adds host to world and sym to host.
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(symbiont);
+  
     WHEN("Only first task credit for hosts is on"){
       config.HOST_ONLY_FIRST_TASK_CREDIT(1);
   
@@ -130,6 +131,7 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp][sgp-unit]"){
       }
     }
   }
+  
 }
 
 TEST_CASE("IsOnlyTask functionality", "[sgp][sgp-unit]") {

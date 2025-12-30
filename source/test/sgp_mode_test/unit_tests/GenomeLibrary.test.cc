@@ -8,29 +8,31 @@
  */
 
 TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp][sgp-unit]") {
-  GIVEN("A program created by BuildNoRepro"){
+  GIVEN("A program builder"){
     ProgramBuilder builder;
     size_t program_len = 100;
 
-    sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
+    WHEN("A program is built using BuildNoRepro"){
+      sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
 
-    REQUIRE(program.size() == program_len);
+      REQUIRE(program.size() == program_len);
 
-    THEN("The last 5 instructions of the program is Donate"){
-      for (size_t i = program.size() - 5; i < program.size(); ++i) {
-        REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
+      THEN("The last 5 instructions of the program is Donate"){
+        for (size_t i = program.size() - 5; i < program.size(); ++i) {
+          REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
+        }
       }
-    }
 
-    THEN("The program does not have the reproduce instruction"){
-      for (auto &inst : program) {
-        REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
+      THEN("The program does not have the reproduce instruction"){
+        for (auto &inst : program) {
+          REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
+        }
       }
-    }
 
-    THEN("The program starts with a Global Anchor"){
-      REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-      REQUIRE(program[0].tag == START_TAG);
+      THEN("The program starts with a Global Anchor"){
+        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].tag == START_TAG);
+      }
     }
   }
 
