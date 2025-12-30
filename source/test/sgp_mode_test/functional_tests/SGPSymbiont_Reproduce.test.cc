@@ -72,7 +72,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
 }
 
 TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
-  GIVEN("A host infected with symbionts in a world where symbionts cannot horizontally transmit"){
+  GIVEN("A host infected with a symbiont"){
     emp::Random random(42);
     SymConfigSGP config;
     config.INTERACTION_MECHANISM(DEFAULT);
