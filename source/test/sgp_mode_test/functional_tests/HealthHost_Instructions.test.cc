@@ -24,7 +24,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Steal' instruction 
     config.SYMBIONT_TYPE(1);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.00);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.VT_TASK_MATCH(1);
     config.HOST_ONLY_FIRST_TASK_CREDIT(1);
     config.SYM_ONLY_FIRST_TASK_CREDIT(1);
@@ -74,7 +74,7 @@ TEST_CASE("When DONATION_STEAL_INST is 1 then Symbiont with 'Donate' instruction
     config.SYMBIONT_TYPE(0);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.00);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.VT_TASK_MATCH(1);
     config.HOST_ONLY_FIRST_TASK_CREDIT(1);
     config.SYM_ONLY_FIRST_TASK_CREDIT(1);

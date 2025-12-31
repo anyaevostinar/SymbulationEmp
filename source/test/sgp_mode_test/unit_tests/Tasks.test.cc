@@ -16,7 +16,7 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp][sgp-unit]"){
     config.SEED(1);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.VT_TASK_MATCH(1);
 
     SGPWorld world(random, &config, LogicTasks);

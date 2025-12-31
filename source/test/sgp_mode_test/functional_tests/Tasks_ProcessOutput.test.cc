@@ -14,7 +14,7 @@ TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp][sgp-functional]"
   config.SEED(1);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
+  config.TRACK_PARENT_TASKS(PARENTONLY);
   config.VT_TASK_MATCH(1);
   config.HOST_ONLY_FIRST_TASK_CREDIT(0);
   config.SYM_ONLY_FIRST_TASK_CREDIT(0);
@@ -302,7 +302,7 @@ TEST_CASE("ProcessOutput Functionality with LogicTasksDiff", "[sgp][sgp-function
   config.SEED(1);
   config.MUTATION_RATE(0.0);
   config.MUTATION_SIZE(0.002);
-  config.TRACK_PARENT_TASKS(1);
+  config.TRACK_PARENT_TASKS(PARENTONLY);
   config.VT_TASK_MATCH(1);
   config.HOST_ONLY_FIRST_TASK_CREDIT(0);
   config.SYM_ONLY_FIRST_TASK_CREDIT(0);

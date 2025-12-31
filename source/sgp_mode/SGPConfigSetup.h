@@ -4,7 +4,9 @@
 #include "../ConfigSetup.h"
 
 enum SGPInteractionMechanism {DEFAULT = 0, HEALTH, STRESS, NUTRIENT};
-enum SymbiontType { MUTUALIST = 0, PARASITE, NEUTRAL };
+enum SymbiontType {MUTUALIST = 0, PARASITE, NEUTRAL};
+enum TrackParentTasks {CURRENTONLY = 0, PARENTONLY, CURRENTORPARENT};
+enum PreferentialOusting {OFF = 0, EQUALMATCH, BETTERMATCH};
 
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
@@ -14,12 +16,12 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(SYMBIONT_TYPE, size_t, MUTUALIST, "What kind of symbionts should be incorporated in stressful environments? (0 for mutualists, 1 for parasites, 2 for neutrals"),
   VALUE(VT_TASK_MATCH, bool, 0, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(HT_TASK_MATCH, bool, 1, "Should task matching be required for horizontal transmission? (0 for no, 1 for yes)"),
-  VALUE(TRACK_PARENT_TASKS, int, 0, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 to use only current tasks, 1 to use only the parental tasks, 2 to use an OR of the parent and current tasks)"),
+  VALUE(TRACK_PARENT_TASKS, int, CURRENTONLY, "Should parental task completion data be used for reproductive task matching (instead of the individual's task completion data?) (0 to use only current tasks, 1 to use only the parental tasks, 2 to use an OR of the parent and current tasks)"),
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, 0, "Should hosts only get credit for their first task? (0 for no, 1 for yes)"),
   VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, 0, "Should symbionts only get credit for their first task? (0 for no, 1 for yes)"),
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a host execute before it can reproduce?"),
   VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "How many CPU cycles must a symbiont execute before it can horizontally reproduce?"),
-  VALUE(PREFERENTIAL_OUSTING, size_t, 0, "Should preferential ousting be on, and if so how? (0 = no preferential ousting, 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust, 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust)"),
+  VALUE(PREFERENTIAL_OUSTING, size_t, OFF, "Should preferential ousting be on, and if so how? (0 = no preferential ousting, 1 = the incoming symbiont must have an equal or better match than the current symbiont in order to oust, 2 = the incoming symbiont must have a strictly better match than the current symbiont in order to oust)"),
   VALUE(ALLOW_TRANSITION_EVOLUTION, int, 0, "Should symbionts be allowed to evolve from mutualists to parasites and vice versa"),
   
   GROUP(STRESS, "Stress Settings"),

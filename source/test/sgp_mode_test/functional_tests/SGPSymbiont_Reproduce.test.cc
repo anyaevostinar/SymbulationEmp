@@ -25,7 +25,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
 
       WHEN("Parental task tracking is set to ParentOnly") {
         emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
-        config.TRACK_PARENT_TASKS(1);
+        config.TRACK_PARENT_TASKS(PARENTONLY);
         world.AddOrgAt(host, 0);
         host->AddSymbiont(sym_parent);
 
@@ -99,7 +99,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
       WHEN("Vertical Task Match is on"){
         config.VT_TASK_MATCH(1);
         WHEN("Track Parent Tasks is off"){
-          config.TRACK_PARENT_TASKS(0);
+          config.TRACK_PARENT_TASKS(CURRENTONLY);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
@@ -148,7 +148,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
         }
 
         WHEN("Track Parent Tasks is Parent Only"){
-          config.TRACK_PARENT_TASKS(1);
+          config.TRACK_PARENT_TASKS(PARENTONLY);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
@@ -201,7 +201,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
         }
 
         WHEN("Track Parent Tasks is set to both parent or child"){
-          config.TRACK_PARENT_TASKS(2);
+          config.TRACK_PARENT_TASKS(CURRENTORPARENT);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
@@ -337,7 +337,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
       WHEN("Horizontal Task Match is on"){
         config.HT_TASK_MATCH(1);
         WHEN("Track Parent Tasks is off"){
-          config.TRACK_PARENT_TASKS(0);
+          config.TRACK_PARENT_TASKS(CURRENTONLY);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
@@ -388,7 +388,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         }
 
         WHEN("Track Parent Tasks is set to parent only"){
-          config.TRACK_PARENT_TASKS(1);
+          config.TRACK_PARENT_TASKS(PARENTONLY);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
@@ -439,7 +439,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         }
 
         WHEN("Track Parent Tasks is set to both parent or child"){
-          config.TRACK_PARENT_TASKS(2);
+          config.TRACK_PARENT_TASKS(CURRENTORPARENT);
           //Selects correct task match function based on config
           //used here to avoid having to create new worlds and organism
           world.SetupTaskProfileFun();
