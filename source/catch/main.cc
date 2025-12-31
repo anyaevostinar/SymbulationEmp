@@ -36,6 +36,7 @@
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 #include "../test/sgp_mode_test/unit_tests/StressHost.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Tasks.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPHost.test.cc"
 
 
 #include "../test/sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"

@@ -4,6 +4,10 @@
 
 #include "../../../catch/catch.hpp"
 
+/**
+ * This file is dedicated to tests related to the function ProcessOutput
+ */
+
 TEST_CASE("ProcessOutput Functionality with LogicTasks", "[sgp][sgp-functional]"){
   emp::Random random(1);
   SymConfigSGP config;
