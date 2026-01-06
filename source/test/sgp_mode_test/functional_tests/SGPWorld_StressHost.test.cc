@@ -17,7 +17,7 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(3);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
 
@@ -83,7 +83,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
     config.SYM_LIMIT(2);
     config.EXTINCTION_FREQUENCY(1);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(6);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
     config.BASE_DEATH_CHANCE(0);
@@ -135,7 +135,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
 
     WHEN("Preferential ousting is on") {
       config.OUSTING(1);
-      config.PREFERENTIAL_OUSTING(2);
+      config.PREFERENTIAL_OUSTING(BETTERMATCH);
       config.PARASITE_DEATH_CHANCE(0.8);
 
       emp::Ptr<StressHost> host_4 = emp::NewPtr<StressHost>(&random, &world, &config);

@@ -15,7 +15,7 @@ TEST_CASE("When HOST_ONLY_FIRST_TASK_CREDIT is 1, the most tasks a Host can rece
     config.SEED(1);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.VT_TASK_MATCH(1);
     config.HOST_ONLY_FIRST_TASK_CREDIT(1);
 
@@ -112,7 +112,7 @@ TEST_CASE("When HOST_ONLY_FIRST_TASK_CREDIT is 0, hosts receive credit for all t
     config.SEED(2);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.002);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.VT_TASK_MATCH(1);
     config.HOST_ONLY_FIRST_TASK_CREDIT(0);
 

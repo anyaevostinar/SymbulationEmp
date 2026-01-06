@@ -19,7 +19,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
       config.HOST_REPRO_RES(5000);
       config.MUTATION_RATE(0);
       config.MUTATION_SIZE(0);
-      config.TRACK_PARENT_TASKS(1);
+      config.TRACK_PARENT_TASKS(PARENTONLY);
 
       WHEN("A host can only perform NOT") {
         WHEN("It is of the first generation (does not have parents)") {
@@ -102,7 +102,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
       }
 
       WHEN("Parental task tracking is on") {
-        config.TRACK_PARENT_TASKS(1);
+        config.TRACK_PARENT_TASKS(PARENTONLY);
 
         for (int i = 0; i < 25; i++) {
           world.Update();

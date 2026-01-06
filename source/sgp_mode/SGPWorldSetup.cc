@@ -65,7 +65,7 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
   * Purpose: Setup the task profile retriever function.
   */
 void SGPWorld::SetupTaskProfileFun() {
-  if (sgp_config->TRACK_PARENT_TASKS() == 2) {
+  if (sgp_config->TRACK_PARENT_TASKS() == CURRENTORPARENT) {
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return (*org.DynamicCast<SGPHost>()->GetCPU().state.parent_or_current_tasks_performed).OR_SELF(*org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed);
@@ -75,7 +75,7 @@ void SGPWorld::SetupTaskProfileFun() {
       }
     };
   }
-  else if (sgp_config->TRACK_PARENT_TASKS() == 1) {
+  else if (sgp_config->TRACK_PARENT_TASKS() == PARENTONLY) {
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
@@ -85,7 +85,7 @@ void SGPWorld::SetupTaskProfileFun() {
       }
       };
   }
-  else if (sgp_config->TRACK_PARENT_TASKS() == 0) {
+  else if (sgp_config->TRACK_PARENT_TASKS() == CURRENTONLY) {
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
@@ -262,13 +262,13 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
       const emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = fun_get_task_profile(sym);
 
-      if(sgp_config->PREFERENTIAL_OUSTING() == 1){
+      if(sgp_config->PREFERENTIAL_OUSTING() == EQUALMATCH){
         // if has worse task match with any hosted sym, fail
         if(host_tasks.AND(incoming_sym_tasks).CountOnes() < host_tasks.AND(target_sym_tasks).CountOnes()){
           return false;
         }
       }
-      else if(sgp_config->PREFERENTIAL_OUSTING() == 2){
+      else if(sgp_config->PREFERENTIAL_OUSTING() == BETTERMATCH){
         // if has equal or worse task match with any hosted sym, fail
         if(host_tasks.AND(incoming_sym_tasks).CountOnes() <= host_tasks.AND(target_sym_tasks).CountOnes()){
           return false;

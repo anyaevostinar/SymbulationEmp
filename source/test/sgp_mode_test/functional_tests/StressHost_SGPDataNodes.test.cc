@@ -14,7 +14,7 @@ TEST_CASE("GetStressEscapeeOffspringAttemptCount", "[sgp][sgp-functional]") {
     size_t stress_escapee_offspring_count = 3;
     config.EXTINCTION_FREQUENCY(1);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(stress_escapee_offspring_count);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
     config.PARASITE_DEATH_CHANCE(1);
@@ -51,7 +51,7 @@ TEST_CASE("GetStressEscapeeOffspringSuccessCount", "[sgp][sgp-functional]") {
     size_t stress_escapee_offspring_count = 3;
     config.EXTINCTION_FREQUENCY(1);
     config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(stress_escapee_offspring_count);
-    config.TRACK_PARENT_TASKS(1);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
     config.INTERACTION_MECHANISM(STRESS);
     config.SYMBIONT_TYPE(1);
     config.BASE_DEATH_CHANCE(0);
