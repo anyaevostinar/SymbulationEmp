@@ -10,7 +10,7 @@
  */
 
 TEST_CASE("Stress parasites can reproduce for free when their host is killed in an extinction event", "[sgp][sgp-functional]") {
-  GIVEN("Stress is on, parasites are present, and an extinction event occurs") {
+  WHEN("Stress is on, mode is set to parasitism only, and an extinction event occurs") {
     emp::Random random(61);
     SymConfigSGP config;
 
@@ -65,6 +65,79 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
     }
 
     WHEN("A host does not die") {
+      config.BASE_DEATH_CHANCE(0);
+      config.PARASITE_DEATH_CHANCE(0);
+
+      REQUIRE(host->GetDead() == false);
+      THEN("Its parasites do not place offspring in the free reproduction vector") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
+      }
+    }
+  }
+
+  WHEN("Stress is on, symbionts evolve their interaction values, and an extinction event occurs") {
+    emp::Random random(61);
+    SymConfigSGP config;
+
+    config.SYM_LIMIT(2);
+    config.EXTINCTION_FREQUENCY(1);
+    config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(3);
+    config.TRACK_PARENT_TASKS(PARENTONLY);
+    config.INTERACTION_MECHANISM(STRESS);
+    config.ALLOW_TRANSITION_EVOLUTION(1);
+
+    SGPWorld world(random, &config, LogicTasks);
+
+    emp::Ptr<StressHost> host = emp::NewPtr<StressHost>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> matching_mutualist = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    emp::Ptr<SGPSymbiont> matching_parasite = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
+    
+    matching_mutualist->SetIntVal(0.4);
+    matching_parasite->SetIntVal(-1);
+
+    host->AddSymbiont(matching_mutualist);
+    host->AddSymbiont(matching_parasite);
+
+    REQUIRE(host->GetSymbionts().size() == 2);
+
+    host->GetCPU().state.parent_tasks_performed->Set(1);
+    matching_mutualist->GetCPU().state.tasks_performed->Set(0);
+    matching_mutualist->GetCPU().state.parent_tasks_performed->Set(1);
+    matching_parasite->GetCPU().state.tasks_performed->Set(4);
+    matching_parasite->GetCPU().state.parent_tasks_performed->Set(1);
+
+    world.AddOrgAt(host, 0);
+
+    WHEN("A host dies") {
+      config.MUTUALIST_DEATH_CHANCE(0);
+      config.BASE_DEATH_CHANCE(0.5);
+      config.PARASITE_DEATH_CHANCE(1);
+      // when multiple symbionts confer different death chance values; the last symbiont's value is used (here, the parasite)
+
+      host->Process(0);
+      REQUIRE(host->GetDead() == true);
+      THEN("Matching parasites place offspring in the free reproduction vector") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() == 3);
+        emp::Ptr<SGPSymbiont> symbiont_1 = world.symbiont_stress_escapee_offspring.at(0).escapee_offspring.DynamicCast<SGPSymbiont>();
+        emp::Ptr<SGPSymbiont> symbiont_2 = world.symbiont_stress_escapee_offspring.at(1).escapee_offspring.DynamicCast<SGPSymbiont>();
+        emp::Ptr<SGPSymbiont> symbiont_3 = world.symbiont_stress_escapee_offspring.at(2).escapee_offspring.DynamicCast<SGPSymbiont>();
+
+        REQUIRE(symbiont_1 != symbiont_2);
+        REQUIRE(symbiont_1->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_1->GetCPU().state.parent_tasks_performed->Get(4) == 1);
+        REQUIRE(symbiont_2->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_2->GetCPU().state.parent_tasks_performed->Get(4) == 1);
+        REQUIRE(symbiont_3->GetCPU().state.parent_tasks_performed->CountOnes() == 1);
+        REQUIRE(symbiont_3->GetCPU().state.parent_tasks_performed->Get(4) == 1);
+      }
+
+      THEN("Matching mutualists do not place offspring in the free reproduction vector") {
+        REQUIRE(world.symbiont_stress_escapee_offspring.size() != 6);
+      }
+    }
+
+    WHEN("A host does not die") {
+      config.MUTUALIST_DEATH_CHANCE(0);
       config.BASE_DEATH_CHANCE(0);
       config.PARASITE_DEATH_CHANCE(0);
 
