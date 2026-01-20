@@ -78,6 +78,17 @@ void SGPWorld::Setup() {
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
+  // CureHost signal
+  if (config.CURE()) {
+    begin_update_sig.AddAction(
+      [this]() {
+        if(GetUpdate() == config.CURE_UPDATES()) {
+          CureHosts();
+        }
+      }
+    )
+  }
+
   SetupHosts(&POP_SIZE);
   Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
