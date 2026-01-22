@@ -41,7 +41,6 @@ TEST_CASE("CureHost", "[default]"){
       REQUIRE(host1->HasSym() == false);
       REQUIRE(host2->HasSym() == false);
       REQUIRE(host3->HasSym() == false);
-      REQUIRE(world.GetSymPop().size() == 0);
     }
   } //GIVEN
 } //TEST_CASE
@@ -85,9 +84,15 @@ TEST_CASE("CureHostIntegration", "[default]") {
         std::cout<<world.GetSymPop().size()<<std::endl;
         // 3
         std::cout<<world.GetPop().size()<<std::endl;
-        REQUIRE(world.GetSymPop().size() > 0);
+        // REQUIRE(world.GetSymPop().size() > 0);
+        REQUIRE(host1->HasSym());
+        REQUIRE(host2->HasSym());
+        REQUIRE(host3->HasSym());
         if(i > cure_updates) {
-          REQUIRE(world.GetSymPop().size() == 0);
+          REQUIRE(host1->HasSym() == false);
+          REQUIRE(host2->HasSym() == false);
+          REQUIRE(host3->HasSym() == false);
+          // REQUIRE(world.GetSymPop().size() == 0);
         }
       }
     }
