@@ -646,11 +646,29 @@ public:
     }
   }
 
+   /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: Cure all hosts of symbionts
+   */
+  void CureHosts(){
+    //loop through hosts and clear all symbionts
+    for (size_t i = 0; i < pop.size(); i++){
+      pop[i]->ClearSyms();
+      pop[i]->ClearReproSyms();
+    }    
+  }
+
   void Run() {
     emp_assert(setup);
     emp_assert(sgp_config.UPDATES() >= 0);
     const size_t updates = sgp_config.UPDATES();
     for (size_t u = 0; u <= updates; ++u) {
+      if (my_config->CURE() && u == my_config->CURE_UPDATES()) {
+        CureHosts();
+      }
       Update();
       if ((u % sgp_config.PRINT_INTERVAL()) == 0) {
         std::cout << "Update: " << u << std::endl;
