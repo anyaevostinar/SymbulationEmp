@@ -666,9 +666,6 @@ public:
     emp_assert(sgp_config.UPDATES() >= 0);
     const size_t updates = sgp_config.UPDATES();
     for (size_t u = 0; u <= updates; ++u) {
-      if (my_config->CURE() && u == my_config->CURE_UPDATES()) {
-        CureHosts();
-      }
       Update();
       if ((u % sgp_config.PRINT_INTERVAL()) == 0) {
         std::cout << "Update: " << u << std::endl;
