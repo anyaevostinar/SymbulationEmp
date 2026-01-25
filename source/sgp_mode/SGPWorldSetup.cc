@@ -79,14 +79,14 @@ void SGPWorld::Setup() {
   SetupHostSymInteractions();
 
   // CureHost signal
-  if (config.CURE()) {
+  if (sgp_config.CURE()) {
     begin_update_sig.AddAction(
       [this]() {
-        if(GetUpdate() == config.CURE_UPDATES()) {
+        if(GetUpdate() == sgp_config.CURE_UPDATES()) {
           CureHosts();
         }
       }
-    )
+    );
   }
 
   SetupHosts(&POP_SIZE);
