@@ -724,7 +724,7 @@ public:
     for (size_t i = 0; i < pop.size(); i++){
       pop[i]->ClearSyms();
       pop[i]->ClearReproSyms();
-    }
+    }    
   }
 
   /**
