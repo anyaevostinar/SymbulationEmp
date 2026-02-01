@@ -722,8 +722,10 @@ public:
   void CureHosts(){
     //loop through hosts and clear all symbionts
     for (size_t i = 0; i < pop.size(); i++){
-      pop[i]->ClearSyms();
-      pop[i]->ClearReproSyms();
+      auto & host_syms = pop[i]->GetSymbionts();
+      for(size_t j = 0; j < host_syms.size(); j++){
+        host_syms[j]->SetDead();
+      }
     }    
   }
 
