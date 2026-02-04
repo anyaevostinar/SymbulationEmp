@@ -127,6 +127,7 @@ TEST_CASE("Curing a host with multiple symbionts"){
     emp::Random random(17);
     SymConfigBase config;
     SymWorld world(random, &config);
+    config.SYM_LIMIT(2);
     // setting up hosts
     emp::Ptr<Host> host_twos;
     host_twos.New(&random, &world, &config);
