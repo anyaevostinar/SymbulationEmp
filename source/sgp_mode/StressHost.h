@@ -116,13 +116,15 @@ public:
       double death_chance = GetDeathChance();
       if (random->P(death_chance)) {
         // escapee offspring go first (so that parent sym is not removed before they can use it!)
-        if (sgp_config->SYMBIONT_TYPE() == PARASITE && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
+        if ((sgp_config->SYMBIONT_TYPE() == PARASITE || sgp_config->ALLOW_TRANSITION_EVOLUTION()) && sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION() > 0) {
           for (size_t j = 0; j < syms.size(); j++) {
-            const emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
-            if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
-              my_world->GetStressEscapeeOffspringAttemptCount().AddDatum(sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION());
-              for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
-                my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
+            if (sgp_config->SYMBIONT_TYPE() == PARASITE || (sgp_config->ALLOW_TRANSITION_EVOLUTION() && syms[j]->GetIntVal() < 0)) {
+              const emp::BitSet<CPU_BITSET_LENGTH>& sym_infection_tasks = my_world->fun_get_task_profile(syms[j]);
+              if (my_world->TaskMatchCheck(sym_infection_tasks, my_world->fun_get_task_profile(this))) {
+                my_world->GetStressEscapeeOffspringAttemptCount().AddDatum(sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION());
+                for (size_t k = 0; k < sgp_config->PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); k++) {
+                  my_world->symbiont_stress_escapee_offspring.emplace_back(StressEscapeeOffspring(syms[j]->Reproduce(), pos.GetIndex(), sym_infection_tasks));
+                }
               }
             }
           }
