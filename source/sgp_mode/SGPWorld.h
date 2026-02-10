@@ -645,24 +645,7 @@ public:
       sym_sys->Update();
     }
   }
-
-   /**
-   * Input: None
-   * 
-   * Output: None
-   * 
-   * Purpose: Cure all hosts of symbionts
-   */
-  void CureHosts(){
-    //loop through hosts and clear all symbionts
-    // auto & pop = SymWorld::GetPop();
-    for (size_t i = 0; i < pop.size(); i++){
-      auto & host_syms = pop[i]->GetSymbionts();
-      for(size_t j = 0; j < host_syms.size(); j++){
-        host_syms[j]->SetDead();
-      }
-    }    
-  }
+  
 
   void Run() {
     emp_assert(setup);

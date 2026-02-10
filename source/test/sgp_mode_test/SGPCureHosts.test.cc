@@ -27,6 +27,8 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   config.POP_SIZE(2);
   config.START_MOI(1); // sym to host ratio
   config.CURE(1);
+  config.HOST_REPRO_RES(10000);
+  config.CYCLES_PER_UPDATE(1);
   int num_updates = 2;
   int total_updates = 4;
   config.CURE_UPDATES(num_updates);
@@ -58,28 +60,35 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   REQUIRE(sym2.GetHardware().GetCPUState().HasHost());
 
   // Cure Hosts Segmentation fault core dumped
-  world.CureHosts();
-  REQUIRE(host1.HasSym() == false);
-  REQUIRE(host2.HasSym() == false);
+  WHEN("Host is cured"){
+    world.CureHosts();
+    world.Update();
+    REQUIRE(host1.HasSym() == false);
+    REQUIRE(host2.HasSym() == false);
+  }
   // Run causes segmentation fault core dumped, on update num_updates
-  // world.Run();
+  WHEN("World is run"){
+  world.Run();
+    REQUIRE(host1.HasSym() == false);
+    REQUIRE(host2.HasSym() == false);
+  }
 
 
-  // WHEN("Updates are run") {
-  //   // segmentation violation signal on num_updates
-  //   for (int i = 0; i < total_updates; i++){
-  //     printf("Update: %d", i);
-  //     world.Update();
-  //     // if (i > num_updates){
-  //     //   REQUIRE(host1.HasSym() == false);
-  //     //   REQUIRE(host2.HasSym() == false);
-  //     // }
-  //     // else {
-  //     //   REQUIRE(host1.HasSym());
-  //     //   REQUIRE(host2.HasSym());
-  //     // }
-  //   }
-  // }
+  WHEN("Updates are run") {
+    // segmentation violation signal on num_updates
+    for (int i = 0; i < total_updates; i++){
+      printf("Update: %d", i);
+      world.Update();
+      if (i >= num_updates){
+        REQUIRE(host1.HasSym() == false);
+        REQUIRE(host2.HasSym() == false);
+      }
+      else {
+        REQUIRE(host1.HasSym());
+        REQUIRE(host2.HasSym());
+      }
+    }
+  }
 
 
 } //TEST_CASE

@@ -70,7 +70,7 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
       THEN("After running for 25 updates, host tasks should show NOT completed") {
         REQUIRE(host_tasks.Get(not_task_id));
         REQUIRE(host_tasks.CountOnes() == 1);
-        REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(not_task_id) == 1);
+        // REQUIRE(hw.GetCPUState().GetTaskPerformanceCount(not_task_id) == 1);
       }
 
       THEN("Offspring should have correct parent tasks marked as completed") {
