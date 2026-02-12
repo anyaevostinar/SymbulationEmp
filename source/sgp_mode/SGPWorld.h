@@ -645,6 +645,7 @@ public:
       sym_sys->Update();
     }
   }
+  
 
   void Run() {
     emp_assert(setup);
