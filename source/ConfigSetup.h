@@ -1,5 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <limits>
 #include "../Empirical/include/emp/config/config.hpp"
 
 const int TAG_LENGTH = 32;
@@ -45,6 +46,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
     VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values"),
+    VALUE(DOMINANT_COUNT, size_t, 10, "Number of dominant hosts to select"),
 
     GROUP(MUTATION, "Mutation"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),

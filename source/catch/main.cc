@@ -7,7 +7,6 @@
 
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
-
 #include "../test/default_mode_test/Host.test.cc"
 #include "../test/default_mode_test/Symbiont.test.cc"
 #include "../test/default_mode_test/HostSymbiontInteraction.test.cc"
@@ -29,11 +28,20 @@
 #include "../test/pgg_mode_test/PGGDataNodes.test.cc"
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
+#include "../test/sgp_mode_test/GenomeLibrary.test.cc"
+#include "../test/sgp_mode_test/SGPWorld.test.cc"
+#include "../test/sgp_mode_test/SGPHost.test.cc"
+#include "../test/sgp_mode_test/SGPSymbiont.test.cc"
+#include "../test/sgp_mode_test/StressHost.test.cc"
+#include "../test/sgp_mode_test/HealthHost.test.cc"
+#include "../test/sgp_mode_test/SGPDataNodes.test.cc"
+#include "../test/sgp_mode_test/Tasks.test.cc"
+#include "../test/sgp_mode_test/Instructions.test.cc"
+#include "../test/sgp_mode_test/SGPWorldSetup.test.cc"
+
 #include "../test/integration_test/spatial_structure/vt.test.cc"
 #include "../test/integration_test/lysogeny/plr.test.cc"
 #include "../test/integration_test/endosymbiosis/res_distribute.test.cc"
 #include "../test/integration_test/dirty_transmission/hz_mut_rate.test.cc"
 #include "../test/integration_test/multi_infection/pgg.test.cc"
 
-//#include "../PGGendtoend.test.cc"
-//#include "../test/end_to_end.test.cc"

@@ -3,6 +3,7 @@
 
 #include <string>
 #include "ConfigSetup.h"
+#include "emp/Evolve/Systematics.hpp"
 
 namespace datastruct {
 
@@ -38,7 +39,11 @@ class Organism {
   virtual ~Organism() {}
   Organism & operator=(const Organism &) = default;
   Organism & operator=(Organism &&) = default;
-  bool operator==(const Organism &other) const {return (this == &other);}
+  virtual bool operator<(const Organism &other) const {
+    std::cout << "operator< called from Organism" << std::endl;
+    throw "Organism method called!";
+  };
+  virtual bool operator==(const Organism &other) const {return (this == &other);}
   bool operator!=(const Organism &other) const {return !(*this == other);}
 
   virtual std::string const GetName() {
@@ -51,12 +56,20 @@ class Organism {
   virtual double GetPoints() {
     std::cout << "GetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::WorldPosition GetLocation() {
+    std::cout << "GetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void SetIntVal(double _in) {
     std::cout << "SetIntVal called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void SetPoints(double _in) {
     std::cout << "SetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetLocation(emp::WorldPosition _in) {
+    std::cout << "SetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void AddPoints(double _in) {
     std::cout << "AddPoints called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -206,6 +219,9 @@ class Organism {
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<Organism> RemoveSymbiont(int _in)
+   {std::cout << "RemoveSymbiont called from Organism" << std::endl;
+     throw "Organism method called!";}
   virtual int AddSymbiont(emp::Ptr<Organism> _in)
    {std::cout << "AddSymbiont called from Organism" << std::endl;
      throw "Organism method called!";}
@@ -227,7 +243,14 @@ class Organism {
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
-
+  virtual void CycleTransfer(int _in){
+    std::cout << "CycleTransfer called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual int GetCyclesGiven(){
+    std::cout << "GetCyclesGiven called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   //Bacterium functions
   virtual double ProcessLysogenResources(double phage_inc_val){
     std::cout << "ProcessLysogenResources called from Organism" << std::endl;
@@ -289,6 +312,13 @@ class Organism {
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
+
+
+  //SGPMode Symbiont Functions
+  virtual float DoTaskInteraction(float score, size_t task_id) {
+    std::cout << "DoTaskInteraction called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
 };
 #endif

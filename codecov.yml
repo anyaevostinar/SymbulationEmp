@@ -6,3 +6,4 @@ ignore:
   - "source/*.test.cc"
   - "Empirical"
   - "coverage_source"
+  - "source/test

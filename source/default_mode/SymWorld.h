@@ -218,7 +218,7 @@ public:
     }
 
     if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
-      Clear(); // delete hosts here so that hosted symbionts get 
+      Clear(); // delete hosts here so that hosted symbionts get
       // deleted and unlinked from the sym_sys
       sym_sys.Delete();
     }
@@ -271,7 +271,8 @@ public:
     return hamming_metric;
   }
 
-  /**
+
+   /**
    * Input: None
    *
    * Output: A reference to the world graveyard.
@@ -279,6 +280,16 @@ public:
    * Purpose: To get the world's graveyard.
    */
   emp::vector<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
+
+  /**
+   * Input: None
+   *
+   * Output: The configuration used for this world.
+   *
+   * Purpose: Allows accessing the world's config.
+   */
+  const emp::Ptr<SymConfigBase> GetConfig() const { return my_config; }
+
 
 
   /**
@@ -386,19 +397,20 @@ public:
    *
    * Purpose: To determine how many resources to distribute to each organism.
    */
-  int PullResources(int desired_resources) {
-    if(total_res == -1) { //if LIMITED_RES_TOTAL == -1, unlimited
+  float PullResources(float desired_resources) {
+    // if LIMITED_RES_TOTAL == -1, unlimited, even if limited resources was on before
+    if (total_res == -1 || my_config->LIMITED_RES_TOTAL() == -1) {
       return desired_resources;
     } else {
       if (total_res>=desired_resources) {
         total_res = total_res - desired_resources;
         return desired_resources;
       } else if (total_res>0) {
-        int resources_to_return = total_res;
-        total_res = 0;
+        float resources_to_return = total_res;
+        total_res = 0.0;
         return resources_to_return;
       } else {
-        return 0;
+        return 0.0;
       }
     }
   }
@@ -434,6 +446,7 @@ public:
     pop_sizes.resize(2);
   }
 
+
   /**
    * Input: An organism pointer to add to the graveyard
    *
@@ -441,9 +454,10 @@ public:
    *
    * Purpose: To add organisms to the graveyard
    */
-  void SendToGraveyard(emp::Ptr<Organism> org) {
+  virtual void SendToGraveyard(emp::Ptr<Organism> org) {
     graveyard.push_back(org);
   }
+
 
   /**
    * Input: The pointer to the new organism;
@@ -458,6 +472,7 @@ public:
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
+    new_org->SetLocation(pos);
 
     //SYMBIONTS have position in the overall world as their ID
     //HOSTS have position in the overall world as their index
@@ -470,6 +485,14 @@ public:
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+      if(new_org->HasSym()) {
+        //Sometimes we add the symbionts before putting the organism into the world, which messes up the syms' location
+        for(size_t j = 0; j < new_org->GetSymbionts().size(); j++){
+          emp::Ptr<Organism> cur_sym = new_org->GetSymbionts()[j];
+          cur_sym->SetLocation(emp::WorldPosition(j+1, pos.GetIndex()));
+        }
+      }
+      
 
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
@@ -626,6 +649,7 @@ public:
   emp::DataFile & SetupTransmissionFile(const std::string & filename);
   emp::DataFile & SetupTagDistFile(const std::string& filename);
   emp::DataFile & SetupSymDiversityFile(const std::string & filename);
+  virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
@@ -669,7 +693,7 @@ public:
    * Input: The pointer to the symbiont that is moving, the WorldPosition of its
    * current location.
    *
-   * Output: The WorldPosition object describing the symbiont's new location (it describes an 
+   * Output: The WorldPosition object describing the symbiont's new location (it describes an
    * invalid position if the symbiont is deleted during movement)
    *
    * Purpose: To move a symbiont into a new world position.
@@ -721,7 +745,7 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-   emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
@@ -848,6 +872,19 @@ public:
   }
 
   /**
+  * Input: A size_t location to check in the symbiont population vector.
+  *
+  * Output: A boolean representing whether the the position is valid and
+  * occupied by a free living symbiont/
+  *
+  * Purpose: To determine if a given index is valid and occipied in the symbiont
+  * population vector.
+  */
+  bool IsSymPopOccupied(size_t pos) {
+    return pos < sym_pop.size() && sym_pop[pos];
+  }
+
+  /**
    * Input: None
    *
    * Output: None
@@ -869,6 +906,17 @@ public:
   }
 
   /**
+   * Input: A function to run after the experiment has finished but before any no mutation updates have been run.
+   *
+   * Output: A key representing the added function, which can usually be ignored.
+   *
+   * Purpose: Allow performing population-level analyses before running no mutation updates.
+   */
+  emp::SignalKey OnAnalyzePopulation(const std::function<void()> & fun) {
+    return on_analyze_population_sig.AddAction(fun);
+  }
+
+  /**
    * Input: Optional boolean "verbose" that specifies whether to print the update numbers to standard output or not, defaults to true.
    *
    * Output: None
@@ -886,9 +934,14 @@ public:
       Update();
     }
 
+    on_analyze_population_sig.Trigger();
+
     int num_no_mut_updates = my_config->NO_MUT_UPDATES();
     if(num_no_mut_updates > 0) {
       SetMutationZero();
+      // Make sure that hosts stay with their symbionts: we're looking for the dominant *pair*
+      my_config->VERTICAL_TRANSMISSION(1);
+      my_config->SYM_VERT_TRANS_RES(0);
     }
 
     for (int i = 0; i < num_no_mut_updates; i++) {
@@ -900,6 +953,57 @@ public:
     }
   }
 
+  /**
+   * Get the top `config.DOMINANT_COUNT` organisms from the population, sorted by their abundance.
+   */
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> GetDominantInfo() const {
+    emp_assert(
+      GetNumOrgs(),
+      "called GetDominantInfo on an empty population"
+    );
+
+    struct virtual_less {
+      bool operator() (const emp::Ptr<Organism> a, const emp::Ptr<Organism> b) const {
+        return *a < *b;
+      }
+    };
+
+    std::map<emp::Ptr<Organism>, size_t, virtual_less> counts;
+    for (emp::Ptr<Organism> org_ptr : GetFullPop()) {
+      if (org_ptr) ++counts[org_ptr];
+    }
+    emp::vector<std::pair<emp::Ptr<Organism>, size_t>> result(my_config->DOMINANT_COUNT());
+
+    std::partial_sort_copy(
+      std::begin(counts),
+      std::end(counts),
+      result.begin(),
+      result.end(),
+      [](const auto & p1, const auto & p2) {
+        return p1.second > p2.second; // compare by counts, but we want the biggest first
+      }
+    );
+    if (counts.size() <= result.size()) {
+      result.resize(counts.size());
+    }
+
+    return result;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To loop over and delete elements in the graveyard.
+   */
+  void CleanupGraveyard() {
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
+  }
+
 
   /**
    * Input: None
@@ -908,7 +1012,7 @@ public:
    *
    * Purpose: To simulate a timestep in the world, which includes calling the process functions for hosts and symbionts and updating the data nodes.
    */
-  void Update() {
+  virtual void Update() {
     emp::World<Organism>::Update();
 
     // Handle resource inflow
@@ -941,12 +1045,9 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
-
+  
     // clean up the graveyard
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
-    }
-    graveyard.clear();
+    CleanupGraveyard();
   } // Update()
 };// SymWorld class
 #endif

@@ -352,7 +352,7 @@ void SymWorld::MapPhylogenyInteractions() {
 }
 
 /**
- * Input: The address of the string representing the suffixes for the files to be created.
+ * Input: The reference of the datafile which is being constructed.
  *
  * Output: None.
  *
@@ -442,8 +442,18 @@ emp::DataFile & SymWorld::SetupTransmissionFile(const std::string & filename){
     file.AddHistBin(node6, 9, "horiz_sizefail_0.8_1", "Count for histogram bin for horizontal size failures with int val 0.8 to 1", true);
   }
 
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track symbiont transmission
+ */
+emp::DataFile& SymWorld::SetUpTransmissionFile(const std::string& filename) {
+  auto& file = SetupFile(filename);
+  SetupTransmissionFileColumns(file);
   file.PrintHeaderKeys();
-
   return file;
 }
 

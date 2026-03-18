@@ -129,6 +129,11 @@ protected:
     *
   */
   emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
+   /** 
+   * Purpose: To track location in the world
+   * 
+   */
+  emp::WorldPosition location;
 
 public:
 
@@ -237,7 +242,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, Host
   *
   * Purpose: To know which subclass the object is
@@ -365,6 +370,15 @@ public:
 
   /**
    * Input: None
+   * 
+   * Output: The world position of the organism
+   * 
+   * Purpose: To get the world position of the organism
+   */
+  emp::WorldPosition GetLocation() {return location;}
+
+  /**
+   * Input: None
    *
    * Output: The bool representing if an organism is a host.
    *
@@ -413,6 +427,15 @@ public:
    * Purpose: To set a host's points.
    */
   void SetPoints(double _in) {points = _in;}
+
+  /**
+   * Input: A new world position
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the organism's world position
+   */
+  virtual void SetLocation(emp::WorldPosition _in) {location = _in;} 
 
 
   /**
@@ -551,6 +574,26 @@ public:
    */
   void AddPoints(double _in) {points += _in;}
 
+  /**
+   * Input: The symbiont index position to remove (remember it should be 1-indexed)
+   * 
+   * Output: The removed symbiont or null if invalid index given
+   * 
+   * Purpose: To allow removal of a symbiont
+   */
+  emp::Ptr<Organism> RemoveSymbiont(int index) {
+    int num_syms = syms.size();
+    if(index < 1 || index > num_syms) {
+      return nullptr;
+    } else {
+      emp::Ptr<Organism> to_remove = syms[index-1];
+      syms.erase(syms.begin() + (index-1)); 
+      to_remove->SetHost(nullptr);
+      to_remove->SetLocation(emp::WorldPosition::invalid_id);
+      return to_remove;
+    }
+
+  }
 
   /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
@@ -570,12 +613,14 @@ public:
       syms[new_sym_pos] = _in;
       _in->SetHost(this);
       _in->UponInjection();
+      _in->SetLocation(emp::WorldPosition(new_sym_pos+1, location.GetIndex()));
       return new_sym_pos+1;
     }
     else if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){
       syms.push_back(_in);
       _in->SetHost(this);
       _in->UponInjection();
+       _in->SetLocation(emp::WorldPosition(syms.size(), location.GetIndex()));
       return syms.size();
     } else {
       _in.Delete();
@@ -831,7 +876,7 @@ public:
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
-          //sym position should have host index as id and
+          //sym position should have host index as pop_id and
           //position in syms list + 1 as index (0 as fls index)
           emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
           if(!cur_sym->GetDead()){
