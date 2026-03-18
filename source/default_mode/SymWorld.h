@@ -70,6 +70,7 @@ protected:
     *
   */
   emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys;
+  //AEV TODO: change host_sys and sym_sys to something more descriptive
 
   /**
     *
