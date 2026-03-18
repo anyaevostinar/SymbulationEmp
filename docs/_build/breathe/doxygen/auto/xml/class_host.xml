@@ -1,0 +1,1357 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="class_host" kind="class" language="C++" prot="public">
+    <compoundname>Host</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Organism</basecompoundref>
+    <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="class_host_1a0748eef87c30079e259dd428f3240b14" prot="protected" static="no">
+        <type>double</type>
+        <definition>using Host::taxon_info_t =  double</definition>
+        <argsstring></argsstring>
+        <name>taxon_info_t</name>
+        <qualifiedname>Host::taxon_info_t</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="18" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="18" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_host_1a7756d03344d5b6f67d4915ae168e216b" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Host::interaction_val</definition>
+        <argsstring></argsstring>
+        <name>interaction_val</name>
+        <qualifiedname>Host::interaction_val</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the interaction value between the host and symbiont. A negative interaction value represent antagonism, while a positive one represents mutualism. Zero is a neutral value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="27" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="27" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1ae3cd19515ff37f0b54f52afc029602b5" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Host::age</definition>
+        <argsstring></argsstring>
+        <name>age</name>
+        <qualifiedname>Host::age</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the number of updates the host has lived through; at birth is set to 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="35" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a8c4146cf1a25f4fb8803c7c5de9967cc" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Host::reproductions</definition>
+        <argsstring></argsstring>
+        <name>reproductions</name>
+        <qualifiedname>Host::reproductions</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of reproductive events in this host&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="42" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a67742fa9bd4bfa0fd3e40e35c9f4b018" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Host::towards_partner_count</definition>
+        <argsstring></argsstring>
+        <name>towards_partner_count</name>
+        <qualifiedname>Host::towards_partner_count</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of tag flips towards partner in this host&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="49" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="49" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a5cbb43778a5d1fcba43453c79e95835f" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Host::from_partner_count</definition>
+        <argsstring></argsstring>
+        <name>from_partner_count</name>
+        <qualifiedname>Host::from_partner_count</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of tag flips away from partner in this host&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="56" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="56" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a350628d99f9c90ba01da763c05c0a504" prot="protected" static="no" mutable="no">
+        <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt;</type>
+        <definition>emp::vector&lt;emp::Ptr&lt;Organism&gt; &gt; Host::syms</definition>
+        <argsstring></argsstring>
+        <name>syms</name>
+        <qualifiedname>Host::syms</qualifiedname>
+        <initializer>= {}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the set of symbionts belonging to a host. This can be set with <ref refid="class_host_1a1b39a5be5de792042e4cde01dc0c3434" kindref="member">SetSymbionts()</ref>, and symbionts can be added with <ref refid="class_host_1a17e65035b4d51c79a5a4f6ad5b9ef4d1" kindref="member">AddSymbiont()</ref>. This can be cleared with <ref refid="class_host_1aa3dcabcef061c3c45c3a553955530aaa" kindref="member">ClearSyms()</ref> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="65" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="65" bodyend="65"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1af8f7bff72a4f8a159abf1e47aa0b1ac2" prot="protected" static="no" mutable="no">
+        <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt;</type>
+        <definition>emp::vector&lt;emp::Ptr&lt;Organism&gt; &gt; Host::repro_syms</definition>
+        <argsstring></argsstring>
+        <name>repro_syms</name>
+        <qualifiedname>Host::repro_syms</qualifiedname>
+        <initializer>= {}</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the set of in-progress &quot;reproductive&quot; symbionts belonging to a host. These are symbionts that aren&apos;t yet active. Symbionts can be added with <ref refid="class_host_1a585fd7d01c88deb13fdc0e440c206ee5" kindref="member">AddReproSym()</ref>. This can be cleared with <ref refid="class_host_1aa3dcabcef061c3c45c3a553955530aaa" kindref="member">ClearSyms()</ref> </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="73" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="73" bodyend="73"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a9c5567374947990c67022996971f50f7" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Host::points</definition>
+        <argsstring></argsstring>
+        <name>points</name>
+        <qualifiedname>Host::points</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the resource points possessed by a host. This is what hosts must collect to reproduce. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="81" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a7c8c3bbb79ca2cb3d041723b95bbf3a3" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Host::res_in_process</definition>
+        <argsstring></argsstring>
+        <name>res_in_process</name>
+        <qualifiedname>Host::res_in_process</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the resources that could be in the process of being stolen. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="89" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a705a8fc74c9480cff095f0ed4c9093e6" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; emp::Random &gt;</type>
+        <definition>emp::Ptr&lt;emp::Random&gt; Host::random</definition>
+        <argsstring></argsstring>
+        <name>random</name>
+        <qualifiedname>Host::random</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents an instance of random. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="96" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a7a0d0f12c5be03f9431807754974f4a5" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; SymWorld &gt;</type>
+        <definition>emp::Ptr&lt;SymWorld&gt; Host::my_world</definition>
+        <argsstring></argsstring>
+        <name>my_world</name>
+        <qualifiedname>Host::my_world</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the world that the hosts are living in. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="103" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="103" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a266cf379e62398e8f93a68930cc24d32" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; SymConfigBase &gt;</type>
+        <definition>emp::Ptr&lt;SymConfigBase&gt; Host::my_config</definition>
+        <argsstring></argsstring>
+        <name>my_config</name>
+        <qualifiedname>Host::my_config</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the configuration settings for a particular run. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="110" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a96078265fca42af32117473909047e3b" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Host::dead</definition>
+        <argsstring></argsstring>
+        <name>dead</name>
+        <qualifiedname>Host::dead</qualifiedname>
+        <initializer>= false</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents if a host is alive. This is set to true when a host is killed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="117" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="117" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1a00f6989c78d2b7f9375ca4904e49bbb0" prot="protected" static="no" mutable="no">
+        <type>emp::BitSet&lt; TAG_LENGTH &gt;</type>
+        <definition>emp::BitSet&lt;TAG_LENGTH&gt; Host::tag</definition>
+        <argsstring></argsstring>
+        <name>tag</name>
+        <qualifiedname>Host::tag</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the tag for this organism </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="124" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="124" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_host_1addd9e8d7440c7c42137c810e2b52ea61" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+        <definition>emp::Ptr&lt;emp::Taxon&lt;taxon_info_t, datastruct::TaxonDataBase&gt; &gt; Host::my_taxon</definition>
+        <argsstring></argsstring>
+        <name>my_taxon</name>
+        <qualifiedname>Host::my_taxon</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the taxon of this organism. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="131" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="131" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_host_1a16547fe798f52b70bbcf036f79c87164" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Host::Host</definition>
+        <argsstring>(emp::Ptr&lt; emp::Random &gt; _random, emp::Ptr&lt; SymWorld &gt; _world, emp::Ptr&lt; SymConfigBase &gt; _config, double _intval=0.0, emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; _syms={}, emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; _repro_syms={}, double _points=0.0)</argsstring>
+        <name>Host</name>
+        <qualifiedname>Host::Host</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; emp::Random &gt;</type>
+          <declname>_random</declname>
+        </param>
+        <param>
+          <type>emp::Ptr&lt; SymWorld &gt;</type>
+          <declname>_world</declname>
+        </param>
+        <param>
+          <type>emp::Ptr&lt; SymConfigBase &gt;</type>
+          <declname>_config</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>_intval</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt;</type>
+          <declname>_syms</declname>
+          <defval>{}</defval>
+        </param>
+        <param>
+          <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt;</type>
+          <declname>_repro_syms</declname>
+          <defval>{}</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>_points</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The constructor for the host class </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="138" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="138" bodyend="148"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a6c14f16c39ae6bc5db2672e0141adccd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Host::~Host</definition>
+        <argsstring>()</argsstring>
+        <name>~Host</name>
+        <qualifiedname>Host::~Host</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To delete the memory used by a host&apos;s symbionts when the host is deleted. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="157" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="157" bodyend="164"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a08b83898510f8c0875fc7c5b5821bf04" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Host::Host</definition>
+        <argsstring>(const Host &amp;)=default</argsstring>
+        <name>Host</name>
+        <qualifiedname>Host::Host</qualifiedname>
+        <param>
+          <type>const <ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a copy constructor to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="174" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a245a8147adfb3beb284637e74e6b5029" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Host::Host</definition>
+        <argsstring>(Host &amp;&amp;)=default</argsstring>
+        <name>Host</name>
+        <qualifiedname>Host::Host</qualifiedname>
+        <param>
+          <type><ref refid="class_host" kindref="compound">Host</ref> &amp;&amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a move constructor to be generated by the compiler </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="184" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a91fe7cc47bdcbd3d9f832bd7a208b750" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Host::Host</definition>
+        <argsstring>()=default</argsstring>
+        <name>Host</name>
+        <qualifiedname>Host::Host</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To tell the compiler to use its default generated variants of the constructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="194" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a864923e3928275926d067664c0a1d552" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+        <definition>Host &amp; Host::operator=</definition>
+        <argsstring>(const Host &amp;)=default</argsstring>
+        <name>operator=</name>
+        <qualifiedname>Host::operator=</qualifiedname>
+        <param>
+          <type>const <ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a copy assignment operator to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="204" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a19f8aca047cdc4471baf963f5390b599" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+        <definition>Host &amp; Host::operator=</definition>
+        <argsstring>(Host &amp;&amp;)=default</argsstring>
+        <name>operator=</name>
+        <qualifiedname>Host::operator=</qualifiedname>
+        <param>
+          <type><ref refid="class_host" kindref="compound">Host</ref> &amp;&amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a move assignment operator to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="214" column="9"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aefee570934618f17a839a60dcfa3c9db" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::operator==</definition>
+        <argsstring>(const Host &amp;other) const</argsstring>
+        <name>operator==</name>
+        <qualifiedname>Host::operator==</qualifiedname>
+        <param>
+          <type>const <ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: An object of host to be compared to the current host.</para>
+<para>Output: To boolean representing if thing1 == &amp;thing2</para>
+<para>Purpose: To override the bool operator == to return (thing1 == &amp;thing2) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="224" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="224" bodyend="224"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1afa5624427022a11d91ae47445834c144" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::operator!=</definition>
+        <argsstring>(const Host &amp;other) const</argsstring>
+        <name>operator!=</name>
+        <qualifiedname>Host::operator!=</qualifiedname>
+        <param>
+          <type>const <ref refid="class_host" kindref="compound">Host</ref> &amp;</type>
+          <declname>other</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: An object of host, and the address of the thing it is being compared to.</para>
+<para>Output: To boolean representing if *thing1 == thing2</para>
+<para>Purpose: To override the bool operator != to return !(*thing1 == thing2) </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="235" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="235" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a8f1c11f470abb7939d595f5c66b3e36b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string const</type>
+        <definition>std::string const Host::GetName</definition>
+        <argsstring>()</argsstring>
+        <name>GetName</name>
+        <qualifiedname>Host::GetName</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: Name of class as string, <ref refid="class_host" kindref="compound">Host</ref></para>
+<para>Purpose: To know which subclass the object is </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="245" column="21" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="245" bodyend="247"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a3380c2a9dd16f5128dab6bfda4dca9b2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetReproCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetReproCount</name>
+        <qualifiedname>Host::SetReproCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the reproduction counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of reproductions in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="257" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="257" bodyend="257"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1af085885d99c373c2564eaa29cdb3a507" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Host::GetReproCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetReproCount</name>
+        <qualifiedname>Host::GetReproCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The reproduction count</para>
+<para>Purpose: To get the count of reproductions in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="267" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="267" bodyend="267"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a500db57afe6b79f848192a251e3dce0c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetTowardsPartnerCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetTowardsPartnerCount</name>
+        <qualifiedname>Host::SetTowardsPartnerCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the flips towards a partner counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of flips towards a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="277" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="277" bodyend="277"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ab968d7e748928f5e50b0688fd16f6da4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Host::GetTowardsPartnerCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetTowardsPartnerCount</name>
+        <qualifiedname>Host::GetTowardsPartnerCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The flips towards a partner count</para>
+<para>Purpose: To get the count of flips towards a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="287" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="287" bodyend="287"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a5732140df087308aad50ad7b13a58a33" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetFromPartnerCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetFromPartnerCount</name>
+        <qualifiedname>Host::SetFromPartnerCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the flips from a partner counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of flips from a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="297" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="297" bodyend="297"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ac167ef7815c97d899c3728328b7b521b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Host::GetFromPartnerCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetFromPartnerCount</name>
+        <qualifiedname>Host::GetFromPartnerCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The flips from a partner count</para>
+<para>Purpose: To get the count of flips from a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="307" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="307" bodyend="307"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aa3763407d7d58cc0ba1570ca2bc58aad" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Host::GetIntVal</definition>
+        <argsstring>() const</argsstring>
+        <name>GetIntVal</name>
+        <qualifiedname>Host::GetIntVal</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The double representing host&apos;s interaction value</para>
+<para>Purpose: To get the double representing host&apos;s interaction value </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="317" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="317" bodyend="317"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aed2e0ac7c39aa435d0a26b702e595f1d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+        <definition>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt; Host::GetTaxon</definition>
+        <argsstring>()</argsstring>
+        <name>GetTaxon</name>
+        <qualifiedname>Host::GetTaxon</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="319" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="319" bodyend="321"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a62494ea1b2f7c6a30dba04c6ad25582b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="virtual">
+        <type>void</type>
+        <definition>virtual void Host::SetTaxon</definition>
+        <argsstring>(emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt; _in)</argsstring>
+        <name>SetTaxon</name>
+        <qualifiedname>Host::SetTaxon</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="323" column="16" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="323" bodyend="325"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a828104f12fbc7b49ea182b70456b5285" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; &amp;</type>
+        <definition>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; &amp; Host::GetSymbionts</definition>
+        <argsstring>()</argsstring>
+        <name>GetSymbionts</name>
+        <qualifiedname>Host::GetSymbionts</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: A vector of pointers to the organisms that are the host&apos;s syms.</para>
+<para>Purpose: To get the vector containing pointers to the host&apos;s symbionts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="334" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="334" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a2e3c7251493d2ae56f755d9a91b540ba" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; &amp;</type>
+        <definition>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; &amp; Host::GetReproSymbionts</definition>
+        <argsstring>()</argsstring>
+        <name>GetReproSymbionts</name>
+        <qualifiedname>Host::GetReproSymbionts</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: A vector of pointers to the organisms that are the host&apos;s repro syms.</para>
+<para>Purpose: To get the vector containing pointers to the host&apos;s repro syms. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="344" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="344" bodyend="344"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ab990306fafddc495ee6c864a1beb6576" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Host::GetPoints</definition>
+        <argsstring>()</argsstring>
+        <name>GetPoints</name>
+        <qualifiedname>Host::GetPoints</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The double representing a host&apos;s points.</para>
+<para>Purpose: To get the host&apos;s points. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="354" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="354" bodyend="354"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a9e5c478fa79d4b6f0c122df7ea7a1b05" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Host::GetResInProcess</definition>
+        <argsstring>()</argsstring>
+        <name>GetResInProcess</name>
+        <qualifiedname>Host::GetResInProcess</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The double representing res_in_process</para>
+<para>Purpose: To get the value of res_in_process </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="364" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="364" bodyend="364"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1af8f3aba5f8bcf275288631dc040e0e9f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::IsHost</definition>
+        <argsstring>()</argsstring>
+        <name>IsHost</name>
+        <qualifiedname>Host::IsHost</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The bool representing if an organism is a host.</para>
+<para>Purpose: To determine if an organism is a host. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="373" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="373" bodyend="373"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a6cc8ff8e00de321a75de88c630f7f0b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetIntVal</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetIntVal</name>
+        <qualifiedname>Host::SetIntVal</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: A double representing the host&apos;s new interaction value.</para>
+<para>Output: None</para>
+<para>Purpose: To set a host&apos;s interaction value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="383" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="383" bodyend="390"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a1b39a5be5de792042e4cde01dc0c3434" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetSymbionts</definition>
+        <argsstring>(emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt; _in)</argsstring>
+        <name>SetSymbionts</name>
+        <qualifiedname>Host::SetSymbionts</qualifiedname>
+        <param>
+          <type>emp::vector&lt; emp::Ptr&lt; Organism &gt; &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: A vector of pointers to organisms that will become a host&apos;s symbionts.</para>
+<para>Output: None</para>
+<para>Purpose: To set a host&apos;s symbionts to the input vector of organisms. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="400" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="400" bodyend="405"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1abd2e8d39df4a3c747d46b235872e7ac3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetPoints</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetPoints</name>
+        <qualifiedname>Host::SetPoints</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: A double representing a host&apos;s new point value.</para>
+<para>Output: None</para>
+<para>Purpose: To set a host&apos;s points. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="415" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="415" bodyend="415"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aa3dcabcef061c3c45c3a553955530aaa" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::ClearSyms</definition>
+        <argsstring>()</argsstring>
+        <name>ClearSyms</name>
+        <qualifiedname>Host::ClearSyms</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To clear a host&apos;s symbionts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="425" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="425" bodyend="425"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a550ea58cb42d71cf959a75100abc034a" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::ClearReproSyms</definition>
+        <argsstring>()</argsstring>
+        <name>ClearReproSyms</name>
+        <qualifiedname>Host::ClearReproSyms</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To clear a host&apos;s repro symbionts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="435" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="435" bodyend="435"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a5e360e7c93c40dd755a2a23f7377a215" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetTag</definition>
+        <argsstring>(emp::BitSet&lt; TAG_LENGTH &gt; &amp;_in)</argsstring>
+        <name>SetTag</name>
+        <qualifiedname>Host::SetTag</qualifiedname>
+        <param>
+          <type>emp::BitSet&lt; TAG_LENGTH &gt; &amp;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The new tag</para>
+<para>Output: None</para>
+<para>Purpose: To set a host&apos;s tag. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="444" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="444" bodyend="444"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ac57fbf95314a56b2de70895d18514cc5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::BitSet&lt; TAG_LENGTH &gt; &amp;</type>
+        <definition>emp::BitSet&lt; TAG_LENGTH &gt; &amp; Host::GetTag</definition>
+        <argsstring>()</argsstring>
+        <name>GetTag</name>
+        <qualifiedname>Host::GetTag</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The host&apos;s tag.</para>
+<para>Purpose: To get a host&apos;s tag. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="453" column="16" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="453" bodyend="453"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a29947c032dc16454f44aa91d5ed056f1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetDead</definition>
+        <argsstring>()</argsstring>
+        <name>SetDead</name>
+        <qualifiedname>Host::SetDead</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To kill a host. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="462" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="462" bodyend="462"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a48d81eb2d02b54392f89a6687a4566da" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetResInProcess</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetResInProcess</name>
+        <qualifiedname>Host::SetResInProcess</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double to be set as res_in_process</para>
+<para>Output: None</para>
+<para>Purpose: To set the value of res_in_process </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="472" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="472" bodyend="472"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a08b52d3106cec621e430f9d8cfffee76" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::GetDead</definition>
+        <argsstring>()</argsstring>
+        <name>GetDead</name>
+        <qualifiedname>Host::GetDead</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: boolean</para>
+<para>Purpose: To determine if a host is dead. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="481" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="481" bodyend="481"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a01b3216b431f877a7dc2b87eba7be13c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Host::GetAge</definition>
+        <argsstring>()</argsstring>
+        <name>GetAge</name>
+        <qualifiedname>Host::GetAge</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: an int representing the current age of the <ref refid="class_host" kindref="compound">Host</ref></para>
+<para>Purpose: To get the <ref refid="class_host" kindref="compound">Host</ref>&apos;s age. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="490" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="490" bodyend="490"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aa8913931b6967db106b3bcd7f9fe5f11" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::SetAge</definition>
+        <argsstring>(int _in)</argsstring>
+        <name>SetAge</name>
+        <qualifiedname>Host::SetAge</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: An int of what age the <ref refid="class_host" kindref="compound">Host</ref> should be set to</para>
+<para>Output: None</para>
+<para>Purpose: To set the <ref refid="class_host" kindref="compound">Host</ref>&apos;s age for testing purposes. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="499" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="499" bodyend="499"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a714952441377e73e73fff0b513291b70" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::GrowOlder</definition>
+        <argsstring>()</argsstring>
+        <name>GrowOlder</name>
+        <qualifiedname>Host::GrowOlder</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: Increments age by one and kills it if too old. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="508" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="508" bodyend="513"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aa1ccb7aeef4f3f035e265daf23b6edc2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Host::StealResources</definition>
+        <argsstring>(double _intval)</argsstring>
+        <name>StealResources</name>
+        <qualifiedname>Host::StealResources</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_intval</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The interaction value of the symbiont that is eligible to steal resources from the host.</para>
+<para>Output: The double representing the amount of resources that are actually stolen from the host.</para>
+<para>Purpose: To determine if a host&apos;s symbiont is eligible to steal resources from the host. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="525" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="525" bodyend="542"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ae702579a5a21688036a32b5c141318a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::AddPoints</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>AddPoints</name>
+        <qualifiedname>Host::AddPoints</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the number of points to be incremented onto a host&apos;s points.</para>
+<para>Output: None</para>
+<para>Purpose: To increment a host&apos;s points by the input value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="552" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="552" bodyend="552"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a17e65035b4d51c79a5a4f6ad5b9ef4d1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Host::AddSymbiont</definition>
+        <argsstring>(emp::Ptr&lt; Organism &gt; _in)</argsstring>
+        <name>AddSymbiont</name>
+        <qualifiedname>Host::AddSymbiont</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The pointer to the organism that is to be added to the host&apos;s symbionts.</para>
+<para>Output: The int describing the symbiont&apos;s position ID, or 0 if it did not successfully get added to the host&apos;s list of symbionts.</para>
+<para>Purpose: To add a symbionts to a host&apos;s symbionts </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="563" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="563" bodyend="584"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1aab980ab727ca1466ca44905558e90696" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::SymAllowedIn</definition>
+        <argsstring>()</argsstring>
+        <name>SymAllowedIn</name>
+        <qualifiedname>Host::SymAllowedIn</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: A bool representing if a symbiont will be allowed to enter a host.</para>
+<para>Purpose: To determine if a symbiont will be allowed into a host. If phage exclusion is off, this function will always return true. If phage exclusion is on, then there is a 1/2^n chance of a new phage being allowed in, where n is the number of existing phage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="596" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="596" bodyend="607"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a585fd7d01c88deb13fdc0e440c206ee5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::AddReproSym</definition>
+        <argsstring>(emp::Ptr&lt; Organism &gt; _in)</argsstring>
+        <name>AddReproSym</name>
+        <qualifiedname>Host::AddReproSym</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: A pointer to the organism to be added to the host&apos;s symbionts.</para>
+<para>Output: None</para>
+<para>Purpose: To add a repro sym to the host&apos;s symbionts. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="617" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="617" bodyend="617"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a1708fe0418fdd0bfac420eaaa7f13627" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::HasSym</definition>
+        <argsstring>()</argsstring>
+        <name>HasSym</name>
+        <qualifiedname>Host::HasSym</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: A bool representing if a host has any symbionts.</para>
+<para>Purpose: To determine if a host has any symbionts, though they might be corpses that haven&apos;t been removed yet. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="627" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="627" bodyend="629"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ae632c6bb047ddda00638f1a96245a0cb" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt; Organism &gt; Host::MakeNew</definition>
+        <argsstring>()</argsstring>
+        <name>MakeNew</name>
+        <qualifiedname>Host::MakeNew</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: A new host with same properties as this host.</para>
+<para>Purpose: To avoid creating an organism via constructor in other methods. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="638" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="638" bodyend="642"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a4e60077d5b036f06af3179f030883293" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt; Organism &gt; Host::Reproduce</definition>
+        <argsstring>()</argsstring>
+        <name>Reproduce</name>
+        <qualifiedname>Host::Reproduce</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: A new host baby of the current host, mutated.</para>
+<para>Purpose: To create a new baby host and reset this host&apos;s points to 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="651" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="651" bodyend="673"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a5b26454136969312e76c646a96d22c07" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::Mutate</definition>
+        <argsstring>()</argsstring>
+        <name>Mutate</name>
+        <qualifiedname>Host::Mutate</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To mutate a host&apos;s interaction value. This is called on newly generated hosts to allow for evolution to occur. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="683" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="683" bodyend="698"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1ae6b89dd7ece2be5bc147f6284e4712ec" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::DistribResources</definition>
+        <argsstring>(double resources)</argsstring>
+        <name>DistribResources</name>
+        <qualifiedname>Host::DistribResources</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>resources</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the number of resources to be distributed to the host and its symbionts and the position of the host in the world.</para>
+<para>Output: None</para>
+<para>Purpose: To distribute resources to a host and its symbionts. In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner. Otherwise, the resource is split into equal chunks for each symbiont </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="710" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="710" bodyend="734"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a7022763fb7640c40e0529e2dafa9ec0d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Host::HandleEctosymbiosis</definition>
+        <argsstring>(double resources, size_t location)</argsstring>
+        <name>HandleEctosymbiosis</name>
+        <qualifiedname>Host::HandleEctosymbiosis</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>resources</declname>
+        </param>
+        <param>
+          <type>size_t</type>
+          <declname>location</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The total resources received by the host and its location in the world.</para>
+<para>Output: The resources remaining after the host maybe does ectosymbiosis.</para>
+<para>Purpose: To handle ectosymbiosis. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="743" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="743" bodyend="751"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a111959f4c709072608417a0b375bd3a3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Host::GetDoEctosymbiosis</definition>
+        <argsstring>(size_t location)</argsstring>
+        <name>GetDoEctosymbiosis</name>
+        <qualifiedname>Host::GetDoEctosymbiosis</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>location</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The location of this host in the world.</para>
+<para>Output: A bool value representing whether this host should interact with a parallel sym</para>
+<para>Purpose: To determine whether a host should interact with a parallel sym </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="760" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="760" bodyend="768"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1a83a988f7e023192b530cc1f701a299f9" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::DistribResToSym</definition>
+        <argsstring>(emp::Ptr&lt; Organism &gt; sym, double sym_piece)</argsstring>
+        <name>DistribResToSym</name>
+        <qualifiedname>Host::DistribResToSym</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>sym</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>sym_piece</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The sym to whom resources are distributed and the resources it might recieve.</para>
+<para>Output: None</para>
+<para>Purpose: To distribute resources between sym and host depending on their interaction values. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="777" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="777" bodyend="792"/>
+      </memberdef>
+      <memberdef kind="function" id="class_host_1afb3ccccc73ddc7c271600f0b9dc90229" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Host::Process</definition>
+        <argsstring>(emp::WorldPosition pos)</argsstring>
+        <name>Process</name>
+        <qualifiedname>Host::Process</qualifiedname>
+        <param>
+          <type>emp::WorldPosition</type>
+          <declname>pos</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The size_t value representing the location of the host.</para>
+<para>Output: None</para>
+<para>Purpose: To process the host, meaning determining eligibility for reproduction, checking for vertical transmission, removing dead syms, and processing alive syms. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="803" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="803" bodyend="849"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="1">
+        <label>Host</label>
+        <link refid="class_host"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Organism</label>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="1">
+        <label>Host</label>
+        <link refid="class_host"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="2">
+        <label>Organism</label>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" line="13" column="1" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Host.h" bodystart="13" bodyend="850"/>
+    <listofallmembers>
+      <member refid="class_host_1ae702579a5a21688036a32b5c141318a1" prot="public" virt="non-virtual"><scope>Host</scope><name>AddPoints</name></member>
+      <member refid="class_host_1a585fd7d01c88deb13fdc0e440c206ee5" prot="public" virt="non-virtual"><scope>Host</scope><name>AddReproSym</name></member>
+      <member refid="class_host_1a17e65035b4d51c79a5a4f6ad5b9ef4d1" prot="public" virt="non-virtual"><scope>Host</scope><name>AddSymbiont</name></member>
+      <member refid="class_host_1ae3cd19515ff37f0b54f52afc029602b5" prot="protected" virt="non-virtual"><scope>Host</scope><name>age</name></member>
+      <member refid="class_host_1a550ea58cb42d71cf959a75100abc034a" prot="public" virt="non-virtual"><scope>Host</scope><name>ClearReproSyms</name></member>
+      <member refid="class_host_1aa3dcabcef061c3c45c3a553955530aaa" prot="public" virt="non-virtual"><scope>Host</scope><name>ClearSyms</name></member>
+      <member refid="class_host_1a96078265fca42af32117473909047e3b" prot="protected" virt="non-virtual"><scope>Host</scope><name>dead</name></member>
+      <member refid="class_host_1ae6b89dd7ece2be5bc147f6284e4712ec" prot="public" virt="non-virtual"><scope>Host</scope><name>DistribResources</name></member>
+      <member refid="class_host_1a83a988f7e023192b530cc1f701a299f9" prot="public" virt="non-virtual"><scope>Host</scope><name>DistribResToSym</name></member>
+      <member refid="class_host_1a5cbb43778a5d1fcba43453c79e95835f" prot="protected" virt="non-virtual"><scope>Host</scope><name>from_partner_count</name></member>
+      <member refid="class_host_1a01b3216b431f877a7dc2b87eba7be13c" prot="public" virt="non-virtual"><scope>Host</scope><name>GetAge</name></member>
+      <member refid="class_host_1a08b52d3106cec621e430f9d8cfffee76" prot="public" virt="non-virtual"><scope>Host</scope><name>GetDead</name></member>
+      <member refid="class_host_1a111959f4c709072608417a0b375bd3a3" prot="public" virt="non-virtual"><scope>Host</scope><name>GetDoEctosymbiosis</name></member>
+      <member refid="class_host_1ac167ef7815c97d899c3728328b7b521b" prot="public" virt="non-virtual"><scope>Host</scope><name>GetFromPartnerCount</name></member>
+      <member refid="class_host_1aa3763407d7d58cc0ba1570ca2bc58aad" prot="public" virt="non-virtual"><scope>Host</scope><name>GetIntVal</name></member>
+      <member refid="class_host_1a8f1c11f470abb7939d595f5c66b3e36b" prot="public" virt="non-virtual"><scope>Host</scope><name>GetName</name></member>
+      <member refid="class_host_1ab990306fafddc495ee6c864a1beb6576" prot="public" virt="non-virtual"><scope>Host</scope><name>GetPoints</name></member>
+      <member refid="class_host_1af085885d99c373c2564eaa29cdb3a507" prot="public" virt="non-virtual"><scope>Host</scope><name>GetReproCount</name></member>
+      <member refid="class_host_1a2e3c7251493d2ae56f755d9a91b540ba" prot="public" virt="non-virtual"><scope>Host</scope><name>GetReproSymbionts</name></member>
+      <member refid="class_host_1a9e5c478fa79d4b6f0c122df7ea7a1b05" prot="public" virt="non-virtual"><scope>Host</scope><name>GetResInProcess</name></member>
+      <member refid="class_host_1a828104f12fbc7b49ea182b70456b5285" prot="public" virt="non-virtual"><scope>Host</scope><name>GetSymbionts</name></member>
+      <member refid="class_host_1ac57fbf95314a56b2de70895d18514cc5" prot="public" virt="non-virtual"><scope>Host</scope><name>GetTag</name></member>
+      <member refid="class_host_1aed2e0ac7c39aa435d0a26b702e595f1d" prot="public" virt="non-virtual"><scope>Host</scope><name>GetTaxon</name></member>
+      <member refid="class_host_1ab968d7e748928f5e50b0688fd16f6da4" prot="public" virt="non-virtual"><scope>Host</scope><name>GetTowardsPartnerCount</name></member>
+      <member refid="class_host_1a714952441377e73e73fff0b513291b70" prot="public" virt="non-virtual"><scope>Host</scope><name>GrowOlder</name></member>
+      <member refid="class_host_1a7022763fb7640c40e0529e2dafa9ec0d" prot="public" virt="non-virtual"><scope>Host</scope><name>HandleEctosymbiosis</name></member>
+      <member refid="class_host_1a1708fe0418fdd0bfac420eaaa7f13627" prot="public" virt="non-virtual"><scope>Host</scope><name>HasSym</name></member>
+      <member refid="class_host_1a16547fe798f52b70bbcf036f79c87164" prot="public" virt="non-virtual"><scope>Host</scope><name>Host</name></member>
+      <member refid="class_host_1a08b83898510f8c0875fc7c5b5821bf04" prot="public" virt="non-virtual"><scope>Host</scope><name>Host</name></member>
+      <member refid="class_host_1a245a8147adfb3beb284637e74e6b5029" prot="public" virt="non-virtual"><scope>Host</scope><name>Host</name></member>
+      <member refid="class_host_1a91fe7cc47bdcbd3d9f832bd7a208b750" prot="public" virt="non-virtual"><scope>Host</scope><name>Host</name></member>
+      <member refid="class_host_1a7756d03344d5b6f67d4915ae168e216b" prot="protected" virt="non-virtual"><scope>Host</scope><name>interaction_val</name></member>
+      <member refid="class_host_1af8f3aba5f8bcf275288631dc040e0e9f" prot="public" virt="non-virtual"><scope>Host</scope><name>IsHost</name></member>
+      <member refid="class_host_1ae632c6bb047ddda00638f1a96245a0cb" prot="public" virt="non-virtual"><scope>Host</scope><name>MakeNew</name></member>
+      <member refid="class_host_1a5b26454136969312e76c646a96d22c07" prot="public" virt="non-virtual"><scope>Host</scope><name>Mutate</name></member>
+      <member refid="class_host_1a266cf379e62398e8f93a68930cc24d32" prot="protected" virt="non-virtual"><scope>Host</scope><name>my_config</name></member>
+      <member refid="class_host_1addd9e8d7440c7c42137c810e2b52ea61" prot="protected" virt="non-virtual"><scope>Host</scope><name>my_taxon</name></member>
+      <member refid="class_host_1a7a0d0f12c5be03f9431807754974f4a5" prot="protected" virt="non-virtual"><scope>Host</scope><name>my_world</name></member>
+      <member refid="class_host_1afa5624427022a11d91ae47445834c144" prot="public" virt="non-virtual"><scope>Host</scope><name>operator!=</name></member>
+      <member refid="class_host_1a864923e3928275926d067664c0a1d552" prot="public" virt="non-virtual"><scope>Host</scope><name>operator=</name></member>
+      <member refid="class_host_1a19f8aca047cdc4471baf963f5390b599" prot="public" virt="non-virtual"><scope>Host</scope><name>operator=</name></member>
+      <member refid="class_host_1aefee570934618f17a839a60dcfa3c9db" prot="public" virt="non-virtual"><scope>Host</scope><name>operator==</name></member>
+      <member refid="class_host_1a9c5567374947990c67022996971f50f7" prot="protected" virt="non-virtual"><scope>Host</scope><name>points</name></member>
+      <member refid="class_host_1afb3ccccc73ddc7c271600f0b9dc90229" prot="public" virt="non-virtual"><scope>Host</scope><name>Process</name></member>
+      <member refid="class_host_1a705a8fc74c9480cff095f0ed4c9093e6" prot="protected" virt="non-virtual"><scope>Host</scope><name>random</name></member>
+      <member refid="class_host_1af8f7bff72a4f8a159abf1e47aa0b1ac2" prot="protected" virt="non-virtual"><scope>Host</scope><name>repro_syms</name></member>
+      <member refid="class_host_1a4e60077d5b036f06af3179f030883293" prot="public" virt="non-virtual"><scope>Host</scope><name>Reproduce</name></member>
+      <member refid="class_host_1a8c4146cf1a25f4fb8803c7c5de9967cc" prot="protected" virt="non-virtual"><scope>Host</scope><name>reproductions</name></member>
+      <member refid="class_host_1a7c8c3bbb79ca2cb3d041723b95bbf3a3" prot="protected" virt="non-virtual"><scope>Host</scope><name>res_in_process</name></member>
+      <member refid="class_host_1aa8913931b6967db106b3bcd7f9fe5f11" prot="public" virt="non-virtual"><scope>Host</scope><name>SetAge</name></member>
+      <member refid="class_host_1a29947c032dc16454f44aa91d5ed056f1" prot="public" virt="non-virtual"><scope>Host</scope><name>SetDead</name></member>
+      <member refid="class_host_1a5732140df087308aad50ad7b13a58a33" prot="public" virt="non-virtual"><scope>Host</scope><name>SetFromPartnerCount</name></member>
+      <member refid="class_host_1a6cc8ff8e00de321a75de88c630f7f0b0" prot="public" virt="non-virtual"><scope>Host</scope><name>SetIntVal</name></member>
+      <member refid="class_host_1abd2e8d39df4a3c747d46b235872e7ac3" prot="public" virt="non-virtual"><scope>Host</scope><name>SetPoints</name></member>
+      <member refid="class_host_1a3380c2a9dd16f5128dab6bfda4dca9b2" prot="public" virt="non-virtual"><scope>Host</scope><name>SetReproCount</name></member>
+      <member refid="class_host_1a48d81eb2d02b54392f89a6687a4566da" prot="public" virt="non-virtual"><scope>Host</scope><name>SetResInProcess</name></member>
+      <member refid="class_host_1a1b39a5be5de792042e4cde01dc0c3434" prot="public" virt="non-virtual"><scope>Host</scope><name>SetSymbionts</name></member>
+      <member refid="class_host_1a5e360e7c93c40dd755a2a23f7377a215" prot="public" virt="non-virtual"><scope>Host</scope><name>SetTag</name></member>
+      <member refid="class_host_1a62494ea1b2f7c6a30dba04c6ad25582b" prot="public" virt="virtual"><scope>Host</scope><name>SetTaxon</name></member>
+      <member refid="class_host_1a500db57afe6b79f848192a251e3dce0c" prot="public" virt="non-virtual"><scope>Host</scope><name>SetTowardsPartnerCount</name></member>
+      <member refid="class_host_1aa1ccb7aeef4f3f035e265daf23b6edc2" prot="public" virt="non-virtual"><scope>Host</scope><name>StealResources</name></member>
+      <member refid="class_host_1aab980ab727ca1466ca44905558e90696" prot="public" virt="non-virtual"><scope>Host</scope><name>SymAllowedIn</name></member>
+      <member refid="class_host_1a350628d99f9c90ba01da763c05c0a504" prot="protected" virt="non-virtual"><scope>Host</scope><name>syms</name></member>
+      <member refid="class_host_1a00f6989c78d2b7f9375ca4904e49bbb0" prot="protected" virt="non-virtual"><scope>Host</scope><name>tag</name></member>
+      <member refid="class_host_1a0748eef87c30079e259dd428f3240b14" prot="protected" virt="non-virtual"><scope>Host</scope><name>taxon_info_t</name></member>
+      <member refid="class_host_1a67742fa9bd4bfa0fd3e40e35c9f4b018" prot="protected" virt="non-virtual"><scope>Host</scope><name>towards_partner_count</name></member>
+      <member refid="class_host_1a6c14f16c39ae6bc5db2672e0141adccd" prot="public" virt="non-virtual"><scope>Host</scope><name>~Host</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

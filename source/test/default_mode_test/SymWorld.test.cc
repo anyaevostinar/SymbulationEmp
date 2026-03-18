@@ -1844,7 +1844,6 @@ TEST_CASE("SetupHosts", "[default]") {
   }
 }
 
-<<<<<<< HEAD
 TEST_CASE("Tag matching", "[default]") {
   GIVEN("A world") {
     emp::Random random(17);
@@ -2013,8 +2012,9 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
     }
-    // NOTE: tag matching is NOT SUPPORTED by FREE LIVING SYMBIONTS
-=======
+  }
+}
+// NOTE: tag matching is NOT SUPPORTED by FREE LIVING SYMBIONTS
 TEST_CASE("IsSymPopOccupied", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
@@ -2045,7 +2045,6 @@ TEST_CASE("IsSymPopOccupied", "[default]") {
         REQUIRE(is_sp_occupied == true);
       }
     }
->>>>>>> complex-syms-clean
   }
 }
 
@@ -2064,8 +2063,4 @@ TEST_CASE("SendToGraveyard", "[default]") {
     }
     host.Delete();
   }
-<<<<<<< HEAD
-
-=======
->>>>>>> complex-syms-clean
 }

@@ -123,7 +123,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  unsigned int GetReproCount() { return reproductions; }
+  size_t GetReproCount() { return reproductions; }
 
   /**
    * Input: None

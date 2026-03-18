@@ -106,7 +106,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  unsigned int GetReproCount() { return reproductions; }
+  size_t GetReproCount() { return reproductions; }
 
   void AddPoints(double _in) {
     if(my_host && _in == 5.0) {

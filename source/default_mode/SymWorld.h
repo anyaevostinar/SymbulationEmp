@@ -117,6 +117,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
 
+  emp::Signal<void()> on_analyze_population_sig;
+
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
   uint64_t first_mut_host = 0;
@@ -649,7 +651,6 @@ public:
   emp::DataFile & SetupTransmissionFile(const std::string & filename);
   emp::DataFile & SetupTagDistFile(const std::string& filename);
   emp::DataFile & SetupSymDiversityFile(const std::string & filename);
-  virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();

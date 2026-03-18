@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="dir_b2f33c71d4aa5e7af42a1ca61ff5af1b" kind="dir">
+    <compoundname>/Users/vostinar/Desktop/Research/SymbulationEmp/source</compoundname>
+    <innerdir refid="dir_7648bb75f5a59aa648f9fb8bb1f3012e">/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode</innerdir>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/"/>
+  </compounddef>
+</doxygen>
