@@ -1,0 +1,190 @@
+#ifndef INSTRUCTIONS_H
+#define INSTRUCTIONS_H
+
+#include "CPUState.h"
+// #include "SGPWorld.h"
+// #include "Tasks.h"
+
+#include "sgpl/hardware/Cpu.hpp"
+#include "sgpl/operations/flow_global/Anchor.hpp"
+#include "sgpl/program/Program.hpp"
+#include "sgpl/utility/ThreadLocalRandom.hpp"
+
+#include <functional>
+#include <mutex>
+
+namespace sgpmode::inst {
+
+// TODO - Implement an instruction library to help manage instruction set?
+
+// NOTE - discuss register value typing (float vs unsigned integer)
+
+/**
+ * Macro to easily create an instruction:
+ * `INST(MyInstruction, { *a = *b + 2;})`. In the code block, operand registers
+ * are visible as `a`, `b`, and `c`, all of type `uint32_t *`. Instructions may
+ * also access the `Core &core`, `Instruction &inst`, `Program &program`, and
+ * `CPUState &state`.
+ */
+#define INST(InstName, InstCode)                                               \
+  struct InstName {                                                            \
+    template <typename HW_SPEC_T>                                                   \
+    static void run(                                                           \
+      sgpl::Core<HW_SPEC_T>& core,                                                  \
+      const sgpl::Instruction<HW_SPEC_T>& inst,                                     \
+      const sgpl::Program<HW_SPEC_T>& program,                                      \
+      CPUState<typename HW_SPEC_T::world_t>& state                                  \
+    ) {                                                                        \
+      uint32_t& a = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[0]]);  \
+      uint32_t& b = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[1]]);  \
+      uint32_t& c = *reinterpret_cast<uint32_t*>(&core.registers[inst.args[2]]);  \
+      /* avoid "unused variable" warnings */                                   \
+      a = a, b = b, c = c;                                                     \
+      InstCode                                                                 \
+    }                                                                          \
+    static size_t prevalence() { return 1; }                                   \
+    static std::string name() { return #InstName; }                            \
+  };
+
+INST(Increment, {
+  // core.registers[inst.args[0]] += 1;
+  a += 1;
+});
+
+INST(Decrement, {
+  // core.registers[inst.args[0]] -= 1;
+  a -= 1;
+});
+
+// Unary shift (>>1 or <<1)
+INST(ShiftLeft, { a <<= 1; });
+INST(ShiftRight, { a >>= 1; });
+
+INST(Add, { a = b + c; });
+INST(Subtract, { a = b - c; });
+
+INST(Nand, {
+  a = ~(b & c);
+  // a_uint = ~(b_uint & c_uint);
+  // const size_t arg0 = inst.args[0];
+  // const size_t arg1 = inst.args[1];
+  // const size_t arg2 = inst.args[2];
+  // // Work with raw bit representation of floats
+  // std::transform(
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg1] ) + sizeof( core.registers[b] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg2] ),
+  //   reinterpret_cast<std::byte*>( &core.registers[arg0] ),
+  //   [](const std::byte b, const std::byte c){ return ~(b & c); }
+  // );
+});
+
+INST(Push, {
+  // Push value in register a to active stack.
+  state.GetStacks().Push(a);
+});
+
+INST(Pop, {
+  if (auto val = state.GetStacks().Pop()) {
+    a = val.value();
+  } else {
+    a = 0;
+  }
+});
+
+INST(SwapStack, {
+  state.GetStacks().ChangeActive();
+});
+
+INST(Swap, { std::swap(a, b); });
+
+INST(Reproduce, {
+  const emp::WorldPosition& org_loc = state.GetLocation();
+  // Check whether this attempt at reproduction is allowed.
+  const bool too_soon = (state.IsHost()) ?
+    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().HOST_MIN_CYCLES_BEFORE_REPRO() :
+    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().SYM_MIN_CYCLES_BEFORE_REPRO();
+  const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
+                               || state.ReproAttempt() || too_soon;
+  if (invalid_attempt) {
+    return;
+  }
+  // std::cout << "  Mark repro attempt!" << std::endl;
+  state.MarkReproAttempt();
+});
+
+// NOTE - what is the intended difference between SharedIO and PrivateIO?
+INST(IO, {
+  // (1) Add output to output buffer
+  state.GetOutputBuffer().emplace_back(a);
+  // (2) Read next value from input buffer (advancing buffer read ptr)
+  a = state.GetInputBuffer().read();
+});
+
+// INST(Input, {
+//   a = state.GetInputBuffer().read();
+// });
+
+// INST(Output, {
+//   state.GetOutputBuffer().emplace_back(a);
+// });
+
+// NOTE - Discuss whether we want to be using custom jump table vs. using signalgp's
+//        module infrastructure.
+INST(JumpIfNEq, {
+  if (a != b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfLess, {
+  if (a < b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+INST(JumpIfEq, {
+  if (a == b) {
+    core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+  }
+});
+
+// INST(Jump, {
+//   core.JumpToIndex(state.GetJumpDest(core.GetProgramCounter()));
+// });
+
+// BOOKMARK
+// TODO - Donate / Steal instructions
+// AEV Todo: look for what we had in complex-syms-clean
+INST(Donate, {
+  // This instruction does nothing if executed by a host or if this is a symbiont
+  // without a host.
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  // If we're here, we know that we have a symbiont with a host.
+  state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
+});
+
+INST(Steal, {
+  // This instruction does nothing if executed by a
+  if (state.IsHost() || !state.HasHost()) {
+    return;
+  }
+  state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
+});
+
+// Only active if free living sym mode turned on
+INST(Infect, {
+  // Check that this is neither a host or a hosted symbiont
+  if (state.IsHost() || state.HasHost()) {
+    return;
+  }
+  state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
+});
+
+
+} // namespace inst
+
+
+#endif

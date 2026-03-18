@@ -4,16 +4,16 @@
 #include "../default_mode/SymWorld.h"
 //#include "Scheduler.h"
 #include "SGPConfigSetup.h"
-//#include "SGPHost.h"
+#include "SGPHost.h"
 //#include "SGPSymbiont.h"
-//#include "org_type_info.h"
+#include "org_type_info.h"
 //#include "ReproductionQueue.h"
-//#include "ProgramBuilder.h"
+#include "ProgramBuilder.h"
 //#include "SGPMutator.h"
 //#include "tasks/LogicTaskEnvironment.h"
-//#include "hardware/SGPHardwareSpec.h"
-//#include "hardware/GenomeLibrary.h"
-//#include "hardware/SGPHardware.h"
+#include "hardware/SGPHardwareSpec.h"
+#include "hardware/GenomeLibrary.h"
+#include "hardware/SGPHardware.h"
 #include "utils.h"
 
 #include "emp/Evolve/World_structure.hpp"
@@ -31,7 +31,21 @@ const size_t PROGRAM_LENGTH = 100;
 class SGPWorld : public SymWorld {
 public:
 
+  using sgp_cpu_peripheral_t = CPUState<SGPWorld>;
+  using hw_spec_t = SGPHardwareSpec<Library, sgp_cpu_peripheral_t, SGPWorld>;
+  using sgp_host_t = SGPHost<hw_spec_t>;
+  //using sgp_sym_t = SGPSymbiont<hw_spec_t>;
+  using tag_t = typename hw_spec_t::tag_t;
+  using sgp_hw_t = SGPHardware<hw_spec_t>;
+  using sgp_prog_t = typename sgp_hw_t::program_t;
+  //using task_env_t = tasks::LogicTaskEnvironment;
+  //using task_reqs_t = typename task_env_t::TaskReqInfo;
+  //using task_io_bank_t = typename task_env_t::io_bank_t;
+  //using task_io_t = typename task_io_bank_t::TaskIO;
+  //using mutator_t = SGPMutator<sgp_prog_t, Library>;
+  using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
+  using org_mode_t = typename org_info::SGPOrganismType;
 
   //AEV TODO: it's own file?
   // Collection of current update statistics
@@ -90,8 +104,15 @@ public:
 
   } current_update_data;
 
+  // Tag used to trigger start module in signalgp programs during run
+  tag_t START_TAG;
+
 protected:
   size_t max_world_size;
+  ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
+  sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
+
+  // Flag for whether setup has been run.
   bool setup = false;
 
   emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
@@ -117,6 +138,17 @@ protected:
     */
   SymConfigSGP& sgp_config;
 
+// NOTE - Don't love this being owned by the world.
+  //        Not sure of better alterative. Need to know this in InitializeState
+  //        (don't want to re-lookup every call using strings). Couldn't have it float
+  //        inside of the GenomeLibrary file because the static map used by these
+  //        GetOpCode functions isn't initialized at that point.
+  std::unordered_set<uint8_t> sgp_jump_opcodes = {
+    Library::GetOpCode("JumpIfNEq"),
+    Library::GetOpCode("JumpIfEq"),
+    Library::GetOpCode("JumpIfLess")
+  };
+
   // Directory to dump output files into.
   std::filesystem::path output_dir;
 
@@ -137,7 +169,7 @@ public:
   ) :
     SymWorld(rnd, _config),
     //scheduler(rnd),
-    //prog_builder(opcode_rectifier),
+    prog_builder(opcode_rectifier),
     //task_env(rnd),
     //mutator(opcode_rectifier),
     sgp_config(*_config)
@@ -155,6 +187,10 @@ public:
   //   (which is how things were already setup with the pointer).
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
+
+  size_t GetTaskCount() const { return 0; }
+
+  const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
    /**
    * Input: None
@@ -223,8 +259,9 @@ public:
    */
   void Setup() override;
   // NOTE - Can we get rid of passing these values in as pointers?
-//   void SetupHosts(long unsigned int* POP_SIZE) override;
-//   void SetupSymbionts(long unsigned int* total_syms) override;
+  void SetupHosts(long unsigned int* POP_SIZE) override;
+  void SetupSymbionts(long unsigned int* total_syms) override;
+  void CreateDataFiles() override;
 
 
 };

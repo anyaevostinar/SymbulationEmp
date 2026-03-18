@@ -35,5 +35,12 @@ void SGPWorld::Setup() {
 
   setup = true;
 }
+
+void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
+
+}
+
+void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
+}
 }
 #endif
