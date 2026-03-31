@@ -110,7 +110,8 @@ public:
     state(
       world_ptr,
       organism,
-      world_ptr->GetTaskCount()
+      //world_ptr->GetTaskCount()
+      9
     )
   {
     // State constructor (above) will reset cpu state.
@@ -130,7 +131,8 @@ public:
     state(
       world_ptr,
       organism,
-      world_ptr->GetTaskCount()
+      //world_ptr->GetTaskCount()
+      9
     )
   {
     // State constructor (above) will reset cpu state.

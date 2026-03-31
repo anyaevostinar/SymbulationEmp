@@ -106,10 +106,10 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     // Did host attempt to reproduce?
     // NOTE - could move into a signal response
     // NOTE - want to handle this after every clock cycle?
-    if (host.GetHardware().GetCPUState().ReproAttempt()) {
-      // upside to handling this here: we have direct access to organism
-      HostAttemptRepro(pos, host);
-    }
+    // if (host.GetHardware().GetCPUState().ReproAttempt()) {
+    //   // upside to handling this here: we have direct access to organism
+    //   HostAttemptRepro(pos, host);
+    // }
 
     after_host_cpu_step_sig.Trigger(host);
     // NOTE - Check death here?

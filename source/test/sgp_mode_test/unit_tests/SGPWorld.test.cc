@@ -1,4 +1,5 @@
 #include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"

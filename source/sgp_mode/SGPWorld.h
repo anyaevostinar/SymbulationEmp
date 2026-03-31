@@ -461,9 +461,9 @@ protected:
 
   // ----- Internal helper functions -----
   // Called by Update()
-  void DoReproduction();
+  //DoReproduction();
 
-  void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
+  //void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
 
   // void EndosymAttemptRepro(
   //   const emp::WorldPosition& pos,
@@ -481,11 +481,11 @@ protected:
   //   symbionts within the host.
   //   Need to pass in parent pointer because parent may no longer exist at the
   //   given world position when this function is called.
-  emp::WorldPosition HostDoBirth(
-    emp::Ptr<Organism> host_offspring_ptr,
-    emp::Ptr<Organism> host_parent_ptr,
-    const emp::WorldPosition& parent_pos
-  );
+  // emp::WorldPosition HostDoBirth(
+  //   emp::Ptr<Organism> host_offspring_ptr,
+  //   emp::Ptr<Organism> host_parent_ptr,
+  //   const emp::WorldPosition& parent_pos
+  // );
 
   // emp::WorldPosition FreeLivingSymDoBirth(
   //   emp::Ptr<sgp_sym_t> sym_baby_ptr,
@@ -507,18 +507,18 @@ protected:
   // );
 
   // Internal helper function to delete dead organisms in graveyard.
-  void ProcessGraveyard();
+ // void ProcessGraveyard();
 
  // void ProcessStressEscapees();
 
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
-  void SetupOrgMode();
+  //void SetupOrgMode();
   void SetupPopStructure();
   void SetupScheduler();
-  void SetupReproduction();
+  //void SetupReproduction();
 //  void SetupSymReproduction();
-  void SetupHostReproduction();
+  //void SetupHostReproduction();
 //  void SetupHostSymInteractions();
 //  void SetupTaskEnvironment();
  // void SetupMutator();
@@ -560,10 +560,16 @@ protected:
   // }
 
   // Utility function to get cpu state from an org pointer
-  sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
-    return (org_ptr->IsHost()) ?
-      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
-      (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
+  // sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
+  //   return (org_ptr->IsHost()) ?
+  //     (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
+  //     (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
+  // }
+
+    sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
+    return 
+      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() ;
+      
   }
 
 public:
@@ -580,9 +586,9 @@ public:
   { }
 
   ~SGPWorld() {
-    if(data_node_sym_donated) data_node_sym_donated.Delete();
-    if(data_node_sym_stolen) data_node_sym_stolen.Delete();
-    if(data_node_sym_earned) data_node_sym_earned.Delete();
+    //if(data_node_sym_donated) data_node_sym_donated.Delete();
+    //if(data_node_sym_stolen) data_node_sym_stolen.Delete();
+    //if(data_node_sym_earned) data_node_sym_earned.Delete();
   }
 
   /**
@@ -598,10 +604,10 @@ public:
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
-  task_env_t& GetTaskEnv() { return task_env; }
-  const task_env_t& GetTaskEnv() const { return task_env; }
+  //task_env_t& GetTaskEnv() { return task_env; }
+  //const task_env_t& GetTaskEnv() const { return task_env; }
 
-  size_t GetTaskCount() const { return task_env.GetTaskCount(); }
+  //size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
@@ -626,12 +632,12 @@ public:
     scheduler.Run(*this);
 
     // Process reproduction queue
-    DoReproduction();
+    //DoReproduction();
 
-    ProcessStressEscapees();
+    //ProcessStressEscapees();
 
     // Process graveyard, deletes all dead organisms.
-    ProcessGraveyard();
+    //ProcessGraveyard();
 
     // NOTE - these were previously called at the beginning of the update
     //        any specific reason to do that instead of at end?
@@ -667,25 +673,25 @@ public:
   void ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host);
 
   // Process symbiont at given position in the world
-  void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
+  //void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
 
   // Process all symbionts inside given host
-  void ProcessEndosymbionts(sgp_host_t& host);
+  //void ProcessEndosymbionts(sgp_host_t& host);
 
   // Process endosymbiont
-  void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
+  //void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
   void ProcessHostOutputBuffer(sgp_host_t& host);
-  void ProcessSymOutputBuffer(sgp_sym_t& sym);
+  //void ProcessSymOutputBuffer(sgp_sym_t& sym);
 
   // NOTE - moved to be public for testing
-  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
-    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
-    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
-    cpu_state.SetTaskEnvID(env_id);
-    cpu_state.SetInputs(task_io.input_buffer);
-    cpu_state.ResetCreditedOutputs();
-  }
+  // void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
+  //   const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
+  //   const auto& task_io = task_env.GetIOBank().GetIO(env_id);
+  //   cpu_state.SetTaskEnvID(env_id);
+  //   cpu_state.SetInputs(task_io.input_buffer);
+  //   cpu_state.ResetCreditedOutputs();
+  // }
 
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization
@@ -701,28 +707,28 @@ public:
   void Setup() override;
   // NOTE - Can we get rid of passing these values in as pointers?
   void SetupHosts(long unsigned int* POP_SIZE) override;
-  void SetupSymbionts(long unsigned int* total_syms) override;
+  //void SetupSymbionts(long unsigned int* total_syms) override;
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
-  emp::WorldPosition SymDoBirth(
-    emp::Ptr<Organism> sym_baby,
-    emp::WorldPosition parent_pos
-  ) override;
+  // emp::WorldPosition SymDoBirth(
+  //   emp::Ptr<Organism> sym_baby,
+  //   emp::WorldPosition parent_pos
+  // ) override;
 
-  void HostDoMutation(sgp_host_t& host);
-  void SymDoMutation(sgp_sym_t& sym);
+  //void HostDoMutation(sgp_host_t& host);
+  //void SymDoMutation(sgp_sym_t& sym);
 
-  void SymDonateToHost(Organism& from_sym, Organism& to_host);
-  void SymStealFromHost(Organism& to_sym, Organism& from_host);
-  void FreeLivingSymDoInfect(Organism& sym);
+  //void SymDonateToHost(Organism& from_sym, Organism& to_host);
+  //void SymStealFromHost(Organism& to_sym, Organism& from_host);
+  //void FreeLivingSymDoInfect(Organism& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)
-  std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
-  );
+  // std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
+  //   size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+  //   emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  // );
 
   /**
    * Input: An organism pointer to add to the graveyard
@@ -731,29 +737,29 @@ public:
    *
    * Purpose: To add organisms to the graveyard
    */
-  void SendToGraveyard(emp::Ptr<Organism> org) override;
+  //void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   org_mode_t GetOrgType() const { return sgp_org_type; }
-  stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
-  health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
-  nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
+  // stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
+  // health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
+  // nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
 
-  ReproductionQueue& GetReproQueue() { return repro_queue; }
+  //ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
-  emp::DataMonitor<double>& GetSymDonatedDataNode() {
-    emp_assert(data_node_sym_donated != nullptr);
-    return *data_node_sym_donated;
-  }
-  emp::DataMonitor<double>& GetSymStolenDataNode() {
-    emp_assert(data_node_sym_stolen != nullptr);
-    return *data_node_sym_stolen;
-  }
-  emp::DataMonitor<double>& GetSymEarnedDataNode() {
-    emp_assert(data_node_sym_earned != nullptr);
-    return *data_node_sym_earned;
-  }
-  void SetupTasksNodes();
+  // emp::DataMonitor<double>& GetSymDonatedDataNode() {
+  //   emp_assert(data_node_sym_donated != nullptr);
+  //   return *data_node_sym_donated;
+  // }
+  // emp::DataMonitor<double>& GetSymStolenDataNode() {
+  //   emp_assert(data_node_sym_stolen != nullptr);
+  //   return *data_node_sym_stolen;
+  // }
+  // emp::DataMonitor<double>& GetSymEarnedDataNode() {
+  //   emp_assert(data_node_sym_earned != nullptr);
+  //   return *data_node_sym_earned;
+  // }
+  //void SetupTasksNodes();
 
   ProgramBuilder<hw_spec_t>& GetProgramBuilder() { return prog_builder; }
   const ProgramBuilder<hw_spec_t>& GetProgramBuilder() const { return prog_builder; }
@@ -771,63 +777,63 @@ public:
 
   void SnapshotConfig(const std::string& filename="run_config.csv");
 
-  bool NoBetterMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
-    if (host.HasSym()) {
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      const size_t match_strength = utils::MatchingOnesCount(
-        profile,
-        host_task_profile
-      );
-      // NOTE - might as well remove const from arguments because we'd be allowed to modify
-      //        endosymbionts through the pointer...
-      bool strongest_match = true;
-      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
-        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
-        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
-        const size_t endosym_match_strength = utils::MatchingOnesCount(
-          endosym_profile,
-          host_task_profile
-        );
-        // NOTE: >= vs >
-        if (endosym_match_strength > match_strength) {
-          strongest_match = false;
-          break;
-        }
-      }
-      return strongest_match;
-    } else {
-      return true;
-    }
-  }
+  // bool NoBetterMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+  //   if (host.HasSym()) {
+  //     const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+  //     const size_t match_strength = utils::MatchingOnesCount(
+  //       profile,
+  //       host_task_profile
+  //     );
+  //     // NOTE - might as well remove const from arguments because we'd be allowed to modify
+  //     //        endosymbionts through the pointer...
+  //     bool strongest_match = true;
+  //     for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+  //       emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+  //       const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+  //       const size_t endosym_match_strength = utils::MatchingOnesCount(
+  //         endosym_profile,
+  //         host_task_profile
+  //       );
+  //       // NOTE: >= vs >
+  //       if (endosym_match_strength > match_strength) {
+  //         strongest_match = false;
+  //         break;
+  //       }
+  //     }
+  //     return strongest_match;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
-  bool NoBetterOrEquallyMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
-    if (host.HasSym()) {
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      const size_t match_strength = utils::MatchingOnesCount(
-        profile,
-        host_task_profile
-      );
-      // NOTE - might as well remove const from arguments because we'd be allowed to modify
-      //        endosymbionts through the pointer...
-      bool strongest_match = true;
-      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
-        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
-        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
-        const size_t endosym_match_strength = utils::MatchingOnesCount(
-          endosym_profile,
-          host_task_profile
-        );
-        // NOTE: >= vs >
-        if (endosym_match_strength >= match_strength) {
-          strongest_match = false;
-          break;
-        }
-      }
-      return strongest_match;
-    } else {
-      return true;
-    }
-  }
+  // bool NoBetterOrEquallyMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+  //   if (host.HasSym()) {
+  //     const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+  //     const size_t match_strength = utils::MatchingOnesCount(
+  //       profile,
+  //       host_task_profile
+  //     );
+  //     // NOTE - might as well remove const from arguments because we'd be allowed to modify
+  //     //        endosymbionts through the pointer...
+  //     bool strongest_match = true;
+  //     for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+  //       emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+  //       const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+  //       const size_t endosym_match_strength = utils::MatchingOnesCount(
+  //         endosym_profile,
+  //         host_task_profile
+  //       );
+  //       // NOTE: >= vs >
+  //       if (endosym_match_strength >= match_strength) {
+  //         strongest_match = false;
+  //         break;
+  //       }
+  //     }
+  //     return strongest_match;
+  //   } else {
+  //     return true;
+  //   }
+  // }
 
 };
 

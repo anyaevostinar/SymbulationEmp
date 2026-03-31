@@ -159,28 +159,28 @@ INST(JumpIfEq, {
 INST(Donate, {
   // This instruction does nothing if executed by a host or if this is a symbiont
   // without a host.
-  if (state.IsHost() || !state.HasHost()) {
-    return;
-  }
-  // If we're here, we know that we have a symbiont with a host.
-  state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
+  // if (state.IsHost() || !state.HasHost()) {
+  //   return;
+  // }
+  // // If we're here, we know that we have a symbiont with a host.
+  // state.GetWorld().SymDonateToHost(state.GetOrg(), state.GetHost());
 });
 
 INST(Steal, {
   // This instruction does nothing if executed by a
-  if (state.IsHost() || !state.HasHost()) {
-    return;
-  }
-  state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
+  // if (state.IsHost() || !state.HasHost()) {
+  //   return;
+  // }
+  // state.GetWorld().SymStealFromHost(state.GetOrg(), state.GetHost());
 });
 
 // Only active if free living sym mode turned on
 INST(Infect, {
   // Check that this is neither a host or a hosted symbiont
-  if (state.IsHost() || state.HasHost()) {
-    return;
-  }
-  state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
+  // if (state.IsHost() || state.HasHost()) {
+  //   return;
+  // }
+  // state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
 });
 
 
