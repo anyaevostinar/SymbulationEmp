@@ -28,11 +28,15 @@ TEST_CASE("Update only hosts test", "[refactor]") {
 
   emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
 
-  world.AddOrgAt(uninfected_host, 1);
+  world.AddOrgAt(uninfected_host, 0);
+  // TODO: this doesn't work if you add at position 1 instead, is that a problem?
 
   THEN("Organisms can be added to the world") {
     REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(world.GetOrgPtr(0)->GetAge() == 0);
   }
+
+
 
   for (int i = 0; i < 10; i++) {
     world.Update();
@@ -40,8 +44,11 @@ TEST_CASE("Update only hosts test", "[refactor]") {
 
   THEN("Organisms persist and are managed by the world") {
     REQUIRE(world.GetNumOrgs() == 1);
+    REQUIRE(world.GetOrgPtr(0)->GetAge() == 10);
   }
 }
+
+
 
 // TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
 //   emp::Random random(1);

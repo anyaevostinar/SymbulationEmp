@@ -43,7 +43,7 @@
 // #include "../test/sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPDataNodes_SGPWorld.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
-// #include "../test/sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Tasks.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPWorld_StressHost.test.cc"

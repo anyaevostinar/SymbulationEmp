@@ -190,7 +190,6 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(size_t n_cycles=1) {
-
     // TODO / NOTE - Why set location on every CPU step?
     // -> Moved into ProcessOrg
     // state.SetLocation(location);
@@ -200,7 +199,6 @@ public:
     // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
     sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
     state.IncCPUCyclesSinceRepro(n_cycles);
-    // sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**

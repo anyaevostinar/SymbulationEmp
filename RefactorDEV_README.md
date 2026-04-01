@@ -2,8 +2,8 @@
 
 # Timeline plan
 [x] SGPWorld with basic SGPHost
-[ ] Get scheduler working
-[ ] Get host reproduction working (with no point requirement)
+[x] Get scheduler working
+[x] Get host reproduction working (with no point requirement)
 [ ] Get mutator working
 [ ] Get tasks working (and hosts completing them and reproducing)
 [ ] Move code from World's ProcessHost back into Host (make sure tests relevant to just hosts are now passing)
@@ -22,6 +22,10 @@
 
 
 # Journal
+4/1/26
+* Added to test to make sure orgs are getting older and it is failing
+* Fixed by adding org to pos 0 instead of pos 1, a bit nervous about why pos 1 wasn't working
+* Got Host process all back in
 3/31/26
 * Building with scheduler code, need to test still
 3/20/26

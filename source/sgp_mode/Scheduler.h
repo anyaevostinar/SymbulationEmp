@@ -70,6 +70,7 @@ public:
   template<typename WORLD_T>
   void Run(WORLD_T& world) {
     for (size_t world_id : schedule_order) {
+      // std::cout << "scheduler run for loop" << std::endl;
       emp_assert(world_id < world.GetSize());
       world.ProcessOrgsAt(world_id);
     }

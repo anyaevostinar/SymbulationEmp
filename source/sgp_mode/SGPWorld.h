@@ -7,7 +7,7 @@
 #include "SGPHost.h"
 //#include "SGPSymbiont.h"
 #include "org_type_info.h"
-//#include "ReproductionQueue.h"
+#include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
 //#include "SGPMutator.h"
 //#include "tasks/LogicTaskEnvironment.h"
@@ -194,73 +194,6 @@ public:
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
-protected:
-  Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
-  size_t max_world_size; // Maximum number of locations in the world
-//  ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction
-  ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
-  //tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
-  //mutator_t mutator;  // Handles mutating sgp programs
-  // TODO - Consider having symbiont rectifier and host rectifier
-  //        -> Symbiont-specific instructions wouldn't be in host's instruction set
-  sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
-
-//  emp::vector<StressEscapee> symbiont_stress_escapees;
-//  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
-
-  // Flag for whether setup has been run.
-  bool setup = false;
-
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_stolen;
-  emp::Ptr<emp::DataMonitor<double>> data_node_sym_earned;
-
-  // Tracks host/symbiont task success counts.
-  // NOTE - Managed by world instead of task set because world
-  //        determines whether a task is successful
-  emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
-  emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
-
-  // Tracks host task successes each update. Counts reset to 0 @ begin_update_sig.
-  emp::vector<size_t> host_task_successes;
-  // Tracks symbiont task successes each update. Counts reset to 0 @ begin_update_sig.
-  emp::vector<size_t> sym_task_successes;
-
-  /**
-    *
-    * Purpose: Holds all configuration settings and references the same configuration
-    * object as my_config from superclass, but with the correct subtype.
-    *
-    */
-  SymConfigSGP& sgp_config;
-
-  // What kind of SGP organism type to use?
-  org_mode_t sgp_org_type = org_mode_t::DEFAULT;
-  // If using stress organisms, what kind of stress?
-//  stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
-  bool stress_extinction_update = false;
-
- // health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
-//  nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
-
-//  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
-
-  // NOTE - Don't love this being owned by the world.
-  //        Not sure of better alterative. Need to know this in InitializeState
-  //        (don't want to re-lookup every call using strings). Couldn't have it float
-  //        inside of the GenomeLibrary file because the static map used by these
-  //        GetOpCode functions isn't initialized at that point.
-  std::unordered_set<uint8_t> sgp_jump_opcodes = {
-    Library::GetOpCode("JumpIfNEq"),
-    Library::GetOpCode("JumpIfEq"),
-    Library::GetOpCode("JumpIfLess")
-  };
-
-  // Directory to dump output files into.
-  std::filesystem::path output_dir;
-  // Contains config information (from outside sgp_config) to include in configuration snapshot
-  emp::vector<ConfigSnapshotEntry> config_snapshot_entries;
-
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
 //  fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
@@ -355,7 +288,7 @@ protected:
 
   // ---- Host process signals / functors ----
   // before_host_process_sig - Triggers in ProcessHostAt()
-  //  Triggers before running the host's CPU / after updating host location.
+  //  Triggers before running the host's Process.
   //  Host is not guaranteed to still be alive if prior actions attached to this signal
   //  kill the host.
   emp::Signal<void(
@@ -363,20 +296,20 @@ protected:
   )> before_host_process_sig;
 
   // after_host_process_sig - Triggers in ProcessHostAt()
-  //  Triggers at end of ProcessHostAt. There is one final check for death after
+  //  Triggers at end of ProcessHostAt, immediately after Host's Process called. There is one final check for death after
   //  after this triggers in case an attached action kills the host.
   emp::Signal<void(
     sgp_host_t&
   )> after_host_process_sig;
 
-  // after_host_cpu_step_sig - Triggers in ProcessHostAt()
+  // after_host_cpu_step_sig - Triggers in Host's Process()
   //  Triggers after each CPU cycle (potentially multiple times per update) and after
   //  handling a repro attempt by the host for that CPU cycle.
   emp::Signal<void(
     sgp_host_t&
   )> after_host_cpu_step_sig;
 
-  // after_host_cpu_exec_sig - Triggers in ProcessHostAt()
+  // after_host_cpu_exec_sig - Triggers in Host's Process()
   //  Triggers after executing all CPU cycles allotted to host being processed and
   //  before processing the host's endosymbionts.
   emp::Signal<void(
@@ -459,11 +392,17 @@ protected:
   //   emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
   // )> fun_find_host_for_horizontal_trans;
 
-  // ----- Internal helper functions -----
-  // Called by Update()
-  //DoReproduction();
+  /**
+    *
+    * Purpose: Holds all configuration settings and references the same configuration
+    * object as my_config from superclass, but with the correct subtype.
+    *
+    */
+  SymConfigSGP& sgp_config;
 
-  //void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
+
+  /*--- External facing helper functions ----*/
+  void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
 
   // void EndosymAttemptRepro(
   //   const emp::WorldPosition& pos,
@@ -476,16 +415,87 @@ protected:
   //   sgp_sym_t& sym
   // );
 
+  //AEV TODO: Make accessor method for this
+  ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction 
+
+protected:
+  Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
+  size_t max_world_size; // Maximum number of locations in the world
+
+  ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
+  //tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
+  //mutator_t mutator;  // Handles mutating sgp programs
+  // TODO - Consider having symbiont rectifier and host rectifier
+  //        -> Symbiont-specific instructions wouldn't be in host's instruction set
+  sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
+
+//  emp::vector<StressEscapee> symbiont_stress_escapees;
+//  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
+
+  // Flag for whether setup has been run.
+  bool setup = false;
+
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_donated;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_stolen;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_earned;
+
+  // Tracks host/symbiont task success counts.
+  // NOTE - Managed by world instead of task set because world
+  //        determines whether a task is successful
+  emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
+  emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
+
+  // Tracks host task successes each update. Counts reset to 0 @ begin_update_sig.
+  emp::vector<size_t> host_task_successes;
+  // Tracks symbiont task successes each update. Counts reset to 0 @ begin_update_sig.
+  emp::vector<size_t> sym_task_successes;
+
+
+
+  // What kind of SGP organism type to use?
+  org_mode_t sgp_org_type = org_mode_t::DEFAULT;
+  // If using stress organisms, what kind of stress?
+//  stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+  bool stress_extinction_update = false;
+
+ // health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
+//  nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
+
+//  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
+
+  // NOTE - Don't love this being owned by the world.
+  //        Not sure of better alterative. Need to know this in InitializeState
+  //        (don't want to re-lookup every call using strings). Couldn't have it float
+  //        inside of the GenomeLibrary file because the static map used by these
+  //        GetOpCode functions isn't initialized at that point.
+  std::unordered_set<uint8_t> sgp_jump_opcodes = {
+    Library::GetOpCode("JumpIfNEq"),
+    Library::GetOpCode("JumpIfEq"),
+    Library::GetOpCode("JumpIfLess")
+  };
+
+  // Directory to dump output files into.
+  std::filesystem::path output_dir;
+  // Contains config information (from outside sgp_config) to include in configuration snapshot
+  emp::vector<ConfigSnapshotEntry> config_snapshot_entries;
+
+
+  // ----- Internal helper functions -----
+  // Called by Update()
+  void DoReproduction();
+
+
+
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
   //   symbionts within the host.
   //   Need to pass in parent pointer because parent may no longer exist at the
   //   given world position when this function is called.
-  // emp::WorldPosition HostDoBirth(
-  //   emp::Ptr<Organism> host_offspring_ptr,
-  //   emp::Ptr<Organism> host_parent_ptr,
-  //   const emp::WorldPosition& parent_pos
-  // );
+  emp::WorldPosition HostDoBirth(
+    emp::Ptr<Organism> host_offspring_ptr,
+    emp::Ptr<Organism> host_parent_ptr,
+    const emp::WorldPosition& parent_pos
+  );
 
   // emp::WorldPosition FreeLivingSymDoBirth(
   //   emp::Ptr<sgp_sym_t> sym_baby_ptr,
@@ -507,7 +517,7 @@ protected:
   // );
 
   // Internal helper function to delete dead organisms in graveyard.
- // void ProcessGraveyard();
+ void ProcessGraveyard();
 
  // void ProcessStressEscapees();
 
@@ -516,9 +526,9 @@ protected:
   //void SetupOrgMode();
   void SetupPopStructure();
   void SetupScheduler();
-  //void SetupReproduction();
+  void SetupReproduction();
 //  void SetupSymReproduction();
-  //void SetupHostReproduction();
+  void SetupHostReproduction();
 //  void SetupHostSymInteractions();
 //  void SetupTaskEnvironment();
  // void SetupMutator();
@@ -620,6 +630,7 @@ public:
    * process functions for hosts and symbionts and updating the data nodes.
    */
   void Update() override {
+    std::cout << "Update" << std::endl;
     emp_assert(setup);
     begin_update_sig.Trigger();
     // Handle resource inflow
@@ -632,12 +643,12 @@ public:
     scheduler.Run(*this);
 
     // Process reproduction queue
-    //DoReproduction();
+    DoReproduction();
 
     //ProcessStressEscapees();
 
     // Process graveyard, deletes all dead organisms.
-    //ProcessGraveyard();
+    ProcessGraveyard();
 
     // NOTE - these were previously called at the beginning of the update
     //        any specific reason to do that instead of at end?
@@ -737,14 +748,14 @@ public:
    *
    * Purpose: To add organisms to the graveyard
    */
-  //void SendToGraveyard(emp::Ptr<Organism> org) override;
+  void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   org_mode_t GetOrgType() const { return sgp_org_type; }
   // stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
   // health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
   // nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
 
-  //ReproductionQueue& GetReproQueue() { return repro_queue; }
+  ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
   // emp::DataMonitor<double>& GetSymDonatedDataNode() {
