@@ -9,7 +9,7 @@
  * is working correctly.
  */
 
-TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional][refactor-1]") {
+TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional][refactor]") {
   GIVEN("An SGPWorld and a host"){
     using world_t = sgpmode::SGPWorld;
     using cpu_state_t = sgpmode::CPUState<world_t>;
@@ -52,6 +52,53 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional][ref
 
     }
   }
+}
+
+TEST_CASE("Mutations occur during reproduction", "[refactor-1]") {
+
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SGP_MUT_PER_BIT_RATE(100.0);
+  config.HOST_REPRO_RES(0);
+
+
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2,2);
+
+  auto& prog_builder = world.GetProgramBuilder();
+
+  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(10));
+  emp::Ptr<sgp_host_t> second_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(10));
+
+  REQUIRE(*uninfected_host == *second_host);
+
+  world.AddOrgAt(uninfected_host, 0);
+
+  WHEN("The World runs enough updates for host to reproduce"){
+      for (int i = 0; i < 100; i++) {
+        world.Update();
+      }
+      REQUIRE(world.GetNumOrgs() >1);
+    auto& org = world.GetOrg(3); //With this random see, offspring placed at 3 
+    auto& host_baby = static_cast<sgp_host_t&>(org);
+
+    THEN("Host baby is different") {
+      REQUIRE(host_baby != *second_host);
+      //host_baby.Delete();
+    }
+
+  }
+
+
 }
 
 // TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {

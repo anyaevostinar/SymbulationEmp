@@ -455,7 +455,7 @@ public:
     // // Apply SGP-specific mutations (managed by world)
     // my_world->HostDoMutation(*this);
     // // TODO - Switch from HostDoMutation() to:
-    // //   -> my_world->GetHostMutator().DoMutation(*this);
+    my_world->mutator.MutateProgram(GetProgram());
     // // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // // Reset host's hardware
     // hardware.Reset(); // NOTE - this function was previously just Initializing state,

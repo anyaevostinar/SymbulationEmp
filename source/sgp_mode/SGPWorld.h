@@ -9,7 +9,7 @@
 #include "org_type_info.h"
 #include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
-//#include "SGPMutator.h"
+#include "SGPMutator.h"
 //#include "tasks/LogicTaskEnvironment.h"
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
@@ -47,7 +47,7 @@ public:
   // using task_reqs_t = typename task_env_t::TaskReqInfo;
   // using task_io_bank_t = typename task_env_t::io_bank_t;
   // using task_io_t = typename task_io_bank_t::TaskIO;
-  // using mutator_t = SGPMutator<sgp_prog_t, Library>;
+  using mutator_t = SGPMutator<sgp_prog_t, Library>;
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
   // using fun_sym_do_birth_t = std::function<emp::WorldPosition(
@@ -415,8 +415,9 @@ public:
   //   sgp_sym_t& sym
   // );
 
-  //AEV TODO: Make accessor method for this
+  //AEV TODO: Make accessor method for these
   ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction 
+  mutator_t mutator;  // Handles mutating sgp programs
 
 protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
@@ -424,7 +425,7 @@ protected:
 
   ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
   //tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
-  //mutator_t mutator;  // Handles mutating sgp programs
+
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
@@ -531,7 +532,7 @@ protected:
   void SetupHostReproduction();
 //  void SetupHostSymInteractions();
 //  void SetupTaskEnvironment();
- // void SetupMutator();
+ void SetupMutator();
 //  void SetupStressInteractions();
 //  void SetupHealthInteractions();
 //  void SetupNutrientInteractions();
@@ -591,7 +592,7 @@ public:
     scheduler(rnd),
     prog_builder(opcode_rectifier),
 //    task_env(rnd),
-//    mutator(opcode_rectifier),
+   mutator(opcode_rectifier),
     sgp_config(*_config)
   { }
 
@@ -727,7 +728,6 @@ public:
   //   emp::WorldPosition parent_pos
   // ) override;
 
-  //void HostDoMutation(sgp_host_t& host);
   //void SymDoMutation(sgp_sym_t& sym);
 
   //void SymDonateToHost(Organism& from_sym, Organism& to_host);
@@ -784,7 +784,7 @@ public:
   void CollectCurrentUpdateData();
   emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
 
-  void CreateDataFiles() override;
+  //void CreateDataFiles() override;
 
   void SnapshotConfig(const std::string& filename="run_config.csv");
 

@@ -1,6 +1,7 @@
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
 
@@ -13,6 +14,43 @@ using cpu_state_t = sgpmode::CPUState<world_t>;
 using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
 using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+TEST_CASE("Mutate", "[refactor]") {
+
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SGP_MUT_PER_BIT_RATE(1.0);
+
+
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2,2);
+
+  auto& prog_builder = world.GetProgramBuilder();
+
+  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+  emp::Ptr<sgp_host_t> second_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+
+  REQUIRE(*uninfected_host == *second_host);
+
+
+  THEN("Mutated organism is different") {
+    for (int i =0; i<100; i++){
+      uninfected_host->Mutate();
+    }
+    
+    REQUIRE(*uninfected_host != *second_host);
+  }
+
+}
 
 // TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
 //     GIVEN("A host"){
@@ -89,22 +127,22 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 // }
 
 
-TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit][refactor]"){
-    GIVEN("A host"){
-        emp::Random random(31);
-        sgpmode::SymConfigSGP config;
-        world_t world(random, &config);
+// TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit][refactor]"){
+//     GIVEN("A host"){
+//         emp::Random random(31);
+//         sgpmode::SymConfigSGP config;
+//         world_t world(random, &config);
         
-        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+//         emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
 
-        WHEN("A new host is created using the MakeNew function of the first host"){
-            emp::Ptr<Organism> host_remade = host->MakeNew();
-            THEN("MakeNew produces an identical host"){
-                REQUIRE(*host_remade == *host);
-            }
-        }
-    }
-}
+//         WHEN("A new host is created using the MakeNew function of the first host"){
+//             emp::Ptr<Organism> host_remade = host->MakeNew();
+//             THEN("MakeNew produces an identical host"){
+//                 REQUIRE(*host_remade == *host);
+//             }
+//         }
+//     }
+// }
 
 // TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
 //     GIVEN("An SGPWorld and a host"){

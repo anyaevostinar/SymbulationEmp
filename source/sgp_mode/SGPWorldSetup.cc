@@ -64,7 +64,7 @@ void SGPWorld::Setup() {
   }
 
   // Setup mutation operator
-  //SetupMutator();
+  SetupMutator();
 
   // Setup population structure
   SetupPopStructure();
@@ -1192,12 +1192,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 //   );
 // }
 
-// void SGPWorld::SetupMutator() {
-//   // NOTE - can add more flexibility to mutator
-//   mutator.SetPerBitMutationRate(sgp_config.SGP_MUT_PER_BIT_RATE());
-//   // NOTE - could make host mutator a functor that could be configured here
-//   //        same with endosymbionts / etc
-// }
+void SGPWorld::SetupMutator() {
+  // NOTE - can add more flexibility to mutator
+  mutator.SetPerBitMutationRate(sgp_config.SGP_MUT_PER_BIT_RATE());
+  // NOTE - could make host mutator a functor that could be configured here
+  //        same with endosymbionts / etc
+}
 
 }
 #endif

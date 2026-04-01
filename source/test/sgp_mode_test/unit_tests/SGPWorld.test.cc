@@ -2,12 +2,14 @@
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
-#include "../../../sgp_mode/SGPWorldData.cc"
+//#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../catch/catch.hpp"
 
 /**
  * This file is dedicated to unit tests for SGPWorld
  */
+
+
 
 TEST_CASE("Update only hosts test", "[refactor]") {
 
