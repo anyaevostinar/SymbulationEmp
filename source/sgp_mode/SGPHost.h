@@ -283,6 +283,8 @@ public:
   // NOTE - Discuss possibility of host dying because of instruction executions.
   //        As-is, still run hardware forward full amount regardless
   for (size_t i = 0; i < cycles_to_exec; ++i) {
+    if (GetDead()) {
+    }
     // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
     // Execute 1 CPU cycle
     GetHardware().RunCPUStep(1);
@@ -291,8 +293,9 @@ public:
     // NOTE - could move into a signal response
     // NOTE - want to handle this after every clock cycle?
     if (GetHardware().GetCPUState().ReproAttempt()) {
+
       // upside to handling this here: we have direct access to organism
-      my_world->HostAttemptRepro(pos, *this);
+      AttemptReproduction(pos);
     }
 
     my_world->after_host_cpu_step_sig.Trigger(*this);
@@ -318,23 +321,21 @@ public:
    * TODO: Perhaps Default mode should have something similar
    */
   void AttemptReproduction(const emp::WorldPosition& pos) {
-    std::cout << "HostAttemptRepro" << std::endl;
     const double repro_cost = my_world->sgp_config.HOST_REPRO_RES();
     if (GetPoints() >= repro_cost) {
       // Host pays cost
       DecPoints(repro_cost);
       // Add host to repro queue
       // TODO - protect with mutex?
-      std::cout << "  Org queued in repro queue" << std::endl;
       const size_t queue_id = my_world->repro_queue.Enqueue(
         GetHardware().GetCPUState().GetOrgPtr(),
         pos
       );
       // Mark host hardware as repro in progress, no longer in repro "attempt" state.
       GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+      
     } else {
       // Attempt failed, so reset repro state.
-      std::cout << "repro failed" << std::endl;
       GetHardware().GetCPUState().ResetReproState();
     }
   }
@@ -345,7 +346,7 @@ public:
     *
     * Output: A new host baby of the current host, mutated.
     *
-    * Purpose: To create a new baby host and reset this host's points to 0.
+    * Purpose: To create a new baby host and reset this host's points to 0. Called by Repro Queue.
     */
   emp::Ptr<Organism> Reproduce() {
     //AEV Todo: break this up into helper functions

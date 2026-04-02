@@ -54,8 +54,8 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional][ref
   }
 }
 
-TEST_CASE("Mutations occur during reproduction", "[refactor-1]") {
-
+TEST_CASE("Mutations occur during reproduction", "[refactor]") {
+  GIVEN("A world with high mutation rate") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -77,24 +77,19 @@ TEST_CASE("Mutations occur during reproduction", "[refactor-1]") {
   auto& prog_builder = world.GetProgramBuilder();
 
   emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(10));
-  emp::Ptr<sgp_host_t> second_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(10));
-
-  REQUIRE(*uninfected_host == *second_host);
 
   world.AddOrgAt(uninfected_host, 0);
+  REQUIRE(world.IsOccupied(0));
 
-  WHEN("The World runs enough updates for host to reproduce"){
-      for (int i = 0; i < 100; i++) {
-        world.Update();
-      }
-      REQUIRE(world.GetNumOrgs() >1);
-    auto& org = world.GetOrg(3); //With this random see, offspring placed at 3 
-    auto& host_baby = static_cast<sgp_host_t&>(org);
+  WHEN("Reproduce is called") {
+    auto org = uninfected_host->Reproduce();
+    auto& host_baby = static_cast<sgp_host_t&>(*org);
 
-    THEN("Host baby is different") {
-      REQUIRE(host_baby != *second_host);
+    THEN("Host offspring is different than parent") {
+      REQUIRE(host_baby != *uninfected_host);
       //host_baby.Delete();
     }
+  }
 
   }
 

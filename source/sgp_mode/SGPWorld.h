@@ -402,7 +402,7 @@ public:
 
 
   /*--- External facing helper functions ----*/
-  void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host);
+  // void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host); //TO delete
 
   // void EndosymAttemptRepro(
   //   const emp::WorldPosition& pos,
@@ -631,7 +631,6 @@ public:
    * process functions for hosts and symbionts and updating the data nodes.
    */
   void Update() override {
-    std::cout << "Update" << std::endl;
     emp_assert(setup);
     begin_update_sig.Trigger();
     // Handle resource inflow

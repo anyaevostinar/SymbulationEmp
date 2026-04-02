@@ -167,15 +167,16 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 // }
 
 
-//AEV TODO: probably go find what calls this and just call host directly there
-void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
-  // sgp_cpu_peripheral_t& state = host.GetHardware().GetCPUState();
-  // NOTE - >= here or >? (used to be >)
-  // NOTE - Could make this a configurable functor if we envision wanting different
-  //        reproduction requirements
-  host.AttemptReproduction(pos);
+//AEV TODO: delete once confirmed not needed
+// void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
+//   // sgp_cpu_peripheral_t& state = host.GetHardware().GetCPUState();
+//   // NOTE - >= here or >? (used to be >)
+//   // NOTE - Could make this a configurable functor if we envision wanting different
+//   //        reproduction requirements
+//   host.AttemptReproduction(pos);
+//   std::cout << "end host attempt reproduction" << std::endl;
   
-}
+// }
 
 // void SGPWorld::EndosymAttemptRepro(
 //   const emp::WorldPosition& pos,
@@ -232,7 +233,7 @@ void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host)
 // }
 
 void SGPWorld::DoReproduction() {
-  std::cout << "DoReproduction" << std::endl;
+  // std::cout << "DoReproduction" << std::endl;
   // Process reproduction queue
   // NOTE - If do repro remains simplified to just calling the repro_queue's
   //        process function, can get rid of this function.
@@ -304,7 +305,6 @@ emp::WorldPosition SGPWorld::HostDoBirth(
 
   // Call emp::World's DoBirth for host offspring that we're currently "birthing".
   const emp::WorldPosition offspring_pos(DoBirth(host_offspring_ptr, parent_pos));
-  std::cout << "HostDoBirth, offspring pos:" << offspring_pos.GetIndex() << std::endl;
   after_host_do_birth_sig.Trigger(offspring_pos);
   return offspring_pos;
 }

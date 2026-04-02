@@ -99,7 +99,6 @@ INST(SwapStack, {
 INST(Swap, { std::swap(a, b); });
 
 INST(Reproduce, {
-  std::cout << "In repro" << std::endl;
   const emp::WorldPosition& org_loc = state.GetLocation();
   // Check whether this attempt at reproduction is allowed.
   const bool too_soon = (state.IsHost()) ?
@@ -108,10 +107,10 @@ INST(Reproduce, {
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
                                || state.ReproAttempt() || too_soon;
   if (invalid_attempt) {
-    std::cout << "Invalid attempt" <<std::endl;
+    // std::cout << "Invalid attempt" <<std::endl;
     return;
   }
-  std::cout << "  Mark repro attempt!" << std::endl;
+  // std::cout << "  Mark repro attempt!" << std::endl;
   state.MarkReproAttempt();
 });
 

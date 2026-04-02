@@ -4,7 +4,7 @@
 [x] SGPWorld with basic SGPHost
 [x] Get scheduler working
 [x] Get host reproduction working (with no point requirement)
-[ ] Get mutator working
+[x] Get mutator working
 [ ] Get tasks working (and hosts completing them and reproducing)
 [ ] Move code from World's ProcessHost back into Host (make sure tests relevant to just hosts are now passing)
 [ ] Get data tracking working 
@@ -26,6 +26,7 @@
 * Added to test to make sure orgs are getting older and it is failing
 * Fixed by adding org to pos 0 instead of pos 1, a bit nervous about why pos 1 wasn't working
 * Got Host process all back in
+* Mutator called from Host's Mutate now, works when directly called, but I can't see where HostDoMutation was ever called previously so I'm nervous - Alex confirmed it was only called from SGPHost::Mutate, so we're good
 3/31/26
 * Building with scheduler code, need to test still
 3/20/26

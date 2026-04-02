@@ -80,7 +80,6 @@ public:
 
   void Process() {
     for (ReproEvent& repro_info : queue) {
-        std::cout << "processing reproduction queue org" << std::endl;
       emp::Ptr<Organism> org_ptr = repro_info.org;
       // If queued organism is dead or repro event has been invalidated,
       // don't reproduce.
