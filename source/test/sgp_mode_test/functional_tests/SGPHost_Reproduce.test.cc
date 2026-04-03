@@ -26,6 +26,7 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional][ref
     config.SEED(62);
     config.POP_SIZE(0);
     config.START_MOI(0);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
     world_t world(random, &config);
     world.Setup();
@@ -68,6 +69,7 @@ TEST_CASE("Mutations occur during reproduction", "[refactor]") {
   config.GRID_Y(2);
   config.SGP_MUT_PER_BIT_RATE(100.0);
   config.HOST_REPRO_RES(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
 
   world_t world(random, &config);

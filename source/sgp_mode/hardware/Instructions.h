@@ -2,8 +2,7 @@
 #define INSTRUCTIONS_H
 
 #include "CPUState.h"
-// #include "SGPWorld.h"
-// #include "Tasks.h"
+
 
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
@@ -118,7 +117,8 @@ INST(IO, {
   // (1) Add output to output buffer
   state.GetOutputBuffer().emplace_back(a);
   // (2) Read next value from input buffer (advancing buffer read ptr)
-  a = state.GetInputBuffer().read();
+  auto temp = state.GetInputBuffer();
+  a = temp.read();
 });
 
 // INST(Input, {

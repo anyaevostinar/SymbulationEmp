@@ -47,7 +47,7 @@ void SGPWorld::Setup() {
   //SetupOrgMode();
 
   // Configure task environment
-  //SetupTaskEnvironment();
+  SetupTaskEnvironment();
 
   // NOTE - Some of this code is repeated from base class.
   //  - Could do some reorganization to copy-paste. E.g., make functions for this,
@@ -1016,12 +1016,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   );
 
   // TODO - inject initial population at fixed positions (unless configured otherwise)
-  //size_t not_task_id = task_env.GetTaskSet().GetSize();
-  // if (task_env.GetTaskSet().HasTask("NOT")) {
-  //   not_task_id = task_env.GetTaskSet().GetID("NOT");
-  // } else if (task_env.GetTaskSet().HasTask("not")) {
-  //   not_task_id = task_env.GetTaskSet().GetID("not");
-  // }
+  size_t not_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NOT")) {
+    not_task_id = task_env.GetTaskSet().GetID("NOT");
+  } else if (task_env.GetTaskSet().HasTask("not")) {
+    not_task_id = task_env.GetTaskSet().GetID("not");
+  }
 
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
@@ -1074,11 +1074,11 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     //}
     // TODO - Add SGPWorld function to wrap inject host function
     // AssignNewEnvIO(new_host->GetHardware().GetCPUState());
-    // if (task_env.IsHostTask(not_task_id)) {
-    //   new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-    //   new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
-    // }
-    // InjectHost(new_host);
+    if (task_env.IsHostTask(not_task_id)) {
+      new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
+      new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
+    }
+    InjectHost(new_host);
   }
 }
 
@@ -1105,31 +1105,32 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
 // }
 
-// void SGPWorld::SetupTaskEnvironment() {
-//   // TODO - configure any world <--> environment interactions that need to be
-//   //        setup prior to run
-//   task_env.Setup(
-//     sgp_config.TASK_ENV_CFG_PATH(),
-//     sgp_config.TASK_IO_BANK_SIZE(),
-//     sgp_config.TASK_IO_UNIQUE_OUTPUT()
-//   );
+void SGPWorld::SetupTaskEnvironment() {
+  // TODO - configure any world <--> environment interactions that need to be
+  //        setup prior to run
+  std::cout << "SetupTaskEnvironment current task env path:" << sgp_config.TASK_ENV_CFG_PATH() << std::endl;
+  task_env.Setup(
+    sgp_config.TASK_ENV_CFG_PATH(),
+    sgp_config.TASK_IO_BANK_SIZE(),
+    sgp_config.TASK_IO_UNIQUE_OUTPUT()
+  );
 
-//   // Configure oganism input buffers / environment id
-//   // NOTE - now that assigning new env io is in a function, could
-//   //        hardcode these calls in "ProcessOrg" functions.
-//   //        If this isn't something we want to configure at runtime, should do that.
-//   // TODO - Move assign new env to where host_do_birth_sig
-//   before_host_do_birth_sig.AddAction(
-//     [this](
-//       sgp_host_t& host_offspring,
-//       sgp_host_t& host_parent,
-//       const emp::WorldPosition&  parent_pos
-//     ) {
-//       auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
-//       // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
-//       AssignNewEnvIO(offspring_cpu_state);
-//     }
-//   );
+  // Configure organism input buffers / environment id
+  // NOTE - now that assigning new env io is in a function, could
+  //        hardcode these calls in "ProcessOrg" functions.
+  //        If this isn't something we want to configure at runtime, should do that.
+  // TODO - Move assign new env to where host_do_birth_sig
+  before_host_do_birth_sig.AddAction(
+    [this](
+      sgp_host_t& host_offspring,
+      sgp_host_t& host_parent,
+      const emp::WorldPosition&  parent_pos
+    ) {
+      auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
+      // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
+      AssignNewEnvIO(offspring_cpu_state);
+    }
+  );
 
 //   before_sym_do_birth_sig.AddAction(
 //     [this](
@@ -1159,17 +1160,17 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 //     }
 //   );
 
-//   // --- Setup task completion/output buffer checks ---
-//   // NOTE - discuss timing of this check. Currently happens after executing cpu
-//   //        fully for this update
-//   // NOTE - discuss whether we want ability to configure this differently for different
-//   //        kinds of organisms
-//   // TODO - Move this into Process functions
-//   after_host_cpu_exec_sig.AddAction(
-//     [this](sgp_host_t& host) {
-//       ProcessHostOutputBuffer(host);
-//     }
-//   );
+  // --- Setup task completion/output buffer checks ---
+  // NOTE - discuss timing of this check. Currently happens after executing cpu
+  //        fully for this update
+  // NOTE - discuss whether we want ability to configure this differently for different
+  //        kinds of organisms
+  // TODO - Move this into Process functions
+  after_host_cpu_exec_sig.AddAction(
+    [this](sgp_host_t& host) {
+      host.ProcessOutputBuffer();
+    }
+  );
 
 //   // E.g., fine for freeliving and endo syms to have same output processing?
 //   after_freeliving_sym_cpu_exec_sig.AddAction(
@@ -1187,7 +1188,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 //       ProcessSymOutputBuffer(sym);
 //     }
 //   );
-// }
+}
 
 void SGPWorld::SetupMutator() {
   // NOTE - can add more flexibility to mutator

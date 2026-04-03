@@ -28,6 +28,7 @@ TEST_CASE("Mutate", "[refactor]") {
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SGP_MUT_PER_BIT_RATE(1.0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
 
   world_t world(random, &config);

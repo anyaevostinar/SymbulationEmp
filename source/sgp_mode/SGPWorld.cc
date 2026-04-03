@@ -2,7 +2,7 @@
 #define SGP_WORLD_C
 
 #include "SGPWorld.h"
-//#include "SGPHost.h"
+#include "SGPHost.h"
 //#include "SGPSymbiont.h"
 #include "utils.h"
 
@@ -166,17 +166,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 //   }
 // }
 
-
-//AEV TODO: delete once confirmed not needed
-// void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
-//   // sgp_cpu_peripheral_t& state = host.GetHardware().GetCPUState();
-//   // NOTE - >= here or >? (used to be >)
-//   // NOTE - Could make this a configurable functor if we envision wanting different
-//   //        reproduction requirements
-//   host.AttemptReproduction(pos);
-//   std::cout << "end host attempt reproduction" << std::endl;
-  
-// }
 
 // void SGPWorld::EndosymAttemptRepro(
 //   const emp::WorldPosition& pos,
@@ -468,64 +457,6 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
 //   return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
 // }
 
-// void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
-//   auto& cpu_state = host.GetHardware().GetCPUState();
-//   const size_t env_task_id = cpu_state.GetTaskEnvID();
-//   const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
-//   // Process output buffer
-//   auto& output_buffer = cpu_state.GetOutputBuffer();
-//   for (uint32_t val : output_buffer) {
-//     // Is this the correct output for any tasks?
-//     if (task_io.IsValidOutput(val)) {
-//       // Yes, this output is correct.
-//       // Get all task ids associated with this output value
-//       const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
-//       // Give credit for completed tasks
-//       for (size_t task_id : task_ids) {
-//         // Is this a host task?
-//         if (!task_env.IsHostTask(task_id)) continue;
-//         // Not first task
-//         const bool not_first_task = sgp_config.HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
-//         if (not_first_task) {
-//           continue;
-//         }
-//         // Has this organism already gotten credit with this output on this task?
-//         if (cpu_state.OutputCredited(task_id, val)) continue;
-//         // Check task requirements
-//         auto& task_req_info = task_env.GetHostTaskReq(task_id);
-//         if (!CanPerformTask(cpu_state, task_req_info)) {
-//           continue;
-//         }
-//         // Manage CPU state after completing a task:
-//         //   (1) Mark task as being performed
-//         cpu_state.MarkTaskPerformed(task_id);
-//         //   (2) Credit output
-//         cpu_state.CreditOutputValue(task_id, val);
-//         //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
-//         //       for this task in the task io bank.
-//         if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
-//           cpu_state.ResetCreditedOutputs(task_id);
-//         }
-//         // Calc value, add to organism points
-//         host.SetPoints(
-//           task_req_info.fun_calc_task_val(
-//             task_env,
-//             task_req_info,
-//             host.GetPoints()
-//           )
-//         );
-//         // // Enforce point limits
-//         // const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
-//         // if (host.GetPoints() > max_points) {
-//         //   host.SetPoints(max_points);
-//         // }
-//         ++host_task_successes[task_id];
-//       }
-//     }
-//   }
-//   // Clear output buffer
-//   output_buffer.clear();
-// }
 
 // void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
 //   auto& cpu_state = sym.GetHardware().GetCPUState();

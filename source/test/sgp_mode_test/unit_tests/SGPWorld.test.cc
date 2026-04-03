@@ -23,6 +23,7 @@ TEST_CASE("Update only hosts test", "[refactor]") {
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
   config.GRID_Y(2);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
 
   world_t world(random, &config);

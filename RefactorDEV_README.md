@@ -5,8 +5,8 @@
 [x] Get scheduler working
 [x] Get host reproduction working (with no point requirement)
 [x] Get mutator working
-[ ] Get tasks working (and hosts completing them and reproducing)
-[ ] Move code from World's ProcessHost back into Host (make sure tests relevant to just hosts are now passing)
+[x] Get tasks working (and hosts completing them and getting points)
+[ ] Get all host tests working with new setup
 [ ] Get data tracking working 
 [ ] Check that is everything outside of symbionts and special interactions
 [ ] Get symbionts existing (no interaction)
@@ -22,6 +22,11 @@
 
 
 # Journal
+4/3/26
+* Task test working, needed to add a call to AssignNewEnvIO in the test, which seems weird since it seems like that should be handled by world.Setup correctly
+* Moved output buffer processing back into a host method
+4/2/26
+* Adds tasks and test for it, currently failing
 4/1/26
 * Added to test to make sure orgs are getting older and it is failing
 * Fixed by adding org to pos 0 instead of pos 1, a bit nervous about why pos 1 wasn't working

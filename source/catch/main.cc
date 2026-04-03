@@ -50,6 +50,7 @@
 // #include "../test/sgp_mode_test/functional_tests/SGPWorld_SGPConfig.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/StressHost_SGPDataNodes.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/Tasks_ProcessOutput.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHardware_Tasks.test.cc"
 
 // #include "../test/integration_test/spatial_structure/vt.test.cc"
 // #include "../test/integration_test/lysogeny/plr.test.cc"

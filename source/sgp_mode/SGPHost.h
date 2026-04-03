@@ -3,7 +3,6 @@
 
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
-// #include "SGPWorld.h"
 #include "SGPConfigSetup.h"
 
 #include "emp/base/Ptr.hpp"
@@ -340,6 +339,80 @@ public:
     }
   }
 
+  /**
+   * Input: None.
+   * 
+   * Output: None.
+   * 
+   * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
+   */
+  void ProcessOutputBuffer() {
+    //AEV TODO: Check which of these we have access to more easily than currently done
+    auto& cpu_state = GetHardware().GetCPUState();
+  const size_t env_task_id = cpu_state.GetTaskEnvID();
+  auto& task_env = my_world->GetTaskEnv();
+  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+  // Process output buffer
+  auto& output_buffer = cpu_state.GetOutputBuffer();
+  for (uint32_t val : output_buffer) {
+    // Is this the correct output for any tasks?
+    if (task_io.IsValidOutput(val)) {
+      // Yes, this output is correct.
+      // Get all task ids associated with this output value
+      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
+
+      // Give credit for completed tasks
+      for (size_t task_id : task_ids) {
+        // Is this a host task?
+        if (!task_env.IsHostTask(task_id)) continue;
+        // Not first task
+        const bool not_first_task = my_world->sgp_config.HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
+        if (not_first_task) {
+          continue;
+        }
+        // Has this organism already gotten credit with this output on this task?
+        if (cpu_state.OutputCredited(task_id, val)) continue;
+        // Check task requirements
+        auto& task_req_info = task_env.GetHostTaskReq(task_id);
+        if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
+          continue;
+        }
+
+        // Manage CPU state after completing a task:
+        //   (1) Mark task as being performed
+        cpu_state.MarkTaskPerformed(task_id);
+        //   (2) Credit output
+        cpu_state.CreditOutputValue(task_id, val);
+        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
+        //       for this task in the task io bank.
+        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+          cpu_state.ResetCreditedOutputs(task_id);
+        }
+        // Calc value, add to organism points
+        SetPoints(
+          task_req_info.fun_calc_task_val(
+            task_env,
+            task_req_info,
+            GetPoints()
+          )
+        );
+
+        // // Enforce point limits
+        // const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
+        // if (host.GetPoints() > max_points) {
+        //   host.SetPoints(max_points);
+        // }
+
+        //AEV: comment back in for data tracking
+        //++host_task_successes[task_id];
+
+      }
+    }
+  }
+
+  // Clear output buffer
+  output_buffer.clear();
+  }
 
   /**
     * Input: None.
@@ -359,12 +432,12 @@ public:
     cpu_state.SetCPUCyclesSinceRepro(0);
     offspring_cpu_state.SetCPUCyclesSinceRepro(0);
     // Offspring needs to be given parent's (this) task profile
-    // offspring_cpu_state.SetParentTasksPerformed(
-    //   cpu_state.GetTasksPerformed()
-    // );
-    // offspring_cpu_state.SetParentFirstTaskPerformed(
-    //   cpu_state.GetFirstTaskPerformed()
-    // );
+    offspring_cpu_state.SetParentTasksPerformed(
+      cpu_state.GetTasksPerformed()
+    );
+    offspring_cpu_state.SetParentFirstTaskPerformed(
+      cpu_state.GetFirstTaskPerformed()
+    );
 
     // NOTE - Discuss how we use this information + how it's updated
     // NOTE - This was previously behind a config setting; do we want to re-add
@@ -374,50 +447,50 @@ public:
     // Update "lineage" information:
     // - lineage task loss / gain
     // - lineage divergence / convergence toward parent's partner
-    // const size_t num_tasks = offspring_cpu_state.GetNumTasks();
-    // emp_assert(num_tasks == cpu_state.GetNumTasks());
-    // for (size_t task_id = 0; task_id < num_tasks; ++task_id) {
-    //   const bool performed_task = cpu_state.GetTaskPerformed(task_id);
-    //   const bool parent_performed_task = cpu_state.GetParentTaskPerformed(task_id);
+    const size_t num_tasks = offspring_cpu_state.GetNumTasks();
+    emp_assert(num_tasks == cpu_state.GetNumTasks());
+    for (size_t task_id = 0; task_id < num_tasks; ++task_id) {
+      const bool performed_task = cpu_state.GetTaskPerformed(task_id);
+      const bool parent_performed_task = cpu_state.GetParentTaskPerformed(task_id);
 
-    //   // Offspring gains susceptibility to be infected by sym with this task
-    //   const bool task_gain = performed_task && !parent_performed_task;
-    //   const bool task_loss = !performed_task && parent_performed_task;
-    //   offspring_cpu_state.SetLineageTaskGainCount(
-    //     task_id,
-    //     cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
-    //   );
-    //   offspring_cpu_state.SetLineageTaskLossCount(
-    //     task_id,
-    //     cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
-    //   );
+      // Offspring gains susceptibility to be infected by sym with this task
+      const bool task_gain = performed_task && !parent_performed_task;
+      const bool task_loss = !performed_task && parent_performed_task;
+      offspring_cpu_state.SetLineageTaskGainCount(
+        task_id,
+        cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
+      );
+      offspring_cpu_state.SetLineageTaskLossCount(
+        task_id,
+        cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
+      );
 
-    //   // Divergence / convergence toward parent's partner
-    //   const size_t cur_task_diverge_partner = cpu_state.GetLineageTaskDivergeFromPartner(task_id);
-    //   const size_t cur_task_converge_partner = cpu_state.GetLineageTaskConvergeToPartner(task_id);
-    //   // NOTE - is this info on the offspring's convergence/divergence or info on *this* host's convergence/divergence?
-    //   bool converges = false;
-    //   bool diverges = false;
-    //   if (HasSym()) {
-    //     sgp_sym_t& sym = *static_cast<sgp_sym_t*>(syms[0].Raw());
-    //     // NOTE - Looking at sym's parent here (do we want to do this or look at sym?)
-    //     const emp::BitVector& sym_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
-    //     const bool sym_performed_task = sym_tasks[task_id];
-    //     // converge: host_parent != sym_partner and host == sym_partner
-    //     converges = (parent_performed_task != sym_performed_task) && (performed_task == sym_performed_task);
-    //     // diverge: host_parent == sym_partner and host != sym_partner
-    //     diverges = (parent_performed_task == sym_performed_task) && (performed_task != sym_performed_task);
-    //   }
-    //   offspring_cpu_state.SetLineageTaskConvergeToPartner(
-    //     task_id,
-    //     cur_task_converge_partner + (size_t)converges
-    //   );
-    //   offspring_cpu_state.SetLineageTaskDivergeFromPartner(
-    //     task_id,
-    //     cur_task_diverge_partner + (size_t)diverges
-    //   );
-    // }
-    // // This organism reproduced, reset repro state.
+      // Divergence / convergence toward parent's partner
+      const size_t cur_task_diverge_partner = cpu_state.GetLineageTaskDivergeFromPartner(task_id);
+      const size_t cur_task_converge_partner = cpu_state.GetLineageTaskConvergeToPartner(task_id);
+      // NOTE - is this info on the offspring's convergence/divergence or info on *this* host's convergence/divergence?
+      bool converges = false;
+      bool diverges = false;
+      // if (HasSym()) {
+      //   sgp_sym_t& sym = *static_cast<sgp_sym_t*>(syms[0].Raw());
+      //   // NOTE - Looking at sym's parent here (do we want to do this or look at sym?)
+      //   const emp::BitVector& sym_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
+      //   const bool sym_performed_task = sym_tasks[task_id];
+      //   // converge: host_parent != sym_partner and host == sym_partner
+      //   converges = (parent_performed_task != sym_performed_task) && (performed_task == sym_performed_task);
+      //   // diverge: host_parent == sym_partner and host != sym_partner
+      //   diverges = (parent_performed_task == sym_performed_task) && (performed_task != sym_performed_task);
+      // }
+      offspring_cpu_state.SetLineageTaskConvergeToPartner(
+        task_id,
+        cur_task_converge_partner + (size_t)converges
+      );
+      offspring_cpu_state.SetLineageTaskDivergeFromPartner(
+        task_id,
+        cur_task_diverge_partner + (size_t)diverges
+      );
+    }
+    // This organism reproduced, reset repro state.
     hardware.GetCPUState().ResetReproState();
 
     return host_offspring;
@@ -454,12 +527,10 @@ public:
     //        to deviate from what happens in the base class mutate functions
     Host::Mutate();
     // // Apply SGP-specific mutations (managed by world)
-    // my_world->HostDoMutation(*this);
-    // // TODO - Switch from HostDoMutation() to:
     my_world->mutator.MutateProgram(GetProgram());
     // // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // // Reset host's hardware
-    // hardware.Reset(); // NOTE - this function was previously just Initializing state,
+    hardware.Reset(); // NOTE - this function was previously just Initializing state,
     //                   // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
 };

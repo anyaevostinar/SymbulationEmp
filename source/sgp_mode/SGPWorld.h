@@ -10,7 +10,7 @@
 #include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
 #include "SGPMutator.h"
-//#include "tasks/LogicTaskEnvironment.h"
+#include "tasks/LogicTaskEnvironment.h"
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
 #include "hardware/SGPHardware.h"
@@ -43,10 +43,10 @@ public:
   using tag_t = typename hw_spec_t::tag_t;
   using sgp_hw_t = SGPHardware<hw_spec_t>;
   using sgp_prog_t = typename sgp_hw_t::program_t;
-  // using task_env_t = tasks::LogicTaskEnvironment;
-  // using task_reqs_t = typename task_env_t::TaskReqInfo;
-  // using task_io_bank_t = typename task_env_t::io_bank_t;
-  // using task_io_t = typename task_io_bank_t::TaskIO;
+  using task_env_t = tasks::LogicTaskEnvironment;
+  using task_reqs_t = typename task_env_t::TaskReqInfo;
+  using task_io_bank_t = typename task_env_t::io_bank_t;
+  using task_io_t = typename task_io_bank_t::TaskIO;
   using mutator_t = SGPMutator<sgp_prog_t, Library>;
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
@@ -77,7 +77,7 @@ public:
   //   const emp::BitVector&
   // )>;
 
-  // using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
+  using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
   // using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
 
   // using fun_do_resource_inflow_t = std::function<void(void)>;
@@ -208,7 +208,7 @@ public:
 
   // Configurable function that accesses task profile to be used for hosts.
   // - E.g., do we want to use parent tasks, current tasks, etc.
- // fun_get_host_task_profile_t fun_get_host_task_profile;
+ fun_get_host_task_profile_t fun_get_host_task_profile;
 
   // Configurable function that accesses task profile to be used for symbionts.
   // By keeping host/sym functions separately, we could configure them independently.
@@ -424,7 +424,7 @@ protected:
   size_t max_world_size; // Maximum number of locations in the world
 
   ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
-  //tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
+  tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
 
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
@@ -531,7 +531,7 @@ protected:
 //  void SetupSymReproduction();
   void SetupHostReproduction();
 //  void SetupHostSymInteractions();
-//  void SetupTaskEnvironment();
+ void SetupTaskEnvironment();
  void SetupMutator();
 //  void SetupStressInteractions();
 //  void SetupHealthInteractions();
@@ -558,17 +558,7 @@ protected:
     // after_endosym_cpu_step_sig.Clear();
   }
 
-  // NOTE - could make this a functor to allow runtime configuration or differences
-  //        between different kinds of organisms
-  // NOTE - Other conditions that we want to check?
-  // bool CanPerformTask(
-  //   sgp_cpu_peripheral_t& cpu_state,
-  //   const task_reqs_t& task_reqs
-  // ) {
-  //   const size_t task_id = task_reqs.task_id;
-  //   const size_t max_repeats = task_reqs.max_repeats;
-  //   return cpu_state.GetTaskPerformanceCount(task_id) < max_repeats;
-  // }
+
 
   // Utility function to get cpu state from an org pointer
   // sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
@@ -591,8 +581,8 @@ public:
     SymWorld(rnd, _config),
     scheduler(rnd),
     prog_builder(opcode_rectifier),
-//    task_env(rnd),
-   mutator(opcode_rectifier),
+    task_env(rnd),
+    mutator(opcode_rectifier),
     sgp_config(*_config)
   { }
 
@@ -615,12 +605,24 @@ public:
   const SymConfigSGP& GetConfig() const { return sgp_config; }
   emp::Ptr<SymConfigSGP> GetConfigPtr() { return &sgp_config; }
 
-  //task_env_t& GetTaskEnv() { return task_env; }
-  //const task_env_t& GetTaskEnv() const { return task_env; }
+  task_env_t& GetTaskEnv() { return task_env; }
+  const task_env_t& GetTaskEnv() const { return task_env; }
 
-  //size_t GetTaskCount() const { return task_env.GetTaskCount(); }
+  size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
+
+  // NOTE - could make this a functor to allow runtime configuration or differences
+  //        between different kinds of organisms
+  // NOTE - Other conditions that we want to check?
+  bool CanPerformTask(
+    sgp_cpu_peripheral_t& cpu_state,
+    const task_reqs_t& task_reqs
+  ) {
+    const size_t task_id = task_reqs.task_id;
+    const size_t max_repeats = task_reqs.max_repeats;
+    return cpu_state.GetTaskPerformanceCount(task_id) < max_repeats;
+  }
 
   /**
    * Input: None
@@ -692,17 +694,16 @@ public:
   // Process endosymbiont
   //void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
-  void ProcessHostOutputBuffer(sgp_host_t& host);
   //void ProcessSymOutputBuffer(sgp_sym_t& sym);
 
   // NOTE - moved to be public for testing
-  // void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
-  //   const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
-  //   const auto& task_io = task_env.GetIOBank().GetIO(env_id);
-  //   cpu_state.SetTaskEnvID(env_id);
-  //   cpu_state.SetInputs(task_io.input_buffer);
-  //   cpu_state.ResetCreditedOutputs();
-  // }
+  void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
+    const size_t env_id = GetRandom().GetUInt(task_env.GetIOBank().GetSize());
+    const auto& task_io = task_env.GetIOBank().GetIO(env_id);
+    cpu_state.SetTaskEnvID(env_id);
+    cpu_state.SetInputs(task_io.input_buffer);
+    cpu_state.ResetCreditedOutputs();
+  }
 
   // Prototypes for setup methods
   // TODO - distinguish between world configuration and population initialization

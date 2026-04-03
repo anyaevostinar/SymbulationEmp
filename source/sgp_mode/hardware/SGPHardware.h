@@ -190,9 +190,6 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(size_t n_cycles=1) {
-    // TODO / NOTE - Why set location on every CPU step?
-    // -> Moved into ProcessOrg
-    // state.SetLocation(location);
     // std::cout << "RunCPUStep" << std::endl;
     // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
     // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
