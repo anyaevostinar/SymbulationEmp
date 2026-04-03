@@ -40,7 +40,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp][refact
     auto& sgp_host = static_cast<sgp_host_t&>(org);
 
     //TODO: This is necessary to get input buffer setup, why is that not happening already with world.Setup??
-    world.AssignNewEnvIO(sgp_host.GetHardware().GetCPUState());
+    //world.AssignNewEnvIO(sgp_host.GetHardware().GetCPUState());
     
     hardware_t& hw = sgp_host.GetHardware();
     

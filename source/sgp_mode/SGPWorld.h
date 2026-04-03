@@ -5,7 +5,7 @@
 #include "Scheduler.h"
 #include "SGPConfigSetup.h"
 #include "SGPHost.h"
-//#include "SGPSymbiont.h"
+#include "SGPSymbiont.h"
 #include "org_type_info.h"
 #include "ReproductionQueue.h"
 #include "ProgramBuilder.h"
@@ -39,7 +39,7 @@ public:
   using sgp_cpu_peripheral_t = CPUState<SGPWorld>;
   using hw_spec_t = SGPHardwareSpec<Library, sgp_cpu_peripheral_t, SGPWorld>;
   using sgp_host_t = SGPHost<hw_spec_t>;
-  //using sgp_sym_t = SGPSymbiont<hw_spec_t>;
+  using sgp_sym_t = SGPSymbiont<hw_spec_t>;
   using tag_t = typename hw_spec_t::tag_t;
   using sgp_hw_t = SGPHardware<hw_spec_t>;
   using sgp_prog_t = typename sgp_hw_t::program_t;
@@ -50,35 +50,35 @@ public:
   using mutator_t = SGPMutator<sgp_prog_t, Library>;
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
-  // using fun_sym_do_birth_t = std::function<emp::WorldPosition(
-  //   emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
-  //   const emp::WorldPosition&     /* parent_position */
-  // )>;
+  using fun_sym_do_birth_t = std::function<emp::WorldPosition(
+    emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
+    const emp::WorldPosition&     /* parent_position */
+  )>;
 
   // NOTE - better name?
-  // using fun_can_attempt_vert_trans_t = std::function<bool(
-  //   sgp_sym_t&,                /* symbiont_ptr */
-  //   sgp_host_t&,               /* host_offspring_ptr (trans to) */
-  //   sgp_host_t&,               /* host_parent_ptr (trans from) */
-  //   const emp::WorldPosition&  /* parent_pos */
-  // )>;
+  using fun_can_attempt_vert_trans_t = std::function<bool(
+    sgp_sym_t&,                /* symbiont_ptr */
+    sgp_host_t&,               /* host_offspring_ptr (trans to) */
+    sgp_host_t&,               /* host_parent_ptr (trans from) */
+    const emp::WorldPosition&  /* parent_pos */
+  )>;
 
   // Are host and endosymbiont compatible for horizontal transmission?
   // At the moment, task match based on parent vs current
   // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
-  // using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
-  //   sgp_host_t&,
-  //   sgp_sym_t&
-  // )>;
+  using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
+    sgp_host_t&,
+    sgp_sym_t&
+  )>;
 
   // Determines whether two task profiles are "compatible" with one another.
-  // using fun_task_profile_compatibility_t = std::function<bool(
-  //   const emp::BitVector&,
-  //   const emp::BitVector&
-  // )>;
+  using fun_task_profile_compatibility_t = std::function<bool(
+    const emp::BitVector&,
+    const emp::BitVector&
+  )>;
 
   using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
-  // using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
+  using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
 
   // using fun_do_resource_inflow_t = std::function<void(void)>;
 
@@ -196,7 +196,7 @@ public:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-//  fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
+ fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
 
   // Function used to check compatibility between host and symbiont that reproduced
   // via a stress event.
@@ -204,7 +204,7 @@ public:
   //   we no longer have access to the symbiont parent for a stress transmission event.
  // std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
 
- // fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
+ fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
   // Configurable function that accesses task profile to be used for hosts.
   // - E.g., do we want to use parent tasks, current tasks, etc.
@@ -213,7 +213,7 @@ public:
   // Configurable function that accesses task profile to be used for symbionts.
   // By keeping host/sym functions separately, we could configure them independently.
   //    E.g., if we want hosts to use their full profile vs syms using first task only
- // fun_get_sym_task_profile_t fun_get_sym_task_profile;
+ fun_get_sym_task_profile_t fun_get_sym_task_profile;
 
   // begin_update_sig - Triggers at the beginning of an Update call.
   //  Triggers before schedule update, before processing any organisms.
@@ -223,49 +223,49 @@ public:
   // ---- Symbiont birth signals / functors ----
   // before_sym_do_birth_sig - Triggers during SymDoBirth function.
   //  Triggers after sym offspring is created but before fun_sym_do_birth() is called.
-  // emp::Signal<void(
-  //   emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
-  //   const emp::WorldPosition&     /* parent_pos */
-  // )> before_sym_do_birth_sig;
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
+    const emp::WorldPosition&     /* parent_pos */
+  )> before_sym_do_birth_sig;
 
   // after_sym_do_birth_sig - Triggers during SymDoBirth function.
   //  Triggers after fun_sym_do_birth() is called.
-  // emp::Signal<void(
-  //   const emp::WorldPosition& /* sym_baby_pos */
-  // )> after_sym_do_birth_sig;
+  emp::Signal<void(
+    const emp::WorldPosition& /* sym_baby_pos */
+  )> after_sym_do_birth_sig;
 
   // fun_sym_do_birth - Configurable functor that handles calling appropriate
   //  "DoBirth" function depending on whether free-living symbionts are turned on.
- // fun_sym_do_birth_t fun_sym_do_birth;
+ fun_sym_do_birth_t fun_sym_do_birth;
 
   // ---- Symbiont vertical transmission signals / functors ----
   // before_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
   //  Triggers before VerticalTransmission is called on endosymbiont attempting
   //  vertical transmission. I.e., before attempt is made.
-  // emp::Signal<void(
-  //   emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
-  //   emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
-  //   emp::Ptr<sgp_host_t>,      /* host_parent_ptr - transmission from */
-  //   const emp::WorldPosition&  /* host_parent_pos */
-  // )> before_sym_vert_transmission_sig;
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
+    emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
+    emp::Ptr<sgp_host_t>,      /* host_parent_ptr - transmission from */
+    const emp::WorldPosition&  /* host_parent_pos */
+  )> before_sym_vert_transmission_sig;
 
   // after_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
   //  Triggers ater vertical transmission attempt has been made.
   //  If attempt was successful, sym_offspring_ptr will point to the new symbiont
   //  offspring (that was vertically transmitted). If unsuccessful, sym_offspring_ptr
   //  will be a nullptr.
-  // emp::Signal<void(
-  //   emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
-  //   emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
-  //   emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
-  //   emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
-  //   const emp::WorldPosition&,   /* host_parent_pos */
-  //   bool                         /* vertical transmission success */
-  // )> after_sym_vert_transmission_sig;
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
+    emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    const emp::WorldPosition&,   /* host_parent_pos */
+    bool                         /* vertical transmission success */
+  )> after_sym_vert_transmission_sig;
 
   // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
   //  a given symbiont can attempt vertical transmission into host offspring.
- // fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
+ fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
 
   // ---- Host birth signals / functors ----
   // before_host_do_birth_sig - Triggers during HostDoBirth().
@@ -346,39 +346,39 @@ public:
 
   // ---- Endosymbiont process signals / functors ----
   // Happens before this endosymbiont's host is processed
-  // emp::Signal<void(
-  //   const emp::WorldPosition&, /* sym_pos */
-  //   sgp_sym_t&,                /* sym */
-  //   sgp_host_t&                /* host */
-  // )> before_endosym_host_process_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_host_process_sig;
 
   // before_endosym_process_sig - Triggers during ProcessEndoSymbiont()
-  // emp::Signal<void(
-  //   const emp::WorldPosition&, /* sym_pos */
-  //   sgp_sym_t&,                /* sym */
-  //   sgp_host_t&                /* host */
-  // )> before_endosym_process_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_process_sig;
 
   // after_endosym_process_sig - Triggers during ProcessEndoSymbiont()
-  // emp::Signal<void(
-  //   const emp::WorldPosition&, /* sym_pos */
-  //   sgp_sym_t&,                /* sym */
-  //   sgp_host_t&                /* host */
-  // )> after_endosym_process_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_process_sig;
 
   // after_endosym_cpu_step_sig - Triggers during ProcessEndoSymbiont()
-  // emp::Signal<void(
-  //   const emp::WorldPosition&, /* sym_pos */
-  //   sgp_sym_t&,                /* sym */
-  //   sgp_host_t&                /* host */
-  // )> after_endosym_cpu_step_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_step_sig;
 
   // after_endosym_cpu_exec_sig - Triggers during ProcessEndoSymbiont()
-  // emp::Signal<void(
-  //   const emp::WorldPosition&, /* sym_pos */
-  //   sgp_sym_t&,                /* sym */
-  //   sgp_host_t&                /* host */
-  // )> after_endosym_cpu_exec_sig;
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_exec_sig;
 
 
   // ---- Environment signals/functors ----
@@ -387,10 +387,10 @@ public:
   // Called in FindHostForHorizontalTrans(), configured in SetupPopStructure().
   // Returns a target position for symbiont to horizontally transmit into.
   // Returns std::nullopt if failed to find suitable target position.
-  // std::function<std::optional<emp::WorldPosition>(
-  //   size_t,                 /* Parent's host location id in world (pops[0][id])*/
-  //   emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
-  // )> fun_find_host_for_horizontal_trans;
+  std::function<std::optional<emp::WorldPosition>(
+    size_t,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
+  )> fun_find_host_for_horizontal_trans;
 
   /**
     *
@@ -402,13 +402,11 @@ public:
 
 
   /*--- External facing helper functions ----*/
-  // void HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host); //TO delete
-
-  // void EndosymAttemptRepro(
-  //   const emp::WorldPosition& pos,
-  //   sgp_sym_t& sym,
-  //   sgp_host_t& host
-  // );
+  void EndosymAttemptRepro(
+    const emp::WorldPosition& pos,
+    sgp_sym_t& sym,
+    sgp_host_t& host
+  );
 
   // void FreeLivingSymAttemptRepro(
   //   const emp::WorldPosition& pos,
@@ -503,19 +501,19 @@ protected:
   //   const emp::WorldPosition& parent_pos
   // );
 
-  // emp::WorldPosition SymAttemptHorizontalTrans(
-  //   emp::Ptr<sgp_sym_t> sym_baby_ptr,
-  //   const emp::WorldPosition& parent_pos
-  // );
+  emp::WorldPosition SymAttemptHorizontalTrans(
+    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    const emp::WorldPosition& parent_pos
+  );
 
   // Attempt vertical transmission from host parent to host offspring.
   // Pass in pointers to play nice with Symbiont.h's VerticalTransmission function.
-  // bool EndosymAttemptVertTransmission(
-  //   emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
-  //   emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
-  //   emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
-  //   const emp::WorldPosition& parent_pos /* Parent location */
-  // );
+  bool EndosymAttemptVertTransmission(
+    emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
+    emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
+    emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
+    const emp::WorldPosition& parent_pos /* Parent location */
+  );
 
   // Internal helper function to delete dead organisms in graveyard.
  void ProcessGraveyard();
@@ -528,9 +526,9 @@ protected:
   void SetupPopStructure();
   void SetupScheduler();
   void SetupReproduction();
-//  void SetupSymReproduction();
+ void SetupSymReproduction();
   void SetupHostReproduction();
-//  void SetupHostSymInteractions();
+ void SetupHostSymInteractions();
  void SetupTaskEnvironment();
  void SetupMutator();
 //  void SetupStressInteractions();
@@ -540,10 +538,10 @@ protected:
   // Clear all world signals
   void ClearWorldSignals() {
     begin_update_sig.Clear();
-    // before_sym_do_birth_sig.Clear();
-    // after_sym_do_birth_sig.Clear();
-    // before_sym_vert_transmission_sig.Clear();
-    // after_sym_vert_transmission_sig.Clear();
+    before_sym_do_birth_sig.Clear();
+    after_sym_do_birth_sig.Clear();
+    before_sym_vert_transmission_sig.Clear();
+    after_sym_vert_transmission_sig.Clear();
     before_host_do_birth_sig.Clear();
     after_host_do_birth_sig.Clear();
     before_host_process_sig.Clear();
@@ -552,25 +550,19 @@ protected:
     // before_freeliving_sym_process_sig.Clear();
     // after_freeliving_sym_process_sig.Clear();
     // after_freeliving_sym_cpu_step_sig.Clear();
-    // before_endosym_host_process_sig.Clear();
-    // before_endosym_process_sig.Clear();
-    // after_endosym_process_sig.Clear();
-    // after_endosym_cpu_step_sig.Clear();
+    before_endosym_host_process_sig.Clear();
+    before_endosym_process_sig.Clear();
+    after_endosym_process_sig.Clear();
+    after_endosym_cpu_step_sig.Clear();
   }
 
 
 
   // Utility function to get cpu state from an org pointer
-  // sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
-  //   return (org_ptr->IsHost()) ?
-  //     (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
-  //     (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
-  // }
-
-    sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
-    return 
-      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() ;
-      
+  sgp_cpu_peripheral_t& GetCPUState(emp::Ptr<Organism> org_ptr) {
+    return (org_ptr->IsHost()) ?
+      (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
+      (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
   }
 
 public:
@@ -689,12 +681,12 @@ public:
   //void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
 
   // Process all symbionts inside given host
-  //void ProcessEndosymbionts(sgp_host_t& host);
+  void ProcessEndosymbionts(sgp_host_t& host);
 
   // Process endosymbiont
-  //void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
+  void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
-  //void ProcessSymOutputBuffer(sgp_sym_t& sym);
+  void ProcessSymOutputBuffer(sgp_sym_t& sym);
 
   // NOTE - moved to be public for testing
   void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
@@ -719,27 +711,27 @@ public:
   void Setup() override;
   // NOTE - Can we get rid of passing these values in as pointers?
   void SetupHosts(long unsigned int* POP_SIZE) override;
-  //void SetupSymbionts(long unsigned int* total_syms) override;
+  void SetupSymbionts(long unsigned int* total_syms) override;
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
-  // emp::WorldPosition SymDoBirth(
-  //   emp::Ptr<Organism> sym_baby,
-  //   emp::WorldPosition parent_pos
-  // ) override;
+  emp::WorldPosition SymDoBirth(
+    emp::Ptr<Organism> sym_baby,
+    emp::WorldPosition parent_pos
+  ) override;
 
-  //void SymDoMutation(sgp_sym_t& sym);
+  void SymDoMutation(sgp_sym_t& sym);
 
-  //void SymDonateToHost(Organism& from_sym, Organism& to_host);
+  // void SymDonateToHost(Organism& from_sym, Organism& to_host);
   //void SymStealFromHost(Organism& to_sym, Organism& from_host);
   //void FreeLivingSymDoInfect(Organism& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)
-  // std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
-  //   size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-  //   emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
-  // );
+  std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
+    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  );
 
   /**
    * Input: An organism pointer to add to the graveyard
@@ -788,63 +780,63 @@ public:
 
   void SnapshotConfig(const std::string& filename="run_config.csv");
 
-  // bool NoBetterMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
-  //   if (host.HasSym()) {
-  //     const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-  //     const size_t match_strength = utils::MatchingOnesCount(
-  //       profile,
-  //       host_task_profile
-  //     );
-  //     // NOTE - might as well remove const from arguments because we'd be allowed to modify
-  //     //        endosymbionts through the pointer...
-  //     bool strongest_match = true;
-  //     for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
-  //       emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
-  //       const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
-  //       const size_t endosym_match_strength = utils::MatchingOnesCount(
-  //         endosym_profile,
-  //         host_task_profile
-  //       );
-  //       // NOTE: >= vs >
-  //       if (endosym_match_strength > match_strength) {
-  //         strongest_match = false;
-  //         break;
-  //       }
-  //     }
-  //     return strongest_match;
-  //   } else {
-  //     return true;
-  //   }
-  // }
+  bool NoBetterMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+    if (host.HasSym()) {
+      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const size_t match_strength = utils::MatchingOnesCount(
+        profile,
+        host_task_profile
+      );
+      // NOTE - might as well remove const from arguments because we'd be allowed to modify
+      //        endosymbionts through the pointer...
+      bool strongest_match = true;
+      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+        const size_t endosym_match_strength = utils::MatchingOnesCount(
+          endosym_profile,
+          host_task_profile
+        );
+        // NOTE: >= vs >
+        if (endosym_match_strength > match_strength) {
+          strongest_match = false;
+          break;
+        }
+      }
+      return strongest_match;
+    } else {
+      return true;
+    }
+  }
 
-  // bool NoBetterOrEquallyMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
-  //   if (host.HasSym()) {
-  //     const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-  //     const size_t match_strength = utils::MatchingOnesCount(
-  //       profile,
-  //       host_task_profile
-  //     );
-  //     // NOTE - might as well remove const from arguments because we'd be allowed to modify
-  //     //        endosymbionts through the pointer...
-  //     bool strongest_match = true;
-  //     for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
-  //       emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
-  //       const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
-  //       const size_t endosym_match_strength = utils::MatchingOnesCount(
-  //         endosym_profile,
-  //         host_task_profile
-  //       );
-  //       // NOTE: >= vs >
-  //       if (endosym_match_strength >= match_strength) {
-  //         strongest_match = false;
-  //         break;
-  //       }
-  //     }
-  //     return strongest_match;
-  //   } else {
-  //     return true;
-  //   }
-  // }
+  bool NoBetterOrEquallyMatchingSymbionts(sgp_host_t& host, const emp::BitVector& profile) {
+    if (host.HasSym()) {
+      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const size_t match_strength = utils::MatchingOnesCount(
+        profile,
+        host_task_profile
+      );
+      // NOTE - might as well remove const from arguments because we'd be allowed to modify
+      //        endosymbionts through the pointer...
+      bool strongest_match = true;
+      for (emp::Ptr<Organism> org_ptr : host.GetSymbionts()) {
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(org_ptr.Raw());
+        const emp::BitVector& endosym_profile = fun_get_sym_task_profile(*endosym_ptr);
+        const size_t endosym_match_strength = utils::MatchingOnesCount(
+          endosym_profile,
+          host_task_profile
+        );
+        // NOTE: >= vs >
+        if (endosym_match_strength >= match_strength) {
+          strongest_match = false;
+          break;
+        }
+      }
+      return strongest_match;
+    } else {
+      return true;
+    }
+  }
 
 };
 

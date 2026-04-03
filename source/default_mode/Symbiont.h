@@ -7,6 +7,7 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <optional>
 
 
 class Symbiont: public Organism {
@@ -706,11 +707,13 @@ public:
   /**
    * Input: The pointer to the organism that is the new host baby
    *
-   * Output: None
+   * Output: Return symbiont offspring on success; std::nullopt otherwise.
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
+    emp::Ptr<Organism> sym_baby;
     if (my_world->WillTransmit()) {
       // Vertical transmission data nodes
       // Attempt vs success for vertical transmission is just whether it has enough resources
@@ -719,13 +722,13 @@ public:
 
       // If the world permits vertical transmission and the sym has enough resources, transmit!
       if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
-        emp::Ptr<Organism> sym_baby = Reproduce();
+        sym_baby = Reproduce();
         if (my_config->TAG_MATCHING()) {
           double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
           double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
           if (tag_distance > cutoff) {
             sym_baby.Delete();
-            return;
+            return std::nullopt;
           }
         }
         points = points - my_config->SYM_VERT_TRANS_RES();
@@ -736,7 +739,9 @@ public:
 
       }
     }
+    return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
+
 
   /**
    * Input: The location of the organism (and it's Host) as a size_t

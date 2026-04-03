@@ -4,6 +4,7 @@
 #include <string>
 #include "ConfigSetup.h"
 #include "emp/Evolve/Systematics.hpp"
+#include <optional>
 
 namespace datastruct {
 
@@ -148,7 +149,7 @@ class Organism {
   virtual emp::Ptr<Organism> Reproduce() {
     std::cout << "Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  virtual std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void HorizontalTransmission(emp::WorldPosition location) {

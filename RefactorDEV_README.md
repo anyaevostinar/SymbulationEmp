@@ -8,13 +8,12 @@
 [x] Get tasks working (and hosts completing them and getting points)
 [-] Get all host tests working with new setup
     * Decided better to get refactor complete with some tests so that others can then jump in again, so will be doing minimal test porting, just enough to convince myself things are functional
-[ ] Get data tracking working 
-[ ] Check that is everything outside of symbionts and special interactions
 [ ] Get symbionts existing (no interaction)
 [ ] Move processsymbiont functionality back into symbionts
 [ ] Get Health interaction working
 [ ] Get Stress interaction working
 [ ] Get Nutrient interaction working
+[ ] Get data tracking working 
 [ ] Port Multi infection code from Elias fork
 [ ] Finish implementation of temporally changing environment
 [ ] Make sure spatial structure is working?
@@ -52,3 +51,4 @@ These are function flows that are complicated to follow:
 * Input Buffer starts at size 0
 * CPUState SetInputs is called by SGPWorld Assign New Env IO
     * This doesn't seem to be happening during the tests without specifically calling it, which seems not ideal
+    * I think I fixed this, line 1074 of WorldSetup was commented out still...

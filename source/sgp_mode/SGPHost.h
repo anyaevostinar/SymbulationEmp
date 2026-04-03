@@ -20,7 +20,7 @@ class SGPHost : public Host {
 public:
   using this_t = SGPHost<HW_SPEC_T>;
   using world_t = typename HW_SPEC_T::world_t;
-  //using sgp_sym_t = typename world_t::sgp_sym_t;
+  using sgp_sym_t = typename world_t::sgp_sym_t;
   using hw_spec_t = HW_SPEC_T;
   using hw_t = SGPHardware<hw_spec_t>;
   using program_t = typename hw_t::program_t;
@@ -218,25 +218,25 @@ public:
   // Trigger signal to all endosymbionts that host is about to process
   //   Gives endosymbionts chance to interact with host before it processes.
   //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
-//   emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
-//   for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-//     emp_assert(!(syms[endosym_i]->IsHost()));
-//     emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
-//     const bool dead = cur_symbiont->GetDead();
-//     // Skip if dead
-//     if (dead) {
-//       continue;
-//     }
-//     // Endosymbiont gains baseline number of CPU cycles
-//     cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
-//       sgp_config.CYCLES_PER_UPDATE()
-//     );
-//     before_endosym_host_process_sig.Trigger(
-//       {endosym_i + 1, host.GetLocation().GetIndex()},
-//       *cur_symbiont,
-//       host
-//     );
-//   }
+  emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+  for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+    emp_assert(!(syms[endosym_i]->IsHost()));
+    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+    const bool dead = cur_symbiont->GetDead();
+    // Skip if dead
+    if (dead) {
+      continue;
+    }
+    // Endosymbiont gains baseline number of CPU cycles
+    cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
+      my_world->GetConfig().CYCLES_PER_UPDATE()
+    );
+    my_world->before_endosym_host_process_sig.Trigger(
+      {endosym_i + 1, GetLocation().GetIndex()},
+      *cur_symbiont,
+      *this
+    );
+  }
 
   
 
@@ -273,7 +273,7 @@ public:
   my_world->after_host_cpu_exec_sig.Trigger(*this);
   // Handle any endosymbionts (configurable at setup-time)
   // NOTE - is there any reason that this might need to be a functor?
-  //ProcessEndosymbionts(host);
+  my_world->ProcessEndosymbionts(*this);
   // Endosymbionts might kill host.
   if (GetDead()) {
     return;
@@ -441,16 +441,16 @@ public:
       // NOTE - is this info on the offspring's convergence/divergence or info on *this* host's convergence/divergence?
       bool converges = false;
       bool diverges = false;
-      // if (HasSym()) {
-      //   sgp_sym_t& sym = *static_cast<sgp_sym_t*>(syms[0].Raw());
-      //   // NOTE - Looking at sym's parent here (do we want to do this or look at sym?)
-      //   const emp::BitVector& sym_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
-      //   const bool sym_performed_task = sym_tasks[task_id];
-      //   // converge: host_parent != sym_partner and host == sym_partner
-      //   converges = (parent_performed_task != sym_performed_task) && (performed_task == sym_performed_task);
-      //   // diverge: host_parent == sym_partner and host != sym_partner
-      //   diverges = (parent_performed_task == sym_performed_task) && (performed_task != sym_performed_task);
-      // }
+      if (HasSym()) {
+        sgp_sym_t& sym = *static_cast<sgp_sym_t*>(syms[0].Raw());
+        // NOTE - Looking at sym's parent here (do we want to do this or look at sym?)
+        const emp::BitVector& sym_tasks = sym.GetHardware().GetCPUState().GetParentTasksPerformed();
+        const bool sym_performed_task = sym_tasks[task_id];
+        // converge: host_parent != sym_partner and host == sym_partner
+        converges = (parent_performed_task != sym_performed_task) && (performed_task == sym_performed_task);
+        // diverge: host_parent == sym_partner and host != sym_partner
+        diverges = (parent_performed_task == sym_performed_task) && (performed_task != sym_performed_task);
+      }
       offspring_cpu_state.SetLineageTaskConvergeToPartner(
         task_id,
         cur_task_converge_partner + (size_t)converges

@@ -3,8 +3,8 @@
 
 #include "SGPWorld.h"
 // #include "org_type_info.h"
-// #include "utils.h"
-// #include "hardware/SGPHardware.h"
+#include "utils.h"
+#include "hardware/SGPHardware.h"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include "emp/datastructs/map_utils.hpp"
@@ -12,6 +12,7 @@
 #include "emp/math/math.hpp"
 
 // TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
+  // YES!!!!! 
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
@@ -76,7 +77,7 @@ void SGPWorld::Setup() {
   SetupReproduction();
 
   // Setup any host-symbiont interactions
-  //SetupHostSymInteractions();
+  // SetupHostSymInteractions();
 
   // CureHost signal
   // if (sgp_config.CURE()) {
@@ -93,7 +94,7 @@ void SGPWorld::Setup() {
   Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
-  //SetupSymbionts(&total_syms);
+  SetupSymbionts(&total_syms);
 
   //CreateDataFiles();
   //SnapshotConfig();
@@ -722,26 +723,23 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
+    } else {
+      SymDoBirth(child, repro_info.pos);
     }
-    // } else {
-    //   SymDoBirth(child, repro_info.pos);
-    //   // Mark parent as no longer reproducing
-    //   // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
-    // }
   });
 
   // OnBeforePlacement happens during emp::World's AddOrgAt
   // Set CPUState's location when organism is added to the world.
   OnBeforePlacement(
     [this](Organism& org, size_t loc) {
-      //(org.IsHost()) ?
-        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}); //:
-        //static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+      (org.IsHost()) ?
+        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}) :
+        static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
     }
   );
 
   SetupHostReproduction();
-  //SetupSymReproduction();
+  SetupSymReproduction();
 }
 
 // Configure HostDoBirth signals
@@ -750,257 +748,257 @@ void SGPWorld::SetupHostReproduction() {
 }
 
 // Configure symbiont reproduction signals
-// void SGPWorld::SetupSymReproduction() {
+void SGPWorld::SetupSymReproduction() {
 
-//   // Configure sym do birth function
-//   // Don't need to simultaneously support free-living *and* horizontal transmission
-//   if (sgp_config.FREE_LIVING_SYMS()) {
-//     // Configure sym birth in free-living symbiont mode
-//     fun_sym_do_birth = [this](
-//       emp::Ptr<sgp_sym_t> sym_baby_ptr,
-//       const emp::WorldPosition& parent_pos
-//     ) -> emp::WorldPosition {
-//       return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
-//     };
-//   } else {
-//     // Configure sym birth in non-free-living symbiont mode.
-//     fun_sym_do_birth = [this](
-//       emp::Ptr<sgp_sym_t> sym_baby_ptr,
-//       const emp::WorldPosition& parent_pos
-//     ) -> emp::WorldPosition {
-//       return SymAttemptHorizontalTrans(sym_baby_ptr, parent_pos);
-//     };
-//   }
+  // Configure sym do birth function
+  // Don't need to simultaneously support free-living *and* horizontal transmission
+  if (sgp_config.FREE_LIVING_SYMS()) {
+    // Configure sym birth in free-living symbiont mode
+    // fun_sym_do_birth = [this](
+    //   emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    //   const emp::WorldPosition& parent_pos
+    // ) -> emp::WorldPosition {
+    //   return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
+    // };
+  } else {
+    // Configure sym birth in non-free-living symbiont mode.
+    fun_sym_do_birth = [this](
+      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      const emp::WorldPosition& parent_pos
+    ) -> emp::WorldPosition {
+      return SymAttemptHorizontalTrans(sym_baby_ptr, parent_pos);
+    };
+  }
 
-//   // Configure after sym birth data tracking
-//   // NOTE - Should this be adjusted at all to account for configuration differences?
-//   // QUESTION - Should this fire for free-living symbionts?
-//   //            Can instead make this trigger after horizontal transmission
-//   after_sym_do_birth_sig.AddAction(
-//     [this](const emp::WorldPosition& sym_baby_pos) {
-//       // Because we're not calling HorizontalTransmission, we need to adjust
-//       // these data nodes here
-//       GetHorizontalTransmissionAttemptCount().AddDatum(1);
-//       if (sym_baby_pos.IsValid()) {
-//         GetHorizontalTransmissionSuccessCount().AddDatum(1);
-//       }
-//     }
-//   );
+  // Configure after sym birth data tracking
+  // NOTE - Should this be adjusted at all to account for configuration differences?
+  // QUESTION - Should this fire for free-living symbionts?
+  //            Can instead make this trigger after horizontal transmission
+  after_sym_do_birth_sig.AddAction(
+    [this](const emp::WorldPosition& sym_baby_pos) {
+      // Because we're not calling HorizontalTransmission, we need to adjust
+      // these data nodes here
+      GetHorizontalTransmissionAttemptCount().AddDatum(1);
+      if (sym_baby_pos.IsValid()) {
+        GetHorizontalTransmissionSuccessCount().AddDatum(1);
+      }
+    }
+  );
 
-//   // Configure vertical transmission
-//   // TODO - Probably will need to change VT_TASK_MATCH to a categorical variable
-//   //        to accomodate different mechanisms for determining whether vt is possible.
-//   if (sgp_config.VT_TASK_MATCH()) {
-//     // If task matching required, check.
-//     fun_can_attempt_vert_trans = [this](
-//       sgp_sym_t& sym,
-//       sgp_host_t& host_offspring,
-//       sgp_host_t& host_parent,
-//       const emp::WorldPosition& parent_pos
-//     ) -> bool {
-//       // Check if host profile and sym profile have any overlap?
-//       auto& host_profile = fun_get_host_task_profile(host_parent);
-//       auto& sym_profile = fun_get_sym_task_profile(sym);
-//       return utils::AnyMatchingOnes(host_profile, sym_profile);
-//     };
-//   } else {
-//     // Otherwise, allow attempt in all cases.
-//     fun_can_attempt_vert_trans = [](
-//       sgp_sym_t& sym,
-//       sgp_host_t& host_offspring,
-//       sgp_host_t& host_parent,
-//       const emp::WorldPosition& parent_pos
-//     ) -> bool {
-//       return true;
-//     };
-//   }
+  // Configure vertical transmission
+  // TODO - Probably will need to change VT_TASK_MATCH to a categorical variable
+  //        to accomodate different mechanisms for determining whether vt is possible.
+  if (sgp_config.VT_TASK_MATCH()) {
+    // If task matching required, check.
+    fun_can_attempt_vert_trans = [this](
+      sgp_sym_t& sym,
+      sgp_host_t& host_offspring,
+      sgp_host_t& host_parent,
+      const emp::WorldPosition& parent_pos
+    ) -> bool {
+      // Check if host profile and sym profile have any overlap?
+      auto& host_profile = fun_get_host_task_profile(host_parent);
+      auto& sym_profile = fun_get_sym_task_profile(sym);
+      return utils::AnyMatchingOnes(host_profile, sym_profile);
+    };
+  } else {
+    // Otherwise, allow attempt in all cases.
+    fun_can_attempt_vert_trans = [](
+      sgp_sym_t& sym,
+      sgp_host_t& host_offspring,
+      sgp_host_t& host_parent,
+      const emp::WorldPosition& parent_pos
+    ) -> bool {
+      return true;
+    };
+  }
 
-//   // TODO - anything else to setup here?
-// }
+  // TODO - anything else to setup here?
+}
 
 
-// void SGPWorld::SetupHostSymInteractions() {
-//   std::cout << "Setup Host-symbiont interactions" << std::endl;
+void SGPWorld::SetupHostSymInteractions() {
+  // std::cout << "Setup Host-symbiont interactions" << std::endl;
 
-//   // Setup what we use for host/symbiont task profiles
-//   // PARENT-ALL
-//   // PARENT-FIRST
-//   // SELF-ALL
-//   // SELF-FIRST
-//   // TODO - Create an enum!
-//   if (sgp_config.TASK_PROFILE_MODE() == "parent-all") {
-//     fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
-//       return host.GetHardware().GetCPUState().GetParentTasksPerformed();
-//     };
-//     fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
-//       return sym.GetHardware().GetCPUState().GetParentTasksPerformed();
-//     };
-//   } else if (sgp_config.TASK_PROFILE_MODE() == "parent-first") {
-//     fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
-//       return host.GetHardware().GetCPUState().GetParentFirstTaskPerformed();
-//     };
-//     fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
-//       return sym.GetHardware().GetCPUState().GetParentFirstTaskPerformed();
-//     };
-//   } else if (sgp_config.TASK_PROFILE_MODE() == "self-all") {
-//     fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
-//       return host.GetHardware().GetCPUState().GetTasksPerformed();
-//     };
-//     fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
-//       return sym.GetHardware().GetCPUState().GetTasksPerformed();
-//     };
-//   } else if (sgp_config.TASK_PROFILE_MODE() == "self-first") {
-//     fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
-//       return host.GetHardware().GetCPUState().GetFirstTaskPerformed();
-//     };
-//     fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
-//       return sym.GetHardware().GetCPUState().GetFirstTaskPerformed();
-//     };
-//   } else {
-//     std::cout << "Unrecognized TASK_PROFILE_MODE: " << sgp_config.TASK_PROFILE_MODE() << std::endl;
-//     std::cout << "Exiting." << std::endl;
-//     exit(-1);
-//   }
+  // Setup what we use for host/symbiont task profiles
+  // PARENT-ALL
+  // PARENT-FIRST
+  // SELF-ALL
+  // SELF-FIRST
+  // TODO - Create an enum!
+  if (sgp_config.TASK_PROFILE_MODE() == "parent-all") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetParentTasksPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetParentTasksPerformed();
+    };
+  } else if (sgp_config.TASK_PROFILE_MODE() == "parent-first") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetParentFirstTaskPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetParentFirstTaskPerformed();
+    };
+  } else if (sgp_config.TASK_PROFILE_MODE() == "self-all") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetTasksPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetTasksPerformed();
+    };
+  } else if (sgp_config.TASK_PROFILE_MODE() == "self-first") {
+    fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
+      return host.GetHardware().GetCPUState().GetFirstTaskPerformed();
+    };
+    fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
+      return sym.GetHardware().GetCPUState().GetFirstTaskPerformed();
+    };
+  } else {
+    std::cout << "Unrecognized TASK_PROFILE_MODE: " << sgp_config.TASK_PROFILE_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
+  }
 
-//   // Setup function that determines task profile compatibility
-//   // Task profile is determined by TASK_PROFILE_MODE
-//   if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "always") {
-//     // Task profiles are always compatible no matter their makeup.
-//     fun_task_profile_compatibility_check = [this](
-//       const emp::BitVector& a,
-//       const emp::BitVector& b
-//     ) -> bool {
-//       return true;
-//     };
-//   } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-any-match") {
-//     // Task profiles are compatible if they have at least one shared task between them.
-//     fun_task_profile_compatibility_check = [this](
-//       const emp::BitVector& a,
-//       const emp::BitVector& b
-//     ) -> bool {
-//       return utils::AnyMatchingOnes(a, b);
-//     };
-//   } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
-//     fun_task_profile_compatibility_check = [this](
-//       const emp::BitVector& a,
-//       const emp::BitVector& b
-//     ) -> bool {
-//       return a == b;
-//     };
-//   } else {
-//     std::cout << "Unrecognized TASK_PROFILE_COMPATIBILITY_MODE: " << sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() << std::endl;
-//     std::cout << "Exiting." << std::endl;
-//     exit(-1);
-//   }
+  // Setup function that determines task profile compatibility
+  // Task profile is determined by TASK_PROFILE_MODE
+  if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "always") {
+    // Task profiles are always compatible no matter their makeup.
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return true;
+    };
+  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-any-match") {
+    // Task profiles are compatible if they have at least one shared task between them.
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return utils::AnyMatchingOnes(a, b);
+    };
+  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return a == b;
+    };
+  } else {
+    std::cout << "Unrecognized TASK_PROFILE_COMPATIBILITY_MODE: " << sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
+  }
 
-//   if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "always") {
-//     fun_host_sym_horizontal_trans_compatibility_check = [](
-//       sgp_host_t& host,
-//       sgp_sym_t& sym
-//     ) -> bool { return true; };
-//     fun_host_sym_stress_trans_compatibility_check = [](
-//       sgp_host_t& host,
-//       const emp::BitVector& profile
-//     ) -> bool { return true; };
-//   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-compatible") {
-//     fun_host_sym_horizontal_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       sgp_sym_t& sym
-//     ) -> bool {
-//       const auto& host_profile = fun_get_host_task_profile(host);
-//       const auto& sym_profile = fun_get_sym_task_profile(sym);
-//       return fun_task_profile_compatibility_check(host_profile, sym_profile);
-//     };
-//     fun_host_sym_stress_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       const emp::BitVector& profile
-//     ) -> bool {
-//       const auto& host_profile = fun_get_host_task_profile(host);
-//       return fun_task_profile_compatibility_check(host_profile, profile);
-//     };
-//   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-strictly-stronger-match") {
-//     fun_host_sym_horizontal_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       sgp_sym_t& sym
-//     ) -> bool {
-//       const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
-//       return NoBetterOrEquallyMatchingSymbionts(host, incoming_sym_task_profile);
-//     };
-//     fun_host_sym_stress_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       const emp::BitVector& profile
-//     ) -> bool {
-//       return NoBetterOrEquallyMatchingSymbionts(host, profile);
-//     };
-//   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-or-equal-match") {
-//     fun_host_sym_horizontal_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       sgp_sym_t& sym
-//     ) -> bool {
-//       const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
-//       return NoBetterMatchingSymbionts(host, incoming_sym_task_profile);
-//     };
-//     fun_host_sym_stress_trans_compatibility_check = [this](
-//       sgp_host_t& host,
-//       const emp::BitVector& profile
-//     ) -> bool {
-//       return  NoBetterMatchingSymbionts(host, profile);
-//     };
-//   } else {
-//     std::cout << "Unrecognized HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE: " << sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() << std::endl;
-//     std::cout << "Exiting." << std::endl;
-//     exit(-1);
-//   }
+  if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "always") {
+    fun_host_sym_horizontal_trans_compatibility_check = [](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool { return true; };
+    // fun_host_sym_stress_trans_compatibility_check = [](
+    //   sgp_host_t& host,
+    //   const emp::BitVector& profile
+    // ) -> bool { return true; };
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-compatible") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      const auto& host_profile = fun_get_host_task_profile(host);
+      const auto& sym_profile = fun_get_sym_task_profile(sym);
+      return fun_task_profile_compatibility_check(host_profile, sym_profile);
+    };
+    // fun_host_sym_stress_trans_compatibility_check = [this](
+    //   sgp_host_t& host,
+    //   const emp::BitVector& profile
+    // ) -> bool {
+    //   const auto& host_profile = fun_get_host_task_profile(host);
+    //   return fun_task_profile_compatibility_check(host_profile, profile);
+    // };
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-strictly-stronger-match") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
+      return NoBetterOrEquallyMatchingSymbionts(host, incoming_sym_task_profile);
+    };
+    // fun_host_sym_stress_trans_compatibility_check = [this](
+    //   sgp_host_t& host,
+    //   const emp::BitVector& profile
+    // ) -> bool {
+    //   return NoBetterOrEquallyMatchingSymbionts(host, profile);
+    // };
+  } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-or-equal-match") {
+    fun_host_sym_horizontal_trans_compatibility_check = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym
+    ) -> bool {
+      const emp::BitVector& incoming_sym_task_profile = fun_get_sym_task_profile(sym);
+      return NoBetterMatchingSymbionts(host, incoming_sym_task_profile);
+    };
+    // fun_host_sym_stress_trans_compatibility_check = [this](
+    //   sgp_host_t& host,
+    //   const emp::BitVector& profile
+    // ) -> bool {
+    //   return  NoBetterMatchingSymbionts(host, profile);
+    // };
+  } else {
+    std::cout << "Unrecognized HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE: " << sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Exiting." << std::endl;
+    exit(-1);
+  }
 
-//   // Setup function that gets host neighbor (used for symbiont)
-//   // TODO - add different configuration options for this?
-//   fun_find_host_for_horizontal_trans = [this](
-//     size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-//     emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
-//   ) -> std::optional<emp::WorldPosition> {
-//     for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-//       emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
-//       if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
-//         emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-//         emp_assert(neighbor_org_ptr->IsHost());
-//         // Cast neighbor as sgp_host_t ptr.
-//         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-//         const bool compatible = fun_host_sym_horizontal_trans_compatibility_check(
-//           *neighbor_host_ptr,
-//           *sym_parent_ptr
-//         );
-//         if (compatible) {
-//           return std::optional<emp::WorldPosition>{candidate_pos};
-//         }
-//       }
-//     }
-//     return std::nullopt;
-//   };
+  // Setup function that gets host neighbor (used for symbiont)
+  // TODO - add different configuration options for this?
+  fun_find_host_for_horizontal_trans = [this](
+    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  ) -> std::optional<emp::WorldPosition> {
+    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+      emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
+      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
+        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
+        emp_assert(neighbor_org_ptr->IsHost());
+        // Cast neighbor as sgp_host_t ptr.
+        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
+        const bool compatible = fun_host_sym_horizontal_trans_compatibility_check(
+          *neighbor_host_ptr,
+          *sym_parent_ptr
+        );
+        if (compatible) {
+          return std::optional<emp::WorldPosition>{candidate_pos};
+        }
+      }
+    }
+    return std::nullopt;
+  };
 
-//   // Configure stress
-//   if (sgp_config.ENABLE_STRESS()) {
-//     SetupStressInteractions();
-//   }
-//   // Configure health interactions
-//   if (sgp_config.ENABLE_HEALTH()) {
-//     SetupHealthInteractions();
-//   }
+  // // Configure stress
+  // if (sgp_config.ENABLE_STRESS()) {
+  //   SetupStressInteractions();
+  // }
+  // // Configure health interactions
+  // if (sgp_config.ENABLE_HEALTH()) {
+  //   SetupHealthInteractions();
+  // }
 
-//   // Configure nutrient interactions
-//   // Configure default (no) nutrient interaction (IMPORTANT!)
-//   // - Nutrient interaction setup will override this behavior if enabled.
-//   fun_apply_nutrient_interaction = [](
-//     sgp_sym_t& sym,
-//     double task_points,
-//     size_t task_id
-//   ) {
-//     return task_points;
-//   };
-//   if (sgp_config.ENABLE_NUTRIENT()) {
-//     SetupNutrientInteractions();
-//   }
+  // // Configure nutrient interactions
+  // // Configure default (no) nutrient interaction (IMPORTANT!)
+  // // - Nutrient interaction setup will override this behavior if enabled.
+  // fun_apply_nutrient_interaction = [](
+  //   sgp_sym_t& sym,
+  //   double task_points,
+  //   size_t task_id
+  // ) {
+  //   return task_points;
+  // };
+  // if (sgp_config.ENABLE_NUTRIENT()) {
+  //   SetupNutrientInteractions();
+  // }
 
-// }
+}
 
 // TODO - clear host process signals
 void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
@@ -1049,31 +1047,31 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
-    // if (sgp_config.START_MOI() == 1) {
-    //   sgp_prog_t sym_prog(
-    //     prog_builder.CreateNotProgram(PROGRAM_LENGTH)
-    //   );
-    //   emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
-    //     random_ptr,
-    //     this,
-    //     &sgp_config,
-    //     sym_prog,
-    //     sgp_config.SYM_INT()
-    //   );
+    if (sgp_config.START_MOI() == 1) {
+      sgp_prog_t sym_prog(
+        prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+      );
+      emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
+        random_ptr,
+        this,
+        &sgp_config,
+        sym_prog,
+        sgp_config.SYM_INT()
+      );
       // TODO - add InjectSymIntoHost to wrap
       // NOTE - Move env io assignment to different signal that is triggered on inject?
-      //AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
+      AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
       // Set sym's parent task
-      // if (task_env.IsSymTask(not_task_id)) {
-      //   new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-      //   new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
-      //   new_sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
-      // }
+      if (task_env.IsSymTask(not_task_id)) {
+        new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
+        new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
+        new_sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
+      }
       // NOTE - Do we need to set location in cpu state here?
-      //new_host->AddSymbiont(new_sym);
-    //}
+      new_host->AddSymbiont(new_sym);
+    }
     // TODO - Add SGPWorld function to wrap inject host function
-    // AssignNewEnvIO(new_host->GetHardware().GetCPUState());
+    AssignNewEnvIO(new_host->GetHardware().GetCPUState());
     if (task_env.IsHostTask(not_task_id)) {
       new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
       new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
@@ -1082,19 +1080,19 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   }
 }
 
-// void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
-//   // NOTE - this was empty in original implementation.
+void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
+  // NOTE - this was empty in original implementation.
 
-//   before_endosym_process_sig.AddAction(
-//     [this](
-//       const emp::WorldPosition& sym_pos,
-//       sgp_sym_t& sym,
-//       sgp_host_t& host
-//     ) {
-//       // NOTE - currently, LaunchCPU will
-//       sym.GetHardware().LaunchCPU(START_TAG);
-//     }
-//   );
+  before_endosym_process_sig.AddAction(
+    [this](
+      const emp::WorldPosition& sym_pos,
+      sgp_sym_t& sym,
+      sgp_host_t& host
+    ) {
+      // NOTE - currently, LaunchCPU will
+      sym.GetHardware().LaunchCPU(START_TAG);
+    }
+  );
 
 //   before_freeliving_sym_process_sig.AddAction(
 //     [this](sgp_sym_t& sym) {
@@ -1103,7 +1101,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 //     }
 //   );
 
-// }
+}
 
 void SGPWorld::SetupTaskEnvironment() {
   // TODO - configure any world <--> environment interactions that need to be
@@ -1131,33 +1129,33 @@ void SGPWorld::SetupTaskEnvironment() {
     }
   );
 
-//   before_sym_do_birth_sig.AddAction(
-//     [this](
-//       emp::Ptr<sgp_sym_t> sym_baby_ptr,
-//       const emp::WorldPosition& parent_pos
-//     ) {
-//       AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState());
-//     }
-//   );
+  before_sym_do_birth_sig.AddAction(
+    [this](
+      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      const emp::WorldPosition& parent_pos
+    ) {
+      AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState());
+    }
+  );
 
-//   // Inconsistent between host do birth, sym do birth, vert trans
-//   // because vert trans doesn't know sym offspring until after
-//   after_sym_vert_transmission_sig.AddAction(
-//     [this](
-//       emp::Ptr<sgp_sym_t> sym_offspring_ptr,
-//       emp::Ptr<sgp_sym_t> sym_parent_ptr,
-//       emp::Ptr<sgp_host_t> host_offspring_ptr,
-//       emp::Ptr<sgp_host_t> host_parent_ptr,
-//       const emp::WorldPosition& host_parent_pos,
-//       bool success                        /* vertical transmission success */
-//     ) {
-//       if (!success) return;
-//       emp_assert(sym_offspring_ptr != nullptr);
-//       auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
-//       // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
-//       AssignNewEnvIO(sym_offspring_cpu_state);
-//     }
-//   );
+  // Inconsistent between host do birth, sym do birth, vert trans
+  // because vert trans doesn't know sym offspring until after
+  after_sym_vert_transmission_sig.AddAction(
+    [this](
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
+      emp::Ptr<sgp_host_t> host_offspring_ptr,
+      emp::Ptr<sgp_host_t> host_parent_ptr,
+      const emp::WorldPosition& host_parent_pos,
+      bool success                        /* vertical transmission success */
+    ) {
+      if (!success) return;
+      emp_assert(sym_offspring_ptr != nullptr);
+      auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
+      // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
+      AssignNewEnvIO(sym_offspring_cpu_state);
+    }
+  );
 
   // --- Setup task completion/output buffer checks ---
   // NOTE - discuss timing of this check. Currently happens after executing cpu
@@ -1178,15 +1176,15 @@ void SGPWorld::SetupTaskEnvironment() {
 //     }
 //   );
 
-//   after_endosym_cpu_exec_sig.AddAction(
-//     [this](
-//       const emp::WorldPosition& sym_pos,
-//       sgp_sym_t& sym,
-//       sgp_host_t& host
-//     ) {
-//       ProcessSymOutputBuffer(sym);
-//     }
-//   );
+  after_endosym_cpu_exec_sig.AddAction(
+    [this](
+      const emp::WorldPosition& sym_pos,
+      sgp_sym_t& sym,
+      sgp_host_t& host
+    ) {
+      ProcessSymOutputBuffer(sym);
+    }
+  );
 }
 
 void SGPWorld::SetupMutator() {
