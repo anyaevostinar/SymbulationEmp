@@ -21,9 +21,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
   VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
 
-  // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
-  // AEV TODO: Change Organism_type to interaction_mechansim
-  VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
+  // NOTE - Might be able to eliminate INTERACTION_MECHANISM if interaction modes are allowed to be "layered on"
+  VALUE(INTERACTION_MECHANISM, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TASK_PROFILE_MODE, std::string, "parent-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.?"),
   VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),

@@ -30,13 +30,6 @@ protected:
   hw_t hardware;
 
   /**
-   *
-   * Purpose: Tracks the number of reproductive events in this host's lineage.
-   *
-   */
-  size_t reproductions = 0;
-
-  /**
     *
     * Purpose: Represents the SGPWorld that the hosts are living in.
     *
@@ -122,14 +115,8 @@ public:
     // - Or, move functionality into world (add world function for invalidating queued repro)
     auto& cpu_state = hardware.GetCPUState();
     if (cpu_state.ReproInProgress()) {
-      //my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
-      // my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
-      //   emp::WorldPosition::invalid_id;
+      my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
     }
-    // if (hardware.state.in_progress_repro != -1) {
-    //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
-    //     emp::WorldPosition::invalid_id;
-    // }
   }
 
   bool operator<(const Organism& other) const {
@@ -157,14 +144,6 @@ public:
     return hardware.GetProgram() == other.hardware.GetProgram();
   }
 
-  /**
-   * Input: Set the reproduction counter
-   *
-   * Output: None
-   *
-   * Purpose: To set the count of reproductions in this lineage.
-   */
-  void SetReproCount(size_t _in) { reproductions = _in; }
 
   void SetLocation(const emp::WorldPosition& pos) {
     hardware.GetCPUState().SetLocation(pos);
@@ -179,15 +158,6 @@ public:
   void AddPoints(double amt) {
     points += amt;
   }
-
-  /**
-   * Input: None.
-   *
-   * Output: The reproduction count
-   *
-   * Purpose: To get the count of reproductions in this lineage.
-   */
-  size_t GetReproCount() const { return reproductions; }
 
   /**
    * Input: None

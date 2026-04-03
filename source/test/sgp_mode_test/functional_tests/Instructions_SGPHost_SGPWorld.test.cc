@@ -2,6 +2,8 @@
  * This file is dedicated to testing the Symbulation specific instruction(s): Reproduce
  */
 
+//TODO: need to update still, needs to rework how interacting with reproduction queue
+
 TEST_CASE("Reproduce instruction", "[sgp][sgp-functional]") {
     // reproduce fails if:
     // pos is invalid

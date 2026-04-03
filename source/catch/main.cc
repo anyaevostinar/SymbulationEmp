@@ -29,13 +29,13 @@
 // #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //SGP mode
-// #include "../test/sgp_mode_test/unit_tests/GenomeLibrary.test.cc"
+//#include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 // #include "../test/sgp_mode_test/unit_tests/HealthHost.test.cc"
 // #include "../test/sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
-// #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/sgp_mode_test/unit_tests/StressHost.test.cc"
-// #include "../test/sgp_mode_test/unit_tests/Tasks.test.cc"
+//#include "../test/sgp_mode_test/unit_tests/Tasks.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPHost.test.cc"
 
 

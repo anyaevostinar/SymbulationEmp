@@ -9,15 +9,15 @@
  * This file is dedicated to unit tests for SGPWorld
  */
 
+using world_t = sgpmode::SGPWorld;
+using cpu_state_t = sgpmode::CPUState<world_t>;
+using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 
 TEST_CASE("Update only hosts test", "[refactor]") {
 
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
@@ -53,68 +53,23 @@ TEST_CASE("Update only hosts test", "[refactor]") {
 
 
 
-// TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
-//   emp::Random random(1);
-//   SymConfigSGP config;
-//   config.SEED(2);
-//   config.MUTATION_RATE(0.0);
-//   config.MUTATION_SIZE(0.000);
-//   config.TRACK_PARENT_TASKS(PARENTONLY);
-//   config.VT_TASK_MATCH(1);
-//   config.HOST_ONLY_FIRST_TASK_CREDIT(1);
-//   config.SYM_ONLY_FIRST_TASK_CREDIT(1);
-//   config.HOST_REPRO_RES(10000);
+TEST_CASE("Host Setup", "[sgp][sgp-unit][refactor]") {
+  emp::Random random(1);
+  sgpmode::SymConfigSGP config;
+  config.SEED(2);
+  config.MUTATION_RATE(0.0);
+  config.MUTATION_SIZE(0.000);
+  //config.TRACK_PARENT_TASKS(PARENTONLY);
+  config.VT_TASK_MATCH(1);
+  config.HOST_ONLY_FIRST_TASK_CREDIT(1);
+  config.SYM_ONLY_FIRST_TASK_CREDIT(1);
+  config.HOST_REPRO_RES(10000);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
-//   //world.SetupHosts requires a pointer for the number of hosts in the world
-//   unsigned long setupCount = 1;
-//   WHEN("INTERACTION_MECHANISM Config is set to SGP hosts"){
-//     config.INTERACTION_MECHANISM(0);
-//     SGPWorld world(random, &config, LogicTasks);
-//     world.SetupHosts(&setupCount);
-//     THEN("The world contains a SGPHost"){
-//       emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-//       REQUIRE(host->GetName() == "SGPHost");
-//     }
-//   }
-
-//   WHEN("INTERACTION_MECHANISM Config is set to Health hosts"){
-//     config.INTERACTION_MECHANISM(1);
-//     SGPWorld world(random, &config, LogicTasks);
-//     world.SetupHosts(&setupCount);
-//     THEN("The world contains a HealtHost"){
-//       emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-//       REQUIRE(host->GetName() == "HealthHost");
-//     }
-//   }
-
-//   WHEN("INTERACTION_MECHANISM Config is set to Stress hosts"){
-//     config.INTERACTION_MECHANISM(2);
-//     SGPWorld world(random, &config, LogicTasks);
-//     world.SetupHosts(&setupCount);
-//     THEN("The world contains a StressHost"){
-//       emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-//       REQUIRE(host->GetName() == "StressHost");
-//     }
-//   }
-
-//   WHEN("INTERACTION_MECHANISM Config is set to Nutrient Mode"){
-//     config.INTERACTION_MECHANISM(3);
-//     SGPWorld world(random, &config, LogicTasks);
-//     world.SetupHosts(&setupCount);
-//     THEN("The world contains a SGPHost, Nutrient mode does not have it's own SGPHost subclass"){
-//       emp::Ptr<Organism> host =  world.GetOrgPtr(0);
-//       REQUIRE(host->GetName() == "SGPHost");
-//     }
-//   }
-
-//   WHEN("INTERACTION_MECHANISM Config is set to an option that does not exist"){
-//     config.INTERACTION_MECHANISM(4);
-//     SGPWorld world(random, &config, LogicTasks);
-//     THEN("An exception should be thrown"){
-//       REQUIRE_THROWS(world.SetupHosts(&setupCount));
-//     }
-//   }
-// }
+  //world.SetupHosts requires a pointer for the number of hosts in the world
+  unsigned long setupCount = 1;
+  //TODO?
+}
 
 // TEST_CASE("TaskMatchCheck Unit Test", "[sgp][sgp-unit]") {
 //   GIVEN("Two task sets"){

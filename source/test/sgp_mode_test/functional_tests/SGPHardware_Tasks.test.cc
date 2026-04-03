@@ -8,13 +8,15 @@
 
 #include "../../../catch/catch.hpp"
 
-TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp][refactor-1]") {
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+using world_t = sgpmode::SGPWorld;
+using cpu_state_t = sgpmode::CPUState<world_t>;
+using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+using program_t = typename world_t::sgp_prog_t;
+using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp][refactor]") {
+
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);

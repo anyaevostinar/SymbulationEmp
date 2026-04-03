@@ -6,7 +6,8 @@
 [x] Get host reproduction working (with no point requirement)
 [x] Get mutator working
 [x] Get tasks working (and hosts completing them and getting points)
-[ ] Get all host tests working with new setup
+[-] Get all host tests working with new setup
+    * Decided better to get refactor complete with some tests so that others can then jump in again, so will be doing minimal test porting, just enough to convince myself things are functional
 [ ] Get data tracking working 
 [ ] Check that is everything outside of symbionts and special interactions
 [ ] Get symbionts existing (no interaction)
@@ -36,3 +37,18 @@
 * Building with scheduler code, need to test still
 3/20/26
 * SGPHost can be created in SGPWorld, SGPWorld test with baseline host works, scheduler is copied over but not tested
+
+# Notes
+These are function flows that are complicated to follow:
+
+## Reproduction
+* Repro Inst -> state.markReproAttempt
+* Host Process checks Repro attempt -> calls AttemptReproduction
+* AttemptReproduction -> marks ReproInProgress, adds to repro queue
+* World processes repro queue after all organisms process
+* Repro queue process calls Reproduction and handles HostDoBirth
+
+## InputBuffer setup
+* Input Buffer starts at size 0
+* CPUState SetInputs is called by SGPWorld Assign New Env IO
+    * This doesn't seem to be happening during the tests without specifically calling it, which seems not ideal
