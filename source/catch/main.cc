@@ -31,7 +31,7 @@
 //SGP mode
 //#include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 // #include "../test/sgp_mode_test/unit_tests/HealthHost.test.cc"
-// #include "../test/sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/sgp_mode_test/unit_tests/StressHost.test.cc"
@@ -42,7 +42,7 @@
 // #include "../test/sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPDataNodes_SGPWorld.test.cc"
-// #include "../test/sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Tasks.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"

@@ -352,6 +352,22 @@ public:
     return program;
   }
 
+  program_t CreateNandProgram(size_t length) {
+    program_t program; // Create empty program
+    // Add start anchor
+    AddInst(
+      program,
+      "Global Anchor",
+      start_tag
+    );
+    AddTask_Nand(program); // Add nand task
+    program.resize(length - 1); // Leave room for repo
+    AddInst(program, repro_op);
+    // Remove any deleted instructions
+    program.Rectify(rectifier);
+    return program;
+  }
+
 };
 
 }

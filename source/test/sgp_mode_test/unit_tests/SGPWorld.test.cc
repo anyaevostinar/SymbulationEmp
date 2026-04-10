@@ -14,6 +14,8 @@ using cpu_state_t = sgpmode::CPUState<world_t>;
 using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
 using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+using program_t = typename world_t::sgp_prog_t;
 
 
 TEST_CASE("Update only hosts test", "[refactor]") {
@@ -71,127 +73,107 @@ TEST_CASE("Host Setup", "[sgp][sgp-unit][refactor]") {
   //TODO?
 }
 
-// TEST_CASE("TaskMatchCheck Unit Test", "[sgp][sgp-unit]") {
-//   GIVEN("Two task sets"){
-//     emp::Random random(1);
-//     SymConfigSGP config;
-//     config.SEED(2);
+TEST_CASE("Ousting is permitted", "[sgp][refactor2]") {
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.OUSTING(1);
+  config.SYM_LIMIT(1);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
-//     SGPWorld world(random, &config, LogicTasks);
-//     emp::BitSet<CPU_BITSET_LENGTH> host_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
-//     emp::BitSet<CPU_BITSET_LENGTH> sym_tasks_performed = emp::BitSet<CPU_BITSET_LENGTH>(false);
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2, 2);
 
-//     WHEN("The two task sets share no completed tasks"){
-//       host_tasks_performed.Set(1);
-//       sym_tasks_performed.Set(2);
-      
-//       THEN("TaskMatchCheck returns false") {
-//         REQUIRE(!world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
-//       }
-//     }
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> old_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> new_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  WHEN("Symbiont is added to host that has a symbiont") {
+    host->AddSymbiont(old_symbiont);
+    world.AddOrgAt(host, 0);
 
-//     WHEN("The two task sets share a completed task"){
-//       host_tasks_performed.Set(1);
-//       sym_tasks_performed.Set(1);
-      
-//       THEN("TaskMatchCheck returns true") {
-//         REQUIRE(world.TaskMatchCheck(sym_tasks_performed, host_tasks_performed));
-//       }
-//     }
-//   }
-// }
+    REQUIRE(host->GetSymbionts().size() == 1);
+    REQUIRE(world.GetGraveyard().size() == 0);
+    host->AddSymbiont(new_symbiont);
+    THEN("Less matching symbiont is ousted to graveyard") {
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(world.GetGraveyard().size() == 1);
+    }
+  }
 
-// TEST_CASE("TaskMatchCheck for parents", "[sgp][sgp-unit]") {
-//   GIVEN("A host and a symbiont"){
-//     emp::Random random(1);
-//     SymConfigSGP config;
-//     config.SEED(2);
-//     config.MUTATION_RATE(0.0);
-//     config.MUTATION_SIZE(0.000);
-//     config.TRACK_PARENT_TASKS(PARENTONLY);
-//     config.VT_TASK_MATCH(1);
-//     config.HOST_ONLY_FIRST_TASK_CREDIT(0);
-//     config.SYM_ONLY_FIRST_TASK_CREDIT(0);
-//     config.HOST_REPRO_RES(10000);
+}
 
-//     SGPWorld world(random, &config, LogicTasks);
 
-//     //Creates a host that only does NOT operations
-//     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, CreateNotProgram(100));
 
-//     //Creates a symbiont that only does NOT operations
-//     emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
 
-//     //Adds host to world and sym to host.
-//     world.AddOrgAt(host, 0);
-//     host->AddSymbiont(sym);
-    
-//     WHEN("TRACK_PARENT_TASKS is parent only"){
-//       WHEN("The host's and symbiont's parents have both performed NOT"){
-//         host->GetCPU().state.parent_tasks_performed->Set(0);
-//         sym->GetCPU().state.parent_tasks_performed->Set(0);
+TEST_CASE("TaskMatchCheck", "[sgp][refactor2]") {
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SYM_LIMIT(2);
+  config.POP_SIZE(1);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
 
-//         THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
-//           REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-//         }
-//       }
-      
-//       WHEN("The host and symbiont have both performed NOT"){
-//         host->GetCPU().state.tasks_performed->Set(0);
-//         sym->GetCPU().state.tasks_performed->Set(0);
-//         WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
-//           host->GetCPU().state.parent_tasks_performed->Set(1);
-//           sym->GetCPU().state.parent_tasks_performed->Set(8);
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2, 2);
 
-//           THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
-//             REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-//           }
-//         }
-//       }
-//       WHEN("The host and symbiont have performed no tasks"){
-//         WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
-//           host->GetCPU().state.parent_tasks_performed->Set(1);
-//           sym->GetCPU().state.parent_tasks_performed->Set(8);
+  auto& builder = world.GetProgramBuilder();
 
-//           THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
-//             REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-//           }
-//         }
-//       }
-//     }
-//     WHEN("TRACK_PARENT_TASKS is parent or child"){
-//       config.TRACK_PARENT_TASKS(CURRENTORPARENT);
-//       world.SetupTaskProfileFun();
-//       WHEN("The host and symbiont have both performed NOT"){
-//         host->GetCPU().state.tasks_performed->Set(0);
-//         sym->GetCPU().state.tasks_performed->Set(0);
-//         WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
-//           host->GetCPU().state.parent_tasks_performed->Set(1);
-//           sym->GetCPU().state.parent_tasks_performed->Set(8);
 
-//           THEN("TaskMatchCheck returns true when Host task set and Symbiont task set are the arguments"){
-//             REQUIRE(world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-//           }
-//         }
-//       }
-//       WHEN("The host and symbiont have performed no tasks"){
-//         WHEN("The host's parent has performed NAND and the symbiont's parent has performed EQU"){
-//           host->GetCPU().state.parent_tasks_performed->Set(1);
-//           sym->GetCPU().state.parent_tasks_performed->Set(8);
+  emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
+  emp::Ptr<sgp_sym_t> NOT_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNotProgram(100));
+  emp::Ptr<sgp_sym_t> NAND_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNandProgram(100));
 
-//           THEN("TaskMatchCheck returns false when Host task set and Symbiont task set are the arguments"){
-//             REQUIRE(!world.TaskMatchCheck(world.fun_get_task_profile(sym), world.fun_get_task_profile(host)));
-//           }
-//         }
-//       }
-//     }
-//   }
-// }
+  NOT_host->AddSymbiont(NOT_symbiont);
+  NOT_host->AddSymbiont(NAND_symbiont);
+  world.AddOrgAt(NOT_host, 0);
+
+
+  bool not_not_matched = false;
+  bool not_nand_matched = false;
+  for (int i = 0; i < 100; i++) {
+    world.Update();
+
+    not_not_matched = sgpmode::utils::AnyMatchingOnes(
+      NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
+      NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
+    );
+    not_nand_matched = sgpmode::utils::AnyMatchingOnes(
+      NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
+      NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
+    );
+    if (i == 99) {
+      std::cout << "NOT host tasks: " << NOT_host->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+      std::cout << "NOT sym tasks: " << NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+      std::cout << "NAND sym tasks: " << NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+      std::cout << "not_not_matched: " << not_not_matched << std::endl;
+      std::cout << "not_nand_matched: " << not_nand_matched << std::endl;
+    }
+  }
+
+  std::cout << "NOT host tasks: " << NOT_host->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+  std::cout << "NOT sym tasks: " << NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+  std::cout << "NAND sym tasks: " << NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
+
+  WHEN("A host and symbiont can both do at least one same task") {
+    THEN("TaskMatchCheck returns true") {
+      REQUIRE(not_not_matched == true);
+    }
+  }
+  WHEN("A host and symbiont have no tasks they can both do") {
+    THEN("TaskMatchCheck returns false") {
+      REQUIRE(not_nand_matched == false);
+    }
+  }
+}
 
 // TEST_CASE("SGP SymDoBirth", "[sgp][sgp-unit]") {
 //   GIVEN("A target host and an incoming symbiont"){
 //     emp::Random random(1);
-//     SymConfigSGP config;
+//     sgpmode::SymConfigSGP config;
 //     config.SEED(2);
 //     config.INTERACTION_MECHANISM(STRESS);
 //     config.SYMBIONT_TYPE(PARASITE);
