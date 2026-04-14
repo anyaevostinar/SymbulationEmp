@@ -25,13 +25,13 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
   // TODO - can we condiitonally tack this onto processing only
   //        when free-living syms are turned on
   // Process free-living symbiont at this location (if any)
-//   if (IsSymPopOccupied(pop_id)) {
-//     emp_assert(!GetSymAt(pop_id)->IsHost());
-//     ProcessFreeLivingSymAt(
-//       emp::WorldPosition(0, pop_id),
-//       static_cast<sgp_sym_t&>(*(GetSymAt(pop_id)))
-//     );
-//   }
+  if (IsSymPopOccupied(pop_id)) {
+    emp_assert(!GetSymAt(pop_id)->IsHost());
+    ProcessFreeLivingSymAt(
+      emp::WorldPosition(0, pop_id),
+      static_cast<sgp_sym_t&>(*(GetSymAt(pop_id)))
+    );
+  }
 }
 
 // TODO - discuss timing
@@ -49,6 +49,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 }
 
 void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
+  // AEV TODO: move this back into Host
   // If host doesn't have a symbiont, return.
   if (!host.HasSym()) {
     return;
@@ -97,6 +98,7 @@ void SGPWorld::ProcessEndosymbiont(
   sgp_sym_t& sym,
   sgp_host_t& host
 ) {
+  // AEV TODO: put this back into Symbiont
   // NOTE - is there anything that should be moved here common to all endosymbionts?
   // If symbiont is dead, no need to process it.
   if (sym.GetDead()) {
@@ -130,48 +132,50 @@ void SGPWorld::ProcessEndosymbiont(
 // // TODO - Handle Reproduction?
 // // TODO - Go over support for free-living symbionts. Not sure it was
 // //        fully supported to begin with, so should discuss what needs to be added.
-// void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym) {
-//   // TODO - ask about the code below (should it ever be run on endosymbionts?)
-//   // if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
-//   //   cpu.state.used_resources->reset();
-//   emp_assert(!sym.IsHost()); // NOTE - IsSym function?
-//   // have to check for death first, because it might have moved
-//   if (sym.GetDead()) {
-//     DoSymDeath(pos.GetPopID());
-//   } else {
-//     // Sym gains cpu cycles
-//     sym.GetHardware().GetCPUState().GainCPUCycles(sgp_config.CYCLES_PER_UPDATE());
-//     // Not dead, process.
-//     before_freeliving_sym_process_sig.Trigger(sym);
-//     // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
-//     const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
-//     for (size_t i = 0; i < cycles_to_exec; ++i) {
-//       sym.GetHardware().RunCPUStep(1);
+void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym) {
+  // TODO - ask about the code below (should it ever be run on endosymbionts?)
+  // if (my_host == nullptr && my_world->GetUpdate() % sgp_config->LIMITED_TASK_RESET_INTERVAL() == 0)
+  //   cpu.state.used_resources->reset();
+  emp_assert(!sym.IsHost()); // NOTE - IsSym function?
+  // have to check for death first, because it might have moved
+  if (sym.GetDead()) {
+    DoSymDeath(pos.GetPopID());
+  } else {
+    // Sym gains cpu cycles
+    sym.GetHardware().GetCPUState().GainCPUCycles(sgp_config.CYCLES_PER_UPDATE());
+    // Not dead, process.
+    before_freeliving_sym_process_sig.Trigger(sym);
+    // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+    const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
+    for (size_t i = 0; i < cycles_to_exec; ++i) {
+      sym.GetHardware().RunCPUStep(1);
 
-//       // Did this sym attempt to reproduce?
-//       if (sym.GetHardware().GetCPUState().ReproAttempt()) {
-//         FreeLivingSymAttemptRepro(pos, sym);
-//       }
+      // Did this sym attempt to reproduce?
+      if (sym.GetHardware().GetCPUState().ReproAttempt()) {
+        FreeLivingSymAttemptRepro(pos, sym);
+      }
 
-//       after_freeliving_sym_cpu_step_sig.Trigger(sym);
-//     }
-//     after_freeliving_sym_cpu_exec_sig.Trigger(sym);
-//     // Call symbiont's process function
-//     sym.Process(pos);
-//     after_freeliving_sym_process_sig.Trigger(sym);
-//   }
-//   // TODO - double check that this belongs just here and not also in endosymbiont code
-//   if (IsSymPopOccupied(pos.GetPopID()) && sym.GetDead()) {
-//     DoSymDeath(pos.GetPopID());
-//   }
-// }
+      after_freeliving_sym_cpu_step_sig.Trigger(sym);
+    }
+    after_freeliving_sym_cpu_exec_sig.Trigger(sym);
+    // Call symbiont's process function
+    sym.Process(pos);
+    after_freeliving_sym_process_sig.Trigger(sym);
+  }
+  // TODO - double check that this belongs just here and not also in endosymbiont code
+  if (IsSymPopOccupied(pos.GetPopID()) && sym.GetDead()) {
+    DoSymDeath(pos.GetPopID());
+  }
+}
 
+// AEV Note: HostAttemptRepro no longer needed, moved into SGPHost.h AttemptReproduction
 
 void SGPWorld::EndosymAttemptRepro(
   const emp::WorldPosition& pos,
   sgp_sym_t& sym,
   sgp_host_t& host
 ) {
+  // AEV TODO: Move into Symbiont
   // NOTE - could make this a configurable functor if we want different success/failure
   //        conditions on attempt
   // NOTE - Do we want to be using the horizontal transmission cost here?
@@ -195,37 +199,38 @@ void SGPWorld::EndosymAttemptRepro(
   }
 }
 
-// void SGPWorld::FreeLivingSymAttemptRepro(
-//   const emp::WorldPosition& pos,
-//   sgp_sym_t& sym
-// ) {
-//   // NOTE - this is largely redundant with other attempt functions. Need to think
-//   //        think about whether attempt logic should be different
-//   // NOTE - could make this a configurable functor if we want different success/failure
-//   //        conditions on attempt
-//   const double repro_cost = sgp_config.FREE_SYM_REPRO_RES();
-//   if (sym.GetPoints() >= repro_cost) {
-//     // Sym pays cost
-//     sym.DecPoints(repro_cost);
-//     // Add sym to repro queue
-//     // TODO - protect with mutex for threading
-//     const size_t queue_id = repro_queue.Enqueue(
-//       sym.GetHardware().GetCPUState().GetOrgPtr(),
-//       pos
-//     );
-//     // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
-//     sym.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-//   } else {
-//     // Attempt failed, so reset repro state.
-//     sym.GetHardware().GetCPUState().ResetReproState();
-//   }
-// }
+void SGPWorld::FreeLivingSymAttemptRepro(
+  const emp::WorldPosition& pos,
+  sgp_sym_t& sym
+) {
+  // NOTE - this is largely redundant with other attempt functions. Need to think
+  //        think about whether attempt logic should be different
+  // NOTE - could make this a configurable functor if we want different success/failure
+  //        conditions on attempt
+  const double repro_cost = sgp_config.FREE_SYM_REPRO_RES();
+  if (sym.GetPoints() >= repro_cost) {
+    // Sym pays cost
+    sym.DecPoints(repro_cost);
+    // Add sym to repro queue
+    // TODO - protect with mutex for threading
+    const size_t queue_id = repro_queue.Enqueue(
+      sym.GetHardware().GetCPUState().GetOrgPtr(),
+      pos
+    );
+    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
+    sym.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+  } else {
+    // Attempt failed, so reset repro state.
+    sym.GetHardware().GetCPUState().ResetReproState();
+  }
+}
 
 void SGPWorld::DoReproduction() {
   // std::cout << "DoReproduction" << std::endl;
   // Process reproduction queue
   // NOTE - If do repro remains simplified to just calling the repro_queue's
   //        process function, can get rid of this function.
+  // AEV TODO: Get rid of this function YAGNI
   repro_queue.Process();
 }
 
@@ -298,13 +303,13 @@ emp::WorldPosition SGPWorld::HostDoBirth(
   return offspring_pos;
 }
 
-// emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
-//   emp::Ptr<sgp_sym_t> sym_baby_ptr,
-//   const emp::WorldPosition& parent_pos
-// ) {
-//   // TODO - add any signals?
-//   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
-// }
+emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
+  emp::Ptr<sgp_sym_t> sym_baby_ptr,
+  const emp::WorldPosition& parent_pos
+) {
+  // TODO - add any signals?
+  return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
+}
 
 emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
   emp::Ptr<sgp_sym_t> sym_baby_ptr,
@@ -369,59 +374,61 @@ bool SGPWorld::EndosymAttemptVertTransmission(
     success
   );
   // NOTE - ResetReproState here or in Reproduce function?
+  // AEV TODO: answer this question
   // endosym_ptr->GetHardware().GetCPUState().ResetReproState();
   return success;
 }
 
 // // Process any symbiont offspring that "escaped" the stress event
-// void SGPWorld::ProcessStressEscapees() {
-//   emp_assert(repro_queue.GetSize() == 0);
+void SGPWorld::ProcessStressEscapees() {
+  // AEV TODO: Put back into StressSym or just Sym? Or put them into repro queue instead?
+  emp_assert(repro_queue.GetSize() == 0);
 
-//   // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
-//   escapee_ids.resize(symbiont_stress_escapees.size(), 0);
-//   std::iota(
-//     escapee_ids.begin(),
-//     escapee_ids.end(),
-//     0
-//   );
-//   emp::Shuffle(*random_ptr, escapee_ids);
-//   // for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
-//   for (size_t esc_i : escapee_ids) {
-//     // (1) Find place to AddSymbiont
-//     auto& escapee_info = symbiont_stress_escapees[esc_i];
+  // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
+  escapee_ids.resize(symbiont_stress_escapees.size(), 0);
+  std::iota(
+    escapee_ids.begin(),
+    escapee_ids.end(),
+    0
+  );
+  emp::Shuffle(*random_ptr, escapee_ids);
+  // for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
+  for (size_t esc_i : escapee_ids) {
+    // (1) Find place to AddSymbiont
+    auto& escapee_info = symbiont_stress_escapees[esc_i];
 
-//     bool success = false;
-//     for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-//       emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
-//       if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
-//         emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-//         emp_assert(neighbor_org_ptr->IsHost());
-//         // Cast neighbor as sgp_host_t ptr.
-//         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-//         // Check whether escapee can infect?
-//         const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
-//           *neighbor_host_ptr,
-//           escapee_info.parent_task_profile
-//         );
-//         // TODO - add stress infect success tracking
-//         if (!can_infect) continue;
-//         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
-//         AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState());
-//         int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
-//         // AddSymbiont might fail (but when it does, it deletes the offspring)
-//         // so not possible to keep attempting until actual success
-//         success = true;
-//         break;
-//       }
-//     }
-//     // If sym didn't successfully infect, delete it.
-//     if (!success) {
-//       escapee_info.sym_offspring.Delete();
-//     }
-//   }
-//   symbiont_stress_escapees.clear();
-//   // TODO - add data collection for successful escapes
-// }
+    bool success = false;
+    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+      emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
+      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
+        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
+        emp_assert(neighbor_org_ptr->IsHost());
+        // Cast neighbor as sgp_host_t ptr.
+        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
+        // Check whether escapee can infect?
+        const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
+          *neighbor_host_ptr,
+          escapee_info.parent_task_profile
+        );
+        // TODO - add stress infect success tracking
+        if (!can_infect) continue;
+        // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
+        AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState());
+        int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+        // AddSymbiont might fail (but when it does, it deletes the offspring)
+        // so not possible to keep attempting until actual success
+        success = true;
+        break;
+      }
+    }
+    // If sym didn't successfully infect, delete it.
+    if (!success) {
+      escapee_info.sym_offspring.Delete();
+    }
+  }
+  symbiont_stress_escapees.clear();
+  // TODO - add data collection for successful escapes
+}
 
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
@@ -457,8 +464,10 @@ std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
 }
 
+// AEV Note: ProcessHostOutputBuffer no longer needed, in SGPHost.h ProcessOutputBuffer now
 
 void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
+  // AEV TODO: Move into Symbiont, duplicate code between this and host one that can be improved?
   auto& cpu_state = sym.GetHardware().GetCPUState();
   const size_t env_task_id = cpu_state.GetTaskEnvID();
   const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
@@ -510,14 +519,9 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
         double task_points = new_points - sym.GetPoints();
         // Apply nutrient interaction (if any have been configured) to points
         // NOTE - can inject nutrient interaction here to modify points?
-        // task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
+        task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
-        // // Enforce limits on points
-        // const double max_points = sgp_config.SYM_HORIZ_TRANS_RES();
-        // if (sym.GetPoints() > (1.5 * sgp_config.SYM_HORIZ_TRANS_RES())) {
-        //   sym.SetPoints(1.5 * sgp_config.SYM_HORIZ_TRANS_RES());
-        // }
       }
     }
   }
@@ -525,95 +529,94 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
   output_buffer.clear();
 }
 
-
+// AEV Note: HostDoMutation no longer needed, moved to SGPHost.h Mutate
 
 void SGPWorld::SymDoMutation(sgp_sym_t& sym) {
+  // AEV TODO: Move to Symbiont
   mutator.MutateProgram(sym.GetProgram());
 }
 
-// void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
-//   emp_assert(!from_sym.IsHost());
-//   emp_assert(to_host.IsHost());
-//   // NOTE - could make this a configurable functor if we think
-//   //        that different config settings will need different donate logic.
-//   // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
-//   sgp_sym_t& sym = static_cast<sgp_sym_t&>(from_sym);
-//   sgp_host_t& host = static_cast<sgp_host_t&>(to_host);
+void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
+  emp_assert(!from_sym.IsHost());
+  emp_assert(to_host.IsHost());
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different donate logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(from_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(to_host);
 
-//   // Donate X% of the total points of the symbiont-host system
-//   // This way, a sym can donate e.g. 40 or 60 percent of their points in a
-//   // couple of instructions
-//   const double sym_points = sym.GetPoints();
-//   const double to_donate = emp::Min(
-//     sym_points,
-//     (sym_points + host.GetPoints()) * sgp_config.SYM_DONATE_PROP()
-//   );
-//   // TODO - Protect for threaded implementation
-//   // TODO - setup data tracking
-//   // state.world->GetSymDonatedDataNode().WithMonitor(
-//   //   [=](auto &m) { m.AddDatum(to_donate); });
+  // Donate X% of the total points of the symbiont-host system
+  // This way, a sym can donate e.g. 40 or 60 percent of their points in a
+  // couple of instructions
+  const double sym_points = sym.GetPoints();
+  const double to_donate = emp::Min(
+    sym_points,
+    (sym_points + host.GetPoints()) * sgp_config.SYM_DONATE_PROP()
+  );
+  // TODO - Protect for threaded implementation
+  // TODO - setup data tracking
+  // state.world->GetSymDonatedDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_donate); });
 
-//   // Adjust host/sym points accordingly
-//   const double donate_value = to_donate * (1.0 - sgp_config.DONATE_PENALTY());
-//   host.AddPoints(donate_value);
-//   sym.DecPoints(to_donate);
-// }
+  // Adjust host/sym points accordingly
+  host.AddPoints(to_donate);
+  sym.DecPoints(to_donate);
+}
 
-// void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
-//   emp_assert(!to_sym.IsHost());
-//   emp_assert(from_host.IsHost());
-//   // NOTE - could make this a configurable functor if we think
-//   //        that different config settings will need different steal logic.
-//   // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
-//   sgp_sym_t& sym = static_cast<sgp_sym_t&>(to_sym);
-//   sgp_host_t& host = static_cast<sgp_host_t&>(from_host);
+void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
+  emp_assert(!to_sym.IsHost());
+  emp_assert(from_host.IsHost());
+  // NOTE - could make this a configurable functor if we think
+  //        that different config settings will need different steal logic.
+  // NOTE - could static cast sym to sgp_sym, host to sgp_host if necessary
+  sgp_sym_t& sym = static_cast<sgp_sym_t&>(to_sym);
+  sgp_host_t& host = static_cast<sgp_host_t&>(from_host);
 
-//   const double to_steal = emp::Min(
-//     host.GetPoints(),
-//     (sym.GetPoints() + host.GetPoints()) * sgp_config.SYM_STEAL_PROP()
-//   );
-//   // TODO - make safe for threading mode + setup data tracking
-//   // state.world->GetSymStolenDataNode().WithMonitor(
-//   //   [=](auto &m) { m.AddDatum(to_steal); });
+  const double to_steal = emp::Min(
+    host.GetPoints(),
+    (sym.GetPoints() + host.GetPoints()) * sgp_config.SYM_STEAL_PROP()
+  );
+  // TODO - make safe for threading mode + setup data tracking
+  // state.world->GetSymStolenDataNode().WithMonitor(
+  //   [=](auto &m) { m.AddDatum(to_steal); });
 
-//   const double steal_value = to_steal * (1.0 - sgp_config.STEAL_PENALTY());
-//   host.DecPoints(to_steal);
-//   sym.AddPoints(steal_value);
-// }
+  host.DecPoints(to_steal);
+  sym.AddPoints(to_steal);
+}
 
-// void SGPWorld::FreeLivingSymDoInfect(Organism& sym) {
-//   emp_assert(!sym.IsHost());
-//   emp_assert(sgp_config.SYM_LIMIT() >= 0);
-//   // NOTE - Could add some runtime customizability here if we want. E.g., functors, etc.
-//   sgp_sym_t& sgp_sym = static_cast<sgp_sym_t&>(sym);
-//   // Get sym's location in emp::World pop
-//   const size_t pop_index = sgp_sym.GetHardware().GetCPUState().GetLocation().GetPopID();
-//   // Check that there's an available host
-//   // If this location isn't occupied, infect fails (at no cost?).
-//   if (!IsOccupied(pop_index)) {
-//     return;
-//   }
-//   // Check that there's enough space for infection
-//   const size_t num_syms = pop[pop_index]->GetSymbionts().size();
-//   // NOTE - Should sym_limit be allowed to be negative in config?
-//   if (num_syms < (size_t)sgp_config.SYM_LIMIT()) {
-//     // Extract the symbiont from the fls vector and decrement the free-living org
-//     // count. Then add the sym to the host's sym list.
-//     // TODO - consider whether we want signals here + if there are some
-//     //        bookkeeping things we need to do. E.g., add signals, etc.
-//     // TODO - Do we need to assign a new environment here? I don't think so?
-//     //        Symbiont should have been assigned an environment on birth.
-//     // NOTE - Previously, the infect instruction did not check whether AddSymbiont
-//     //        was successful. Discuss whether we want to check that here.
-//     pop[pop_index]->AddSymbiont(ExtractSym(pop_index));
-//     sgp_sym.GetHardware().GetCPUState().SetLocation(
-//       emp::WorldPosition(pop_index, num_syms)
-//     );
-//   } else {
-//     // Injection failed, set it dead and do deletion next update
-//     sgp_sym.SetDead();
-//   }
-// }
+void SGPWorld::FreeLivingSymDoInfect(Organism& sym) {
+  emp_assert(!sym.IsHost());
+  emp_assert(sgp_config.SYM_LIMIT() >= 0);
+  // NOTE - Could add some runtime customizability here if we want. E.g., functors, etc.
+  sgp_sym_t& sgp_sym = static_cast<sgp_sym_t&>(sym);
+  // Get sym's location in emp::World pop
+  const size_t pop_index = sgp_sym.GetHardware().GetCPUState().GetLocation().GetPopID();
+  // Check that there's an available host
+  // If this location isn't occupied, infect fails (at no cost?).
+  if (!IsOccupied(pop_index)) {
+    return;
+  }
+  // Check that there's enough space for infection
+  const size_t num_syms = pop[pop_index]->GetSymbionts().size();
+  // NOTE - Should sym_limit be allowed to be negative in config?
+  if (num_syms < (size_t)sgp_config.SYM_LIMIT()) {
+    // Extract the symbiont from the fls vector and decrement the free-living org
+    // count. Then add the sym to the host's sym list.
+    // TODO - consider whether we want signals here + if there are some
+    //        bookkeeping things we need to do. E.g., add signals, etc.
+    // TODO - Do we need to assign a new environment here? I don't think so?
+    //        Symbiont should have been assigned an environment on birth.
+    // NOTE - Previously, the infect instruction did not check whether AddSymbiont
+    //        was successful. Discuss whether we want to check that here.
+    pop[pop_index]->AddSymbiont(ExtractSym(pop_index));
+    sgp_sym.GetHardware().GetCPUState().SetLocation(
+      emp::WorldPosition(pop_index, num_syms)
+    );
+  } else {
+    // Injection failed, set it dead and do deletion next update
+    sgp_sym.SetDead();
+  }
+}
 
 
 

@@ -33,7 +33,7 @@ void SGPWorld::CreateDataFiles() {
   SetupOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup transmission file
   std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
-  SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  SetupTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // // Setup sym donated file
   // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
   // SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());

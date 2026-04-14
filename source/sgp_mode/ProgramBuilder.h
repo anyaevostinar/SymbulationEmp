@@ -310,12 +310,6 @@ public:
     return program;
   }
 
-  // program_t CreateRandomProgram(size_t length) {
-  //   // Program constructor will initialize program randomly.
-  //   // Be sure to pass instruction rectifier to remove any disabled instructions.
-  //   return program_t(length, rectifier);
-  // }
-
   program_t CreateReproProgram(size_t length) {
     program_t program;
     // Add start anchor
@@ -343,9 +337,7 @@ public:
     // Add not instruction
     AddTask_Not(program);  // Add not task
     AddTask_Nand(program); // Add nand task
-    // Nop filler is length minus current size + repro instructions
-    // const size_t nop_filler = length - (program.size() + 1);
-    program.resize(length - 1);
+    program.resize(length - 1); // Leave room for repro
     AddInst(program, repro_op);
     // Remove any deleted instructions
     program.Rectify(rectifier);

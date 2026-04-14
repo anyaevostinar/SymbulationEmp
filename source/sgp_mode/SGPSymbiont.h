@@ -62,7 +62,6 @@ public:
     hardware(_world, this),
     my_world(_world)
   {
-    // sgp_config = _config;
   }
 
   /**
@@ -80,7 +79,6 @@ public:
     hardware(_world, this, genome),
     my_world(_world)
   {
-    // sgp_config = _config;
   }
 
   SGPSymbiont(const SGPSymbiont& symbiont) :
@@ -98,11 +96,6 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
-    // if (!my_host) {
-    //   cpu.state.internal_environment.Delete();
-    //   cpu.state.used_resources.Delete();
-    //   cpu.state.shared_available_dependencies.Delete();
-    // }
     // Invalidate any in-progress reproduction
     auto& cpu_state = hardware.GetCPUState();
     if (cpu_state.ReproInProgress()) {
@@ -262,7 +255,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_offspring = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
-    sym_offspring->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    sym_offspring->SetReproCount(reproductions + 1); // Repro Count is the lineage length, AEV TODO: rename that....
     auto& offspring_hw = sym_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();

@@ -45,9 +45,6 @@ public:
     size_t task_id = 0;                      // Task id
     size_t max_repeats = 0;              // How many times are organisms allowed to repeat this task for credit?
     double task_value = 0;                   // Base value for this task
-    // bool has_dependencies = false;           // Does credit for this task depend on performing other tasks prior?
-    // emp::BitVector dependencies;             // Which tasks does this task depend on? (and how much?) TODO - should this be a bitvector?
-    // emp::BitVector blocks;                   // Which tasks does this task block?
     fun_calc_task_value_t fun_calc_task_val; // Returns task value based on task mode
   };
 

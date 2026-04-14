@@ -31,13 +31,9 @@ public:
   Scheduler(
     emp::Random& rand,
     size_t world_size=1
-    // size_t num_threads=1
   ) :
     random(rand)
-    // thread_count(num_threads),
-    // threaded_mode(num_threads > 1)
   {
-    // SetupScheduler(world_size, num_threads);
     SetupScheduler(world_size);
   }
 

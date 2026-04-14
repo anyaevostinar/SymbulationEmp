@@ -26,7 +26,6 @@ public:
   using program_t = typename hw_t::program_t;
 
 protected:
-  // CPU cpu;
   hw_t hardware;
 
   /**
@@ -206,8 +205,7 @@ public:
 
     // Hosts gain baseline number of CPU cycles
     GetHardware().GetCPUState().GainCPUCycles(
-    //sgp_config.CYCLES_PER_UPDATE() //This isn't working, not sure why
-    my_world->sgp_config.CYCLES_PER_UPDATE()
+    my_world->sgp_config.CYCLES_PER_UPDATE() // AEV TODO: using local sgp_config isn't working
   );
 
   // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
@@ -270,6 +268,7 @@ public:
     my_world->after_host_cpu_step_sig.Trigger(*this);
     // NOTE - Check death here?
   }
+  std::cout << "Finished executing host CPU steps, now processing output buffer" << std::endl;
   my_world->after_host_cpu_exec_sig.Trigger(*this);
   // Handle any endosymbionts (configurable at setup-time)
   // NOTE - is there any reason that this might need to be a functor?
@@ -317,6 +316,7 @@ public:
    * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
    */
   void ProcessOutputBuffer() {
+    // Refactor note: Ported from SGPWorld.cc ProcessHostOutputBuffer
     //AEV TODO: Check which of these we have access to more easily than currently done
     auto& cpu_state = GetHardware().GetCPUState();
   const size_t env_task_id = cpu_state.GetTaskEnvID();
@@ -351,6 +351,7 @@ public:
         // Manage CPU state after completing a task:
         //   (1) Mark task as being performed
         cpu_state.MarkTaskPerformed(task_id);
+        std::cout << "Tasks performed bitvector after marking task " << task_id << " performed: " << cpu_state.GetTasksPerformed() << std::endl;
         //   (2) Credit output
         cpu_state.CreditOutputValue(task_id, val);
         //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
@@ -367,14 +368,7 @@ public:
           )
         );
 
-        // // Enforce point limits
-        // const double max_points = 1.05 * sgp_config.HOST_REPRO_RES();
-        // if (host.GetPoints() > max_points) {
-        //   host.SetPoints(max_points);
-        // }
-
-        //AEV: comment back in for data tracking
-        //++host_task_successes[task_id];
+        my_world->host_task_successes[task_id] += 1;
 
       }
     }

@@ -110,8 +110,7 @@ public:
     state(
       world_ptr,
       organism,
-      //world_ptr->GetTaskCount()
-      9
+      world_ptr->GetTaskCount()
     )
   {
     // State constructor (above) will reset cpu state.
@@ -131,8 +130,7 @@ public:
     state(
       world_ptr,
       organism,
-      //world_ptr->GetTaskCount()
-      9
+      world_ptr->GetTaskCount()
     )
   {
     // State constructor (above) will reset cpu state.
@@ -162,7 +160,6 @@ public:
 
   // TODO - is there a reason we might want to support different start tags?
   void Reset(size_t task_count) {
-    // cpu.Reset(); TODO - can get rid of because InitializeState resets cpu
     state.Reset(task_count);
     InitializeState();
   }
@@ -221,7 +218,6 @@ public:
   }
 
   void SetRegister(size_t reg_id, uint32_t value) {
-    // uint32_t *a = (uint32_t *)&core.registers[reg_id];
     Reg(reg_id) = value;
   }
 

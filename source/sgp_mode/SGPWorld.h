@@ -80,13 +80,13 @@ public:
   using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
   using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
 
-  // using fun_do_resource_inflow_t = std::function<void(void)>;
+  using fun_do_resource_inflow_t = std::function<void(void)>;
 
-  // using fun_apply_nutrient_interaction_t = std::function<double(
-  //   sgp_sym_t&, /* symbiont */
-  //   double,     /* task value before nutrient interaction */
-  //   size_t     /* task id */
-  // )>;
+  using fun_apply_nutrient_interaction_t = std::function<double(
+    sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t     /* task id */
+  )>;
 
   // using fun_process_endosym_t = std::function<void(
   //   sgp_sym_t&,                /* endosymbiont */
@@ -95,9 +95,9 @@ public:
   // )>;
 
   using org_mode_t = typename org_info::SGPOrganismType;
-  // using stress_sym_mode_t = typename org_info::StressSymbiontType;
-  // using health_sym_mode_t = typename org_info::HealthSymbiontType;
-  // using nutrient_sym_mode_t = typename org_info::NutrientSymbiontType;
+  using stress_sym_mode_t = typename org_info::StressSymbiontType;
+  using health_sym_mode_t = typename org_info::HealthSymbiontType;
+  using nutrient_sym_mode_t = typename org_info::NutrientSymbiontType;
 
   // Used for any snapshot info that should be added to the config snapshot file
   // in addition to values in sgp_config object.
@@ -173,23 +173,23 @@ public:
 
   } current_update_data;
 
-  // struct StressEscapee {
-  //   emp::Ptr<sgp_sym_t> sym_offspring;
-  //   // emp::WorldPosition escape_location;
-  //   emp::BitVector parent_task_profile;
-  //   size_t escape_location;
+  struct StressEscapee {
+    emp::Ptr<sgp_sym_t> sym_offspring;
+    // emp::WorldPosition escape_location;
+    emp::BitVector parent_task_profile;
+    size_t escape_location;
 
-  //   StressEscapee() = default;
-  //   StressEscapee(
-  //     emp::Ptr<sgp_sym_t> sym,
-  //     const emp::BitVector& tasks,
-  //     size_t loc
-  //   ) :
-  //     sym_offspring(sym),
-  //     parent_task_profile(tasks),
-  //     escape_location(loc)
-  //   { }
-  // };
+    StressEscapee() = default;
+    StressEscapee(
+      emp::Ptr<sgp_sym_t> sym,
+      const emp::BitVector& tasks,
+      size_t loc
+    ) :
+      sym_offspring(sym),
+      parent_task_profile(tasks),
+      escape_location(loc)
+    { }
+  };
 
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
@@ -202,7 +202,7 @@ public:
   // via a stress event.
   // - Can't use same function as when checking horizontal transmission compatibility because
   //   we no longer have access to the symbiont parent for a stress transmission event.
- // std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
+ std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
 
  fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
@@ -320,29 +320,29 @@ public:
   // ---- Free-living symbiont signals / functors ----
   // before_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
   //  Triggers if sym is alive before executing sym's CPU.
-  // emp::Signal<void(
-  //   sgp_sym_t&  /* sym */
-  // )> before_freeliving_sym_process_sig;
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> before_freeliving_sym_process_sig;
 
   // after_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
   //  Triggers at end of ProcessFreeLivingSymAt, but before a final check/potential
   //  DoSymDeath call
-  // emp::Signal<void(
-  //   sgp_sym_t&  /* sym */
-  // )> after_freeliving_sym_process_sig;
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_process_sig;
 
   // after_freeliving_sym_cpu_step_sig - Triggers in ProcessFreeLivingSymAt()
   //  Triggers after each CPU cycle after handling an instruction-triggered repro attempt.
-  // emp::Signal<void(
-  //   sgp_sym_t&  /* sym */
-  // )> after_freeliving_sym_cpu_step_sig;
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_cpu_step_sig;
 
   // after_freeliving_sym_cpu_exec_sig - Triggers in ProcessFreeLivingSymAt()
   //  Triggers after executing all CPU cycles allotted to sym being processed and
   //  before SGPSymbiont::Process is called.
-  // emp::Signal<void(
-  //   sgp_sym_t&  /* sym */
-  // )> after_freeliving_sym_cpu_exec_sig;
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_cpu_exec_sig;
 
   // ---- Endosymbiont process signals / functors ----
   // Happens before this endosymbiont's host is processed
@@ -382,7 +382,7 @@ public:
 
 
   // ---- Environment signals/functors ----
-  // fun_do_resource_inflow_t fun_do_resource_inflow;
+  fun_do_resource_inflow_t fun_do_resource_inflow;
 
   // Called in FindHostForHorizontalTrans(), configured in SetupPopStructure().
   // Returns a target position for symbiont to horizontally transmit into.
@@ -408,14 +408,18 @@ public:
     sgp_host_t& host
   );
 
-  // void FreeLivingSymAttemptRepro(
-  //   const emp::WorldPosition& pos,
-  //   sgp_sym_t& sym
-  // );
+  void FreeLivingSymAttemptRepro(
+    const emp::WorldPosition& pos,
+    sgp_sym_t& sym
+  );
 
   //AEV TODO: Make accessor method for these
   ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction 
   mutator_t mutator;  // Handles mutating sgp programs
+    // Tracks host task successes each update. Counts reset to 0 @ begin_update_sig.
+  emp::vector<size_t> host_task_successes;
+  // Tracks symbiont task successes each update. Counts reset to 0 @ begin_update_sig.
+  emp::vector<size_t> sym_task_successes;
 
 protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
@@ -428,8 +432,8 @@ protected:
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
 
-//  emp::vector<StressEscapee> symbiont_stress_escapees;
-//  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
+ emp::vector<StressEscapee> symbiont_stress_escapees;
+ emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
 
   // Flag for whether setup has been run.
   bool setup = false;
@@ -444,23 +448,20 @@ protected:
   emp::vector<emp::DataMonitor<size_t>> data_node_host_tasks;
   emp::vector<emp::DataMonitor<size_t>> data_node_sym_tasks;
 
-  // Tracks host task successes each update. Counts reset to 0 @ begin_update_sig.
-  emp::vector<size_t> host_task_successes;
-  // Tracks symbiont task successes each update. Counts reset to 0 @ begin_update_sig.
-  emp::vector<size_t> sym_task_successes;
+
 
 
 
   // What kind of SGP organism type to use?
   org_mode_t sgp_org_type = org_mode_t::DEFAULT;
   // If using stress organisms, what kind of stress?
-//  stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
+ stress_sym_mode_t stress_sym_type = stress_sym_mode_t::MUTUALIST;
   bool stress_extinction_update = false;
 
- // health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
-//  nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
+ health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
+ nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
 
-//  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
+ fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -496,10 +497,10 @@ protected:
     const emp::WorldPosition& parent_pos
   );
 
-  // emp::WorldPosition FreeLivingSymDoBirth(
-  //   emp::Ptr<sgp_sym_t> sym_baby_ptr,
-  //   const emp::WorldPosition& parent_pos
-  // );
+  emp::WorldPosition FreeLivingSymDoBirth(
+    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    const emp::WorldPosition& parent_pos
+  );
 
   emp::WorldPosition SymAttemptHorizontalTrans(
     emp::Ptr<sgp_sym_t> sym_baby_ptr,
@@ -518,11 +519,11 @@ protected:
   // Internal helper function to delete dead organisms in graveyard.
  void ProcessGraveyard();
 
- // void ProcessStressEscapees();
+ void ProcessStressEscapees();
 
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
-  //void SetupOrgMode();
+  void SetupOrgMode();
   void SetupPopStructure();
   void SetupScheduler();
   void SetupReproduction();
@@ -531,9 +532,9 @@ protected:
  void SetupHostSymInteractions();
  void SetupTaskEnvironment();
  void SetupMutator();
-//  void SetupStressInteractions();
-//  void SetupHealthInteractions();
-//  void SetupNutrientInteractions();
+ void SetupStressInteractions();
+ void SetupHealthInteractions();
+ void SetupNutrientInteractions();
 
   // Clear all world signals
   void ClearWorldSignals() {
@@ -547,9 +548,9 @@ protected:
     before_host_process_sig.Clear();
     after_host_process_sig.Clear();
     after_host_cpu_step_sig.Clear();
-    // before_freeliving_sym_process_sig.Clear();
-    // after_freeliving_sym_process_sig.Clear();
-    // after_freeliving_sym_cpu_step_sig.Clear();
+    before_freeliving_sym_process_sig.Clear();
+    after_freeliving_sym_process_sig.Clear();
+    after_freeliving_sym_cpu_step_sig.Clear();
     before_endosym_host_process_sig.Clear();
     before_endosym_process_sig.Clear();
     after_endosym_process_sig.Clear();
@@ -579,9 +580,9 @@ public:
   { }
 
   ~SGPWorld() {
-    //if(data_node_sym_donated) data_node_sym_donated.Delete();
-    //if(data_node_sym_stolen) data_node_sym_stolen.Delete();
-    //if(data_node_sym_earned) data_node_sym_earned.Delete();
+    if(data_node_sym_donated) data_node_sym_donated.Delete();
+    if(data_node_sym_stolen) data_node_sym_stolen.Delete();
+    if(data_node_sym_earned) data_node_sym_earned.Delete();
   }
 
   /**
@@ -639,7 +640,7 @@ public:
     // Process reproduction queue
     DoReproduction();
 
-    //ProcessStressEscapees();
+    ProcessStressEscapees();
 
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
@@ -678,7 +679,7 @@ public:
   void ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host);
 
   // Process symbiont at given position in the world
-  //void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
+  void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
 
   // Process all symbionts inside given host
   void ProcessEndosymbionts(sgp_host_t& host);
@@ -722,9 +723,9 @@ public:
 
   void SymDoMutation(sgp_sym_t& sym);
 
-  // void SymDonateToHost(Organism& from_sym, Organism& to_host);
-  //void SymStealFromHost(Organism& to_sym, Organism& from_host);
-  //void FreeLivingSymDoInfect(Organism& sym);
+  void SymDonateToHost(Organism& from_sym, Organism& to_host);
+  void SymStealFromHost(Organism& to_sym, Organism& from_host);
+  void FreeLivingSymDoInfect(Organism& sym);
 
   // Returns neighboring host from given symbiont
   // NOTE - Opinions on name change? (originally GetNeighborHost)
@@ -743,26 +744,26 @@ public:
   void SendToGraveyard(emp::Ptr<Organism> org) override;
 
   org_mode_t GetOrgType() const { return sgp_org_type; }
-  // stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
-  // health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
-  // nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
+  stress_sym_mode_t GetStressSymType() const { return stress_sym_type; }
+  health_sym_mode_t GetHealthSymType() const { return health_sym_type; }
+  nutrient_sym_mode_t GetNutrientSymType() const { return nutrient_sym_type; }
 
   ReproductionQueue& GetReproQueue() { return repro_queue; }
 
   // Data node methods
-  // emp::DataMonitor<double>& GetSymDonatedDataNode() {
-  //   emp_assert(data_node_sym_donated != nullptr);
-  //   return *data_node_sym_donated;
-  // }
-  // emp::DataMonitor<double>& GetSymStolenDataNode() {
-  //   emp_assert(data_node_sym_stolen != nullptr);
-  //   return *data_node_sym_stolen;
-  // }
-  // emp::DataMonitor<double>& GetSymEarnedDataNode() {
-  //   emp_assert(data_node_sym_earned != nullptr);
-  //   return *data_node_sym_earned;
-  // }
-  //void SetupTasksNodes();
+  emp::DataMonitor<double>& GetSymDonatedDataNode() {
+    emp_assert(data_node_sym_donated != nullptr);
+    return *data_node_sym_donated;
+  }
+  emp::DataMonitor<double>& GetSymStolenDataNode() {
+    emp_assert(data_node_sym_stolen != nullptr);
+    return *data_node_sym_stolen;
+  }
+  emp::DataMonitor<double>& GetSymEarnedDataNode() {
+    emp_assert(data_node_sym_earned != nullptr);
+    return *data_node_sym_earned;
+  }
+  void SetupTasksNodes();
 
   ProgramBuilder<hw_spec_t>& GetProgramBuilder() { return prog_builder; }
   const ProgramBuilder<hw_spec_t>& GetProgramBuilder() const { return prog_builder; }
@@ -776,7 +777,7 @@ public:
   void CollectCurrentUpdateData();
   emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
 
-  //void CreateDataFiles() override;
+  void CreateDataFiles() override;
 
   void SnapshotConfig(const std::string& filename="run_config.csv");
 
