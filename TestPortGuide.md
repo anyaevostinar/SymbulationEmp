@@ -24,3 +24,9 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
         * `SGPHost_Reproduce.test.cc`
 
 As you run into other differences, add them here!
+
+# Tests to Port
+* There are tests in `sgp_mode_test/need_updating` that are from Alex's fork and weren't all functional, they hopefully need minimal updating, but also might be completely outdated, not sure
+    * As they are evaluated, just move them up to their appropriate folder and delete them from that `need_updating` folder
+* All the tests from `complex-syms-clean` are in `test/old_sgp_mode_test`. I've pulled small pieces of a few of them, but it would be great to port all those that are still relevant and make note of what is no longer relevant (to make sure it's replacement is tested)
+    * As they are ported, delete them from `old_sgp_mode_test` so we can keep track
