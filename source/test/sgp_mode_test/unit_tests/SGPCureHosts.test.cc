@@ -1,14 +1,14 @@
 #include "emp/math/Random.hpp"
 
-#include "../../sgp_mode/hardware/SGPHardware.h"
-#include "../../sgp_mode/SGPWorld.h"
-#include "../../sgp_mode/SGPWorld.cc"
-#include "../../sgp_mode/SGPHost.h"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPWorldData.cc"
-#include "../../sgp_mode/ProgramBuilder.h"
+#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
+#include "../../../sgp_mode/SGPHost.h"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
-#include "../../catch/catch.hpp"
+#include "../../../catch/catch.hpp"
 
 
 TEST_CASE("SGP Cure Hosts tests", "[sgp]"){

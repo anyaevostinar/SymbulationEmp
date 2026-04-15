@@ -2,8 +2,8 @@
 
 /// updated implementation:
 
-#include "../../sgp_mode/hardware/Stacks.h"
-#include "../../catch/catch.hpp"
+#include "../../../sgp_mode/hardware/Stacks.h"
+#include "../../../catch/catch.hpp"
 #include "emp/base/vector.hpp"
 #include "emp/base/array.hpp"
 

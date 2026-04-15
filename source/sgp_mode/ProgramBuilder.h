@@ -291,16 +291,7 @@ public:
     program_t program; // Create empty program
     // Add start anchor
     AddStartAnchor(program);
-    // AddTask_Not(program); // Add not task
-    // Add instructions manually so that repeated nots play nice with task crediting
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
+    AddTask_Not(program); // Add not task
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
@@ -342,6 +333,25 @@ public:
     );
     // Add not instruction
     AddTask_Not(program);  // Add not task
+    AddTask_Nand(program); // Add nand task
+    // Nop filler is length minus current size + repro instructions
+    // const size_t nop_filler = length - (program.size() + 1);
+    program.resize(length - 1);
+    AddInst(program, repro_op);
+    // Remove any deleted instructions
+    program.Rectify(rectifier);
+    return program;
+  }
+
+  program_t CreateNandProgram(size_t length) {
+    program_t program; // Create empty program
+    // Add start anchor
+    AddInst(
+      program,
+      "Global Anchor",
+      start_tag
+    );
+    // Add not instruction
     AddTask_Nand(program); // Add nand task
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);

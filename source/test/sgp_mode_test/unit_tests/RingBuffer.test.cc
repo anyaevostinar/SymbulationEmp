@@ -1,5 +1,5 @@
-#include "../../sgp_mode/hardware/RingBuffer.h"
-#include "../../catch/catch.hpp"
+#include "../../../sgp_mode/hardware/RingBuffer.h"
+#include "../../../catch/catch.hpp"
 
 /// new implementation 
 

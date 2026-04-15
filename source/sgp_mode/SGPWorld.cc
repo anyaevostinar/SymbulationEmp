@@ -604,6 +604,7 @@ void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
         if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
           cpu_state.ResetCreditedOutputs(task_id);
         }
+
         // Calc value, add to organism points
         host.SetPoints(
           task_req_info.fun_calc_task_val(
