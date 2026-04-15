@@ -724,8 +724,7 @@ void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {
   //   [=](auto &m) { m.AddDatum(to_donate); });
 
   // Adjust host/sym points accordingly
-  const double donate_value = to_donate * (1.0 - sgp_config.DONATE_PENALTY());
-  host.AddPoints(donate_value);
+  host.AddPoints(to_donate);
   sym.DecPoints(to_donate);
 }
 
@@ -746,9 +745,8 @@ void SGPWorld::SymStealFromHost(Organism& to_sym, Organism& from_host) {
   // state.world->GetSymStolenDataNode().WithMonitor(
   //   [=](auto &m) { m.AddDatum(to_steal); });
 
-  const double steal_value = to_steal * (1.0 - sgp_config.STEAL_PENALTY());
   host.DecPoints(to_steal);
-  sym.AddPoints(steal_value);
+  sym.AddPoints(to_steal);
 }
 
 void SGPWorld::FreeLivingSymDoInfect(Organism& sym) {

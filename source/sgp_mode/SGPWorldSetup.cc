@@ -108,7 +108,7 @@ void SGPWorld::Setup() {
 
 void SGPWorld::SetupOrgMode() {
   // Convert cfg org type to lowercase
-  std::string cfg_org_type(emp::to_lower(sgp_config.ORGANISM_TYPE()));
+  std::string cfg_org_type(emp::to_lower(sgp_config.INTERACTION_MECHANISM())); // AEV TODO: Change all these other references to org type to interaction mechanism
   // Get organism type (asserts validity)
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
   // Configure stress sym type
@@ -1045,7 +1045,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       default:
         // org mode has already been verified, so something has gone very wrong
         // with that if we're here.
-        std::cout << "Unrecognized SGP organism type: " << sgp_config.ORGANISM_TYPE() << std::endl;
+        std::cout << "Unrecognized SGP organism type: " << sgp_config.INTERACTION_MECHANISM() << std::endl;
         break;
     }
 

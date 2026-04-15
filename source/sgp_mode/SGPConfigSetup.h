@@ -15,10 +15,6 @@ namespace sgpmode {
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
-  VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
-  // NOTE - task type is confusing; ancestor mode?
-  VALUE(TASK_TYPE, bool, true, "If random ancestor off, 1 for NOT + repro starting genome, 0 for repro starting program"),
-  VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
   VALUE(FIND_NEIGHBOR_HOST_ATTEMPTS, size_t, 4, "How many times to attempt finding a neighboring host for symbiont to horizontally transmit into"),
   VALUE(DONATION_STEAL_INST, bool, true, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
   VALUE(SYM_DONATE_PROP, double, 0.2, "Proportion of points for sym to donate to host on donate"),
@@ -26,12 +22,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
   VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
 
-  VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
-  VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
-  VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
-
   // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
-  VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
+  VALUE(INTERACTION_MECHANISM, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TASK_PROFILE_MODE, std::string, "parent-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.?"),
   VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),

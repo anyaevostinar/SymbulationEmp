@@ -1,6 +1,7 @@
 (delete once Anya is done with joint refactoring)
 
 # Timeline plan
+[x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [ ] Get Host task credit and Task Match Check tests not seg faulting
 [ ] Move Host reproduction, output buffer processing, and process back into Host class and make sure current tests keep passing
 [ ] Make mini guide on main changes for tests so others could help with test porting
