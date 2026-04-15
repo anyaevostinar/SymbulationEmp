@@ -104,68 +104,54 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
 
 }
 
+TEST_CASE("TaskMatchCheck", "[sgp]") {
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SYM_LIMIT(2);
+  config.POP_SIZE(1);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2, 2);
+
+  auto& builder = world.GetProgramBuilder();
 
 
-// SEG FAULTING
-// TEST_CASE("TaskMatchCheck", "[sgp][refactor2]") {
-//   emp::Random random(61);
-//   sgpmode::SymConfigSGP config;
-//   config.GRID_X(2);
-//   config.GRID_Y(2);
-//   config.SYM_LIMIT(2);
-//   config.POP_SIZE(1);
-//   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
+  emp::Ptr<sgp_sym_t> NOT_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNotProgram(100));
+  emp::Ptr<sgp_sym_t> NAND_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNandProgram(100));
 
-//   world_t world(random, &config);
-//   world.Setup();
-//   world.Resize(2, 2);
-
-//   auto& builder = world.GetProgramBuilder();
+  NOT_host->AddSymbiont(NOT_symbiont);
+  NOT_host->AddSymbiont(NAND_symbiont);
+  world.AddOrgAt(NOT_host, 0);
 
 
-//   emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
-//   emp::Ptr<sgp_sym_t> NOT_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNotProgram(100));
-//   emp::Ptr<sgp_sym_t> NAND_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNandProgram(100));
+  bool not_not_matched = false;
+  bool not_nand_matched = false;
+  for (int i = 0; i < 100; i++) {
+    world.Update();
 
-//   NOT_host->AddSymbiont(NOT_symbiont);
-//   NOT_host->AddSymbiont(NAND_symbiont);
-//   world.AddOrgAt(NOT_host, 0);
+    not_not_matched = sgpmode::utils::AnyMatchingOnes(
+      NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
+      NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
+    );
+    not_nand_matched = sgpmode::utils::AnyMatchingOnes(
+      NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
+      NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
+    );
+  }
 
-
-//   bool not_not_matched = false;
-//   bool not_nand_matched = false;
-//   for (int i = 0; i < 100; i++) {
-//     world.Update();
-
-//     not_not_matched = sgpmode::utils::AnyMatchingOnes(
-//       NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
-//       NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
-//     );
-//     not_nand_matched = sgpmode::utils::AnyMatchingOnes(
-//       NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed(),
-//       NOT_host->GetHardware().GetCPUState().GetTasksPerformed()
-//     );
-//     if (i == 99) {
-//       std::cout << "NOT host tasks: " << NOT_host->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-//       std::cout << "NOT sym tasks: " << NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-//       std::cout << "NAND sym tasks: " << NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-//       std::cout << "not_not_matched: " << not_not_matched << std::endl;
-//       std::cout << "not_nand_matched: " << not_nand_matched << std::endl;
-//     }
-//   }
-
-//   std::cout << "NOT host tasks: " << NOT_host->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-//   std::cout << "NOT sym tasks: " << NOT_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-//   std::cout << "NAND sym tasks: " << NAND_symbiont->GetHardware().GetCPUState().GetTasksPerformed() << std::endl;
-
-//   WHEN("A host and symbiont can both do at least one same task") {
-//     THEN("TaskMatchCheck returns true") {
-//       REQUIRE(not_not_matched == true);
-//     }
-//   }
-//   WHEN("A host and symbiont have no tasks they can both do") {
-//     THEN("TaskMatchCheck returns false") {
-//       REQUIRE(not_nand_matched == false);
-//     }
-//   }
-// }
+  WHEN("A host and symbiont can both do at least one same task") {
+    THEN("TaskMatchCheck returns true") {
+      REQUIRE(not_not_matched == true);
+    }
+  }
+  WHEN("A host and symbiont have no tasks they can both do") {
+    THEN("TaskMatchCheck returns false") {
+      REQUIRE(not_nand_matched == false);
+    }
+  }
+}

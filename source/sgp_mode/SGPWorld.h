@@ -619,20 +619,15 @@ public:
     // Handle resource inflow
     // TODO - implement inflow configuration
     // fun_do_resource_inflow();
-
     // Update scheduler's evaluation order
     scheduler.UpdateSchedule();
     // Run scheduler to process organisms
     scheduler.Run(*this);
-
     // Process reproduction queue
     DoReproduction();
-
     ProcessStressEscapees();
-
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
-
     // NOTE - these were previously called at the beginning of the update
     //        any specific reason to do that instead of at end?
     //        If we move this to the end of the update, file updates happen after
@@ -647,13 +642,13 @@ public:
   }
   
 
-  void Run() {
+  void Run(bool verbose = false) {
     emp_assert(setup);
     emp_assert(sgp_config.UPDATES() >= 0);
     const size_t updates = sgp_config.UPDATES();
     for (size_t u = 0; u <= updates; ++u) {
       Update();
-      if ((u % sgp_config.PRINT_INTERVAL()) == 0) {
+      if (verbose && (u % sgp_config.PRINT_INTERVAL()) == 0) {
         std::cout << "Update: " << u << std::endl;
       }
     }

@@ -15,6 +15,7 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 * Change all the types to the using above
 * To get CPU State now requires going through `GetHardware()`
 * If doing program building: `auto& prog_builder = world.GetProgramBuilder();`
+* Currently, you need to have `world.AssignNewEnvIO(my_host->GetHardware().GetCPUState());` to avoid seg faults, I'm hoping to find a place to have that happen automatically at some point since it's annoying
 * Consult existing functional tests for how to do other things:
     * In unit tests:
         * `SGPWorld.test.cc`

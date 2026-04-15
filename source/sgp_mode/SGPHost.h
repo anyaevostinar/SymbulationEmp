@@ -215,6 +215,18 @@ public:
   emp::Ptr<world_t> GetWorld() { return my_world; }
 
   /**
+   * Input: A pointer to the symbiont to add.
+   *
+   * Output: The position of the added symbiont.
+   *
+   * Purpose: To add a symbiont to the host. Overrides Host's AddSymbiont to also assign the symbiont's environment IO.
+   */
+  int AddSymbiont(emp::Ptr<Organism> sym) {
+    my_world->AssignNewEnvIO(static_cast<sgp_sym_t&>(*sym).GetHardware().GetCPUState());
+    return Host::AddSymbiont(sym);
+  }
+
+  /**
    * Input: The location of the host.
    *
    * Output: None

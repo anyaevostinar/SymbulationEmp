@@ -75,9 +75,7 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
 
 
   WHEN("Updates are run") {
-    // segmentation violation signal on num_updates
     for (int i = 0; i < total_updates; i++){
-      printf("Update: %d", i);
       world.Update();
       if (i >= num_updates){
         REQUIRE(host1.HasSym() == false);

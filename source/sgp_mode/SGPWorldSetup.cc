@@ -12,6 +12,7 @@
 #include "emp/math/math.hpp"
 
 // TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
+// AEV: YES!!!!!
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
@@ -736,9 +737,13 @@ void SGPWorld::SetupReproduction() {
   // Set CPUState's location when organism is added to the world.
   OnBeforePlacement(
     [this](Organism& org, size_t loc) {
-      (org.IsHost()) ?
-        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}) :
+      if (org.IsHost()) {
+        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+        this->AssignNewEnvIO(static_cast<sgp_host_t&>(org).GetHardware().GetCPUState()); // AEV Question: is there a better place for this?
+      } else {
         static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+        this->AssignNewEnvIO(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState());
+      }
     }
   );
 
@@ -822,7 +827,7 @@ void SGPWorld::SetupSymReproduction() {
 
 
 void SGPWorld::SetupHostSymInteractions() {
-  std::cout << "Setup Host-symbiont interactions" << std::endl;
+  // std::cout << "Setup Host-symbiont interactions" << std::endl;
 
   // Setup what we use for host/symbiont task profiles
   // PARENT-ALL
@@ -1064,7 +1069,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       );
       // TODO - add InjectSymIntoHost to wrap
       // NOTE - Move env io assignment to different signal that is triggered on inject?
-      AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
+      // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
       // Set sym's parent task
       if (task_env.IsSymTask(not_task_id)) {
         new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
@@ -1075,7 +1080,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function
-    AssignNewEnvIO(new_host->GetHardware().GetCPUState());
+    // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
     if (task_env.IsHostTask(not_task_id)) {
       new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
       new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
@@ -1129,7 +1134,7 @@ void SGPWorld::SetupTaskEnvironment() {
     ) {
       auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
       // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
-      AssignNewEnvIO(offspring_cpu_state);
+      //AssignNewEnvIO(offspring_cpu_state); // This is in OnPlacement now, so should be fine
     }
   );
 
@@ -1138,7 +1143,7 @@ void SGPWorld::SetupTaskEnvironment() {
       emp::Ptr<sgp_sym_t> sym_baby_ptr,
       const emp::WorldPosition& parent_pos
     ) {
-      AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState());
+      // AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState()); // This is in AddSymbiont and OnPlacement now, so should be fine
     }
   );
 
@@ -1157,7 +1162,7 @@ void SGPWorld::SetupTaskEnvironment() {
       emp_assert(sym_offspring_ptr != nullptr);
       auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
       // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
-      AssignNewEnvIO(sym_offspring_cpu_state);
+      //AssignNewEnvIO(sym_offspring_cpu_state); // This is in AddSymbiont now, so should be fine
     }
   );
 
