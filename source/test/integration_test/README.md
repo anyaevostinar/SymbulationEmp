@@ -50,3 +50,6 @@ However, they can evolve to parasitism or breakdown all together and the conditi
 Vertical and horizontal transmission of mutualistic endosymbionts are two factors that can influence the evolution of mutualism. 
 Using the artificial life system, Symbulation, we studied the effects of different rates of mutation during horizontal transmission on mutualistic symbiosis at different levels of vertical transmission.
 We propose and provide evidence for the "Dirty Transmission Hypothesis", which states that higher rates of mutation during horizontal transmission can select for increased mutualism to avoid deleterious mutation accumulation.
+
+## [mutualists_constrain](/mutualists_constrain)
+Mutualists Constrain Evolution: In progress paper. Will update once published.

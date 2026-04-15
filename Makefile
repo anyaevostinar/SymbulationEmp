@@ -1,15 +1,17 @@
 # Project-specific settings
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
+SGP_DIR := signalgp-lite/include
 
 # Flags to use regardless of compiler
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/
+VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++
-CFLAGS_nat := -O3 -DNDEBUG $(CFLAGS_all)
-CFLAGS_nat_debug := -g -DEMP_TRACK_MEM $(CFLAGS_all)
-CFLAGS_nat_coverage := --coverage $(CFLAGS_all)
+CFLAGS_nat := -O3 -DNDEBUG -pthread $(CFLAGS_all)
+CFLAGS_nat_debug := -g -DEMP_TRACK_MEM -pthread $(CFLAGS_all)
+CFLAGS_nat_coverage := --coverage -pthread $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
@@ -26,11 +28,12 @@ default: default-mode
 	@echo Efficient mode: make efficient-mode
 	@echo Lysis mode: make lysis-mode
 	@echo PGG mode: make pgg-mode
+	@echo SGP mode: make sgp-mode
 	@echo To build the web version use: make web
 
 native: default-mode
 web: symbulation.js
-all: default-mode efficient-mode lysis-mode pgg-mode symbulation.js
+all: default-mode efficient-mode lysis-mode pgg-mode sgp-mode symbulation.js
 
 default-mode:	source/native/symbulation_default.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
@@ -44,6 +47,9 @@ lysis-mode:	source/native/symbulation_lysis.cc
 pgg-mode:	source/native/symbulation_pgg.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_pgg.cc -o symbulation_pgg
 
+sgp-mode:	source/native/symbulation_sgp.cc
+	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp
+
 symbulation.js: source/web/symbulation-web.cc
 	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
 
@@ -54,22 +60,27 @@ debug:
 	@echo Efficient mode: make debug-efficient
 	@echo Lysis mode: make debug-lysis
 	@echo PGG mode: make debug-pgg
+	@echo SGP mode: make debug-sgp
 
 debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-default: default-mode 
+debug-default: default-mode
 default-debug: debug-default
 
 debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-efficient: efficient-mode 
+debug-efficient: efficient-mode
 efficient-debug: debug-efficient
 
 debug-lysis: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-lysis: lysis-mode 
+debug-lysis: lysis-mode
 lysis-debug: debug-lysis
 
 debug-pgg: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-pgg: pgg-mode 
+debug-pgg: pgg-mode
 pgg-debug: debug-pgg
+
+debug-sgp: CFLAGS_nat := $(CFLAGS_nat_debug)
+debug-sgp: sgp-mode
+sgp-debug: debug-sgp
 
 debug-web:	CFLAGS_web := $(CFLAGS_web_debug)
 debug-web:	symbulation.js
@@ -85,8 +96,9 @@ test:
 	@echo To run only the tests for each mode, use the following:
 	@echo Default mode testing: make test-default
 	@echo Efficient mode testing: make test-efficient
-	@echo Lysis mode testing: make test-lysis 
+	@echo Lysis mode testing: make test-lysis
 	@echo PGG mode testing: make test-pgg
+	@echo SGP mode testing: make test-sgp
 
 test-debug:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
@@ -94,8 +106,9 @@ test-debug:
 	@echo To debug and test for each mode, use the following:
 	@echo Default mode: make test-debug-default
 	@echo Efficient mode: make test-debug-efficient
-	@echo Lysis mode: make test-debug-lysis 
+	@echo Lysis mode: make test-debug-lysis
 	@echo PGG mode: make test-debug-pgg
+	@echo SGP mode: make test-debug-sgp
 
 test-default:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
@@ -131,9 +144,25 @@ test-pgg:
 test-debug-pgg:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [pgg] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+	./symbulation.test [pgg] || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-sgp:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp] || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-sgp-all:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp],[sgp-integration] || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-debug-sgp:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp] || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+
+test-executable-debug:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 
 test-all:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
@@ -155,4 +184,4 @@ clean:
 
 coverage:
 	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }

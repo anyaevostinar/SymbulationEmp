@@ -117,6 +117,13 @@ protected:
   */
   emp::BitSet<TAG_LENGTH> tag;
 
+  /**
+   * 
+   * Purpose: To track location in the world
+   * 
+   */
+  emp::WorldPosition location;
+
 public:
   /**
    * The constructor for symbiont
@@ -196,7 +203,7 @@ public:
 
     /**
     * Input: None
-    * 
+    *
     * Output: Name of class as string, Symbiont
     *
     * Purpose: To know which subclass the object is
@@ -281,6 +288,15 @@ public:
    * Purpose: To get a symbiont's points.
    */
   double GetPoints() {return points;}
+
+  /**
+   * Input: None
+   * 
+   * Output: The world position of the organism
+   * 
+   * Purpose: To get the world position of the organism
+   */
+  emp::WorldPosition GetLocation() {return location;}
 
 
   /**
@@ -417,6 +433,15 @@ public:
    * Purpose: To increment a symbiont's points
    */
   void AddPoints(double _in) { points += _in;}
+
+  /**
+   * Input: A new world position
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the organism's world position
+   */
+  void SetLocation(emp::WorldPosition _in) {location = _in;} 
 
   /**
    * Input: None
@@ -679,6 +704,20 @@ public:
   }
 
   /**
+   * Input: None
+   *
+   * Output: Whether the symbiont is able to vertically transmit
+   *
+   * Purpose: To answer if this symbiont has enough points to vertically transmit
+   */
+  virtual bool MeetsVTRequirements() {
+    if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Input: The pointer to the organism that is the new host baby
    *
    * Output: None
@@ -686,26 +725,28 @@ public:
    * Purpose: To allow for vertical transmission to occur
    */
   void VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    if((my_world->WillTransmit()) && GetPoints() >= my_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-
+    if(my_world->WillTransmit()) {
+    
       //vertical transmission data node
       emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(GetIntVal());
 
-      emp::Ptr<Organism> sym_baby = Reproduce();
-      if (my_config->TAG_MATCHING()) {
-        double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
-        double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
-        if (tag_distance > cutoff) {
-          sym_baby.Delete();
-          return;
+      if(MeetsVTRequirements()){
+        emp::Ptr<Organism> sym_baby = Reproduce();
+        if (my_config->TAG_MATCHING()) {
+          double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
+          double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
+          if (tag_distance > cutoff) {
+            sym_baby.Delete();
+            return;
+          }
         }
-      }
-      points = points - my_config->SYM_VERT_TRANS_RES();
-      host_baby->AddSymbiont(sym_baby);
+        points = points - my_config->SYM_VERT_TRANS_RES();
+        host_baby->AddSymbiont(sym_baby);
 
-      emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
-      data_node_successes_verttrans.AddDatum(GetIntVal());
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
+        data_node_successes_verttrans.AddDatum(GetIntVal());
+      }
     }
   }
 
