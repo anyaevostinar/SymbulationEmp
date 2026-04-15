@@ -1,0 +1,85 @@
+#ifndef SGP_CONFIG_H
+#define SGP_CONFIG_H
+
+#include "../ConfigSetup.h"
+
+#include "../../Empirical/include/emp/config/config.hpp"
+
+#include <unordered_map>
+#include <string>
+
+namespace sgpmode {
+
+// TODO - rename TASK_TYPE to be more specific
+
+EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
+  GROUP(SGP, "Complex Genomes Settings"),
+  VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
+  VALUE(RANDOM_ANCESTOR, bool, false, "Randomize ancestor genomes instead of using the blank genome with just NOT and reproduction"),
+  // NOTE - task type is confusing; ancestor mode?
+  VALUE(TASK_TYPE, bool, true, "If random ancestor off, 1 for NOT + repro starting genome, 0 for repro starting program"),
+  VALUE(RANDOM_IO_INPUT, bool, true, "1 to give organisms random input when they IO, 0 to give them only ones"),
+  VALUE(FIND_NEIGHBOR_HOST_ATTEMPTS, size_t, 4, "How many times to attempt finding a neighboring host for symbiont to horizontally transmit into"),
+  VALUE(DONATION_STEAL_INST, bool, true, "1 if you want donate and steal instructions in the instruction set, 0 if not"),
+  VALUE(SYM_DONATE_PROP, double, 0.2, "Proportion of points for sym to donate to host on donate"),
+  VALUE(SYM_STEAL_PROP, double, 0.2, "Proportion of points for sym to steal from host on steal"),
+  VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
+  VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
+
+  VALUE(LIMITED_TASK_RESET_INTERVAL, size_t, 8, "Number of updates before an org is allowed to complete a non-unlimited task again"),
+  VALUE(STEAL_PENALTY, double, 0.10, "Proportion of resources that are lost when stealing from a host"),
+  VALUE(DONATE_PENALTY, double, 0.10, "Proportion of resources that are lost when donating to a host"),
+
+  // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
+  VALUE(ORGANISM_TYPE, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
+  VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
+  VALUE(TASK_PROFILE_MODE, std::string, "parent-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.?"),
+  VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),
+  VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission?"),
+
+  GROUP(SGP_MUTATION, "SGP mutation group"),
+  VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
+
+  GROUP(STRESS, "Stress Settings"),
+  VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),
+  VALUE(STRESS_TYPE, std::string, "mutualist", "What kind of stress symbionts should be incorporated in stressful environments? (Options: 'mutualist', 'parasite', 'neutral')"),
+  VALUE(STRESS_FREQUENCY, size_t, 2000, "How often should stress events occur (in updates)?"),
+  VALUE(PARASITE_DEATH_CHANCE, double, 0.5, "What death chance does a parasite confer?"),
+  VALUE(MUTUALIST_DEATH_CHANCE, double, 0.125, "What death chance does a mutualist confer?"),
+  VALUE(BASE_DEATH_CHANCE, double, 0.25, "What death chance does a host have in the absence of symbionts?"),
+  VALUE(PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION, size_t, 1, "Number of offspring stress parasite can produce when host dies during stress event"),
+  VALUE(PARASITE_ESCAPEE_TIMING, std::string, "on-match-host-death", "When should parasites have the opportunity to produce escapees during a stress event? Options: on-match-host-death, on-match"),
+
+  // NOTE - HEALTH_X is less descriptive than STRESS_X; shift language to HEALTH_INTERACTION_X?
+  GROUP(HEALTH, "Health interaction settings"),
+  VALUE(ENABLE_HEALTH, bool, false, "Health interactions enabled?"),
+  VALUE(HEALTH_TYPE, std::string, "mutualist", "What kind of health symbionts are used?"),
+  VALUE(MUTUALIST_CYCLE_GAIN_PROP, double, 1.0, "Proportion of cycles gained when host has health mutualist (1.0 = gain additional 100\% of base cycles)"),
+  VALUE(MUTUALIST_CYCLE_DONATE_MULTIPLIER, double, 1.0, "Multiply cycles donated by symbiont by this value"),
+  VALUE(PARASITE_CYCLE_LOSS_PROP, double, 0.5, "Proportion of cycles lost when host has health parasite"),
+  VALUE(PARASITE_CYCLE_STEAL_MULTIPLIER, double, 1.0, "Parasite gained cycles = (host cycles * parasite cycle loss prop) * multiplier"),
+  VALUE(PARASITE_BASE_CYCLE_PROP, double, 0.5, "Proportion of CYCLES_PER_UPDATE that parasite gets no matter what. Can steal more by interacting with host."),
+  VALUE(HEALTH_INTERACTION_CHANCE, double, 0.5, "Probability of host-symbiont health interaction each update"),
+
+  GROUP(NUTRIENT, "Nutrient interaction settings"),
+  VALUE(ENABLE_NUTRIENT, bool, false, "Nutrient interactions enabled?"),
+  VALUE(NUTRIENT_TYPE, std::string, "mutualist", "What kind of nutrient symbionts are used?"),
+  VALUE(NUTRIENT_DONATE_PROP, double, 0.5, "When symbiont donates resources to a host, what proportion is donated?"),
+  VALUE(NUTRIENT_STEAL_PROP, double, 0.5, "When symbiont steals resources from a host, what proportion is stolen?"),
+  VALUE(NUTRIENT_INTERACTION_MULTIPLIER, double, 1.0, "Multiplier to apply to gain amount"),
+  VALUE(PARASITE_BASE_TASK_VALUE_PROP, double, 0.25, "Proportion of task value (defined by environment) that parasites receive when they fail to interact with their host."),
+
+  GROUP(TASK_ENVIRONMENT, "Task environment settings"),
+  VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
+  VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
+  VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
+  VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),
+  VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give sym credit for one task (whatever they do first)?"),
+
+  GROUP(DATA, "Data settings"),
+  VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")
+)
+
+}
+
+#endif

@@ -1,0 +1,15 @@
+{
+  "shared": {
+    "tasks": [
+      {"name": "NAND", "value": 5, "reward_mode": "add"},
+      {"name": "NOT", "value": 5, "reward_mode": "add"},
+      {"name": "OR_NOT", "value": 5, "reward_mode": "add"},
+      {"name": "AND", "value": 5, "reward_mode": "add"},
+      {"name": "OR", "value": 5, "reward_mode": "add"},
+      {"name": "AND_NOT", "value": 5, "reward_mode": "add"},
+      {"name": "NOR", "value": 5, "reward_mode": "add"},
+      {"name": "XOR", "value": 5, "reward_mode": "add"},
+      {"name": "EQU", "value": 5, "reward_mode": "add"}
+    ]
+  }
+}

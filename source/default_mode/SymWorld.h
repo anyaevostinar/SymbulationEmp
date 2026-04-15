@@ -918,6 +918,25 @@ public:
   }
 
   /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: Cure all hosts of symbionts
+   */
+  void CureHosts(){
+    //loop through hosts and clear all symbionts
+    for (size_t i = 0; i < pop.size(); i++){
+      // see if position in world is occupied
+      if (!IsOccupied(i)) continue;
+      auto & host_syms = pop[i]->GetSymbionts();
+      for(size_t j = 0; j < host_syms.size(); j++){
+        host_syms[j]->SetDead();
+      }
+    }    
+  }
+
+  /**
    * Input: Optional boolean "verbose" that specifies whether to print the update numbers to standard output or not, defaults to true.
    *
    * Output: None
@@ -931,6 +950,10 @@ public:
       if(verbose && (i%my_config->DATA_INT())==0) {
         std::cout <<"Update: "<< i << std::endl;
         std::cout.flush();
+      }
+      // Check CURE config
+      if (my_config->CURE() && i == my_config->CURE_UPDATES()) {
+        CureHosts();
       }
       Update();
     }
@@ -949,6 +972,10 @@ public:
       if(verbose && (i%my_config->DATA_INT())==0) {
         std::cout <<"No mutation update: "<< i << std::endl;
         std::cout.flush();
+      }
+      // Check CURE config
+      if (my_config->CURE() && i == my_config->CURE_UPDATES()) {
+        CureHosts();
       }
       Update();
     }

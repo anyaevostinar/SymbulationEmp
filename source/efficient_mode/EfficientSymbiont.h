@@ -5,6 +5,7 @@
 #include "EfficientWorld.h"
 #include "EfficientHost.h"
 
+#include <optional>
 
 
 class EfficientSymbiont: public Symbiont {
@@ -248,15 +249,18 @@ public:
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
+    emp::Ptr<Organism> sym_baby;
     if((my_world->WillTransmit()) && GetPoints() >= efficient_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = Reproduce("vertical");
-      host_baby->AddSymbiont(sym_baby);
+      sym_baby = Reproduce("vertical");
+      success = host_baby->AddSymbiont(sym_baby) > 0;
 
       //vertical transmission data node
       emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(GetIntVal());
     }
+    return (success) ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
   /**

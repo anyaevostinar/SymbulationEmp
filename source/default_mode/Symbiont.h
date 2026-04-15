@@ -7,6 +7,7 @@
 #include <set>
 #include <iomanip> // setprecision
 #include <sstream> // stringstream
+#include <optional>
 
 
 class Symbiont: public Organism {
@@ -720,11 +721,13 @@ public:
   /**
    * Input: The pointer to the organism that is the new host baby
    *
-   * Output: None
+   * Output: Return symbiont offspring on success; std::nullopt otherwise.
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
+    emp::Ptr<Organism> sym_baby;
     if(my_world->WillTransmit()) {
     
       //vertical transmission data node
@@ -732,7 +735,7 @@ public:
       data_node_attempts_verttrans.AddDatum(GetIntVal());
 
       if(MeetsVTRequirements()){
-        emp::Ptr<Organism> sym_baby = Reproduce();
+        sym_baby = Reproduce();
         if (my_config->TAG_MATCHING()) {
           double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
           double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
@@ -742,12 +745,12 @@ public:
           }
         }
         points = points - my_config->SYM_VERT_TRANS_RES();
-        host_baby->AddSymbiont(sym_baby);
+        success = host_baby->AddSymbiont(sym_baby);
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
         data_node_successes_verttrans.AddDatum(GetIntVal());
       }
-    }
+    return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
   /**

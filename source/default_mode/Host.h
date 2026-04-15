@@ -339,7 +339,6 @@ public:
   */
   emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
 
-
 /**
  * Input: None
  *
@@ -595,6 +594,26 @@ public:
     }
 
   }
+
+  /**
+   * Input: The symbiont index position to remove (remember it should be 1-indexed)
+   *
+   * Output: The removed symbiont or null if invalid index given
+   *
+   * Purpose: To allow removal of a symbiont
+   */
+  emp::Ptr<Organism> RemoveSymbiont(int index) {
+    int num_syms = syms.size();
+    if(index < 1 || index > num_syms) {
+      return nullptr;
+    } else {
+      emp::Ptr<Organism> to_remove = syms[index-1];
+      syms.erase(syms.begin() + (index-1));
+      to_remove->SetHost(nullptr);
+      return to_remove;
+    }
+  }
+
 
   /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
@@ -886,7 +905,7 @@ public:
           if(cur_sym->GetDead()) {
             //if the symbiont dies during their process, remove from syms list
             //UNLESS they died by getting ousted
-            syms.erase(syms.begin() + j); 
+            syms.erase(syms.begin() + j);
             cur_sym.Delete();
           }
         } //for each sym in syms
