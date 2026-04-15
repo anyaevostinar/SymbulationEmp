@@ -1,9 +1,10 @@
+
 #include "../ConfigSetup.h"
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
 
-//#include "../sgp_mode/hardware/SGPHardwareSpec.h"
+#include "../sgp_mode/hardware/SGPHardwareSpec.h"
 #include "../sgp_mode/SGPConfigSetup.h"
 #include "../sgp_mode/SGPWorld.h"
 
@@ -19,7 +20,7 @@
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorld.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
-//#include "../sgp_mode/SGPWorldData.cc"
+#include "../sgp_mode/SGPWorldData.cc"
 
 // This is the main function for the NATIVE version of this project.
 
