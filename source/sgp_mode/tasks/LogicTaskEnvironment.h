@@ -45,6 +45,9 @@ public:
     size_t task_id = 0;                      // Task id
     size_t max_repeats = 0;              // How many times are organisms allowed to repeat this task for credit?
     double task_value = 0;                   // Base value for this task
+    // bool has_dependencies = false;           // Does credit for this task depend on performing other tasks prior?
+    // emp::BitVector dependencies;             // Which tasks does this task depend on? (and how much?) TODO - should this be a bitvector?
+    // emp::BitVector blocks;                   // Which tasks does this task block?
     fun_calc_task_value_t fun_calc_task_val; // Returns task value based on task mode
   };
 
@@ -169,7 +172,7 @@ public:
 };
 
 void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
-  // std::cout << "Loading tasks from environment file." << std::endl;
+  std::cout << "Loading tasks from environment file." << std::endl;
   // Clear any existing task information.
   Clear();
 
@@ -194,15 +197,15 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
     if (!env_json.contains(cat)) {
       continue;
     }
-    // std::cout << "  Identified " << cat << " tasks:" << std::endl;
+    std::cout << "  Identified " << cat << " tasks:" << std::endl;
     emp_assert(env_json[cat].contains("tasks"));
     auto& cat_tasks = env_json[cat]["tasks"];
     for (auto& task : cat_tasks) {
       emp_assert(task.contains("name"));
-      // std::cout << "    - " << task["name"];
+      std::cout << "    - " << task["name"];
       // If we've already added this task to the task_set, skip.
       if (task_set.HasTask(task["name"])) {
-        // std::cout << std::endl;
+        std::cout << std::endl;
         continue;
       }
       // Next, check that this is a valid pre-defined task name.
@@ -210,7 +213,7 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
         std::cout << " (invalid). Exiting." << std::endl;
         std::exit(EXIT_FAILURE);
       }
-      // std::cout << std::endl;
+      std::cout << std::endl;
       // Task name is valid, add to task_set.
       task_set.AddLogicTask(task["name"]);
     }

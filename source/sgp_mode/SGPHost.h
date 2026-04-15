@@ -3,7 +3,7 @@
 
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
-#include "SGPConfigSetup.h"
+// #include "SGPWorld.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/Bits.hpp"
@@ -26,7 +26,15 @@ public:
   using program_t = typename hw_t::program_t;
 
 protected:
+  // CPU cpu;
   hw_t hardware;
+
+  /**
+   *
+   * Purpose: Tracks the number of reproductive events in this host's lineage.
+   *
+   */
+  size_t reproductions = 0;
 
   /**
     *
@@ -41,7 +49,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  emp::Ptr<SymConfigSGP> sgp_config;
+  // emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -71,8 +79,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
-    my_world(_world),
-    sgp_config(_config)
+    my_world(_world)
+    // sgp_config(_config)
   { }
 
   /**
@@ -90,8 +98,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
-    my_world(_world),
-    sgp_config(_config)
+    my_world(_world)
+    // sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -109,13 +117,22 @@ public:
    * state and canceling any in-progress reproduction.
    */
   ~SGPHost() {
+    // cpu.state.used_resources.Delete();
+    // cpu.state.shared_available_dependencies.Delete();
+    // cpu.state.internal_environment.Delete();
     // Invalidate any in-progress reproduction
     // TODO - move this out of this class?
     // - Or, move functionality into world (add world function for invalidating queued repro)
     auto& cpu_state = hardware.GetCPUState();
     if (cpu_state.ReproInProgress()) {
       my_world->GetReproQueue().Invalidate(cpu_state.GetReproQueuePos());
+      // my_world->to_reproduce[cpu_state.GetReproQueuePos()].second =
+      //   emp::WorldPosition::invalid_id;
     }
+    // if (hardware.state.in_progress_repro != -1) {
+    //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
+    //     emp::WorldPosition::invalid_id;
+    // }
   }
 
   bool operator<(const Organism& other) const {
@@ -143,6 +160,14 @@ public:
     return hardware.GetProgram() == other.hardware.GetProgram();
   }
 
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(size_t _in) { reproductions = _in; }
 
   void SetLocation(const emp::WorldPosition& pos) {
     hardware.GetCPUState().SetLocation(pos);
@@ -157,6 +182,15 @@ public:
   void AddPoints(double amt) {
     points += amt;
   }
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  size_t GetReproCount() const { return reproductions; }
 
   /**
    * Input: None
@@ -192,190 +226,7 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-    // std::cout << "Host Process" << std::endl;
-    // If host is dead, don't process.
-    if (GetDead()) {
-      return;
-    }
-    // Update host location
-    GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
-    // NOTE - Will symbionts be able to modify host's cycles during *their* executation?
-    //        How do we want to handle that? (modify host's execution on next update?)
-    // NOTE - Will need to update/revist this if we have instruction-mediated interactions
-
-    // Hosts gain baseline number of CPU cycles
-    GetHardware().GetCPUState().GainCPUCycles(
-    my_world->sgp_config.CYCLES_PER_UPDATE() // AEV TODO: using local sgp_config isn't working
-  );
-
-  // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
-  //        Currently endosyms go first and then hosts. This is to model endosyms
-  //        having opportunity to steal / donate cpu cycles and then host responding
-  //        to endosym behavior (but could argue it should be the other way around).
-  // Give endosymbionts their baseline CPU cycles
-  // Trigger signal to all endosymbionts that host is about to process
-  //   Gives endosymbionts chance to interact with host before it processes.
-  //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
-  emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
-  for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-    emp_assert(!(syms[endosym_i]->IsHost()));
-    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
-    const bool dead = cur_symbiont->GetDead();
-    // Skip if dead
-    if (dead) {
-      continue;
-    }
-    // Endosymbiont gains baseline number of CPU cycles
-    cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
-      my_world->GetConfig().CYCLES_PER_UPDATE()
-    );
-    my_world->before_endosym_host_process_sig.Trigger(
-      {endosym_i + 1, GetLocation().GetIndex()},
-      *cur_symbiont,
-      *this
-    );
-  }
-
-  
-
-  // Host may have died as a result of this signal.
-  if (GetDead()) {
-    return;
-  }
-
-  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
-  const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
-  // host.GetHardware().GetCPUState().LoseCPUCycles(cycles_to_execute);
-  // Execute organism hardware according to cycles_to_exec
-  // NOTE - Discuss possibility of host dying because of instruction executions.
-  //        As-is, still run hardware forward full amount regardless
-  for (size_t i = 0; i < cycles_to_exec; ++i) {
-    if (GetDead()) {
-    }
-    // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
-    // Execute 1 CPU cycle
-    GetHardware().RunCPUStep(1);
-
-    // Did host attempt to reproduce?
-    // NOTE - could move into a signal response
-    // NOTE - want to handle this after every clock cycle?
-    if (GetHardware().GetCPUState().ReproAttempt()) {
-
-      // upside to handling this here: we have direct access to organism
-      AttemptReproduction(pos);
-    }
-
-    my_world->after_host_cpu_step_sig.Trigger(*this);
-    // NOTE - Check death here?
-  }
-  std::cout << "Finished executing host CPU steps, now processing output buffer" << std::endl;
-  my_world->after_host_cpu_exec_sig.Trigger(*this);
-  // Handle any endosymbionts (configurable at setup-time)
-  // NOTE - is there any reason that this might need to be a functor?
-  my_world->ProcessEndosymbionts(*this);
-  // Endosymbionts might kill host.
-  if (GetDead()) {
-    return;
-  }
-  GrowOlder();
-  }
-
-  /**
-   * Input: None.
-   * 
-   * Output: None.
-   * 
-   * Purpose: To check if host can reproduce and mark repro in progress in CPU state if so.
-   * TODO: Perhaps Default mode should have something similar
-   */
-  void AttemptReproduction(const emp::WorldPosition& pos) {
-    const double repro_cost = my_world->sgp_config.HOST_REPRO_RES();
-    if (GetPoints() >= repro_cost) {
-      // Host pays cost
-      DecPoints(repro_cost);
-      // Add host to repro queue
-      // TODO - protect with mutex?
-      const size_t queue_id = my_world->repro_queue.Enqueue(
-        GetHardware().GetCPUState().GetOrgPtr(),
-        pos
-      );
-      // Mark host hardware as repro in progress, no longer in repro "attempt" state.
-      GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-      
-    } else {
-      // Attempt failed, so reset repro state.
-      GetHardware().GetCPUState().ResetReproState();
-    }
-  }
-
-  /**
-   * Input: None.
-   * 
-   * Output: None.
-   * 
-   * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
-   */
-  void ProcessOutputBuffer() {
-    // Refactor note: Ported from SGPWorld.cc ProcessHostOutputBuffer
-    //AEV TODO: Check which of these we have access to more easily than currently done
-    auto& cpu_state = GetHardware().GetCPUState();
-  const size_t env_task_id = cpu_state.GetTaskEnvID();
-  auto& task_env = my_world->GetTaskEnv();
-  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
-  // Process output buffer
-  auto& output_buffer = cpu_state.GetOutputBuffer();
-  for (uint32_t val : output_buffer) {
-    // Is this the correct output for any tasks?
-    if (task_io.IsValidOutput(val)) {
-      // Yes, this output is correct.
-      // Get all task ids associated with this output value
-      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
-
-      // Give credit for completed tasks
-      for (size_t task_id : task_ids) {
-        // Is this a host task?
-        if (!task_env.IsHostTask(task_id)) continue;
-        // Not first task
-        const bool not_first_task = my_world->sgp_config.HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
-        if (not_first_task) {
-          continue;
-        }
-        // Has this organism already gotten credit with this output on this task?
-        if (cpu_state.OutputCredited(task_id, val)) continue;
-        // Check task requirements
-        auto& task_req_info = task_env.GetHostTaskReq(task_id);
-        if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
-          continue;
-        }
-
-        // Manage CPU state after completing a task:
-        //   (1) Mark task as being performed
-        cpu_state.MarkTaskPerformed(task_id);
-        std::cout << "Tasks performed bitvector after marking task " << task_id << " performed: " << cpu_state.GetTasksPerformed() << std::endl;
-        //   (2) Credit output
-        cpu_state.CreditOutputValue(task_id, val);
-        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
-        //       for this task in the task io bank.
-        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
-          cpu_state.ResetCreditedOutputs(task_id);
-        }
-        // Calc value, add to organism points
-        SetPoints(
-          task_req_info.fun_calc_task_val(
-            task_env,
-            task_req_info,
-            GetPoints()
-          )
-        );
-
-        my_world->host_task_successes[task_id] += 1;
-
-      }
-    }
-  }
-
-  // Clear output buffer
-  output_buffer.clear();
+    GrowOlder();
   }
 
   /**
@@ -383,10 +234,9 @@ public:
     *
     * Output: A new host baby of the current host, mutated.
     *
-    * Purpose: To create a new baby host and reset this host's points to 0. Called by Repro Queue.
+    * Purpose: To create a new baby host and reset this host's points to 0.
     */
   emp::Ptr<Organism> Reproduce() {
-    //AEV Todo: break this up into helper functions
     emp::Ptr<this_t> host_offspring = static_cast<this_t*>(Host::Reproduce().Raw());
     auto& offspring_hw = host_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
@@ -490,12 +340,14 @@ public:
     // NOTE - could also move this into the SGPMutator, which would allow us
     //        to deviate from what happens in the base class mutate functions
     Host::Mutate();
-    // // Apply SGP-specific mutations (managed by world)
-    my_world->mutator.MutateProgram(GetProgram());
-    // // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
-    // // Reset host's hardware
+    // Apply SGP-specific mutations (managed by world)
+    my_world->HostDoMutation(*this);
+    // TODO - Switch from HostDoMutation() to:
+    //   -> my_world->GetHostMutator().DoMutation(*this);
+    // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
+    // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
-    //                   // which didn't reset the cpu. I think we want to reset the CPU here also?
+                      // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
 };
 

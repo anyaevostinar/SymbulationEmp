@@ -326,11 +326,7 @@ public:
       first_task_performed.Set(task_id, true);
     }
     tasks_performed.Set(task_id, true);
-
     ++(tasks_performance_count[task_id]);
-    std::cout << "Marking task " << task_id << " performed. Total times performed: " << (tasks_performance_count[task_id] + 1) << std::endl;
-    std::cout << "Name of the task is " << GetWorld().GetTaskEnv().GetTaskSet().GetName(task_id) << std::endl;
-    std::cout << "Tasks performed bitvector: " << tasks_performed << std::endl;
 
   }
 

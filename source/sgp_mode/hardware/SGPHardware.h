@@ -160,6 +160,7 @@ public:
 
   // TODO - is there a reason we might want to support different start tags?
   void Reset(size_t task_count) {
+    // cpu.Reset(); TODO - can get rid of because InitializeState resets cpu
     state.Reset(task_count);
     InitializeState();
   }
@@ -187,12 +188,17 @@ public:
    * Purpose: Steps the CPU forward a certain number of cycles.
    */
   void RunCPUStep(size_t n_cycles=1) {
+
+    // TODO / NOTE - Why set location on every CPU step?
+    // -> Moved into ProcessOrg
+    // state.SetLocation(location);
     // std::cout << "RunCPUStep" << std::endl;
     // std::cout << "  - Has active core? " << cpu.HasActiveCore() << std::endl;
     // std::cout << "  - Max cores: " << cpu.GetMaxCores() << std::endl;
     // std::cout << "  - Busy cores: " << cpu.GetNumBusyCores() << std::endl;
     sgpl::execute_cpu_n_cycles<spec_t>(n_cycles, cpu, program, state);
     state.IncCPUCyclesSinceRepro(n_cycles);
+    // sgpl::execute_cpu_n_cycles<spec_t>(5, cpu, program, state);
   }
 
   /**
@@ -218,6 +224,7 @@ public:
   }
 
   void SetRegister(size_t reg_id, uint32_t value) {
+    // uint32_t *a = (uint32_t *)&core.registers[reg_id];
     Reg(reg_id) = value;
   }
 
@@ -312,6 +319,44 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
   }
   out << '\n';
 }
+
+/* ------- The following functions weren't being used. --------
+TODO - either delete, re-incoporate into hardware, or relocate implementations
+*/
+/**
+ * Input: None
+ *
+ * Output: A length 64 emp bitset which describes the phenotype of organism
+ * such that the ith bit in the bitset marks the completion of task i.
+ *
+ * Purpose: Get the phenotype of an organism
+ */
+// emp::BitSet<spec::NUM_TASKS> TasksPerformable() const {
+//   // Make a temporary copy of this CPU so that its state isn't clobbered
+//   CPU org_cpu = *this;
+//   org_cpu.Reset();
+//   org_cpu.state.available_dependencies = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+//   // Turn off limited resources for this method
+//   int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
+//   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
+
+//   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
+
+//   // and then reset it to the previous value
+//   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
+//   return *org_cpu.state.used_resources;
+// }
+
+/*
+  * Input: The identifier for a specific task
+  *
+  * Output: a boolean representing a program's ability to do a specific task
+  *
+  * Purpose: To return whether or not the organism can perform the given task
+  */
+// bool CanPerformTask(size_t task_id) const {
+//   return TasksPerformable().Get(task_id);
+// }
 
 
 

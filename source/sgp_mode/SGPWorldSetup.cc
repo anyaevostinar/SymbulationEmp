@@ -12,13 +12,12 @@
 #include "emp/math/math.hpp"
 
 // TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
-  // YES!!!!! 
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
 
 void SGPWorld::Setup() {
-// Clear all world signals
+  // Clear all world signals
   ClearWorldSignals();
   // Clear any config snapshot entries
   config_snapshot_entries.clear();
@@ -80,16 +79,15 @@ void SGPWorld::Setup() {
   SetupHostSymInteractions();
 
   // CureHost signal
-  // AEV TODO: CURE doesn't seem to be in SGPConfig in Alex's fork?
-  // if (sgp_config.CURE()) {
-  //   begin_update_sig.AddAction(
-  //     [this]() {
-  //       if(GetUpdate() == sgp_config.CURE_UPDATES()) {
-  //         CureHosts();
-  //       }
-  //     }
-  //   );
-  // }
+  if (sgp_config.CURE()) {
+    begin_update_sig.AddAction(
+      [this]() {
+        if(GetUpdate() == sgp_config.CURE_UPDATES()) {
+          CureHosts();
+        }
+      }
+    );
+  }
 
   SetupHosts(&POP_SIZE);
   Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
@@ -97,8 +95,8 @@ void SGPWorld::Setup() {
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
 
-  //CreateDataFiles();
-  //SnapshotConfig();
+  CreateDataFiles();
+  SnapshotConfig();
   setup = true;
   // TODO - Delete this once confident in instruction removal
   // std::cout << "Opcode rectifier mappings (post setup):";
@@ -110,7 +108,7 @@ void SGPWorld::Setup() {
 
 void SGPWorld::SetupOrgMode() {
   // Convert cfg org type to lowercase
-  std::string cfg_org_type(emp::to_lower(sgp_config.INTERACTION_MECHANISM()));
+  std::string cfg_org_type(emp::to_lower(sgp_config.ORGANISM_TYPE()));
   // Get organism type (asserts validity)
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
   // Configure stress sym type
@@ -172,7 +170,6 @@ void SGPWorld::SetupHealthInteractions() {
         sgp_sym_t& sym,
         sgp_host_t& host
       ) {
-        // AEV TODO: What of this can go back into Host?
         auto& sym_state = sym.GetHardware().GetCPUState();
         // If symbiont is dead or doesn't have a host, skip.
         if (sym.GetDead()) { return; }
@@ -725,8 +722,13 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
+      // Mark parent as no longer reproducing (world handles setting state, so should handle resetting)
+      // NOTE - could move reset repro state in Reproduce functions
+      // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     } else {
       SymDoBirth(child, repro_info.pos);
+      // Mark parent as no longer reproducing
+      // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     }
   });
 
@@ -820,7 +822,7 @@ void SGPWorld::SetupSymReproduction() {
 
 
 void SGPWorld::SetupHostSymInteractions() {
-  // std::cout << "Setup Host-symbiont interactions" << std::endl;
+  std::cout << "Setup Host-symbiont interactions" << std::endl;
 
   // Setup what we use for host/symbiont task profiles
   // PARENT-ALL
@@ -911,7 +913,7 @@ void SGPWorld::SetupHostSymInteractions() {
       const auto& sym_profile = fun_get_sym_task_profile(sym);
       return fun_task_profile_compatibility_check(host_profile, sym_profile);
     };
-    fun_host_sym_stress_trans_compatibility_check = [this]( // AEV TODO: any way to reduce this duplication? Decorator pattern?
+    fun_host_sym_stress_trans_compatibility_check = [this](
       sgp_host_t& host,
       const emp::BitVector& profile
     ) -> bool {
@@ -1043,7 +1045,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       default:
         // org mode has already been verified, so something has gone very wrong
         // with that if we're here.
-        std::cout << "Unrecognized SGP organism type: " << sgp_config.INTERACTION_MECHANISM() << std::endl;
+        std::cout << "Unrecognized SGP organism type: " << sgp_config.ORGANISM_TYPE() << std::endl;
         break;
     }
 
@@ -1114,7 +1116,7 @@ void SGPWorld::SetupTaskEnvironment() {
     sgp_config.TASK_IO_UNIQUE_OUTPUT()
   );
 
-  // Configure organism input buffers / environment id
+  // Configure oganism input buffers / environment id
   // NOTE - now that assigning new env io is in a function, could
   //        hardcode these calls in "ProcessOrg" functions.
   //        If this isn't something we want to configure at runtime, should do that.
@@ -1167,12 +1169,11 @@ void SGPWorld::SetupTaskEnvironment() {
   // TODO - Move this into Process functions
   after_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
-      std::cout << "Processing host output buffer" << std::endl;
-      host.ProcessOutputBuffer();
+      ProcessHostOutputBuffer(host);
     }
   );
 
-//   // E.g., fine for freeliving and endo syms to have same output processing?
+  // E.g., fine for freeliving and endo syms to have same output processing?
   after_freeliving_sym_cpu_exec_sig.AddAction(
     [this](sgp_sym_t& sym) {
       ProcessSymOutputBuffer(sym);
@@ -1198,4 +1199,5 @@ void SGPWorld::SetupMutator() {
 }
 
 }
+
 #endif

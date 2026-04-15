@@ -2,7 +2,8 @@
 #define INSTRUCTIONS_H
 
 #include "CPUState.h"
-
+// #include "SGPWorld.h"
+// #include "Tasks.h"
 
 #include "sgpl/hardware/Cpu.hpp"
 #include "sgpl/operations/flow_global/Anchor.hpp"
@@ -106,19 +107,18 @@ INST(Reproduce, {
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
                                || state.ReproAttempt() || too_soon;
   if (invalid_attempt) {
-    // std::cout << "Invalid attempt" <<std::endl;
     return;
   }
   // std::cout << "  Mark repro attempt!" << std::endl;
   state.MarkReproAttempt();
 });
 
+// NOTE - what is the intended difference between SharedIO and PrivateIO?
 INST(IO, {
   // (1) Add output to output buffer
   state.GetOutputBuffer().emplace_back(a);
   // (2) Read next value from input buffer (advancing buffer read ptr)
-  auto temp = state.GetInputBuffer();
-  a = temp.read();
+  a = state.GetInputBuffer().read();
 });
 
 // INST(Input, {
@@ -155,7 +155,6 @@ INST(JumpIfEq, {
 
 // BOOKMARK
 // TODO - Donate / Steal instructions
-// AEV Todo: look for what we had in complex-syms-clean
 INST(Donate, {
   // This instruction does nothing if executed by a host or if this is a symbiont
   // without a host.
@@ -183,6 +182,25 @@ INST(Infect, {
   state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
 });
 
+// NOTE - Discuss following old instructions that were unused (and whether we still want them)
+/*
+INST(Reuptake, {
+  uint32_t next;
+  AddOrganismPoints(state, *a);
+  // Only get resources if the organism has values in their internal environment
+  if (state.internal_environment->size() > 0) {
+    // Take a resource from back of internal environment vector
+    next = state.internal_environment->back();
+    // Clear out the selected resource from Internal Environment
+    state.internal_environment->pop_back();
+    *a = next;
+    state.input_buf.push(next);
+  } else {
+    // Otherwise, reset the register to 0
+    *a = 0;
+  }
+});
+*/
 
 } // namespace inst
 

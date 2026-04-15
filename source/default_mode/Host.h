@@ -15,6 +15,8 @@ class Host: public Organism {
 
 protected:
 
+  using taxon_info_t = double;
+
   /**
     *
     * Purpose: Represents the interaction value between the host and symbiont.
@@ -31,6 +33,28 @@ protected:
     *
   */
   int age = 0;
+
+  
+  /**
+    *
+    * Purpose: Tracks the number of reproductive events in this host's lineage.
+    *
+  */
+  size_t reproductions = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips towards partner in this host's lineage.
+    *
+  */
+  size_t towards_partner_count = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips away from partner in this host's lineage.
+    *
+  */
+  size_t from_partner_count = 0;
 
   /**
     *

@@ -16,7 +16,6 @@
 namespace sgpmode {
 
 // NOTE - Discuss what instructions that we'd like to include
-// AEV TODO: Check what we ended up with in complex-syms-clean and retrieve that
 using Library = sgpl::OpLibrary<
   sgpl::Nop<>,
   inst::Increment,

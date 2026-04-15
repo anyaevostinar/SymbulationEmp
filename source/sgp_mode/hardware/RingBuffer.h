@@ -46,8 +46,7 @@ public:
     emp_assert(read_ptr < buffer.size());
     const size_t idx = read_ptr;
     read_ptr = ((read_ptr + 1) < buffer.size()) ? read_ptr + 1 : 0;
-    auto temp = buffer[idx];
-    return temp;
+    return buffer[idx];
   }
 
   // Index into ring buffer, default behavior is to wrap
