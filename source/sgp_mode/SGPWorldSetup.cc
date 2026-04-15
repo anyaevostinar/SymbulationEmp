@@ -1174,7 +1174,7 @@ void SGPWorld::SetupTaskEnvironment() {
   // TODO - Move this into Process functions
   after_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
-      ProcessHostOutputBuffer(host);
+      host.ProcessOutputBuffer();
     }
   );
 

@@ -56,8 +56,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     // Initial program calls IO twice, so there will be 2 things in the output buffer
     // REQUIRE(output_buffer.size() == 2);
     REQUIRE(sgp_host.GetPoints() == 0);
-    world.ProcessHostOutputBuffer(sgp_host);
-    //sgp_host.ProcessOutputBuffer();
+    sgp_host.ProcessOutputBuffer();
     // Hardware should also have completed a NOT task
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     REQUIRE(hw.GetCPUState().GetTaskPerformed(not_task_id));
