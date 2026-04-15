@@ -741,7 +741,7 @@ public:
           double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
           if (tag_distance > cutoff) {
             sym_baby.Delete();
-            return;
+            return std::nullopt;
           }
         }
         points = points - my_config->SYM_VERT_TRANS_RES();
@@ -750,6 +750,7 @@ public:
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
         data_node_successes_verttrans.AddDatum(GetIntVal());
       }
+    }
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 

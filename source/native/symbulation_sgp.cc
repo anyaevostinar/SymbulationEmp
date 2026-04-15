@@ -3,7 +3,6 @@
 #include "../default_mode/DataNodes.h"
 #include "../default_mode/Host.h"
 #include "../default_mode/Symbiont.h"
-#include "../sgp_mode/SGPDataNodes.h"
 
 #include "../sgp_mode/hardware/SGPHardwareSpec.h"
 #include "../sgp_mode/SGPConfigSetup.h"
@@ -15,7 +14,6 @@
 // included last. It still fixes include issues, but doesn't improve build time.
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
-#include "../sgp_mode/SGPHost.cc"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
 
 #include <fstream>
