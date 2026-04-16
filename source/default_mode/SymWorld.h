@@ -698,11 +698,16 @@ public:
    * invalid position if the symbiont is deleted during movement)
    *
    * Purpose: To move a symbiont into a new world position.
+   * Note: Doesn't allow an organism to move back to its same location and kills it, probably should just avoid that instead?
    */
   emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
+    if (new_pos.GetIndex() == parent_pos.GetIndex()) {
+      sym.Delete();
+      return emp::WorldPosition();
+    }
     if(IsInboundsPos(new_pos)){
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
@@ -957,7 +962,6 @@ public:
       }
       Update();
     }
-
     on_analyze_population_sig.Trigger();
 
     int num_no_mut_updates = my_config->NO_MUT_UPDATES();

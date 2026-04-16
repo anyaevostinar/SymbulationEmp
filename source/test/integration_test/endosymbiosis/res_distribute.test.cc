@@ -1,6 +1,6 @@
 #include "../../../default_mode/WorldSetup.cc"
 
-TEST_CASE("Resource Distribution Results", "[integration]") {
+TEST_CASE("Resource Distribution Results", "[integration][fix]") {
   emp::Random random(29);
   SymConfigBase config;
   SymWorld world(random, &config);

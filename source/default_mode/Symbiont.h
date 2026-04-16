@@ -700,7 +700,6 @@ public:
       sym_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
       sym_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
     }
-
     return sym_baby;
   }
 
@@ -781,7 +780,6 @@ public:
         emp::Ptr<Organism> sym_baby = Reproduce();
         if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
-
         //horizontal transmission data nodes
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
         data_node_attempts_horiztrans.AddDatum(stored_intval);
