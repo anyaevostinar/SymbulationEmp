@@ -13,9 +13,11 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 * Add `config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");`
 * World doesn't need tasks anymore: `world_t world(random, &config);`
 * Change all the types to the using above
-* To get CPU State now requires going through `GetHardware()`
-* If doing program building: `auto& prog_builder = world.GetProgramBuilder();`
-* Currently, you need to have `world.AssignNewEnvIO(my_host->GetHardware().GetCPUState());` to avoid seg faults, I'm hoping to find a place to have that happen automatically at some point since it's annoying
+* To get CPU State now requires going through `GetHardware().GetCPUState()`
+* If doing program building: `auto& prog_builder = world.GetProgramBuilder();` and `builder.CreateNotProgram(100)`
+    * Is there a way to make custom programs now? It'd be handy for the more complicated tests
+* Make sure to call `world.Setup()` since that initializes a lot of arrays
+* If you run into seg faults, you might need to have `world.AssignNewEnvIO(my_host->GetHardware().GetCPUState());`, it should be handled any time `AddSymbiont` or `AddOrgAt` is called, but maybe you are doing something that doesn't call those
 * Consult existing functional tests for how to do other things:
     * In unit tests:
         * `SGPWorld.test.cc`

@@ -11,8 +11,6 @@
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
 
-// TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
-// AEV: YES!!!!!
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
@@ -605,7 +603,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // return 0.0;
         return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
       } else {
-        // Task match, donate proportion of earned task points to host.
+        // Task match, steal proportion of earned task points from host.
         // Can't try to steal less than 0 or more than task was worth
         const double to_steal = std::clamp(
           sgp_config.NUTRIENT_STEAL_PROP() * task_points,

@@ -4,7 +4,7 @@
 [x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [x] Get Host task credit and Task Match Check tests not seg faulting
 [x] Make mini guide on main changes for tests so others could help with test porting
-[ ] Move Host reproduction, output buffer processing, and process back into Host class and make sure current tests keep passing
+[x] Move Host reproduction, output buffer processing, and process back into Host class and make sure current tests keep passing
 [ ] Port more Symbiont tests
 [ ] Move Symbiont code back into class
 [ ] Check here https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do

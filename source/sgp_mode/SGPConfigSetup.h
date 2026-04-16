@@ -25,7 +25,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
   VALUE(INTERACTION_MECHANISM, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
-  VALUE(TASK_PROFILE_MODE, std::string, "parent-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.?"),
+  VALUE(TASK_PROFILE_MODE, std::string, "self-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.? Options are parent-all, self-all, self-first, parent-first. 'all' means all tasks, 'first' means only first task performed."),
   VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),
   VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission?"),
 

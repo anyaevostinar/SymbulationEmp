@@ -618,6 +618,20 @@ public:
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
+  /**
+   * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The value of the task after applying nutrient interaction.
+   * Purpose: To apply the configured nutrient interaction for the given symbiont and task
+   */
+  double ApplyNutrientInteraction(
+    sgp_sym_t& sym,
+    double task_value_before,
+    size_t task_id
+  ) {
+    return fun_apply_nutrient_interaction(sym, task_value_before, task_id);
+  }
+
+
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
   /**
