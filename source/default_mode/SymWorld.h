@@ -507,7 +507,7 @@ public:
       if(!sym_pop[pos_id]) {
         ++num_orgs;
       } else {
-        sym_pop[pos_id].Delete();
+        SendToGraveyard(sym_pop[pos_id]); // don't delete it yet, that can cause a seg fault
       }
 
       //set the cell to point to the new sym
@@ -711,12 +711,6 @@ public:
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex()); //GetRandomNeighborPos returns a WorldPosition with the chosen location in the index spot, but we use the pop id to track the location of the symbiont in the world, so we need to switch those around. The 0 means that this position is not in a host.
 
     if(IsInboundsPos(new_pos)){
-      if (parent_pos.GetIndex() == 0 && new_pos.GetPopID() == parent_pos.GetPopID()) {
-        // Move parent to graveyard so that we avoid a seg fault when offspring is added to this location
-        // Note, if the free living sym is just moving around, it's already been extracted and so shouldn't be at the old location and won't be accidentally moved to the graveyard
-        // AEV TODO: I'm worried it could still happen that then extract sym will return null and send to graveyard will throw assert in very rare condition, how to handle?
-        SendToGraveyard(ExtractSym(parent_pos.GetPopID()));
-      }
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
       return new_pos;
