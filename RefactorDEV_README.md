@@ -5,6 +5,10 @@
 [x] Get Host task credit and Task Match Check tests not seg faulting
 [x] Make mini guide on main changes for tests so others could help with test porting
 [x] Move Host reproduction, output buffer processing, and process back into Host class and make sure current tests keep passing
+[ ] Add citations and how to cite sections to README (on main), cite empirical JOSS paper, SignalGP arxiv, phylotrackpy on arxiv
+[ ] Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
+[ ] Decide whether to try to fix ecto integration test or remove the graveyard fix and merge into main since it apparently works on github??
+[ ] Make new version bundle on main for complex features
 [ ] Port more Symbiont tests
 [ ] Move Symbiont code back into class
 [ ] Check here https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
