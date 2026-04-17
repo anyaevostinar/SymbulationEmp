@@ -9,6 +9,7 @@
 #include "../../Empirical/include/emp/matching/MatchBin.hpp"
 
 #include "../Organism.h"
+#include <cstdlib>
 #include <set>
 #include <math.h>
 
@@ -453,9 +454,14 @@ public:
    *
    * Output: None
    *
-   * Purpose: To add organisms to the graveyard
+   * Purpose: To add organisms to the graveyard (also sets it to dead)
    */
   virtual void SendToGraveyard(emp::Ptr<Organism> org) {
+    emp_assert(
+      org != nullptr,
+      "Tried to send a null organism to the graveyard."
+    );
+    org->SetDead();
     graveyard.push_back(org);
   }
 
@@ -697,18 +703,20 @@ public:
    * Output: The WorldPosition object describing the symbiont's new location (it describes an
    * invalid position if the symbiont is deleted during movement)
    *
-   * Purpose: To move a symbiont into a new world position.
-   * Note: Doesn't allow an organism to move back to its same location and kills it, probably should just avoid that instead?
+   * Purpose: To move a symbiont into a new world position in the sym pop.
    */
   emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
-    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
-    if (new_pos.GetIndex() == parent_pos.GetIndex()) {
-      sym.Delete();
-      return emp::WorldPosition();
-    }
+    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex()); //GetRandomNeighborPos returns a WorldPosition with the chosen location in the index spot, but we use the pop id to track the location of the symbiont in the world, so we need to switch those around. The 0 means that this position is not in a host.
+
     if(IsInboundsPos(new_pos)){
+      if (parent_pos.GetIndex() == 0 && new_pos.GetPopID() == parent_pos.GetPopID()) {
+        // Move parent to graveyard so that we avoid a seg fault when offspring is added to this location
+        // Note, if the free living sym is just moving around, it's already been extracted and so shouldn't be at the old location and won't be accidentally moved to the graveyard
+        // AEV TODO: I'm worried it could still happen that then extract sym will return null and send to graveyard will throw assert in very rare condition, how to handle?
+        SendToGraveyard(ExtractSym(parent_pos.GetPopID()));
+      }
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
       return new_pos;
@@ -829,7 +837,7 @@ public:
   }
 
   /*
-  * Input: The size_t location of the sym to be pointed to.
+  * Input: The size_t location of the sym to be pointed to in the sym_pop.
   *
   * Output: A pointer to the sym.
   *
@@ -845,9 +853,9 @@ public:
 
   /**
    * Input: The size_t representing the location of the symbiont to be
-   * extracted from the world.
+   * extracted from the world's sym population.
    *
-   * Output: The pointer to the organism that was extracted from the world.
+   * Output: The pointer to the organism that was extracted from the world. Pointer will be null if there was no sym at the location.
    *
    * Purpose: To extract a symbiont from the world without deleting it.
    */
@@ -857,13 +865,13 @@ public:
       sym = sym_pop[i];
       num_orgs--;
       sym_pop[i] = nullptr;
-    }
+    } 
     return sym;
   }
 
   /**
    * Input: The size_t representing the location of the symbiont to be
-   * deleted from the world.
+   * deleted from the world's symbiont population.
    *
    * Output: None
    *

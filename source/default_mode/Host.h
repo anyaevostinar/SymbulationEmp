@@ -613,7 +613,7 @@ public:
       syms[new_sym_pos] = _in;
       _in->SetHost(this);
       _in->UponInjection();
-      _in->SetLocation(emp::WorldPosition(new_sym_pos+1, location.GetIndex()));
+      _in->SetLocation(emp::WorldPosition(new_sym_pos+1, location.GetIndex())); // +1 because 0 is reserved for free-living symbionts
       return new_sym_pos+1;
     }
     else if((int)syms.size() < my_config->SYM_LIMIT() && allowed_in){

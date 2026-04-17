@@ -121,7 +121,8 @@ protected:
   /**
    * 
    * Purpose: To track location in the world
-   * 
+   * id/Index is position in the host's symbiont vector if the symbiont is hosted, and 0 if the symbiont is free-living
+   * If the symbiont is hosted, the population id is the host's location in the world. If the symbiont is free-living, it is the location in the sym pop
    */
   emp::WorldPosition location;
 
@@ -386,7 +387,9 @@ public:
    *
    * Purpose: To set a symbiont to dead
    */
-  void SetDead() { dead = true; }
+  void SetDead() { 
+    dead = true; 
+  }
 
 
   /**
@@ -627,7 +630,7 @@ public:
 
   /**
    * Input: The size_t representing the location of the symbiont, and the size_t
-   * representation of the symbiont's position in the host (default -1 if it doesn't have a host)
+   * representation of the symbiont's position in the host (default 0 if it doesn't have a host)
    *
    * Output: None
    *
@@ -635,7 +638,7 @@ public:
    * and to allow for movement
    */
   void Process(emp::WorldPosition location) {
-    //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
+    //Pop ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
