@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Default Mode &mdash; Symbulation 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css?v=e72958e9" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5aa371e9"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/rtd_search_config.js?v=b0596c34"></script>
+      <script src="../_static/js/rtd_sphinx_search.min.js?v=5e065386"></script>
+      <script src="https://kit.fontawesome.com/8485b453b8.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Collecting Data with Symbulation" href="2-CollectingData.html" />
+    <link rel="prev" title="Overview" href="0-Overview.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Symbulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using Symbulation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../projects/index.html">Projects using Symbulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Quick Start Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0-Overview.html">Overview</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Default Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#install-native-c-compiler">Install: Native C++ Compiler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#compile-run-command-line">Compile &amp; Run: Command Line</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#using-cookiecutter">Using Cookiecutter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#without-cookiecutter">Without Cookiecutter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#compiling">Compiling</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#install-web-gui">Install: Web GUI</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="2-CollectingData.html">Collecting Data with Symbulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2-CollectingData.html#analyzing-data">Analyzing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3-CreatingConfigSetting.html">Creating a New Configuration Setting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4-CreatingAMode.html">Creating A New Mode</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html">ALIFE 2022 Symbulation Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html#alife-talks-featuring-symbulation">ALIFE Talks Featuring Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html">Host Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html#symbiont-class">Symbiont Class</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to Symbulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev/symbulation-development-practices.html">Symbulation Development Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/getting-started.html">Getting started with Symbulation development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/contribution-guidelines-and-review.html">Coding guidelines and review checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/adding-documentation.html">Documentation for Symbulation Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/guide-to-testing.html">Guide to Testing in Symbulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Symbulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Quick Start Guides</a></li>
+      <li class="breadcrumb-item active">Default Mode</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="default-mode">
+<h1>Default Mode<a class="headerlink" href="#default-mode" title="Link to this heading"></a></h1>
+<p>Symbulation allows you to compile your C++ to either:</p>
+<ul class="simple">
+<li><p>running at the command line (e.g., native machine code) and</p></li>
+<li><p>running in the web browser (e.g., javascript assembly code).</p></li>
+</ul>
+<p>This how-to aims to walk you through all the nitty gritty required to
+successfully compile a simple “default” executable for running at the command line.</p>
+<p>If you aren’t able to install everything locally, you can try out editing the command-line version of the code on <a class="reference external" href="https://replit.com/&#64;anyaevostinar/Symbulation-Example">this Repl</a>. The web version can’t be rebuilt on Replit at the moment due to missing packages on the Replit platform.</p>
+<section id="install-native-c-compiler">
+<h2>Install: Native C++ Compiler<a class="headerlink" href="#install-native-c-compiler" title="Link to this heading"></a></h2>
+<p>In the Unix-verse (e.g., Linux / MacOS) commonly used compilers include <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and <code class="docutils literal notranslate"><span class="pre">clang</span></code>. From this point onwards, we assume that you’re working with <code class="docutils literal notranslate"><span class="pre">gcc</span></code>.<br />
+Unless you really know what you’re doing, you’ll want to have <code class="docutils literal notranslate"><span class="pre">gcc</span></code> installed. The good news is: you might already!</p>
+<p>Bring up a terminal and try entering:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>which<span class="w"> </span>gcc
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">which</span></code> spits out a path, then you have <code class="docutils literal notranslate"><span class="pre">gcc</span></code> installed! If <code class="docutils literal notranslate"><span class="pre">which</span></code>
+says “not found,” you’ll need to go ahead and install <code class="docutils literal notranslate"><span class="pre">gcc</span></code>. For
+Linux users, your package manager (e.g., <code class="docutils literal notranslate"><span class="pre">yum</span></code>, <code class="docutils literal notranslate"><span class="pre">apt</span></code>, etc.) is probably
+the way to go about this. For MacOS users, you’ll need to get Apple’s
+“Command Line Tools for Xcode.” Either way, give it a quick web search
+(e.g., “install gcc on [my operating system]”) and there should be
+plenty of how-to guides that walk you through step-by-step.</p>
+<p>For Windows users, things are a bit more complicated.
+We recommend using <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/">Windows Subsystem for Linux</a> and then following the steps above for <code class="docutils literal notranslate"><span class="pre">gcc</span></code>.</p>
+</section>
+<section id="compile-run-command-line">
+<h2>Compile &amp; Run: Command Line<a class="headerlink" href="#compile-run-command-line" title="Link to this heading"></a></h2>
+<p>Assuming you haven’t already pulled down a clone of Symbulation, let’s
+get your working environment all set.</p>
+<section id="using-cookiecutter">
+<h3>Using Cookiecutter<a class="headerlink" href="#using-cookiecutter" title="Link to this heading"></a></h3>
+<p>The easiest thing to do is use our Cookiecutter template. Cookiecutter will attempt to push your new directory to a git repo; establish a git repo with the appropriate project name if you would like to use this functionality.</p>
+<ul>
+<li><p>Install the latest Cookiecutter. Depending on your Python, you may need to use pip3 in place of pip:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-U<span class="w"> </span>cookiecutter
+</pre></div>
+</div>
+</li>
+<li><p>Generate a Symbulation project:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>cookiecutter<span class="w"> </span>https://github.com/anyaevostinar/SymbulationProjectTemplate.git
+</pre></div>
+</div>
+</li>
+<li><p>Change directory into your newly created project:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span><span class="w"> </span><span class="n">SymbulationProject</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+<section id="without-cookiecutter">
+<h3>Without Cookiecutter<a class="headerlink" href="#without-cookiecutter" title="Link to this heading"></a></h3>
+<p>If you have something against delicious cookies and want to do without Cookiecutter, here are the steps. (Note that these steps don’t include making Data and Analysis files, which is assumed for the rest of the guide. If you are doing it this way, we assume you have your own preference for organizing things.)</p>
+<ol class="arabic">
+<li><p>Clone Symbulation:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/anyaevostinar/SymbulationEmp
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="compiling">
+<h3>Compiling<a class="headerlink" href="#compiling" title="Link to this heading"></a></h3>
+<p>Regardless of how you got everything downloaded, it’s now time to compile!</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>SymbulationEmp
+make
+</pre></div>
+</div>
+<p>Then run:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>./symbulation_default
+</pre></div>
+</div>
+<p>You can make changes to the file <code class="docutils literal notranslate"><span class="pre">SymSettings.cfg</span></code> to change the configuration options without needing to recompile.
+These can also be altered at the command line:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="o">/&lt;</span><span class="n">executable</span><span class="w"> </span><span class="n">file</span><span class="o">&gt;</span><span class="w"> </span><span class="o">-&lt;</span><span class="n">Option</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">change</span><span class="o">&gt;</span><span class="w"> </span><span class="o">&lt;</span><span class="k">new</span><span class="w"> </span><span class="n">value</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="o">/</span><span class="n">symbulation_default</span><span class="w"> </span><span class="o">-</span><span class="n">VERTICAL_TRANSMISSION</span><span class="w"> </span><span class="mf">0.5</span><span class="w"> </span><span class="o">-</span><span class="n">GRID_X</span><span class="w"> </span><span class="mi">50</span><span class="w"> </span><span class="o">-</span><span class="n">GRID_Y</span><span class="w"> </span><span class="mi">50</span>
+</pre></div>
+</div>
+<p>To see how to use our workflow and scripts to collect and analyze data, please proceed to the <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/2-CollectingData.html">Collecting Data</a> quickstart guide!</p>
+</section>
+</section>
+<section id="install-web-gui">
+<h2>Install: Web GUI<a class="headerlink" href="#install-web-gui" title="Link to this heading"></a></h2>
+<p>These instructions are for if you want to make <em>changes</em> to the web GUI and run it locally. You don’t need to do this to be able to use Symbulation’s web browser; you can instead access it here: <a class="reference external" href="https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html">https://anyaevostinar.github.io/SymbulationEmp/web/symbulation.html</a>.</p>
+<p>First, you’ll need to set up Emscripten, which is included in the <code class="docutils literal notranslate"><span class="pre">SymbulationEmp</span></code> folder:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>emsdk
+./emsdk<span class="w"> </span>install<span class="w"> </span><span class="m">1</span>.38.48
+./emsdk<span class="w"> </span>activate<span class="w"> </span><span class="m">1</span>.38.48
+</pre></div>
+</div>
+<p>Then every time that you want to build and run Symbulation’s web GUI, you’ll need to load Emscripten into your <code class="docutils literal notranslate"><span class="pre">PATH</span></code> for a given terminal session. If you’ve closed and opened a new terminal, you’ll need to do this again (this is what people usually forget to do after they’ve been away for a while):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span><span class="w"> </span><span class="n">emsdk</span>
+<span class="n">source</span><span class="w"> </span><span class="p">.</span><span class="o">/</span><span class="n">emsdk_env</span><span class="p">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p>Then navigate back to SymbulationEmp’s top folder and build the web version:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span><span class="w"> </span><span class="p">..</span>
+<span class="n">make</span><span class="w"> </span><span class="n">web</span>
+</pre></div>
+</div>
+<p>Now you have the website all built and in the <code class="docutils literal notranslate"><span class="pre">web</span></code> folder, so just run:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">make</span><span class="w"> </span><span class="n">serve</span>
+</pre></div>
+</div>
+<p>You should then be able to go to <a class="reference external" href="http://localhost:8000/">http://localhost:8000/</a> to see you custom run Symbulation GUI!</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="0-Overview.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="2-CollectingData.html" class="btn btn-neutral float-right" title="Collecting Data with Symbulation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Anya Vostinar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

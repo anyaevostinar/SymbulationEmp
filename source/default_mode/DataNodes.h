@@ -352,7 +352,7 @@ void SymWorld::MapPhylogenyInteractions() {
 }
 
 /**
- * Input: The address of the string representing the suffixes for the files to be created.
+ * Input: The reference of the datafile which is being constructed.
  *
  * Output: None.
  *
@@ -440,12 +440,13 @@ emp::DataFile & SymWorld::SetupTransmissionFile(const std::string & filename){
     file.AddHistBin(node6, 7, "horiz_sizefail_0.4_0.6", "Count for histogram bin for horizontal size failures with int val 0.4 to <0.6");
     file.AddHistBin(node6, 8, "horiz_sizefail_0.6_0.8", "Count for histogram bin for horizontal size failures with int val 0.6 to <0.8");
     file.AddHistBin(node6, 9, "horiz_sizefail_0.8_1", "Count for histogram bin for horizontal size failures with int val 0.8 to 1", true);
+    
   }
-
   file.PrintHeaderKeys();
 
   return file;
 }
+
 
 /**
  * Input: The address of the string representing the suffixes for the files to be created.

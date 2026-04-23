@@ -1,5 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <limits>
 #include "../Empirical/include/emp/config/config.hpp"
 
 const int TAG_LENGTH = 32;
@@ -37,7 +38,10 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(WRITE_ORG_DUMP_FILE, bool, 0, "Should all end-of-experiment organisms pairs be written (with their behavior values and reproduction counts) to a data file? (0 for no, 1 for yes)"),
     VALUE(FILE_PATH, std::string, "", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
-    
+    VALUE(DOMINANT_COUNT, size_t, 10, "Number of dominant hosts to select"),
+    VALUE(CURE, bool, 0, "Should all symbionts die (0 for no, 1 for yes)"),
+    VALUE(CURE_UPDATES, int, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
+
     GROUP(PHYLOGENY, "PHYLOGENY"),
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
     VALUE(TRACK_PHYLOGENY_INTERACTIONS, bool, 0, "Should the world keep track of interactions between hosts and symbionts, then write the count of all (including historical) interactions committed by tracked taxa? (0 for no, 1 for yes)?"),
@@ -74,6 +78,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
     VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
-    VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)"),
-  )
+    VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
+)
 #endif

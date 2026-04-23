@@ -5,6 +5,7 @@
 #include "EfficientWorld.h"
 #include "EfficientHost.h"
 
+#include <optional>
 
 
 class EfficientSymbiont: public Symbiont {
@@ -52,7 +53,7 @@ protected:
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -109,7 +110,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, EfficientSymbiont
   *
   * Purpose: To know which subclass the object is
@@ -239,7 +240,7 @@ public:
     return sym_baby;
   }
   #pragma clang diagnostic pop
-  
+
 
   /**
    * Input: The pointer to the organism that is the new host baby
@@ -248,15 +249,18 @@ public:
    *
    * Purpose: To allow for vertical transmission to occur
    */
-  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    bool success = false;
+    emp::Ptr<Organism> sym_baby;
     if((my_world->WillTransmit()) && GetPoints() >= efficient_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
-      emp::Ptr<Organism> sym_baby = Reproduce("vertical");
-      host_baby->AddSymbiont(sym_baby);
+      sym_baby = Reproduce("vertical");
+      success = host_baby->AddSymbiont(sym_baby) > 0;
 
       //vertical transmission data node
-      emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
-      data_node_attempts_verttrans.AddDatum(GetIntVal());
+      emp::DataMonitor<int>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(1);
     }
+    return (success) ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
   /**
@@ -276,12 +280,12 @@ public:
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
         //horizontal transmission data nodes
-        emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(GetIntVal());
+        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(1);
 
-        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
         if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(GetIntVal());
+          data_node_successes_horiztrans.AddDatum(1);
         }
       }
     }

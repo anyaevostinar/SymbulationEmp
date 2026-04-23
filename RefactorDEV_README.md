@@ -1,0 +1,54 @@
+(delete once Anya is done with joint refactoring)
+
+# Timeline plan
+[x] SGPWorld with basic SGPHost
+[x] Get scheduler working
+[x] Get host reproduction working (with no point requirement)
+[x] Get mutator working
+[x] Get tasks working (and hosts completing them and getting points)
+[-] Get all host tests working with new setup
+    * Decided better to get refactor complete with some tests so that others can then jump in again, so will be doing minimal test porting, just enough to convince myself things are functional
+[ ] Get symbionts existing (no interaction)
+[ ] Move processsymbiont functionality back into symbionts
+[ ] Get Health interaction working
+[ ] Get Stress interaction working
+[ ] Get Nutrient interaction working
+[ ] Get data tracking working 
+[ ] Port Multi infection code from Elias fork
+[ ] Finish implementation of temporally changing environment
+[ ] Make sure spatial structure is working?
+[ ] Go back through for other refactoring todos
+
+
+
+# Journal
+4/3/26
+* Task test working, needed to add a call to AssignNewEnvIO in the test, which seems weird since it seems like that should be handled by world.Setup correctly
+* Moved output buffer processing back into a host method
+4/2/26
+* Adds tasks and test for it, currently failing
+4/1/26
+* Added to test to make sure orgs are getting older and it is failing
+* Fixed by adding org to pos 0 instead of pos 1, a bit nervous about why pos 1 wasn't working
+* Got Host process all back in
+* Mutator called from Host's Mutate now, works when directly called, but I can't see where HostDoMutation was ever called previously so I'm nervous - Alex confirmed it was only called from SGPHost::Mutate, so we're good
+3/31/26
+* Building with scheduler code, need to test still
+3/20/26
+* SGPHost can be created in SGPWorld, SGPWorld test with baseline host works, scheduler is copied over but not tested
+
+# Notes
+These are function flows that are complicated to follow:
+
+## Reproduction
+* Repro Inst -> state.markReproAttempt
+* Host Process checks Repro attempt -> calls AttemptReproduction
+* AttemptReproduction -> marks ReproInProgress, adds to repro queue
+* World processes repro queue after all organisms process
+* Repro queue process calls Reproduction and handles HostDoBirth
+
+## InputBuffer setup
+* Input Buffer starts at size 0
+* CPUState SetInputs is called by SGPWorld Assign New Env IO
+    * This doesn't seem to be happening during the tests without specifically calling it, which seems not ideal
+    * I think I fixed this, line 1074 of WorldSetup was commented out still...

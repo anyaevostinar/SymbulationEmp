@@ -34,6 +34,7 @@ protected:
   */
   int age = 0;
 
+  
   /**
     *
     * Purpose: Tracks the number of reproductive events in this host's lineage.
@@ -115,20 +116,6 @@ protected:
     *
   */
   bool dead = false;
-
-  /**
-    *
-    * Purpose: Represents the tag for this organism
-    *
-  */
-  emp::BitSet<TAG_LENGTH> tag;
-  
-  /**
-    * 
-    * Purpose: Tracks the taxon of this organism.
-    *
-  */
-  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
 
 public:
 
@@ -237,7 +224,7 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, Host
   *
   * Purpose: To know which subclass the object is
@@ -245,67 +232,6 @@ public:
   std::string const GetName() {
     return  "Host";
   }
-
-
-  /**
-   * Input: Set the reproduction counter
-   *
-   * Output: None
-   *
-   * Purpose: To set the count of reproductions in this lineage.
-   */
-  void SetReproCount(size_t _in) { reproductions = _in; }
-
-
-  /**
-   * Input: None.
-   *
-   * Output: The reproduction count
-   *
-   * Purpose: To get the count of reproductions in this lineage.
-   */
-  size_t GetReproCount() { return reproductions; }
-
-
-  /**
-    * Input: Set the flips towards a partner counter
-    *
-    * Output: None
-    *
-    * Purpose: To set the count of flips towards a partner in this lineage.
-    */
-  void SetTowardsPartnerCount(size_t _in) { towards_partner_count = _in; }
-
-
-  /**
-   * Input: None.
-   *
-   * Output: The flips towards a partner count
-   *
-   * Purpose: To get the count of flips towards a partner in this lineage.
-   */
-  size_t GetTowardsPartnerCount() { return towards_partner_count; }
-
-
-  /**
-   * Input: Set the flips from a partner counter
-   *
-   * Output: None
-   *
-   * Purpose: To set the count of flips from a partner in this lineage.
-   */
-  void SetFromPartnerCount(size_t _in) { from_partner_count = _in; }
-
-
-  /**
-   * Input: None.
-   *
-   * Output: The flips from a partner count
-   *
-   * Purpose: To get the count of flips from a partner in this lineage.
-   */
-  size_t GetFromPartnerCount() { return from_partner_count; }
-
 
 /**
   * Input: None
@@ -316,13 +242,6 @@ public:
   */
   double GetIntVal() const { return interaction_val;}
 
-  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
-    return my_taxon;
-  }
-
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
-    my_taxon = _in;
-  }
 
 /**
   * Input: None
@@ -332,7 +251,6 @@ public:
   * Purpose: To get the vector containing pointers to the host's symbionts.
   */
   emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
-
 
 /**
  * Input: None
@@ -434,23 +352,6 @@ public:
    */
   void ClearReproSyms() {repro_syms.resize(0);}
 
-  /**
-   * Input: The new tag
-   *
-   * Output: None
-   *
-   * Purpose: To set a host's tag.
-   */
-  void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
-  
-  /**
-   * Input: None
-   *
-   * Output: The host's tag.
-   *
-   * Purpose: To get a host's tag.
-   */
-  emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
 
   /**
    * Input: None
@@ -553,6 +454,26 @@ public:
 
 
   /**
+   * Input: The symbiont index position to remove (remember it should be 1-indexed)
+   *
+   * Output: The removed symbiont or null if invalid index given
+   *
+   * Purpose: To allow removal of a symbiont
+   */
+  emp::Ptr<Organism> RemoveSymbiont(int index) {
+    int num_syms = syms.size();
+    if(index < 1 || index > num_syms) {
+      return nullptr;
+    } else {
+      emp::Ptr<Organism> to_remove = syms[index-1];
+      syms.erase(syms.begin() + (index-1));
+      to_remove->SetHost(nullptr);
+      return to_remove;
+    }
+  }
+
+
+  /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
    *
    * Output: The int describing the symbiont's position ID, or 0 if it did not successfully
@@ -637,7 +558,6 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
-    new_host->SetTag(GetTag());
     return new_host;
   }
 
@@ -651,24 +571,7 @@ public:
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
     host_baby->Mutate();
-    host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
-
-    if (my_config->TAG_MATCHING() && HasSym()) {
-      // do not xor to get 1 where bits are matching
-      emp::BitSet<TAG_LENGTH> sym_host_parent_matching = syms[0]->GetTag().XOR(tag).NOT();
-      emp::BitSet<TAG_LENGTH> sym_host_baby_matching = syms[0]->GetTag().XOR(host_baby->GetTag()).NOT();
-
-      // difference in matching-ness, with match in child
-      emp::BitSet<TAG_LENGTH> child_towards = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_baby_matching);
-
-      // difference in matching-ness, with match in parent
-      emp::BitSet<TAG_LENGTH> child_from = sym_host_baby_matching.XOR(sym_host_parent_matching).AND(sym_host_parent_matching);
-
-      host_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
-      host_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
-    }
-
     return host_baby;
   }
 
@@ -690,10 +593,6 @@ public:
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
-    }
-
-    if (my_config->TAG_MATCHING()) {
-      tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
     }
   }
 
@@ -775,18 +674,18 @@ public:
    * Purpose: To distribute resources between sym and host depending on their interaction values.
    */
   void DistribResToSym(emp::Ptr<Organism> sym, double sym_piece){
-    double host_int_val = interaction_val;
-    double host_donation = 0;
-    if(host_int_val < 0){
-      double host_defense = host_int_val * sym_piece * -1.0;
-      host_donation = 0;
-      SetResInProcess(sym_piece - host_defense);
+    double hostIntVal = interaction_val;
+    double hostDonation = 0;
+    if(hostIntVal < 0){
+      double hostDefense = hostIntVal * sym_piece * -1.0;
+      hostDonation = 0;
+      SetResInProcess(sym_piece - hostDefense);
     }
-    else if(host_int_val >= 0){
-      host_donation = host_int_val * sym_piece;
-      SetResInProcess(sym_piece - host_donation);
+    else if(hostIntVal >= 0){
+      hostDonation = hostIntVal * sym_piece;
+      SetResInProcess(sym_piece - hostDonation);
     }
-    double sym_return = sym->ProcessResources(host_donation, this);
+    double sym_return = sym->ProcessResources(hostDonation, this);
     this->AddPoints(sym_return + GetResInProcess());
     SetResInProcess(0);
   }
@@ -831,7 +730,7 @@ public:
           if (GetDead()){
             return; //If previous symbiont killed host, we're done
           }
-          //sym position should have host index as id and
+          //sym position should have host index as pop_id and
           //position in syms list + 1 as index (0 as fls index)
           emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
           if(!cur_sym->GetDead()){
@@ -840,7 +739,7 @@ public:
           if(cur_sym->GetDead()) {
             //if the symbiont dies during their process, remove from syms list
             //UNLESS they died by getting ousted
-            syms.erase(syms.begin() + j); 
+            syms.erase(syms.begin() + j);
             cur_sym.Delete();
           }
         } //for each sym in syms

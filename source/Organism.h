@@ -2,35 +2,13 @@
 #define ORGANISM_H
 
 #include <string>
+#include <optional>
 #include "ConfigSetup.h"
-
-namespace datastruct {
-
-  struct TaxonDataBase {
-      using has_fitness_t = std::false_type;
-      using has_mutations_t = std::false_type;
-      using has_phen_t = std::false_type;
-      using taxon_info_t = double;
-  };
-
-  struct HostTaxonData : TaxonDataBase {
-        std::unordered_map<unsigned long long int, int> associated_syms;
-        void ClearInteractions() {associated_syms.clear();}
-        void AddInteraction(emp::Ptr<emp::Taxon<taxon_info_t, TaxonDataBase>> sym) {
-          if (emp::Has(associated_syms, sym->GetID())){
-            associated_syms[sym->GetID()]++;
-          } else {
-            associated_syms[sym->GetID()] = 1;
-          }
-        }
-  };
-
-}
+#include "emp/Evolve/Systematics.hpp"
 
 class Organism {
 
   public:
-  using taxon_info_t = double;
 
   Organism() = default;
   Organism(const Organism &) = default;
@@ -38,7 +16,11 @@ class Organism {
   virtual ~Organism() {}
   Organism & operator=(const Organism &) = default;
   Organism & operator=(Organism &&) = default;
-  bool operator==(const Organism &other) const {return (this == &other);}
+  virtual bool operator<(const Organism &other) const {
+    std::cout << "operator< called from Organism" << std::endl;
+    throw "Organism method called!";
+  };
+  virtual bool operator==(const Organism &other) const {return (this == &other);}
   bool operator!=(const Organism &other) const {return !(*this == other);}
 
   virtual std::string const GetName() {
@@ -94,38 +76,6 @@ class Organism {
     std::cout << "MakeNew called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual emp::BitSet<TAG_LENGTH> & GetTag() {
-    std::cout << "GetTag called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual void SetTag(emp::BitSet<TAG_LENGTH>& _in) {
-    std::cout << "SetTag called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual size_t GetReproCount() {
-    std::cout << "GetReproCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual void SetReproCount(size_t _in) {
-    std::cout << "SetReproCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual void SetTowardsPartnerCount(size_t _in) {
-    std::cout << "SetTowardsPartnerCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual size_t GetTowardsPartnerCount() {
-    std::cout << "GetTowardsPartnerCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual void SetFromPartnerCount(size_t _in) {
-    std::cout << "SetFromPartnerCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
-  virtual size_t GetFromPartnerCount() {
-    std::cout << "GetFromPartnerCount called from Organism" << std::endl;
-    throw "Organism method called!";
-  }
 
   //Symbiont functions
 
@@ -135,9 +85,12 @@ class Organism {
   virtual emp::Ptr<Organism> Reproduce() {
     std::cout << "Reproduce called from Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+  virtual std::optional<emp::Ptr<Organism>> VerticalTransmission(
+    emp::Ptr<Organism> host_baby
+  ) {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
-    throw "Organism method called!";}
+    throw "Organism method called!";
+  }
   virtual void HorizontalTransmission(emp::WorldPosition location) {
     std::cout << "HorizontalTransmission called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -165,10 +118,10 @@ class Organism {
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
+  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
     std::cout << "GetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
     std::cout << "SetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
 
@@ -206,6 +159,10 @@ class Organism {
   virtual void SetSymbionts(emp::vector<emp::Ptr<Organism>> _in) {
     std::cout << "SetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::Ptr<Organism> RemoveSymbiont(int _in) {
+    std::cout << "RemoveSymbiont called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual int AddSymbiont(emp::Ptr<Organism> _in)
    {std::cout << "AddSymbiont called from Organism" << std::endl;
      throw "Organism method called!";}

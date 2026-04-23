@@ -34,7 +34,7 @@ void PGGWorld::SetupSymbionts(long unsigned int* total_syms) {
 	//If the user wants the symbionts' donation rate to be randomly initialized
 	if (pgg_config->PGG_DONATE_RANDOM()) {
 	  //If the user wants the initialization of the symbionts' donation
-	  //rate to be selected using a normal distribution  
+	  //rate to be selected using a normal distribution
 	  if (pgg_config->PGG_DONATE_NORMAL()) {
 		double mean = pgg_config->PGG_DONATE_NORMAL_MEAN();
 		double std = pgg_config->PGG_DONATE_NORMAL_STD();
