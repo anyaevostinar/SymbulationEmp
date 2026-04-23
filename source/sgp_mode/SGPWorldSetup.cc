@@ -154,7 +154,7 @@ void SGPWorld::SetupOrgMode() {
 // TODO - use compatibility check to determine interaction
 void SGPWorld::SetupHealthInteractions() {
   emp_assert(sgp_config.ENABLE_HEALTH());
-  std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
+  // std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
   // NOTE - currently this does not necessarily make sense for multiple symbiotns
   //        (host gains/loses once and all syms gain/lose same amount; i.e., no splitting)
   // NOTE - currently set up as donate/steal interaction. There's no penalty/multiplier
@@ -542,7 +542,7 @@ void SGPWorld::SetupStressInteractions() {
 
 void SGPWorld::SetupNutrientInteractions() {
   emp_assert(sgp_config.ENABLE_NUTRIENT());
-  std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
+  // std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
 
   // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks
   if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {

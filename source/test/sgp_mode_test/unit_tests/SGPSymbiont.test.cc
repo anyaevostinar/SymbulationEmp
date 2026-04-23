@@ -95,7 +95,6 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     host->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
     sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
 
-    std::cout << "not task id" << not_task_id << std::endl;
     double initial_host_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_STEAL_PROP() * sym_score; 
