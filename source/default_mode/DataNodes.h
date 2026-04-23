@@ -356,17 +356,14 @@ void SymWorld::MapPhylogenyInteractions() {
  *
  * Output: None.
  *
- * Purpose: To setup and write to the files that track the counts of attempted
- * transmissions.
+ * Purpose: To setup the columns tracking symbiont transmission.
  */
-
-emp::DataFile & SymWorld::SetupTransmissionFile(const std::string & filename){
-  auto & file = SetupFile(filename);
+void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
-  auto & node4 = GetVerticalTransmissionSuccessCount(); 
-  
+  auto & node4 = GetVerticalTransmissionSuccessCount();
+
   file.AddVar(update, "update", "Update");
   //horizontal transmission
   file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.8", "Count for histogram bin for horizontal attempts with int val -1 to <-0.8");
@@ -440,13 +437,23 @@ emp::DataFile & SymWorld::SetupTransmissionFile(const std::string & filename){
     file.AddHistBin(node6, 7, "horiz_sizefail_0.4_0.6", "Count for histogram bin for horizontal size failures with int val 0.4 to <0.6");
     file.AddHistBin(node6, 8, "horiz_sizefail_0.6_0.8", "Count for histogram bin for horizontal size failures with int val 0.6 to <0.8");
     file.AddHistBin(node6, 9, "horiz_sizefail_0.8_1", "Count for histogram bin for horizontal size failures with int val 0.8 to 1", true);
-    
   }
-  file.PrintHeaderKeys();
-
-  return file;
 }
 
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track symbiont transmission
+ */
+emp::DataFile& SymWorld::SetupTransmissionFile(const std::string& filename) {
+  auto& file = SetupFile(filename);
+  SetupTransmissionFileColumns(file);
+  file.PrintHeaderKeys();
+  return file;
+}
 
 /**
  * Input: The address of the string representing the suffixes for the files to be created.

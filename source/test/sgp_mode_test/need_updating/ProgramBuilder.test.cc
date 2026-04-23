@@ -1,13 +1,13 @@
 #include "emp/math/Random.hpp"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
-#include "../../../sgp_mode/SGPWorld.h"
-#include "../../../sgp_mode/SGPWorld.cc"
-#include "../../../sgp_mode/SGPWorldSetup.cc"
-//#include "../../../sgp_mode/SGPWorldData.cc"
-#include "../../../sgp_mode/ProgramBuilder.h"
+#include "../../sgp_mode/hardware/SGPHardware.h"
+#include "../../sgp_mode/SGPWorld.h"
+#include "../../sgp_mode/SGPWorld.cc"
+#include "../../sgp_mode/SGPWorldSetup.cc"
+#include "../../sgp_mode/SGPWorldData.cc"
+#include "../../sgp_mode/ProgramBuilder.h"
 
-#include "../../../catch/catch.hpp"
+#include "../../catch/catch.hpp"
 
 void CheckTaskProfile(
   sgpmode::SGPWorld& world,
@@ -25,7 +25,7 @@ void CheckTaskProfile(
   }
 }
 
-TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp][sgp-unit][refactor]") {
+TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;

@@ -16,7 +16,7 @@ using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 
-TEST_CASE("Mutate", "[refactor]") {
+TEST_CASE("Mutate", "[sgp]") {
 
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
@@ -29,7 +29,7 @@ TEST_CASE("Mutate", "[refactor]") {
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SGP_MUT_PER_BIT_RATE(1.0);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
 
   world_t world(random, &config);
@@ -59,13 +59,13 @@ TEST_CASE("Mutate", "[refactor]") {
 // }
 
 
-TEST_CASE("Host == operators", "[sgp][sgp-unit][refactor]") {
+TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
 
 
     GIVEN("A host"){
         emp::Random random(31);
         sgpmode::SymConfigSGP config;
-        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
 
         world_t world(random, &config);
@@ -93,11 +93,11 @@ TEST_CASE("Host == operators", "[sgp][sgp-unit][refactor]") {
   }
 }
 
-TEST_CASE("Host > & < operators", "[sgp][sgp-unit][refactor]") {
+TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
     GIVEN("two different hosts"){
         emp::Random random(31);
         sgpmode::SymConfigSGP config;
-        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
         world_t world(random, &config);
         auto& prog_builder = world.GetProgramBuilder();
         
@@ -115,11 +115,11 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit][refactor]") {
 }
 
 
-TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit][refactor]"){
+TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
     GIVEN("A host"){
         emp::Random random(31);
         sgpmode::SymConfigSGP config;
-        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
         world_t world(random, &config);
         auto& prog_builder = world.GetProgramBuilder();
         
@@ -134,11 +134,11 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit][refactor]"){
     }
 }
 
-TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit][refactor]"){
+TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
     GIVEN("An SGPWorld and a host"){
         emp::Random random(31);
         sgpmode::SymConfigSGP config;
-        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/functional_tests/hardware-test-env.json");
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
         world_t world(random, &config);
         auto& prog_builder = world.GetProgramBuilder();
         emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));

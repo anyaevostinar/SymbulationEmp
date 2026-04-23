@@ -291,16 +291,7 @@ public:
     program_t program; // Create empty program
     // Add start anchor
     AddStartAnchor(program);
-    // AddTask_Not(program); // Add not task
-    // Add instructions manually so that repeated nots play nice with task crediting
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
-    AddInst(program, io_op);
-    AddInst(program, nand_op);
+    AddTask_Not(program); // Add not task
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
@@ -309,6 +300,12 @@ public:
     program.Rectify(rectifier);
     return program;
   }
+
+  // program_t CreateRandomProgram(size_t length) {
+  //   // Program constructor will initialize program randomly.
+  //   // Be sure to pass instruction rectifier to remove any disabled instructions.
+  //   return program_t(length, rectifier);
+  // }
 
   program_t CreateReproProgram(size_t length) {
     program_t program;
@@ -337,7 +334,9 @@ public:
     // Add not instruction
     AddTask_Not(program);  // Add not task
     AddTask_Nand(program); // Add nand task
-    program.resize(length - 1); // Leave room for repro
+    // Nop filler is length minus current size + repro instructions
+    // const size_t nop_filler = length - (program.size() + 1);
+    program.resize(length - 1);
     AddInst(program, repro_op);
     // Remove any deleted instructions
     program.Rectify(rectifier);
@@ -352,8 +351,11 @@ public:
       "Global Anchor",
       start_tag
     );
+    // Add not instruction
     AddTask_Nand(program); // Add nand task
-    program.resize(length - 1); // Leave room for repo
+    // Nop filler is length minus current size + repro instructions
+    // const size_t nop_filler = length - (program.size() + 1);
+    program.resize(length - 1);
     AddInst(program, repro_op);
     // Remove any deleted instructions
     program.Rectify(rectifier);

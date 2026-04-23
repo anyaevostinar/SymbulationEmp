@@ -12,6 +12,8 @@
 
 class Symbiont: public Organism {
 protected:
+
+  using taxon_info_t = SymWorld::taxon_info_t;
   /**
     *
     * Purpose: Represents the interaction value between the host and symbiont.
@@ -55,6 +57,27 @@ protected:
 
   /**
     *
+    * Purpose: Tracks the number of reproductive events in this symbiont's lineage.
+    *
+  */
+  size_t reproductions = 0;
+
+  /**
+   *
+   * Purpose: Tracks the number of tag flips towards partner in this symbiont's lineage.
+   *
+ */
+  size_t towards_partner_count = 0;
+
+  /**
+    *
+    * Purpose: Tracks the number of tag flips away from partner in this symbiont's lineage.
+    *
+  */
+  size_t from_partner_count = 0;
+  
+  /**
+    *
     * Purpose: Represents an instance of random.
     *
   */
@@ -86,7 +109,22 @@ protected:
     * Purpose: Tracks the taxon of this organism.
     *
   */
-  emp::Ptr<emp::Taxon<int>> my_taxon = NULL;
+  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
+
+  /**
+    *
+    * Purpose: Represents the tag for this organism
+    *
+  */
+  emp::BitSet<TAG_LENGTH> tag;
+
+  /**
+   * 
+   * Purpose: To track location in the world
+   * id/Index is position in the host's symbiont vector if the symbiont is hosted, and 0 if the symbiont is free-living
+   * If the symbiont is hosted, the population id is the host's location in the world. If the symbiont is free-living, it is the location in the sym pop
+   */
+  emp::WorldPosition location;
 
 public:
   /**
@@ -176,6 +214,63 @@ public:
       return  "Symbiont";
     }
 
+  /**
+   * Input: Set the reproduction counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of reproductions in this lineage.
+   */
+  void SetReproCount(size_t _in) { reproductions = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The reproduction count
+   *
+   * Purpose: To get the count of reproductions in this lineage.
+   */
+  size_t GetReproCount() { return reproductions; }
+
+  /**
+   * Input: Set the flips towards a partner counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of flips towards a partner in this lineage.
+   */
+  void SetTowardsPartnerCount(size_t _in) { towards_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips towards a partner count
+   *
+   * Purpose: To get the count of flips towards a partner in this lineage.
+   */
+  size_t GetTowardsPartnerCount() { return towards_partner_count; }
+
+
+  /**
+   * Input: Set the flips from a partner counter
+   *
+   * Output: None
+   *
+   * Purpose: To set the count of flips from a partner in this lineage.
+   */
+  void SetFromPartnerCount(size_t _in) { from_partner_count = _in; }
+
+
+  /**
+   * Input: None.
+   *
+   * Output: The flips from a partner count
+   *
+   * Purpose: To get the count of flips from a partner in this lineage.
+   */
+  size_t GetFromPartnerCount() { return from_partner_count; }
 
   /**
    * Input: None
@@ -195,6 +290,15 @@ public:
    * Purpose: To get a symbiont's points.
    */
   double GetPoints() {return points;}
+
+  /**
+   * Input: None
+   * 
+   * Output: The world position of the organism
+   * 
+   * Purpose: To get the world position of the organism
+   */
+  emp::WorldPosition GetLocation() {return location;}
 
 
   /**
@@ -245,7 +349,7 @@ public:
    *
    * Purpose: To retrieve the symbiont's taxon
    */
-   emp::Ptr<emp::Taxon<int>> GetTaxon() {return my_taxon;}
+   emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {return my_taxon;}
 
    /**
     * Input: A pointer to the taxon that this organism should belong to.
@@ -254,10 +358,27 @@ public:
     *
     * Purpose: To set the symbiont's taxon
     */
-   void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {my_taxon = _in;}
+   void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {my_taxon = _in;}
 
   //  std::set<int> GetResTypes() const {return res_types;}
 
+   /**
+   * Input: The new tag
+   *
+   * Output: None
+   *
+   * Purpose: To set a symbiont's tag.
+   */
+   void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
+
+   /**
+   * Input: None
+   *
+   * Output: The symbiont's tag.
+   *
+   * Purpose: To get a symbiont's tag.
+   */
+   emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
 
   /**
    * Input: None
@@ -266,7 +387,9 @@ public:
    *
    * Purpose: To set a symbiont to dead
    */
-  void SetDead() { dead = true; }
+  void SetDead() { 
+    dead = true; 
+  }
 
 
   /**
@@ -314,6 +437,15 @@ public:
    * Purpose: To increment a symbiont's points
    */
   void AddPoints(double _in) { points += _in;}
+
+  /**
+   * Input: A new world position
+   * 
+   * Output: None
+   * 
+   * Purpose: To set the organism's world position
+   */
+  void SetLocation(emp::WorldPosition _in) {location = _in;} 
 
   /**
    * Input: None
@@ -406,6 +538,9 @@ public:
         else if (infection_chance > 1) infection_chance = 1;
       }
     }
+    if (my_config->TAG_MATCHING()) {
+      tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
+    }
   }
 
   /**
@@ -495,7 +630,7 @@ public:
 
   /**
    * Input: The size_t representing the location of the symbiont, and the size_t
-   * representation of the symbiont's position in the host (default -1 if it doesn't have a host)
+   * representation of the symbiont's position in the host (default 0 if it doesn't have a host)
    *
    * Output: None
    *
@@ -503,7 +638,7 @@ public:
    * and to allow for movement
    */
   void Process(emp::WorldPosition location) {
-    //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
+    //Pop ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
@@ -512,7 +647,12 @@ public:
     HorizontalTransmission(location);
     //Age the organism
     GrowOlder();
-    //Check if the organism should move and do it
+    if (my_config->SYM_WITHIN_LIFETIME_MUTATION_RATE()) {
+      if (random->P(my_config->SYM_WITHIN_LIFETIME_MUTATION_RATE())) {
+        Mutate();
+      }
+    }
+    //Check if the organism should move and do it 
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
       //if the symbiont should move, and hasn't been killed
       my_world->MoveFreeSym(location);
@@ -529,6 +669,7 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
+    new_sym->SetTag(GetTag());
     return new_sym;
   }
 
@@ -542,12 +683,41 @@ public:
   emp::Ptr<Organism> Reproduce() {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
-
+    sym_baby->SetReproCount(reproductions + 1);
     if(my_config->PHYLOGENY() == 1){
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic
     }
+
+    if (my_config->TAG_MATCHING() && my_host) {
+      // do not xor to get 1 where bits are matching
+      emp::BitSet<TAG_LENGTH> host_sym_parent_matching = my_host->GetTag().XOR(tag).NOT();
+      emp::BitSet<TAG_LENGTH> host_sym_baby_matching = my_host->GetTag().XOR(sym_baby->GetTag()).NOT();
+
+      // difference in matching-ness, with match in child
+      emp::BitSet<TAG_LENGTH> child_towards = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_baby_matching);
+      
+      // difference in matching-ness, with match in parent
+      emp::BitSet<TAG_LENGTH> child_from = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_parent_matching);
+
+      sym_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
+      sym_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
+    }
     return sym_baby;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: Whether the symbiont is able to vertically transmit
+   *
+   * Purpose: To answer if this symbiont has enough points to vertically transmit
+   */
+  virtual bool MeetsVTRequirements() {
+    if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -560,19 +730,27 @@ public:
   std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     bool success = false;
     emp::Ptr<Organism> sym_baby;
-    if (my_world->WillTransmit()) {
-      // Vertical transmission data nodes
-      // Attempt vs success for vertical transmission is just whether it has enough resources
-      my_world->GetVerticalTransmissionAttemptCount().AddDatum(1);
+    if(my_world->WillTransmit()) {
+    
+      //vertical transmission data node
+      emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
+      data_node_attempts_verttrans.AddDatum(GetIntVal());
 
-      // If the world permits vertical transmission and the sym has enough resources, transmit!
-      if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
+      if(MeetsVTRequirements()){
         sym_baby = Reproduce();
-        points -= my_config->SYM_VERT_TRANS_RES();
-        success = host_baby->AddSymbiont(sym_baby) > 0;
-        if (success) {
-          my_world->GetVerticalTransmissionSuccessCount().AddDatum(1);
+        if (my_config->TAG_MATCHING()) {
+          double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
+          double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
+          if (tag_distance > cutoff) {
+            sym_baby.Delete();
+            return std::nullopt;
+          }
         }
+        points = points - my_config->SYM_VERT_TRANS_RES();
+        success = host_baby->AddSymbiont(sym_baby);
+
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
+        data_node_successes_verttrans.AddDatum(GetIntVal());
       }
     }
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
@@ -592,20 +770,25 @@ public:
         required_points = my_config->FREE_SYM_REPRO_RES();
       }
       if (GetPoints() >= required_points) {
+        double stored_intval = GetIntVal(); // post-SDB this symbiont may be deleted (?)
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
-        SetPoints(0);
+        
+
+        if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
+        // removing the above for tag matching--sym parent points are 
+        // now set to 0 in symdobirth
+
         emp::Ptr<Organism> sym_baby = Reproduce();
+        if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
         emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
-
         //horizontal transmission data nodes
-        emp::DataMonitor<int>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(1);
-
-        emp::DataMonitor<int>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(stored_intval);
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
         if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(1);
+          data_node_successes_horiztrans.AddDatum(stored_intval);
         }
       }
     }
