@@ -445,7 +445,9 @@ public:
    *
    * Purpose: To clear a host's symbionts.
    */
-  void ClearSyms() {syms.resize(0);}
+  void ClearSyms() {
+    syms.resize(0);
+  }
 
 
   /**

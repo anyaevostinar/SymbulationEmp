@@ -509,7 +509,6 @@ public:
       } else {
         SendToGraveyard(sym_pop[pos_id]); // don't delete it yet, that can cause a seg fault
       }
-
       //set the cell to point to the new sym
       sym_pop[pos_id] = new_org;
     }
@@ -939,7 +938,9 @@ public:
       auto & host_syms = pop[i]->GetSymbionts();
       for(size_t j = 0; j < host_syms.size(); j++){
         host_syms[j]->SetDead();
+        SendToGraveyard(host_syms[j]);
       }
+      pop[i]->ClearSyms(); //TODO: should clear syms just handle setting dead and to graveyard?
     }    
   }
 
