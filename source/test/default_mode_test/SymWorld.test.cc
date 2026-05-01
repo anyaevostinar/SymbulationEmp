@@ -340,6 +340,7 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
         //will get overwritten, and thus # injected != # remaining in world
         REQUIRE(world.GetNumOrgs() < (sym_count + 1));
         REQUIRE(world.GetNumOrgs() > (sym_count - 10));
+        world.CleanupGraveyard();
       }
     }
   }
@@ -561,11 +562,12 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
             new_sym_born = true;
           }
         }
-
+        world.CleanupGraveyard();
         REQUIRE(world.GetNumOrgs() == world_size);
         REQUIRE(new_sym_born == true);
         REQUIRE(new_pos.IsValid() == true);
         REQUIRE(world.IsInboundsPos(new_pos) == true);
+        world.CleanupGraveyard();
       }
 
       THEN("it might not find a valid cell and get deleted"){
@@ -735,6 +737,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
         REQUIRE(world.GetNumOrgs() == 2);
         THEN("the sym is deleted"){
           world.MoveFreeSym(sym_pos);
+          world.CleanupGraveyard();
           REQUIRE(world.GetNumOrgs() == 1);
           REQUIRE(!host->HasSym());
         }
@@ -900,6 +903,7 @@ TEST_CASE( "AddOrgAt", "[default]" ){
         world.AddOrgAt(sym, 0);
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(world.GetSymPop()[0] == sym);
+        world.CleanupGraveyard();
       }
     }
     WHEN("a sym is added to an out of bounds pos"){
@@ -1324,6 +1328,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
         REQUIRE(sym->GetTaxon()->GetInfo() == taxon_infos[i]);
       }
     }
+    world.CleanupGraveyard();
   }
 
   WHEN("symbionts are deleted"){
