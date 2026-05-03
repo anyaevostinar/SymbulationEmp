@@ -391,7 +391,7 @@ public:
         auto& task_req_info = task_env.GetHostTaskReq(task_id);
         if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
           continue;
-        }
+        } 
 
         // Manage CPU state after completing a task:
         //   (1) Mark task as being performed
@@ -404,13 +404,44 @@ public:
           cpu_state.ResetCreditedOutputs(task_id);
         }
         // Calc value, add to organism points
-        SetPoints(
-          task_req_info.fun_calc_task_val(
-            task_env,
-            task_req_info,
-            GetPoints()
-          )
+
+
+        double new_points = task_req_info.fun_calc_task_val(
+          task_env,
+          task_req_info,
+          GetPoints()
         );
+        double task_points = new_points - GetPoints();
+
+        size_t sym_count = matchingCount(task_id);
+        // Apply nutrient interaction (if any have been configured) to points
+        // NOTE - can inject nutrient interaction here to modify points?
+        
+        int totalPoint = 0;
+        if(sym_count > 0){
+          for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+        
+            emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+            const bool dead = cur_symbiont->GetDead();
+            // Skip if dead
+            if (dead) {
+              continue;
+            }
+
+            const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(cur_symbiont);
+            bool sym_performed = sym_task_profile.Get(task_id);
+            if(sym_performed){
+              size_t sym_task_point = fun_calc_sym_nutrient_interaction(this,cur_symbiont, task_points, task_id,sym_count);
+              totalPoint += fun_calc_host_nutrient_interaction(this, cur_symbiont, task_points, task_id,sym_count);
+              cur_symbiont->AddPoints(sym_task_point);
+            }
+          
+        }
+      }
+
+        
+        // Add earned task points to symbiont's point total
+        AddPoints(task_points + totalPoint);
 
         my_world->GetHostTaskSuccesses()[task_id] += 1;
 
@@ -420,6 +451,26 @@ public:
 
   // Clear output buffer
   output_buffer.clear();
+  }
+
+  size_t matchingCount(int task_id){
+
+    int taskCount = 0;
+    for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+    
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+      const bool dead = cur_symbiont->GetDead();
+      // Skip if dead
+      if (dead) {
+        continue;
+      }
+
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(cur_symbiont);
+      bool sym_performed = sym_task_profile.Get(task_id);
+      taskCount += sym_performed;
+      
+    }
+    return taskCount;
   }
 
 

@@ -548,25 +548,27 @@ void SGPWorld::SetupNutrientInteractions() {
   if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {
     // Nutrient mutualist - if mutualist task matches a host,
     //  mutualist donates some resources to the host.
-    fun_apply_nutrient_interaction = [this](
+    fun_calc_sym_nutrient_interaction = [this](
+      sgp_host_t& host,
       sgp_sym_t& sym,
       double task_points,
-      size_t task_id
+      size_t task_id,
+      size_t symCount
+      
     ) -> double {
       auto& sym_state = sym.GetHardware().GetCPUState();
       // If symbiont has no host, no interaction to modify points.
       if (!sym_state.HasHost()) { return task_points; }
       // Symbiont must have a host, so they interact.
-      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
 
       // auto& host_state = host.GetHardware().GetCPUState();
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
       // const bool host_performed = host_state.GetParentTaskPerformed(task_id);
-      bool host_performed = host_task_profile.Get(task_id);
+      bool sym_performed = sym_task_profile.Get(task_id);
 
-      if (!host_performed) {
+      if (!sym_performed) {
         // Task mismatch, no interaction between host and mutualist.
-        return task_points;
+        return 0;
       } else {
         // Task match, donate proportion of earned task points to host.
         // Can't donate more than task value or less than 0.0
@@ -575,33 +577,36 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
+        to_donate = std::min(to_done, sym.GetPoints());
         // Donate points to host
-        host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        //host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
         // Return task points minus donated value for symbiont to earn
-        return task_points - to_donate;
+        return (-to_donate)/symCount;
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
     // Nutrient parasite - if parasite performs task that host also performs,
     //  parasite steals some proportion of earned points from host
-    fun_apply_nutrient_interaction = [this](
+    fun_calc_sym_nutrient_interaction = [this](
+      sgp_host_t& host,
       sgp_sym_t& sym,
       double task_points,
-      size_t task_id
+      size_t task_id,
+      size_t symCount
     ) -> double {
       auto& sym_state = sym.GetHardware().GetCPUState();
       // If symbiont has no host, no interaction to modify points.
       if (!sym_state.HasHost()) { return task_points; }
       // Symbiont must have a host, so they interact.
-      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      bool host_performed = host_task_profile.Get(task_id);
-      if (!host_performed) {
+      
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      bool sym_performed = sym_task_profile.Get(task_id);
+      if (!sym_performed) {
         // Task mismatch, no interaction between host and parasite.
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
         // return 0.0;
-        return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
+        return 0;
       } else {
         // Task match, steal proportion of earned task points from host.
         // Can't try to steal less than 0 or more than task was worth
@@ -610,43 +615,37 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        // Can't take more than host has
-        const double from_host = emp::Min(
-          host.GetPoints(),
-          to_steal
-        );
-        host.DecPoints(from_host);
-        // NOTE - subtract to_steal or from_host?
-        // const double from_world = task_points - to_steal;
-        // Take points from host
-        return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
+        return (to_steal * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/symCount;
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
     // Symbiont interaction value determines whether interaction is parasitic (negative)
     //   or mutualistic (positive). Interacition intensity is scaled by symbiont's
     //   interaction value.
-    fun_apply_nutrient_interaction = [this](
+    fun_calc_sym_nutrient_interaction = [this](
+      sgp_host_t& host,
       sgp_sym_t& sym,
       double task_points,
-      size_t task_id
+      size_t task_id,
+      size_t symCount
     ) -> double {
       auto& sym_state = sym.GetHardware().GetCPUState();
       // If symbiont has no host, no interaction to modify points.
       if (!sym_state.HasHost()) { return task_points; }
       // Symbiont must have a host, so they interact.
-      auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      bool host_performed = host_task_profile.Get(task_id);
+     
+
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(stm);
+      bool sym_performed = sym_task_profile.Get(task_id);
       const double sym_interaction_value = sym.GetIntVal();
       emp_assert(-1.0 <= sym_interaction_value && sym_interaction_value <= 1.0);
-      if (!host_performed && (sym_interaction_value > 0.0)) {
+      if (!sym_performed && (sym_interaction_value > 0.0)) {
         // Task mismatch from mutualist
-        return task_points;
-      } else if (!host_performed && (sym_interaction_value < 0.0)) {
+        return 0;
+      } else if (!sym_performed && (sym_interaction_value < 0.0)) {
         // Task mismatch from parasite
-        return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
-      } else if (host_performed && (sym_interaction_value > 0.0)) {
+        return 0;
+      } else if (sym_performed && (sym_interaction_value > 0.0)) {
         // Task match from mutualist: mutualistic interaction
         //   Donate proportion of earned task points to host.
         // Can't donate more than task value or less than 0.0
@@ -657,10 +656,10 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        // Donate points to host
-        host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        to_donate = std::min(to_done, sym.GetPoints());
+        
         // Return task points minus donated value for symbiont to earn
-        return task_points - to_donate;
+        return (-to_donate)/symCount;
       } else if (host_performed && (sym_interaction_value < 0.0)) {
         // Task match from parasite: parasitic interaction
         const double steal_prop = sgp_config.NUTRIENT_STEAL_PROP() * (-1 * sym_interaction_value);
@@ -670,19 +669,163 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        // Can't take more than host has
-        const double from_host = emp::Min(
-          host.GetPoints(),
-          to_steal
-        );
-        host.DecPoints(from_host);
+        
+        
         // NOTE - subtract to_steal or from_host?
         // const double from_world = task_points - to_steal;
         // Take points from host
-        return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
+        return (to_steal * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/symCount;
       }
       // Otherwise, no interaction. Return task points.
-      return task_points;
+      return 0;
+    };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
+    // Keep default behavior
+  } else {
+    std::cout << "Unimplemented nutrient symbiont type (" << sgp_config.NUTRIENT_TYPE() << "). Exiting." << std::endl;
+    exit(-1);
+  }
+
+
+
+
+
+
+
+
+  if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {
+    // Nutrient mutualist - if mutualist task matches a host,
+    //  mutualist donates some resources to the host.
+    fun_calc_host_nutrient_interaction = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id,
+      size_t symCount
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+
+      // auto& host_state = host.GetHardware().GetCPUState();
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      // const bool host_performed = host_state.GetParentTaskPerformed(task_id);
+      bool sym_performed = sym_task_profile.Get(task_id);
+
+      if (!sym_performed) {
+        // Task mismatch, no interaction between host and mutualist.
+        return 0;
+      } else {
+        // Task match, donate proportion of earned task points to host.
+        // Can't donate more than task value or less than 0.0
+        const double to_donate = std::clamp(
+          sgp_config.NUTRIENT_DONATE_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        to_donate = std::min(to_done, sym.GetPoints());
+        // Donate points to host
+        //host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        // Return task points minus donated value for symbiont to earn
+        return (to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/symCount;
+      }
+    };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
+    // Nutrient parasite - if parasite performs task that host also performs,
+    //  parasite steals some proportion of earned points from host
+    fun_calc_host_nutrient_interaction = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id,
+      size_t symCount
+      
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+      
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      bool sym_performed = sym_task_profile.Get(task_id);
+      if (!sym_performed) {
+        // Task mismatch, no interaction between host and parasite.
+        // NOTE - do we want earning full amount or not?
+        //  - Probably not? Otherwise, no incentive for parasitism?
+        // return 0.0;
+        return 0;
+      } else {
+        // Task match, steal proportion of earned task points from host.
+        // Can't try to steal less than 0 or more than task was worth
+        const double to_steal = std::clamp(
+          sgp_config.NUTRIENT_STEAL_PROP() * task_points,
+          0.0,
+          task_points
+        );
+        return (-to_steal)/symCount;
+      }
+    };
+  } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
+    // Symbiont interaction value determines whether interaction is parasitic (negative)
+    //   or mutualistic (positive). Interacition intensity is scaled by symbiont's
+    //   interaction value.
+    fun_calc_host_nutrient_interaction = [this](
+      sgp_host_t& host,
+      sgp_sym_t& sym,
+      double task_points,
+      size_t task_id,
+      size_t symCount
+    ) -> double {
+      auto& sym_state = sym.GetHardware().GetCPUState();
+      // If symbiont has no host, no interaction to modify points.
+      if (!sym_state.HasHost()) { return task_points; }
+      // Symbiont must have a host, so they interact.
+     
+
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      bool sym_performed = sym_task_profile.Get(task_id);
+      const double sym_interaction_value = sym.GetIntVal();
+      emp_assert(-1.0 <= sym_interaction_value && sym_interaction_value <= 1.0);
+      if (!sym_performed && (sym_interaction_value > 0.0)) {
+        // Task mismatch from mutualist
+        return 0;
+      } else if (!sym_performed && (sym_interaction_value < 0.0)) {
+        // Task mismatch from parasite
+        return 0;
+      } else if (sym_performed && (sym_interaction_value > 0.0)) {
+        // Task match from mutualist: mutualistic interaction
+        //   Donate proportion of earned task points to host.
+        // Can't donate more than task value or less than 0.0
+        const double donate_prop = sgp_config.NUTRIENT_DONATE_PROP() * sym_interaction_value;
+        emp_assert(donate_prop >= 0.0 && donate_prop <= sgp_config.NUTRIENT_DONATE_PROP());
+        const double to_donate = std::clamp(
+          donate_prop * task_points,
+          0.0,
+          task_points
+        );
+        to_donate = std::min(to_done, sym.GetPoints());
+        
+        // Return task points minus donated value for symbiont to earn
+         return (to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/symCount;
+      } else if (host_performed && (sym_interaction_value < 0.0)) {
+        // Task match from parasite: parasitic interaction
+        const double steal_prop = sgp_config.NUTRIENT_STEAL_PROP() * (-1 * sym_interaction_value);
+        emp_assert(steal_prop >= 0.0 && steal_prop <= sgp_config.NUTRIENT_STEAL_PROP());
+        const double to_steal = std::clamp(
+          steal_prop * task_points,
+          0.0,
+          task_points
+        );
+        
+        
+        // NOTE - subtract to_steal or from_host?
+        // const double from_world = task_points - to_steal;
+        // Take points from host
+        return (-to_steal)/symCount;
+      }
+      // Otherwise, no interaction. Return task points.
+      return 0;
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::NEUTRAL) {
     // Keep default behavior
@@ -691,6 +834,8 @@ void SGPWorld::SetupNutrientInteractions() {
     exit(-1);
   }
 }
+
+
 
 void SGPWorld::SetupPopStructure() {
   // set world structure (either mixed or a grid with some dimensions)
@@ -836,6 +981,7 @@ void SGPWorld::SetupHostSymInteractions() {
   if (sgp_config.TASK_PROFILE_MODE() == "parent-all") {
     fun_get_host_task_profile = [](const sgp_host_t& host) -> const emp::BitVector& {
       return host.GetHardware().GetCPUState().GetParentTasksPerformed();
+      
     };
     fun_get_sym_task_profile = [](const sgp_sym_t& sym) -> const emp::BitVector& {
       return sym.GetHardware().GetCPUState().GetParentTasksPerformed();
@@ -994,13 +1140,27 @@ void SGPWorld::SetupHostSymInteractions() {
   // Configure nutrient interactions
   // Configure default (no) nutrient interaction (IMPORTANT!)
   // - Nutrient interaction setup will override this behavior if enabled.
-  fun_apply_nutrient_interaction = [](
+  fun_calc_host_nutrient_interaction = [](
+    sgp_sym_t& host,
     sgp_sym_t& sym,
     double task_points,
-    size_t task_id
+    size_t task_id,
+    size_t symCount
   ) {
     return task_points;
   };
+  
+
+  fun_calc_sym_nutrient_interaction = [](
+    sgp_sym_t& host,
+    sgp_sym_t& sym,
+    double task_points,
+    size_t task_id,
+    size_t symCount
+  ) {
+    return 0;
+  };
+
   if (sgp_config.ENABLE_NUTRIENT()) {
     SetupNutrientInteractions();
   }
@@ -1016,6 +1176,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   before_host_process_sig.AddAction(
     [this](sgp_host_t& host) {
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
+      
       host.GetHardware().LaunchCPU(START_TAG);
     }
   );
@@ -1027,6 +1188,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   } else if (task_env.GetTaskSet().HasTask("not")) {
     not_task_id = task_env.GetTaskSet().GetID("not");
   }
+  
 
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {
