@@ -152,6 +152,15 @@ public:
           return org.GetIntVal();
           };
       }
+      else if (my_config->PHYLOGENY_TAXON_TYPE() == 2) {
+        calc_host_info_fun = [&](Organism& org) {
+          return org.GetTag().GetValue();
+          };
+
+        calc_sym_info_fun = [&](Organism& org) {
+          return org.GetTag().GetValue();
+          };
+      }
 
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
       sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
