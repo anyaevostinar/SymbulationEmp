@@ -1510,6 +1510,209 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
   }
 }
 
+TEST_CASE("Tag-based Phylogeny", "[default]") {
+  emp::Random random(5);
+  SymConfigBase config;
+  config.MUTATION_SIZE(0.1);
+  config.MUTATION_RATE(1);
+  config.PHYLOGENY(1);
+  config.TAG_MATCHING(1);
+  config.PHYLOGENY_TAXON_TYPE(2);
+  config.VERTICAL_TRANSMISSION(0);
+  config.STARTING_TAGS_ONE_PROB(0);
+
+  int int_val = 0;
+  emp::WorldPosition fake_pos = emp::WorldPosition(0, 0);
+  using taxon_info_t = double;
+  using s_taxon_t = emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>;
+  using h_taxon_t = emp::Taxon<taxon_info_t, datastruct::HostTaxonData>;
+
+  SymWorld world(random, &config);
+
+  emp::HammingMetric<TAG_LENGTH> tag_metric = emp::HammingMetric<TAG_LENGTH>();
+
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
+  std::unordered_set< emp::Ptr<s_taxon_t>, emp::Ptr<s_taxon_t>::hash_t>* sym_active = sym_sys->GetActivePtr();
+  std::unordered_set< emp::Ptr<h_taxon_t>, emp::Ptr<h_taxon_t>::hash_t>* host_active = host_sys->GetActivePtr();
+
+  WHEN("A host and symbiont are added to the world") {
+    emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+    emp::BitSet<TAG_LENGTH> zeros_tag = emp::BitSet<TAG_LENGTH>(random, config.STARTING_TAGS_ONE_PROB());
+    parent_host->SetTag(zeros_tag);
+    parent_symbiont->SetTag(zeros_tag);
+
+    world.InjectHost(parent_host);
+    world.InjectSymbiont(parent_symbiont);
+    REQUIRE(parent_host->HasSym());
+
+    // sym int val is only added to taxon data node on Process (to avoid weighing by repro #) 
+    // so update here to ensure it gets tracked
+    world.Update(); 
+
+    THEN("The host is added to the systematic"){
+      REQUIRE(host_active->size() == 1);
+      REQUIRE((*host_active->begin())->GetID() == parent_host->GetTaxon()->GetID());
+      REQUIRE(parent_host->GetTaxon()->GetData().GetIntVal() == int_val);
+    }
+    THEN("The symbiont is added to the systematic") {
+      REQUIRE(sym_active->size() == 1);
+      REQUIRE(sym_active->contains(parent_symbiont->GetTaxon()));
+      REQUIRE(parent_symbiont->GetTaxon()->GetData().GetIntVal() == int_val);
+    }
+
+    WHEN("The symbiont reproduces") {
+      WHEN("The child mutates its tag") {
+        config.TAG_MUTATION_SIZE(0.5);
+        emp::Ptr<Organism> child_symbiont = parent_symbiont->Reproduce();
+        REQUIRE(tag_metric.calculate(child_symbiont->GetTag(), parent_symbiont->GetTag()) > 0);
+        child_symbiont->Process(fake_pos);
+
+        THEN("The child is placed into a different taxon than its parent") {
+          REQUIRE(child_symbiont->GetTaxon()->GetID() != parent_symbiont->GetTaxon()->GetID());
+        }
+        THEN("The child's taxon is the child of its parent's taxon") {
+          REQUIRE(parent_symbiont->GetTaxon()->GetOffspring().contains(child_symbiont->GetTaxon()));
+        }
+        THEN("Their taxa track their interaction values") {
+          REQUIRE(parent_symbiont->GetTaxon()->GetData().GetIntVal() == parent_symbiont->GetIntVal());
+          REQUIRE(child_symbiont->GetTaxon()->GetData().GetIntVal() == child_symbiont->GetIntVal());
+        }
+        child_symbiont.Delete();
+      }
+      WHEN("The child does not mutate its tag") {
+        config.TAG_MUTATION_SIZE(0);
+        emp::Ptr<Organism> child_symbiont = parent_symbiont->Reproduce();
+        REQUIRE(child_symbiont->GetIntVal() != parent_symbiont->GetIntVal());
+        REQUIRE(tag_metric.calculate(child_symbiont->GetTag(), parent_symbiont->GetTag()) == 0);
+
+        WHEN("The child does not call Process"){
+          THEN("The child is placed into the same taxon as its parent") {
+            REQUIRE(child_symbiont->GetTaxon()->GetID() == parent_symbiont->GetTaxon()->GetID());
+          }
+          THEN("Their taxon does not incorporate the child's interaction value") {
+            REQUIRE(child_symbiont->GetTaxon()->GetData().GetIntVal() == parent_symbiont->GetIntVal());
+          }
+        }
+        WHEN("The child calls Process") {
+          child_symbiont->Process(fake_pos);
+
+          THEN("The child is placed into the same taxon as its parent") {
+            REQUIRE(child_symbiont->GetTaxon()->GetID() == parent_symbiont->GetTaxon()->GetID());
+          }
+          THEN("Their taxon incorporates the child's interaction value") {
+            REQUIRE(child_symbiont->GetTaxon()->GetData().GetIntVal() == ((child_symbiont->GetIntVal() + parent_symbiont->GetIntVal()) / 2.0));
+          }
+          THEN("The taxon's mean interaction value is weighed by the process calls of each member") {
+            int child_count = 1;
+            int parent_count = 1;
+            int mean_int_val = -2;
+            int expected_mean_int_val = 2;
+
+            child_symbiont->Process(fake_pos);
+            child_count++;
+            mean_int_val = child_symbiont->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_symbiont->GetIntVal() * child_count + parent_symbiont->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+
+            child_symbiont->Process(fake_pos);
+            child_count++;
+            mean_int_val = child_symbiont->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_symbiont->GetIntVal() * child_count + parent_symbiont->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+
+            world.Update();
+            parent_count++;
+            mean_int_val = child_symbiont->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_symbiont->GetIntVal() * child_count + parent_symbiont->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+          }
+        }
+        
+        child_symbiont.Delete();
+      }
+    }
+
+    WHEN("The host reproduces") {
+      size_t child_pos = 1; 
+      size_t parent_pos = 0;
+
+      WHEN("The child mutates its tag") {
+        config.TAG_MUTATION_SIZE(0.5);
+        emp::Ptr<Organism> child_host = parent_host->Reproduce();
+        world.AddOrgAt(child_host, child_pos, parent_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+        REQUIRE(tag_metric.calculate(child_host->GetTag(), parent_host->GetTag()) > 0);
+
+        child_host->Process(fake_pos);
+
+        THEN("The host is placed into a different taxon than its parent") {
+          REQUIRE(child_host->GetTaxon()->GetID() != parent_host->GetTaxon()->GetID());
+        }
+        THEN("The child's taxon is the child of the host parent's taxon") {
+          REQUIRE(parent_host->GetTaxon()->GetOffspring().contains(child_host->GetTaxon()));
+        }
+        THEN("The child's new taxon tracks its interaction value") {
+          REQUIRE(child_host->GetTaxon()->GetData().GetIntVal() == child_host->GetIntVal());
+        }
+      }
+      
+      WHEN("The child does not mutate its tag") {
+        config.TAG_MUTATION_SIZE(0);
+        emp::Ptr<Organism> child_host = parent_host->Reproduce();
+        world.AddOrgAt(child_host, child_pos, parent_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
+        REQUIRE(tag_metric.calculate(child_host->GetTag(), parent_host->GetTag()) == 0);
+        REQUIRE(parent_host->GetIntVal() != child_host->GetIntVal());
+        
+        WHEN("The child does not call Process") {
+          THEN("The child is placed into the same taxon as its parent") {
+            REQUIRE(child_host->GetTaxon()->GetID() == parent_host->GetTaxon()->GetID());
+          }
+          THEN("Their taxon does not incorporate the child's interaction value") {
+            REQUIRE(child_host->GetTaxon()->GetData().GetIntVal() == parent_host->GetIntVal());
+          }
+        }
+        WHEN("The child calls Process") {
+          child_host->Process(fake_pos);
+
+          THEN("The child is placed into the same taxon as its parent") {
+            REQUIRE(child_host->GetTaxon()->GetID() == parent_host->GetTaxon()->GetID());
+          }
+          THEN("Their taxon incorporates the child's interaction value") {
+            REQUIRE(child_host->GetTaxon()->GetData().GetIntVal() == ((child_host->GetIntVal() + parent_host->GetIntVal()) / 2.0));
+          }
+          THEN("The taxon's mean interaction value is weighed by the process calls of each member") {
+            int child_count = 1;
+            int parent_count = 1;
+            int mean_int_val = -2;
+            int expected_mean_int_val = 2;
+
+            child_host->Process(fake_pos);
+            child_count++;
+            mean_int_val = child_host->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_host->GetIntVal() * child_count + parent_host->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+
+            child_host->Process(fake_pos);
+            child_count++;
+            mean_int_val = child_host->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_host->GetIntVal() * child_count + parent_host->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+
+            world.Update();
+            parent_count++;
+            mean_int_val = child_host->GetTaxon()->GetData().GetIntVal();
+            expected_mean_int_val = (child_host->GetIntVal() * child_count + parent_host->GetIntVal() * parent_count) / (child_count + parent_count);
+            REQUIRE(mean_int_val == expected_mean_int_val);
+          }
+        }
+      }
+    }
+  }
+}
+
 TEST_CASE( "SetMutationZero", "[default]") {
   GIVEN("World first created with all mutation settings at 1") {
     emp::Random random(17);

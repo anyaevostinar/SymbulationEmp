@@ -13,6 +13,16 @@ namespace datastruct {
       using has_mutations_t = std::false_type;
       using has_phen_t = std::false_type;
       using taxon_info_t = double;
+
+      emp::DataNode<double, emp::data::Current, emp::data::Range> int_val;
+
+      void RecordIntVal(double _iv) {
+        int_val.Add(_iv);
+      }
+
+      double GetIntVal() const {
+        return int_val.GetMean();
+      }
   };
 
   struct HostTaxonData : TaxonDataBase {

@@ -638,7 +638,10 @@ public:
    * and to allow for movement
    */
   void Process(emp::WorldPosition location) {
-    //Pop ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
+    // if doing tag-based phylogenies, track int val of this organism
+    if (my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+
+    //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);

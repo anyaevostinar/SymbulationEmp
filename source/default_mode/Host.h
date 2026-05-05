@@ -848,6 +848,9 @@ public:
    * transmission, removing dead syms, and processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
+    // tracking int val for tag phylogenies
+    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+
     size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function
     double desired_resources = my_config->RES_DISTRIBUTE();

@@ -171,6 +171,11 @@ public:
       sym_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>& t) {return std::to_string(t.GetInfo()); }, "info");
       host_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData>& t) {return std::to_string(t.GetInfo()); }, "info");
 
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 2) {
+        sym_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>& t) {return std::to_string(t.GetData().GetIntVal()); }, "mean_int_val");
+        host_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData>& t) {return std::to_string(t.GetData().GetIntVal()); }, "mean_int_val");
+      }
+
       on_placement_sig.AddAction([this](emp::WorldPosition pos) {
         GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
         });
@@ -493,7 +498,7 @@ public:
     //SYMBIONTS have position in the overall world as their ID
     //HOSTS have position in the overall world as their index
 
-    //if the pos it out of bounds, expand the worlds so that they can fit it.
+    //if the pos is out of bounds, expand the worlds so that they can fit it.
     if(pos.GetPopID() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
       if(pos.GetPopID() > pos.GetIndex()) Resize(pos.GetPopID() + 1);
       else Resize(pos.GetIndex() + 1);
