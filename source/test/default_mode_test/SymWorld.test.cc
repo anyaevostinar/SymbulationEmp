@@ -1790,7 +1790,7 @@ TEST_CASE("SetupSymbionts", "[default]") {
             num_added++;
             int ones = sym->GetTag().CountOnes();
             total_ones += ones;
-            REQUIRE(world.GetTagMetric()->calculate(sym->GetTag(), host.GetTag()) == 0);
+            REQUIRE((*world.GetTagMetric())(sym->GetTag(), host.GetTag()) == 0);
           }
         }
         REQUIRE(num_added == num_expected);
@@ -1882,7 +1882,7 @@ TEST_CASE("Tag matching", "[default]") {
         // host tag has 4 1s
         emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) <= tag_distance_limit);
+        REQUIRE((*world.GetTagMetric())(bit_set_0, bit_set_1) <= tag_distance_limit);
 
         symbiont->VerticalTransmission(host);
 
@@ -1900,7 +1900,7 @@ TEST_CASE("Tag matching", "[default]") {
         // host tag has 9 1s
         emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
         host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
+        REQUIRE((*world.GetTagMetric())(bit_set_0, bit_set_1) > tag_distance_limit);
 
         symbiont->VerticalTransmission(host);
 
@@ -1943,7 +1943,7 @@ TEST_CASE("Tag matching", "[default]") {
         // host tag has 4 1s
         emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         target_host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+        REQUIRE((*world.GetTagMetric())(bit_set_0, bit_set_1) == tag_distance_limit);
 
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
         
@@ -1977,7 +1977,7 @@ TEST_CASE("Tag matching", "[default]") {
         // host tag has 4 1s
         emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/8);
         target_host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) == tag_distance_limit);
+        REQUIRE((*world.GetTagMetric())(bit_set_0, bit_set_1) == tag_distance_limit);
 
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
 
@@ -2005,7 +2005,7 @@ TEST_CASE("Tag matching", "[default]") {
         // host tag has 9 1s
         emp::BitSet<TAG_LENGTH> bit_set_1 = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, (TAG_LENGTH/4)+1);
         target_host->SetTag(bit_set_1);
-        REQUIRE(world.GetTagMetric()->calculate(bit_set_0, bit_set_1) > tag_distance_limit);
+        REQUIRE((*world.GetTagMetric())(bit_set_0, bit_set_1) > tag_distance_limit);
 
         symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
 

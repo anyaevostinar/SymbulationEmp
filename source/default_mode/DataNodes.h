@@ -519,7 +519,7 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
             "," << symbionts[j]->GetFromPartnerCount();
           if (my_config->TAG_MATCHING()) {
             out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() << 
-              "," << hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+              "," << (*tag_metric)(pop[i]->GetTag(), symbionts[j]->GetTag());
           }
         }
       }
@@ -565,7 +565,7 @@ void SymWorld::WriteTagMatrixFile(const std::string& filename) {
         if (IsOccupied(i) && pop[i]->HasSym()) {
           emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
           for (size_t j = 0; j < symbionts.size(); j++) {
-            out_file << hamming_metric->calculate(pop[k]->GetTag(), symbionts[j]->GetTag()) << ",";
+            out_file << (*tag_metric)(pop[k]->GetTag(), symbionts[j]->GetTag()) << ",";
           }
         }
       }
@@ -1100,7 +1100,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
           if (pop[i]->HasSym()) {
             emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
             for (size_t j = 0; j < symbionts.size(); j++) {
-              double distance = hamming_metric->calculate(pop[i]->GetTag(), symbionts[j]->GetTag());
+              double distance = (*tag_metric)(pop[i]->GetTag(), symbionts[j]->GetTag());
               data_node_tag_dist->AddDatum(distance);
             }
           }
