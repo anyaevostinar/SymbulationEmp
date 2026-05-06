@@ -183,7 +183,9 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      tag_metric = emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>();
+      if(my_config->TAG_METRIC() == 0) tag_metric = emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>();
+      else if(my_config->TAG_METRIC() == 1) tag_metric = emp::NewPtr<emp::StreakMetric<TAG_LENGTH>>();
+      else if(my_config->TAG_METRIC() == 2) tag_metric = emp::NewPtr<emp::HashMetric<TAG_LENGTH>>();
     }
   }
   

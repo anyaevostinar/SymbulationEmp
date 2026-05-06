@@ -75,6 +75,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(TAG_MATCHING, "Settings for tag matching"),
     VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
+    VALUE(TAG_METRIC, int, 0, "Which tag matching metric should be used to compute distances between tags? (0 for hamming [proportion of bits mismatching], 1 for streak [ratio of continuously matching/mismatching bits], or 2 for hash [arbitrary but consistent difference])"),
     VALUE(TAG_DISTANCE, double, 0.125, "What is the Poisson mean for divergence allowed between tags for a successful infection? (1 = perfect mismatch, 0 = perfect match)"),
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
