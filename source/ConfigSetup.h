@@ -48,7 +48,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
-    VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values, 2 = bitset tag (for tag matching condition)"),
+    VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values, 2 = bitset tag (for tag matching condition), 3 = individual-level"),
 
 
     GROUP(MUTATION, "Mutation"),

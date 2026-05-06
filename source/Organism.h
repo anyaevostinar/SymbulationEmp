@@ -37,6 +37,45 @@ namespace datastruct {
         }
   };
 
+  struct SymbiontTaxonData : TaxonDataBase {
+    size_t lineage_host_switch_count;
+
+    void DetermineHostSwitch(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> host, emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>  host_of_parent) {
+      // check is one host is descended from the other
+      bool switched_hosts = CheckIfInLineage(host, host_of_parent);
+
+      // if not, check it the other way
+      if (switched_hosts) switched_hosts = CheckIfInLineage(host_of_parent, host);
+
+      // if neither host is descended from the other, increment the host switch count
+      if (switched_hosts) lineage_host_switch_count++;
+    }
+
+    /**
+    * Input: The pointer to two host taxa (a symbiont's host and its parent's host)
+    *
+    * Output: A boolean representing whether either host is in the other's ancestry
+    *
+    * Purpose: To determine whether a host switch occurred.
+    */
+    bool CheckIfInLineage(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> host, emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> possible_ancestor) {
+      emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> cur = host;
+      while (cur != nullptr && cur->GetID() != possible_ancestor->GetID() && cur->GetOriginationTime() >= possible_ancestor->GetOriginationTime()) {
+        cur = cur->GetParent();
+      }
+      // true if no parent found or parent found is not the possible ancestor
+      return (cur == nullptr || !(cur->GetID() == possible_ancestor->GetID()));
+    }
+
+    void SetHostSwitch(size_t _in) {
+      lineage_host_switch_count = _in; 
+    }
+
+    size_t GetHostSwitch() const {
+      return lineage_host_switch_count;
+    }
+  };
+
 }
 
 class Organism {
@@ -62,7 +101,7 @@ class Organism {
     throw "Organism method called!";}
 
   virtual double GetIntVal() const {
-    std::cout << "GetIntVal called from Organsim" << std::endl;
+    std::cout << "GetIntVal called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double GetPoints() {
     std::cout << "GetPoints called from Organism" << std::endl;

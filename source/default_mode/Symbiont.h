@@ -200,7 +200,7 @@ public:
    * Purpose: To destruct the symbiont and remove the symbiont from the systematic.
    */
   ~Symbiont() {
-    if(my_config->PHYLOGENY() == 1) {my_world->GetSymSys()->RemoveOrg(my_taxon);}
+    if(my_config->PHYLOGENY() == 1) {my_world->GetSymSys()->RemoveOrg(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());}
   }
 
     /**
@@ -761,7 +761,7 @@ public:
   }
 
   /**
-   * Input: The location of the organism (and it's Host) as a size_t
+   * Input: The location of the organism as a emp::WorldPosition(<index of sym in host +1>, <index of host in world>)
    *
    * Output: None
    *

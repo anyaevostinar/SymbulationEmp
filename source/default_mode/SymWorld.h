@@ -77,7 +77,7 @@ protected:
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::SymbiontTaxonData>> sym_sys;
 
   /**
     *
@@ -160,16 +160,25 @@ public:
 
         calc_sym_info_fun = [&](Organism& org) {
           return org.GetTag().GetValue();
+ 	  };
+      }
+      else if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        calc_host_info_fun = [&](Organism& org) {
+          return (long unsigned) host_sys->GetNextID();
+          };
+
+        calc_sym_info_fun = [&](Organism& org) {
+          return (long unsigned) sym_sys->GetNextID();
           };
       }
 
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>>(GetCalcSymInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_info_t, datastruct::SymbiontTaxonData>>(GetCalcSymInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>& t) {return std::to_string(t.GetInfo()); }, "info");
+      sym_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>& t) {return std::to_string(t.GetInfo()); }, "info");
       host_sys->AddSnapshotFun([](const emp::Taxon<taxon_info_t, datastruct::HostTaxonData>& t) {return std::to_string(t.GetInfo()); }, "info");
 
       if (my_config->PHYLOGENY_TAXON_TYPE() == 2) {
@@ -181,6 +190,14 @@ public:
         GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
         });
 
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        std::function<void(emp::Ptr<emp::Taxon<double, datastruct::SymbiontTaxonData> >, Organism&)> inherit_host_switch =
+          [&](emp::Ptr<emp::Taxon<double, datastruct::SymbiontTaxonData> > taxon, Organism& org) {
+          if (taxon->GetParent()) taxon->GetData().SetHostSwitch(taxon->GetParent()->GetData().GetHostSwitch());
+          else taxon->GetData().SetHostSwitch(0);
+          };
+        sym_sys->OnNew(inherit_host_switch);
+      }
     }
 
     if (my_config->TAG_MATCHING()) {
@@ -344,7 +361,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> GetSymSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::SymbiontTaxonData>> GetSymSys(){
     return sym_sys;
   }
 
@@ -401,7 +418,8 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
+    emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> taxon = 
+      sym_sys->AddOrg(*sym, emp::WorldPosition(0, 0), parent_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>()).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>();
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -808,8 +826,13 @@ public:
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
 
         if(new_index > 0){ //sym successfully infected
-          if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
-            pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+          if (my_config->PHYLOGENY()){
+            if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+              sym_baby->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
+            }
+            if(my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+              pop[new_host_pos]->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>>()->GetData().AddInteraction(sym_baby->GetTaxon());
+            }
           }
           if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()) {
             // if tag mismatch or free failure is on, don't subtract points until we think the infection is successful
@@ -1103,6 +1126,11 @@ public:
   
     // clean up the graveyard
     CleanupGraveyard();
+    
+    if (my_config->PHYLOGENY()) {
+      host_sys->ClearRemoveAfterReproQueue();
+      sym_sys->ClearRemoveAfterReproQueue();
+    }
   } // Update()
 };// SymWorld class
 #endif
