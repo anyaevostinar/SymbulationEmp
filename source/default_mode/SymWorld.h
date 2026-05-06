@@ -191,15 +191,22 @@ public:
 
       on_placement_sig.AddAction([this](emp::WorldPosition pos) {
         GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>>());
+        if(my_config->PHYLOGENY_TAXON_TYPE()==3)GetOrgPtr(pos.GetIndex())->GetTaxon()->GetData().RecordIntVal(GetOrgPtr(pos.GetIndex())->GetIntVal());
         });
 
       if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
-        std::function<void(emp::Ptr<emp::Taxon<double, datastruct::SymbiontTaxonData> >, Organism&)> inherit_host_switch =
+        std::function<void(emp::Ptr<emp::Taxon<double, datastruct::SymbiontTaxonData> >, Organism&)> inherit_parental_data =
           [&](emp::Ptr<emp::Taxon<double, datastruct::SymbiontTaxonData> > taxon, Organism& org) {
           if (taxon->GetParent()) taxon->GetData().SetHostSwitch(taxon->GetParent()->GetData().GetHostSwitch());
           else taxon->GetData().SetHostSwitch(0);
+          taxon->GetData().RecordIntVal(org.GetIntVal());
           };
-        sym_sys->OnNew(inherit_host_switch);
+        sym_sys->OnNew(inherit_parental_data);
+      }
+
+      if (my_config->STORE_EXTINCT()) {
+        sym_sys->SetStoreOutside(true);
+        host_sys->SetStoreOutside(true);
       }
     }
 

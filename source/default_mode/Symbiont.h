@@ -200,7 +200,13 @@ public:
    * Purpose: To destruct the symbiont and remove the symbiont from the systematic.
    */
   ~Symbiont() {
-    if(my_config->PHYLOGENY() == 1) {my_world->GetSymSys()->RemoveOrg(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());}
+    if(my_config->PHYLOGENY() == 1) {
+      my_world->GetSymSys()->RemoveOrg(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());
+      if (my_config->STORE_EXTINCT() && my_taxon->GetOriginationTime() == my_taxon->GetDestructionTime() && my_taxon->GetTotalOffspring() == 0) {
+        my_world->GetSymSys()->outside_taxa.erase(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());
+        my_taxon.Delete();
+      }
+    }
   }
 
     /**
@@ -639,7 +645,7 @@ public:
    */
   void Process(emp::WorldPosition location) {
     // if doing tag-based or individual phylogenies, track int val of this organism
-    if (my_config->PHYLOGENY() && (my_config->PHYLOGENY_TAXON_TYPE() == 2 || my_config->PHYLOGENY_TAXON_TYPE() == 3)) my_taxon->GetData().RecordIntVal(GetIntVal());
+    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
 
     //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont

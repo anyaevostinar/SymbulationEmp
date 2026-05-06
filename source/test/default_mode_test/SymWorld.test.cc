@@ -1809,12 +1809,15 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
     world.Update(); // update 1
     emp::Ptr<Organism> host_2 = host_1->Reproduce();
     emp::WorldPosition host_2_pos = world.DoBirth(host_2, host_1_pos);
+    config.MUTATION_RATE(1);
     symbiont_1->VerticalTransmission(host_2);
+    config.MUTATION_RATE(0);
     emp::Ptr<Organism> symbiont_2 = host_2->GetSymbionts().at(0);
     emp::Ptr< emp::Taxon<double, datastruct::TaxonDataBase>> symbiont_2_taxon = symbiont_2->GetTaxon();
 
     WHEN("A symbiont is vertically transmitted") {
       THEN("It is placed into a new taxon") {
+        REQUIRE(symbiont_2_taxon->GetData().GetIntVal() != symbiont_1_taxon->GetData().GetIntVal());
         REQUIRE(symbiont_2_taxon->GetInfo() != symbiont_1_taxon->GetInfo());
         REQUIRE(symbiont_2_taxon->GetOriginationTime() == 1);
       }
