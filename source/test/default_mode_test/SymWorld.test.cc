@@ -1764,6 +1764,9 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
       // birth and overwriting death happen during update 2
       emp::Ptr<Organism> symbiont_3 = symbiont_2->Reproduce(); // symbionts are added to systematic on Reproduce()
       world.AddOrgAt(symbiont_3, symbiont_1_pos, symbiont_2_pos);
+      world.CleanupGraveyard(); // call Delete() for symbiont 1, which was overwritten in the preceding AddOrgAt call
+                                // destruction time is calculated based on the destructor call for the last org in the taxon
+
       emp::Ptr< emp::Taxon<double, datastruct::TaxonDataBase>> symbiont_3_taxon = symbiont_3->GetTaxon();
 
       world.Update(); // update 3
