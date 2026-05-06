@@ -362,8 +362,8 @@ void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
-  auto & node4 = GetVerticalTransmissionSuccessCount();
-
+  auto & node4 = GetVerticalTransmissionSuccessCount(); 
+  
   file.AddVar(update, "update", "Update");
   //horizontal transmission
   file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.8", "Count for histogram bin for horizontal attempts with int val -1 to <-0.8");
@@ -470,6 +470,7 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
   auto& symbiont_tag_richness = GetSymbiontTagRichness();
   auto& symbiont_tag_shannon = GetSymbiontTagShannonDiversity();
   auto& host_tag_richness = GetHostTagRichness();
+  
 
   file.AddVar(update, "update", "Update");
   file.AddMean(tag_dist_node, "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
@@ -488,6 +489,10 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
   file.AddHistBin(tag_dist_node, 8, "tag_0.9", "Count for tag distance histogram bin 0.8 to <0.9");
   file.AddHistBin(tag_dist_node, 9, "tag_1.0", "Count for tag distance histogram bin 0.9 to 1.0");
   
+  if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
+    auto& host_tag_permissiveness = GetHostTagPermissiveness();
+    file.AddMean(host_tag_permissiveness, "mean_host_permissiveness", "The mean permissiveness of hosts");
+  }
   file.PrintHeaderKeys();
 
   return file;
@@ -505,7 +510,10 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
   out_file << "host_int,sym_int,host_repro_count,host_towards_partner_count,host_from_partner_count," << 
     "sym_repro_count,sym_towards_partner_count,sym_from_partner_count";
-  if (my_config->TAG_MATCHING()) out_file << ",host_tag,sym_tag,tag_distance";
+  if (my_config->TAG_MATCHING()) {
+    out_file << ",host_tag,sym_tag,tag_distance";
+    if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) out_file << ",host_tag_permissiveness";
+  }
   out_file << "\n";
 
   for (size_t i = 0; i < size(); i++) {
@@ -520,6 +528,7 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
           if (my_config->TAG_MATCHING()) {
             out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() << 
               "," << (*tag_metric)(pop[i]->GetTag(), symbionts[j]->GetTag());
+            if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) out_file << "," << pop[i]->GetTagPermissiveness();
           }
         }
       }
@@ -528,6 +537,7 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
           pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << ",,,";
         if (my_config->TAG_MATCHING()) {
           out_file << "," << pop[i]->GetTag().ToBinaryString() << ",,";
+          if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) out_file << "," << pop[i]->GetTagPermissiveness();
         }
       }
       out_file << "\n";
@@ -1111,6 +1121,31 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetTagDistanceDataNode
   data_node_tag_dist->SetupBins(0, 1.1, 11);
   return *data_node_tag_dist;
 }
+
+/**
+ * Input: None
+ *
+ * Output: The DataMonitor<double>& that has the information representing
+ * the average tag permissiveness of hosts.
+ *
+ * Purpose: To retrieve the data nodes that is tracking the
+ * average tag permissiveness of hosts.
+ */
+emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
+  if (!data_node_host_permissiveness) {
+    data_node_host_permissiveness.New();
+    OnUpdate([this](size_t) {
+      data_node_host_permissiveness->Reset();
+      for (size_t i = 0; i < pop.size(); i++) {
+        if (IsOccupied(i)) {
+          data_node_host_permissiveness->AddDatum(pop[i]->GetTagPermissiveness());
+        } //endif
+      } //end for
+    }); //end OnUpdate
+  } //end if
+  return *data_node_host_permissiveness;
+}
+
 
   emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetWithinHostVarianceDataNode() {
     if (!data_node_within_host_variance) {

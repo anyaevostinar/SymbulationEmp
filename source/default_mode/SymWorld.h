@@ -102,6 +102,7 @@ protected:
   emp::Ptr<emp::DataMonitor<double>> data_node_host_from_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_sym_towards_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_sym_from_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_permissiveness;
   emp::Ptr<emp::DataMonitor<int>> data_node_host_tag_richness;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_tag_shannon;
   emp::Ptr<emp::DataMonitor<int>> data_node_symbiont_tag_richness;
@@ -213,6 +214,7 @@ public:
     if (data_node_host_from_partner_rate) data_node_host_from_partner_rate.Delete();
     if (data_node_sym_towards_partner_rate) data_node_sym_towards_partner_rate.Delete();
     if (data_node_sym_from_partner_rate) data_node_sym_from_partner_rate.Delete();
+    if (data_node_host_permissiveness) data_node_host_permissiveness.Delete();
     if (data_node_host_tag_richness) data_node_host_tag_richness.Delete();
     if (data_node_host_tag_shannon) data_node_host_tag_shannon.Delete();
     if (data_node_symbiont_tag_richness) data_node_symbiont_tag_richness.Delete();
@@ -690,6 +692,7 @@ public:
   emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
   emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
   emp::DataMonitor<double>& GetHostFromPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostTagPermissiveness();
   emp::DataMonitor<int>& GetHostTagRichness();
   emp::DataMonitor<double>& GetHostTagShannonDiversity();
   emp::DataMonitor<int>& GetSymbiontTagRichness();
@@ -787,7 +790,8 @@ public:
         bool tag_failed = false;
         if (my_config->TAG_MATCHING()){
           double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * TAG_LENGTH;
-          double cutoff = GetRandom().GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
+          double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? pop[new_host_pos]->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
+          double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
           tag_failed = tag_distance > cutoff;
         }
         if (size_failed || tag_failed) {

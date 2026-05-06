@@ -56,6 +56,13 @@ protected:
   size_t from_partner_count = 0;
 
   /**
+   *
+   * Purpose: Tracks the number of tag flips away from partner in this host's lineage.
+   *
+  */
+  double tag_permissiveness = 0;
+
+  /**
     *
     * Purpose: Represents the set of symbionts belonging to a host.
     * This can be set with SetSymbionts(), and symbionts can be
@@ -151,6 +158,9 @@ public:
     if (interaction_val > 1 || interaction_val < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
+    if (my_config->TAG_MATCHING() && my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
+      tag_permissiveness = my_config->TAG_PERMISSIVENESS();
+    }
    }
 
   /**
@@ -478,6 +488,24 @@ public:
   emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
 
   /**
+  * Input: The tag permissiveness value to set for this host
+  *
+  * Output: None
+  *
+  * Purpose: To set the tag permissiveness value of this host
+  */
+  void SetTagPermissiveness(double _in) { tag_permissiveness = _in; }
+
+  /**
+  * Input: None
+  *
+  * Output: The tag permissiveness value of this host
+  *
+  * Purpose: To get the tag permissiveness value of this host
+  */
+  double GetTagPermissiveness() { return tag_permissiveness; }
+
+  /**
    * Input: None
    *
    * Output: None
@@ -684,7 +712,6 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
-    new_host->SetTag(GetTag());
     return new_host;
   }
 
@@ -697,6 +724,10 @@ public:
    */
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
+    if (my_config->TAG_MATCHING()) {
+      host_baby->SetTag(GetTag());
+      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) host_baby->SetTagPermissiveness(tag_permissiveness);
+    }
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
@@ -737,6 +768,9 @@ public:
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+      if (my_config->TAG_MATCHING() && my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
+        tag_permissiveness += random->GetNormal(0.0, my_config->HOST_TAG_PERMISSIVENESS_MUTATION_SIZE());
+      }
     }
 
     if (my_config->TAG_MATCHING()) {

@@ -228,6 +228,35 @@ TEST_CASE("Host Mutate", "[default]") {
     random.Delete();
 }
 
+TEST_CASE("Host mutate tag permissiveness", "[default]") {
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 1;
+  double tag_permissiveness = 0.125;
+  double tag_permissiveness_mut_size = 0.1;
+
+  config.MUTATION_RATE(1);
+  config.TAG_MATCHING(1);
+  config.HOST_TAG_PERMISSIVENESS_EVOLVES(1);
+  config.HOST_TAG_PERMISSIVENESS_MUTATION_SIZE(tag_permissiveness_mut_size);
+  config.TAG_PERMISSIVENESS(tag_permissiveness);
+
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+
+  WHEN("Host mutate is called") {
+
+    REQUIRE(host->GetTagPermissiveness() == tag_permissiveness);
+    host->Mutate();
+    THEN("Host tag permissiveness is mutated") {
+      REQUIRE(host->GetTagPermissiveness() != tag_permissiveness);
+      REQUIRE(host->GetTagPermissiveness() < tag_permissiveness + tag_permissiveness_mut_size);
+      REQUIRE(host->GetTagPermissiveness() > tag_permissiveness - tag_permissiveness_mut_size);
+    }
+  }
+  host.Delete();
+}
+
 TEST_CASE("DistributeResources", "[default]") {
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(5);
     SymConfigBase config;

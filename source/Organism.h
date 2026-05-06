@@ -150,6 +150,14 @@ class Organism {
     std::cout << "GetFromPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void SetTagPermissiveness(double _in) {
+    std::cout << "SetTagPermissiveness called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual double GetTagPermissiveness() {
+    std::cout << "GetTagPermissiveness called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
   //Symbiont functions
 

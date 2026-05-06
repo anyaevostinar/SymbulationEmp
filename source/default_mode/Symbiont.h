@@ -743,7 +743,8 @@ public:
         sym_baby = Reproduce();
         if (my_config->TAG_MATCHING()) {
           double tag_distance = (*my_world->GetTagMetric())(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
-          double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
+	  double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? host_baby->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
+          double cutoff = random->GetPoisson(permissiveness_mean * TAG_LENGTH);
           if (tag_distance > cutoff) {
             sym_baby.Delete();
             return std::nullopt;
