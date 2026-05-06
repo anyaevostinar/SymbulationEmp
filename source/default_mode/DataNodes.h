@@ -246,7 +246,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
     // interaction_file << "host, symbiont, host_interaction, sym_interaction, count";
     interaction_file << "host, symbiont, count";
 
-    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+    for (emp::Ptr<taxon_t::host_taxon_t> t : host_sys->GetActive()) {
       for (auto interaction : t->GetData().associated_syms) {
         // It feels like there should be a better way to do this, but all the
         // obvious solutions involved converting all these values to the same
@@ -260,7 +260,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
       }
     }
 
-    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetAncestors()) {
+    for (emp::Ptr<taxon_t::host_taxon_t> t : host_sys->GetAncestors()) {
       for (auto interaction : t->GetData().associated_syms) {
         // It feels like there should be a better way to do this, but all the
         // obvious solutions involved converting all these values to the same
@@ -274,7 +274,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
       }
     }
 
-    for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetOutside()) {
+    for (emp::Ptr<taxon_t::host_taxon_t> t : host_sys->GetOutside()) {
       for (auto interaction : t->GetData().associated_syms) {
         // It feels like there should be a better way to do this, but all the
         // obvious solutions involved converting all these values to the same
@@ -334,7 +334,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
  * (including counts of how common each interaction is)
  */
 void SymWorld::MapPhylogenyInteractions() {
-  for (emp::Ptr<emp::Taxon<taxon_info_t, datastruct::HostTaxonData>> t : host_sys->GetActive()) {
+  for (emp::Ptr<taxon_t::host_taxon_t> t : host_sys->GetActive()) {
     t->GetData().ClearInteractions();
   }
 

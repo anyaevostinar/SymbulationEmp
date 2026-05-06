@@ -12,8 +12,6 @@
 
 class Symbiont: public Organism {
 protected:
-
-  using taxon_info_t = SymWorld::taxon_info_t;
   /**
     *
     * Purpose: Represents the interaction value between the host and symbiont.
@@ -109,7 +107,7 @@ protected:
     * Purpose: Tracks the taxon of this organism.
     *
   */
-  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
+  emp::Ptr<taxon_t::base_taxon_t> my_taxon = NULL;
 
   /**
     *
@@ -201,9 +199,9 @@ public:
    */
   ~Symbiont() {
     if(my_config->PHYLOGENY() == 1) {
-      my_world->GetSymSys()->RemoveOrg(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());
+      my_world->GetSymSys()->RemoveOrg(my_taxon.Cast<taxon_t::sym_taxon_t>());
       if (my_config->STORE_EXTINCT() && my_taxon->GetOriginationTime() == my_taxon->GetDestructionTime() && my_taxon->GetTotalOffspring() == 0) {
-        my_world->GetSymSys()->outside_taxa.erase(my_taxon.Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>());
+        my_world->GetSymSys()->outside_taxa.erase(my_taxon.Cast<taxon_t::sym_taxon_t>());
         my_taxon.Delete();
       }
     }
@@ -355,7 +353,7 @@ public:
    *
    * Purpose: To retrieve the symbiont's taxon
    */
-   emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {return my_taxon;}
+   emp::Ptr<taxon_t::base_taxon_t> GetTaxon() {return my_taxon;}
 
    /**
     * Input: A pointer to the taxon that this organism should belong to.
@@ -364,7 +362,7 @@ public:
     *
     * Purpose: To set the symbiont's taxon
     */
-   void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {my_taxon = _in;}
+   void SetTaxon(emp::Ptr<taxon_t::base_taxon_t> _in) {my_taxon = _in;}
 
   //  std::set<int> GetResTypes() const {return res_types;}
 
