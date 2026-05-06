@@ -889,8 +889,8 @@ public:
    * transmission, removing dead syms, and processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
-    // tracking int val for tag phylogenies
-    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+    // tracking int val for tag and individual phylogenies
+    if (my_config->PHYLOGENY() && (my_config->PHYLOGENY_TAXON_TYPE() == 2 || my_config->PHYLOGENY_TAXON_TYPE() == 3)) my_taxon->GetData().RecordIntVal(GetIntVal());
 
     size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function

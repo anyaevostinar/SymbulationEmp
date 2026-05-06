@@ -1524,14 +1524,14 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   int int_val = 0;
   emp::WorldPosition fake_pos = emp::WorldPosition(0, 0);
   using taxon_info_t = double;
-  using s_taxon_t = emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>;
+  using s_taxon_t = emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>;
   using h_taxon_t = emp::Taxon<taxon_info_t, datastruct::HostTaxonData>;
 
   SymWorld world(random, &config);
 
   emp::HammingMetric<TAG_LENGTH> tag_metric = emp::HammingMetric<TAG_LENGTH>();
 
-  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::TaxonDataBase>> sym_sys = world.GetSymSys();
+  emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
   emp::Ptr<emp::Systematics<Organism, taxon_info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
   std::unordered_set< emp::Ptr<s_taxon_t>, emp::Ptr<s_taxon_t>::hash_t>* sym_active = sym_sys->GetActivePtr();
   std::unordered_set< emp::Ptr<h_taxon_t>, emp::Ptr<h_taxon_t>::hash_t>* host_active = host_sys->GetActivePtr();
@@ -1558,7 +1558,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
     }
     THEN("The symbiont is added to the systematic") {
       REQUIRE(sym_active->size() == 1);
-      REQUIRE(sym_active->contains(parent_symbiont->GetTaxon()));
+      REQUIRE(sym_active->contains(parent_symbiont->GetTaxon().Cast<emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>>()));
       REQUIRE(parent_symbiont->GetTaxon()->GetData().GetIntVal() == int_val);
     }
 
