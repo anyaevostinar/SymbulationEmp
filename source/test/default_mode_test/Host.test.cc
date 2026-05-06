@@ -23,7 +23,7 @@ TEST_CASE("Host Constructor", "[default]") {
     
     WHEN("An interaction value < -1 other than -2 is passed") {
       int_val = -1.5;
-      THEN("An excepton is thrown") {
+      THEN("An exception is thrown") {
         REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val));
       }
     }
@@ -231,7 +231,6 @@ TEST_CASE("Host Mutate", "[default]") {
 TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
   SymConfigBase config;
-  SymWorld world(*random, &config);
   double int_val = 1;
 
   config.MUTATION_RATE(1);
@@ -243,9 +242,10 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
   config.MUTATION_RATE(1);
   config.HOST_MUTATION_RATE(0.25);
 
+  SymWorld world(*random, &config);
 
   emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-
+  
   WHEN("Tag permissiveness mutation rate is positive and high") {
     config.HOST_TAG_PERMISSIVENESS_MUTATION_RATE(0.6);
 
@@ -309,12 +309,12 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
     }
   }
   host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
   SymConfigBase config;
-  SymWorld world(*random, &config);
   double int_val = 1;
   double tag_permissiveness = 0.125;
   double tag_permissiveness_mut_size = 0.1;
@@ -324,6 +324,8 @@ TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
   config.HOST_TAG_PERMISSIVENESS_EVOLVES(1);
   config.HOST_TAG_PERMISSIVENESS_MUTATION_SIZE(tag_permissiveness_mut_size);
   config.TAG_PERMISSIVENESS(tag_permissiveness);
+
+  SymWorld world(*random, &config);
 
   emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
 
@@ -338,6 +340,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
     }
   }
   host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("DistributeResources", "[default]") {

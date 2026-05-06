@@ -2581,7 +2581,7 @@ TEST_CASE("SetupHosts", "[default]") {
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 
-        THEN("Tags are randomly initialized as per the starting ones probability"){
+        THEN("Tags are randomly initialized per the starting ones probability"){
           int total_ones = 0;
           for(size_t i = 0; i < num_added; i++){
             int ones = world.GetOrg(i).GetTag().CountOnes();
@@ -2643,6 +2643,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
           REQUIRE(host_baby->GetTagPermissiveness() == host_permissiveness);
           REQUIRE(!host_baby->HasSym());
           REQUIRE(symbiont->GetPoints() == starting_res);
+          host_baby.Delete();
         }
       }
 
@@ -2655,6 +2656,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
           REQUIRE(host_baby->GetTagPermissiveness() == host_permissiveness);
           REQUIRE(host_baby->HasSym());
           REQUIRE(symbiont->GetPoints() < starting_res);
+          host_baby.Delete();
         }
       }
       
