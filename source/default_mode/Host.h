@@ -763,17 +763,24 @@ public:
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
     if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
-
+    
     if(random->GetDouble(0.0, 1.0) <= mutation_rate){
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
-      if (my_config->TAG_MATCHING() && my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
-        tag_permissiveness += random->GetNormal(0.0, my_config->HOST_TAG_PERMISSIVENESS_MUTATION_SIZE());
-      }
+      
     }
 
     if (my_config->TAG_MATCHING()) {
+      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()){
+        double permissiveness_mutation_rate = my_config->HOST_TAG_PERMISSIVENESS_MUTATION_RATE();
+        if (permissiveness_mutation_rate == -1) permissiveness_mutation_rate = mutation_rate;
+
+        if (random->GetDouble(0.0, 1.0) <= permissiveness_mutation_rate) {
+          tag_permissiveness += random->GetNormal(0.0, my_config->HOST_TAG_PERMISSIVENESS_MUTATION_SIZE());
+        }
+      }
+
       tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
     }
   }

@@ -228,7 +228,90 @@ TEST_CASE("Host Mutate", "[default]") {
     random.Delete();
 }
 
-TEST_CASE("Host mutate tag permissiveness", "[default]") {
+TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 1;
+
+  config.MUTATION_RATE(1);
+  config.TAG_MATCHING(1);
+  config.HOST_TAG_PERMISSIVENESS_EVOLVES(1);
+  config.HOST_TAG_PERMISSIVENESS_MUTATION_SIZE(0.6);
+  config.TAG_PERMISSIVENESS(0.125);
+  config.HOST_MUTATION_RATE(-1);
+  config.MUTATION_RATE(1);
+  config.HOST_MUTATION_RATE(0.25);
+
+
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+
+  WHEN("Tag permissiveness mutation rate is positive and high") {
+    config.HOST_TAG_PERMISSIVENESS_MUTATION_RATE(0.6);
+
+    THEN("Tag permissiveness mutates often") {
+      int mutation_count = 0;
+      for (int i = 0; i < 10; i++) {
+        emp::Ptr<Organism> host_baby = host->Reproduce();
+        mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
+        host_baby.Delete();
+      }
+      REQUIRE(mutation_count > 5);
+      REQUIRE(mutation_count < 8);
+    }
+  }
+
+  WHEN("Tag permissiveness mutation rate is positive and low") {
+    config.HOST_TAG_PERMISSIVENESS_MUTATION_RATE(0.1);
+
+    THEN("Tag permissiveness mutates rarely") {
+      int mutation_count = 0;
+      for (int i = 0; i < 10; i++) {
+        emp::Ptr<Organism> host_baby = host->Reproduce();
+        mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
+        host_baby.Delete();
+      }
+      REQUIRE(mutation_count > 0);
+      REQUIRE(mutation_count < 3);
+    }
+  }
+
+  WHEN("Tag permissiveness mutation rate is -1") {
+    config.HOST_TAG_PERMISSIVENESS_MUTATION_RATE(-1);
+
+    WHEN("Host mutation rate is -1") {
+      config.HOST_MUTATION_RATE(-1);
+      config.MUTATION_RATE(0.3);
+
+      THEN("Tag permissiveness mutation rate inherits from mutation rate") {
+        int mutation_count = 0;
+        for (int i = 0; i < 10; i++) {
+          emp::Ptr<Organism> host_baby = host->Reproduce();
+          mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
+          host_baby.Delete();
+        }
+        REQUIRE(mutation_count >= 2);
+        REQUIRE(mutation_count <= 4);
+      }
+    }
+    WHEN("Host mutation rate is positive") {
+      config.HOST_MUTATION_RATE(0.5);
+      THEN("Tag permissiveness mutation rate inherits from host mutation rate") {
+        int mutation_count = 0;
+        for (int i = 0; i < 10; i++) {
+          emp::Ptr<Organism> host_baby = host->Reproduce();
+          mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
+          host_baby.Delete();
+        }
+        REQUIRE(mutation_count >= 4);
+        REQUIRE(mutation_count <= 6);
+      }
+    }
+  }
+  host.Delete();
+}
+
+TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
   SymConfigBase config;
   SymWorld world(*random, &config);
