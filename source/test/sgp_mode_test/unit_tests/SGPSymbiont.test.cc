@@ -95,20 +95,23 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     host->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
     sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
 
-    double initial_host_points = 10.0;
+    double initial_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_STEAL_PROP() * sym_score; 
 
 
 
     WHEN("Parasite steals from host") {
-      host->SetPoints(initial_host_points);
-      double result = world.ApplyNutrientInteraction(*sym, 8.0, not_task_id);
-      // = sym->DoTaskInteraction(sym_score, 0);
+      sym->SetPoints(initial_points);
+      host->SetPoints(initial_points);
+      double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
 
-      THEN("Symbiont receives expected amount and host loses the amount") {
-        REQUIRE(result == (sym_score* config.NUTRIENT_INTERACTION_MULTIPLIER()));
-        REQUIRE(host->GetPoints() == initial_host_points - expected_transfer);
+      
+
+      THEN("Symbiont keep the expected score and host receives the donate amount") {
+        REQUIRE(host_result == -expected_score_remain);
+        REQUIRE(sym_result == expected_score_remain);
       }
     }
   }
@@ -142,20 +145,21 @@ TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp
     host->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
     sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
 
-    double initial_host_points = 10.0;
+    double initial_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_DONATE_PROP() * sym_score;
     WHEN("Mutualist donates to host") {
       config.NUTRIENT_TYPE("mutualist");
-      host->SetPoints(initial_host_points);
-      double result = world.ApplyNutrientInteraction(*sym, 8.0, not_task_id);
+      sym->SetPoints(initial_points);
+      host->SetPoints(initial_points);
+      double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
 
-
-      double expected_score_remain = sym_score - expected_transfer;
+      
 
       THEN("Symbiont keep the expected score and host receives the donate amount") {
-        REQUIRE(result == expected_score_remain);
-        REQUIRE(host->GetPoints() == initial_host_points + expected_transfer);
+        REQUIRE(host_result == expected_score_remain);
+        REQUIRE(sym_result == -expected_score_remain);
       }
     }
   }

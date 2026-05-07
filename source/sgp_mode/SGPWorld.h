@@ -82,16 +82,16 @@ public:
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
-  using fun_calc_host_nutrient_interaction = std::function<double(
-    sgp_sym_t& host,
+  using fun_calc_host_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
     sgp_sym_t&, /* symbiont */
     double,     /* task value before nutrient interaction */
     size_t,     /* task id */
     size_t     /* symbiont count */
   )>;
 
-  using fun_calc_sym_nutrient_interaction = std::function<double(
-    sgp_sym_t& host,
+  using fun_calc_sym_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
     sgp_sym_t&, /* symbiont */
     double,     /* task value before nutrient interaction */
     size_t,     /* task id */
@@ -635,7 +635,7 @@ public:
    * Purpose: To apply the configured nutrient interaction for the given symbiont and task
    */
   double CalcHostNutrientInteraction(
-    sgp_sym_t& host,
+    sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
     size_t task_id,
@@ -650,7 +650,7 @@ public:
    * Purpose: To apply the configured nutrient interaction for the given symbiont and task
    */
   double CalcSymNutrientInteraction(
-    sgp_sym_t& host,
+    sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
     size_t task_id,

@@ -428,13 +428,13 @@ public:
               continue;
             }
 
-            const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(cur_symbiont);
-            bool sym_performed = sym_task_profile.Get(task_id);
-            if(sym_performed){
-              size_t sym_task_point = fun_calc_sym_nutrient_interaction(this,cur_symbiont, task_points, task_id,sym_count);
-              totalPoint += fun_calc_host_nutrient_interaction(this, cur_symbiont, task_points, task_id,sym_count);
-              cur_symbiont->AddPoints(sym_task_point);
-            }
+           // const emp::BitVector& sym_task_profile = my_world->fun_get_sym_task_profile(cur_symbiont);
+           // bool sym_performed = sym_task_profile.Get(task_id);
+           // if(sym_performed){
+             // size_t sym_task_point = my_world->fun_calc_sym_nutrient_interaction(this,cur_symbiont, task_points, task_id,sym_count);
+              //totalPoint += my_world->fun_calc_host_nutrient_interaction(this, cur_symbiont, task_points, task_id,sym_count);
+             // cur_symbiont->AddPoints(sym_task_point);
+           // }
           
         }
       }
@@ -465,9 +465,9 @@ public:
         continue;
       }
 
-      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(cur_symbiont);
-      bool sym_performed = sym_task_profile.Get(task_id);
-      taskCount += sym_performed;
+     // const emp::BitVector& sym_task_profile = my_world->fun_get_sym_task_profile(cur_symbiont);
+      //bool sym_performed = sym_task_profile.Get(task_id);
+      //taskCount += sym_performed;
       
     }
     return taskCount;
