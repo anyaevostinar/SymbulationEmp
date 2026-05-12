@@ -68,6 +68,7 @@ TEST_CASE("Cure Hosts tests", "[default]"){
         }
         //can't check if syms are set to dead due to segmentation violation signal (syms are deleted nothing to point to)
       } // WHEN (run update)
+      world.CleanupGraveyard();
       } // WHEN(Hosts are cured)
 
     WHEN("Host are cured while experiment is running"){
@@ -97,13 +98,7 @@ TEST_CASE("Cure Hosts tests", "[default]"){
         if (config.CURE() && j == num_updates) {
           world.CureHosts();
         }
-        // num_updates + 1, since it takes an update for deaths to process
-        if (j < num_updates + 1) { // syms alive, hosts have pointers to syms
-          for (int i = 0; i < pop_size; i++){
-            REQUIRE(host_vect[i]->HasSym());
-          }
-        }
-        if (j > num_updates + 1) { // syms dead, hosts don't have pointers to syms
+        if (j > num_updates) { // syms dead, hosts don't have pointers to syms
           for (int i = 0; i < pop_size; i++){
             REQUIRE(host_vect[i]->HasSym() == false);
           }

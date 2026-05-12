@@ -18,12 +18,6 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Mutate", "[sgp]") {
 
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
@@ -51,7 +45,9 @@ TEST_CASE("Mutate", "[sgp]") {
     
     REQUIRE(*uninfected_host != *second_host);
   }
-
+  // clean up organisms since they aren't in the world
+  uninfected_host.Delete();
+  second_host.Delete();
 }
 
 // TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit][refactor]") {
@@ -82,6 +78,8 @@ TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
             THEN("The first clone is equal to the second clone"){
                 REQUIRE(*clone1 == *clone2);
             }
+            clone1.Delete();
+            clone2.Delete();
         }
         
         WHEN("A host that is different to the original is created"){
@@ -89,7 +87,9 @@ TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
              THEN("The host is not equal to the different host"){
                 REQUIRE_FALSE(*host == *different);
             }
+            different.Delete();
         }
+        host.Delete();
   }
 }
 
@@ -111,6 +111,8 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
                 REQUIRE(lt);      
             }
         }
+        host.Delete();
+        different.Delete();
     }
 }
 
@@ -130,7 +132,10 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
             THEN("MakeNew produces an identical host"){
                 REQUIRE(*host_remade == *host);
             }
+            host_remade.Delete();
         }
+        host.Delete();
+        
     }
 }
 

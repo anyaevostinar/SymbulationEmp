@@ -80,7 +80,7 @@ TEST_CASE("Mutations occur during reproduction", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
   config.GRID_Y(2);
-  config.SGP_MUT_PER_BIT_RATE(100.0);
+  config.SGP_MUT_PER_BIT_RATE(1.0);
   config.HOST_REPRO_RES(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
@@ -102,7 +102,7 @@ TEST_CASE("Mutations occur during reproduction", "[sgp]") {
 
     THEN("Host offspring is different than parent") {
       REQUIRE(host_baby != *uninfected_host);
-      //host_baby.Delete();
+      org.Delete();
     }
   }
 
