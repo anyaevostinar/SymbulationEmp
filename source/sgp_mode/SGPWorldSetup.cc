@@ -74,6 +74,7 @@ void SGPWorld::Setup() {
   // Setup host and symbiont reproduction
   SetupReproduction();
 
+  SetupHostTaskAwards();
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
@@ -540,6 +541,9 @@ void SGPWorld::SetupStressInteractions() {
   //        Or endosymbionts?
 }
 
+
+
+
 void SGPWorld::SetupNutrientInteractions() {
   emp_assert(sgp_config.ENABLE_NUTRIENT());
   // std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
@@ -686,8 +690,7 @@ void SGPWorld::SetupNutrientInteractions() {
     exit(-1);
   }
 
-
-
+  
 
 
 
@@ -968,6 +971,68 @@ void SGPWorld::SetupSymReproduction() {
   // TODO - anything else to setup here?
 }
 
+void SGPWorld::SetupHostTaskAwards() {
+
+  if(sgp_config.ENABLE_NUTRIENT() == false){
+    fun_apply_host_points = [this](
+      sgp_host_t& host,
+      double task_value_before,
+      size_t task_id
+    ) {
+        host.AddPoints(task_value_before);
+    };
+  }
+  else{
+    fun_apply_host_points = [this](
+      sgp_host_t& host,
+      double task_value_before,
+      size_t task_id
+    ) {
+        int matchCount = 0;
+        emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+        for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+        
+          emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+         // bool dead = cur_symbiont->GetDead();
+          // Skip if dead
+         // if (dead) {
+          //  continue;
+         // }
+
+          const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
+          bool sym_performed = endosym_task_profile.Get(task_id);
+          matchCount += sym_performed;
+          
+        }
+
+        double totalPoint = 0;
+        if(matchCount > 0){
+          for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+        
+            emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+           // bool dead = cur_symbiont->GetDead();
+            // Skip if dead
+           // if (dead) {
+           //   continue;
+           // }
+
+           const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
+           bool sym_performed = endosym_task_profile.Get(task_id);
+           if(sym_performed){
+              size_t sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,matchCount);
+              totalPoint += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,matchCount);
+              cur_symbiont->AddPoints(sym_task_point);
+            }
+          
+        }
+        }
+       
+        host.AddPoints(task_value_before+totalPoint);
+    };
+
+  }
+}
+
 
 void SGPWorld::SetupHostSymInteractions() {
   // std::cout << "Setup Host-symbiont interactions" << std::endl;
@@ -1164,6 +1229,8 @@ void SGPWorld::SetupHostSymInteractions() {
   if (sgp_config.ENABLE_NUTRIENT()) {
     SetupNutrientInteractions();
   }
+
+  SetupHostTaskAwards();
 
 }
 

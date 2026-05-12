@@ -98,6 +98,12 @@ public:
     size_t     /* symbiont count */
   )>;
 
+  using func_apply_host_points_t = std::function<void(
+    sgp_host_t&,
+    double,     /* task value before nutrient interaction */
+    size_t     /* task id */
+  )>;
+
   // using fun_process_endosym_t = std::function<void(
   //   sgp_sym_t&,                /* endosymbiont */
   //   const emp::WorldPosition&, /* sym pos */
@@ -452,6 +458,7 @@ protected:
 
   fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
   fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
+  func_apply_host_points_t fun_apply_host_points; 
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -540,6 +547,7 @@ protected:
   void SetupReproduction();
   void SetupSymReproduction();
   void SetupHostReproduction();
+  void SetupHostTaskAwards();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
@@ -657,6 +665,14 @@ public:
     size_t symCount
   ) {
     return fun_calc_sym_nutrient_interaction(host,sym, task_value_before, task_id,symCount);
+  }
+
+  void ApplyHostPoints(
+     sgp_host_t& host,
+    double task_value_before,
+    size_t task_id
+  ){
+    fun_apply_host_points(host,task_value_before,task_id);
   }
 
 
