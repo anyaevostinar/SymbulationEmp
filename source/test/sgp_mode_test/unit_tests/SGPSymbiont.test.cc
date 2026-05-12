@@ -67,9 +67,9 @@ TEST_CASE("Symbiont > & < operator","[sgp][sgp-unit]"){
   }
 }
 
-TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-functional]") {
+TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp-1][sgp-functional]") {
   // TODO: move to functional folder
-  GIVEN("An SGPWorld with a host infected with a symbiont where Stress is the interaction mechanism"){
+  GIVEN("An SGPWorld with a host infected with a symbiont where Nutrient is the interaction mechanism"){
     emp::Random random(42);
     sgpmode::SymConfigSGP config;
     config.ENABLE_NUTRIENT(true);
@@ -77,7 +77,7 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     config.NUTRIENT_STEAL_PROP(0.5);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.NUTRIENT_TYPE("parasite");
-    config.NUTRIENT_INTERACTION_MULTIPLIER(7.0); 
+    config.NUTRIENT_INTERACTION_MULTIPLIER(1.0); 
     config.PARASITE_BASE_TASK_VALUE_PROP(1.0); 
     world_t world(random, &config);
     world.Setup();
@@ -98,27 +98,28 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     double initial_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_STEAL_PROP() * sym_score; 
-
+    
 
 
     WHEN("Parasite steals from host") {
+      
       sym->SetPoints(initial_points);
       host->SetPoints(initial_points);
       double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
       double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
-
+      
       
 
       THEN("Symbiont keep the expected score and host receives the donate amount") {
-        REQUIRE(host_result == -expected_score_remain);
-        REQUIRE(sym_result == expected_score_remain);
+        REQUIRE(host_result == -expected_transfer);
+        REQUIRE(sym_result == expected_transfer);
       }
     }
   }
 }
 
 //Note, this can't be easily combined with the previous test, because the functor is created at setup, so you can't change the nutrient type on the fly, is that okay for our long term plans?
-TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp-functional]") {
+TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp-1][sgp-functional]") {
   // TODO: move to functional folder
   GIVEN("An SGPWorld with a host infected with a symbiont where Stress is the interaction mechanism"){
     emp::Random random(42);
@@ -154,12 +155,12 @@ TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp
       host->SetPoints(initial_points);
       double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
       double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
-
+      
       
 
       THEN("Symbiont keep the expected score and host receives the donate amount") {
-        REQUIRE(host_result == expected_score_remain);
-        REQUIRE(sym_result == -expected_score_remain);
+        REQUIRE(host_result == expected_transfer);
+        REQUIRE(sym_result == -expected_transfer);
       }
     }
   }
