@@ -68,6 +68,11 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),
   VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give sym credit for one task (whatever they do first)?"),
 
+  GROUP(TEMP_CHANGING_ENVIRONMENT, "Temporally changing environment settings (task rewards change over time)"),
+  VALUE(ENABLE_TEMP_CHANGING_ENVIRONMENT, bool, false, "Do task reward values change over time?"),
+  VALUE(TEMP_CHANGING_ENVIRONMENT_INTERVAL, size_t, 100, "How many updates elapse between task reward value shuffling?"),
+  VALUE(TEMP_CHANGING_ENVIRONMENT_ORG_TYPE, std::string, "static", "Can organisms sense task reward values? (plastic-both: both symbionts and hosts can sense whether tasks are rewarded; plastic-syms: only symbionts can sense whether tasks are rewarded; plastic-hosts: only hosts can sense whether tasks are rewarded; static: neither hosts nor symbiont can sense whether tasks are rewarded)"),
+
   GROUP(DATA, "Data settings"),
   VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")
 )

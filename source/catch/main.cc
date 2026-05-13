@@ -69,6 +69,7 @@
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
 // // #include "../test/sgp_mode_test/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
+#include "../test/sgp_mode_test/unit_tests/TempChangingEnvironments.test.cc"
 
 // Anya's tests
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
