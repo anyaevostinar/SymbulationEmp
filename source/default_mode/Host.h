@@ -9,7 +9,6 @@
 #include "../Organism.h"
 #include "SymWorld.h"
 
-
 class Host: public Organism {
 
 
@@ -710,6 +709,10 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
+    if (my_config->TAG_MATCHING()) {
+      new_host->SetTag(GetTag());
+      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) new_host->SetTagPermissiveness(tag_permissiveness);
+    }
     return new_host;
   }
 
@@ -722,10 +725,7 @@ public:
    */
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
-    if (my_config->TAG_MATCHING()) {
-      host_baby->SetTag(GetTag());
-      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) host_baby->SetTagPermissiveness(tag_permissiveness);
-    }
+    
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
