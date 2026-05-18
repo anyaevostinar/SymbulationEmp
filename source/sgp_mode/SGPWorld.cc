@@ -48,11 +48,9 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     sgp_config.CYCLES_PER_UPDATE()
   );
 
-  // before_host_process_sig.Trigger(host);
 
   host.Process(pos);
 
-  // after_host_process_sig.Trigger(host);
   //check if host is dead at return
   if (host.GetDead()){
     DoDeath(pos);

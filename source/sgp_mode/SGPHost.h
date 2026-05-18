@@ -271,8 +271,7 @@ public:
         *this
       );
     }
-    //TODO AEV: rename before_host_process_sig to before_host_exec_cpu_cycles_sig since that's what it really is
-    my_world->before_host_process_sig.Trigger(*this);
+    my_world->before_host_cpu_exec_sig.Trigger(*this);
 
     // Host may have died as a result of this signal.
     if (GetDead()) {

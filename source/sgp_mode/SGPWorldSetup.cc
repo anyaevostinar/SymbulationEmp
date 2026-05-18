@@ -316,7 +316,7 @@ void SGPWorld::SetupStressInteractions() {
   //        for parasite vs. mutualist (repeated code; only death chance is different)
   if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
     // Use mutualist death chance
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
@@ -349,7 +349,7 @@ void SGPWorld::SetupStressInteractions() {
     if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match") {
       // Parasites that match with their host get to produce escapees regardless
       // of whether host dies
-      before_host_process_sig.AddAction(
+      before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
           // If host has a symbiont, death_chance = parasite death chance
@@ -389,7 +389,7 @@ void SGPWorld::SetupStressInteractions() {
     } else if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match-host-death") {
       // Parasites that match with their host get to produce escapees only when
       // their host dies.
-      before_host_process_sig.AddAction(
+      before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
           // If host has a symbiont, death_chance = parasite death chance
@@ -443,7 +443,7 @@ void SGPWorld::SetupStressInteractions() {
     emp_assert(sgp_config.BASE_DEATH_CHANCE() <= sgp_config.PARASITE_DEATH_CHANCE());
     emp_assert(sgp_config.BASE_DEATH_CHANCE() >= sgp_config.MUTUALIST_DEATH_CHANCE());
     // NOTE - this is implementing assuming 1 host / 1 parasite
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
@@ -517,7 +517,7 @@ void SGPWorld::SetupStressInteractions() {
     );
   } else if (GetStressSymType() == stress_sym_mode_t::NEUTRAL) {
     // Symbionts have no effect on hosts with respect to stress event.
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         // If host has a symbiont, death_chance = mutualist death chance
@@ -1013,7 +1013,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
   // TODO - discuss implications of timing for core launch
   // Launch core if none running.
-  before_host_process_sig.AddAction(
+  before_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
       host.GetHardware().LaunchCPU(START_TAG);
