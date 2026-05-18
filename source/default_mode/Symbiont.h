@@ -9,7 +9,6 @@
 #include <sstream> // stringstream
 #include <optional>
 
-
 class Symbiont: public Organism {
 protected:
   /**
@@ -633,8 +632,9 @@ public:
   }
 
   /**
-   * Input: The size_t representing the location of the symbiont, and the size_t
-   * representation of the symbiont's position in the host (default 0 if it doesn't have a host)
+   * Input: A WorldPosition parameter describing the location of the symbiont; 
+   * ID is where they are in the world, INDEX is where they are in the host's symbiont 
+   * list (or 0 if they're free living).
    *
    * Output: None
    *
@@ -645,7 +645,6 @@ public:
     // if doing tag-based or individual phylogenies, track int val of this organism
     if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
 
-    //ID is where they are in the world, INDEX is where they are in the host's symbiont list (or 0 if they're free living)
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
