@@ -238,21 +238,11 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-      // std::cout << "Host Process" << std::endl;
-      // If host is dead, don't process.
-      if (GetDead()) {
-        return;
-      }
-      // Update host location
-      GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
-      // NOTE - Will symbionts be able to modify host's cycles during *their* executation?
-      //        How do we want to handle that? (modify host's execution on next update?)
-      // NOTE - Will need to update/revist this if we have instruction-mediated interactions
-
-      // Hosts gain baseline number of CPU cycles
-      GetHardware().GetCPUState().GainCPUCycles(
-      my_world->GetConfig().CYCLES_PER_UPDATE() // AEV TODO: using local sgp_config isn't working
-    );
+    // std::cout << "Host Process" << std::endl;
+    // If host is dead, don't process.
+    if (GetDead()) {
+      return;
+    }
 
     // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
     //        Currently endosyms go first and then hosts. This is to model endosyms
@@ -281,8 +271,7 @@ public:
         *this
       );
     }
-
-    
+    my_world->before_host_cpu_exec_sig.Trigger(*this);
 
     // Host may have died as a result of this signal.
     if (GetDead()) {
@@ -323,13 +312,14 @@ public:
       return;
     }
     GrowOlder();
+    my_world->after_host_process_sig.Trigger(*this);
   }
 
   /**
    * Input: None.
-   * 
+   *
    * Output: None.
-   * 
+   *
    * Purpose: To check if host can reproduce and mark repro in progress in CPU state if so.
    * TODO: Perhaps Default mode should have something similar
    */
@@ -346,7 +336,7 @@ public:
       );
       // Mark host hardware as repro in progress, no longer in repro "attempt" state.
       GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-      
+
     } else {
       // Attempt failed, so reset repro state.
       GetHardware().GetCPUState().ResetReproState();
@@ -355,71 +345,71 @@ public:
 
   /**
    * Input: None.
-   * 
+   *
    * Output: None.
-   * 
+   *
    * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
    */
   void ProcessOutputBuffer() {
     // Refactor note: Ported from SGPWorld.cc ProcessHostOutputBuffer
     //AEV TODO: Check which of these we have access to more easily than currently done
     auto& cpu_state = GetHardware().GetCPUState();
-  const size_t env_task_id = cpu_state.GetTaskEnvID();
-  auto& task_env = my_world->GetTaskEnv();
-  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
-  // Process output buffer
-  auto& output_buffer = cpu_state.GetOutputBuffer();
-  for (uint32_t val : output_buffer) {
-    // Is this the correct output for any tasks?
-    if (task_io.IsValidOutput(val)) {
-      // Yes, this output is correct.
-      // Get all task ids associated with this output value
-      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
+    const size_t env_task_id = cpu_state.GetTaskEnvID();
+    auto& task_env = my_world->GetTaskEnv();
+    const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+    // Process output buffer
+    auto& output_buffer = cpu_state.GetOutputBuffer();
+    for (uint32_t val : output_buffer) {
+      // Is this the correct output for any tasks?
+      if (task_io.IsValidOutput(val)) {
+        // Yes, this output is correct.
+        // Get all task ids associated with this output value
+        const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
 
-      // Give credit for completed tasks
-      for (size_t task_id : task_ids) {
-        // Is this a host task?
-        if (!task_env.IsHostTask(task_id)) continue;
-        // Not first task
-        const bool not_first_task = my_world->GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
-        if (not_first_task) {
-          continue;
+        // Give credit for completed tasks
+        for (size_t task_id : task_ids) {
+          // Is this a host task?
+          if (!task_env.IsHostTask(task_id)) continue;
+          // Not first task
+          const bool not_first_task = my_world->GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
+          if (not_first_task) {
+            continue;
+          }
+          // Has this organism already gotten credit with this output on this task?
+          if (cpu_state.OutputCredited(task_id, val)) continue;
+          // Check task requirements
+          auto& task_req_info = task_env.GetHostTaskReq(task_id);
+          if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
+            continue;
+          }
+
+          // Manage CPU state after completing a task:
+          //   (1) Mark task as being performed
+          cpu_state.MarkTaskPerformed(task_id);
+          //   (2) Credit output
+          cpu_state.CreditOutputValue(task_id, val);
+          //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
+          //       for this task in the task io bank.
+          if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+            cpu_state.ResetCreditedOutputs(task_id);
+          }
+          // Calc value, add to organism points
+          SetPoints(
+            task_req_info.fun_calc_task_val(
+              task_env,
+              task_req_info,
+              GetPoints()
+            )
+          );
+
+          my_world->GetHostTaskSuccesses()[task_id] += 1;
+
         }
-        // Has this organism already gotten credit with this output on this task?
-        if (cpu_state.OutputCredited(task_id, val)) continue;
-        // Check task requirements
-        auto& task_req_info = task_env.GetHostTaskReq(task_id);
-        if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
-          continue;
-        }
-
-        // Manage CPU state after completing a task:
-        //   (1) Mark task as being performed
-        cpu_state.MarkTaskPerformed(task_id);
-        //   (2) Credit output
-        cpu_state.CreditOutputValue(task_id, val);
-        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
-        //       for this task in the task io bank.
-        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
-          cpu_state.ResetCreditedOutputs(task_id);
-        }
-        // Calc value, add to organism points
-        SetPoints(
-          task_req_info.fun_calc_task_val(
-            task_env,
-            task_req_info,
-            GetPoints()
-          )
-        );
-
-        my_world->GetHostTaskSuccesses()[task_id] += 1;
-
       }
     }
-  }
 
-  // Clear output buffer
-  output_buffer.clear();
+    // Clear output buffer
+    output_buffer.clear();
   }
 
 
