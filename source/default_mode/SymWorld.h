@@ -217,7 +217,7 @@ public:
     }
 
     if (my_config->TAG_MATCHING()) {
-      if (my_config->UNIFROMICATE_DISTANCES()) {
+      if (my_config->NORMALIZE_TAG_DISTANCES()) {
         if (my_config->TAG_METRIC() == 0) tag_metric = emp::NewPtr<emp::UnifMod<emp::HammingMetric<TAG_LENGTH>>>();
         else if (my_config->TAG_METRIC() == 1) tag_metric = emp::NewPtr<emp::UnifMod<emp::StreakMetric<TAG_LENGTH>>>();
         else if (my_config->TAG_METRIC() == 2) tag_metric = emp::NewPtr<emp::UnifMod<emp::HashMetric<TAG_LENGTH>>>();
