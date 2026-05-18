@@ -47,21 +47,21 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproInProgress());
     REQUIRE(hw.GetCPUState().GetLocation().IsValid());
 
-    // Run organism's hardware for 100 steps
-    hw.RunCPUStep(100);
-    // After 100 updates, the hardware should have flagged a repro attempt.
+    // Run organism's hardware for 200 steps
+    hw.RunCPUStep(200);
+    // After 200 updates, the hardware should have flagged a repro attempt.
     REQUIRE(hw.GetCPUState().ReproAttempt());
     REQUIRE(!hw.GetCPUState().ReproInProgress());
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
-    // Initial program calls IO twice, so there will be 2 things in the output buffer
-    // REQUIRE(output_buffer.size() == 2);
+
     REQUIRE(sgp_host.GetPoints() == 0);
     sgp_host.ProcessOutputBuffer();
-    // Hardware should also have completed a NOT task
+    // Hardware should also have completed NOT task seven times, which is also checking that they 
+    // are able to fully cycle through all possible inputs (they don't do the last one because they need to go back to their first IO to get it)
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     REQUIRE(hw.GetCPUState().GetTaskPerformed(not_task_id));
     REQUIRE(output_buffer.size() == 0);
-    REQUIRE(sgp_host.GetPoints() == 5);
+    REQUIRE(sgp_host.GetPoints() == 5 * 7); // should have done NOT 7 times, 5 points each
 
     // Reset should clear CPU state, etc
     hw.Reset();

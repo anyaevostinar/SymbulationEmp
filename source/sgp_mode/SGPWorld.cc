@@ -37,10 +37,20 @@ void SGPWorld::ProcessOrgsAt(size_t pop_id) {
 // TODO - discuss timing
 // NOTE - DoDeath repeated several times here. Maybe move that check out to ProcessOrgsAt?
 void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
-  before_host_process_sig.Trigger(host);
+  // Update host location
+  host.GetHardware().GetCPUState().SetLocation(pos); // TODO - is this necessary here?
+  // NOTE - Will symbionts be able to modify host's cycles during *their* executation?
+  //        How do we want to handle that? (modify host's execution on next update?)
+  // NOTE - Will need to update/revist this if we have instruction-mediated interactions
+
+  // Hosts gain baseline number of CPU cycles
+  host.GetHardware().GetCPUState().GainCPUCycles(
+    sgp_config.CYCLES_PER_UPDATE()
+  );
+
+
   host.Process(pos);
-  
-  after_host_process_sig.Trigger(host);
+
   //check if host is dead at return
   if (host.GetDead()){
     DoDeath(pos);
