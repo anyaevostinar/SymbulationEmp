@@ -1132,7 +1132,7 @@ void SGPWorld::SetupTaskEnvironment() {
     ) {
       auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
       // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
-      //AssignNewEnvIO(offspring_cpu_state); // This is in OnPlacement now, so should be fine
+      // AssignNewEnvIO(offspring_cpu_state); // This is in OnPlacement now, so should be fine
     }
   );
 
