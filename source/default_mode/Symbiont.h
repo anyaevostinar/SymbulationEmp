@@ -675,7 +675,9 @@ public:
   emp::Ptr<Organism> MakeNew() {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(random, my_world, my_config, GetIntVal());
     new_sym->SetInfectionChance(GetInfectionChance());
-    new_sym->SetTag(GetTag());
+    if (my_config->TAG_MATCHING()) {
+      new_sym->SetTag(GetTag());
+    }
     return new_sym;
   }
 
