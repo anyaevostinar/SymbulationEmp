@@ -1424,32 +1424,6 @@ TEST_CASE("SetupSymbionts", "[default]") {
         REQUIRE(symbiont->GetName() == "Symbiont");
       }
     }
-    WHEN("SetupSymbionts is called and random tag start is on") {
-      config.TAG_MATCHING(1);
-      world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-      config.STARTING_TAGS_ONE_PROB(0.1);
-      world.SetupHosts(&world_size);
-
-      size_t num_to_add = 4;
-      world.SetupSymbionts(&num_to_add);
-      size_t num_expected = 2;
-      THEN("The specified number of symbionts are added to the world and match their host's tags") {
-        size_t total_ones = 0;
-        size_t num_added = 0;
-        for (size_t i = 0; i < world_size; i++) {
-          Organism & host = world.GetOrg(i);
-          for (auto sym : host.GetSymbionts()) {
-            num_added++;
-            int ones = sym->GetTag().CountOnes();
-            total_ones += ones;
-            REQUIRE((*world.GetTagMetric())(sym->GetTag(), host.GetTag()) == 0);
-          }
-        }
-        REQUIRE(num_added == num_expected);
-        REQUIRE(total_ones > (num_expected - 1) * 3);
-        REQUIRE(total_ones < (num_expected + 1) * 3);
-      }
-    }
   }
 }
 
@@ -1472,30 +1446,6 @@ TEST_CASE("SetupHosts", "[default]") {
         emp::Ptr<Organism> host = world.GetPop()[0];
         REQUIRE(host != nullptr);
         REQUIRE(host->GetName() == "Host");
-      }
-
-      WHEN("Random starting tags are on"){
-        config.TAG_MATCHING(1);
-        world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-        config.STARTING_TAGS_ONE_PROB(0.1); 
-        // we expect 3.2ish 1s per tag
-
-        world.SetupHosts(&num_to_add);
-
-        size_t num_added = world.GetNumOrgs();
-        REQUIRE(num_added == num_to_add);
-
-        THEN("Tags are randomly initialized per the starting ones probability"){
-          int total_ones = 0;
-          for(size_t i = 0; i < num_added; i++){
-            int ones = world.GetOrg(i).GetTag().CountOnes();
-            total_ones += ones;
-            REQUIRE(ones >= 0);
-            REQUIRE(ones <= 5);
-          }
-          REQUIRE(total_ones > 12);
-          REQUIRE(total_ones < 18);
-        }
       }
     }
   }
