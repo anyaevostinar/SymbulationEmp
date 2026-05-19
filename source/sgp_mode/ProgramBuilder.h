@@ -291,7 +291,18 @@ public:
     program_t program; // Create empty program
     // Add start anchor
     AddStartAnchor(program);
-    AddTask_Not(program); // Add not task
+    // Add instructions manually so that repeated nots play nice with task crediting
+    //   Add a not implementation that properly cycles the input buffer
+    //   so that when it executes this multiple times, it performs a not with
+    //   each value in the input buffer.
+    AddInst(program, io_op);
+    AddInst(program, nand_op);
+    AddInst(program, io_op);
+    AddInst(program, nand_op);
+    AddInst(program, io_op);
+    AddInst(program, nand_op);
+    AddInst(program, io_op);
+    AddInst(program, nand_op);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
