@@ -269,13 +269,13 @@ public:
   )> after_host_do_birth_sig;
 
   // ---- Host process signals / functors ----
-  // before_host_process_sig - Triggers in ProcessHostAt()
+  // before_host_cpu_exec_sig - Triggers in ProcessHostAt()
   //  Triggers before running the host's CPU / after updating host location.
   //  Host is not guaranteed to still be alive if prior actions attached to this signal
   //  kill the host.
   emp::Signal<void(
     sgp_host_t&
-  )> before_host_process_sig;
+  )> before_host_cpu_exec_sig;
 
   // after_host_process_sig - Triggers in ProcessHostAt()
   //  Triggers at end of ProcessHostAt. There is one final check for death after
@@ -545,7 +545,7 @@ protected:
     after_sym_vert_transmission_sig.Clear();
     before_host_do_birth_sig.Clear();
     after_host_do_birth_sig.Clear();
-    before_host_process_sig.Clear();
+    before_host_cpu_exec_sig.Clear();
     after_host_process_sig.Clear();
     after_host_cpu_step_sig.Clear();
     before_freeliving_sym_process_sig.Clear();
