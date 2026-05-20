@@ -40,6 +40,7 @@ using Library = sgpl::OpLibrary<
   inst::Donate,
   inst::Steal,
   inst::Infect,
+  inst::SenseTask,
   sgpl::global::Anchor
 >;
 
@@ -50,6 +51,7 @@ namespace lib_info {
     {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
     {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
     {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3},
+    {"SenseTask", 1}, 
     {"IO", 1}, {"JumpIfNEq", 2}, {"JumpIfEq", 2}, {"JumpIfLess", 2}
   };
 }
