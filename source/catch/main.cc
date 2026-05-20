@@ -54,7 +54,7 @@
 // Alex fork tests, some updates needed?
 // // #include "../test/sgp_mode_test/ProgramBuilder.test.cc"
 // #include "../test/sgp_mode_test/SGPHardware.test.cc"
-// #include "../test/sgp_mode_test/Instructions.test.cc"
+#include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
 // // #include "../test/sgp_mode_test/SGPHost.test.cc"
 
 // // #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
