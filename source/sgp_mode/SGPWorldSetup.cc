@@ -92,7 +92,6 @@ void SGPWorld::Setup() {
     // on setup, set NAND, AND-NOT, OR-NOT to be negative (at update zero)
     // then during each interval apply *-1 to the changing tasks
 
-    // *-1 NAND
     size_t nand_task_id = task_env.GetTaskSet().GetSize();
     if (task_env.GetTaskSet().HasTask("NAND")) {
       nand_task_id = task_env.GetTaskSet().GetID("NAND");
@@ -100,10 +99,7 @@ void SGPWorld::Setup() {
     else if (task_env.GetTaskSet().HasTask("nand")) {
       nand_task_id = task_env.GetTaskSet().GetID("nand");
     }
-    GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
-    GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
 
-    // *-1 AND_NOT
     size_t andn_task_id = task_env.GetTaskSet().GetSize();
     if (task_env.GetTaskSet().HasTask("AND_NOT")) {
       andn_task_id = task_env.GetTaskSet().GetID("AND_NOT");
@@ -111,10 +107,8 @@ void SGPWorld::Setup() {
     else if (task_env.GetTaskSet().HasTask("and_not")) {
       andn_task_id = task_env.GetTaskSet().GetID("and_not");
     }
-    GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
-    GetTaskEnv().GetSymTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(andn_task_id).task_value;
+    
 
-    // *-1 OR_NOT
     size_t orn_task_id = task_env.GetTaskSet().GetSize();
     if (task_env.GetTaskSet().HasTask("OR_NOT")) {
       orn_task_id = task_env.GetTaskSet().GetID("OR_NOT");
@@ -122,8 +116,7 @@ void SGPWorld::Setup() {
     else if (task_env.GetTaskSet().HasTask("or_not")) {
       orn_task_id = task_env.GetTaskSet().GetID("or_not");
     }
-    GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
-    GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
+    
 
     // grab task ids for NOT, AND, OR
     size_t not_task_id = task_env.GetTaskSet().GetSize();
@@ -149,9 +142,20 @@ void SGPWorld::Setup() {
     else if (task_env.GetTaskSet().HasTask("or")) {
       or_task_id = task_env.GetTaskSet().GetID("or");
     }
+    
+    // update 0 will flip not-and-or to rewarded and nand-andn-orn to punished
+    GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
+    
+    GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
+    
+    GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
+
     begin_update_sig.AddAction(
       [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id]() {
-        if (GetUpdate() == sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL()) {
+        if (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0) {
           GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
           GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
           GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
