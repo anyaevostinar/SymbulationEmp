@@ -832,8 +832,9 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
     WHEN("A host runs a task which is rewarded and then the SenseTask instruction") {
       program_t host_program;
       prog_builder.AddStartAnchor(host_program);
+      prog_builder.AddInst(host_program, "IO", 0);
       prog_builder.AddTask_Not(host_program);
-      prog_builder.AddInst(host_program, "SenseTask");
+      prog_builder.AddInst(host_program, "SenseTask", 0, 1);
       host_hw.Reset();
       host_hw.SetProgram(host_program);
       world.AssignNewEnvIO(host_hw.GetCPUState());
@@ -844,28 +845,26 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
       
       host_hw.SetRegisters({3, 2, 5}); // Initial register values
 
-      THEN("SenseTask puts a 1 into register 0"){
+      THEN("SenseTask puts a 1 into register 1"){
         // Run host program
         host_hw.RunCPUStep(1); // Anchor
-        host_hw.RunCPUStep(1); // NOT io   r0 // puts input1 into a
-        REQUIRE(host_hw.GetRegister(0) == 3165823790);
+        REQUIRE(host_hw.GetRegister(0) == 3);
         REQUIRE(host_hw.GetRegister(1) == 2);
         REQUIRE(host_hw.GetRegister(2) == 5);
 
+        host_hw.RunCPUStep(1); // io   r0 // puts input1 into a
+        REQUIRE(host_hw.GetRegister(0) == 3165823790);
+        REQUIRE(host_hw.GetRegister(1) == 2);
+        REQUIRE(host_hw.GetRegister(2) == 5);
         
-        host_hw.RunCPUStep(1); // NOT nand r0, r0, r0 
+        host_hw.RunCPUStep(1); // nand r0, r0, r0 
         REQUIRE(host_hw.GetRegister(0) == 1129143505); 
         REQUIRE(host_hw.GetRegister(1) == 2);
         REQUIRE(host_hw.GetRegister(2) == 5);
 
-        host_hw.RunCPUStep(1); // NOT io   r0 // puts input2 into a, pushes notinput1 to the output buffer 
-        REQUIRE(host_hw.GetRegister(0) == 2437641460);
-        REQUIRE(host_hw.GetRegister(1) == 2);
-        REQUIRE(host_hw.GetRegister(2) == 5);
-
-        host_hw.RunCPUStep(1); // SenseTask // puts  1 into a
-        REQUIRE(host_hw.GetRegister(0) == 1);
-        REQUIRE(host_hw.GetRegister(1) == 2);
+        host_hw.RunCPUStep(1); // SenseTask r0 r1 // puts 1 into b
+        REQUIRE(host_hw.GetRegister(0) == 1129143505);
+        REQUIRE(host_hw.GetRegister(1) == 1);
         REQUIRE(host_hw.GetRegister(2) == 5);
       }
     }  
@@ -873,8 +872,10 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
     WHEN("A host runs a task which is punished and then the SenseTask instruction") {
       program_t host_program;
       prog_builder.AddStartAnchor(host_program);
+      prog_builder.AddInst(host_program, "IO", 0);
+      prog_builder.AddInst(host_program, "IO", 1);
       prog_builder.AddTask_Nand(host_program);
-      prog_builder.AddInst(host_program, "SenseTask");
+      prog_builder.AddInst(host_program, "SenseTask", 0, 1);
       host_hw.Reset();
       host_hw.SetProgram(host_program);
       world.AssignNewEnvIO(host_hw.GetCPUState());
@@ -885,32 +886,31 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
       
       host_hw.SetRegisters({7, 12, 9}); // Initial register values
 
-      THEN("SenseTask puts a 0 into register 0"){
+      THEN("SenseTask puts a 0 into register 1"){
         // Run host program
         host_hw.RunCPUStep(1); // Anchor
-        host_hw.RunCPUStep(1); // NAND  io   r0 // puts input1 into a
+        REQUIRE(host_hw.GetRegister(0) == 7);
+        REQUIRE(host_hw.GetRegister(1) == 12);
+        REQUIRE(host_hw.GetRegister(2) == 9);
+
+        host_hw.RunCPUStep(1); //  io   r0 // puts input1 into a
         REQUIRE(host_hw.GetRegister(0) == 3165823790); 
         REQUIRE(host_hw.GetRegister(1) == 12);
         REQUIRE(host_hw.GetRegister(2) == 9);
 
-        host_hw.RunCPUStep(1); // NAND  io   r1 // puts input2 into b
+        host_hw.RunCPUStep(1); //  io   r1 // puts input2 into b
         REQUIRE(host_hw.GetRegister(0) == 3165823790);  
         REQUIRE(host_hw.GetRegister(1) == 2437641460);   
         REQUIRE(host_hw.GetRegister(2) == 9);            
   
-        host_hw.RunCPUStep(1); // NAND  nand r0, r1, r0 // put nand into a
+        host_hw.RunCPUStep(1); //  nand r0, r1, r0 // put nand into a
         REQUIRE(host_hw.GetRegister(0) == 1878908891);  
         REQUIRE(host_hw.GetRegister(1) == 2437641460);
         REQUIRE(host_hw.GetRegister(2) == 9);
 
-        host_hw.RunCPUStep(1); // NAND  io   r0 // push a to output buffer, grad input3 and put it in a
-        REQUIRE(host_hw.GetRegister(0) == 397086686); 
-        REQUIRE(host_hw.GetRegister(1) == 2437641460);
-        REQUIRE(host_hw.GetRegister(2) == 9);
-
-        host_hw.RunCPUStep(1); // SenseTask // puts 0 into a
-        REQUIRE(host_hw.GetRegister(0) == 0); 
-        REQUIRE(host_hw.GetRegister(1) == 2437641460);
+        host_hw.RunCPUStep(1); // SenseTask r0 r1 // puts 0 into b
+        REQUIRE(host_hw.GetRegister(0) == 1878908891); 
+        REQUIRE(host_hw.GetRegister(1) == 0);
         REQUIRE(host_hw.GetRegister(2) == 9);
       }
     }
@@ -918,8 +918,9 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
     WHEN("A symbiont runs a task which is rewarded and then the SenseTask instruction"){
       program_t sym_program;
       prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "IO", 0);
       prog_builder.AddTask_Not(sym_program);
-      prog_builder.AddInst(sym_program, "SenseTask");
+      prog_builder.AddInst(sym_program, "SenseTask", 0, 1);
       sym_hw.Reset();
       sym_hw.SetProgram(sym_program);
       world.AssignNewEnvIO(sym_hw.GetCPUState());
@@ -929,32 +930,27 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
       REQUIRE(sgp_host.IsHost());
       
       sym_hw.SetRegisters({3, 2, 5}); // Initial register values
-      REQUIRE(sym_hw.GetRegister(0) == 3);
-      REQUIRE(sym_hw.GetRegister(1) == 2);
-      REQUIRE(sym_hw.GetRegister(2) == 5);
 
-      THEN("SenseTask puts a 1 into register 0"){
-  
+      THEN("SenseTask puts a 1 into register 1"){
+        // Run symbiont program
         sym_hw.RunCPUStep(1); // Anchor
-        sym_hw.RunCPUStep(1); // NOT io   r0 // puts input1 into a
+        REQUIRE(sym_hw.GetRegister(0) == 3);
+        REQUIRE(sym_hw.GetRegister(1) == 2);
+        REQUIRE(sym_hw.GetRegister(2) == 5);
+        
+        sym_hw.RunCPUStep(1); // io   r0 // puts input1 into a
         REQUIRE(sym_hw.GetRegister(0) == 3165823790);
         REQUIRE(sym_hw.GetRegister(1) == 2);
         REQUIRE(sym_hw.GetRegister(2) == 5);
 
-        
-        sym_hw.RunCPUStep(1); // NOT nand r0, r0, r0 
+        sym_hw.RunCPUStep(1); // nand r0, r0, r0 
         REQUIRE(sym_hw.GetRegister(0) == 1129143505); 
         REQUIRE(sym_hw.GetRegister(1) == 2);
         REQUIRE(sym_hw.GetRegister(2) == 5);
 
-        sym_hw.RunCPUStep(1); // NOT io   r0 // puts input2 into a, pushes notinput1 to the output buffer 
-        REQUIRE(sym_hw.GetRegister(0) == 2437641460);
-        REQUIRE(sym_hw.GetRegister(1) == 2);
-        REQUIRE(sym_hw.GetRegister(2) == 5);
-
-        sym_hw.RunCPUStep(1); // SenseTask // puts  1 into a
-        REQUIRE(sym_hw.GetRegister(0) == 1);
-        REQUIRE(sym_hw.GetRegister(1) == 2);
+        sym_hw.RunCPUStep(1); // SenseTask r0 r1 // puts  1 into b
+        REQUIRE(sym_hw.GetRegister(0) == 1129143505);
+        REQUIRE(sym_hw.GetRegister(1) == 1);
         REQUIRE(sym_hw.GetRegister(2) == 5);
       }
     }
@@ -962,8 +958,10 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
     WHEN("A symbiont runs a task which is punished and then the SenseTask instruction") {
       program_t sym_program;
       prog_builder.AddStartAnchor(sym_program);
+      prog_builder.AddInst(sym_program, "IO", 0);
+      prog_builder.AddInst(sym_program, "IO", 1);
       prog_builder.AddTask_Nand(sym_program);
-      prog_builder.AddInst(sym_program, "SenseTask");
+      prog_builder.AddInst(sym_program, "SenseTask", 0, 1);
       sym_hw.Reset();
       sym_hw.SetProgram(sym_program);
       world.AssignNewEnvIO(sym_hw.GetCPUState());
@@ -974,32 +972,31 @@ TEST_CASE("Test SenseTask instruction", "[sgp]"){
       
       sym_hw.SetRegisters({7, 12, 9}); // Initial register values
 
-      THEN("SenseTask puts a 0 into register 0"){
+      THEN("SenseTask puts a 0 into register 1"){
         // Run symbiont program
         sym_hw.RunCPUStep(1); // Anchor
-        sym_hw.RunCPUStep(1); // NAND  io   r0 // puts input1 into a
+        REQUIRE(sym_hw.GetRegister(0) == 7);
+        REQUIRE(sym_hw.GetRegister(1) == 12);
+        REQUIRE(sym_hw.GetRegister(2) == 9);
+
+        sym_hw.RunCPUStep(1); //  io   r0 // puts input1 into a
         REQUIRE(sym_hw.GetRegister(0) == 3165823790); 
         REQUIRE(sym_hw.GetRegister(1) == 12);
         REQUIRE(sym_hw.GetRegister(2) == 9);
 
-        sym_hw.RunCPUStep(1); // NAND  io   r1 // puts input2 into b
+        sym_hw.RunCPUStep(1); //  io   r1 // puts input2 into b
         REQUIRE(sym_hw.GetRegister(0) == 3165823790);   
         REQUIRE(sym_hw.GetRegister(1) == 2437641460);  
         REQUIRE(sym_hw.GetRegister(2) == 9);            
 
-        sym_hw.RunCPUStep(1); // NAND  nand r0, r1, r0 // put nand into a
+        sym_hw.RunCPUStep(1); //  nand r0, r1, r0 // put nand into a
         REQUIRE(sym_hw.GetRegister(0) == 1878908891); 
         REQUIRE(sym_hw.GetRegister(1) == 2437641460);
         REQUIRE(sym_hw.GetRegister(2) == 9);
 
-        sym_hw.RunCPUStep(1); // NAND  io   r0 // push a to output buffer, grad input3 and put it in a
-        REQUIRE(sym_hw.GetRegister(0) == 397086686); 
-        REQUIRE(sym_hw.GetRegister(1) == 2437641460);
-        REQUIRE(sym_hw.GetRegister(2) == 9);
-
-        sym_hw.RunCPUStep(1); // SenseTask // puts 0 into a
-        REQUIRE(sym_hw.GetRegister(0) == 0); 
-        REQUIRE(sym_hw.GetRegister(1) == 2437641460);
+        sym_hw.RunCPUStep(1); // SenseTask r0 r1 // puts 0 into b
+        REQUIRE(sym_hw.GetRegister(0) == 1878908891); 
+        REQUIRE(sym_hw.GetRegister(1) == 0);
         REQUIRE(sym_hw.GetRegister(2) == 9);
       }
     }

@@ -241,7 +241,7 @@ void SGPWorld::SetupOrgMode() {
 
   // if temporally changing environment are off, or if organisms aren't allowed to sense their environment, 
   // disable the SenseTask instruction
-  if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT()){// || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
+  if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
     del_inst(
       opcode_rectifier.mapper.begin(),
       opcode_rectifier.mapper.end(),
