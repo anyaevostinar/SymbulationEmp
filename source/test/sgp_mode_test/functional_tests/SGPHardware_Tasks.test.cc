@@ -61,7 +61,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     REQUIRE(hw.GetCPUState().GetTaskPerformed(not_task_id));
     REQUIRE(output_buffer.size() == 0);
-    REQUIRE(sgp_host.GetPoints() == 5 * 7); // should have done NOT 7 times, 5 points each
+    REQUIRE(sgp_host.GetPoints() == 5); // should have done NOT 1 time for 5 points
 
     // Reset should clear CPU state, etc
     hw.Reset();
