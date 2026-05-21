@@ -58,7 +58,7 @@ TEST_CASE("Temporally changing environment test", "[sgp]") {
       program_t sym_NOT_program;
       builder.AddStartAnchor(sym_NOT_program);
       for (int i = 0; i < 100; i++) {
-        builder.AddTask_Not(sym_NOT_program);
+        builder.AddTask_NotIO(sym_NOT_program);
       }
       sym_NOT_program.resize(100 - 1);
       emp::Ptr<sgp_sym_t> symbiont_not_only = emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_NOT_program);
@@ -67,7 +67,7 @@ TEST_CASE("Temporally changing environment test", "[sgp]") {
       program_t host_NOT_program;
       builder.AddStartAnchor(host_NOT_program);
       for (int i = 0; i < 100; i++) {
-        builder.AddTask_Not(host_NOT_program);
+        builder.AddTask_NotIO(host_NOT_program);
       }
       host_NOT_program.resize(100 - 1);
       emp::Ptr<sgp_host_t> host_not_only = emp::NewPtr<sgp_host_t>(&random, &world, &config, host_NOT_program);
@@ -107,7 +107,7 @@ TEST_CASE("Temporally changing environment test", "[sgp]") {
       program_t sym_NAND_program;
       builder.AddStartAnchor(sym_NAND_program);
       for (int i = 0; i < 100; i++) {
-        builder.AddTask_Nand(sym_NAND_program);
+        builder.AddTask_NandIO(sym_NAND_program);
       }
       sym_NAND_program.resize(100 - 1);
       emp::Ptr<sgp_sym_t> symbiont_nand_only = emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_NAND_program);
@@ -116,7 +116,7 @@ TEST_CASE("Temporally changing environment test", "[sgp]") {
       program_t host_ORNOT_program;
       builder.AddStartAnchor(host_ORNOT_program);
       for (int i = 0; i < 100; i++) {
-        builder.AddTask_OrNot(host_ORNOT_program);
+        builder.AddTask_OrNotIO(host_ORNOT_program);
       }
       host_ORNOT_program.resize(100 - 1);
       emp::Ptr<sgp_host_t> host_orn_only = emp::NewPtr<sgp_host_t>(&random, &world, &config, host_ORNOT_program);
