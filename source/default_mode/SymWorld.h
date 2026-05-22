@@ -938,13 +938,9 @@ public:
       auto & host_syms = pop[i]->GetSymbionts();
       for(size_t j = 0; j < host_syms.size(); j++){
         host_syms[j]->SetDead();
-<<<<<<< HEAD
-      }
-=======
         SendToGraveyard(host_syms[j]);
       }
       pop[i]->ClearSyms(); //TODO: should clear syms just handle setting dead and to graveyard?
->>>>>>> main
     }    
   }
 
