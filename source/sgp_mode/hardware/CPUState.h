@@ -169,7 +169,7 @@ public:
     location = loc;
   }
   const emp::WorldPosition& GetLocation() const { return location; }
-
+  
   void SetCPUCyclesToExec(size_t num) {
     cpu_cycles_to_exec = num;
   }

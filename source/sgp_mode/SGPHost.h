@@ -306,7 +306,7 @@ public:
     my_world->after_host_cpu_exec_sig.Trigger(*this);
     // Handle any endosymbionts (configurable at setup-time)
     // NOTE - is there any reason that this might need to be a functor?
-    my_world->ProcessEndosymbionts(*this);
+    ProcessEndosymbionts();
     // Endosymbionts might kill host.
     if (GetDead()) {
       return;
@@ -314,6 +314,49 @@ public:
     GrowOlder();
     my_world->after_host_process_sig.Trigger(*this);
   }
+
+  void ProcessEndosymbionts() {
+  // If host doesn't have a symbiont, return.
+  if (!HasSym()) {
+    return;
+  }
+  emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+  size_t sym_count = syms.size();
+  for (size_t sym_i = 0; sym_i < sym_count; /*sym_i handled internally*/) {
+    emp_assert(!(syms[sym_i]->IsHost()));
+    // If host is dead (e.g., because of previous symbiont), stop processing.
+    if (GetDead()) {
+      return;
+    }
+    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_i].Raw());
+    const bool dead = cur_symbiont->GetDead();
+    if (!dead) {
+      // Symbiont not dead, process it
+      // TODO - change to functor?
+      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
+      my_world->ProcessEndosymbiont(
+        {sym_i + 1, GetLocation().GetIndex()},
+        *cur_symbiont,
+        *this
+      );
+      ++sym_i;
+    } else {
+      // TODO: this should probably be it's own function to abstract this logic and share it other places
+      emp_assert(sym_count > 0);
+      // TODO - Check that it is okay to re-order symbionts to avoid erase calls
+      // Symbiont is dead, need to delete it.
+      cur_symbiont.Delete();
+      // Swap this symbiont with last in list, decrementing sym_count
+      std::swap(syms[sym_i], syms[--sym_count]);
+      // We will need to process what we just swapped into place, so
+      // re-process sym_i (don't increment it)
+    }
+  }
+  // Resize syms to remove deleted dead symbionts swapped to end
+  emp_assert(sym_count <= syms.size());
+  syms.resize(sym_count);
+  // TODO - signal?
+}
 
   /**
    * Input: None.

@@ -381,7 +381,7 @@ public:
   void EndosymAttemptRepro(
     const emp::WorldPosition& pos,
     sgp_sym_t& sym,
-    sgp_host_t& host
+    emp::Ptr<Organism> host
   );
 
   void FreeLivingSymAttemptRepro(
@@ -631,6 +631,32 @@ public:
     return fun_apply_nutrient_interaction(sym, task_value_before, task_id);
   }
 
+  void TriggerBeforeEndoSymProcessSig(
+    const emp::WorldPosition& sym_pos,
+    sgp_sym_t& sym,
+    emp::Ptr<Organism> host
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    before_endosym_host_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+  }
+
+  void TriggerAfterEndosymCPUStepSig(
+    const emp::WorldPosition& sym_pos,
+    sgp_sym_t& sym,
+    emp::Ptr<Organism> host
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    after_endosym_cpu_step_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+  }
+
+  void TriggerAfterEndosymCPUExecSig(
+    const emp::WorldPosition& sym_pos,
+    sgp_sym_t& sym,
+    emp::Ptr<Organism> host
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+  }
 
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
