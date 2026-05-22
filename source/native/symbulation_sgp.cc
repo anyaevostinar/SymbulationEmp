@@ -36,7 +36,7 @@ int symbulation_main(int argc, char *argv[]) {
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
-  world.Run();
+  world.Run(true);
 
   return 0;
 }
