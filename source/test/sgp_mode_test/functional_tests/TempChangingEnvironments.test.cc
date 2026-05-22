@@ -107,7 +107,7 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
     }
     sym_NOT_program.resize(20 - 1);
     emp::Ptr<sgp_sym_t> symbiont_not_only = emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_NOT_program);
-    emp::Ptr<sgp_host_t> host_not_only = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_host_t> host_not_only = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
 
     // add organisms to world
     host_not_only->AddSymbiont(symbiont_not_only);
