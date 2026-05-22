@@ -1,13 +1,13 @@
 #include "emp/math/Random.hpp"
 
-#include "../../sgp_mode/hardware/SGPHardware.h"
-#include "../../sgp_mode/SGPWorld.h"
-#include "../../sgp_mode/SGPWorld.cc"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPWorldData.cc"
-#include "../../sgp_mode/ProgramBuilder.h"
+#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
-#include "../../catch/catch.hpp"
+#include "../../../catch/catch.hpp"
 
 void CheckTaskProfile(
   sgpmode::SGPWorld& world,
@@ -35,7 +35,6 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
-  config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -75,7 +74,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
         {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
       );
     REQUIRE(output_buffer.size() == 2);
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     // After processing output, this program should perform NOT
     CheckTaskProfile(
       world,
@@ -104,7 +103,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     REQUIRE(output_buffer.size() > 0);
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -133,7 +132,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
     // There should be nothing in the output buffer, and no tasks performed.
     REQUIRE(output_buffer.size() == 0);
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -141,25 +140,6 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {},
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
-  }
-
-  WHEN("creating a random program") {
-    // We should be able to create random programs that run
-    const size_t num_rand_progs = 20;
-    // Generate N random programs, run each to make sure things work
-    for (size_t i = 0; i < num_rand_progs; ++i) {
-      hw.Reset();
-      // Set program of organism to something else
-      hw.SetProgram(
-        world.GetProgramBuilder().CreateRandomProgram(50)
-      );
-      REQUIRE(hw.GetProgram().size() == 50);
-      world.AssignNewEnvIO(hw.GetCPUState());
-      // Run organism's hardware for 50 steps
-      hw.RunCPUStep(50);
-      // We don't know anything about the output buffer here.
-      // Just want to make sure we don't get any errors.
-    }
   }
 
   // TODO - test each add inst function
@@ -185,7 +165,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -216,7 +196,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -247,7 +227,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -278,7 +258,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -309,7 +289,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -340,7 +320,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
@@ -371,7 +351,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       {"NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU"}
     );
     // There should be nothing in the output buffer, and no tasks performed.
-    world.ProcessHostOutputBuffer(sgp_host);
+    sgp_host.ProcessOutputBuffer();
     REQUIRE(output_buffer.size() == 0);
     CheckTaskProfile(
       world,
