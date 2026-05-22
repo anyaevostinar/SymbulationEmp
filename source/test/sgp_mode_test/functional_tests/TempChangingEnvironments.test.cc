@@ -220,7 +220,7 @@ TEST_CASE("Symbionts start with a punished task in a temporally changing environ
     }
     sym_NAND_program.resize(20 - 1);
     emp::Ptr<sgp_sym_t> symbiont_nand_only = emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_NAND_program);
-    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
 
     // add organisms to world
     host->AddSymbiont(symbiont_nand_only);
