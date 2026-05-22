@@ -560,11 +560,11 @@ void SGPWorld::SetupNutrientInteractions() {
       auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
 
       // auto& host_state = host.GetHardware().GetCPUState();
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
       // const bool host_performed = host_state.GetParentTaskPerformed(task_id);
-      bool host_performed = host_task_profile.Get(task_id);
+      bool sym_performed = sym_task_profile.Get(task_id);
 
-      if (!host_performed) {
+      if (!sym_performed) {
         // Task mismatch, no interaction between host and mutualist.
         return task_points;
       } else {
@@ -575,10 +575,12 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
+        to_donate = std::min(sym.GetPoints(),to_steal);
         // Donate points to host
-        host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        //host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        sym.DecPoints(to_donate);
         // Return task points minus donated value for symbiont to earn
-        return task_points - to_donate;
+        return task_points + (to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
@@ -594,9 +596,11 @@ void SGPWorld::SetupNutrientInteractions() {
       if (!sym_state.HasHost()) { return task_points; }
       // Symbiont must have a host, so they interact.
       auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      bool host_performed = host_task_profile.Get(task_id);
-      if (!host_performed) {
+      // auto& host_state = host.GetHardware().GetCPUState();
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      // const bool host_performed = host_state.GetParentTaskPerformed(task_id);
+      bool sym_performed = sym_task_profile.Get(task_id);
+      if (!sym_performed) {
         // Task mismatch, no interaction between host and parasite.
         // NOTE - do we want earning full amount or not?
         //  - Probably not? Otherwise, no incentive for parasitism?
@@ -611,15 +615,14 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         // Can't take more than host has
-        const double from_host = emp::Min(
-          host.GetPoints(),
-          to_steal
-        );
-        host.DecPoints(from_host);
+        sym.AddPoints(to_steal* sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())
+        host.DecPoints(to_steal);
         // NOTE - subtract to_steal or from_host?
         // const double from_world = task_points - to_steal;
         // Take points from host
-        return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
+        return task_points - to_steal;
+        //OR
+        //return task_points
       }
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
@@ -636,17 +639,17 @@ void SGPWorld::SetupNutrientInteractions() {
       if (!sym_state.HasHost()) { return task_points; }
       // Symbiont must have a host, so they interact.
       auto& host = *static_cast<sgp_host_t*>(sym.GetHost().Raw());
-      const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
-      bool host_performed = host_task_profile.Get(task_id);
+      const emp::BitVector& sym_task_profile = fun_get_sym_task_profile(sym);
+      bool sym_performed = sym_task_profile.Get(task_id);
       const double sym_interaction_value = sym.GetIntVal();
       emp_assert(-1.0 <= sym_interaction_value && sym_interaction_value <= 1.0);
-      if (!host_performed && (sym_interaction_value > 0.0)) {
+      if (!sym_performed && (sym_interaction_value > 0.0)) {
         // Task mismatch from mutualist
         return task_points;
-      } else if (!host_performed && (sym_interaction_value < 0.0)) {
+      } else if (!sym_performed && (sym_interaction_value < 0.0)) {
         // Task mismatch from parasite
         return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
-      } else if (host_performed && (sym_interaction_value > 0.0)) {
+      } else if (sym_performed && (sym_interaction_value > 0.0)) {
         // Task match from mutualist: mutualistic interaction
         //   Donate proportion of earned task points to host.
         // Can't donate more than task value or less than 0.0
@@ -657,11 +660,13 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
+        to_donate = std::min(sym.GetPoints(),to_donate);
         // Donate points to host
         host.AddPoints(to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER());
+        sym.DecPoints(to_donate);
         // Return task points minus donated value for symbiont to earn
-        return task_points - to_donate;
-      } else if (host_performed && (sym_interaction_value < 0.0)) {
+        return task_points;
+      } else if (sym_performed && (sym_interaction_value < 0.0)) {
         // Task match from parasite: parasitic interaction
         const double steal_prop = sgp_config.NUTRIENT_STEAL_PROP() * (-1 * sym_interaction_value);
         emp_assert(steal_prop >= 0.0 && steal_prop <= sgp_config.NUTRIENT_STEAL_PROP());
@@ -670,16 +675,13 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        // Can't take more than host has
-        const double from_host = emp::Min(
-          host.GetPoints(),
-          to_steal
-        );
-        host.DecPoints(from_host);
+        
+        host.DecPoints(to_steal);
+        sym.AddPoints(to_steal* sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())
         // NOTE - subtract to_steal or from_host?
         // const double from_world = task_points - to_steal;
         // Take points from host
-        return task_points * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER();
+        return task_points - to_steal;
       }
       // Otherwise, no interaction. Return task points.
       return task_points;
