@@ -35,6 +35,11 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
         THEN("The first clone is equal to the second clone"){
           REQUIRE(*clone1 == *clone2);
         }
+<<<<<<< HEAD
+=======
+        clone1.Delete();
+        clone2.Delete();
+>>>>>>> main
     }
     
     WHEN("A host that is different to the original is created"){
@@ -42,7 +47,13 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
       THEN("The original symbiont is not equal to the different host"){
         REQUIRE_FALSE(*sym_parent == *different);
       }
+<<<<<<< HEAD
     }
+=======
+      different.Delete();
+    }
+    sym_parent.Delete();
+>>>>>>> main
   }
 }
 
@@ -64,6 +75,11 @@ TEST_CASE("Symbiont > & < operator","[sgp][sgp-unit]"){
         REQUIRE(lt);
       }
     }
+<<<<<<< HEAD
+=======
+    sym_parent.Delete();
+    different.Delete();
+>>>>>>> main
   }
 }
 

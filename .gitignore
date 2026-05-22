@@ -21,3 +21,6 @@ output/
 log.txt
 *.json
 *_test_output/
+*_output/
+
+

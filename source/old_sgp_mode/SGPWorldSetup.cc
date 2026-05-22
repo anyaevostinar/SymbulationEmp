@@ -16,12 +16,16 @@
  * Purpose: Adds a number of hosts of a set type to the world. 
  */
 void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<SGPHost> new_org;
     switch (sgp_config->INTERACTION_MECHANISM()) {
       case DEFAULT:
         new_org = emp::NewPtr<SGPHost>(
+<<<<<<< HEAD
           &GetRandom(), this, sgp_config, CreateNandProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
         break;
       case HEALTH:
@@ -35,6 +39,21 @@ void SGPWorld::SetupHosts(unsigned long *POP_SIZE) {
       case NUTRIENT:
         new_org = emp::NewPtr<SGPHost>(
           &GetRandom(), this, sgp_config, CreateNandProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
+=======
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
+        break;
+      case HEALTH:
+        new_org = emp::NewPtr<HealthHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
+        break;
+      case STRESS:
+        new_org = emp::NewPtr<StressHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
+        break;
+      case NUTRIENT:
+        new_org = emp::NewPtr<SGPHost>(
+          &GetRandom(), this, sgp_config, CreateNotProgram(PROGRAM_LENGTH), sgp_config->HOST_INT());
+>>>>>>> main
         break;
       default:
        
@@ -65,7 +84,11 @@ void SGPWorld::SetupSymbionts(unsigned long *total_syms) {
   * Purpose: Setup the task profile retriever function.
   */
 void SGPWorld::SetupTaskProfileFun() {
+<<<<<<< HEAD
   if (sgp_config->TRACK_PARENT_TASKS() == CURRENTORPARENT) {
+=======
+  if (sgp_config->TRACK_PARENT_TASKS() == 2) {
+>>>>>>> main
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return (*org.DynamicCast<SGPHost>()->GetCPU().state.parent_or_current_tasks_performed).OR_SELF(*org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed);
@@ -75,7 +98,11 @@ void SGPWorld::SetupTaskProfileFun() {
       }
     };
   }
+<<<<<<< HEAD
   else if (sgp_config->TRACK_PARENT_TASKS() == PARENTONLY) {
+=======
+  else if (sgp_config->TRACK_PARENT_TASKS() == 1) {
+>>>>>>> main
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
@@ -85,7 +112,11 @@ void SGPWorld::SetupTaskProfileFun() {
       }
       };
   }
+<<<<<<< HEAD
   else if (sgp_config->TRACK_PARENT_TASKS() == CURRENTONLY) {
+=======
+  else if (sgp_config->TRACK_PARENT_TASKS() == 0) {
+>>>>>>> main
     fun_get_task_profile = [](const emp::Ptr<Organism> org) ->  const emp::BitSet<CPU_BITSET_LENGTH>&{
       if (org->IsHost()) {
         return *org.DynamicCast<SGPHost>()->GetCPU().state.tasks_performed;
@@ -124,13 +155,22 @@ void SGPWorld::ProcessReproductionQueue() {
       continue;
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
+<<<<<<< HEAD
       // Host::Reproduce() doesn't take care of vertical transmission, that happens here 
       for (auto& sym : org->GetSymbionts()) {
+=======
+      // Host::Reproduce() doesn't take care of vertical transmission, that
+      // happens here
+      for (auto& sym : org->GetSymbionts()) {
+        // don't vertically transmit if they must task match but don't
+        if (sgp_config->VT_TASK_MATCH() && !TaskMatchCheck(fun_get_task_profile(sym), fun_get_task_profile(org))) continue;
+>>>>>>> main
         sym->VerticalTransmission(child);
       }
       DoBirth(child, org->GetLocation());
     }
     else {
+<<<<<<< HEAD
       if(sgp_config->HORIZ_TRANS()){
         emp::WorldPosition new_pos = SymDoBirth(child, org->GetLocation());
         // Because we're not calling HorizontalTransmission, we need to adjust
@@ -140,6 +180,19 @@ void SGPWorld::ProcessReproductionQueue() {
         if (new_pos.IsValid()) {
           GetHorizontalTransmissionSuccessCount().AddDatum(org->GetIntVal());
         }
+=======
+      emp::WorldPosition new_pos = SymDoBirth(child, org->GetLocation());
+      // Because we're not calling HorizontalTransmission, we need to adjust
+      // these data nodes here
+      emp::DataMonitor<int>& data_node_attempts_horiztrans =
+        GetHorizontalTransmissionAttemptCount();
+      data_node_attempts_horiztrans.AddDatum(1);
+
+      emp::DataMonitor<int>& data_node_successes_horiztrans =
+        GetHorizontalTransmissionSuccessCount();
+      if (new_pos.IsValid()) {
+        data_node_successes_horiztrans.AddDatum(1);
+>>>>>>> main
       }
     }
   }
@@ -202,7 +255,12 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     return PlaceSymbiontInHost(sym_baby, fun_get_task_profile(parent), i);
   }
 
+<<<<<<< HEAD
   /**
+=======
+
+ /**
+>>>>>>> main
   * Input: Pointers to a symbiont and the position of the symbiont. 
   * Note that the position of the symbiont is a WorldPosition with index as 1-index position
   * in host's syms list and pop_id as host's location in the world
@@ -258,13 +316,21 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     for(emp::Ptr<Organism> sym : host->GetSymbionts()){
       const emp::BitSet<CPU_BITSET_LENGTH>& target_sym_tasks = fun_get_task_profile(sym);
 
+<<<<<<< HEAD
       if(sgp_config->PREFERENTIAL_OUSTING() == EQUALMATCH){
+=======
+      if(sgp_config->PREFERENTIAL_OUSTING() == 1){
+>>>>>>> main
         // if has worse task match with any hosted sym, fail
         if(host_tasks.AND(incoming_sym_tasks).CountOnes() < host_tasks.AND(target_sym_tasks).CountOnes()){
           return false;
         }
       }
+<<<<<<< HEAD
       else if(sgp_config->PREFERENTIAL_OUSTING() == BETTERMATCH){
+=======
+      else if(sgp_config->PREFERENTIAL_OUSTING() == 2){
+>>>>>>> main
         // if has equal or worse task match with any hosted sym, fail
         if(host_tasks.AND(incoming_sym_tasks).CountOnes() <= host_tasks.AND(target_sym_tasks).CountOnes()){
           return false;
@@ -305,4 +371,8 @@ emp::WorldPosition SGPWorld::SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldP
     }
   }
 
+<<<<<<< HEAD
 #endif
+=======
+#endif
+>>>>>>> main

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="dir_7648bb75f5a59aa648f9fb8bb1f3012e" kind="dir">
+    <compoundname>/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode</compoundname>
+    <innerfile refid="_host_8h">Host.h</innerfile>
+    <innerfile refid="_symbiont_8h">Symbiont.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/"/>
+  </compounddef>
+</doxygen>

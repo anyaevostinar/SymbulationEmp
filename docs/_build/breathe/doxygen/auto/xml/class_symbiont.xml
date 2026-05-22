@@ -1,0 +1,1205 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.15.0" xml:lang="en-US">
+  <compounddef id="class_symbiont" kind="class" language="C++" prot="public">
+    <compoundname>Symbiont</compoundname>
+    <basecompoundref prot="public" virt="non-virtual">Organism</basecompoundref>
+    <sectiondef kind="protected-type">
+      <memberdef kind="typedef" id="class_symbiont_1a6b4af6f916d97f3bab6f6370fb4542e4" prot="protected" static="no">
+        <type>SymWorld::taxon_info_t</type>
+        <definition>using Symbiont::taxon_info_t =  SymWorld::taxon_info_t</definition>
+        <argsstring></argsstring>
+        <name>taxon_info_t</name>
+        <qualifiedname>Symbiont::taxon_info_t</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="15" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="15" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="protected-attrib">
+      <memberdef kind="variable" id="class_symbiont_1a2531435a2c65cc96e504466448103614" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Symbiont::interaction_val</definition>
+        <argsstring></argsstring>
+        <name>interaction_val</name>
+        <qualifiedname>Symbiont::interaction_val</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the interaction value between the host and symbiont. A negative interaction value represent antagonism, while a positive one represents mutualism. Zero is a neutral value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="23" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="23" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a5afb1f659f91cb643be0e11eda58e134" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Symbiont::points</definition>
+        <argsstring></argsstring>
+        <name>points</name>
+        <qualifiedname>Symbiont::points</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the resource points possessed by a symbiont. This is what host&apos;s must collect to reproduce. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="31" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="31" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a09c1db3218e777f17d23bd47286c7831" prot="protected" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool Symbiont::dead</definition>
+        <argsstring></argsstring>
+        <name>dead</name>
+        <qualifiedname>Symbiont::dead</qualifiedname>
+        <initializer>= false</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents if a symbiont is alive. This is set to true when a symbiont is killed. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="39" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="39" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1ad306c992fb95ff0edf57834188d532f2" prot="protected" static="no" mutable="no">
+        <type>double</type>
+        <definition>double Symbiont::infection_chance</definition>
+        <argsstring></argsstring>
+        <name>infection_chance</name>
+        <qualifiedname>Symbiont::infection_chance</qualifiedname>
+        <initializer>= 0.0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the chance (between 0 and 1) that a free-living sym will infect a parallel host on process </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="47" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="47" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a506fb5dd117c1b7e7e6f1a3fe92485a4" prot="protected" static="no" mutable="no">
+        <type>int</type>
+        <definition>int Symbiont::age</definition>
+        <argsstring></argsstring>
+        <name>age</name>
+        <qualifiedname>Symbiont::age</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the number of updates the symbiont has lived through; at birth is set to 0. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="55" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="55" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a723f07ab4d1ff7c04daf7bcf8c7b6d0d" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Symbiont::reproductions</definition>
+        <argsstring></argsstring>
+        <name>reproductions</name>
+        <qualifiedname>Symbiont::reproductions</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of reproductive events in this symbiont&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="62" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="62" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a17d973919e5b6bbd115809ea1898bd06" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Symbiont::towards_partner_count</definition>
+        <argsstring></argsstring>
+        <name>towards_partner_count</name>
+        <qualifiedname>Symbiont::towards_partner_count</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of tag flips towards partner in this symbiont&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="69" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="69" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a0be04f6d0311c8a725817de4a361ce0d" prot="protected" static="no" mutable="no">
+        <type>size_t</type>
+        <definition>size_t Symbiont::from_partner_count</definition>
+        <argsstring></argsstring>
+        <name>from_partner_count</name>
+        <qualifiedname>Symbiont::from_partner_count</qualifiedname>
+        <initializer>= 0</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the number of tag flips away from partner in this symbiont&apos;s lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="76" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1addffa125a9b9a95d43472a0eb3d637c6" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; emp::Random &gt;</type>
+        <definition>emp::Ptr&lt;emp::Random&gt; Symbiont::random</definition>
+        <argsstring></argsstring>
+        <name>random</name>
+        <qualifiedname>Symbiont::random</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents an instance of random. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="83" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a520ade86581e98baf40237d1646c9f47" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; SymWorld &gt;</type>
+        <definition>emp::Ptr&lt;SymWorld&gt; Symbiont::my_world</definition>
+        <argsstring></argsstring>
+        <name>my_world</name>
+        <qualifiedname>Symbiont::my_world</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the world that the hosts are living in. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="90" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1ad25b1d8244c7dad0a15b8b5fe7346caf" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt;Organism&gt; Symbiont::my_host</definition>
+        <argsstring></argsstring>
+        <name>my_host</name>
+        <qualifiedname>Symbiont::my_host</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the symbiont&apos;s host. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="97" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a302f97ef5e2b1439a549599a636cb27d" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; SymConfigBase &gt;</type>
+        <definition>emp::Ptr&lt;SymConfigBase&gt; Symbiont::my_config</definition>
+        <argsstring></argsstring>
+        <name>my_config</name>
+        <qualifiedname>Symbiont::my_config</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the configuration settings for a particular run. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="104" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a06cdbe7fafde53c21419eab9d7693bdb" prot="protected" static="no" mutable="no">
+        <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+        <definition>emp::Ptr&lt;emp::Taxon&lt;taxon_info_t, datastruct::TaxonDataBase&gt; &gt; Symbiont::my_taxon</definition>
+        <argsstring></argsstring>
+        <name>my_taxon</name>
+        <qualifiedname>Symbiont::my_taxon</qualifiedname>
+        <initializer>= NULL</initializer>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Tracks the taxon of this organism. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="111" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="class_symbiont_1a1bb53768ca9f0600e6f7b4a813ca612e" prot="protected" static="no" mutable="no">
+        <type>emp::BitSet&lt; TAG_LENGTH &gt;</type>
+        <definition>emp::BitSet&lt;TAG_LENGTH&gt; Symbiont::tag</definition>
+        <argsstring></argsstring>
+        <name>tag</name>
+        <qualifiedname>Symbiont::tag</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Purpose: Represents the tag for this organism </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="118" column="15" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="118" bodyend="-1"/>
+      </memberdef>
+    </sectiondef>
+    <sectiondef kind="public-func">
+      <memberdef kind="function" id="class_symbiont_1ac34ac918273de0394022882e316712a2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Symbiont::Symbiont</definition>
+        <argsstring>(emp::Ptr&lt; emp::Random &gt; _random, emp::Ptr&lt; SymWorld &gt; _world, emp::Ptr&lt; SymConfigBase &gt; _config, double _intval=0.0, double _points=0.0)</argsstring>
+        <name>Symbiont</name>
+        <qualifiedname>Symbiont::Symbiont</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; emp::Random &gt;</type>
+          <declname>_random</declname>
+        </param>
+        <param>
+          <type>emp::Ptr&lt; SymWorld &gt;</type>
+          <declname>_world</declname>
+        </param>
+        <param>
+          <type>emp::Ptr&lt; SymConfigBase &gt;</type>
+          <declname>_config</declname>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>_intval</declname>
+          <defval>0.0</defval>
+        </param>
+        <param>
+          <type>double</type>
+          <declname>_points</declname>
+          <defval>0.0</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>The constructor for symbiont </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="124" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="124" bodyend="134"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a4d4e557eb2e3480fe1b3cdb1bde07f9c" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Symbiont::Symbiont</definition>
+        <argsstring>(const Symbiont &amp;)=default</argsstring>
+        <name>Symbiont</name>
+        <qualifiedname>Symbiont::Symbiont</qualifiedname>
+        <param>
+          <type>const <ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a copy constructor to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="144" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1ae5e2d7499f8fa9075f728059a08c5db5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Symbiont::Symbiont</definition>
+        <argsstring>(Symbiont &amp;&amp;)=default</argsstring>
+        <name>Symbiont</name>
+        <qualifiedname>Symbiont::Symbiont</qualifiedname>
+        <param>
+          <type><ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;&amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a move constructor to be generated by the compiler </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="154" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1addf2370fed38b7ffca3a0deaeddb36ef" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>Symbiont::Symbiont</definition>
+        <argsstring>()=default</argsstring>
+        <name>Symbiont</name>
+        <qualifiedname>Symbiont::Symbiont</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To tell the compiler to use its default generated variants of the constructor </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="164" column="3"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a3f8a7b1720e32f03ff61768d6bfed68e" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;</type>
+        <definition>Symbiont &amp; Symbiont::operator=</definition>
+        <argsstring>(const Symbiont &amp;)=default</argsstring>
+        <name>operator=</name>
+        <qualifiedname>Symbiont::operator=</qualifiedname>
+        <param>
+          <type>const <ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a copy assignment operator to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="174" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1aced916a62d8da3debdb68c74a3803327" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;</type>
+        <definition>Symbiont &amp; Symbiont::operator=</definition>
+        <argsstring>(Symbiont &amp;&amp;)=default</argsstring>
+        <name>operator=</name>
+        <qualifiedname>Symbiont::operator=</qualifiedname>
+        <param>
+          <type><ref refid="class_symbiont" kindref="compound">Symbiont</ref> &amp;&amp;</type>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To force a move assignment operator to be generated by the compiler. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="184" column="13"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a7b81c5d345d168c85f6f0f42b582e9f3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type></type>
+        <definition>Symbiont::~Symbiont</definition>
+        <argsstring>()</argsstring>
+        <name>~Symbiont</name>
+        <qualifiedname>Symbiont::~Symbiont</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To destruct the symbiont and remove the symbiont from the systematic. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="193" column="3" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="193" bodyend="195"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a4a8d3cdece2b288b362d73b1a5b87c02" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>std::string const</type>
+        <definition>std::string const Symbiont::GetName</definition>
+        <argsstring>()</argsstring>
+        <name>GetName</name>
+        <qualifiedname>Symbiont::GetName</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: Name of class as string, <ref refid="class_symbiont" kindref="compound">Symbiont</ref></para>
+<para>Purpose: To know which subclass the object is </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="204" column="23" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="204" bodyend="206"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a9c87fc44f9a53112cead58ab357c4c2c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetReproCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetReproCount</name>
+        <qualifiedname>Symbiont::SetReproCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the reproduction counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of reproductions in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="215" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="215" bodyend="215"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a20c0ae308c5b29084993b1f79a540a39" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Symbiont::GetReproCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetReproCount</name>
+        <qualifiedname>Symbiont::GetReproCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The reproduction count</para>
+<para>Purpose: To get the count of reproductions in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="225" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="225" bodyend="225"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1af83a728a4381eb4fc78a41024404f2dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetTowardsPartnerCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetTowardsPartnerCount</name>
+        <qualifiedname>Symbiont::SetTowardsPartnerCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the flips towards a partner counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of flips towards a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="234" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="234" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1aca7ea233c7124dd555334d7135cc61c4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Symbiont::GetTowardsPartnerCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetTowardsPartnerCount</name>
+        <qualifiedname>Symbiont::GetTowardsPartnerCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The flips towards a partner count</para>
+<para>Purpose: To get the count of flips towards a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="244" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="244" bodyend="244"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a1481152574c69884e5c08a6f8012c04b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetFromPartnerCount</definition>
+        <argsstring>(size_t _in)</argsstring>
+        <name>SetFromPartnerCount</name>
+        <qualifiedname>Symbiont::SetFromPartnerCount</qualifiedname>
+        <param>
+          <type>size_t</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: Set the flips from a partner counter</para>
+<para>Output: None</para>
+<para>Purpose: To set the count of flips from a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="254" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="254" bodyend="254"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a72d99bb8b2cd16de784d627ae3675319" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>size_t</type>
+        <definition>size_t Symbiont::GetFromPartnerCount</definition>
+        <argsstring>()</argsstring>
+        <name>GetFromPartnerCount</name>
+        <qualifiedname>Symbiont::GetFromPartnerCount</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None.</para>
+<para>Output: The flips from a partner count</para>
+<para>Purpose: To get the count of flips from a partner in this lineage. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="264" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="264" bodyend="264"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a03028fab1046c0c7f3fc4bd98b6933fb" prot="public" static="no" const="yes" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Symbiont::GetIntVal</definition>
+        <argsstring>() const</argsstring>
+        <name>GetIntVal</name>
+        <qualifiedname>Symbiont::GetIntVal</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The double representing the symbiont&apos;s interaction value</para>
+<para>Purpose: To get a symbiont&apos;s interaction value. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="273" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="273" bodyend="273"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1ab1381b5a87ccd7ece3bd9739d7b97b84" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Symbiont::GetPoints</definition>
+        <argsstring>()</argsstring>
+        <name>GetPoints</name>
+        <qualifiedname>Symbiont::GetPoints</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The double representing the symbiont&apos;s points</para>
+<para>Purpose: To get a symbiont&apos;s points. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="283" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="283" bodyend="283"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a3ee763ac2cdf7abdbbef7c9fdf88d4a1" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Symbiont::IsPhage</definition>
+        <argsstring>()</argsstring>
+        <name>IsPhage</name>
+        <qualifiedname>Symbiont::IsPhage</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The bool representing if a symbiont is a phage</para>
+<para>Purpose: To determine if a symbiont is a phage </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="293" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="293" bodyend="293"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a1778d97eb851d3f2377ed6c937619010" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Symbiont::IsHost</definition>
+        <argsstring>()</argsstring>
+        <name>IsHost</name>
+        <qualifiedname>Symbiont::IsHost</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The bool representing if a symbiont is a host</para>
+<para>Purpose: To determine if a symbiont is a host </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="303" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="303" bodyend="303"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a48b5be7e4bf0dcff738640e5cccf4fd4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Symbiont::GetInfectionChance</definition>
+        <argsstring>()</argsstring>
+        <name>GetInfectionChance</name>
+        <qualifiedname>Symbiont::GetInfectionChance</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The chance of a symbiont infecting a parallel host during process</para>
+<para>Purpose: To determine a symbiont&apos;s infection chance </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="314" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="314" bodyend="314"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a097175fdf6e43702df28b340ed85c91d" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt; Organism &gt; Symbiont::GetHost</definition>
+        <argsstring>()</argsstring>
+        <name>GetHost</name>
+        <qualifiedname>Symbiont::GetHost</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The pointer to a symbiont&apos;s host</para>
+<para>Purpose: To retrieve a symbiont&apos;s host </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="324" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="324" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a81ee550d80397dfb1532ba0a77281f3f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+        <definition>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt; Symbiont::GetTaxon</definition>
+        <argsstring>()</argsstring>
+        <name>GetTaxon</name>
+        <qualifiedname>Symbiont::GetTaxon</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The pointer to the symbiont&apos;s taxon</para>
+<para>Purpose: To retrieve the symbiont&apos;s taxon </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="334" column="13" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="334" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a072856709cbec5d8986e31dc6951c507" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetTaxon</definition>
+        <argsstring>(emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt; _in)</argsstring>
+        <name>SetTaxon</name>
+        <qualifiedname>Symbiont::SetTaxon</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; emp::Taxon&lt; taxon_info_t, datastruct::TaxonDataBase &gt; &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: A pointer to the taxon that this organism should belong to.</para>
+<para>Output: None</para>
+<para>Purpose: To set the symbiont&apos;s taxon </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="343" column="9" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="343" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a4c671e07d909472d49f6539d334cc6dd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetTag</definition>
+        <argsstring>(emp::BitSet&lt; TAG_LENGTH &gt; &amp;_in)</argsstring>
+        <name>SetTag</name>
+        <qualifiedname>Symbiont::SetTag</qualifiedname>
+        <param>
+          <type>emp::BitSet&lt; TAG_LENGTH &gt; &amp;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The new tag</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont&apos;s tag. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="354" column="9" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="354" bodyend="354"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a07be056d8968597163bb4e06655fd12f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::BitSet&lt; TAG_LENGTH &gt; &amp;</type>
+        <definition>emp::BitSet&lt; TAG_LENGTH &gt; &amp; Symbiont::GetTag</definition>
+        <argsstring>()</argsstring>
+        <name>GetTag</name>
+        <qualifiedname>Symbiont::GetTag</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The symbiont&apos;s tag.</para>
+<para>Purpose: To get a symbiont&apos;s tag. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="363" column="17" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="363" bodyend="363"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a3e58851f8f215932730319560447e703" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetDead</definition>
+        <argsstring>()</argsstring>
+        <name>SetDead</name>
+        <qualifiedname>Symbiont::SetDead</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont to dead </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="372" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="372" bodyend="372"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a7fab459ab270f1285c5d25a8a7dc54c4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Symbiont::GetDead</definition>
+        <argsstring>()</argsstring>
+        <name>GetDead</name>
+        <qualifiedname>Symbiont::GetDead</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The bool representing if a symbiont is dead</para>
+<para>Purpose: To determine if a symbiont is dead </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="382" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="382" bodyend="382"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1acaec84cba96a1c89855f501a289f34b0" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetIntVal</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetIntVal</name>
+        <qualifiedname>Symbiont::SetIntVal</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the new interaction value of a symbiont</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont&apos;s interaction value </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="392" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="392" bodyend="399"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a8125ae0bc0673f8de7c06ebdac0b149c" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetPoints</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetPoints</name>
+        <qualifiedname>Symbiont::SetPoints</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the points to be set as a symbiont&apos;s points</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont&apos;s points </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="409" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="409" bodyend="409"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a3c86bb2ea41d432be815b9085f0e66cd" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::AddPoints</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>AddPoints</name>
+        <qualifiedname>Symbiont::AddPoints</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the points to be added to a symbiont&apos;s points</para>
+<para>Output: None</para>
+<para>Purpose: To increment a symbiont&apos;s points </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="419" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="419" bodyend="419"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a5f34a06ffd2f06db6c24352761c81f6f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>int</type>
+        <definition>int Symbiont::GetAge</definition>
+        <argsstring>()</argsstring>
+        <name>GetAge</name>
+        <qualifiedname>Symbiont::GetAge</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: an int representing the current age of the <ref refid="class_symbiont" kindref="compound">Symbiont</ref></para>
+<para>Purpose: To get the <ref refid="class_symbiont" kindref="compound">Symbiont</ref>&apos;s age. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="428" column="7" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="428" bodyend="428"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a45393ed6bde34d0d0c1fe9dc97438e6b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetAge</definition>
+        <argsstring>(int _in)</argsstring>
+        <name>SetAge</name>
+        <qualifiedname>Symbiont::SetAge</qualifiedname>
+        <param>
+          <type>int</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: An int of what age the <ref refid="class_symbiont" kindref="compound">Symbiont</ref> should be set to</para>
+<para>Output: None</para>
+<para>Purpose: To set the <ref refid="class_symbiont" kindref="compound">Symbiont</ref>&apos;s age for testing purposes. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="437" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="437" bodyend="437"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a7113ce65ba9db46b3a60cb010049882b" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetHost</definition>
+        <argsstring>(emp::Ptr&lt; Organism &gt; _in)</argsstring>
+        <name>SetHost</name>
+        <qualifiedname>Symbiont::SetHost</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The pointer to an organism that will be set as the symbiont&apos;s host</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont&apos;s host </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="446" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="446" bodyend="446"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1acd81efac1bfb001b22081b75d15c6a77" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::SetInfectionChance</definition>
+        <argsstring>(double _in)</argsstring>
+        <name>SetInfectionChance</name>
+        <qualifiedname>Symbiont::SetInfectionChance</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>_in</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double that will be the symbiont&apos;s infection chance</para>
+<para>Output: None</para>
+<para>Purpose: To set a symbiont&apos;s infection host and check that the proposed value is valid. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="455" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="455" bodyend="458"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a562aea8c32dbd6181361e9283520edf3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::UponInjection</definition>
+        <argsstring>()</argsstring>
+        <name>UponInjection</name>
+        <qualifiedname>Symbiont::UponInjection</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: Does nothing for now, added for backwards compatibility from phage to symbiont </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="468" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="468" bodyend="470"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a62f9681df294f96c2c1c2f995f105953" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::GrowOlder</definition>
+        <argsstring>()</argsstring>
+        <name>GrowOlder</name>
+        <qualifiedname>Symbiont::GrowOlder</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: Increments age by one and kills it if too old. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="479" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="479" bodyend="484"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1ab12c579b4a818cfec7f25ff558e9dabe" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::Mutate</definition>
+        <argsstring>()</argsstring>
+        <name>Mutate</name>
+        <qualifiedname>Symbiont::Mutate</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: None</para>
+<para>Purpose: To mutate a symbiont&apos;s interaction value. The mutation value is chosen from a normal distribution centered on 0 with the mutation size as the standard deviation. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="496" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="496" bodyend="515"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a13f68cebc0ae6a50a8370b4efaaf0cd8" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>double</type>
+        <definition>double Symbiont::ProcessResources</definition>
+        <argsstring>(double host_donation, emp::Ptr&lt; Organism &gt; host=nullptr)</argsstring>
+        <name>ProcessResources</name>
+        <qualifiedname>Symbiont::ProcessResources</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>host_donation</declname>
+        </param>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>host</declname>
+          <defval>nullptr</defval>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the resources to be distributed to the symbiont and (optionally) the host from whom it comes; if no host is provided, the symbiont&apos;s host variable is used.</para>
+<para>Output: The double representing the host&apos;s resources</para>
+<para>Purpose: To process and distribute resources. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="526" column="10" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="526" bodyend="546"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a6102f06072af7a4a59ec52e9da166012" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Symbiont::WantsToInfect</definition>
+        <argsstring>()</argsstring>
+        <name>WantsToInfect</name>
+        <qualifiedname>Symbiont::WantsToInfect</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The boolean representing if a symbiont will seek out to infect a host.</para>
+<para>Purpose: To determine if a symbiont wants to infect a host based upon its infection chance </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="558" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="558" bodyend="561"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1acc433c6647ac895fac943f5cca2752ee" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool Symbiont::InfectionFails</definition>
+        <argsstring>()</argsstring>
+        <name>InfectionFails</name>
+        <qualifiedname>Symbiont::InfectionFails</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The boolean representing if a symbiont will survive crossing over into the host world.</para>
+<para>Purpose: To determine if a symbiont will survive crossing over into the host world based on infection risk. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="573" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="573" bodyend="577"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a66a1a0876ac4a1250095630a6eeb8d6f" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::LoseResources</definition>
+        <argsstring>(double resources)</argsstring>
+        <name>LoseResources</name>
+        <qualifiedname>Symbiont::LoseResources</qualifiedname>
+        <param>
+          <type>double</type>
+          <declname>resources</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The double representing the resources given by the world.</para>
+<para>Output: None</para>
+<para>Purpose: Free living symbionts specialized to interact with hosts (extreme interaction value in either direction) lose some of the resources that they get from the world. </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="587" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="587" bodyend="600"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a45e1c85e0324c71df64b38232469ae13" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::Process</definition>
+        <argsstring>(emp::WorldPosition location)</argsstring>
+        <name>Process</name>
+        <qualifiedname>Symbiont::Process</qualifiedname>
+        <param>
+          <type>emp::WorldPosition</type>
+          <declname>location</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The size_t representing the location of the symbiont, and the size_t representation of the symbiont&apos;s position in the host (default -1 if it doesn&apos;t have a host)</para>
+<para>Output: None</para>
+<para>Purpose: To process a symbiont, meaning to check for reproduction, distribute resources, and to allow for movement </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="611" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="611" bodyend="631"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a533e4c2adfdb5c9ccd2ffada016c9081" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt; Organism &gt; Symbiont::MakeNew</definition>
+        <argsstring>()</argsstring>
+        <name>MakeNew</name>
+        <qualifiedname>Symbiont::MakeNew</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The pointer to the newly created organism</para>
+<para>Purpose: To produce a new symbiont, identical to the original </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="640" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="640" bodyend="645"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a75260c6b82e26b877de433aa787a2d5e" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>emp::Ptr&lt; Organism &gt;</type>
+        <definition>emp::Ptr&lt; Organism &gt; Symbiont::Reproduce</definition>
+        <argsstring>()</argsstring>
+        <name>Reproduce</name>
+        <qualifiedname>Symbiont::Reproduce</qualifiedname>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: None</para>
+<para>Output: The pointer to the newly created organism</para>
+<para>Purpose: To produce a new symbiont; does not remove resources from the parent, assumes that is handled by calling function </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="654" column="12" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="654" bodyend="679"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1adbba07603990081a729f056b62100563" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::VerticalTransmission</definition>
+        <argsstring>(emp::Ptr&lt; Organism &gt; host_baby)</argsstring>
+        <name>VerticalTransmission</name>
+        <qualifiedname>Symbiont::VerticalTransmission</qualifiedname>
+        <param>
+          <type>emp::Ptr&lt; Organism &gt;</type>
+          <declname>host_baby</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The pointer to the organism that is the new host baby</para>
+<para>Output: None</para>
+<para>Purpose: To allow for vertical transmission to occur </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="688" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="688" bodyend="710"/>
+      </memberdef>
+      <memberdef kind="function" id="class_symbiont_1a9c5960ebb80583f2436b9b9e6971e2f4" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>void</type>
+        <definition>void Symbiont::HorizontalTransmission</definition>
+        <argsstring>(emp::WorldPosition location)</argsstring>
+        <name>HorizontalTransmission</name>
+        <qualifiedname>Symbiont::HorizontalTransmission</qualifiedname>
+        <param>
+          <type>emp::WorldPosition</type>
+          <declname>location</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Input: The location of the organism (and it&apos;s <ref refid="class_host" kindref="compound">Host</ref>) as a size_t</para>
+<para>Output: None</para>
+<para>Purpose: To check and allow for horizontal transmission to occur </para>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="719" column="8" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="719" bodyend="749"/>
+      </memberdef>
+    </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <inheritancegraph>
+      <node id="2">
+        <label>Organism</label>
+      </node>
+      <node id="1">
+        <label>Symbiont</label>
+        <link refid="class_symbiont"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </inheritancegraph>
+    <collaborationgraph>
+      <node id="2">
+        <label>Organism</label>
+      </node>
+      <node id="1">
+        <label>Symbiont</label>
+        <link refid="class_symbiont"/>
+        <childnode refid="2" relation="public-inheritance">
+        </childnode>
+      </node>
+    </collaborationgraph>
+    <location file="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" line="12" column="1" bodyfile="/Users/vostinar/Desktop/Research/SymbulationEmp/source/default_mode/Symbiont.h" bodystart="12" bodyend="750"/>
+    <listofallmembers>
+      <member refid="class_symbiont_1a3c86bb2ea41d432be815b9085f0e66cd" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>AddPoints</name></member>
+      <member refid="class_symbiont_1a506fb5dd117c1b7e7e6f1a3fe92485a4" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>age</name></member>
+      <member refid="class_symbiont_1a09c1db3218e777f17d23bd47286c7831" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>dead</name></member>
+      <member refid="class_symbiont_1a0be04f6d0311c8a725817de4a361ce0d" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>from_partner_count</name></member>
+      <member refid="class_symbiont_1a5f34a06ffd2f06db6c24352761c81f6f" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetAge</name></member>
+      <member refid="class_symbiont_1a7fab459ab270f1285c5d25a8a7dc54c4" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetDead</name></member>
+      <member refid="class_symbiont_1a72d99bb8b2cd16de784d627ae3675319" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetFromPartnerCount</name></member>
+      <member refid="class_symbiont_1a097175fdf6e43702df28b340ed85c91d" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetHost</name></member>
+      <member refid="class_symbiont_1a48b5be7e4bf0dcff738640e5cccf4fd4" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetInfectionChance</name></member>
+      <member refid="class_symbiont_1a03028fab1046c0c7f3fc4bd98b6933fb" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetIntVal</name></member>
+      <member refid="class_symbiont_1a4a8d3cdece2b288b362d73b1a5b87c02" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetName</name></member>
+      <member refid="class_symbiont_1ab1381b5a87ccd7ece3bd9739d7b97b84" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetPoints</name></member>
+      <member refid="class_symbiont_1a20c0ae308c5b29084993b1f79a540a39" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetReproCount</name></member>
+      <member refid="class_symbiont_1a07be056d8968597163bb4e06655fd12f" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetTag</name></member>
+      <member refid="class_symbiont_1a81ee550d80397dfb1532ba0a77281f3f" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetTaxon</name></member>
+      <member refid="class_symbiont_1aca7ea233c7124dd555334d7135cc61c4" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GetTowardsPartnerCount</name></member>
+      <member refid="class_symbiont_1a62f9681df294f96c2c1c2f995f105953" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>GrowOlder</name></member>
+      <member refid="class_symbiont_1a9c5960ebb80583f2436b9b9e6971e2f4" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>HorizontalTransmission</name></member>
+      <member refid="class_symbiont_1ad306c992fb95ff0edf57834188d532f2" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>infection_chance</name></member>
+      <member refid="class_symbiont_1acc433c6647ac895fac943f5cca2752ee" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>InfectionFails</name></member>
+      <member refid="class_symbiont_1a2531435a2c65cc96e504466448103614" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>interaction_val</name></member>
+      <member refid="class_symbiont_1a1778d97eb851d3f2377ed6c937619010" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>IsHost</name></member>
+      <member refid="class_symbiont_1a3ee763ac2cdf7abdbbef7c9fdf88d4a1" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>IsPhage</name></member>
+      <member refid="class_symbiont_1a66a1a0876ac4a1250095630a6eeb8d6f" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>LoseResources</name></member>
+      <member refid="class_symbiont_1a533e4c2adfdb5c9ccd2ffada016c9081" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>MakeNew</name></member>
+      <member refid="class_symbiont_1ab12c579b4a818cfec7f25ff558e9dabe" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Mutate</name></member>
+      <member refid="class_symbiont_1a302f97ef5e2b1439a549599a636cb27d" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>my_config</name></member>
+      <member refid="class_symbiont_1ad25b1d8244c7dad0a15b8b5fe7346caf" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>my_host</name></member>
+      <member refid="class_symbiont_1a06cdbe7fafde53c21419eab9d7693bdb" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>my_taxon</name></member>
+      <member refid="class_symbiont_1a520ade86581e98baf40237d1646c9f47" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>my_world</name></member>
+      <member refid="class_symbiont_1a3f8a7b1720e32f03ff61768d6bfed68e" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>operator=</name></member>
+      <member refid="class_symbiont_1aced916a62d8da3debdb68c74a3803327" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>operator=</name></member>
+      <member refid="class_symbiont_1a5afb1f659f91cb643be0e11eda58e134" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>points</name></member>
+      <member refid="class_symbiont_1a45e1c85e0324c71df64b38232469ae13" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Process</name></member>
+      <member refid="class_symbiont_1a13f68cebc0ae6a50a8370b4efaaf0cd8" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>ProcessResources</name></member>
+      <member refid="class_symbiont_1addffa125a9b9a95d43472a0eb3d637c6" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>random</name></member>
+      <member refid="class_symbiont_1a75260c6b82e26b877de433aa787a2d5e" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Reproduce</name></member>
+      <member refid="class_symbiont_1a723f07ab4d1ff7c04daf7bcf8c7b6d0d" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>reproductions</name></member>
+      <member refid="class_symbiont_1a45393ed6bde34d0d0c1fe9dc97438e6b" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetAge</name></member>
+      <member refid="class_symbiont_1a3e58851f8f215932730319560447e703" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetDead</name></member>
+      <member refid="class_symbiont_1a1481152574c69884e5c08a6f8012c04b" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetFromPartnerCount</name></member>
+      <member refid="class_symbiont_1a7113ce65ba9db46b3a60cb010049882b" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetHost</name></member>
+      <member refid="class_symbiont_1acd81efac1bfb001b22081b75d15c6a77" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetInfectionChance</name></member>
+      <member refid="class_symbiont_1acaec84cba96a1c89855f501a289f34b0" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetIntVal</name></member>
+      <member refid="class_symbiont_1a8125ae0bc0673f8de7c06ebdac0b149c" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetPoints</name></member>
+      <member refid="class_symbiont_1a9c87fc44f9a53112cead58ab357c4c2c" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetReproCount</name></member>
+      <member refid="class_symbiont_1a4c671e07d909472d49f6539d334cc6dd" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetTag</name></member>
+      <member refid="class_symbiont_1a072856709cbec5d8986e31dc6951c507" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetTaxon</name></member>
+      <member refid="class_symbiont_1af83a728a4381eb4fc78a41024404f2dd" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>SetTowardsPartnerCount</name></member>
+      <member refid="class_symbiont_1ac34ac918273de0394022882e316712a2" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Symbiont</name></member>
+      <member refid="class_symbiont_1a4d4e557eb2e3480fe1b3cdb1bde07f9c" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Symbiont</name></member>
+      <member refid="class_symbiont_1ae5e2d7499f8fa9075f728059a08c5db5" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Symbiont</name></member>
+      <member refid="class_symbiont_1addf2370fed38b7ffca3a0deaeddb36ef" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>Symbiont</name></member>
+      <member refid="class_symbiont_1a1bb53768ca9f0600e6f7b4a813ca612e" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>tag</name></member>
+      <member refid="class_symbiont_1a6b4af6f916d97f3bab6f6370fb4542e4" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>taxon_info_t</name></member>
+      <member refid="class_symbiont_1a17d973919e5b6bbd115809ea1898bd06" prot="protected" virt="non-virtual"><scope>Symbiont</scope><name>towards_partner_count</name></member>
+      <member refid="class_symbiont_1a562aea8c32dbd6181361e9283520edf3" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>UponInjection</name></member>
+      <member refid="class_symbiont_1adbba07603990081a729f056b62100563" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>VerticalTransmission</name></member>
+      <member refid="class_symbiont_1a6102f06072af7a4a59ec52e9da166012" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>WantsToInfect</name></member>
+      <member refid="class_symbiont_1a7b81c5d345d168c85f6f0f42b582e9f3" prot="public" virt="non-virtual"><scope>Symbiont</scope><name>~Symbiont</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

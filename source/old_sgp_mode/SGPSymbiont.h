@@ -2,6 +2,7 @@
 #define SGPSYMBIONT_H
 
 #include "../default_mode/Symbiont.h"
+<<<<<<< HEAD
 #include "hardware/SGPHardware.h"
 #include "SGPHost.h"
 
@@ -30,12 +31,24 @@ protected:
     *
   */
   const emp::Ptr<world_t> my_world;
+=======
+#include "CPU.h"
+#include "SGPHost.h"
+#include "SGPWorld.h"
+#include "emp/Evolve/World_structure.hpp"
+
+class SGPSymbiont : public Symbiont {
+private:
+  CPU cpu;
+  const emp::Ptr<SGPWorld> my_world;
+>>>>>>> main
 
   /**
    *
    * Purpose: Tracks the number of reproductive events in this symbiont's lineage.
    *
    */
+<<<<<<< HEAD
   size_t reproductions = 0;
 
   /**
@@ -45,12 +58,25 @@ protected:
    *
    */
   // emp::Ptr<SymConfigSGP> sgp_config = NULL;
+=======
+  unsigned int reproductions = 0;
+
+protected:
+  /**
+   * 
+   * Purpose: Holds all configuration settings and points to same configuration
+   * object as my_config from superclass, but with the correct subtype.
+   * 
+   */
+  emp::Ptr<SymConfigSGP> sgp_config = NULL;
+>>>>>>> main
 public:
   /**
    * Constructs a new SGPSymbiont as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
    * the config setting RANDOM_ANCESTOR.
    */
+<<<<<<< HEAD
   SGPSymbiont(
     emp::Ptr<emp::Random> _random,
     emp::Ptr<world_t> _world,
@@ -63,11 +89,20 @@ public:
     my_world(_world)
   {
     // sgp_config = _config;
+=======
+  SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+              emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
+              double _points = 0.0)
+      : Symbiont(_random, _world, _config, _intval, _points), cpu(this, _world),
+        my_world(_world) {
+    sgp_config = _config;
+>>>>>>> main
   }
 
   /**
    * Constructs an SGPSymbiont with a copy of the provided genome.
    */
+<<<<<<< HEAD
   SGPSymbiont(
     emp::Ptr<emp::Random> _random,
     emp::Ptr<world_t> _world,
@@ -88,6 +123,21 @@ public:
     hardware(symbiont.my_world, this, symbiont.hardware.GetProgram()),
     my_world(symbiont.my_world)
   { }
+=======
+  SGPSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+              emp::Ptr<SymConfigSGP> _config,
+              const sgpl::Program<Spec> &genome, double _intval = 0.0,
+              double _points = 0.0)
+      : Symbiont(_random, _world, _config, _intval, _points),
+        cpu(this, _world, genome), my_world(_world) {
+    sgp_config = _config;
+  }
+
+  SGPSymbiont(const SGPSymbiont &symbiont)
+      : Symbiont(symbiont),
+        cpu(this, symbiont.my_world, symbiont.cpu.GetProgram()),
+        my_world(symbiont.my_world) {}
+>>>>>>> main
 
   /**
    * Input: None
@@ -98,11 +148,15 @@ public:
    * heap-allocated state and canceling any in-progress reproduction.
    */
   ~SGPSymbiont() {
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPSymbiont.h
+=======
+>>>>>>> main
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1 && (int)my_world->to_reproduce.size() > cpu.state.in_progress_repro) {
       //TODO: figure out why the second part of the line above is necessary and also write a test
       my_world->to_reproduce[cpu.state.in_progress_repro] = nullptr;
+<<<<<<< HEAD
 =======
     // if (!my_host) {
     //   cpu.state.internal_environment.Delete();
@@ -129,11 +183,20 @@ public:
   bool operator<(const Organism& other) const {
     if (const SGPSymbiont* sgp = dynamic_cast<const SGPSymbiont*>(&other)) {
       return GetProgram() < sgp->GetProgram();
+=======
+    }
+  }
+
+  bool operator<(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() < sgp->cpu.GetProgram();
+>>>>>>> main
     } else {
       return false;
     }
   }
 
+<<<<<<< HEAD
   bool operator<(const SGPSymbiont& other) const {
     return GetProgram() < other.GetProgram();
   }
@@ -142,17 +205,25 @@ public:
   bool operator==(const Organism& other) const {
     if (const SGPSymbiont* sgp = dynamic_cast<const SGPSymbiont*>(&other)) {
       return GetProgram() == sgp->GetProgram();
+=======
+  bool operator==(const Organism &other) const {
+    if (const SGPSymbiont *sgp = dynamic_cast<const SGPSymbiont *>(&other)) {
+      return cpu.GetProgram() == sgp->cpu.GetProgram();
+>>>>>>> main
     } else {
       return false;
     }
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPSymbiont.h
 =======
   bool operator==(const SGPSymbiont& other) const {
     return hardware.GetProgram() == other.hardware.GetProgram();
   }
 
+=======
+>>>>>>> main
   /**
    * Input: Set the reproduction counter
    *
@@ -160,8 +231,13 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
+<<<<<<< HEAD
   void SetReproCount(size_t _in) { reproductions = _in; }
 
+=======
+  void SetReproCount(int _in) { reproductions = _in; }
+ 
+>>>>>>> main
   /**
    * Input: None.
    *
@@ -169,6 +245,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
+<<<<<<< HEAD
   size_t GetReproCount() const { return reproductions; }
 
   /**
@@ -229,6 +306,27 @@ public:
    * Purpose: Adjusts score that symbiont will receive based on whether it is giving some of its points to host
    * or stealing some of the hosts points. 
    */
+=======
+  size_t GetReproCount() { return reproductions; }
+
+  void AddPoints(double _in) {
+    if(my_host && _in == 5.0) {
+      //Would need to check 5.0 check to check if sym actually did same task as host somehow
+      //my_host->AddPoints(-_in * 0.5);
+    }
+    points += _in;
+  }
+  /**
+   * Input: None
+   *
+   * Output: The CPU associated with this symbiont.
+   *
+   * Purpose: Allows accessing the symbiont's CPU.
+   */
+  CPU &GetCPU() { return cpu; }
+
+
+>>>>>>> main
   float DoTaskInteraction(float score, size_t task_id) {
     if(sgp_config->INTERACTION_MECHANISM() == 3){ //Nutrient mode
       emp::Ptr<SGPHost> host = my_host.DynamicCast<SGPHost>();
@@ -262,7 +360,10 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPSymbiont.h
+=======
+>>>>>>> main
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
     if (GetDead()) {
@@ -272,13 +373,17 @@ public:
     cpu.RunCPUStep(pos, sgp_config->CYCLES_PER_UPDATE());
     // The parts of Symbiont::Process that don't use resources or reproduction
 
+<<<<<<< HEAD
 =======
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPSymbiont.h
+=======
+>>>>>>> main
     // Age the organism
     GrowOlder();
   }
 
   /**
+<<<<<<< HEAD
    * Input: None
    *
    * Output: Whether the symbiont is able to vertically transmit
@@ -298,6 +403,8 @@ public:
   }
 
   /**
+=======
+>>>>>>> main
    * Input: The pointer to the organism that is the new host baby
    *
    * Output: None
@@ -306,6 +413,7 @@ public:
    * bookkeeping on top of `Symbiont::VerticalTransmission()` to avoid messing
    * with the reproduction queue which is used for horizontal transmission.
    */
+<<<<<<< HEAD
   std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     // Save and restore the in-progress reproduction, since Reproduce() will be
     // called but it will still be on the queue for horizontal transmission
@@ -320,6 +428,14 @@ public:
     // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
     // cpu.state.in_progress_repro = old;
     return sym_offspring;
+=======
+  void VerticalTransmission(emp::Ptr<Organism> host_baby) {
+    // Save and restore the in-progress reproduction, since Reproduce() will be
+    // called but it will still be on the queue for horizontal transmission
+    size_t old = cpu.state.in_progress_repro;
+    Symbiont::VerticalTransmission(host_baby);
+    cpu.state.in_progress_repro = old;
+>>>>>>> main
   }
 
 
@@ -331,18 +447,26 @@ public:
    * Purpose: To produce a new SGPSymbiont
    */
   emp::Ptr<Organism> Reproduce() {
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPSymbiont.h
+=======
+>>>>>>> main
     emp::Ptr<SGPSymbiont> sym_baby = Symbiont::Reproduce().DynamicCast<SGPSymbiont>();
     sym_baby->SetReproCount(reproductions + 1);
     // This organism is reproducing, so it must have gotten off the queue
     cpu.state.in_progress_repro = -1;
     sym_baby->GetCPU().state.parent_tasks_performed->Import(*GetCPU().state.tasks_performed);
+<<<<<<< HEAD
     if (sgp_config->TRACK_PARENT_TASKS() == CURRENTORPARENT) {
+=======
+    if (sgp_config->TRACK_PARENT_TASKS() == 2) {
+>>>>>>> main
       sym_baby->GetCPU().state.parent_or_current_tasks_performed->Import(*GetCPU().state.tasks_performed);
     }
     if (sgp_config->TRACK_PARENT_TASKS()) {
       //inherit towards-from tracking
       for (int i = 0; i < CPU_BITSET_LENGTH; i++) {
+<<<<<<< HEAD
 =======
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_offspring = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
@@ -408,6 +532,40 @@ public:
     hardware.GetCPUState().ResetReproState();
 
     return sym_offspring;
+=======
+
+        // lineage task gain / loss
+        sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i];
+        sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i];
+        if (cpu.state.tasks_performed->Get(i) && !cpu.state.parent_tasks_performed->Get(i)) {
+          // child gains the ability to infect hosts whose parents have done this task
+          sym_baby->GetCPU().state.task_change_gain[i] = cpu.state.task_change_gain[i] + 1;
+        }
+        else if (!cpu.state.tasks_performed->Get(i) && cpu.state.parent_tasks_performed->Get(i)) {
+          // child loses the ability to infect hosts with whom this parent had only this task in common 
+          sym_baby->GetCPU().state.task_change_lose[i] = cpu.state.task_change_lose[i] + 1;
+        }
+
+        if (my_host) {
+          // divergence from/convergence towards parent's partner
+          emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = my_host.DynamicCast<SGPHost>()->GetCPU().state.parent_tasks_performed;
+          sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i];
+          sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i];
+          if (cpu.state.parent_tasks_performed->Get(i) != host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) == host_tasks->Get(i)) {
+            // parent != partner and child == partner
+            sym_baby->GetCPU().state.task_toward_partner[i] = cpu.state.task_toward_partner[i] + 1;
+          }
+          else if (cpu.state.parent_tasks_performed->Get(i) == host_tasks->Get(i) &&
+            cpu.state.tasks_performed->Get(i) != host_tasks->Get(i)) {
+            // parent == partner and child != partner
+            sym_baby->GetCPU().state.task_from_partner[i] = cpu.state.task_from_partner[i] + 1;
+          }
+        }
+      }
+    }
+    return sym_baby;
+>>>>>>> main
   }
 
 
@@ -419,6 +577,7 @@ public:
    * Purpose: To produce a new symbiont, identical to the original
    */
   emp::Ptr<Organism> MakeNew() {
+<<<<<<< HEAD
     return emp::NewPtr<this_t>(
       random,
       my_world,
@@ -426,6 +585,11 @@ public:
       GetProgram(),
       GetIntVal()
     );
+=======
+    emp::Ptr<SGPSymbiont> sym_baby = emp::NewPtr<SGPSymbiont>(
+        random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
+    return sym_baby;
+>>>>>>> main
   }
 
   /**
@@ -435,6 +599,7 @@ public:
    *
    * Purpose: To mutate the code in the genome of this symbiont.
    */
+<<<<<<< HEAD
   // Called by Symbiont::Reproduce (which is called for both VT/HT)
   void Mutate() {
     // Mutate the interaction value
@@ -460,4 +625,13 @@ public:
 //   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
 // }
 
+=======
+  void Mutate() {
+    Symbiont::Mutate();
+
+    cpu.Mutate();
+  }
+};
+
+>>>>>>> main
 #endif

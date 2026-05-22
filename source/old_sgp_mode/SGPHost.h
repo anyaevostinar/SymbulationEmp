@@ -2,6 +2,7 @@
 #define SGPHOST_H
 
 #include "../default_mode/Host.h"
+<<<<<<< HEAD
 #include "hardware/SGPHardware.h"
 // #include "SGPWorld.h"
 
@@ -29,19 +30,39 @@ protected:
   // CPU cpu;
   hw_t hardware;
 
+=======
+#include "CPU.h"
+#include "SGPWorld.h"
+#include "emp/base/Ptr.hpp"
+#include "sgpl/utility/ThreadLocalRandom.hpp"
+
+class SGPHost : public Host {
+private:
+  CPU cpu;
+  
+>>>>>>> main
   /**
    *
    * Purpose: Tracks the number of reproductive events in this host's lineage.
    *
    */
+<<<<<<< HEAD
   size_t reproductions = 0;
 
+=======
+  unsigned int reproductions = 0;
+protected:
+>>>>>>> main
   /**
     *
     * Purpose: Represents the SGPWorld that the hosts are living in.
     *
   */
+<<<<<<< HEAD
   const emp::Ptr<world_t> my_world;
+=======
+  const emp::Ptr<SGPWorld> my_world;
+>>>>>>> main
 
   /**
    *
@@ -49,6 +70,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
+<<<<<<< HEAD
   // emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
@@ -62,12 +84,16 @@ protected:
   //   process_syms =
   // }
 
+=======
+  emp::Ptr<SymConfigSGP> sgp_config = NULL;
+>>>>>>> main
 public:
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
    * the config setting RANDOM_ANCESTOR.
    */
+<<<<<<< HEAD
   SGPHost(
     emp::Ptr<emp::Random> _random,
     emp::Ptr<world_t> _world,
@@ -82,10 +108,22 @@ public:
     my_world(_world)
     // sgp_config(_config)
   { }
+=======
+  SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+          emp::Ptr<SymConfigSGP> _config, double _intval = 0.0,
+          emp::vector<emp::Ptr<Organism>> _syms = {},
+          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+          double _points = 0.0)
+      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+    cpu(this, _world), my_world(_world) {
+    sgp_config = _config;
+  }
+>>>>>>> main
 
   /**
    * Constructs an SGPHost with a copy of the provided genome.
    */
+<<<<<<< HEAD
   SGPHost(
     emp::Ptr<emp::Random> _random,
     emp::Ptr<world_t> _world,
@@ -107,6 +145,21 @@ public:
     hardware(host.my_world, this, host.hardware.GetProgram()),
     my_world(host.my_world)
   { }
+=======
+  SGPHost(emp::Ptr<emp::Random> _random, emp::Ptr<SGPWorld> _world,
+          emp::Ptr<SymConfigSGP> _config, const sgpl::Program<Spec> &genome,
+          double _intval = 0.0, emp::vector<emp::Ptr<Organism>> _syms = {},
+          emp::vector<emp::Ptr<Organism>> _repro_syms = {},
+          double _points = 0.0)
+      : Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
+        cpu(this, _world, genome), my_world(_world) {
+    sgp_config = _config;
+  }
+
+  SGPHost(const SGPHost &host)
+      : Host(host), cpu(this, host.my_world, host.cpu.GetProgram()),
+        my_world(host.my_world) {}
+>>>>>>> main
 
   /**
    * Input: None
@@ -117,6 +170,7 @@ public:
    * state and canceling any in-progress reproduction.
    */
   ~SGPHost() {
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
     // Invalidate any in-progress reproduction
     if (cpu.state.in_progress_repro != -1) {
@@ -142,6 +196,14 @@ public:
   }
 
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
+=======
+    // Invalidate any in-progress reproduction
+    if (cpu.state.in_progress_repro != -1) {
+      my_world->to_reproduce[cpu.state.in_progress_repro] = nullptr;
+    }
+  }
+
+>>>>>>> main
   /**
      * Input: None.
      *
@@ -156,16 +218,20 @@ public:
   bool operator<(const Organism &other) const override {
     if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
       return cpu.GetProgram() < sgp->cpu.GetProgram();
+<<<<<<< HEAD
 =======
   bool operator<(const Organism& other) const {
     if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
       return GetProgram() < sgp->GetProgram();
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+>>>>>>> main
     } else {
       return false;
     }
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
   bool operator==(const Organism &other) const override {
     if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
@@ -180,11 +246,17 @@ public:
     if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
       return GetProgram() == sgp->GetProgram();
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+  bool operator==(const Organism &other) const override {
+    if (const SGPHost *sgp = dynamic_cast<const SGPHost *>(&other)) {
+      return cpu.GetProgram() == sgp->cpu.GetProgram();
+>>>>>>> main
     } else {
       return false;
     }
   }
 
+<<<<<<< HEAD
   bool operator==(const SGPHost& other) const {
     return hardware.GetProgram() == other.hardware.GetProgram();
   }
@@ -192,12 +264,16 @@ public:
   /**
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
 =======
+=======
+  /**
+>>>>>>> main
    * Input: Set the reproduction counter
    *
    * Output: None
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
+<<<<<<< HEAD
   void SetReproCount(size_t _in) { reproductions = _in; }
 
   void SetLocation(const emp::WorldPosition& pos) {
@@ -213,6 +289,9 @@ public:
   void AddPoints(double amt) {
     points += amt;
   }
+=======
+  void SetReproCount(int _in) { reproductions = _in; }
+>>>>>>> main
 
   /**
    * Input: None.
@@ -221,21 +300,31 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
+<<<<<<< HEAD
   size_t GetReproCount() const { return reproductions; }
 
   /**
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+  size_t GetReproCount() { return reproductions; }
+
+  /**
+>>>>>>> main
    * Input: None
    *
    * Output: The CPU associated with this host.
    *
    * Purpose: Allows accessing the host's CPU.
    */
+<<<<<<< HEAD
   hw_t& GetHardware() { return hardware; }
   const hw_t& GetHardware() const { return hardware; }
 
   const program_t& GetProgram() const { return hardware.GetProgram(); }
   program_t& GetProgram() { return hardware.GetProgram(); }
+=======
+  CPU &GetCPU() { return cpu; }
+>>>>>>> main
 
 
   /**
@@ -252,12 +341,21 @@ public:
 
   /**
    * Input: None
+<<<<<<< HEAD
    *
    * Output: A pointer to the world this host belongs to.
    *
    * Purpose: Allows accessing the host's world.
    */
   emp::Ptr<world_t> GetWorld() { return my_world; }
+=======
+   * 
+   * Output: A pointer to the world this host belongs to.
+   * 
+   * Purpose: Allows accessing the host's world.
+   */
+  emp::Ptr<SGPWorld> GetWorld() { return my_world; }
+>>>>>>> main
 
   /**
    * Input: The location of the host.
@@ -268,7 +366,10 @@ public:
    * include reproduction and acquisition of resources; removing dead syms; and
    * processing alive syms.
    */
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
+=======
+>>>>>>> main
   void Process(emp::WorldPosition pos) override {
     // Instead of calling Host::Process, do the important stuff here
     // Our instruction handles reproduction
@@ -300,15 +401,19 @@ public:
       } // for each sym in syms
     }   // if org has syms
 
+<<<<<<< HEAD
 =======
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+>>>>>>> main
     GrowOlder();
     
   }
 
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
   // Prototype for this host's reproduce method
   emp::Ptr<Organism> Reproduce() override;
@@ -394,6 +499,10 @@ public:
     return host_offspring;
   }
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+  // Prototype for this host's reproduce method
+  emp::Ptr<Organism> Reproduce() override;
+>>>>>>> main
 
   /**
    * Input: None.
@@ -402,12 +511,16 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
+=======
+>>>>>>> main
   emp::Ptr<Organism> MakeNew() override {
     emp::Ptr<SGPHost> host_baby = emp::NewPtr<SGPHost>(
         random, my_world, sgp_config, cpu.GetProgram(), GetIntVal());
     
     return host_baby;
+<<<<<<< HEAD
 =======
   emp::Ptr<Organism> MakeNew() {
     return emp::NewPtr<this_t>(
@@ -418,6 +531,8 @@ public:
       GetIntVal()
     );
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/SGPHost.h
+=======
+>>>>>>> main
   }
 
   /**
@@ -427,6 +542,7 @@ public:
    *
    * Purpose: To mutate the code in the genome of this host.
    */
+<<<<<<< HEAD
 <<<<<<< HEAD:source/old_sgp_mode/SGPHost.h
   void Mutate() override {
 =======
@@ -450,4 +566,13 @@ public:
 
 }
 
+=======
+  void Mutate() override {
+    Host::Mutate();
+
+    cpu.Mutate();
+  }
+};
+
+>>>>>>> main
 #endif

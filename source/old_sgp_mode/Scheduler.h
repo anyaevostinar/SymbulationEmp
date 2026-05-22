@@ -3,6 +3,7 @@
 
 #include "../Organism.h"
 #include "../default_mode/SymWorld.h"
+<<<<<<< HEAD
 
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 #include "emp/base/vector.hpp"
@@ -85,6 +86,65 @@ protected:
   //   }
 
 <<<<<<< HEAD:source/old_sgp_mode/Scheduler.h
+=======
+#include "sgpl/utility/ThreadLocalRandom.hpp"
+#include <atomic>
+#include <condition_variable>
+#include <emp/base/vector.hpp>
+#include <functional>
+#include <thread>
+
+class Scheduler {
+  const size_t BATCH_SIZE = 64;
+
+  SymWorld &world;
+  size_t thread_count;
+
+  bool thread_pool_started = false;
+  std::function<void(emp::WorldPosition, Organism &)> callback;
+  emp::vector<std::thread> running_threads;
+
+  std::mutex ready_lock;
+  std::condition_variable ready_cv;
+  std::atomic<size_t> next_id = 0;
+  std::atomic<size_t> update = -1;
+
+  std::mutex done_lock;
+  std::condition_variable done_cv;
+  size_t n_done;
+  std::atomic_bool finished = false;
+
+  /**
+   * Input: None
+   *
+   * Output: The ID of this thread, between 0 and THREAD_COUNT.
+   *
+   * Purpose: Runs a worker thread for the scheduler, which processes organisms
+   * each update and then waits to be signaled for the next update.
+   */
+  void RunThread(size_t i) {
+    // Make sure each thread gets a different, deterministic, seed
+    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED() * thread_count + i);
+    size_t last_update = -1;
+    while (true) {
+      if (!finished && last_update == update) {
+        std::unique_lock<std::mutex> lock(ready_lock);
+        ready_cv.wait(lock,
+                      [&]() { return finished || last_update != update; });
+      }
+      if (finished)
+        return;
+      last_update = update;
+
+      while (true) {
+        // Process the next BATCH_SIZE organisms
+        size_t start = next_id.fetch_add(BATCH_SIZE);
+        if (start > world.GetSize())
+          break;
+
+        size_t end = start + BATCH_SIZE;
+
+>>>>>>> main
         for (size_t id = start; id < end; id++) {
           if (world.IsOccupied(id)) {
             callback(id, world.GetOrg(id));
@@ -99,6 +159,7 @@ protected:
       done_cv.notify_all();
     }
   }
+<<<<<<< HEAD
 =======
   // }
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/Scheduler.h
@@ -152,6 +213,34 @@ public:
   }
 
 <<<<<<< HEAD:source/old_sgp_mode/Scheduler.h
+=======
+
+public:
+  Scheduler(SymWorld &world, size_t thread_count)
+      : world(world), thread_count(thread_count) {
+    // Reset the seed of the main thread based on the config
+    sgpl::tlrand.Get().ResetSeed(world.GetConfig()->SEED());
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Stops any running threads when the scheduler is destroyed.
+   */
+  ~Scheduler() {
+    {
+      std::unique_lock<std::mutex> lock(ready_lock);
+      finished = true;
+    }
+    ready_cv.notify_all();
+    for (auto &thread : running_threads) {
+      thread.join();
+    }
+  }
+
+>>>>>>> main
   /**
    * Input: A function to run on each organism.
    *
@@ -205,10 +294,15 @@ public:
       done_cv.wait(lock, [&]() { return n_done == thread_count; });
     }
   }
+<<<<<<< HEAD
 =======
 >>>>>>> alex-fork/sgp-mode-refactor:source/sgp_mode/Scheduler.h
 };
 
 }
 
+=======
+};
+
+>>>>>>> main
 #endif

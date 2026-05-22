@@ -26,12 +26,23 @@ TEST_CASE("Update only hosts test", "[sgp]") {
   config.GRID_X(2);
   config.GRID_Y(2);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+<<<<<<< HEAD
+=======
+  config.POP_SIZE(0);
+>>>>>>> main
 
 
   world_t world(random, &config);
   world.Resize(2,2);
+<<<<<<< HEAD
 
   emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+=======
+  world.Setup();
+  auto& builder = world.GetProgramBuilder();
+
+  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateReproProgram(100));
+>>>>>>> main
 
   world.AddOrgAt(uninfected_host, 0);
   // TODO: this doesn't work if you add at position 1 instead, is that a problem?
@@ -101,7 +112,11 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
         REQUIRE(world.GetGraveyard().size() == 1);
     }
   }
+<<<<<<< HEAD
 
+=======
+  world.CleanupGraveyard();
+>>>>>>> main
 }
 
 TEST_CASE("TaskMatchCheck", "[sgp]") {

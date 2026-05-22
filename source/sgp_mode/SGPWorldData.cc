@@ -25,26 +25,23 @@ void SGPWorld::CreateDataFiles() {
     std::filesystem::create_directory(output_dir);
   }
 
-  // NOTE - discuss typical data organization for symbulation
-  //        TODO - update file endings post discussion
-
   // Setup organism count file
-  std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts.csv");
+  std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts"+sgp_config.FILE_NAME()+".csv");
   SetupOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup transmission file
-  std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
+  std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates"+sgp_config.FILE_NAME()+".csv");
   SetupTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // // Setup sym donated file
-  // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
+  // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated"+sgp_config.FILE_NAME()+".csv");
   // SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup tasks file
-  std::filesystem::path tasks_fpath = output_dir / ("Tasks.csv");
+  std::filesystem::path tasks_fpath = output_dir / ("Tasks"+sgp_config.FILE_NAME()+".csv");
   SetupTasksFile(tasks_fpath).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup current update information file
-  std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo.csv");
+  std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo"+sgp_config.FILE_NAME()+".csv");
   SetupCurrentUpdateInfoFile(cur_update_info_fpath).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup file for symbiont interaction values
-  std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues.csv");
+  std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues"+sgp_config.FILE_NAME()+".csv");
   SetupSymbiontInteractionValuesFile(sym_int_vals_fpath).SetTimingRepeat(sgp_config.DATA_INT());
 }
 

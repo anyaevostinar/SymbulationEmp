@@ -131,25 +131,26 @@ public:
     );
   }
 
-  // TODO - add note about not working with requiring all inputs in input buffer
-  // to be used
   void AddTask_Not(program_t& program) {
-    // io   r0
     // nand r0, r0, r0
-    // io   r0
-    AddInst(program, io_op);
     AddInst(program, nand_op);
+  }
+
+  void AddTask_NotIO(program_t& program) {
+    AddInst(program, io_op);
+    AddTask_Not(program);
     AddInst(program, io_op);
   }
 
   void AddTask_Nand(program_t& program) {
-    // io   r0
-    // io   r1
     // nand r0, r1, r0
-    // io   r0
+    AddInst(program, nand_op, 0, 1, 0);
+  }
+
+  void AddTask_NandIO(program_t& program) {
     AddInst(program, io_op);
     AddInst(program, io_op, 1);
-    AddInst(program, nand_op, 0, 1, 0);
+    AddTask_Nand(program);
     AddInst(program, io_op);
   }
 
@@ -157,87 +158,93 @@ public:
     program_t& program
   ) {
     // ~(a nand b)
-    // io   r0
-    // io   r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op);
+  }
+
+  void AddTask_AndIO(
+    program_t& program
+  ) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_And(program);
     AddInst(program, io_op);
   }
 
   void AddTask_OrNot(program_t& program) {
     // (~a) nand b
-    // io   r0
-    // io   r1
     // nand r0, r0, r0
     // nand r0, r1, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
+
     AddInst(program, nand_op);
     AddInst(program, nand_op, 0, 1, 0);
+
+  }
+
+  void AddTask_OrNotIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_OrNot(program);
     AddInst(program, io_op);
   }
 
   void AddTask_Or(program_t& program) {
     // (~a) nand (~b)
-    // io   r0
-    // io   r1
     // nand r0, r0, r0
     // nand r1, r1, r1
     // nand r0, r1, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
+  }
+
+  void AddTask_OrIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_Or(program);
     AddInst(program, io_op);
   }
 
   void AddTask_AndNot(program_t& program) {
     // ~(a nand (~b))
-    // io   r0
-    // io   r1
     // nand r1, r1, r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op, 0, 0, 0);
+  }
+
+  void AddTask_AndNotIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_AndNot(program);
     AddInst(program, io_op);
   }
 
   void AddTask_Nor(program_t& program) {
     // ~((~a) nand (~b))
-    // io   r0
-    // io   r1
     // nand r0, r0, r0
     // nand r1, r1, r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
     AddInst(program, nand_op, 0, 0, 0);
+  }
+
+  void AddTask_NorIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_Nor(program);
     AddInst(program, io_op);
   }
 
   void AddTask_Xor(program_t& program) {
     // (a & ~b) | (~a & b) --> (a nand ~b) nand (~a nand b)
-    // io   r0
-    // io   r1
-    //
     // nand r3, r1, r1
     // nand r3, r3, r0
     //
@@ -245,24 +252,24 @@ public:
     // nand r2, r2, r1
     //
     // nand r0, r2, r3
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
 
     AddInst(program, nand_op, 3, 1, 1);
     AddInst(program, nand_op, 3, 3, 0);
-
     AddInst(program, nand_op, 2, 0, 0);
     AddInst(program, nand_op, 2, 2, 1);
-
     AddInst(program, nand_op, 0, 2, 3);
+
+  }
+
+  void AddTask_XorIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_Xor(program);
     AddInst(program, io_op);
   }
 
   void AddTask_Equ(program_t& program) {
     // ~(a ^ b)
-    // io   r0
-    // io   r1
     //
     // nand r3, r1, r1
     // nand r3, r3, r0
@@ -272,10 +279,6 @@ public:
     //
     // nand r0, r2, r3
     // nand r0, r0, r0
-    // io   r0
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
-
     AddInst(program, nand_op, 3, 1, 1);
     AddInst(program, nand_op, 3, 3, 0);
 
@@ -284,6 +287,12 @@ public:
 
     AddInst(program, nand_op, 0, 2, 3);
     AddInst(program, nand_op, 0, 0, 0);
+  }
+
+  void AddTask_EquIO(program_t& program) {
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddTask_Equ(program);
     AddInst(program, io_op);
   }
 
@@ -291,7 +300,12 @@ public:
     program_t program; // Create empty program
     // Add start anchor
     AddStartAnchor(program);
-    AddTask_Not(program); // Add not task
+    // Add task and IO manually so that repeated nots play nice with task crediting
+    //   Add a not implementation that properly cycles the input buffer
+    //   so that when it executes this multiple times, it performs a not with
+    //   each value in the input buffer.
+    AddInst(program, io_op);
+    AddTask_Not(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
@@ -300,12 +314,6 @@ public:
     program.Rectify(rectifier);
     return program;
   }
-
-  // program_t CreateRandomProgram(size_t length) {
-  //   // Program constructor will initialize program randomly.
-  //   // Be sure to pass instruction rectifier to remove any disabled instructions.
-  //   return program_t(length, rectifier);
-  // }
 
   program_t CreateReproProgram(size_t length) {
     program_t program;
@@ -332,8 +340,10 @@ public:
       start_tag
     );
     // Add not instruction
+    AddInst(program, io_op); 
     AddTask_Not(program);  // Add not task
-    AddTask_Nand(program); // Add nand task
+    AddInst(program, io_op); 
+    AddTask_Nand(program); // Add nand task, IO will happen at start of next time through genome
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
@@ -352,7 +362,8 @@ public:
       start_tag
     );
     // Add not instruction
-    AddTask_Nand(program); // Add nand task
+    AddInst(program, io_op);
+    AddTask_Nand(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);
