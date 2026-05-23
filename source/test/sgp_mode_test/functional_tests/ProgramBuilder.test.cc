@@ -61,8 +61,8 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       world.GetProgramBuilder().CreateNotProgram(50)
     );
     world.AssignNewEnvIO(hw.GetCPUState());
-    // Run organism's hardware for 50 steps
-    hw.RunCPUStep(101);
+    // Run organism's hardware for 52 steps
+    hw.RunCPUStep(52);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
 
     // Before processing output buffer, program will not have been marked as
@@ -93,8 +93,8 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
     world.AssignNewEnvIO(hw.GetCPUState());
 
-    // Run organism's hardware for 50 steps
-    hw.RunCPUStep(101);
+    // Run organism's hardware for 52 steps
+    hw.RunCPUStep(52);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
     CheckTaskProfile(
       world,
@@ -121,8 +121,8 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
     world.AssignNewEnvIO(hw.GetCPUState());
 
-    // Run organism's hardware for 50 steps
-    hw.RunCPUStep(101);
+    // Run organism's hardware for 52 steps
+    hw.RunCPUStep(52);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
     CheckTaskProfile(
       world,
