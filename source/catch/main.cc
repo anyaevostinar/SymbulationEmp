@@ -53,7 +53,6 @@
 
 // Alex fork tests, some updates needed?
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
-// #include "../test/sgp_mode_test/SGPHardware.test.cc"
 // #include "../test/sgp_mode_test/Instructions.test.cc"
 // // #include "../test/sgp_mode_test/SGPHost.test.cc"
 
