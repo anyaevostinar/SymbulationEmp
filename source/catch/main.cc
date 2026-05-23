@@ -66,7 +66,7 @@
 
 #include "../test/sgp_mode_test/unit_tests/RingBuffer.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
-// // #include "../test/sgp_mode_test/utils.test.cc"
+#include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 
 // Anya's tests
