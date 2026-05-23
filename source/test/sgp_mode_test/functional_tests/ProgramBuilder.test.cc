@@ -62,7 +62,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
     world.AssignNewEnvIO(hw.GetCPUState());
     // Run organism's hardware for 50 steps
-    hw.RunCPUStep(50);
+    hw.RunCPUStep(101);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
 
     // Before processing output buffer, program will not have been marked as
@@ -94,7 +94,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     world.AssignNewEnvIO(hw.GetCPUState());
 
     // Run organism's hardware for 50 steps
-    hw.RunCPUStep(50);
+    hw.RunCPUStep(101);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
     CheckTaskProfile(
       world,
@@ -110,6 +110,34 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       hw,
       {"NOT", "NAND"},
       {"OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU"}
+    );
+  }
+
+  WHEN("creating a NAND program") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().CreateNandProgram(50)
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 50 steps
+    hw.RunCPUStep(101);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "NAND" },
+      { "NOT", "OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU" }
     );
   }
 
@@ -149,7 +177,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an AND program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_And(program);
+    prog_builder.AddTask_AndIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -180,7 +208,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an OrNot program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_OrNot(program);
+    prog_builder.AddTask_OrNotIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -211,7 +239,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an OR program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_Or(program);
+    prog_builder.AddTask_OrIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -242,7 +270,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an AndNot program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_AndNot(program);
+    prog_builder.AddTask_AndNotIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -273,7 +301,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an Nor program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_Nor(program);
+    prog_builder.AddTask_NorIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -304,7 +332,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an Xor program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_Xor(program);
+    prog_builder.AddTask_XorIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
@@ -335,7 +363,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     // Build an Xor program
     program_t program;
     prog_builder.AddStartAnchor(program);
-    prog_builder.AddTask_Equ(program);
+    prog_builder.AddTask_EquIO(program);
     hw.Reset();
     // Set program of organism to something else
     hw.SetProgram(program);
