@@ -23,8 +23,9 @@ class EventObjects {
     int start_update;
     int end_update;
     int update_step;
-    std::string org_mode;
-    std::string reward_mode;
+    // std::string org_mode;
+    // std::string reward_mode;
+    std::vector parameters;
     bool is_done = false;
 
     public:
