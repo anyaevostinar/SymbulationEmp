@@ -50,7 +50,7 @@ TEST_CASE("Mutate", "[sgp]") {
   second_host.Delete();
 }
 
-TEST_CASE("No Mutate", "[sgp-test]") {
+TEST_CASE("No Mutate", "[sgp]") {
 
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
