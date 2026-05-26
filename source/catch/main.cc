@@ -38,6 +38,7 @@
 // #include "../test/old_sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/StressHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
 // #include "../test/old_sgp_mode_test/unit_tests/SGPHost.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
@@ -62,6 +63,7 @@
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
 // // #include "../test/sgp_mode_test/StressHost.test.cc"
 // #include "../test/sgp_mode_test/SGPStressMode.test.cc"
+
 
 
 #include "../test/sgp_mode_test/unit_tests/RingBuffer.test.cc"
