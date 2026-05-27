@@ -54,7 +54,7 @@
 
 // Alex fork tests, some updates needed?
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
-// #include "../test/sgp_mode_test/Instructions.test.cc"
+#include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
 // // #include "../test/sgp_mode_test/SGPHost.test.cc"
 
 // // #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
@@ -70,6 +70,9 @@
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
 #include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
+
+#include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
 
 // Anya's tests
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"

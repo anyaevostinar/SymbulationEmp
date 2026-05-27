@@ -1,13 +1,13 @@
 #include "emp/math/Random.hpp"
 
-#include "../../sgp_mode/hardware/SGPHardware.h"
-#include "../../sgp_mode/SGPWorld.h"
-#include "../../sgp_mode/SGPWorld.cc"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPWorldData.cc"
-#include "../../sgp_mode/ProgramBuilder.h"
+#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
-#include "../../catch/catch.hpp"
+#include "../../../catch/catch.hpp"
 
 #include <array>
 
@@ -26,7 +26,7 @@ bool CheckRegisterContents(
   sgpmode::SGPWorld::sgp_hw_t& hardware,
   const emp::vector<uint32_t>& req_register_values
 ) {
-  // auto& registers = hardware.GetCPU().GetActiveCore().registers;
+   auto& registers = hardware.GetCPU().GetActiveCore().registers;
   emp_assert(req_register_values.size() <= registers.size());
   for (size_t reg_i = 0; reg_i < req_register_values.size(); ++reg_i) {
     // NOTE - All instructions in symbulation cast sgp-lite's float register values
@@ -62,7 +62,6 @@ TEST_CASE("Test non-interactive instructions", "[sgp]") {
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
-  config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -495,7 +494,6 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
-  config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -504,7 +502,6 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.SYM_DONATE_PROP(0.5);
-  config.DONATE_PENALTY(0.25);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -597,7 +594,7 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
         init_sym_points,
         (init_sym_points + init_host_points)*config.SYM_DONATE_PROP()
       );
-      double donate_value = to_donate * (1.0 - config.DONATE_PENALTY());
+      double donate_value = to_donate;
       REQUIRE(sgp_sym.GetPoints() == init_sym_points - to_donate);
       REQUIRE(sgp_host.GetPoints() == init_host_points + donate_value);
     }
@@ -681,7 +678,7 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
         init_host_points,
         (init_sym_points + init_host_points) * config.SYM_STEAL_PROP()
       );
-      double steal_value = to_steal * (1.0 - config.STEAL_PENALTY());
+      double steal_value = to_steal;
       REQUIRE(sgp_host.GetPoints() == init_host_points - to_steal);
       REQUIRE(sgp_sym.GetPoints() == init_sym_points + steal_value);
     }
@@ -700,7 +697,6 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
-  config.RANDOM_ANCESTOR(false);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -709,7 +705,6 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.SYM_DONATE_PROP(0.5);
-  config.DONATE_PENALTY(0.25);
   config.FREE_LIVING_SYMS(true);
   config.SYM_LIMIT(1);
   config.PHAGE_EXCLUDE(false);
