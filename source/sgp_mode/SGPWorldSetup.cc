@@ -88,6 +88,95 @@ void SGPWorld::Setup() {
     );
   }
 
+  if (sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT()) {
+    // on setup, set NAND, AND-NOT, OR-NOT to be negative (at update zero)
+    // then during each interval apply *-1 to the changing tasks
+
+    size_t nand_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("NAND")) {
+      nand_task_id = task_env.GetTaskSet().GetID("NAND");
+    }
+    else if (task_env.GetTaskSet().HasTask("nand")) {
+      nand_task_id = task_env.GetTaskSet().GetID("nand");
+    }
+
+    size_t andn_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("AND_NOT")) {
+      andn_task_id = task_env.GetTaskSet().GetID("AND_NOT");
+    }
+    else if (task_env.GetTaskSet().HasTask("and_not")) {
+      andn_task_id = task_env.GetTaskSet().GetID("and_not");
+    }
+    
+
+    size_t orn_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("OR_NOT")) {
+      orn_task_id = task_env.GetTaskSet().GetID("OR_NOT");
+    }
+    else if (task_env.GetTaskSet().HasTask("or_not")) {
+      orn_task_id = task_env.GetTaskSet().GetID("or_not");
+    }
+    
+
+    // grab task ids for NOT, AND, OR
+    size_t not_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("NOT")) {
+      not_task_id = task_env.GetTaskSet().GetID("NOT");
+    }
+    else if (task_env.GetTaskSet().HasTask("not")) {
+      not_task_id = task_env.GetTaskSet().GetID("not");
+    }
+
+    size_t and_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("AND")) {
+      and_task_id = task_env.GetTaskSet().GetID("AND");
+    }
+    else if (task_env.GetTaskSet().HasTask("and")) {
+      and_task_id = task_env.GetTaskSet().GetID("and");
+    }
+
+    size_t or_task_id = task_env.GetTaskSet().GetSize();
+    if (task_env.GetTaskSet().HasTask("OR")) {
+      or_task_id = task_env.GetTaskSet().GetID("OR");
+    }
+    else if (task_env.GetTaskSet().HasTask("or")) {
+      or_task_id = task_env.GetTaskSet().GetID("or");
+    }
+    
+    // update 0 will flip not-and-or to rewarded and nand-andn-orn to punished
+    GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
+    
+    GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
+    
+    GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
+    GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
+
+    begin_update_sig.AddAction(
+      [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id]() {
+        if (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0) {
+          GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
+          GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
+          GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
+
+          GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
+          GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
+          GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
+
+
+          GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
+          GetTaskEnv().GetSymTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(andn_task_id).task_value;
+          GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
+
+          GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
+          GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
+          GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
+        }
+      }
+    );
+  }
+
   SetupHosts(&POP_SIZE);
   Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
@@ -150,6 +239,16 @@ void SGPWorld::SetupOrgMode() {
     );
   }
 
+  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment, 
+  // disable the SenseTask instruction
+  if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("SenseTask"),
+      Library::GetSize()
+    );
+  }
 }
 // TODO - use compatibility check to determine interaction
 void SGPWorld::SetupHealthInteractions() {
@@ -1119,7 +1218,7 @@ void SGPWorld::SetupTaskEnvironment() {
     sgp_config.TASK_IO_UNIQUE_OUTPUT()
   );
 
-  // Configure oganism input buffers / environment id
+  // Configure organism input buffers / environment id
   // NOTE - now that assigning new env io is in a function, could
   //        hardcode these calls in "ProcessOrg" functions.
   //        If this isn't something we want to configure at runtime, should do that.

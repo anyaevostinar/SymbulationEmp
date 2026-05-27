@@ -35,7 +35,7 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   config.UPDATES(total_updates);
   // config.SYM_LIMIT(2) // allow multiple symbionts to infect one host
 
-  // initalize world
+  // initialize world
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
