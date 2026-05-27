@@ -31,7 +31,7 @@
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //SGP mode Old tests (need to update before moving)
-// #include "../test/old_sgp_mode_test/unit_tests/GenomeLibrary.test.cc"
+#include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/HealthHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPWorld.test.cc"

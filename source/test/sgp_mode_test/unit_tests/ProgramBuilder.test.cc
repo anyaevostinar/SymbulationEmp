@@ -1,5 +1,8 @@
-#include "../../../sgp_mode/GenomeLibrary.h"
-#include "../../../sgp_mode/CPU.h"
+#include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
 
@@ -7,363 +10,499 @@
  * This file is dedicated to unit tests for GenomeLibrary
  */
 
-TEST_CASE("BuildNoRepro creates obligate mutualist program", "[sgp][sgp-unit]") {
-  GIVEN("A program builder"){
-    ProgramBuilder builder;
-    size_t program_len = 100;
+using world_t = sgpmode::SGPWorld;
+using cpu_state_t = sgpmode::CPUState<world_t>;
+using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+using program_t = typename world_t::sgp_prog_t;
+using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
-    WHEN("A program is built using BuildNoRepro"){
-      sgpl::Program<Spec> program = builder.BuildNoRepro(program_len);
+program_t Build(program_t& old_program, size_t length, sgpmode::ProgramBuilder<hw_spec_t>& builder) {
+  builder.AddInst(old_program, "Reproduce");
 
-      REQUIRE(program.size() == program_len);
+  program_t program;
+  // Set everything to 0 - this makes them no-ops since that's the first
+  // inst in the library
+  program.resize(length - old_program.size());
+  program[0].op_code = sgpmode::Library::GetOpCode("Global Anchor");
+  program[0].tag = builder.GetStartTag();
 
-      THEN("The last 5 instructions of the program is Donate"){
-        for (size_t i = program.size() - 5; i < program.size(); ++i) {
-          REQUIRE(program[i].op_code == Library::GetOpCode("Donate"));
-        }
-      }
+  program.insert(program.end(), old_program.begin(), old_program.end());
 
-      THEN("The program does not have the reproduce instruction"){
-        for (auto &inst : program) {
-          REQUIRE(inst.op_code != Library::GetOpCode("Reproduce"));
-        }
-      }
-
-      THEN("The program starts with a Global Anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
-        REQUIRE(program[0].tag == START_TAG);
-      }
-    }
-  }
-
+  return program;
 }
 
 TEST_CASE("All task specific programs are built correctly","[sgp][sgp-unit]"){
   GIVEN("A program builder"){
     size_t program_len = 100;
-    ProgramBuilder builder;
+    sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
+    sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
     WHEN("A NOT program is built"){
-      builder.AddNot();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_NotIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
       }
-
+      THEN("The program contains IO, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("IO"));
+      }
       THEN("The program contains 93 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 4); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 4; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A NAND program is built"){
-      builder.AddNand();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_NandIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 92 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 5); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 5; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A AND program is built"){
-      builder.AddAnd();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_AndIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+       REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 91 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 6); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 6; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A ORN program is built"){
-      builder.AddOrn();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_OrNotIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 91 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 6); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 6; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
     
     WHEN("A OR program is built"){
-      builder.AddOr();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_OrIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[6].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 90 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 7); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 7; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A ANDN program is built"){
-      builder.AddAndn();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_AndNotIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[6].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 90 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 7); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 7; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[94].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A NOR program is built"){
-      builder.AddNor();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_NorIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[6].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[7].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 89 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 8); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 8; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[93].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A XOR program is built"){
-      builder.AddXor();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_XorIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+       REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, Nand, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[6].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[7].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[8].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 88 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 9); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 9; i < (program.size() - 9); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[92].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
 
     WHEN("A EQU program is built"){
-      builder.AddEqu();
-      sgpl::Program<Spec> program = builder.Build(program_len);
+      program_t program;
+      builder.AddStartAnchor(program);
+      builder.AddTask_EquIO(program);
+
+      program.resize(program_len - 1);
+      builder.AddInst(program, "Reproduce");
+      
+      program.Rectify(rectifier);
 
       THEN("The program is of length 100"){
-      REQUIRE(program.size() == program_len);
+        REQUIRE(program.size() == program_len);
       }
 
       THEN("The program starts with a global anchor"){
-        REQUIRE(program[0].op_code == Library::GetOpCode("Global Anchor"));
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand, Nand, Nand, Nand, Nand, Nand, IO"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[6].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[7].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[8].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[9].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 87 nop instructions in a row"){
-      for (size_t i = 1; i < (program.size() - 10); ++i) {
-        REQUIRE(program[i].op_code == 0);
+        for (size_t i = 10; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      THEN("The program ends with SharedIO, SharedIO, Nand, Nand, Nand, Nand, Nand, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[90].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[91].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[92].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[93].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[94].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[95].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
   }
 }
 
-TEST_CASE("CreateStartProgram()", "[sgp][sgp-unit]"){
+TEST_CASE("CreateNotProgram()", "[sgp][sgp-unit]"){
+  GIVEN("A program builder"){
+    size_t program_len = 100;
+    sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
+    sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
 
-  SymConfigSGP config;
-  WHEN("Donation steal inst is off"){
-    config.DONATION_STEAL_INST(0);
-    sgpl::Program<Spec> program = CreateStartProgram(&config);
+    WHEN("CreateNotProgram is called"){
+      program_t program = builder.CreateNotProgram(program_len);
 
-    THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program is of length 100"){
+        REQUIRE(program.size() == program_len);
       }
+
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, Nand"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("Nand"));
+      }
+
+      THEN("The program contains 95 nop instructions in a row"){
+        for (size_t i = 3; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
+        }
+      }
+
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
+      }
+    }
   }
+}
 
-  WHEN("Donation steal inst is on"){
-    config.DONATION_STEAL_INST(1);
-    WHEN("Symbiont type is Mutualist"){
-      config.SYMBIONT_TYPE(MUTUALIST);
-      sgpl::Program<Spec> program = CreateStartProgram(&config);
-      size_t donate_count = 0;
-      for (size_t i = 1; i < program.size(); ++i) {
-        if(program[i].op_code == Library::GetOpCode("Donate")){
-          donate_count += 1;
+TEST_CASE("CreateReproProgram()", "[sgp][sgp-unit]"){
+  GIVEN("A program builder"){
+    size_t program_len = 100;
+    sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
+    sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
+
+    WHEN("CreateReproProgram is called"){
+      program_t program = builder.CreateReproProgram(program_len);
+
+      THEN("The program is of length 100"){
+        REQUIRE(program.size() == program_len);
+      }
+
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains 97 nop instructions in a row"){
+        for (size_t i = 1; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      REQUIRE(donate_count == 94);
 
-      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
-      
     }
+  }
+}
 
-    WHEN("Symbiont type is Parasite"){
-      config.SYMBIONT_TYPE(PARASITE);
-      sgpl::Program<Spec> program = CreateStartProgram(&config);
-      size_t steal_count = 0;
-      for (size_t i = 1; i < program.size(); ++i) {
-        if(program[i].op_code == Library::GetOpCode("Steal")){
-          steal_count += 1;
+TEST_CASE("CreateNotNandProgram()", "[sgp][sgp-unit]"){
+  GIVEN("A program builder"){
+    size_t program_len = 100;
+    sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
+    sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
+
+    WHEN("CreateNotNandProgram is called"){
+      program_t program = builder.CreateNotNandProgram(program_len);
+
+      THEN("The program is of length 100"){
+        REQUIRE(program.size() == program_len);
+      }
+
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, Nand, IO, IO, Nand"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[5].op_code == sgpmode::Library::GetOpCode("Nand"));
+      }
+
+      THEN("The program contains 92 nop instructions in a row"){
+        for (size_t i = 6; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
         }
       }
-      REQUIRE(steal_count == 94);
-      
-      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
+  }
+}
 
-    WHEN("Symbiont type is Neutral"){
-      config.SYMBIONT_TYPE(2);
-      sgpl::Program<Spec> program = CreateStartProgram(&config);
+TEST_CASE("CreateNandProgram()", "[sgp][sgp-unit]"){
+  GIVEN("A program builder"){
+    size_t program_len = 100;
+    sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
+    sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
 
-      THEN("The program ends with SharedIO, SharedIO, Nand, SharedIO, Reproduce"){
-        REQUIRE(program[95].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[96].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[97].op_code == Library::GetOpCode("Nand"));
-        REQUIRE(program[98].op_code == Library::GetOpCode("SharedIO"));
-        REQUIRE(program[99].op_code == Library::GetOpCode("Reproduce"));
+    WHEN("CreateNandProgram is called"){
+      program_t program = builder.CreateNandProgram(program_len);
+
+      THEN("The program is of length 100"){
+        REQUIRE(program.size() == program_len);
+      }
+
+      THEN("The program starts with a global anchor"){
+        REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
+      }
+
+      THEN("The program contains IO, IO, Nand"){
+        REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+      }
+
+      THEN("The program contains 94 nop instructions in a row"){
+        for (size_t i = 4; i < (program.size() - 1); ++i) {
+          REQUIRE(program[i].op_code == 0);
+        }
+      }
+
+      THEN("The program ends with Reproduce"){
+        REQUIRE(program[99].op_code == sgpmode::Library::GetOpCode("Reproduce"));
       }
     }
   }
