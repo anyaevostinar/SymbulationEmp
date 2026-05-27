@@ -14,7 +14,6 @@ using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using program_t = typename world_t::sgp_prog_t;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
-/// SEG FAULT
 TEST_CASE("Host Task Credit", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
@@ -32,7 +31,7 @@ TEST_CASE("Host Task Credit", "[sgp]") {
 
   emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
   world.AddOrgAt(NOT_host, 0);
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 101; i++) {
     world.Update(); 
   }
 
