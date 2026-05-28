@@ -48,7 +48,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     sgp_config.CYCLES_PER_UPDATE()
   );
 
-
   host.Process(pos);
 
   //check if host is dead at return
@@ -58,47 +57,7 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 
 }
 
-void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
-  // If host doesn't have a symbiont, return.
-  if (!host.HasSym()) {
-    return;
-  }
-  emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
-  size_t sym_count = syms.size();
-  for (size_t sym_i = 0; sym_i < sym_count; /*sym_i handled internally*/) {
-    emp_assert(!(syms[sym_i]->IsHost()));
-    // If host is dead (e.g., because of previous symbiont), stop processing.
-    if (host.GetDead()) {
-      return;
-    }
-    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_i].Raw());
-    const bool dead = cur_symbiont->GetDead();
-    if (!dead) {
-      // Symbiont not dead, process it
-      // TODO - change to functor?
-      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
-      ProcessEndosymbiont(
-        {sym_i + 1, host.GetLocation().GetIndex()},
-        *cur_symbiont,
-        host
-      );
-      ++sym_i;
-    } else {
-      emp_assert(sym_count > 0);
-      // TODO - Check that it is okay to re-order symbionts to avoid erase calls
-      // Symbiont is dead, need to delete it.
-      cur_symbiont.Delete();
-      // Swap this symbiont with last in list, decrementing sym_count
-      std::swap(syms[sym_i], syms[--sym_count]);
-      // We will need to process what we just swapped into place, so
-      // re-process sym_i (don't increment it)
-    }
-  }
-  // Resize syms to remove deleted dead symbionts swapped to end
-  emp_assert(sym_count <= syms.size());
-  syms.resize(sym_count);
-  // TODO - signal?
-}
+
 
 // TODO - discuss timing
 // NOTE - Go over reproduction
@@ -112,24 +71,7 @@ void SGPWorld::ProcessEndosymbiont(
   if (sym.GetDead()) {
     return;
   }
-  sym.GetHardware().GetCPUState().SetLocation(sym_pos);
-  before_endosym_process_sig.Trigger(sym_pos, sym, host);
-  // Cash in cycles for this update
-  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
-  const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
-  for (size_t i = 0; i < cycles_to_exec; ++i) {
-    sym.GetHardware().RunCPUStep(1);
-    after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
 
-    // Did endosymbiont attempt to reproduce?
-    // NOTE - want to handle this after every clock cycle?
-    if (sym.GetHardware().GetCPUState().ReproAttempt()) {
-      // upside to handling this here: we have direct access to organism
-      EndosymAttemptRepro(sym_pos, sym, host);
-    }
-
-  }
-  after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, host);
   // Call symbiont's process function
   sym.Process(sym_pos);
   after_endosym_process_sig.Trigger(sym_pos, sym, host);
@@ -182,13 +124,15 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
 void SGPWorld::EndosymAttemptRepro(
   const emp::WorldPosition& pos,
   sgp_sym_t& sym,
-  sgp_host_t& host
+  emp::Ptr<Organism> host_org_ptr
 ) {
   // NOTE - could make this a configurable functor if we want different success/failure
   //        conditions on attempt
   // NOTE - Do we want to be using the horizontal transmission cost here?
   //        Is this always horizontal transmisstion?
   // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
+  emp_assert(host_org_ptr.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+  sgp_host_t& host = static_cast<sgp_host_t&>(*host_org_ptr);
   const double repro_cost = sgp_config.SYM_HORIZ_TRANS_RES();
   if (sym.GetPoints() >= repro_cost) {
     // Sym pays cost

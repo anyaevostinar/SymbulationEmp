@@ -39,7 +39,7 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
         clone2.Delete();
     }
     
-    WHEN("A host that is different to the original is created"){
+    WHEN("A symbiont that is different to the original is created"){
       emp::Ptr<sgp_sym_t> different = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(99)); // For comparing
       THEN("The original symbiont is not equal to the different host"){
         REQUIRE_FALSE(*sym_parent == *different);
@@ -73,7 +73,36 @@ TEST_CASE("Symbiont > & < operator","[sgp][sgp-unit]"){
   }
 }
 
-TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp-1][sgp-functional]") {
+TEST_CASE("Symbiont Process", "[sgp][sgp-unit]") {
+  GIVEN("A symbiont that gets 3 cycles per update") {
+    emp::Random random(34);
+    sgpmode::SymConfigSGP config;
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.CYCLES_PER_UPDATE(3);
+    world_t world(random, &config);
+    world.Setup();
+    auto& prog_builder = world.GetProgramBuilder();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+
+
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym);
+    sym->GetHardware().GetCPUState().SetCPUCyclesToExec(config.CYCLES_PER_UPDATE()); // this is normally done in host process, but since we're skipping that, doing it manually
+
+    WHEN("Symbiont process called") {
+      sym->Process(sym->GetLocation());
+      THEN("Symbiont should have executed 3 cycles and aged by 1") {
+        REQUIRE(sym->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == 3);
+        REQUIRE(sym->GetAge() == 1);
+      }
+    }
+  }
+  
+}
+
+TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-functional]") {
   // TODO: move to functional folder
   GIVEN("An SGPWorld with a host infected with a symbiont where Nutrient is the interaction mechanism"){
     emp::Random random(42);
