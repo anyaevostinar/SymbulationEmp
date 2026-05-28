@@ -613,6 +613,9 @@ public:
   /* Accessor for host_task_successes */
   emp::vector<size_t>& GetHostTaskSuccesses() { return host_task_successes; }
 
+  /* Accessor for sym_task_successes */
+  emp::vector<size_t>& GetSymTaskSuccesses() { return sym_task_successes; }
+
   task_env_t& GetTaskEnv() { return task_env; }
   const task_env_t& GetTaskEnv() const { return task_env; }
 
