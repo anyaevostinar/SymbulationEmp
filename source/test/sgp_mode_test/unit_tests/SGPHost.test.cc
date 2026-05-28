@@ -18,6 +18,12 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Mutate", "[sgp]") {
 
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);

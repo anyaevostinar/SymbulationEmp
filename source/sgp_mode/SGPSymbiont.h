@@ -187,20 +187,7 @@ public:
     emp_assert(host.DynamicCast<host_t>(), "SGPSymbiont must have an SGPHost host");
     Symbiont::SetHost(host);
     // TODO - add has host flag? (rather condition on boolean than pointer)
-    // TODO - refactor shared resources (world should control?)
-    // if (my_host) {
-    //   cpu.state.shared_available_dependencies.Delete();
-    //   cpu.state.used_resources.Delete();
-    //   cpu.state.internal_environment.Delete();
 
-    //   cpu.state.used_resources =
-    //     host.DynamicCast<SGPHost>()->GetCPU().state.used_resources;
-    //   cpu.state.shared_available_dependencies =
-    //     host.DynamicCast<SGPHost>()->GetCPU()
-    //         .state.shared_available_dependencies;
-    //   cpu.state.internal_environment =
-    //     host.DynamicCast<SGPHost>()->GetCPU().state.internal_environment;
-    // }
   }
 
   void AddPoints(double _in) {
@@ -222,6 +209,28 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
+    
+    if (my_host) {
+      GetHardware().GetCPUState().SetLocation(pos);
+      my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host);
+      // Cash in cycles for this update
+      // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+      const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
+      for (size_t i = 0; i < cycles_to_exec; ++i) {
+        GetHardware().RunCPUStep(1);
+        my_world->TriggerAfterEndosymCPUStepSig(pos, *this, my_host);
+
+        // Did endosymbiont attempt to reproduce?
+        // NOTE - want to handle this after every clock cycle?
+        if (GetHardware().GetCPUState().ReproAttempt()) {
+          my_world->EndosymAttemptRepro(pos, *this, my_host);
+        }
+
+      }
+
+      my_world->TriggerAfterEndosymCPUExecSig(pos, *this, my_host);
+
+    }
     // Age the organism
     GrowOlder();
   }
