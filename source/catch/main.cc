@@ -31,13 +31,14 @@
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //SGP mode Old tests (need to update before moving)
-// #include "../test/old_sgp_mode_test/unit_tests/GenomeLibrary.test.cc"
+#include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/HealthHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/StressHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
 // #include "../test/old_sgp_mode_test/unit_tests/SGPHost.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
@@ -52,8 +53,7 @@
 // #include "../test/old_sgp_mode_test/functional_tests/Tasks_ProcessOutput.test.cc"
 
 // Alex fork tests, some updates needed?
-// // #include "../test/sgp_mode_test/ProgramBuilder.test.cc"
-// #include "../test/sgp_mode_test/SGPHardware.test.cc"
+#include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
 // // #include "../test/sgp_mode_test/SGPHost.test.cc"
 
@@ -65,9 +65,10 @@
 // #include "../test/sgp_mode_test/SGPStressMode.test.cc"
 
 
+
 #include "../test/sgp_mode_test/unit_tests/RingBuffer.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
-// // #include "../test/sgp_mode_test/utils.test.cc"
+#include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 
 #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
