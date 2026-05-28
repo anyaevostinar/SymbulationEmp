@@ -405,6 +405,7 @@ public:
     sgp_sym_t& sym
   );
 
+  size_t GetHostSymMatchCount(sgp_host_t& host);
 
 
 protected:

@@ -43,6 +43,9 @@ protected:
   */
   const emp::Ptr<world_t> my_world;
 
+ 
+  size_t current_update = 0;
+
   /**
    *
    * Purpose: Holds all configuration settings and points to same configuration
@@ -63,6 +66,7 @@ protected:
   // }
 
 public:
+  size_t match_count = 0;
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -252,10 +256,15 @@ public:
     // Trigger signal to all endosymbionts that host is about to process
     //   Gives endosymbionts chance to interact with host before it processes.
     //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
+
+    match_count = my_world->GetHostSymMatchCount(*this);
+
+    //Gen random number
+    current_update += 1; 
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-      emp_assert(!(syms[endosym_i]->IsHost()));
-      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+      emp_assert(!(syms[(endosym_i + current_update) % syms.size()]->IsHost()));
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[(endosym_i + current_update) % syms.size()].Raw());
       const bool dead = cur_symbiont->GetDead();
       // Skip if dead
       if (dead) {

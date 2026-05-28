@@ -522,6 +522,9 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
           sym.GetPoints()
         );
         double task_points = new_points - sym.GetPoints();
+        //Hardcode nutrients getting less points
+
+
         // Apply nutrient interaction (if any have been configured) to points
         // NOTE - can inject nutrient interaction here to modify points?
         //task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);

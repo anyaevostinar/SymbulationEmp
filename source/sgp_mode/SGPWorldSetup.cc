@@ -14,7 +14,21 @@
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
-
+size_t SGPWorld::GetHostSymMatchCount(sgp_host_t& host){
+  int matchCount = 0;
+  emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+  for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+        
+    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+    
+    const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
+    const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
+    bool is_matching = fun_task_profile_compatibility_check(host_task_profile,endosym_task_profile);
+    matchCount += is_matching;
+          
+    }
+  return matchCount;
+}
 void SGPWorld::Setup() {
   // Clear all world signals
   ClearWorldSignals();
@@ -184,7 +198,12 @@ void SGPWorld::SetupHealthInteractions() {
         emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
         const double sym_cycles = (double)sym_state.GetCPUCyclesToExec();
         // How much will sym donate?
+        
         size_t sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles));
+        if(host.match_count > 0){
+          sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles)/host.match_count);
+          
+        }
         emp_assert(sym_donate >= 0);
         sym_state.LoseCPUCycles(emp::Min(sym_donate, sym_state.GetCPUCyclesToExec()));
         // Adjust host's cpu cycles
@@ -222,7 +241,15 @@ void SGPWorld::SetupHealthInteractions() {
         emp_assert(steal_prop <= 1.0 && steal_prop >= 0.0);
         // How much?
         const double host_cycles = (double)host_state.GetCPUCyclesToExec();
-        const size_t sym_steal = (size_t)(((double)interact) * (steal_prop * host_cycles));
+
+        size_t sym_steal_start = (size_t)(((double)interact) * (steal_prop * host_cycles));
+        if(host.match_count > 0){
+          sym_steal_start = (size_t)(((double)interact) * (steal_prop * host_cycles)/host.match_count);
+          if(interact){
+            host.match_count -= 1;
+          }
+        }
+        const size_t sym_steal = sym_steal_start;
         // Set parasite CPU cycles
         // - Open question to how we want to do this
         sym_state.SetCPUCyclesToExec((size_t)(sgp_config.PARASITE_BASE_CYCLE_PROP() * sgp_config.CYCLES_PER_UPDATE()));
