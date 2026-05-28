@@ -50,6 +50,40 @@ TEST_CASE("Mutate", "[sgp]") {
   second_host.Delete();
 }
 
+TEST_CASE("No Mutate", "[sgp]") {
+
+  emp::Random random(61);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SGP_MUT_PER_BIT_RATE(0.0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+
+
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(2,2);
+
+  auto& prog_builder = world.GetProgramBuilder();
+
+  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+  emp::Ptr<sgp_host_t> second_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+
+  REQUIRE(*uninfected_host == *second_host);
+
+
+  THEN("Organism mutated with 0 mutation rate is not different") {
+    for (int i =0; i<100; i++){
+      uninfected_host->Mutate();
+    }
+    
+    REQUIRE(*uninfected_host == *second_host);
+  }
+  // clean up organisms since they aren't in the world
+  uninfected_host.Delete();
+  second_host.Delete();
+}
+
 // TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit][refactor]") {
 //     //TODO test for organism correctly invalidating its place in repro queue
 // }

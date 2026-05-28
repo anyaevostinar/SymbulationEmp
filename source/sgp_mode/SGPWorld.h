@@ -793,6 +793,7 @@ public:
   emp::DataFile& SetupCurrentUpdateInfoFile(const std::string& filepath);
   void CollectCurrentUpdateData();
   emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
+  void OutputDominantDataFile();
 
   void CreateDataFiles() override;
 
