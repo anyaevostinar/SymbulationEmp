@@ -168,3 +168,32 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
         }
     }
 }
+
+TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]"){
+    GIVEN("A host with valid values in its input and output buffers"){
+        emp::Random random(31);
+        sgpmode::SymConfigSGP config;
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/echo-task-env.json");
+        world_t world(random, &config);
+        world.Setup();
+        auto& prog_builder = world.GetProgramBuilder();
+        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+        world.AddOrgAt(host, 0);
+
+        // save two of the inputs
+        emp::vector<uint32_t> inputs;
+        for (int i = 0; i < 2; i++) {
+            inputs.push_back(host->GetHardware().GetCPUState().GetInputBuffer().read());
+        }
+        inputs.push_back(0); // add some incorrect output to make sure they aren't getting points for those
+        inputs.push_back(1); 
+        host->GetHardware().GetCPUState().SetOutputs(inputs); // set output buffer to inputs with with some extra incorrect outputs
+        WHEN("ProcessOutputBuffer is called"){
+            host->ProcessOutputBuffer();
+            THEN("The output buffer is cleared and host received 10 points for correctly echoing 2 inputs"){
+                REQUIRE(host->GetHardware().GetCPUState().GetOutputBuffer().empty());
+                REQUIRE(host->GetPoints() == 10);
+            }
+        }
+    }
+}

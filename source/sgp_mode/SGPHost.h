@@ -242,7 +242,6 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-    // std::cout << "Host Process" << std::endl;
     // If host is dead, don't process.
     if (GetDead()) {
       return;
@@ -295,16 +294,15 @@ public:
     //        As-is, still run hardware forward full amount regardless
     for (size_t i = 0; i < cycles_to_exec; ++i) {
       if (GetDead()) {
+        return;
       }
       // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
       // Execute 1 CPU cycle
       GetHardware().RunCPUStep(1);
-
       // Did host attempt to reproduce?
       // NOTE - could move into a signal response
       // NOTE - want to handle this after every clock cycle?
       if (GetHardware().GetCPUState().ReproAttempt()) {
-
         // upside to handling this here: we have direct access to organism
         AttemptReproduction(pos);
       }
@@ -454,16 +452,15 @@ public:
           GetPoints()
         );
         double task_points = new_points - GetPoints();
-
         my_world->ApplyHostPoints(*this, task_points,task_id);
         my_world->GetHostTaskSuccesses()[task_id] += 1;
 
       }
     }
-
-    // Clear output buffer
-    output_buffer.clear();
   }
+
+  // Clear output buffer
+  output_buffer.clear();
 }
 
 
