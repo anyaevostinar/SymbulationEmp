@@ -1,42 +1,42 @@
 
 /// updated implementation of unit tests for refactor:
-#include "../../source/sgp_mode/utils.h"
-#include "../../catch/catch.hpp"
+#include "../../../sgp_mode/utils.h"
+#include "../../../catch/catch.hpp"
 #include "emp/bits/Bits.hpp"
 
-TEST_CASE("AnyMatch Test", "[sgp]") {
+TEST_CASE("AnyMatchingOnes Test", "[sgp]") {
 
     SECTION("Matching bits", "[sgp]") {
         emp::BitSet<3> b1("001");
         emp::BitSet<3> b2("001");
-        REQUIRE(sgpmode::utils::AnyMatch(b1, b2) == true);
+        REQUIRE(sgpmode::utils::AnyMatchingOnes(b1, b2) == true);
     }
 
     SECTION("No matching bits", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("000");
-        REQUIRE(sgpmode::utils::AnyMatch(bits_a, bits_b) == false);
+        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == false);
     }
 }
 
-TEST_CASE("SimpleMatchCoeff Test", "[sgp]") {
+TEST_CASE("MatchingOnesCount Test", "[sgp]") {
 
     SECTION("Matching bits count - 2", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("110");
-        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 2);
+        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 2);
     }
 
     SECTION("Matching bits count - 1", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("100");
-        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 1);
+        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 1);
     }
 
     SECTION("No matching bits", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("000");
-        REQUIRE(sgpmode::utils::SimpleMatchCoeff(bits_a, bits_b) == 0);
+        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 0);
     }
 }
 
