@@ -8,10 +8,13 @@
 [x] Add citations and how to cite sections to README (on main), cite empirical JOSS paper, SignalGP arxiv, phylotrackpy on arxiv
 [x] Decide whether to try to fix ecto integration test or remove the graveyard fix and merge into main since it apparently works on github??
 [x] Make new version bundle on main for complex features
-[ ] Move Symbiont code back into classes
-    - Symbiont Process done, move Process Endosymbionts into host but need to test still
-[ ] Port more Symbiont tests
+[x] Move Symbiont code back into classes
+[ ] Put PrintCode back into SGPHardware for Get dominant printing
+[ ] Put in IO Zero not getting rewarded and test it
+[ ] Port more Symbiont tests (reproduce!)
+    - Moved AttemptReproduction into SGPSymbiont, but no tests to check it, started porting SGPSymbiont_Reproduce but seg faulting
 [ ] Check here https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
+    - There is a lot, all the sym reproduction associated things!
 [ ] Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 

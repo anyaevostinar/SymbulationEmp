@@ -333,8 +333,7 @@ public:
     if (!dead) {
       // Symbiont not dead, process it
       // TODO - change to functor?
-      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
-      cur_symbiont->Process(cur_symbiont->GetLocation());
+      cur_symbiont->Process({sym_i + 1, GetLocation().GetIndex()});
       ++sym_i;
     } else {
       // TODO: this should probably be it's own function to abstract this logic and share it other places
