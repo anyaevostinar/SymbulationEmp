@@ -72,6 +72,7 @@
 
 #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
 
 // Anya's tests
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
