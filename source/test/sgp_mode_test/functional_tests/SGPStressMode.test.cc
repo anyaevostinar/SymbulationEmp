@@ -121,7 +121,8 @@ TEST_CASE("Stress event", "[sgp]") {
 
 }
 
-TEST_CASE("Evolution stress mode", "[ev]"){
+//TODO!
+TEST_CASE("Evolution stress mode", "[sgp]"){
 
   sgpmode::SymConfigSGP config;
 //config.ORGANISM_TYPE(HEALTH);
@@ -173,12 +174,10 @@ TEST_CASE("Evolution stress mode", "[ev]"){
       auto& org = world.GetOrg(0);
       auto& sgp_host = static_cast<sgp_host_t&>(org);
       hardware_t& hw = sgp_host.GetHardware();
-      std::cout << hw.GetCPUState().GetTasksPerformed() << std::endl;
     }
     THEN("Health hosts do not accrue mutations late in an experiment") {
       const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
       auto& tasks = world.GetHostTaskSuccesses();
-      
       
     
     
