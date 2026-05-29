@@ -57,27 +57,9 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 
 }
 
+// Removed: void SGPWorld::ProcessEndosymbiont and moved to Host Process just calling Endosym Process
+// AEV: remove this comment after refactor
 
-
-// TODO - discuss timing
-// NOTE - Go over reproduction
-void SGPWorld::ProcessEndosymbiont(
-  const emp::WorldPosition& sym_pos,
-  sgp_sym_t& sym,
-  sgp_host_t& host
-) {
-  // NOTE - is there anything that should be moved here common to all endosymbionts?
-  // If symbiont is dead, no need to process it.
-  if (sym.GetDead()) {
-    return;
-  }
-
-  // Call symbiont's process function
-  sym.Process(sym_pos);
-  after_endosym_process_sig.Trigger(sym_pos, sym, host);
-}
-
-// TODO - discuss timing
 
 // TODO - Handle Reproduction?
 // TODO - Go over support for free-living symbionts. Not sure it was

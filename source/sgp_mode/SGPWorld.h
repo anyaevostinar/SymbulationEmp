@@ -661,6 +661,15 @@ public:
     after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
+  void TriggerAfterEndosymProcessSig(
+    const emp::WorldPosition& sym_pos,
+    sgp_sym_t& sym,
+    emp::Ptr<Organism> host
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+  }
+
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 
   /**
@@ -721,12 +730,6 @@ public:
 
   // Process symbiont at given position in the world
   void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
-
-  // Process all symbionts inside given host
-  void ProcessEndosymbionts(sgp_host_t& host);
-
-  // Process endosymbiont
-  void ProcessEndosymbiont(const emp::WorldPosition& sym_pos, sgp_sym_t& sym, sgp_host_t& host);
 
   //void ProcessHostOutputBuffer(sgp_host_t& host);
   void ProcessSymOutputBuffer(sgp_sym_t& sym);

@@ -14,7 +14,7 @@ using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using program_t = typename world_t::sgp_prog_t;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
-TEST_CASE("Host Process allows symbionts to process", "[sgp][sgp-functional][test]") {
+TEST_CASE("Host Process allows symbionts to process", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld with a host infected with a symbiont"){
     emp::Random random(42);
     sgpmode::SymConfigSGP config;

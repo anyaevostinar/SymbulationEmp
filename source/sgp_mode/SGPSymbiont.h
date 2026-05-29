@@ -209,6 +209,12 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
+      if (GetDead()) {
+        return;
+      }
+
+
+
     
     if (my_host) {
       GetHardware().GetCPUState().SetLocation(pos);
@@ -233,6 +239,7 @@ public:
     }
     // Age the organism
     GrowOlder();
+    my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
   }
 
   /**

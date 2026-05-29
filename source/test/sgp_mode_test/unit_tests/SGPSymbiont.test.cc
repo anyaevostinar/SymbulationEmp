@@ -102,8 +102,6 @@ TEST_CASE("Symbiont Process", "[sgp][sgp-unit]") {
   
 }
 
-
-
 // TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
 //   GIVEN("A symbiont"){
 //     emp::Random random(31);
