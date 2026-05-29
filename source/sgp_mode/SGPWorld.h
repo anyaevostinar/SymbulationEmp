@@ -699,7 +699,7 @@ public:
     }
   }
   
-
+  // TODO: AEV: Why is this separate from RunExperiment in SymWorld? Needs to be combined to support all the other functionality from RunExperiment
   void Run(bool verbose = false) {
     emp_assert(setup);
     emp_assert(sgp_config.UPDATES() >= 0);
@@ -819,6 +819,7 @@ public:
   emp::DataFile& SetupCurrentUpdateInfoFile(const std::string& filepath);
   void CollectCurrentUpdateData();
   emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
+  void OutputDominantDataFile();
 
   void CreateDataFiles() override;
 
