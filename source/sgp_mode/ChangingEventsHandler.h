@@ -32,8 +32,9 @@ class ChangingEventsHandler {
     )>;
 
     protected:
-    std::unordered_map<size_t, event_func_t> all_event_functions; // size_t is event id, event_func_t is the function that does each event 
-    std::vector<event_objects_t> current_event_info;
+    std::unordered_map<std::string, event_func_t> predefined_event_functs; // std::string event_type/name, event_func_t is the function that does each event 
+    emp::vector<event_objects_t> single_event_info; // vector of one time events (memebers of Event Object)
+    emp::vector<event_objects_t> reoccur_event_info; // vector of reoccuring events 
     
     // from LogicTaskEnvironment.h get json field values
     template<typename RET_TYPE>
@@ -49,29 +50,30 @@ class ChangingEventsHandler {
 
 
     // check if event type is valid (aka there is a function in all_event_functions that cna perform the event)
-    bool IsValidEvent(){}
+    bool IsValidEvent(const std::string & event_type){
+        return emp::Has(predefined_event_functs, event_type);
+    }
 
     // create instance of event object using EventObject class, return event object
-    event_objects_t CreateEventObjects(size_t event_id, std::string event_name, std::string task_name, std:string update_indices, std::vector parameters){
-        //ToDo check IsValidEvent before creating event 
-
-
-        event_objects_t event;
-        event.event_id = event_id;
-        event.event_name = event_name;
-        event.task_name = task_name;
-        event.parameters = parameters;
-
+    event_objects_t CreateEventObjects(const size_t event_id, const std::string & event_name, const std::string & task_name, const std:string & update_indices, const std::vector<std::string> & parameters, const bool & reocccur){
+        
+        if(reoccur){
         // slice and convert update indices to individula integers
-        std::vector<std::string> indices_vect;
-        emp::slice(update_indices, indices_vect, ":");
-        int start_index = static_cast<int>(indices_vect[0]);
-        int end_index = static_cast<int>(indices_vect[1]);
-        int step_index = static_cast<int>(indices_vect[2]);
-        event.start_update = start_index;
-        event.end_update = end_index;
-        event.update_step = step_index;
+            std::vector<std::string> indices_vect;
+            emp::slice(update_indices, indices_vect, ":");
+            int start_index = static_cast<int>(indices_vect[0]);
+            int end_index = static_cast<int>(indices_vect[1]);
+            int step_index = static_cast<int>(indices_vect[2]);
+            event.start_update = start_index;
+            event.end_update = end_index;
+            event.update_step = step_index;
 
+            event_objects_t event(event_id, event_name, task_name, task_value, start_index, end_index, step_index, parameters, reoccur);
+        }
+        else {
+            int start_index = static_cast<int>(update_indices);
+            event_objects_t event(event_id, event_name, task_name, task_value, start_index, parameters, reoccur);
+        }
         return event;
     }
 
@@ -82,29 +84,47 @@ class ChangingEventsHandler {
         ClearEvents();
         // === Parse environment file ===
         // Check if given environment file exists. Exit if not.
-        const bool env_file_exists = std::filesystem::exists(event_filepath);
-        if (!env_file_exists) {
-            std::cout << "Envent file does not exist: " << env_filepath << std::endl;
+        const bool event_file_exists = std::filesystem::exists(event_filepath);
+        if (!event_file_exists) {
+            std::cout << "Event file does not exist: " << event_filepath << std::endl;
             std::exit(EXIT_FAILURE);
         }
+
+        // read event.json file
+        std::ifstream event_ifstream(event_filepath);
+        nlohmann::json eve_json;
+        event_ifstream >> eve_json;
+
+        // check for correct json format
+        emp::vector<std::string> fields = {"event_type", "task_name", "task_value", "parameters", "update_indices", "reoccuring_event"};
+
+        emp_assert(eve.json.contains("events"));
+        
+
     }
 
-    // return vector of all current events
-    void GetCurrentEventInfo(int index){
-        return current_event_info[index];
+    // return single event info at a specific index
+    void GetSingleEventInfo(int index){
+        return single_event_info[index];
     }
 
-    // return map of all events
+    // return reoccuring event info at a specific index
+    void GetReoccurEventInfo(int index){
+        return reoccur_event_info[index];
+    }
+
+    // 
     void GetEventFunctions(size_t event_id){
-        return all_event_functions[event_id];
+        return predefined_event_functs[event_id];
     }
 
     // delete current events info and functions
     void ClearEvents(){
-        current_event_info.clear();
+        single_event_info.clear();
+        reoccur_event_info.clear();
     }
 
-    // delete finished events 
+    // delete finished events sort events based on when should occur
     void SortEvents(){}
 
     // call event_func_t from current_events if possible based on update_indices
