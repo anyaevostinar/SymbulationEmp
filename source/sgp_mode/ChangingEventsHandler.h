@@ -16,17 +16,18 @@
 
 namespace sgpmode::eventHandler {
 
+template<typename WORLD_T>
 class ChangingEventsHandler {
     public:
     // library for manipulating json files
     using json_t = nlohmann::json;
     // event object class alias
     using event_objects_t = EventObjects; 
-
-
+    using world_t = WORLD_T;
+    
     // type for event type functions (i.e., replace, add, mul)
     using event_func_t = std::function<void(
-        //World_t&,  /* instance of sgp world to use helper functions and avoid circualr dependency */ 
+        world_t&,  /* instance of sgp world to use helper functions and avoid circualr dependency */ 
         event_object_t& /* instance of EventObjects class */
     )>;
 
@@ -51,22 +52,37 @@ class ChangingEventsHandler {
     void IsValidEvent(){}
 
     // create instance of event object using EventObject class
-    void CreateEventObjects(){}
+    void CreateEventObjects(size_t event_id, std::string event_name, std::string task_name, std:string update_indices, std::string parameters){
+        event_objects_t event;
+        event.event_id = event_id;
+        event.event_name = event_name;
+        event.task_name = task_name;
+        event.parameters = parameters;
+
+    }
 
     // load in and process events.json file (includes creating events and checking if they are valid)
     void LoadEvents(const std::string& event_filepath){}
 
     // return vector of all current events
-    void GetCurrentEvents(){}
+    void GetCurrentEvent(int index){
+        return current_events[index];
+    }
 
     // return map of all events
-    void GetAllEvents(){}
+    void GetAllEvents(){
+        return all_events;
+    }
 
     // delete finished events
     void ClearEvents(){}
 
     // call event_func_t from current_events if possible based on update_indices
-    void ProcessEvent(){}
+    void ProcessEvent(world_t& world){
+        world.GetUpdate();
+        std::vector<std::vector<int>> vec1;
+        std::vector<> vec2; 
+    }
 }
 
 }
