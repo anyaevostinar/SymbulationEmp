@@ -27,6 +27,7 @@ class EventObjects {
     // std::string reward_mode;
     std::string parameters;
     bool reoccuring_event = false;
+    std::vector parameters;
     bool is_done = false;
 
     public:

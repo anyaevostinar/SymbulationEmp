@@ -32,8 +32,8 @@ class ChangingEventsHandler {
     )>;
 
     protected:
-    std::unordered_map<size_t, event_func_t> all_events; // size_t is event id, event_func_t is the function that does each event 
-    std::vector<event_func_t> current_events;
+    std::unordered_map<size_t, event_func_t> all_event_functions; // size_t is event id, event_func_t is the function that does each event 
+    std::vector<event_objects_t> current_event_info;
     
     // from LogicTaskEnvironment.h get json field values
     template<typename RET_TYPE>
@@ -48,40 +48,70 @@ class ChangingEventsHandler {
     }
 
 
-    // check if event type is valid
-    void IsValidEvent(){}
+    // check if event type is valid (aka there is a function in all_event_functions that cna perform the event)
+    bool IsValidEvent(){}
 
-    // create instance of event object using EventObject class
-    void CreateEventObjects(size_t event_id, std::string event_name, std::string task_name, std:string update_indices, std::string parameters){
+    // create instance of event object using EventObject class, return event object
+    event_objects_t CreateEventObjects(size_t event_id, std::string event_name, std::string task_name, std:string update_indices, std::vector parameters){
+        //ToDo check IsValidEvent before creating event 
+
+
         event_objects_t event;
         event.event_id = event_id;
         event.event_name = event_name;
         event.task_name = task_name;
         event.parameters = parameters;
 
+        // slice and convert update indices to individula integers
+        std::vector<std::string> indices_vect;
+        emp::slice(update_indices, indices_vect, ":");
+        int start_index = static_cast<int>(indices_vect[0]);
+        int end_index = static_cast<int>(indices_vect[1]);
+        int step_index = static_cast<int>(indices_vect[2]);
+        event.start_update = start_index;
+        event.end_update = end_index;
+        event.update_step = step_index;
+
+        return event;
     }
 
     // load in and process events.json file (includes creating events and checking if they are valid)
-    void LoadEvents(const std::string& event_filepath){}
+    void LoadEvents(const std::string& event_filepath){
+        // from LogicTaskEnvironment.h
+        std::cout << "Loading tasks from environment file." << std::endl;
+        ClearEvents();
+        // === Parse environment file ===
+        // Check if given environment file exists. Exit if not.
+        const bool env_file_exists = std::filesystem::exists(event_filepath);
+        if (!env_file_exists) {
+            std::cout << "Envent file does not exist: " << env_filepath << std::endl;
+            std::exit(EXIT_FAILURE);
+        }
+    }
 
     // return vector of all current events
-    void GetCurrentEvent(int index){
-        return current_events[index];
+    void GetCurrentEventInfo(int index){
+        return current_event_info[index];
     }
 
     // return map of all events
-    void GetAllEvents(){
-        return all_events;
+    void GetEventFunctions(size_t event_id){
+        return all_event_functions[event_id];
     }
 
-    // delete finished events
-    void ClearEvents(){}
+    // delete current events info and functions
+    void ClearEvents(){
+        current_event_info.clear();
+    }
+
+    // delete finished events 
+    void SortEvents(){}
 
     // call event_func_t from current_events if possible based on update_indices
     void ProcessEvent(world_t& world){
         world.GetUpdate();
-        std::vector<std::vector<int>> vec1;
-        std::vector<> vec2; 
+        // std::vector<std::vector<int>> vec1;
+        // std::vector<> vec2; 
     }
 }
 
