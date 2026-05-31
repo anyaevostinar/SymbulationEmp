@@ -26,6 +26,7 @@ class EventObjects {
     // std::string org_mode;
     // std::string reward_mode;
     std::string parameters;
+    bool reoccuring_event = false;
     bool is_done = false;
 
     public:
