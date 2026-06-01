@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include <map>
 
-#include "EventObjects.h"
+#include "EventObject.h"
 
 namespace sgpmode::eventHandler {
 
@@ -22,7 +22,7 @@ class ChangingEventsHandler {
     // library for manipulating json files
     using json_t = nlohmann::json;
     // event object class alias
-    using event_objects_t = EventObjects; 
+    using event_object_t = EventObject; 
     using world_t = WORLD_T;
     
     // type for event type functions (i.e., replace, add, mul)
@@ -33,8 +33,8 @@ class ChangingEventsHandler {
 
     protected:
     std::unordered_map<std::string, event_func_t> predefined_event_functs; // std::string event_type/name, event_func_t is the function that does each event 
-    emp::vector<event_objects_t> single_event_info; // vector of one time events (memebers of Event Object)
-    emp::vector<event_objects_t> reoccur_event_info; // vector of reoccuring events 
+    emp::vector<event_object_t> single_event_info; // vector of one time events (memebers of Event Object)
+    emp::vector<event_object_t> reoccur_event_info; // vector of reoccuring events 
     
     // from LogicTaskEnvironment.h get json field values
     template<typename RET_TYPE>
@@ -55,7 +55,7 @@ class ChangingEventsHandler {
     }
 
     // create instance of event object using EventObject class, return event object
-    event_objects_t CreateEventObjects(const size_t event_id, const std::string & event_name, const std::string & task_name, const std:string & update_indices, const std::vector<std::string> & parameters, const bool & reocccur){
+    event_object_t CreateEventObject(const size_t event_id, const std::string & event_name, const std::string & task_name, const double & task_value, const std:string & update_indices, const std::vector<std::string> & parameters, const bool & reocccur){
         
         if(reoccur){
         // slice and convert update indices to individula integers
@@ -68,11 +68,11 @@ class ChangingEventsHandler {
             event.end_update = end_index;
             event.update_step = step_index;
 
-            event_objects_t event(event_id, event_name, task_name, task_value, start_index, end_index, step_index, parameters, reoccur);
+            event_object_t event(event_id, event_name, task_name, task_value, start_index, end_index, step_index, parameters, reoccur);
         }
         else {
             int start_index = static_cast<int>(update_indices);
-            event_objects_t event(event_id, event_name, task_name, task_value, start_index, parameters, reoccur);
+            event_object_t event(event_id, event_name, task_name, task_value, start_index, parameters, reoccur);
         }
         return event;
     }
@@ -96,10 +96,28 @@ class ChangingEventsHandler {
         event_ifstream >> eve_json;
 
         // check for correct json format
-        emp::vector<std::string> fields = {"event_type", "task_name", "task_value", "parameters", "update_indices", "reoccuring_event"};
+        emp::vector<std::string> event_fields = {"event_type", "task_name", "task_value", "parameters", "update_indices", "reoccuring_event"};
 
-        emp_assert(eve.json.contains("events"));
-        
+        emp_assert(eve_json.contains("events"));
+        for(auto& line; eve_json["events"]){
+            // check all fields are in file
+            for(std::string name: event_fields){
+                emp_assert(line.contains(name));
+            }
+
+            IsValidEvent(line["event_type"]);
+            if(line["reoccuring_event"]){
+                int event_id = reoccur_event_info.size();
+                event_object_t event_obj = CreateEventObject(event_id, line["event_type"], line["task_name"], line["task_value"], line["update_indices"], line["parameters"], line["reoccuring_event"]);
+                reoccur_event_info.emplace_back(event_obj);
+            }
+            if(!line["reoccuring_event"]){
+                int event_id = single_event_info.size();
+                event_object_t event_obj = CreateEventObject(event_id, line["event_type"], line["task_name"], line["task_value"], line["update_indices"], line["parameters"], line["reoccuring_event"]);
+                single_event_info.emplace_back(event_obj);
+            }
+        }
+
 
     }
 
@@ -118,10 +136,16 @@ class ChangingEventsHandler {
         return predefined_event_functs[event_id];
     }
 
-    // delete current events info and functions
+    // delete all current events info 
     void ClearEvents(){
         single_event_info.clear();
         reoccur_event_info.clear();
+    }
+
+    // delete an event from event
+    void DeleteEvent(const bool reoccur, const int index){
+        (reoccur) ? reoccur_event_info.erase(index) :
+        single_event_info.erase(index);
     }
 
     // delete finished events sort events based on when should occur
@@ -132,6 +156,19 @@ class ChangingEventsHandler {
         world.GetUpdate();
         // std::vector<std::vector<int>> vec1;
         // std::vector<> vec2; 
+    }
+
+    const std::unordered_map < std::string, event_func_t > 
+    predefined_event_functs = {
+        {
+            "task_value_replace", 
+        },
+        {
+            "task_value_add",
+        },
+        {
+            "task_value_mul",
+        }
     }
 }
 
