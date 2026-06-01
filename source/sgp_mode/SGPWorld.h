@@ -82,8 +82,24 @@ public:
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
-  using fun_apply_nutrient_interaction_t = std::function<double(
+  using fun_calc_host_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
     sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t,     /* task id */
+    size_t     /* symbiont count */
+  )>;
+
+  using fun_calc_sym_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
+    sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t,     /* task id */
+    size_t     /* symbiont count */
+  )>;
+
+  using func_apply_host_points_t = std::function<void(
+    sgp_host_t&,
     double,     /* task value before nutrient interaction */
     size_t     /* task id */
   )>;
@@ -389,6 +405,7 @@ public:
     sgp_sym_t& sym
   );
 
+  size_t GetHostSymMatchCount(sgp_host_t& host);
 
 
 protected:
@@ -440,7 +457,9 @@ protected:
   health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
   nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
 
-  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
+  fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
+  fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
+  func_apply_host_points_t fun_apply_host_points; 
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -529,6 +548,7 @@ protected:
   void SetupReproduction();
   void SetupSymReproduction();
   void SetupHostReproduction();
+  void SetupHostTaskAwards();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
@@ -626,12 +646,37 @@ public:
    * Output: The value of the task after applying nutrient interaction.
    * Purpose: To apply the configured nutrient interaction for the given symbiont and task
    */
-  double ApplyNutrientInteraction(
+  double CalcHostNutrientInteraction(
+    sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
-    size_t task_id
+    size_t task_id,
+    size_t symCount
   ) {
-    return fun_apply_nutrient_interaction(sym, task_value_before, task_id);
+    return fun_calc_host_nutrient_interaction(host,sym, task_value_before, task_id,symCount);
+  }
+
+   /**
+   * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The value of the task after applying nutrient interaction.
+   * Purpose: To apply the configured nutrient interaction for the given symbiont and task
+   */
+  double CalcSymNutrientInteraction(
+    sgp_host_t& host,
+    sgp_sym_t& sym,
+    double task_value_before,
+    size_t task_id,
+    size_t symCount
+  ) {
+    return fun_calc_sym_nutrient_interaction(host,sym, task_value_before, task_id,symCount);
+  }
+
+  void ApplyHostPoints(
+     sgp_host_t& host,
+    double task_value_before,
+    size_t task_id
+  ){
+    fun_apply_host_points(host,task_value_before,task_id);
   }
 
   void TriggerBeforeEndoSymProcessSig(

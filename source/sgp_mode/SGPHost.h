@@ -43,6 +43,9 @@ protected:
   */
   const emp::Ptr<world_t> my_world;
 
+ 
+  size_t current_update = 0;
+
   /**
    *
    * Purpose: Holds all configuration settings and points to same configuration
@@ -63,6 +66,7 @@ protected:
   // }
 
 public:
+  size_t match_count = 0;
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -238,7 +242,6 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-    // std::cout << "Host Process" << std::endl;
     // If host is dead, don't process.
     if (GetDead()) {
       return;
@@ -252,10 +255,15 @@ public:
     // Trigger signal to all endosymbionts that host is about to process
     //   Gives endosymbionts chance to interact with host before it processes.
     //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
+
+    match_count = my_world->GetHostSymMatchCount(*this);
+
+    //Gen random number
+    current_update += 1; 
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-      emp_assert(!(syms[endosym_i]->IsHost()));
-      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+      emp_assert(!(syms[(endosym_i + current_update) % syms.size()]->IsHost()));
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[(endosym_i + current_update) % syms.size()].Raw());
       const bool dead = cur_symbiont->GetDead();
       // Skip if dead
       if (dead) {
@@ -286,16 +294,15 @@ public:
     //        As-is, still run hardware forward full amount regardless
     for (size_t i = 0; i < cycles_to_exec; ++i) {
       if (GetDead()) {
+        return;
       }
       // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
       // Execute 1 CPU cycle
       GetHardware().RunCPUStep(1);
-
       // Did host attempt to reproduce?
       // NOTE - could move into a signal response
       // NOTE - want to handle this after every clock cycle?
       if (GetHardware().GetCPUState().ReproAttempt()) {
-
         // upside to handling this here: we have direct access to organism
         AttemptReproduction(pos);
       }
@@ -412,42 +419,44 @@ public:
           if (not_first_task) {
             continue;
           }
-          // Has this organism already gotten credit with this output on this task?
-          if (cpu_state.OutputCredited(task_id, val)) continue;
-          // Check task requirements
-          auto& task_req_info = task_env.GetHostTaskReq(task_id);
-          if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
-            continue;
-          }
+          
+        // Has this organism already gotten credit with this output on this task?
+        if (cpu_state.OutputCredited(task_id, val)) continue;
+        // Check task requirements
+        auto& task_req_info = task_env.GetHostTaskReq(task_id);
+        if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
+          continue;
+        } 
 
-          // Manage CPU state after completing a task:
-          //   (1) Mark task as being performed
-          cpu_state.MarkTaskPerformed(task_id);
-          //   (2) Credit output
-          cpu_state.CreditOutputValue(task_id, val);
-          //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
-          //       for this task in the task io bank.
-          if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
-            cpu_state.ResetCreditedOutputs(task_id);
-          }
-          // Calc value, add to organism points
-          SetPoints(
-            task_req_info.fun_calc_task_val(
-              task_env,
-              task_req_info,
-              GetPoints()
-            )
-          );
-
-          my_world->GetHostTaskSuccesses()[task_id] += 1;
-
+        // Manage CPU state after completing a task:
+        //   (1) Mark task as being performed
+        cpu_state.MarkTaskPerformed(task_id);
+        //   (2) Credit output
+        cpu_state.CreditOutputValue(task_id, val);
+        //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
+        //       for this task in the task io bank.
+        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+          cpu_state.ResetCreditedOutputs(task_id);
         }
+        // Calc value, add to organism points
+
+
+        double new_points = task_req_info.fun_calc_task_val(
+          task_env,
+          task_req_info,
+          GetPoints()
+        );
+        double task_points = new_points - GetPoints();
+        my_world->ApplyHostPoints(*this, task_points,task_id);
+        my_world->GetHostTaskSuccesses()[task_id] += 1;
+
       }
     }
-
-    // Clear output buffer
-    output_buffer.clear();
   }
+
+  // Clear output buffer
+  output_buffer.clear();
+}
 
 
 
