@@ -340,12 +340,7 @@ public:
     if (!dead) {
       // Symbiont not dead, process it
       // TODO - change to functor?
-      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
-      my_world->ProcessEndosymbiont(
-        {sym_i + 1, GetLocation().GetIndex()},
-        *cur_symbiont,
-        *this
-      );
+      cur_symbiont->Process({sym_i + 1, GetLocation().GetIndex()});
       ++sym_i;
     } else {
       // TODO: this should probably be it's own function to abstract this logic and share it other places

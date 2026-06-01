@@ -209,7 +209,9 @@ public:
    * movement
    */
   void Process(emp::WorldPosition pos) {
-    
+    if (GetDead()) {
+      return;
+    }
     if (my_host) {
       GetHardware().GetCPUState().SetLocation(pos);
       my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host);
@@ -223,7 +225,7 @@ public:
         // Did endosymbiont attempt to reproduce?
         // NOTE - want to handle this after every clock cycle?
         if (GetHardware().GetCPUState().ReproAttempt()) {
-          my_world->EndosymAttemptRepro(pos, *this, my_host);
+          AttemptReproduction(pos);
         }
 
       }
@@ -233,6 +235,7 @@ public:
     }
     // Age the organism
     GrowOlder();
+    my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
   }
 
   /**
@@ -259,6 +262,31 @@ public:
     // cpu.state.in_progress_repro = old;
     return sym_offspring;
   }
+
+  void AttemptReproduction(emp::WorldPosition sym_pos) {
+    // NOTE - could make this a configurable functor if we want different success/failure
+    //        conditions on attempt
+    // NOTE - Do we want to be using the horizontal transmission cost here?
+    //        Is this always horizontal transmisstion?
+    // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
+   emp_assert(my_host.DynamicCast<host_t>(), "SGPSymbiont must have an SGPHost host");
+  const double repro_cost = my_world->GetConfig().SYM_HORIZ_TRANS_RES();
+  if (GetPoints() >= repro_cost) {
+    // Sym pays cost
+    DecPoints(repro_cost);
+    // Add sym to repro queue
+    // TODO - protect with mutex for threading
+      const size_t queue_id = my_world->GetReproQueue().Enqueue(
+        GetHardware().GetCPUState().GetOrgPtr(),
+        sym_pos
+      );
+    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
+    GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+  } else {
+    // Attempt failed, so reset repro state.
+    GetHardware().GetCPUState().ResetReproState();
+  }
+}
 
 
   /**
