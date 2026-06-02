@@ -62,7 +62,7 @@
 // #include "../test/sgp_mode_test/SGPHost.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
 // // #include "../test/sgp_mode_test/StressHost.test.cc"
-// #include "../test/sgp_mode_test/SGPStressMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPStressMode.test.cc"
 
 
 
