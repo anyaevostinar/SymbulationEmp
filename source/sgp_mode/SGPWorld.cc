@@ -187,22 +187,19 @@ emp::WorldPosition SGPWorld::HostDoBirth(
     // Cast generic org pointer to more specific sym pointer type
     emp::Ptr<sgp_sym_t> sym_ptr = static_cast<sgp_sym_t*>(sym_org_ptr.Raw());
     // Check if symbiont can attempt vertical transmission
-    const bool can_attempt = fun_can_attempt_vert_trans(
-      *sym_ptr, /* Symbiont attempting to vert. trans */
-      *offspring_ptr, /* Host offspring (trans into) */
-      *parent_ptr, /* Host parent (trans from) */
-      parent_pos
-    );
-    if (!can_attempt) {
-      continue;
-    }
+
+    // Refactor AEV note: the below is now in SGPSymbiont::SuccessfulVT
+    // const bool can_attempt = fun_can_attempt_vert_trans(
+    //   *sym_ptr, /* Symbiont attempting to vert. trans */
+    //   *offspring_ptr, /* Host offspring (trans into) */
+    //   *parent_ptr, /* Host parent (trans from) */
+    //   parent_pos
+    // );
+    // if (!can_attempt) {
+    //   continue;
+    // }
     // This symbiont attempts vertical transmission (returns success if necessary)
-    EndosymAttemptVertTransmission(
-      sym_ptr,
-      offspring_ptr,
-      parent_ptr,
-      parent_pos
-    );
+    sym_ptr->VerticalTransmission(offspring_ptr);
   }
 
   // Call emp::World's DoBirth for host offspring that we're currently "birthing".
@@ -246,45 +243,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
     sym_baby_ptr.Delete();
     return emp::WorldPosition();
   }
-}
-
-bool SGPWorld::EndosymAttemptVertTransmission(
-  emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
-  emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
-  emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
-  const emp::WorldPosition& parent_pos /* Parent location */
-) {
-  // NOTE - Make DoVerticalTransmission function?
-  // No need to mark reproduction in progress here, as this isn't managed by repro queue.
-  // endosym_ptr->GetHardware().GetCPUState().MarkReproInProgress();
-  // Trigger before transmission signal.
-  before_sym_vert_transmission_sig.Trigger(
-    endosym_ptr,          /* symbiont producing offspring */
-    host_offspring_ptr, /* transmission to */
-    host_parent_ptr,  /* transmission from */
-    parent_pos
-  );
-  // Do vertical transmission
-  // NOTE - easy way to grab the new symbiont?
-  // TODO - How to know if vertical transmission is successful?
-  auto endosym_offspring = endosym_ptr->VerticalTransmission(host_offspring_ptr);
-  const bool success = (bool)endosym_offspring;
-  emp::Ptr<sgp_sym_t> endosym_offspring_ptr = (success) ?
-    static_cast<sgp_sym_t*>(endosym_offspring.value().Raw()) :
-    nullptr;
-  // TODO -
-  // Trigger after transmission signal.
-  after_sym_vert_transmission_sig.Trigger(
-    endosym_offspring_ptr, /* endosym offspring (if successful) */
-    endosym_ptr,                         /* endosym parent*/
-    host_offspring_ptr,                  /* transmission to */
-    host_parent_ptr,                     /* transmission from */
-    parent_pos,
-    success
-  );
-  // NOTE - ResetReproState here or in Reproduce function?
-  // endosym_ptr->GetHardware().GetCPUState().ResetReproState();
-  return success;
 }
 
 // Process any symbiont offspring that "escaped" the stress event

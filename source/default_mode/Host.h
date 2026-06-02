@@ -9,13 +9,10 @@
 #include "../Organism.h"
 #include "SymWorld.h"
 
-
 class Host: public Organism {
 
 
 protected:
-
-  using taxon_info_t = double;
 
   /**
     *
@@ -54,6 +51,13 @@ protected:
     *
   */
   size_t from_partner_count = 0;
+
+  /**
+   *
+   * Purpose: Tracks the number of tag flips away from partner in this host's lineage.
+   *
+  */
+  double tag_permissiveness = 0;
 
   /**
     *
@@ -128,7 +132,7 @@ protected:
     * Purpose: Tracks the taxon of this organism.
     *
   */
-  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> my_taxon = NULL;
+  emp::Ptr<taxon_t::base_taxon_t> my_taxon = NULL;
    
   /** 
    * Purpose: To track location in the world
@@ -151,6 +155,9 @@ public:
     if (interaction_val > 1 || interaction_val < -1) {
        throw "Invalid interaction value. Must be between -1 and 1";  // Exception for invalid interaction value
      };
+    if (my_config->TAG_MATCHING() && my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
+      tag_permissiveness = my_config->TAG_PERMISSIVENESS();
+    }
    }
 
   /**
@@ -322,11 +329,11 @@ public:
   */
   double GetIntVal() const { return interaction_val;}
 
-  emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
+  emp::Ptr<taxon_t::base_taxon_t> GetTaxon() {
     return my_taxon;
   }
 
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
+  virtual void SetTaxon(emp::Ptr<taxon_t::base_taxon_t> _in) {
     my_taxon = _in;
   }
 
@@ -476,6 +483,24 @@ public:
    * Purpose: To get a host's tag.
    */
   emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
+
+  /**
+  * Input: The tag permissiveness value to set for this host
+  *
+  * Output: None
+  *
+  * Purpose: To set the tag permissiveness value of this host
+  */
+  void SetTagPermissiveness(double _in) { tag_permissiveness = _in; }
+
+  /**
+  * Input: None
+  *
+  * Output: The tag permissiveness value of this host
+  *
+  * Purpose: To get the tag permissiveness value of this host
+  */
+  double GetTagPermissiveness() { return tag_permissiveness; }
 
   /**
    * Input: None
@@ -684,7 +709,10 @@ public:
    */
   emp::Ptr<Organism> MakeNew(){
     emp::Ptr<Host> new_host = emp::NewPtr<Host>(random, my_world, my_config, GetIntVal());
-    new_host->SetTag(GetTag());
+    if (my_config->TAG_MATCHING()) {
+      new_host->SetTag(GetTag());
+      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) new_host->SetTagPermissiveness(tag_permissiveness);
+    }
     return new_host;
   }
 
@@ -697,6 +725,7 @@ public:
    */
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
+    
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
@@ -732,14 +761,24 @@ public:
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
     if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
-
+    
     if(random->GetDouble(0.0, 1.0) <= mutation_rate){
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
+      
     }
 
     if (my_config->TAG_MATCHING()) {
+      if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()){
+        double permissiveness_mutation_rate = my_config->HOST_TAG_PERMISSIVENESS_MUTATION_RATE();
+        if (permissiveness_mutation_rate == -1) permissiveness_mutation_rate = mutation_rate;
+
+        if (random->GetDouble(0.0, 1.0) <= permissiveness_mutation_rate) {
+          tag_permissiveness += random->GetNormal(0.0, my_config->HOST_TAG_PERMISSIVENESS_MUTATION_SIZE());
+        }
+      }
+
       tag.FlipRandom(my_world->GetRandom(), my_config->TAG_MUTATION_SIZE());
     }
   }
@@ -848,6 +887,9 @@ public:
    * transmission, removing dead syms, and processing alive syms.
    */
   void Process(emp::WorldPosition pos) {
+    // tracking int val for tag and individual phylogenies
+    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+
     size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function
     double desired_resources = my_config->RES_DISTRIBUTE();
