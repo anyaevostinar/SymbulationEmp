@@ -154,7 +154,7 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
 }
 
 //Note, this can't be easily combined with the previous test, because the functor is created at setup, so you can't change the nutrient type on the fly, is that okay for our long term plans?
-TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp-1][sgp-functional]") {
+TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp-functional]") {
   // TODO: move to functional folder
   GIVEN("An SGPWorld with a host infected with a symbiont where Stress is the interaction mechanism"){
     emp::Random random(42);

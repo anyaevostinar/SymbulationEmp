@@ -368,8 +368,16 @@ public:
     return lineage_task_change_loss[task_id];
   }
 
+  const emp::vector<size_t>& GetLineageTaskLoss() const { 
+    return lineage_task_change_loss; 
+  }
+
   size_t GetLineageTaskGainCount(size_t task_id) const {
     return lineage_task_change_gain[task_id];
+  }
+
+  const emp::vector<size_t>& GetLineageTaskGain() const { 
+    return lineage_task_change_gain; 
   }
 
   void SetLineageTaskLossCount(size_t task_id, size_t count) {
