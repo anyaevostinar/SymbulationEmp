@@ -405,8 +405,6 @@ public:
     sgp_sym_t& sym
   );
 
-  size_t GetHostSymMatchCount(sgp_host_t& host);
-
 
 protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
@@ -548,7 +546,7 @@ protected:
   void SetupReproduction();
   void SetupSymReproduction();
   void SetupHostReproduction();
-  void SetupHostTaskAwards();
+  void SetupHostTaskRewards();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
@@ -641,43 +639,69 @@ public:
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
-  /**
-   * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
-   * Output: The value of the task after applying nutrient interaction.
-   * Purpose: To apply the configured nutrient interaction for the given symbiont and task
+ /**
+   * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The change in the points the host will gain from the task after the nutrient interaction.
+   * Purpose: To calculate the configured nutrient interaction for the given symbiont and task
    */
   double CalcHostNutrientInteraction(
     sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
     size_t task_id,
-    size_t symCount
+    size_t task_matching_sym_count
   ) {
-    return fun_calc_host_nutrient_interaction(host,sym, task_value_before, task_id,symCount);
+    return fun_calc_host_nutrient_interaction(host,sym, task_value_before, task_id,task_matching_sym_count);
   }
 
    /**
-   * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
-   * Output: The value of the task after applying nutrient interaction.
-   * Purpose: To apply the configured nutrient interaction for the given symbiont and task
+   * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The amount of points that the symbiont will gain/lose after the nutrient interaction.
+   * Purpose: To calculate the configured nutrient interaction for the given symbiont and task
    */
   double CalcSymNutrientInteraction(
     sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
     size_t task_id,
-    size_t symCount
+    size_t task_matching_sym_count
   ) {
-    return fun_calc_sym_nutrient_interaction(host,sym, task_value_before, task_id,symCount);
+    return fun_calc_sym_nutrient_interaction(host,sym, task_value_before, task_id,task_matching_sym_count);
   }
 
+  /**
+   * Input: A host, the value of a task before applying any interaction, and the task id.
+   * Output: None.
+   * Purpose: To give the points the amount of points it should receieve after all symbiont interactions have been applied
+   */
   void ApplyHostPoints(
      sgp_host_t& host,
     double task_value_before,
     size_t task_id
   ){
-    fun_apply_host_points(host,task_value_before,task_id);
+    fun_apply_host_points(host,task_value_before, task_id);
   }
+
+  const emp::BitVector& GetSymTaskProfile(
+    sgp_sym_t& sym
+  ){
+    return fun_get_sym_task_profile(sym);
+  }
+
+  const emp::BitVector& GetHostTaskProfile(
+    sgp_host_t& host
+  ){
+    return fun_get_host_task_profile(host);
+  }
+
+  bool TaskProfileCompatibilityCheck(
+    const emp::BitVector& host_task_profile,
+    const emp::BitVector& sym_task_profile
+  ){
+    return fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+  }
+
+
 
   void TriggerBeforeEndoSymProcessSig(
     const emp::WorldPosition& sym_pos,

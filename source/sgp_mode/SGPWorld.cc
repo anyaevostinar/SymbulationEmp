@@ -466,12 +466,12 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
           sym.GetPoints()
         );
         double task_points = new_points - sym.GetPoints();
-        //Hardcode nutrients getting less points
-
-
-        // Apply nutrient interaction (if any have been configured) to points
-        // NOTE - can inject nutrient interaction here to modify points?
-        //task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
+  
+        //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
+        if(sgp_config.ENABLE_NUTRIENT() && GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
+          task_points *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
+        } 
+ 
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
         // // Enforce limits on points

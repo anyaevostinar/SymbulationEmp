@@ -43,9 +43,6 @@ protected:
   */
   const emp::Ptr<world_t> my_world;
 
- 
-  size_t current_update = 0;
-
   /**
    *
    * Purpose: Holds all configuration settings and points to same configuration
@@ -66,7 +63,7 @@ protected:
   // }
 
 public:
-  size_t match_count = 0;
+  
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -187,6 +184,17 @@ public:
     points += amt;
   }
 
+  size_t matching_syms_to_interact_with = 0;
+  
+  size_t GetCountofMatchingSymsToInteractWith(){
+    return matching_syms_to_interact_with;
+  }
+
+  size_t SetCountofMatchingSymsToInteractWith(size_t new_matching_count){
+    matching_syms_to_interact_with = new_matching_count;
+  }
+  
+
   /**
    * Input: None.
    *
@@ -256,14 +264,16 @@ public:
     //   Gives endosymbionts chance to interact with host before it processes.
     //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
 
-    match_count = my_world->GetHostSymMatchCount(*this);
+    UpdateSymMatchCount();
 
-    //Gen random number
-    current_update += 1; 
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-      emp_assert(!(syms[(endosym_i + current_update) % syms.size()]->IsHost()));
-      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[(endosym_i + current_update) % syms.size()].Raw());
+
+      //This ensures that which symbiont is the starting symbiont rotates each update
+      size_t sym_index = (endosym_i + my_world->GetUpdate()) % syms.size()
+
+      emp_assert(!(syms[sym_index]->IsHost()));
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_index].Raw());
       const bool dead = cur_symbiont->GetDead();
       // Skip if dead
       if (dead) {
@@ -452,6 +462,8 @@ public:
           GetPoints()
         );
         double task_points = new_points - GetPoints();
+
+        //World handles giving host points and adjusting that amount based on if any points are removed or by symbionts
         my_world->ApplyHostPoints(*this, task_points,task_id);
         my_world->GetHostTaskSuccesses()[task_id] += 1;
 
@@ -585,6 +597,22 @@ public:
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
                       // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
+
+  void UpdateSymMatchCount(){
+    matching_syms_to_interact_with = 0;
+    emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+    for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+          
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+      
+      const emp::BitVector& endosym_task_profile = my_world->GetSymTaskProfile(*cur_symbiont);
+      const emp::BitVector& host_task_profile = my_world->GetHostTaskProfile(*this);
+      bool is_matching = my_world->TaskProfileCompatibilityCheck(host_task_profile,endosym_task_profile);
+      matching_syms_to_interact_with += is_matching;
+            
+      }
+  }
+  
 };
 
 }
