@@ -12,7 +12,8 @@
 #include "../test/default_mode_test/HostSymbiontInteraction.test.cc"
 #include "../test/default_mode_test/HostSymbiontUnitTest.test.cc"
 #include "../test/default_mode_test/CureHosts.test.cc"
-
+#include "../test/default_mode_test/Phylogenies.test.cc"
+#include "../test/default_mode_test/TagMatching.test.cc"
 
 #include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
 #include "../test/efficient_mode_test/EfficientHost.test.cc"
@@ -62,7 +63,7 @@
 // #include "../test/sgp_mode_test/SGPHost.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
 // // #include "../test/sgp_mode_test/StressHost.test.cc"
-// #include "../test/sgp_mode_test/SGPStressMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPStressMode.test.cc"
 
 
 
