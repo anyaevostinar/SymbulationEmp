@@ -896,7 +896,7 @@ void SGPWorld::SetupSymReproduction() {
   //        to accomodate different mechanisms for determining whether vt is possible.
   if (sgp_config.VT_TASK_MATCH()) {
     // If task matching required, check.
-    fun_can_attempt_vert_trans = [this](
+    fun_vert_trans_compatible = [this](
       sgp_sym_t& sym,
       sgp_host_t& host_offspring,
       sgp_host_t& host_parent
@@ -908,7 +908,7 @@ void SGPWorld::SetupSymReproduction() {
     };
   } else {
     // Otherwise, allow attempt in all cases.
-    fun_can_attempt_vert_trans = [](
+    fun_vert_trans_compatible = [](
       sgp_sym_t& sym,
       sgp_host_t& host_offspring,
       sgp_host_t& host_parent

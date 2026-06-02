@@ -55,8 +55,7 @@ public:
     const emp::WorldPosition&     /* parent_position */
   )>;
 
-  // NOTE - better name?
-  using fun_can_attempt_vert_trans_t = std::function<bool(
+  using fun_vert_trans_compatible_t = std::function<bool(
     sgp_sym_t&,                /* symbiont_ptr */
     sgp_host_t&,               /* host_offspring_ptr (trans to) */
     sgp_host_t&               /* host_parent_ptr (trans from) */
@@ -472,9 +471,9 @@ protected:
     bool                         /* vertical transmission success */
   )> after_sym_vert_transmission_sig;
 
-  // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
-  //  a given symbiont can attempt vertical transmission into host offspring.
-  fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
+  // fun_vert_trans_compatible - Called during HostDoBirth to determine if
+  //  a given symbiont can vertically transmit into host offspring.
+  fun_vert_trans_compatible_t fun_vert_trans_compatible;
 
   
 
@@ -633,7 +632,7 @@ public:
   ) {
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
     emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
-    return fun_can_attempt_vert_trans(sym, static_cast<sgp_host_t&>(*host_offspring), static_cast<sgp_host_t&>(*host));
+    return fun_vert_trans_compatible(sym, static_cast<sgp_host_t&>(*host_offspring), static_cast<sgp_host_t&>(*host));
   }
   
   void TriggerBeforeSymVertTransmissionSig(
