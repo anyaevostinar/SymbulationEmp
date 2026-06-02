@@ -709,15 +709,34 @@ public:
   /**
    * Input: None
    *
-   * Output: Whether the symbiont is able to vertically transmit
+   * Output: Whether the potential parent symbiont meets requirements individually to vertically transmit
    *
-   * Purpose: To answer if this symbiont has enough points to vertically transmit
+   * Purpose: To answer if this symbiont has enough points to vertically transmit.
+   * Only tests requirements that are strictly based on the symbiont parent's internal state.
    */
   virtual bool MeetsVTRequirements() {
     if (GetPoints() >= my_config->SYM_VERT_TRANS_RES()) {
       return true;
     }
     return false;
+  }
+
+  /**
+  * Input: emp::Ptr<Organism> to host offspring, emp::Ptr<Organism> to symbiont offspring
+  * 
+  * Output: boolean, whether or not sym/sym offspring meets requirements to successfully vertically transmit
+  * 
+  * Purpose: To test for compatibility between sym parent/offspring and host parent/offspring, such as tags
+  * */
+  virtual bool SuccessfulVT(emp::Ptr<Organism> host_baby, emp::Ptr<Organism> sym_baby) {
+    if (my_config->TAG_MATCHING()) {
+      double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
+      double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
+      if (tag_distance > cutoff) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -735,16 +754,11 @@ public:
       //vertical transmission data node
       emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(GetIntVal());
-
       if(MeetsVTRequirements()){
         sym_baby = Reproduce();
-        if (my_config->TAG_MATCHING()) {
-          double tag_distance = my_world->GetTagMetric()->calculate(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
-          double cutoff = random->GetPoisson(my_config->TAG_DISTANCE() * TAG_LENGTH);
-          if (tag_distance > cutoff) {
-            sym_baby.Delete();
-            return std::nullopt;
-          }
+        if(!SuccessfulVT(host_baby, sym_baby)) {
+          sym_baby.Delete();
+          return std::nullopt;
         }
         points = points - my_config->SYM_VERT_TRANS_RES();
         success = host_baby->AddSymbiont(sym_baby);

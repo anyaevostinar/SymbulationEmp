@@ -239,6 +239,21 @@ public:
   }
 
   /**
+  * Input: emp::Ptr<Organism> to host offspring, emp::Ptr<Organism> to symbiont offspring
+  * 
+  * Output: boolean, whether or not sym/sym offspring meets requirements to successfully vertically transmit
+  * 
+  * Purpose: Overwritten to add functor call for task profiles
+  * Originally, to test for compatibility between sym parent/offspring and host parent/offspring, such as tags
+  * */
+  //TODO: AEV: add test for tags and sgp together
+  bool SuccessfulVT(emp::Ptr<Organism> host_baby, emp::Ptr<Organism> sym_baby) {
+    bool super_result = Symbiont::SuccessfulVT(host_baby, sym_baby);
+    bool world_reqs = my_world->CheckVertTransCompatibility(*this, host_baby, my_host); 
+    return super_result && world_reqs;
+  }
+
+  /**
    * Input: The pointer to the organism that is the new host baby
    *
    * Output: None
@@ -248,21 +263,45 @@ public:
    * with the reproduction queue which is used for horizontal transmission.
    */
   std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
-    // Save and restore the in-progress reproduction, since Reproduce() will be
-    // called but it will still be on the queue for horizontal transmission
-    // size_t old = cpu.state.in_progress_repro;
-    // TODO - clean this up? Does cpu state need to manage this?
-    //  - E.g., have cpu state flag repro attempt, but let world manage repro progress?
-    // const bool repro_in_progress = hardware.GetCPUState().ReproInProgress();
-    // const size_t repro_queue_pos = hardware.GetCPUState().GetReproQueuePos();
-    // std::cout << "vt" << std::endl;
+
+
+    // NOTE - Make DoVerticalTransmission function?
+  // No need to mark reproduction in progress here, as this isn't managed by repro queue.
+  // endosym_ptr->GetHardware().GetCPUState().MarkReproInProgress();
+  // Trigger before transmission signal.
+  my_world->TriggerBeforeSymVertTransmissionSig(
+    this,          /* symbiont producing offspring */
+    host_baby, /* transmission to */
+    my_host  /* transmission from */
+  );
+
     auto sym_offspring = Symbiont::VerticalTransmission(host_baby);
-    // hardware.GetCPUState().SetReproInProgress(repro_in_progress);
-    // hardware.GetCPUState().SetReproQueuePos(repro_queue_pos);
-    // cpu.state.in_progress_repro = old;
+
+    const bool success = (bool)sym_offspring;
+
+    
+
+    // Trigger after transmission signal.
+    my_world->TriggerAfterSymVertTransmissionSig(
+    sym_offspring, /* endosym offspring (if successful) */
+    this,                         /* endosym parent*/
+    host_baby,                  /* transmission to */
+    my_host,                     /* transmission from */
+    success
+  );
+
     return sym_offspring;
   }
 
+
+  /*
+  * Input: sym_pos, world position
+  * 
+  * Output: None
+  * 
+  * Purpose: Start the process for horizontal transmission by marking in progress repo and removing points
+  */
+  //TODO: change name and streamline
   void AttemptReproduction(emp::WorldPosition sym_pos) {
     // NOTE - could make this a configurable functor if we want different success/failure
     //        conditions on attempt

@@ -59,8 +59,7 @@ public:
   using fun_can_attempt_vert_trans_t = std::function<bool(
     sgp_sym_t&,                /* symbiont_ptr */
     sgp_host_t&,               /* host_offspring_ptr (trans to) */
-    sgp_host_t&,               /* host_parent_ptr (trans from) */
-    const emp::WorldPosition&  /* parent_pos */
+    sgp_host_t&               /* host_parent_ptr (trans from) */
   )>;
 
   // Are host and endosymbiont compatible for horizontal transmission?
@@ -219,35 +218,6 @@ public:
   // fun_sym_do_birth - Configurable functor that handles calling appropriate
   //  "DoBirth" function depending on whether free-living symbionts are turned on.
   fun_sym_do_birth_t fun_sym_do_birth;
-
-  // ---- Symbiont vertical transmission signals / functors ----
-  // before_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
-  //  Triggers before VerticalTransmission is called on endosymbiont attempting
-  //  vertical transmission. I.e., before attempt is made.
-  emp::Signal<void(
-    emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
-    emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
-    emp::Ptr<sgp_host_t>,      /* host_parent_ptr - transmission from */
-    const emp::WorldPosition&  /* host_parent_pos */
-  )> before_sym_vert_transmission_sig;
-
-  // after_sym_vert_transmission_sig - Triggers in EndosymAttemptVertTransmission function.
-  //  Triggers ater vertical transmission attempt has been made.
-  //  If attempt was successful, sym_offspring_ptr will point to the new symbiont
-  //  offspring (that was vertically transmitted). If unsuccessful, sym_offspring_ptr
-  //  will be a nullptr.
-  emp::Signal<void(
-    emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
-    emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
-    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
-    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
-    const emp::WorldPosition&,   /* host_parent_pos */
-    bool                         /* vertical transmission success */
-  )> after_sym_vert_transmission_sig;
-
-  // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
-  //  a given symbiont can attempt vertical transmission into host offspring.
-  fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
 
   // ---- Host birth signals / functors ----
   // before_host_do_birth_sig - Triggers during HostDoBirth().
@@ -479,6 +449,33 @@ protected:
   //    E.g., if we want hosts to use their full profile vs syms using first task only
   fun_get_sym_task_profile_t fun_get_sym_task_profile;
 
+    // ---- Symbiont vertical transmission signals / functors ----
+  // before_sym_vert_transmission_sig - Triggers in SGPSymbiont::Vertical Transmission function.
+  //  Triggers before VerticalTransmission is called on endosymbiont attempting
+  //  vertical transmission. I.e., before attempt is made.
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,       /* sym_ptr - symbiont producing offspring */
+    emp::Ptr<sgp_host_t>,      /* host_offspring_ptr - transmission to */
+    emp::Ptr<sgp_host_t>      /* host_parent_ptr - transmission from */
+  )> before_sym_vert_transmission_sig;
+
+  // after_sym_vert_transmission_sig - Triggers in SGPSymbiont::Vertical Transmission function.
+  //  Triggers ater vertical transmission attempt has been made.
+  //  If attempt was successful, sym_offspring_ptr will point to the new symbiont
+  //  offspring (that was vertically transmitted). If unsuccessful, sym_offspring_ptr
+  //  will be a nullptr.
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,         /* sym_offspring_ptr */
+    emp::Ptr<sgp_sym_t>,         /* sym_parent_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_offspring_ptr */
+    emp::Ptr<sgp_host_t>,        /* host_parent_ptr */
+    bool                         /* vertical transmission success */
+  )> after_sym_vert_transmission_sig;
+
+  // fun_can_attempt_vert_trans - Called during HostDoBirth to determine if
+  //  a given symbiont can attempt vertical transmission into host offspring.
+  fun_can_attempt_vert_trans_t fun_can_attempt_vert_trans;
+
   
 
   // ----- Internal helper functions -----
@@ -507,14 +504,9 @@ protected:
     const emp::WorldPosition& parent_pos
   );
 
-  // Attempt vertical transmission from host parent to host offspring.
-  // Pass in pointers to play nice with Symbiont.h's VerticalTransmission function.
-  bool EndosymAttemptVertTransmission(
-    emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
-    emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
-    emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
-    const emp::WorldPosition& parent_pos /* Parent location */
-  );
+  // Refactor AEV: Functionality ported to SGPSymbiont::VerticalTransmission
+  // bool EndosymAttemptVertTransmission(
+
 
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
@@ -632,6 +624,42 @@ public:
     size_t task_id
   ) {
     return fun_apply_nutrient_interaction(sym, task_value_before, task_id);
+  }
+
+  bool CheckVertTransCompatibility(
+    sgp_sym_t& sym,
+    emp::Ptr<Organism> host_offspring,
+    emp::Ptr<Organism> host
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
+    return fun_can_attempt_vert_trans(sym, static_cast<sgp_host_t&>(*host_offspring), static_cast<sgp_host_t&>(*host));
+  }
+  
+  void TriggerBeforeSymVertTransmissionSig(
+    emp::Ptr<sgp_sym_t> sym,   
+    emp::Ptr<Organism> host_offspring,
+    emp::Ptr<Organism> host_parent
+  ) {
+    emp_assert(host_parent.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
+    before_sym_vert_transmission_sig.Trigger(sym, host_offspring.DynamicCast<sgp_host_t>(), host_parent.DynamicCast<sgp_host_t>());
+  }
+
+  void TriggerAfterSymVertTransmissionSig(
+    std::optional<emp::Ptr<Organism>> sym_offspring,
+    emp::Ptr<sgp_sym_t> sym,   
+    emp::Ptr<Organism> host_offspring,
+    emp::Ptr<Organism> host_parent,
+    bool success
+  ) {
+    emp_assert(host_parent.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr = (success) ?
+    static_cast<sgp_sym_t*>(sym_offspring.value().Raw()) :
+    nullptr;
+    after_sym_vert_transmission_sig.Trigger(sym_offspring_ptr,
+      sym, host_offspring.DynamicCast<sgp_host_t>(), host_parent.DynamicCast<sgp_host_t>(), success);
   }
 
   void TriggerBeforeEndoSymProcessSig(

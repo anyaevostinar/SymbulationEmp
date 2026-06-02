@@ -899,8 +899,7 @@ void SGPWorld::SetupSymReproduction() {
     fun_can_attempt_vert_trans = [this](
       sgp_sym_t& sym,
       sgp_host_t& host_offspring,
-      sgp_host_t& host_parent,
-      const emp::WorldPosition& parent_pos
+      sgp_host_t& host_parent
     ) -> bool {
       // Check if host profile and sym profile have any overlap?
       auto& host_profile = fun_get_host_task_profile(host_parent);
@@ -912,8 +911,7 @@ void SGPWorld::SetupSymReproduction() {
     fun_can_attempt_vert_trans = [](
       sgp_sym_t& sym,
       sgp_host_t& host_offspring,
-      sgp_host_t& host_parent,
-      const emp::WorldPosition& parent_pos
+      sgp_host_t& host_parent
     ) -> bool {
       return true;
     };
@@ -1252,14 +1250,11 @@ void SGPWorld::SetupTaskEnvironment() {
       emp::Ptr<sgp_sym_t> sym_parent_ptr,
       emp::Ptr<sgp_host_t> host_offspring_ptr,
       emp::Ptr<sgp_host_t> host_parent_ptr,
-      const emp::WorldPosition& host_parent_pos,
       bool success                        /* vertical transmission success */
     ) {
       if (!success) return;
       emp_assert(sym_offspring_ptr != nullptr);
       auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
-      // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
-      //AssignNewEnvIO(sym_offspring_cpu_state); // This is in AddSymbiont now, so should be fine
     }
   );
 
