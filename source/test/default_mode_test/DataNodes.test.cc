@@ -1058,3 +1058,41 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
     }
   }
 }
+
+TEST_CASE("GetHostTagPermissiveness", "[default]") {
+  GIVEN("a world") {
+    emp::Random random(17);
+    SymConfigBase config;
+    int int_val = 0;
+    config.TAG_MATCHING(1);
+    SymWorld world(random, &config);
+
+    emp::DataMonitor<double>& data_node_host_permissiveness = world.GetHostTagPermissiveness();
+    REQUIRE(data_node_host_permissiveness.GetCount() == 0);
+    REQUIRE(std::isnan(data_node_host_permissiveness.GetMean()));
+
+    double host_1_permissiveness = 0.125;
+    emp::Ptr<Host> host_1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+    host_1->SetTagPermissiveness(host_1_permissiveness);
+    world.InjectHost(host_1);
+    world.Update();
+    REQUIRE(data_node_host_permissiveness.GetCount() == 1);
+    REQUIRE(data_node_host_permissiveness.GetMean() == host_1_permissiveness);
+
+    WHEN("A host with new permissiveness value is added to the world") {
+      double host_2_permissiveness = 0.375;
+      emp::Ptr<Host> host_2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
+      host_2->SetTagPermissiveness(host_2_permissiveness);
+      world.InjectHost(host_2);
+
+      REQUIRE(data_node_host_permissiveness.GetCount() == 1);
+      REQUIRE(data_node_host_permissiveness.GetMean() == host_1_permissiveness);
+      world.Update();
+
+      THEN("The host's permissiveness gets included in the permissiveness mean data node") {
+        REQUIRE(data_node_host_permissiveness.GetCount() == 2);
+        REQUIRE(data_node_host_permissiveness.GetMean() == (host_1_permissiveness + host_2_permissiveness) / 2.0);
+      }
+    }
+  }
+}
