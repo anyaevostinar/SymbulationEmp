@@ -84,10 +84,34 @@ TEST_CASE("No Mutate", "[sgp]") {
   second_host.Delete();
 }
 
-// TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit][refactor]") {
-//     //TODO test for organism correctly invalidating its place in repro queue
-// }
+TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
+    GIVEN("A host"){
+        emp::Random random(31);
+        sgpmode::SymConfigSGP config;
+        config.GRID_X(1);
+        config.GRID_Y(1);
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
+        world_t world(random, &config);
+        world.Setup();
+        auto& prog_builder = world.GetProgramBuilder();
+
+        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+        
+        emp::WorldPosition host_pos = emp::WorldPosition(1, 2);
+        host->SetLocation(host_pos);
+        const size_t queue_id = world.GetReproQueue().Enqueue(host->GetHardware().GetCPUState().GetOrgPtr(), host_pos); 
+        host->GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+
+        WHEN("The host is destroyed") {
+            host.Delete(); 
+            
+            THEN("The host's position in the reproduction queue is marked as invalid") {
+                REQUIRE(world.GetReproQueue().GetQueue()[queue_id].valid == false);
+            }
+        }
+    }
+}
 
 TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
 
@@ -149,7 +173,6 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
         different.Delete();
     }
 }
-
 
 TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
     GIVEN("A host"){
