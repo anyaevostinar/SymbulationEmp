@@ -17,7 +17,7 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
 TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld with a symbiont only able to perform NOT"){
-  emp::Random random(31);
+    emp::Random random(31);
     size_t not_id = 1;
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -26,18 +26,21 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
     world.Setup();
     auto& prog_builder = world.GetProgramBuilder();
     emp::Ptr<sgp_sym_t> sym_parent = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+        
+    world.AddOrgAt(host, 0);
+    host->AddSymbiont(sym_parent);
 
     WHEN("The Symbiont reproduces"){
-      emp::Ptr<sgp_sym_t> sym_baby = (sym_parent->Reproduce()).DynamicCast<sgp_sym_t>();
+      
       THEN("Symbiont child increases its lineage reproduction count") {
+        emp::Ptr<sgp_sym_t> sym_baby = (sym_parent->Reproduce()).DynamicCast<sgp_sym_t>();
         REQUIRE(sym_parent->GetReproCount() == sym_baby->GetReproCount() - 1);
+        sym_baby.Delete();
       }
 
       WHEN("Parental task tracking is set to parent-all and parent does NOT before reproduction") {
-        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
         
-        world.AddOrgAt(host, 0);
-        host->AddSymbiont(sym_parent);
         for (int i = 0; i < 50; i++) {
           world.Update();
         }
@@ -82,9 +85,8 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
             }
           }
         }
-        
+        sym_baby.Delete();
       }
-      sym_baby.Delete();
     }
   }
 }
