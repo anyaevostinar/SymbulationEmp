@@ -260,7 +260,7 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
-  
+
   world.Setup();
 
   emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
@@ -268,7 +268,6 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
   emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
 
   host->AddSymbiont(symbiont);
-  world.AddOrgAt(host, 0);
 
   WHEN("An incoming symbiont has an equal match as an existing symbiont"){
     host->GetHardware().GetCPUState().MarkTaskPerformed(2);
