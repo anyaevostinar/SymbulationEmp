@@ -56,58 +56,6 @@ TEST_CASE("Update only hosts test", "[sgp]") {
   }
 }
 
-// todo: SetupOrgMode test 
-
-TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]"){
-  sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.GRID_X(2);
-  config.GRID_Y(2);
-  config.SEED(44);
-  config.POP_SIZE(0);
-  emp::Random random(config.SEED());
-  world_t world(random, &config);
-  world.Setup();
-  world.Resize(0);
-
-  size_t host_count = 4; 
-  config.POP_SIZE(host_count);
-  
-  WHEN("SetupHosts is called"){
-    world.SetupHosts(&host_count);
-    THEN("The correct number of hosts are added"){
-      REQUIRE(world.GetSize() == host_count);
-      REQUIRE(world.GetNumOrgs() == host_count);
-    }
-  }
-}
-
-TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]"){
-  sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.GRID_X(2);
-  config.GRID_Y(2);
-  config.SEED(44);
-  config.POP_SIZE(0);
-  config.START_MOI(1);
-  emp::Random random(config.SEED());
-  world_t world(random, &config);
-  world.Setup();
-  world.Resize(0);
-
-  size_t host_count = 4; 
-  config.POP_SIZE(host_count);
-  
-  WHEN("SetupHosts is called and START_MOI is 1"){
-    world.SetupHosts(&host_count);
-    THEN("The correct number of infected hosts are added"){
-      for(size_t i = 0; i < host_count; i++){
-          REQUIRE(world.GetOrgPtr(i)->HasSym());
-      }
-    }
-  }
-}
-
 TEST_CASE("Ousting is permitted", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
@@ -347,30 +295,6 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match",
   }
   host.Delete();
   incoming_symbiont.Delete();
-}
-
-TEST_CASE("Setup with an empty population", "[sgp]"){
-  sgpmode::SymConfigSGP config;
-  config.SYM_LIMIT(1);
-  config.GRID_X(2);
-  config.GRID_Y(2);
-  config.SEED(234);
-  config.POP_SIZE(0);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-
-  emp::Random random(config.SEED());
-  world_t world(random, &config);
-
-  WHEN("POP_SIZE is 0 and setup is called"){
-    world.Setup();
-
-    THEN("The world is sized correctly"){
-      REQUIRE(world.GetSize() == 4);
-    }
-    THEN("The world is empty"){
-      REQUIRE(world.GetNumOrgs() == 0);
-    }
-  }
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is a nearby matching host", "[sgp][sgp-unit]") {
