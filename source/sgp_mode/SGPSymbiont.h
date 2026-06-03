@@ -443,12 +443,4 @@ public:
 
 }
 
-// SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) {
-//   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
-// }
-
-// const SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) const {
-//   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
-// }
-
 #endif

@@ -275,19 +275,22 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
 }
 
 
-TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional][test]"){
+TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   emp::Random random(42);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(10);
-  config.GRID_Y(10);
+  config.GRID_X(2);
+  config.GRID_Y(2);
   config.POP_SIZE(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);
   config.VERTICAL_TRANSMISSION(0);
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  
   GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and self-all task profile mode"){
     config.HORIZ_TRANS(1);
+    
     config.TASK_PROFILE_MODE("self-all");
 
     world_t world(random, &config);
@@ -311,6 +314,8 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional][test]"){
         world.Update();
       }
       THEN("Symbiont horizontally transmits"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
       }
@@ -323,6 +328,10 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional][test]"){
         world.Update();
       }
       THEN("Symbiont does not horizontally transmit"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetParentTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetParentTaskPerformed(0) == true);
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
       }
@@ -334,6 +343,10 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional][test]"){
         world.Update();
       }
       THEN("Symbiont does not horizontally transmit"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetParentTaskPerformed(0) == false);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetParentTaskPerformed(0) == false);
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
       }

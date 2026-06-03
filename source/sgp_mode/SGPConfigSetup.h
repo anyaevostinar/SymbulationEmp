@@ -27,7 +27,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TASK_PROFILE_MODE, std::string, "self-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.? Options are parent-all, self-all, self-first, parent-first. 'all' means all tasks, 'first' means only first task performed."),
   VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),
-  VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission? always, task-profile-compatible, task-profile-strictly-stronger-match, task-profile-stronger-or-equal-match"),
+  VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission? Relies on TASK_PROFILE_COMPATIBILITY_MODE being set appropriately. Options are: always, task-profile-compatible, task-profile-strictly-stronger-match, task-profile-stronger-or-equal-match"),
 
   GROUP(SGP_MUTATION, "SGP mutation group"),
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
