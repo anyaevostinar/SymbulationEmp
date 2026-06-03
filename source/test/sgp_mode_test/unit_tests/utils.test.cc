@@ -6,10 +6,16 @@
 
 TEST_CASE("AnyMatchingOnes Test", "[sgp]") {
 
-    SECTION("Matching bits", "[sgp]") {
-        emp::BitSet<3> b1("001");
-        emp::BitSet<3> b2("001");
-        REQUIRE(sgpmode::utils::AnyMatchingOnes(b1, b2) == true);
+    SECTION("Matching ones", "[sgp]") {
+        emp::BitSet<3> bits_a("001");
+        emp::BitSet<3> bits_b("001");
+        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == true);
+    }
+    
+    SECTION("Matching zeroes", "[sgp]") {
+        emp::BitSet<3> bits_a("001");
+        emp::BitSet<3> bits_b("000");
+        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == false);
     }
 
     SECTION("No matching bits", "[sgp]") {
