@@ -557,3 +557,68 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     }
   }
 }
+
+TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
+  GIVEN("A target host and an incoming symbiont"){
+    emp::Random random(1);
+    sgpmode::SymConfigSGP config;
+    config.SEED(2);
+    config.MUTATION_RATE(0.0);
+    config.MUTATION_SIZE(0.000);
+    config.TASK_PROFILE_MODE("parent-all");
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.POP_SIZE(0);
+    config.OUSTING(1);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-strictly-stronger-match");
+
+    world_t world(random, &config);
+    world.Setup();
+
+    emp::Ptr<sgp_host_t> source_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_host_t> target_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+
+    emp::Ptr<sgp_sym_t> symbiont_parent = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> target_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    
+    source_host->AddSymbiont(symbiont_parent);
+    target_host->AddSymbiont(target_symbiont);
+
+    emp::WorldPosition parent_pos = emp::WorldPosition(1,0);
+    
+    // track parent tasks is on, so comparison for symbiont_offspring's injection is occurring between
+    // symbiont_parent's parent tasks (symbiont_offspring's grandparent tasks), target_host's parent tasks, and target_symbiont's parent tasks
+    target_host->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+    target_host->GetHardware().GetCPUState().SetParentTaskPerformed(1);
+    symbiont_parent->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+    target_symbiont->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+
+    emp::Ptr<Organism> symbiont_offspring = symbiont_parent->Reproduce();
+
+    world.AddOrgAt(source_host, 0);
+    world.AddOrgAt(target_host, 3);
+
+    WHEN("Preferential ousting is on and the target host has a symbiont") {
+      
+      WHEN("The incoming symbiont has a better match"){
+        symbiont_parent->GetHardware().GetCPUState().SetParentTaskPerformed(1);
+        world.SymDoBirth(symbiont_offspring, parent_pos);
+        THEN("The incoming symbiont successfully ousts"){
+          REQUIRE(target_host->HasSym());
+          REQUIRE(target_host->GetSymbionts().at(0) == symbiont_offspring); 
+        }
+      }
+
+      WHEN("The incoming symbiont has a worse match"){
+        target_symbiont->GetHardware().GetCPUState().SetParentTaskPerformed(1);
+
+        world.SymDoBirth(symbiont_offspring, parent_pos);
+        THEN("The incoming symbiont does not oust") {
+          REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<sgp_sym_t>() == target_symbiont);
+        }
+      }
+    }
+  }
+}
