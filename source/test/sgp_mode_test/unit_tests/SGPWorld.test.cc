@@ -107,17 +107,228 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   world.CleanupGraveyard();
 }
 
-TEST_CASE("Setup with an empty population"){
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+
+  WHEN("An incoming symbiont has a worse match than an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+
+    THEN("NoBetterOrEquallyMatchingSymbionts returns false"){
+      REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equal match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+
+  WHEN("An incoming symbiont has an equal match as an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+
+    THEN("NoBetterOrEquallyMatchingSymbionts returns false"){
+      REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming better match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+
+  WHEN("An incoming symbiont has a better match than an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+
+    THEN("NoBetterOrEquallyMatchingSymbionts returns true"){
+      REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+
+  WHEN("An incoming symbiont has a worse match than an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(4);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(4);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+
+    THEN("NoBetterMatchingSymbionts returns false"){
+      REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+  world.AddOrgAt(host, 0);
+
+  WHEN("An incoming symbiont has an equal match as an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(2);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(2);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(2);
+
+    THEN("NoBetterMatchingSymbionts returns true"){
+      REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match", "[sgp]"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(1);
+  config.GRID_Y(1);
+  config.SEED(2312);
+  config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+
+  world.Setup();
+
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+  emp::Ptr<sgp_sym_t> incoming_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
+  host->AddSymbiont(symbiont);
+
+  WHEN("An incoming symbiont has a better match than an existing symbiont"){
+    host->GetHardware().GetCPUState().MarkTaskPerformed(4);
+    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+    incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(4);
+
+    THEN("NoBetterMatchingSymbionts returns true"){
+      REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
+    }
+  }
+  host.Delete();
+  incoming_symbiont.Delete();
+}
+
+TEST_CASE("Setup with an empty population", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SEED(234);
   config.POP_SIZE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
-    
 
   WHEN("POP_SIZE is 0 and setup is called"){
     world.Setup();
