@@ -106,3 +106,244 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   }
   world.CleanupGraveyard();
 }
+
+TEST_CASE("Setup with an empty population"){
+  sgpmode::SymConfigSGP config;
+  config.SYM_LIMIT(1);
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SEED(234);
+  config.POP_SIZE(0);
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+    
+
+  WHEN("POP_SIZE is 0 and setup is called"){
+    world.Setup();
+
+    THEN("The world is sized correctly"){
+      REQUIRE(world.GetSize() == 4);
+    }
+    THEN("The world is empty"){
+      REQUIRE(world.GetNumOrgs() == 0);
+    }
+  }
+}
+
+TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is a nearby matching host", "[sgp][sgp-unit]") {
+  GIVEN("A host infected with a symbiont"){
+    sgpmode::SymConfigSGP config;
+    config.SYM_LIMIT(1);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.SEED(11);
+    config.POP_SIZE(0);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
+    config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+
+    emp::Random random(config.SEED());
+    world_t world(random, &config);
+    world.Setup();
+    
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    host->AddSymbiont(symbiont);
+
+    world.AddOrgAt(host, 0);
+    size_t source_id = symbiont->GetLocation().GetPopID();
+
+    WHEN("There exists a nearby host") {
+      emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
+      emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+      world.AddOrgAt(neighbor_host, neighbor_position);
+
+      WHEN("The nearby host has matching tasks with the incoming symbiont") {
+        neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+
+        WHEN("Task matching is not required for horizontal transmission") {
+          auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+          THEN("The position of the nearby, matching host is returned"){
+            REQUIRE(pos_found);
+            REQUIRE(world.IsOccupied(*pos_found));
+            REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
+            REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizontal transmission and there is a nearby matching host", "[sgp][sgp-unit]") {
+  GIVEN("A host infected with a symbiont"){
+    sgpmode::SymConfigSGP config;
+    config.SYM_LIMIT(1);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.SEED(11);
+    config.POP_SIZE(0);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
+    config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+
+    emp::Random random(config.SEED());
+    world_t world(random, &config);
+    world.Setup();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    host->AddSymbiont(symbiont);
+
+    world.AddOrgAt(host, 0);
+    size_t source_id = symbiont->GetLocation().GetPopID();
+
+    WHEN("There exists a nearby host") {
+      emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
+      emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+      world.AddOrgAt(neighbor_host, neighbor_position);
+
+      WHEN("The nearby host has matching tasks with the incoming symbiont") {
+        neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+
+        WHEN("Task matching is required for horizontal transmission") {
+          auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+          THEN("The position of the nearby, matching host is returned"){
+            REQUIRE(pos_found.has_value() == true);
+            REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
+            REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is a nearby non-matching host", "[sgp][sgp-unit]") {
+  GIVEN("A host infected with a symbiont"){
+    sgpmode::SymConfigSGP config;
+    config.SYM_LIMIT(1);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.SEED(11);
+    config.POP_SIZE(0);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
+    config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+
+    emp::Random random(config.SEED());
+    world_t world(random, &config);
+    world.Setup();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    host->AddSymbiont(symbiont);
+
+    world.AddOrgAt(host, 0);
+    size_t source_id = symbiont->GetLocation().GetPopID();
+
+    WHEN("There exists a nearby host") {
+      emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
+      emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+      world.AddOrgAt(neighbor_host, neighbor_position);
+
+      WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
+        neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+        
+        WHEN("Task matching is not required for horizontal transmission") {
+          auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+          THEN("The position of the nearby, non-matching host is returned"){
+            REQUIRE(pos_found.has_value() == true);
+            REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
+            REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizontal transmission and there is a nearby non-matching host", "[sgp][sgp-unit]") {
+  GIVEN("A host infected with a symbiont"){
+    sgpmode::SymConfigSGP config;
+    config.SYM_LIMIT(1);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.SEED(11);
+    config.POP_SIZE(0);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
+    config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+
+    emp::Random random(config.SEED());
+    world_t world(random, &config);
+    world.Setup();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    host->AddSymbiont(symbiont);
+
+    world.AddOrgAt(host, 0);
+    size_t source_id = symbiont->GetLocation().GetPopID();
+
+    WHEN("There exists a nearby host") {
+      emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
+      emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+      world.AddOrgAt(neighbor_host, neighbor_position);
+
+      WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
+        neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
+
+        
+        WHEN("Task matching is required for horizontal transmission") {
+          auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+          THEN("Nothing is returned (no acceptable neighboring host)"){
+            REQUIRE(pos_found.has_value() == false);
+          }
+        }
+      }
+    }
+  }
+}
+
+TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is not a nearby host", "[sgp][sgp-unit]") {
+  GIVEN("A host infected with a symbiont"){
+    sgpmode::SymConfigSGP config;
+    config.SYM_LIMIT(1);
+    config.GRID_X(2);
+    config.GRID_Y(2);
+    config.SEED(11);
+    config.POP_SIZE(0);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
+    config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+
+    emp::Random random(config.SEED());
+    world_t world(random, &config);
+    world.Setup();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+    emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+    host->AddSymbiont(symbiont);
+
+    world.AddOrgAt(host, 0);
+    size_t source_id = symbiont->GetLocation().GetPopID();
+
+    WHEN("There does not exist a nearby host") {
+      auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+      THEN("Nothing is returned (no acceptable neighboring host)"){
+        REQUIRE(pos_found.has_value() == false);
+      }
+    }
+  }
+}
