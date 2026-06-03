@@ -612,6 +612,12 @@ public:
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
+  /* Accessor for host task profiles */
+  const emp::BitVector& GetHostTaskProfile(const sgp_host_t& host){return fun_get_host_task_profile(host);}
+  
+  /* Accessor for symbiont task profiles */
+  const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
+
   /**
    * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
    * Output: The value of the task after applying nutrient interaction.
