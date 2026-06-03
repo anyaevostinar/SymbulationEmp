@@ -56,24 +56,56 @@ TEST_CASE("Update only hosts test", "[sgp]") {
   }
 }
 
+// todo: SetupOrgMode test 
 
-
-TEST_CASE("Host Setup", "[sgp][sgp-unit]") {
-  emp::Random random(1);
+TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]"){
   sgpmode::SymConfigSGP config;
-  config.SEED(2);
-  config.MUTATION_RATE(0.0);
-  config.MUTATION_SIZE(0.000);
-  //config.TRACK_PARENT_TASKS(PARENTONLY);
-  config.VT_TASK_MATCH(1);
-  config.HOST_ONLY_FIRST_TASK_CREDIT(1);
-  config.SYM_ONLY_FIRST_TASK_CREDIT(1);
-  config.HOST_REPRO_RES(10000);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SEED(44);
+  config.POP_SIZE(0);
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(0);
 
-  //world.SetupHosts requires a pointer for the number of hosts in the world
-  unsigned long setupCount = 1;
-  //TODO?
+  size_t host_count = 4; 
+  config.POP_SIZE(host_count);
+  
+  WHEN("SetupHosts is called"){
+    world.SetupHosts(&host_count);
+    THEN("The correct number of hosts are added"){
+      REQUIRE(world.GetSize() == host_count);
+      REQUIRE(world.GetNumOrgs() == host_count);
+    }
+  }
+}
+
+TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]"){
+  sgpmode::SymConfigSGP config;
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.SEED(44);
+  config.POP_SIZE(0);
+  config.START_MOI(1);
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  world.Resize(0);
+
+  size_t host_count = 4; 
+  config.POP_SIZE(host_count);
+  
+  WHEN("SetupHosts is called and START_MOI is 1"){
+    world.SetupHosts(&host_count);
+    THEN("The correct number of infected hosts are added"){
+      for(size_t i = 0; i < host_count; i++){
+          REQUIRE(world.GetOrgPtr(i)->HasSym());
+      }
+    }
+  }
 }
 
 TEST_CASE("Ousting is permitted", "[sgp]") {
