@@ -633,16 +633,17 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     world.AddOrgAt(target_host, 3);
 
     WHEN("Preferential ousting is on and the target host has a symbiont") {
-      
       WHEN("The incoming symbiont has a better match"){
         symbiont_parent->GetHardware().GetCPUState().SetParentTaskPerformed(1);
         world.SymDoBirth(symbiont_offspring, parent_pos);
         THEN("The incoming symbiont successfully ousts"){
           REQUIRE(target_host->HasSym());
           REQUIRE(target_host->GetSymbionts().at(0) == symbiont_offspring); 
+          REQUIRE(world.GetGraveyard().size() == 1);
         }
+        world.CleanupGraveyard();
       }
-
+      
       WHEN("The incoming symbiont has a worse match"){
         target_symbiont->GetHardware().GetCPUState().SetParentTaskPerformed(1);
 
