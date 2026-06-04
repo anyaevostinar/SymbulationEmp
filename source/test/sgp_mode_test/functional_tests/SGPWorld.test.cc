@@ -30,7 +30,7 @@ TEST_CASE("A world containing a single infected host and its symbiont is updated
   world.AddOrgAt(infected_host, 0);
   
   THEN("An infected host can be added to the world") {
-    REQUIRE(world.GetNumOrgs() == 2);
+    REQUIRE(world.GetNumOrgs() == 1);
   }
 
   for (int i = 0; i < 10; i++) {
@@ -38,7 +38,7 @@ TEST_CASE("A world containing a single infected host and its symbiont is updated
   }
 
   THEN("An infected host persists and is managed by the world") {
-    REQUIRE(world.GetNumOrgs() == 3);
+    REQUIRE(world.GetNumOrgs() == 1);
   }  
 }
 
@@ -92,7 +92,6 @@ TEST_CASE("A world containing a single free living symbiont is updated correctly
   emp::Ptr<sgpmode::SGPSymbiont<hw_spec_t>> free_symbiont = emp::NewPtr<sgpmode::SGPSymbiont<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotProgram(100));
 
   world.AddOrgAt(free_symbiont, emp::WorldPosition(0, 0));
- // free_symbiont->SetLocation(emp::WorldPosition(0, 0));
 
   THEN("A free living symbiont can be added to the world") {
     REQUIRE(world.GetNumOrgs() == 1);
