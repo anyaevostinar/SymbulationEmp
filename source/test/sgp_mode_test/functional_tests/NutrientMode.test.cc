@@ -14,6 +14,7 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
 
 TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-functional]") {
+  // TODO: move to functional folder
   GIVEN("An SGPWorld with a host infected with a symbiont where Nutrient is the interaction mechanism"){
     emp::Random random(42);
     sgpmode::SymConfigSGP config;
@@ -22,7 +23,7 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     config.NUTRIENT_STEAL_PROP(0.5);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.NUTRIENT_TYPE("parasite");
-    config.NUTRIENT_INTERACTION_MULTIPLIER(7.0); 
+    config.NUTRIENT_INTERACTION_MULTIPLIER(1.0); 
     config.PARASITE_BASE_TASK_VALUE_PROP(1.0); 
     world_t world(random, &config);
     world.Setup();
@@ -40,20 +41,24 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
     host->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
     sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
 
-    double initial_host_points = 10.0;
+    double initial_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_STEAL_PROP() * sym_score; 
-
+    
 
 
     WHEN("Parasite steals from host") {
-      host->SetPoints(initial_host_points);
-      double result = world.ApplyNutrientInteraction(*sym, 8.0, not_task_id);
-      // = sym->DoTaskInteraction(sym_score, 0);
+      
+      sym->SetPoints(initial_points);
+      host->SetPoints(initial_points);
+      double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      
+      
 
-      THEN("Symbiont receives expected amount and host loses the amount") {
-        REQUIRE(result == (sym_score* config.NUTRIENT_INTERACTION_MULTIPLIER()));
-        REQUIRE(host->GetPoints() == initial_host_points - expected_transfer);
+      THEN("Symbiont keep the expected score and host receives the donate amount") {
+        REQUIRE(host_result == -expected_transfer);
+        REQUIRE(sym_result == expected_transfer);
       }
     }
   }
@@ -61,7 +66,8 @@ TEST_CASE("SGPSymbiont Normal Nutrient Parasite without multiplier", "[sgp][sgp-
 
 //Note, this can't be easily combined with the previous test, because the functor is created at setup, so you can't change the nutrient type on the fly, is that okay for our long term plans?
 TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp-functional]") {
-  GIVEN("An SGPWorld with a host infected with a symbiont where Nutrient is the interaction mechanism"){
+  // TODO: move to functional folder
+  GIVEN("An SGPWorld with a host infected with a symbiont where Stress is the interaction mechanism"){
     emp::Random random(42);
     sgpmode::SymConfigSGP config;
     config.ENABLE_NUTRIENT(true);
@@ -86,20 +92,21 @@ TEST_CASE("SGPSymbiont Normal Nutrient mutualist without multiplier", "[sgp][sgp
     host->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
     sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
 
-    double initial_host_points = 10.0;
+    double initial_points = 10.0;
     double sym_score = 8.0;
     double expected_transfer = config.NUTRIENT_DONATE_PROP() * sym_score;
     WHEN("Mutualist donates to host") {
       config.NUTRIENT_TYPE("mutualist");
-      host->SetPoints(initial_host_points);
-      double result = world.ApplyNutrientInteraction(*sym, 8.0, not_task_id);
-
-
-      double expected_score_remain = sym_score - expected_transfer;
+      sym->SetPoints(initial_points);
+      host->SetPoints(initial_points);
+      double host_result = world.CalcHostNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      double sym_result = world.CalcSymNutrientInteraction(*host, *sym, 8.0, not_task_id,1);
+      
+      
 
       THEN("Symbiont keep the expected score and host receives the donate amount") {
-        REQUIRE(result == expected_score_remain);
-        REQUIRE(host->GetPoints() == initial_host_points + expected_transfer);
+        REQUIRE(host_result == expected_transfer);
+        REQUIRE(sym_result == -expected_transfer);
       }
     }
   }

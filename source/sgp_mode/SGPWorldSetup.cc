@@ -1046,7 +1046,7 @@ void SGPWorld::SetupHostTaskRewards() {
           
         }
 
-        double totalPoint = 0;
+        double point_differnce_from_syms = 0;
         if(task_matching_sym_count > 0){
           for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
         
@@ -1061,14 +1061,14 @@ void SGPWorld::SetupHostTaskRewards() {
            bool sym_performed = endosym_task_profile.Get(task_id);
            if(sym_performed){
               size_t sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
-              totalPoint += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
+              point_differnce_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
               cur_symbiont->AddPoints(sym_task_point);
             }
           
         }
         }
        
-        host.AddPoints(task_value_before+totalPoint);
+        host.AddPoints(task_value_before+point_differnce_from_syms);
     };
 
   }
