@@ -270,7 +270,7 @@ public:
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
 
       //This ensures that which symbiont is the starting symbiont rotates each update
-      size_t sym_index = (endosym_i + my_world->GetUpdate()) % syms.size()
+      size_t sym_index = (endosym_i + my_world->GetUpdate()) % syms.size();
 
       emp_assert(!(syms[sym_index]->IsHost()));
       emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_index].Raw());
