@@ -1,9 +1,6 @@
-#include "../../sgp_mode/SGPWorld.h"
-#include "../../sgp_mode/SGPHost.h"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/utils.h"
-
-#include "../../catch/catch.hpp"
+#include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPHost.h"
+#include "../../../sgp_mode/SGPWorldSetup.cc"
 
 /**
  * This file is dedicated to testing SGPWorld functionality 
