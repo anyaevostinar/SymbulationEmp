@@ -223,7 +223,8 @@ public:
    */
   int AddSymbiont(emp::Ptr<Organism> sym) {
     my_world->AssignNewEnvIO(static_cast<sgp_sym_t&>(*sym).GetHardware().GetCPUState());
-    return Host::AddSymbiont(sym);
+    auto result = Host::AddSymbiont(sym);
+    return result;
   }
 
   /**
