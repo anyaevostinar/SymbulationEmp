@@ -10,7 +10,7 @@
 [x] Make new version bundle on main for complex features
 [x] Move Symbiont code back into classes
 [x] Put PrintCode back into SGPHardware for Get dominant printing
-[ ] Put in IO Zero not getting rewarded and test it
+[x] Put in IO Zero not getting rewarded and test it
 [x] Port more Symbiont tests
 [ ] Check here https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
     - Horizontal transmission next priority, need to make parallel to default mode and integrated to support tags with tasks
