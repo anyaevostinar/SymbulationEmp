@@ -563,6 +563,11 @@ public:
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
+      
+      // run before-placement actions
+      before_placement_sig.Trigger(*new_org, pos_id);
+
+      // place symbiont
       if(!sym_pop[pos_id]) {
         ++num_orgs;
       } else {

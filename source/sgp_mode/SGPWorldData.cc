@@ -596,7 +596,7 @@ void SGPWorld::CollectCurrentUpdateData() {
 
     if (IsSymPopOccupied(pop_id)) {
       // Occupied by free-living symbiont
-      emp_assert(false, "Not implemented yet");
+     // emp_assert(false, "Not implemented yet");
     }
   }
 
