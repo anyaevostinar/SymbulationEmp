@@ -309,23 +309,23 @@ public:
     //        Is this always horizontal transmisstion?
     // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
    emp_assert(my_host.DynamicCast<host_t>(), "SGPSymbiont must have an SGPHost host");
-  const double repro_cost = my_world->GetConfig().SYM_HORIZ_TRANS_RES();
-  if (GetPoints() >= repro_cost) {
-    // Sym pays cost
-    DecPoints(repro_cost);
-    // Add sym to repro queue
-    // TODO - protect with mutex for threading
-      const size_t queue_id = my_world->GetReproQueue().Enqueue(
-        GetHardware().GetCPUState().GetOrgPtr(),
-        sym_pos
-      );
-    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
-    GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-  } else {
-    // Attempt failed, so reset repro state.
-    GetHardware().GetCPUState().ResetReproState();
+    const double repro_cost = my_world->GetConfig().SYM_HORIZ_TRANS_RES();
+    if (GetPoints() >= repro_cost) {
+      // Sym pays cost
+      DecPoints(repro_cost);
+      // Add sym to repro queue
+      // TODO - protect with mutex for threading
+        const size_t queue_id = my_world->GetReproQueue().Enqueue(
+          GetHardware().GetCPUState().GetOrgPtr(),
+          sym_pos
+        );
+      // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
+      GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+    } else {
+      // Attempt failed, so reset repro state.
+      GetHardware().GetCPUState().ResetReproState();
+    }
   }
-}
 
 
   /**
