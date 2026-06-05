@@ -231,7 +231,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
   // hew_host_pos is an optional<emp::WorldPosition>
   const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
   if (new_host_pos) {
-    // -1 means no living neighbors
     const size_t host_id = new_host_pos.value().GetIndex();
     int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
     if (new_index > 0) {

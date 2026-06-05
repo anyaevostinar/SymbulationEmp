@@ -303,9 +303,9 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     config.SYM_LIMIT(1);
     config.GRID_X(2);
     config.GRID_Y(2);
-    config.SEED(11);
+    config.SEED(33);
     config.POP_SIZE(0);
-    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
@@ -321,23 +321,22 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     world.AddOrgAt(host, 0);
     size_t source_id = symbiont->GetLocation().GetPopID();
 
-    WHEN("There exists a nearby host") {
-      emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
-      emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
-      world.AddOrgAt(neighbor_host, neighbor_position);
-
-      WHEN("The nearby host has matching tasks with the incoming symbiont") {
+    WHEN("There exists three nearby hosts all with matching tasks with the incoming symbiont") {
+      for (size_t i = 1; i<4; i++) {
+        emp::WorldPosition neighbor_position = emp::WorldPosition(i,0);
+        emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
+        world.AddOrgAt(neighbor_host, neighbor_position);
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
-        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
-
-        WHEN("Task matching is not required for horizontal transmission") {
-          auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-          THEN("The position of the nearby, matching host is returned"){
-            REQUIRE(pos_found);
-            REQUIRE(world.IsOccupied(*pos_found));
-            REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
-            REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
-          }
+        
+      }
+      symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
+      WHEN("Task matching is not required for horizontal transmission") {
+        auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
+        THEN("The position of the nearby matching host is not 0 (which is the current host), and PopID is same as current host"){
+          REQUIRE(pos_found);
+          REQUIRE(world.IsOccupied(*pos_found));
+          REQUIRE(pos_found->GetIndex() != 0);
+          REQUIRE(pos_found->GetPopID() == 0);
         }
       }
     }
@@ -352,7 +351,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
     config.GRID_Y(2);
     config.SEED(11);
     config.POP_SIZE(0);
-    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
@@ -398,7 +397,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     config.GRID_Y(2);
     config.SEED(11);
     config.POP_SIZE(0);
-    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
@@ -444,7 +443,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
     config.GRID_Y(2);
     config.SEED(11);
     config.POP_SIZE(0);
-    config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
+    config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");

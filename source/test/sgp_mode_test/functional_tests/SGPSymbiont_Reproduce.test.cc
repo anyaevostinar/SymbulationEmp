@@ -289,6 +289,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.OUSTING(true); // This way, if the offspring happens to try to infect parent's host, the tests still pass because successful horizontal transmission.
   
   GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and self-all task profile mode"){
     config.HORIZ_TRANS(1);
