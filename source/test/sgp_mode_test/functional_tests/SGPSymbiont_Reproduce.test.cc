@@ -277,234 +277,242 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
 }
 
 
-// TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
-//   GIVEN("Two hosts one of which is infected with a symbiont"){
-//     emp::Random random(42);
-//     SymConfigSGP config;
-//     config.INTERACTION_MECHANISM(DEFAULT);
-//     config.GRID_X(10);
-//     config.GRID_Y(10);
-//     config.HOST_REPRO_RES(100);
-//     config.SYM_HORIZ_TRANS_RES(0);
-//     config.VERTICAL_TRANSMISSION(0);
+TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
+  emp::Random random(42);
+  sgpmode::SymConfigSGP config;
+  config.GRID_X(2);
+  config.GRID_Y(2);
+  config.POP_SIZE(0);
+  config.HOST_REPRO_RES(100);
+  config.SYM_HORIZ_TRANS_RES(0);
+  config.VERTICAL_TRANSMISSION(0);
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  
+  GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and self-all task profile mode"){
+    config.HORIZ_TRANS(1);
+    
+    config.TASK_PROFILE_MODE("self-all");
 
-//     SGPWorld world(random, &config, LogicTasks);
+    world_t world(random, &config);
+    world.Setup();
+    auto& prog_builder = world.GetProgramBuilder();
 
-//     ProgramBuilder builder;
-//     ProgramBuilder symbuilder;
-//     symbuilder.AddNot(); //First task
-//     emp::Ptr<SGPHost> host = emp::NewPtr<SGPHost>(&random, &world, &config, builder.Build(100));
-//     emp::Ptr<SGPHost> host2 = emp::NewPtr<SGPHost>(&random, &world, &config, builder.Build(100));
-//     emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, symbuilder.Build(100));
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_host_t> host_uninfected = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
 
-//     world.AddOrgAt(host, 0);
-//     world.AddOrgAt(host2,1);
-//     host->AddSymbiont(sym);
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_uninfected,1);
+    host->AddSymbiont(sym);
 
-//     REQUIRE(world.GetNumOrgs() == 2);
+    REQUIRE(world.GetNumOrgs() == 2);
 
-//     WHEN("Horizontal Transmission is on"){
-//       config.HORIZ_TRANS(1);
-//       WHEN("Horizontal Task Match is on"){
-//         config.HT_TASK_MATCH(1);
-//         WHEN("Track Parent Tasks is off"){
-//           config.TRACK_PARENT_TASKS(CURRENTONLY);
-//           //Selects correct task match function based on config
-//           //used here to avoid having to create new worlds and organism
-//           world.SetupTaskProfileFun();
-//           WHEN("Only Host and Symbiont share a matching task"){
-            
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             host2->GetCPU().state.tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont horizontally transmits"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-//               }
-//             }
-//           }
-//           WHEN("Only Host parent and Symbiont parent share a matching task"){
-            
-//             sym->GetCPU().state.parent_tasks_performed->Set(0);
-//             host2->GetCPU().state.parent_tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmit"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//               }
-//             }
-//           }
-//           WHEN("Host and Symbiont do not share a matching task"){
-            
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmit"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//               }
-//             }
-//           }
-//         }
+    WHEN("Only Uninfected Host and Symbiont share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont horizontally transmits"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+      }
+      
+    }
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+      sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont does not horizontally transmit"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetParentTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetParentTaskPerformed(0) == true);
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+    }
+          
+    WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont does not horizontally transmit"){
+        REQUIRE(sym->GetHardware().GetCPUState().GetParentTaskPerformed(0) == false);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetParentTaskPerformed(0) == false);
+        REQUIRE(sym->GetHardware().GetCPUState().GetTaskPerformed(0) == true);
+        REQUIRE(host_uninfected->GetHardware().GetCPUState().GetTaskPerformed(0) == false);
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+    }
+  }
 
-//         WHEN("Track Parent Tasks is set to parent only"){
-//           config.TRACK_PARENT_TASKS(PARENTONLY);
-//           //Selects correct task match function based on config
-//           //used here to avoid having to create new worlds and organism
-//           world.SetupTaskProfileFun();
-//           WHEN("Only Host and Symbiont share a matching task"){
+  GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and parent-all task profile mode"){
+    config.HORIZ_TRANS(1);
+    config.TASK_PROFILE_MODE("parent-all");
 
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             host2->GetCPU().state.tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-            
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmits"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//               }
-//             }
-//           }
-//           WHEN("Only Host parent and Symbiont parent share a matching task"){
-            
-//             sym->GetCPU().state.parent_tasks_performed->Set(0);
-//             host2->GetCPU().state.parent_tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont horizontally transmits"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-//               }
-//             }
-//           }
-//           WHEN("Host and Symbiont do not share a matching task"){
-            
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmit"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//               }
-//             }
-//           }
-//         }
+    world_t world(random, &config);
+    world.Setup();
+    auto& prog_builder = world.GetProgramBuilder();
 
-//         WHEN("Track Parent Tasks is set to both parent or child"){
-//           config.TRACK_PARENT_TASKS(CURRENTORPARENT);
-//           //Selects correct task match function based on config
-//           //used here to avoid having to create new worlds and organism
-//           world.SetupTaskProfileFun();
-//           WHEN("Only Host and Symbiont share a matching task"){
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_host_t> host_uninfected = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
 
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             host2->GetCPU().state.tasks_performed->Set(0); 
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmits"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-//               }
-//             }
-//           }
-//           WHEN("Only Host parent and Symbiont parent share a matching task"){
-            
-//             sym->GetCPU().state.parent_or_current_tasks_performed->Set(0);
-//             host2->GetCPU().state.parent_or_current_tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont horizontally transmits"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-//               }
-//             }
-//           }
-//           WHEN("Host and Symbiont do not share a matching task"){
-            
-//             sym->GetCPU().state.tasks_performed->Set(0);
-//             WHEN("The symbiont runs the reproduce instruction"){
-//               for(int i = 0; i < 26; i++){
-                
-//                 world.Update();
-//               }
-//               THEN("Symbiont does not horizontally transmit"){
-//                 REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//                 REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//               }
-//             }
-//           }
-//         }
-//       }
-//       WHEN("Horizontal Task Match is off"){
-//         config.HT_TASK_MATCH(0);
-//         WHEN("Host and Symbiont share a matching task"){
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_uninfected,1);
+    host->AddSymbiont(sym);
 
-//           sym->GetCPU().state.tasks_performed->Set(0);
-//           host2->GetCPU().state.tasks_performed->Set(0);
-//           WHEN("The symbiont runs the reproduce instruction"){
-//             for(int i = 0; i < 26; i++){
-              
-//               world.Update();
-//             }
-//             THEN("Symbiont horizontally transmits"){
-//               REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//               REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1); 
-//             }
-//           }
-//         }
-//         WHEN("Host and Symbiont do not share a matching task"){
-        
-//           sym->GetCPU().state.tasks_performed->Set(0);
-//           WHEN("The symbiont runs the reproduce instruction"){
-//             for(int i = 0; i < 26; i++){
-              
-//               world.Update();
-//             }
-//             THEN("Symbiont horizontally transmits"){
-//               REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
-//               REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
-//             }
-//           }
-//         }
-//       }
-//     }
-//     WHEN("Horizontal Transmission is off"){
-//       config.HORIZ_TRANS(0);
-//       config.HT_TASK_MATCH(0);
-//       WHEN("The symbiont runs the reproduce instruction"){
-//         for(int i = 0; i < 26; i++){
-//               world.Update();
-//             }
-//         THEN("Symbiont does not horizontally transmit"){
-//           REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 0);
-//           REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
-//         }
-//       }
-//     }
-//   }
-// }
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("Only Uninfected Host and Symbiont share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont tries, but fails to, horizontally transmit"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+      
+    }
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+      sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont horizontally transmits"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+      }
+    }
+          
+    WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont does not horizontally transmit"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+    }
+  }
+
+  GIVEN("Two hosts one of which is infected with a symbiont, horiz task match off"){
+    config.HORIZ_TRANS(1);
+    config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
+
+    world_t world(random, &config);
+    world.Setup();
+    auto& prog_builder = world.GetProgramBuilder();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_host_t> host_uninfected = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_uninfected,1);
+    host->AddSymbiont(sym);
+
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("Only Uninfected Host and Symbiont share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont horizontally transmits"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+      }
+      
+    }
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+      sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont horizontally transmits"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+      }
+    }
+          
+    WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont horizontally transmits"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 1);
+      }
+    }
+  }
+
+  GIVEN("Two hosts one of which is infected with a symbiont, horizontal transmission is off"){
+    config.HORIZ_TRANS(0);
+
+    world_t world(random, &config);
+    world.Setup();
+    auto& prog_builder = world.GetProgramBuilder();
+
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_host_t> host_uninfected = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+
+    world.AddOrgAt(host, 0);
+    world.AddOrgAt(host_uninfected,1);
+    host->AddSymbiont(sym);
+
+    REQUIRE(world.GetNumOrgs() == 2);
+
+    WHEN("Only Uninfected Host and Symbiont share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont fails to horizontally transmit"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+      
+    }
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+      sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont fails to horizontally transmit"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+    }
+          
+    WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
+      sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
+      for(int i = 0; i < 26; i++){
+        world.Update();
+      }
+      THEN("Symbiont fails to horizontally transmit"){
+        REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetTotal() == 1);
+        REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetTotal() == 0);
+      }
+    }
+  }
+}

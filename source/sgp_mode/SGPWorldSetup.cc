@@ -958,13 +958,22 @@ void SGPWorld::SetupSymReproduction() {
     ) -> emp::WorldPosition {
       return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
     };
-  } else {
+  } else if (sgp_config.HORIZ_TRANS()){
     // Configure sym birth in non-free-living symbiont mode.
     fun_sym_do_birth = [this](
       emp::Ptr<sgp_sym_t> sym_baby_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
       return SymAttemptHorizontalTrans(sym_baby_ptr, parent_pos);
+    };
+  } else {
+    // Neither horizontal transmission nor free-living symbionts, so fun_sym_do_birth should just return invalid position and clean up the offspring
+    fun_sym_do_birth = [this](
+      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      const emp::WorldPosition& parent_pos
+    ) -> emp::WorldPosition {
+      sym_baby_ptr.Delete();
+      return emp::WorldPosition();
     };
   }
 
@@ -1228,7 +1237,7 @@ void SGPWorld::SetupHostSymInteractions() {
         );
         if (compatible) {
           return std::optional<emp::WorldPosition>{candidate_pos};
-        }
+        } 
       }
     }
     return std::nullopt;

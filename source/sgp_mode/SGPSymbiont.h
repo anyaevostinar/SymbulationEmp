@@ -212,30 +212,29 @@ public:
     if (GetDead()) {
       return;
     }
-    if (my_host) {
-      GetHardware().GetCPUState().SetLocation(pos);
-      my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host);
-      // Cash in cycles for this update
-      // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
-      const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
-      for (size_t i = 0; i < cycles_to_exec; ++i) {
-        GetHardware().RunCPUStep(1);
-        my_world->TriggerAfterEndosymCPUStepSig(pos, *this, my_host);
 
-        // Did endosymbiont attempt to reproduce?
-        // NOTE - want to handle this after every clock cycle?
-        if (GetHardware().GetCPUState().ReproAttempt()) {
-          AttemptReproduction(pos);
-        }
+    GetHardware().GetCPUState().SetLocation(pos);
+    if(my_host) my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host);
+    // Cash in cycles for this update
+    // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
+    const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
+    for (size_t i = 0; i < cycles_to_exec; ++i) {
+      GetHardware().RunCPUStep(1);
+      if(my_host) my_world->TriggerAfterEndosymCPUStepSig(pos, *this, my_host);
 
+      // Did endosymbiont attempt to reproduce?
+      // NOTE - want to handle this after every clock cycle?
+      if (GetHardware().GetCPUState().ReproAttempt()) {
+        AttemptReproduction(pos);
       }
 
-      my_world->TriggerAfterEndosymCPUExecSig(pos, *this, my_host);
-
     }
+
+    if(my_host) my_world->TriggerAfterEndosymCPUExecSig(pos, *this, my_host);
+    
     // Age the organism
     GrowOlder();
-    my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
+    if(my_host) my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
   }
 
   /**
@@ -442,13 +441,5 @@ public:
 };
 
 }
-
-// SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) {
-//   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
-// }
-
-// const SGPSymbiont& AsSGPSymbiont(emp::Ptr<Organism> org_ptr) const {
-//   return *(static_cast<SGPSymbiont*>(org_ptr.Raw()));
-// }
 
 #endif
