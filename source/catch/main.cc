@@ -33,7 +33,7 @@
 
 //SGP mode Old tests (need to update before moving)
 #include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
-#include "../test/old_sgp_mode_test/functional_tests/HealthMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/HealthMode.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
