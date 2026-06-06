@@ -40,7 +40,7 @@
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
 // #include "../test/old_sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
-// #include "../test/old_sgp_mode_test/functional_tests/SGPDataNodes_SGPWorld.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPDataNodes_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPSymbiont_Tasks.test.cc"
@@ -68,6 +68,7 @@
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
 #include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPWorldData.test.cc"
 
 #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
