@@ -217,6 +217,8 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
 }
 
+// TODO AEV: integrate this with default mode to support tags with tasks etc
+// Refactor: also try to be parallel with where Symbiont does this, what is in World versus Symbiont?
 emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
   emp::Ptr<sgp_sym_t> sym_baby_ptr,
   const emp::WorldPosition& parent_pos
@@ -229,7 +231,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
   // hew_host_pos is an optional<emp::WorldPosition>
   const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
   if (new_host_pos) {
-    // -1 means no living neighbors
     const size_t host_id = new_host_pos.value().GetIndex();
     int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
     if (new_index > 0) {
