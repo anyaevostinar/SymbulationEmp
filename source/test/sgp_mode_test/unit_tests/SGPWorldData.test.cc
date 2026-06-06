@@ -21,7 +21,7 @@ using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 
-TEST_CASE("CreateDataFiles creates data files", "[a][sgp][sgp-functional]") {
+TEST_CASE("CreateDataFiles creates data files", "[sgp][sgp-functional]") {
   sgpmode::SymConfigSGP config;
   config.POP_SIZE(0);
   config.GRID_X(2);
