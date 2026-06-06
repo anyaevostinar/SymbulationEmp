@@ -33,9 +33,8 @@
 
 //SGP mode Old tests (need to update before moving)
 #include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/HealthHost.test.cc"
+#include "../test/old_sgp_mode_test/functional_tests/HealthMode.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/StressHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
 // #include "../test/old_sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
@@ -44,7 +43,6 @@
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPSymbiont_Tasks.test.cc"
-// #include "../test/old_sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPWorld_StressHost.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPWorld_SGPConfig.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/StressHost_SGPDataNodes.test.cc"
@@ -53,13 +51,7 @@
 // Alex fork tests, some updates needed?
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
-// // #include "../test/sgp_mode_test/SGPHost.test.cc"
-
-// // #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
-// // #include "../test/sgp_mode_test/SGPWorld.test.cc"
-// #include "../test/sgp_mode_test/SGPHost.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
-// // #include "../test/sgp_mode_test/StressHost.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPStressMode.test.cc"
 
 
