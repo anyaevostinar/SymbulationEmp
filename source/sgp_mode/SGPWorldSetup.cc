@@ -1021,6 +1021,12 @@ void SGPWorld::SetupSymReproduction() {
   // TODO - anything else to setup here?
 }
 
+
+/*
+ *Input: None
+ *Outpt: None
+ *Purpose: Sets up functor to decide what happens when a host tries to receive point reward for completing a task
+*/
 void SGPWorld::SetupHostTaskRewards() {
 
   if(sgp_config.ENABLE_NUTRIENT() == false){
@@ -1069,8 +1075,8 @@ void SGPWorld::SetupHostTaskRewards() {
            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
            bool sym_performed = endosym_task_profile.Get(task_id);
            if(sym_performed){
-              size_t sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
-              point_differnce_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
+              double sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
+              point_difference_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
               cur_symbiont->AddPoints(sym_task_point);
             }
           

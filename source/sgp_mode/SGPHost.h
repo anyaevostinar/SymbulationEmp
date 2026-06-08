@@ -594,6 +594,12 @@ public:
                       // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
 
+
+  /*
+   *Input: None 
+   *Output: None
+   *Purpose: To update the host's counter for the number of their symbionts that they task match with
+   */
   void UpdateSymMatchCount(){
     matching_syms_to_interact_with = 0;
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
