@@ -21,7 +21,6 @@ TEST_CASE("Mutate", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   emp::Random random(61);
@@ -186,7 +185,6 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
         sgpmode::SymConfigSGP config;
         config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
         world_t world(random, &config);
-        auto& prog_builder = world.GetProgramBuilder();
         
         emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
 

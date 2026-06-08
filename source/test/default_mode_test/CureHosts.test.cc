@@ -29,8 +29,8 @@ TEST_CASE("Cure Hosts tests", "[default]"){
   
     WHEN("Hosts are not cured"){
       // Hosts and Sym world pop == pop_size
-      REQUIRE(world.GetPop().size() == pop_size);
-      REQUIRE(world.GetSymPop().size() == pop_size);
+      REQUIRE(world.GetPop().size() == (size_t)pop_size);
+      REQUIRE(world.GetSymPop().size() == (size_t)pop_size);
       // hosts have pointer to syms
       THEN("Hosts have pointers to symbionts"){
         for (int i = 0; i < pop_size; i++){

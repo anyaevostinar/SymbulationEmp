@@ -65,7 +65,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
           REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(not_id) == 0);
           REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(not_id) == 1);
           size_t num_tasks = sym_baby->GetHardware().GetCPUState().GetLineageTaskGain().size();
-          for (int i=0; i<num_tasks; i++) {
+          for (size_t i=0; i<num_tasks; i++) {
             if (i != not_id) {
               REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);  
               REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);   
@@ -78,7 +78,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
           REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(not_id) == 1);
 
           size_t num_tasks = sym_baby->GetHardware().GetCPUState().GetLineageTaskGain().size();
-          for (int i=0; i<num_tasks; i++) {
+          for (size_t i=0; i<num_tasks; i++) {
             if (i != not_id) {
               REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);  
               REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);   

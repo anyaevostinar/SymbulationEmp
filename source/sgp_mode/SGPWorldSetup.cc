@@ -500,7 +500,6 @@ void SGPWorld::SetupStressInteractions() {
           for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
             // Check if symbiont matches task profile
             emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
             const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
             if (can_escape) {
               death_chance = sgp_config.PARASITE_DEATH_CHANCE();
@@ -1237,7 +1236,7 @@ void SGPWorld::SetupTaskEnvironment() {
       sgp_host_t& host_parent,
       const emp::WorldPosition&  parent_pos
     ) {
-      auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
+      // auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
       // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
       // AssignNewEnvIO(offspring_cpu_state); // This is in OnPlacement now, so should be fine
     }
@@ -1264,7 +1263,6 @@ void SGPWorld::SetupTaskEnvironment() {
     ) {
       if (!success) return;
       emp_assert(sym_offspring_ptr != nullptr);
-      auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
     }
   );
 

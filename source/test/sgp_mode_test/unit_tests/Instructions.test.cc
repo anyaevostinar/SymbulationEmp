@@ -490,7 +490,6 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
   using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-  using tag_t = typename hw_spec_t::tag_t;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
@@ -693,7 +692,6 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
   using program_t = typename world_t::sgp_prog_t;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-  using tag_t = typename hw_spec_t::tag_t;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
