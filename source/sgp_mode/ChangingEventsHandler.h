@@ -11,10 +11,28 @@
 #include <fstream>
 #include <unordered_map>
 #include <map>
+#include <algorithm>
 
 #include "EventObject.h"
 
-namespace sgpmode::eventHandler {
+namespace sgpmode::EventHandler {
+
+struct EventDefinition {
+    int event_id;
+    std::string event_name;
+    event_func_t event_function;
+    std::string description;
+    EventDefinition(
+        int a_event_id,
+        std::string a_event_name,
+        event_func_t a_event_func,
+        std::string a_desc
+    ) :
+    event_id(a_event_is), a_event_name(a_event_name), event_function(a_event_func), description(a_desc)
+    { ; }
+};
+// todo: define event types 
+// EventDefinition 
 
 template<typename WORLD_T>
 class ChangingEventsHandler {
@@ -32,26 +50,28 @@ class ChangingEventsHandler {
     )>;
 
     protected:
-    std::unordered_map<std::string, event_func_t> predefined_event_functs; // std::string event_type/name, event_func_t is the function that does each event 
-    emp::vector<event_object_t> single_event_info; // vector of one time events (memebers of Event Object)
-    emp::vector<event_object_t> reoccur_event_info; // vector of reoccuring events 
+    // make predefined_event_functions into vector
+    emp::vector<EventDefinition> predefined_event_functs; // event_func_t is the function that does each event 
+    std::unordered_map<std::string, int> name_to_id; // event type/name mapped to index of event in predefined_event_functs. Index is used as event_id
+    emp::vector<event_object_t> single_event_info; // vector of one time events (Event Object type)
+    emp::vector<event_object_t> reoccur_event_info; // vector of reoccuring events (Event Object type)
     
-    // from LogicTaskEnvironment.h get json field values
-    template<typename RET_TYPE>
-    RET_TYPE GetVal(
-        json_t& json,
-        const std::string& field,
-        RET_TYPE default_val
-    ) {
-        return (json.contains(field)) ?
-        static_cast<RET_TYPE>(json[field]) :
-        default_val;
-    }
+    // // from LogicTaskEnvironment.h get json field values
+    // template<typename RET_TYPE>
+    // RET_TYPE GetVal(
+    //     json_t& json,
+    //     const std::string& field,
+    //     RET_TYPE default_val
+    // ) {
+    //     return (json.contains(field)) ?
+    //     static_cast<RET_TYPE>(json[field]) :
+    //     default_val;
+    // }
 
 
     // check if event type is valid (aka there is a function in all_event_functions that cna perform the event)
     bool IsValidEvent(const std::string & event_type){
-        return emp::Has(predefined_event_functs, event_type);
+        return emp::Has(name_to_id, event_type);
     }
 
     // create instance of event object using EventObject class, return event object
@@ -77,10 +97,18 @@ class ChangingEventsHandler {
         return event;
     }
 
+    // should i add emp:: to funct?
+    bool CheckJsonField(const emp::vector<std::string> & fields, auto& json_line){
+        for(std::string name : fields){
+            (emp_assert(json_line.contains(name)))? continue :
+            return false;
+        }
+    }
+
     // load in and process events.json file (includes creating events and checking if they are valid)
     void LoadEvents(const std::string& event_filepath){
         // from LogicTaskEnvironment.h
-        std::cout << "Loading tasks from environment file." << std::endl;
+        std::cout << "Loading tasks from event file." << std::endl;
         ClearEvents();
         // === Parse environment file ===
         // Check if given environment file exists. Exit if not.
@@ -100,25 +128,30 @@ class ChangingEventsHandler {
 
         emp_assert(eve_json.contains("events"));
         for(auto& line; eve_json["events"]){
-            // check all fields are in file
-            for(std::string name: event_fields){
-                emp_assert(line.contains(name));
-            }
 
+            CheckJsonFields(event_fields, line);
             IsValidEvent(line["event_type"]);
+
+            // Is an reoccuring event
             if(line["reoccuring_event"]){
-                int event_id = reoccur_event_info.size();
+                // set event_id
+                int event_id = name_to_id[line["event_type"]];
+                // create event object
                 event_object_t event_obj = CreateEventObject(event_id, line["event_type"], line["task_name"], line["task_value"], line["update_indices"], line["parameters"], line["reoccuring_event"]);
                 reoccur_event_info.emplace_back(event_obj);
             }
-            if(!line["reoccuring_event"]){
-                int event_id = single_event_info.size();
+            // is a single event
+            else {
+                // set event_id
+                int event_id = name_to_id[line["event_type"]];
+                // create event object
                 event_object_t event_obj = CreateEventObject(event_id, line["event_type"], line["task_name"], line["task_value"], line["update_indices"], line["parameters"], line["reoccuring_event"]);
                 single_event_info.emplace_back(event_obj);
             }
         }
-
-
+        // sort vectors that hold event objects
+        SortSingleEvents();
+        SortReoccurEvents();
     }
 
     // return single event info at a specific index
@@ -131,7 +164,7 @@ class ChangingEventsHandler {
         return reoccur_event_info[index];
     }
 
-    // 
+    // get predefined event function at certain index
     void GetEventFunctions(size_t event_id){
         return predefined_event_functs[event_id];
     }
@@ -142,33 +175,123 @@ class ChangingEventsHandler {
         reoccur_event_info.clear();
     }
 
-    // delete an event from event
-    void DeleteEvent(const bool reoccur, const int index){
-        (reoccur) ? reoccur_event_info.erase(index) :
-        single_event_info.erase(index);
+    // // delete an event from event info vector (single or reoccur)
+    // void DeleteOneEvent(const bool reoccur, const int & index){
+    //     (reoccur) ? reoccur_event_info.erase(reoccur_event_info.begin()+index) :
+    //     single_event_info.erase(single_event_info.begin()+index);
+    // }
+
+    // Delete all finished events from an event_info vector
+    void DeleteEvents(const emp::vector<event_object_t> & event_vect){
+        // erase remove idiom https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
+        event_vect.erase(std::remove_if(event_vect.begin(), event_vect.end(), 
+            [](const event_object_t & eve){ return eve.GetIsDone(); }),
+            event_vect.end());
     }
 
-    // delete finished events sort events based on when should occur
-    void SortEvents(){}
+    // helper function to SortEvents
+    int SortPartition(emp::vector<event_object_t> & event_vect, int & begin_index, int & end_index){
+        // sources:  https://www.youtube.com/watch?v=Vtckgz38QHs, https://www.geeksforgeeks.org/dsa/quick-sort-algorithm/
+        int piv = event_vect[end_index].GetStartUpdate();
+        int i = begin_index - 1;
+        for(int j = begin_index; j <= end_index - 1; j++){
+            if(event_vect[j].GetStartUpdate() < piv){
+                i++;
+                event_object_t temp = event_vect[i];
+                event_vect[i] = event_vect[j];
+                event_vect[j] = temp;
+            }
+        }
+        i++;
+        event_object_t temp = event_vect[i];
+        event_vect[i] = event_vect[end_index];
+        event_vect[end_index] = temp;
+        return i;
+    } 
+
+    // sort events based on start update
+    void SortEvents(emp::vector<event_object_t> & event_vect, int & begin_index, int & end_index){
+        // use quick sort method
+        // sources:  https://www.youtube.com/watch?v=Vtckgz38QHs, https://www.geeksforgeeks.org/dsa/quick-sort-algorithm/
+
+        if(begin_index < end_index){
+            int pivot_index = SortPartition(event_vect, begin_index, end_index);
+            SortSingelEvent(event_vect, begin_index, pivot_index - 1);
+            SortSingleEvent(event_vect, pivot_index + 1, end_index);
+        }
+
+    }
 
     // call event_func_t from current_events if possible based on update_indices
-    void ProcessEvent(world_t& world){
-        world.GetUpdate();
-        // std::vector<std::vector<int>> vec1;
-        // std::vector<> vec2; 
+    void ProcessEvent(const world_t& world){
+        // // set update variable to world.GetUpdate() or whaterver gets the world's update
+        int update = world.GetUpdate();
+
+        // loop through single time events
+        for(auto& it = single_event_info.begin(); it != single_event_info.end(); it++){
+            if(*it.GetStartUpdate() > update){
+                break;
+            }
+            if(*it.GetStartUpdate() == update){
+                // call event function look at how logic task does it
+                predefined_event_functs[*it.GetEventId()].event_function;
+                // set to is_done true
+                *it.SetIsDone();
+            }
+        }
+
+        // loop through reoccur time events
+        for(auto& it = reoccur_event_info.begin(); it != reoccur_event_info.end(); it++){
+            if(*it.GetStartUpdate() > update){
+                break;
+            }
+            if(*it.GetStartUpdate() == update){
+                // call event function look at how logictask does it
+                predefined_event_functs[*it.GetEventId()].event_function;
+                // reset start update
+                int new_start = *it.GetStartUpdate() + *it.GetUpdateStep();
+                *it.SetStartUpdate(new_start);
+                // check if event is done
+                if (update >= *it.GetEndUpdate() || *it.GetStartUpdate() > *it.GetEndUpdate()){
+                    *it.SetIsDone();
+                }
+            }   
+        }
+        
+        // clean up
+        DeleteEvents(single_event_info);
+        DeleteEvents(reoccur_event_info);
+        // don't need to resort single_event_info at the moment
+        SortEvents(reoccur_event_info, 0, reoccur_event.size() - 1);
     }
 
-    const std::unordered_map < std::string, event_func_t > 
-    predefined_event_functs = {
-        {
-            "task_value_replace", 
-        },
-        {
-            "task_value_add",
-        },
-        {
-            "task_value_mul",
-        }
+    // defined predefined_event_functs 
+    const std::vector < EventDefinition > 
+    ChangingEventHandler::predefined_event_functs = {
+            ChangingEventsHandler::EventDefinition{
+                0,
+                "task_value_replace",
+                [](const world_t & world, const event_object_t & event_info)->{
+                    // TODO: define function
+                },
+                "replace a specific preexisting task value with another value"
+            },
+            ChangingEventsHandler::EventDefinition{
+                1,
+                "task_value_add",
+                [](const world_t & world, const event_object_t & event_info)->{
+                    // TODO: define function
+                },
+                "add a specific amount to the current value of a preexisting task"
+            },
+            ChangingEventsHandler::EventDefinition{
+                2,
+                "task_value_mul",
+                [](const world_t & world, const event_object_t & event_info)->{
+                    // TODO: define function
+                },
+                "multiply a specific amount to the current value of a preexisting task"
+            }
     }
 }
 

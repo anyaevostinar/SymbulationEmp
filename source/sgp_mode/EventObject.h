@@ -50,6 +50,10 @@ class EventObject {
 
     void SetIsDone(){ is_done = true; }
 
+    void SetStartUpdate(const int & new_start){
+        start_update = new_start; 
+    }
+
     std::string GetEventType(){ return event_type; }
 
     bool GetIsDone(){ return is_done; }
