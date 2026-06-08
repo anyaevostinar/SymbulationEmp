@@ -52,7 +52,7 @@
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
-#include "../test/sgp_mode_test/functional_tests/SGPStressMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/StressMode.test.cc"
 
 
 
