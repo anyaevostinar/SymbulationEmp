@@ -1061,16 +1061,16 @@ void SGPWorld::SetupHostTaskRewards() {
           
         }
 
-        double point_differnce_from_syms = 0;
+        double point_difference_from_syms = 0;
         if(task_matching_sym_count > 0){
           for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
         
             emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
-           // bool dead = cur_symbiont->GetDead();
+            bool dead = cur_symbiont->GetDead();
             // Skip if dead
-           // if (dead) {
-           //   continue;
-           // }
+            if (dead) {
+                continue;
+            }
 
            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
            bool sym_performed = endosym_task_profile.Get(task_id);
@@ -1083,7 +1083,7 @@ void SGPWorld::SetupHostTaskRewards() {
         }
         }
        
-        host.AddPoints(task_value_before+point_differnce_from_syms);
+        host.AddPoints(task_value_before+point_difference_from_syms);
     };
 
   }
