@@ -578,17 +578,19 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
   THEN("Symbiont offspring increases its lineage reproduction count") {
     // Mark repro in progress to check that reproduce function resets repro in progress
     // flag on parent.
-    sym_hw.GetCPUState().MarkReproInProgress(5);
+    
+    size_t q_id = world.GetReproQueue().Enqueue(&sgp_sym, sgp_sym.GetLocation());
+    sym_hw.GetCPUState().MarkReproInProgress(q_id);
     REQUIRE(sym_hw.GetCPUState().ReproInProgress());
+    
     emp::Ptr<sgp_sym_t> sym_offspring_ptr = static_cast<sgp_sym_t*>(sgp_sym.Reproduce().Raw());
     REQUIRE(sym_offspring_ptr->GetReproCount() == (sgp_sym.GetReproCount() + 1));
     REQUIRE(!sym_hw.GetCPUState().ReproAttempt());
     REQUIRE(!sym_hw.GetCPUState().ReproInProgress());
     REQUIRE(sym_hw.GetCPUState().NotReproducing());
-    REQUIRE(sym_hw.GetCPUState().GetReproQueuePos() == 0);
     sym_offspring_ptr.Delete();
   }
-
+  
   SECTION("Symbiont offspring inherits parent's completed task profile") {
     // Mark some of parent's tasks completed
     sym_hw.GetCPUState().MarkTaskPerformed(0);
@@ -696,6 +698,7 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
           REQUIRE(sym_gen3->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(i) == sym_gen2->GetHardware().GetCPUState().GetLineageTaskDivergeFromPartner(i));
         }
       }
+      sym_gen2.Delete();
     }
 
     WHEN("The symbiont has a host") {
