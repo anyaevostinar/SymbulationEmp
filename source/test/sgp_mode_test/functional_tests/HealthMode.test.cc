@@ -35,7 +35,7 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
 void ConfigureHealthTestConfig(emp::Ptr<sgpmode::SymConfigSGP> config){
   // base world settings
-  config->SEED(10); //10, 13
+  config->SEED(10);
   config->POP_SIZE(0);
   config->START_MOI(0);
   config->GRID_X(2);
@@ -576,6 +576,58 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
       THEN("The matching mutualist does not lose cycles"){
         REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles); 
       }
+    }
+  }
+}
+
+TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
+  sgpmode::SymConfigSGP config;
+  config.SEED(32);
+  config.START_MOI(0);
+  config.GRID_X(10);
+  config.GRID_Y(100);
+  config.HOST_REPRO_RES(20);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+  config.CYCLES_PER_UPDATE(4);
+  config.ENABLE_HEALTH(1);
+  size_t world_size = config.GRID_X() * config.GRID_Y();
+
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  
+  size_t no_mut_NOT_rate = 40000;
+  size_t run_updates = 1000;
+  
+  WHEN("Mutation size is 0") {
+    config.SGP_MUT_PER_BIT_RATE(0);
+    world.Setup();
+    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+    size_t total_NOTs = 0;
+    for (size_t i = 0; i < run_updates; i++) {
+      world.Update();
+      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+    }
+    THEN("Health hosts do not accrue mutations late in an experiment") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      REQUIRE(total_NOTs > no_mut_NOT_rate - no_mut_NOT_rate*0.25);
+      REQUIRE(total_NOTs < no_mut_NOT_rate + no_mut_NOT_rate*0.25);
+    }
+  }
+
+  WHEN("Mutation size is greater than 0") {
+    config.SGP_MUT_PER_BIT_RATE(0.01);
+    world.Setup();
+    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+    size_t total_NOTs = 0;
+    for (size_t i = 0; i < run_updates; i++) {
+      world.Update();
+      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+    }
+    THEN("Health hosts accrue more mutations late in an experiment") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      REQUIRE(total_NOTs > no_mut_NOT_rate * 3);
     }
   }
 }
