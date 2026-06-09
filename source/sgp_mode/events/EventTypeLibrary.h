@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Event.h"
 #include "EventTypeDefinition.h"
 
 #include "emp/base/vector.hpp"
@@ -8,7 +9,7 @@
 namespace sgp_mode {
 
 template<typename WORLD_T>
-class EventDefinitionLibrary {
+class EventTypeLibrary {
 public:
   using world_t = WORLD_T;
   using event_type_def_t = EventTypeDefinition<world_t>;
@@ -18,7 +19,7 @@ protected:
   std::unordered_map<std::string, size_t> event_name_to_id; // event type/name mapped to index of event in event_types. Index is used as event_id
 
 public:
-  EventDefinitionLibrary(bool add_default_events=true) {
+  EventTypeLibrary(bool add_default_events=true) {
     if (add_default_events) {
       AddDefaultEventTypes();
     }
@@ -38,6 +39,12 @@ public:
   // check if event type is valid (aka there is a function in all_event_functions that cna perform the event)
   bool IsValidEventType(const std::string& event_name) const {
     return emp::Has(event_name_to_id, event_name);
+  }
+
+  // Run appropriate event handler for given event.
+  void ProcessEvent(world_t& world, emp::Ptr<Event> event_ptr) {
+    const size_t event_id = event_ptr->GetID();
+    event_definitions[event_id].Process(world, event_ptr);
   }
 
   // Add default event types
@@ -65,30 +72,40 @@ public:
 
 };
 
+// TODO - create handler factories?
 template<typename WORLD_T>
-void EventDefinitionLibrary<WORLD_T>::AddDefaultEventTypes() {
+void EventTypeLibrary<WORLD_T>::AddDefaultEventTypes() {
   // Add task value replace
   AddEventType(
-    "task_value_replace",
-    [] (const world_t& world, const Event& event_info) {
+    "task_value_change",
+    [] (world_t& world, emp::Ptr<Event> event_ptr) {
+      // Cast event to correct type
+      emp::Ptr<ChangeTaskValueEvent> task_event_ptr = static_cast<ChangeTaskValueEvent*>(event_ptr.Raw());
       // TODO: define function
     },
+    {"task_name", "value", "task_group", "timing"},
     "replace a specific preexisting task value with another value"
   );
 
   AddEventType(
     "task_value_add",
-    [] (const world_t& world, const Event& event_info) {
+    [] (world_t& world, emp::Ptr<Event> event_ptr) {
+      // Cast event to correct type
+      emp::Ptr<ChangeTaskValueEvent> task_event_ptr = static_cast<ChangeTaskValueEvent*>(event_ptr.Raw());
       // TODO: define function
     },
+    {"task_name", "value", "task_group", "timing"},
     "add a specific amount to the current value of a preexisting task"
   );
 
   AddEventType(
     "task_value_mul",
-    [](const world_t& world, const Event& event_info) {
+    [](world_t& world, emp::Ptr<Event> event_ptr) {
+      // Cast event to correct type
+      emp::Ptr<ChangeTaskValueEvent> task_event_ptr = static_cast<ChangeTaskValueEvent*>(event_ptr.Raw());
       // TODO: define function
     },
+    {"task_name", "value", "task_group", "timing"},
     "multiply a specific amount to the current value of a preexisting task"
   );
 }

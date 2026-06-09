@@ -5,21 +5,23 @@
 // @AML review: Moved local includes to top for consistency
 #include "Event.h"
 #include "EventTypeDefinition.h"
+#include "EventTypeLibrary.h"
+
+#include "../../json/json.hpp"
 
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
 #include "emp/tools/string_utils.hpp"
 #include "emp/datastructs/set_utils.hpp"
 #include "emp/math/math.hpp"
-#include "../../../json/json.hpp"
 
-#include <functional>
-#include <string>
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
-#include <unordered_map>
+#include <functional>
 #include <map>
-#include <algorithm>
+#include <string>
+#include <unordered_map>
 
 // @AML review: Don't need to namespace the event handler
 //          (unless there's a bunch of internal components that should be isolated
@@ -39,62 +41,99 @@ public:
 
 protected:
 
+  EventTypeLibrary<world_t> event_type_library;
+  emp::vector<emp::Ptr<event_t>> one_time_events; // vector of one time events (Event Object type)
+  emp::vector<emp::Ptr<event_t>> recurring_events; // vector of reoccuring events (Event Object type)
 
+  // // create instance of event object using EventObject class, return event object
+  // event_t CreateEventObject(const size_t event_id, const std::string & event_name, const std::string & task_name, const double & task_value, const std:string & update_indices, const std::vector<std::string> & parameters, const bool & reocccur){
 
+  //   if(reoccur){
+  //     // slice and convert update indices to individula integers
+  //     std::vector<std::string> indices_vect;
+  //     emp::slice(update_indices, indices_vect, ":");
+  //     int start_index = static_cast<int>(indices_vect[0]);
+  //     int end_index = static_cast<int>(indices_vect[1]);
+  //     int step_index = static_cast<int>(indices_vect[2]);
+  //     event.start_update = start_index;
+  //     event.end_update = end_index;
+  //     event.update_step = step_index;
 
-  emp::vector<event_object_t> single_event_info; // vector of one time events (Event Object type)
-  emp::vector<event_object_t> reoccur_event_info; // vector of reoccuring events (Event Object type)
-
-  // // from LogicTaskEnvironment.h get json field values
-  // template<typename RET_TYPE>
-  // RET_TYPE GetVal(
-  //     json_t& json,
-  //     const std::string& field,
-  //     RET_TYPE default_val
-  // ) {
-  //     return (json.contains(field)) ?
-  //     static_cast<RET_TYPE>(json[field]) :
-  //     default_val;
+  //     event_object_t event(event_id, event_name, task_name, task_value, start_index, end_index, step_index, parameters, reoccur);
+  //   }
+  //   else {
+  //     int start_index = static_cast<int>(update_indices);
+  //     event_object_t event(event_id, event_name, task_name, task_value, start_index, parameters, reoccur);
+  //   }
+  //   return event;
   // }
 
-  // create instance of event object using EventObject class, return event object
-  event_object_t CreateEventObject(const size_t event_id, const std::string & event_name, const std::string & task_name, const double & task_value, const std:string & update_indices, const std::vector<std::string> & parameters, const bool & reocccur){
-
-    if(reoccur){
-      // slice and convert update indices to individula integers
-      std::vector<std::string> indices_vect;
-      emp::slice(update_indices, indices_vect, ":");
-      int start_index = static_cast<int>(indices_vect[0]);
-      int end_index = static_cast<int>(indices_vect[1]);
-      int step_index = static_cast<int>(indices_vect[2]);
-      event.start_update = start_index;
-      event.end_update = end_index;
-      event.update_step = step_index;
-
-      event_object_t event(event_id, event_name, task_name, task_value, start_index, end_index, step_index, parameters, reoccur);
+  // @AML review: renamed, fixed inner loop
+  bool ValidateFieldsJSON(
+    const emp::vector<std::string>& fields,
+    auto& json_line
+  ) {
+    // @AML review: Can use const string reference to avoid copying string here
+    for (const std::string& name : fields) {
+      if (!json_line.contains(name)) {
+        return false;
+      }
     }
-    else {
-      int start_index = static_cast<int>(update_indices);
-      event_object_t event(event_id, event_name, task_name, task_value, start_index, parameters, reoccur);
-    }
-    return event;
+    return true;
   }
 
-  // should i add emp:: to funct?
-  bool CheckJsonField(const emp::vector<std::string> & fields, auto& json_line){
-    for(std::string name : fields){
-      (emp_assert(json_line.contains(name)))? continue :
-      return false;
+  emp::Ptr<Event> LoadEventFromJSON(nlohmann::json& event_json) {
+    // Check that event_json has event type
+    emp_assert(event_json.contains("event_type"));
+    const std::string event_type(event_json["event_type"]);
+    // Check if event type is valid (i.e., exists in the event type library)
+    emp_assert(event_type_library.IsValidEventType(event_type));
+    // Delegate event loading based on event type
+    if (event_type == "task_value_change") {
+      return LoadChangeTaskValueEventFromJSON(event_json);
+    } else if (event_type == "task_value_add") {
+      return LoadChangeTaskValueEventFromJSON(event_json);
+    } else if (event_type == "task_value_mul") {
+      return LoadChangeTaskValueEventFromJSON(event_json);
+    } else {
+      std::cout << "Unknown event type (" << event_type << ") Exiting." << std::endl;
+      exit(-1);
     }
+  }
+
+  // TODO: make adding new event types as easy / centralized as possible
+  //        i.e., relocate these loaders to centralized location where other
+  //            event type definitions are defined.
+  emp::Ptr<ChangeTaskValueEvent> LoadChangeTaskValueEventFromJSON(nlohmann::json& event_json) {
+    // TODO
+  }
+
+
+// @AML review: missing public designation here
+public:
+
+  ~EventManager() {
+    ClearEvents();
+  }
+
+  // Delete all current events info
+  void ClearEvents() {
+    for (emp::Ptr<event_t> event : one_time_events) {
+      event.Delete();
+    }
+    one_time_events.clear();
+    for (emp::Ptr<event_t> event : recurring_events) {
+      event.Delete();
+    }
+    recurring_events.clear();
   }
 
   // load in and process events.json file (includes creating events and checking if they are valid)
-  void LoadEvents(const std::string& event_filepath){
-    // from LogicTaskEnvironment.h
-    std::cout << "Loading tasks from event file." << std::endl;
+  void LoadEvents(const std::string& event_filepath) {
+    std::cout << "Loading events from event file." << std::endl;
     ClearEvents();
-    // === Parse environment file ===
-    // Check if given environment file exists. Exit if not.
+    // === Parse events file ===
+    // Check if given events file exists. Exit if not.
     const bool event_file_exists = std::filesystem::exists(event_filepath);
     if (!event_file_exists) {
       std::cout << "Event file does not exist: " << event_filepath << std::endl;
@@ -103,17 +142,21 @@ protected:
 
     // read event.json file
     std::ifstream event_ifstream(event_filepath);
-    nlohmann::json eve_json;
-    event_ifstream >> eve_json;
+    nlohmann::json events_json;
+    event_ifstream >> events_json;
 
     // check for correct json format
-    emp::vector<std::string> event_fields = {"event_type", "task_name", "task_value", "parameters", "update_indices", "reoccuring_event"};
+    // emp::vector<std::string> event_fields = {"event_type", "task_name", "task_value", "parameters", "update_indices", "reoccuring_event"};
 
-    emp_assert(eve_json.contains("events"));
-    for(auto& line; eve_json["events"]){
+    emp_assert(events_json.contains("events"));
+    // For each event line in events
+    for (auto& event_json; events_json["events"]) {
+      emp::Ptr<Event> new_event_ptr = LoadEventFromJSON(event_json);
 
-      CheckJsonFields(event_fields, line);
-      IsValidEvent(line["event_type"]);
+      // @AML BOOKMARK
+
+      // CheckJsonFields(event_fields, line);
+      // IsValidEvent(line["event_type"]);
 
       // Is an reoccuring event
       if(line["reoccuring_event"]){
@@ -152,11 +195,7 @@ protected:
     return event_types[event_id];
   }
 
-  // delete all current events info
-  void ClearEvents(){
-    single_event_info.clear();
-    reoccur_event_info.clear();
-  }
+
 
   // // delete an event from event info vector (single or reoccur)
   // void DeleteOneEvent(const bool reoccur, const int & index){
