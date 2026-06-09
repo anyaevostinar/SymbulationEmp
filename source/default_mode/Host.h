@@ -126,17 +126,17 @@ protected:
     *
   */
   emp::BitSet<TAG_LENGTH> tag;
-  
+
   /**
-    * 
+    *
     * Purpose: Tracks the taxon of this organism.
     *
   */
   emp::Ptr<taxon_t::base_taxon_t> my_taxon = NULL;
-   
-  /** 
+
+  /**
    * Purpose: To track location in the world
-   * 
+   *
    */
   emp::WorldPosition location;
 
@@ -377,9 +377,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: The world position of the organism
-   * 
+   *
    * Purpose: To get the world position of the organism
    */
   emp::WorldPosition GetLocation() {return location;}
@@ -437,12 +437,12 @@ public:
 
   /**
    * Input: A new world position
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: To set the organism's world position
    */
-  virtual void SetLocation(emp::WorldPosition _in) {location = _in;} 
+  virtual void SetLocation(emp::WorldPosition _in) {location = _in;}
 
 
   /**
@@ -474,7 +474,7 @@ public:
    * Purpose: To set a host's tag.
    */
   void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
-  
+
   /**
    * Input: None
    *
@@ -603,27 +603,6 @@ public:
 
   /**
    * Input: The symbiont index position to remove (remember it should be 1-indexed)
-   * 
-   * Output: The removed symbiont or null if invalid index given
-   * 
-   * Purpose: To allow removal of a symbiont
-   */
-  emp::Ptr<Organism> RemoveSymbiont(int index) {
-    int num_syms = syms.size();
-    if(index < 1 || index > num_syms) {
-      return nullptr;
-    } else {
-      emp::Ptr<Organism> to_remove = syms[index-1];
-      syms.erase(syms.begin() + (index-1)); 
-      to_remove->SetHost(nullptr);
-      to_remove->SetLocation(emp::WorldPosition::invalid_id);
-      return to_remove;
-    }
-
-  }
-
-  /**
-   * Input: The symbiont index position to remove (remember it should be 1-indexed)
    *
    * Output: The removed symbiont or null if invalid index given
    *
@@ -637,10 +616,11 @@ public:
       emp::Ptr<Organism> to_remove = syms[index-1];
       syms.erase(syms.begin() + (index-1));
       to_remove->SetHost(nullptr);
+      to_remove->SetLocation(emp::WorldPosition::invalid_id);
       return to_remove;
     }
-  }
 
+  }
 
   /**
    * Input: The pointer to the organism that is to be added to the host's symbionts.
@@ -745,7 +725,7 @@ public:
    */
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
-    
+
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
@@ -781,12 +761,12 @@ public:
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
     if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
-    
+
     if(random->GetDouble(0.0, 1.0) <= mutation_rate){
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
-      
+
     }
 
     if (my_config->TAG_MATCHING()) {
