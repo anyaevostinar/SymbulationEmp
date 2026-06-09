@@ -1,9 +1,9 @@
 [submodule "Empirical"]
 	path = Empirical
-	url = https://github.com/anyaevostinar/Empirical
+	url = https://github.com/devosoft/Empirical
 [submodule "emsdk"]
 	path = emsdk
 	url = https://github.com/emscripten-core/emsdk
 [submodule "signalgp-lite"]
 	path = signalgp-lite
-	url = https://github.com/amlalejini/signalgp-lite
+	url = https://github.com/amlalejini/signalgp-lite.git

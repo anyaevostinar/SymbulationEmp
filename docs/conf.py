@@ -39,30 +39,20 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.intersphinx',
     'breathe',
-    'exhale',
     'myst_parser',
     'sphinx_search.extension'
 ]
 
 # Setup the breathe extension
 breathe_projects = {
-    "Symbulation": "./doxyoutput/xml"
+    "Symbulation": "./_build/breathe/doxygen/auto/xml"
 }
 breathe_default_project = "Symbulation"
 
-# Setup the exhale extension
-exhale_args = {
-    # These arguments are required
-    "containmentFolder":     "./api",
-    "rootFileName":          "library_root.rst",
-    "rootFileTitle":         "Library API",
-    "doxygenStripFromPath":  "..",
-    # Suggested optional arguments
-    "createTreeView":        True,
-    # TIP: if using the sphinx-bootstrap-theme, you need
-    # "treeViewIsBootstrap": True,
-    "exhaleExecutesDoxygen": True,
-    "exhaleDoxygenStdin":    "INPUT = ../source"
+breathe_projects_source = {
+    "auto" : ( "../source", ["default_mode/Host.h", "default_mode/Symbiont.h","default_mode/SymWorld.h","default_mode/DataNodes.h","default_mode/WorldSetup.cc","efficient_mode/EfficientHost.h"
+    ,"efficient_mode/EfficientSymbiont.h","efficient_mode/EfficientWorld.h","lysis_mode/Bacterium.h","lysis_mode/Phage.h","lysis_mode/LysisWorld.h",
+    "pgg_mode/PGGHost.h","pgg_mode/PGGSymbiont.h","pgg_mode/PGGWorld.h","SymAnimate.h"] )
 }
 
 # Tell sphinx what the primary language being documented is.
@@ -113,6 +103,10 @@ pygments_style = 'sphinx'
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
 
+
+# MYST Parser options
+
+myst_heading_anchors = 2
 
 # -- Options for HTML output -------------------------------------------
 

@@ -26,7 +26,7 @@ TEST_CASE("Cure Hosts tests", "[default]"){
       host->AddSymbiont(sym);
       sym_vect.push_back(sym);
     }
-  
+
     WHEN("Hosts are not cured"){
       // Hosts and Sym world pop == pop_size
       REQUIRE(world.GetPop().size() == pop_size);
@@ -68,6 +68,7 @@ TEST_CASE("Cure Hosts tests", "[default]"){
         }
         //can't check if syms are set to dead due to segmentation violation signal (syms are deleted nothing to point to)
       } // WHEN (run update)
+      world.CleanupGraveyard();
       } // WHEN(Hosts are cured)
 
     WHEN("Host are cured while experiment is running"){
@@ -92,24 +93,18 @@ TEST_CASE("Cure Hosts tests", "[default]"){
       int total_updates = 4;
       config.CURE_UPDATES(num_updates);
       config.UPDATES(total_updates);
-      
+
       for(int j = 0; j < total_updates; j++) {
         if (config.CURE() && j == num_updates) {
           world.CureHosts();
         }
-        // num_updates + 1, since it takes an update for deaths to process
-        if (j < num_updates + 1) { // syms alive, hosts have pointers to syms
-          for (int i = 0; i < pop_size; i++){
-            REQUIRE(host_vect[i]->HasSym());
-          }
-        }
-        if (j > num_updates + 1) { // syms dead, hosts don't have pointers to syms
+        if (j > num_updates) { // syms dead, hosts don't have pointers to syms
           for (int i = 0; i < pop_size; i++){
             REQUIRE(host_vect[i]->HasSym() == false);
           }
-        } 
+        }
         world.Update();
-        } //outer for 
+        } //outer for
       } // WHEN (simulation of run experiement )
 
   } //GIVEN
@@ -133,12 +128,12 @@ TEST_CASE("Cure Hosts tests", "[default]"){
 //     emp::Ptr<Symbiont> sym1;
 //     sym1.New(&random, &world, &config);
 //     emp::Ptr<Symbiont> sym2;
-//     sym2.New(&random, &world, &config); 
+//     sym2.New(&random, &world, &config);
 //     syms.push_back(sym1);
 //     syms.push_back(sym2);
 //     host_twos->SetSymbionts(syms);
-        
-//       WHEN("Host is not cured"){  
+
+//       WHEN("Host is not cured"){
 //         THEN("Host has two symbionts"){
 //           REQUIRE(host_twos->GetSymbionts().size() == 2);
 //           REQUIRE(host_twos->HasSym());

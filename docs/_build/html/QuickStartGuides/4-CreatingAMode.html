@@ -1,0 +1,647 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creating A New Mode &mdash; Symbulation 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css?v=e72958e9" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5aa371e9"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/rtd_search_config.js?v=b0596c34"></script>
+      <script src="../_static/js/rtd_sphinx_search.min.js?v=5e065386"></script>
+      <script src="https://kit.fontawesome.com/8485b453b8.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ALIFE 2022 Symbulation Tutorial" href="../ALIFE2022Tutorial/index.html" />
+    <link rel="prev" title="Creating a New Configuration Setting" href="3-CreatingConfigSetting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Symbulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using Symbulation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../projects/index.html">Projects using Symbulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Quick Start Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0-Overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1-GettingRunning.html">Default Mode</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2-CollectingData.html">Collecting Data with Symbulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2-CollectingData.html#analyzing-data">Analyzing Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3-CreatingConfigSetting.html">Creating a New Configuration Setting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating A New Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#makefile">Makefile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#primary-folder">Primary Folder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#organisms">Organisms</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#macros">Macros</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#includes">Includes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#class-definition">Class definition</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#constructor-s">Constructor(s)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#makenew">MakeNew()</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-creating-new-traits">(Optional) Creating new traits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#optional-mutate">(Optional) Mutate</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-world-class-and-data-nodes">(Optional) World Class and Data Nodes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#datamonitor-node">DataMonitor/Node</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#datafile">DataFile</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-world-setup">(Optional) World Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#native-file">Native File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#experiment">Experiment!</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html">ALIFE 2022 Symbulation Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html#alife-talks-featuring-symbulation">ALIFE Talks Featuring Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html">Host Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html#symbiont-class">Symbiont Class</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to Symbulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev/symbulation-development-practices.html">Symbulation Development Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/getting-started.html">Getting started with Symbulation development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/contribution-guidelines-and-review.html">Coding guidelines and review checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/adding-documentation.html">Documentation for Symbulation Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/guide-to-testing.html">Guide to Testing in Symbulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Symbulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Quick Start Guides</a></li>
+      <li class="breadcrumb-item active">Creating A New Mode</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="creating-a-new-mode">
+<h1>Creating A New Mode<a class="headerlink" href="#creating-a-new-mode" title="Link to this heading"></a></h1>
+<p><em>Note: this guide is in progress and does not contain all helpful details.</em></p>
+<p>Once you have familiarized yourself with Symbulation and its default mode, you might be interested in designing your own experiment, adding functionality to the codebase, and collecting data.
+This guide explains how you can add a new <em>mode</em> to Symbulation, which is preferred when you have more new functionality that you want to add than can be handled by a couple of configuration settings.
+The guide assumes that you are familiar with the ideas of inheritance and classes.
+It gives a fair amount of assistance on how to do those in C++, though familiarity with general syntax of C++ is assumed.</p>
+<p>There are a lot of different ways that symbiosis can occur that have overlaps but are functionality different.
+With Symbulation, we want to both support lots of those different ways of implementing symbiosis while keeping any one approach from getting too cluttered and bogged down with code that isn’t relevant.
+We also don’t want to repeat a bunch of code that is shared between those different ways (which we don’t always succeed at, but we’re constantly improving the codebase!).
+We achieve these dual goals with <em>modes</em>.</p>
+<p>A mode generally has its own subclasses of <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> and/or <code class="docutils literal notranslate"><span class="pre">Host</span></code> and <code class="docutils literal notranslate"><span class="pre">SymWorld</span></code> defined so that they can be highly customized to the particular functionality of the mode.
+It also has its own compile target and test suite.
+The existing modes include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">default</span></code> (<code class="docutils literal notranslate"><span class="pre">Host</span></code> and <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> in the “classic” Symbulation functionality of interaction or resource behavior values),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">efficient</span></code> (<code class="docutils literal notranslate"><span class="pre">EfficientHost</span></code> and <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code> for work on the Dirty Transmission Hypothesis),</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lysis</span></code> (<code class="docutils literal notranslate"><span class="pre">Bacterium</span></code> and <code class="docutils literal notranslate"><span class="pre">Phage</span></code> to study bacteriophage/bacterial-specific dynamics),</p></li>
+<li><p>and public goods game or <code class="docutils literal notranslate"><span class="pre">pgg</span></code> (<code class="docutils literal notranslate"><span class="pre">PGGHost</span></code> and <code class="docutils literal notranslate"><span class="pre">PGGSymbiont</span></code> to study ways for symbionts to interact within a host).</p></li>
+<li><p>We’re also working a new mode <code class="docutils literal notranslate"><span class="pre">sgp</span></code> that uses the SignalGP-Lite library to have hosts and symbionts with computer programs as their genomes! You can check out our progress on the <code class="docutils literal notranslate"><span class="pre">complex-genomes</span></code> branch.</p></li>
+</ul>
+<p>If you want to create new subclasses of <code class="docutils literal notranslate"><span class="pre">Host</span></code>, <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code>, or <code class="docutils literal notranslate"><span class="pre">SymWorld</span></code>, a new mode is the best way to go.
+There are several steps to creating your own mode, including following conventions for file structure, adding your own organisms, adding a WorldSetup file, adding targets to the makefile, designing tests, and more.
+This guide will walk you through how to properly add most of these features.</p>
+<section id="makefile">
+<h2>Makefile<a class="headerlink" href="#makefile" title="Link to this heading"></a></h2>
+<p>First, you’ll want to add the necessary targets to the <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> for your new mode, so that you can compile and test your code as you go.
+This file can be a little overwhelming since there is a lot there already, but the bare minimum that you’ll need is a compiling target.
+Navigate to the section of the file that looks like this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">default</span><span class="o">-</span><span class="n">mode</span><span class="o">:</span><span class="w">	</span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_default</span><span class="p">.</span><span class="n">cc</span>
+<span class="w">	</span><span class="n">$</span><span class="p">(</span><span class="n">CXX_nat</span><span class="p">)</span><span class="w"> </span><span class="n">$</span><span class="p">(</span><span class="n">CFLAGS_nat</span><span class="p">)</span><span class="w"> </span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_default</span><span class="p">.</span><span class="n">cc</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">symbulation_default</span>
+
+<span class="n">efficient</span><span class="o">-</span><span class="n">mode</span><span class="o">:</span><span class="w">	</span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_efficient</span><span class="p">.</span><span class="n">cc</span>
+<span class="w">	</span><span class="n">$</span><span class="p">(</span><span class="n">CXX_nat</span><span class="p">)</span><span class="w"> </span><span class="n">$</span><span class="p">(</span><span class="n">CFLAGS_nat</span><span class="p">)</span><span class="w"> </span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_efficient</span><span class="p">.</span><span class="n">cc</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">symbulation_efficient</span>
+
+<span class="n">lysis</span><span class="o">-</span><span class="n">mode</span><span class="o">:</span><span class="w">	</span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_lysis</span><span class="p">.</span><span class="n">cc</span>
+<span class="w">	</span><span class="n">$</span><span class="p">(</span><span class="n">CXX_nat</span><span class="p">)</span><span class="w"> </span><span class="n">$</span><span class="p">(</span><span class="n">CFLAGS_nat</span><span class="p">)</span><span class="w"> </span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_lysis</span><span class="p">.</span><span class="n">cc</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">symbulation_lysis</span>
+
+<span class="n">pgg</span><span class="o">-</span><span class="n">mode</span><span class="o">:</span><span class="w">	</span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_pgg</span><span class="p">.</span><span class="n">cc</span>
+<span class="w">	</span><span class="n">$</span><span class="p">(</span><span class="n">CXX_nat</span><span class="p">)</span><span class="w"> </span><span class="n">$</span><span class="p">(</span><span class="n">CFLAGS_nat</span><span class="p">)</span><span class="w"> </span><span class="n">source</span><span class="o">/</span><span class="n">native</span><span class="o">/</span><span class="n">symbulation_pgg</span><span class="p">.</span><span class="n">cc</span><span class="w"> </span><span class="o">-</span><span class="n">o</span><span class="w"> </span><span class="n">symbulation_pgg</span>
+</pre></div>
+</div>
+<p>Choose a one word descriptor for your new mode and add a line following the above template with your mode name.</p>
+<p>If you wish, you can also add the more advanced targets that you will find helpful if you need to use Empirical’s debug mode (great for finding memory leaks!) and running the test suite. These each have their own section with the other modes following the format that you can again copy and adapt:</p>
+<ul class="simple">
+<li><p>a debug taget, with the naming convention “debug-<name>” and “<name>-debug”</p></li>
+<li><p>a testing target, with the naming convention “test-<name>”</p></li>
+<li><p>a debug while testing target, with the naming convention “test-debug-<name>”</p></li>
+</ul>
+</section>
+<section id="primary-folder">
+<h2>Primary Folder<a class="headerlink" href="#primary-folder" title="Link to this heading"></a></h2>
+<p>Then make a folder in <code class="docutils literal notranslate"><span class="pre">SymbulationEmp/source</span></code> named <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;_mode</span></code>.
+Inside of this folder will be a world setup source file (explained in more detail later), as well as any necessary header files such as your new subclasses.</p>
+</section>
+<section id="organisms">
+<h2>Organisms<a class="headerlink" href="#organisms" title="Link to this heading"></a></h2>
+<p>Next, you will need to add new header files for your new organisms.
+The host organism(s) must extend the <code class="docutils literal notranslate"><span class="pre">Host</span></code> class in the <code class="docutils literal notranslate"><span class="pre">source/default_mode</span></code>, and similarly, the symbiont organism(s) must extend the <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> class.
+We’ll go through how to make a new <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> subclass, but the process would be the same for the <code class="docutils literal notranslate"><span class="pre">Host</span></code> subclasses.
+Specifically, we’ll use the <a class="reference external" href="https://github.com/anyaevostinar/SymbulationEmp/blob/main/source/efficient_mode/EfficientSymbiont.h"><code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code></a> as an example since it’s a fairly simple class.</p>
+<p>Each new class must contain the following (which we’ll go into depth below):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ifndef</span></code> macro</p></li>
+<li><p>constructor(s)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MakeNew()</span></code></p></li>
+</ul>
+<p>If you are adding a new trait or component of the genome, you will also need to:</p>
+<ul class="simple">
+<li><p>Define the relevant genome/instance variables</p></li>
+<li><p>Define a custom <code class="docutils literal notranslate"><span class="pre">Mutate()</span></code></p></li>
+<li><p>Overwrite whichever super class methods your new trait is impacting</p></li>
+</ul>
+<p>You’ll probably also want to add some <a class="reference internal" href="3-CreatingConfigSetting.html"><span class="doc std std-doc">configuration settings</span></a> to alter relevant things about your mode at runtime.</p>
+<section id="macros">
+<h3>Macros<a class="headerlink" href="#macros" title="Link to this heading"></a></h3>
+<p>Because there is a whole lot of <code class="docutils literal notranslate"><span class="pre">include</span></code>-ing going on, you should first put the following into your file to make sure it doesn’t get added more than once:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef NAMEOFCLASS_H</span>
+<span class="cp">#define NAMEOFCLASS_H</span>
+
+<span class="c1">//All your code will go here</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>For example, here is the one from <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont.h</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef EFFSYM_H</span>
+<span class="cp">#define EFFSYM_H</span>
+
+<span class="p">...</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</section>
+<section id="includes">
+<h3>Includes<a class="headerlink" href="#includes" title="Link to this heading"></a></h3>
+<p>Of course, you’ll be referring to some other files, so you’ll need to include them.
+The most obvious will be either <code class="docutils literal notranslate"><span class="pre">Host.h</span></code> or <code class="docutils literal notranslate"><span class="pre">Symbiont.h</span></code> depending on which you are inheriting from.
+Since <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code> also knows about the new world type and host type, here are the includes from it:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../default_mode/Symbiont.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;EfficientWorld.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;EfficientHost.h&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="class-definition">
+<h3>Class definition<a class="headerlink" href="#class-definition" title="Link to this heading"></a></h3>
+<p>Now it’s time to define your new class!
+To declare a class that inherits from another class you use the following syntax:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YOUR_CLASS</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">SUPER_CLASS</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//All your class code here</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">EfficientSymbiont</span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">Symbiont</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//All the class code here</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can then add whatever new instance variables you want your class to have.
+Remember that your class will inherit the instance variables from the superclass, so you don’t need to declare any of those.</p>
+<p>For example, here are some of <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code>’s new instance variables, with documentation removed:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="k">protected</span><span class="o">:</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">efficiency</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">ht_mut_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.002</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">ht_mut_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">eff_mut_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="constructor-s">
+<h3>Constructor(s)<a class="headerlink" href="#constructor-s" title="Link to this heading"></a></h3>
+<p>You’ll probably want to define a constructor since it’s unlikely the default is what you want.
+Your constructor needs to take parameters that the superclass will need as well as any additional parameters that you want.
+Here is one way of structuring your constructor for a <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> subclass, which calls the <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> constructor for you:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">YourClassName</span><span class="p">(</span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">Random</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_random</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SymWorld</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_world</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SymConfigBase</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_config</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">_intval</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="kt">double</span><span class="w"> </span><span class="n">_points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="n">Symbiont</span><span class="p">(</span><span class="n">_random</span><span class="p">,</span><span class="w"> </span><span class="n">_world</span><span class="p">,</span><span class="w"> </span><span class="n">_config</span><span class="p">,</span><span class="w"> </span><span class="n">_intval</span><span class="p">,</span><span class="w"> </span><span class="n">_points</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//Your specific code here</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Alternatively for a <code class="docutils literal notranslate"><span class="pre">Host</span></code> subclass, which needs a few more things:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">YourClassName</span><span class="p">(</span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">Random</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_random</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SymWorld</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_world</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SymConfigBase</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_config</span><span class="p">,</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">_intval</span><span class="w"> </span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Organism</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_syms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Organism</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">_repro_syms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{},</span>
+<span class="w">  </span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="w"> </span><span class="n">_set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(),</span>
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">_points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.0</span><span class="p">)</span><span class="w"> </span><span class="o">:</span>
+<span class="w">  </span><span class="n">Host</span><span class="p">(</span><span class="n">_random</span><span class="p">,</span><span class="w"> </span><span class="n">_world</span><span class="p">,</span><span class="w"> </span><span class="n">_config</span><span class="p">,</span><span class="w"> </span><span class="n">_intval</span><span class="p">,</span><span class="w"> </span><span class="n">_syms</span><span class="p">,</span><span class="w"> </span><span class="n">_repro_syms</span><span class="p">,</span><span class="w"> </span><span class="n">_set</span><span class="p">,</span><span class="w"> </span><span class="n">_points</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">//Your specific code here</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You may also want to specify copy and move constructors, though they generally aren’t used in Symbulation and can usually just be the default.</p>
+</section>
+<section id="makenew">
+<h3>MakeNew()<a class="headerlink" href="#makenew" title="Link to this heading"></a></h3>
+<p>Because Symbulation uses a whole lot of inheritance and makes a whole lot of new objects of different subclasses through reproduction events, we rely on every class defining a <code class="docutils literal notranslate"><span class="pre">MakeNew()</span></code> method which can be used to make a new organism of the subclass without needing to know the type of the object.
+This method <strong>should not</strong> handle mutations, just make a new organism that is a clone of the current organism, wrapped in an Empirical pointer, and return it.
+It seems very simple, and it is, but it has allowed us to reduced a lot of repeated code between modes!</p>
+<p>Here is the basic structure:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Organism</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MakeNew</span><span class="p">(){</span>
+<span class="w">    </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">YourClassName</span><span class="o">&gt;</span><span class="w"> </span><span class="n">baby</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">NewPtr</span><span class="o">&lt;</span><span class="n">YourClassName</span><span class="o">&gt;</span><span class="p">(</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">my_world</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="p">,</span><span class="w"> </span><span class="n">GetIntVal</span><span class="p">());</span>
+<span class="w">    </span><span class="c1">//Setting your specific traits if needed</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">baby</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Here is an example from <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code>:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">Organism</span><span class="o">&gt;</span><span class="w"> </span><span class="n">MakeNew</span><span class="p">(){</span>
+<span class="w">    </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">EfficientSymbiont</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sym_baby</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">NewPtr</span><span class="o">&lt;</span><span class="n">EfficientSymbiont</span><span class="o">&gt;</span><span class="p">(</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">my_world</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="p">,</span><span class="w"> </span><span class="n">GetIntVal</span><span class="p">());</span>
+<span class="w">    </span><span class="n">sym_baby</span><span class="o">-&gt;</span><span class="n">SetInfectionChance</span><span class="p">(</span><span class="n">GetInfectionChance</span><span class="p">());</span>
+<span class="w">    </span><span class="n">sym_baby</span><span class="o">-&gt;</span><span class="n">SetEfficiency</span><span class="p">(</span><span class="n">GetEfficiency</span><span class="p">());</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">sym_baby</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="optional-creating-new-traits">
+<h3>(Optional) Creating new traits<a class="headerlink" href="#optional-creating-new-traits" title="Link to this heading"></a></h3>
+<p>If you are interested in adding a new heritable trait to your organism class, you will need to follow the next couple of optional sections.
+If you aren’t adding a new heritable trait, you can skip them!</p>
+<p>If you want your organism to have a new trait in its genome, you will need to add an instance variable for it up in the <code class="docutils literal notranslate"><span class="pre">protected</span></code> section and should probably add a <code class="docutils literal notranslate"><span class="pre">Get</span></code> and <code class="docutils literal notranslate"><span class="pre">Set</span></code> method as well.</p>
+<p>For example, <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code>s have a new heritable trait called <code class="docutils literal notranslate"><span class="pre">efficiency</span></code> that is just how efficient they are at actually getting points.
+There is an instance variable:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">double</span><span class="w"> </span><span class="n">efficiency</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>That instance variable is set in the constructor:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_efficient</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>And they have a getter and setter for it:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">SetEfficiency</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">_in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">_in</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">_in</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="k">throw</span><span class="w"> </span><span class="s">&quot;Invalid efficiency chance. Must be between 0 and 1 (inclusive)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">efficiency</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">_in</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="nf">GetEfficiency</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="k">return</span><span class="w"> </span><span class="n">efficiency</span><span class="p">;}</span>
+</pre></div>
+</div>
+<p>Then, it is used in the overwritten version of the <code class="docutils literal notranslate"><span class="pre">AddPoints</span></code> method:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">AddPoints</span><span class="p">(</span><span class="kt">double</span><span class="w"> </span><span class="n">_in</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">points</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="n">_in</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">efficiency</span><span class="p">);}</span>
+</pre></div>
+</div>
+<p>If you add a heritable trait, don’t forget to make a new <code class="docutils literal notranslate"><span class="pre">Mutate</span></code> method for it (see below) and include it in the <code class="docutils literal notranslate"><span class="pre">MakeNew</span></code> method!</p>
+</section>
+<section id="optional-mutate">
+<h3>(Optional) Mutate<a class="headerlink" href="#optional-mutate" title="Link to this heading"></a></h3>
+<p>If you are making a new heritable trait, you need to also specify how it should be mutated during reproduction.</p>
+<p>You can either completely toss out the <code class="docutils literal notranslate"><span class="pre">Mutate</span></code> method of the superclass, as <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code> does because it is testing some different mutation approaches, or you can just add on to the existing functionality.
+Since <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code> is a bit complicated in this regard, we’re going to switch examples to <a class="reference external" href="https://github.com/anyaevostinar/SymbulationEmp/blob/main/source/lysis_mode/Phage.h"><code class="docutils literal notranslate"><span class="pre">Phage</span></code></a>.
+The <code class="docutils literal notranslate"><span class="pre">Phage</span></code> class has a couple of new heritable traits, but it also wants to keep mutating the original <code class="docutils literal notranslate"><span class="pre">Symbiont</span></code> traits without needing to repeat that code.</p>
+<p>Here is the general structure for doing that by first calling the superclass method, and then doing your own logic:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">void</span><span class="w"> </span><span class="nf">Mutate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Symbiont</span><span class="o">::</span><span class="n">Mutate</span><span class="p">();</span><span class="w"> </span><span class="c1">//or Host::Mutate(); for those subclasses</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">local_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATION_RATE</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">local_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATION_SIZE</span><span class="p">();</span>
+<span class="w">    </span><span class="c1">//Repeat the below for each new trait that needs mutating</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetDouble</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">local_rate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">//mutate trait, assuming it should be between 0 and 1</span>
+<span class="w">      </span><span class="n">trait</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetNormal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">local_size</span><span class="p">);</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">trait</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">trait</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">      </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">trait</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">trait</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">Phage</span></code> class has three new traits and has configuration settings for turning mutation for each of those traits on or off, as you can see in the example:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">Mutate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">Symbiont</span><span class="o">::</span><span class="n">Mutate</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">local_rate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATION_RATE</span><span class="p">();</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">local_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATION_SIZE</span><span class="p">();</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetDouble</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="mf">1.0</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">local_rate</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="c1">//mutate chance of lysis/lysogeny, if enabled</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATE_LYSIS_CHANCE</span><span class="p">()){</span>
+<span class="w">        </span><span class="n">chance_of_lysis</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetNormal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">local_size</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">chance_of_lysis</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">chance_of_lysis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">chance_of_lysis</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">chance_of_lysis</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATE_INDUCTION_CHANCE</span><span class="p">()){</span>
+<span class="w">        </span><span class="n">induction_chance</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetNormal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">local_size</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">induction_chance</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">induction_chance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">induction_chance</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">induction_chance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">      </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">MUTATE_INC_VAL</span><span class="p">()){</span>
+<span class="w">        </span><span class="n">incorporation_val</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">random</span><span class="o">-&gt;</span><span class="n">GetNormal</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="w"> </span><span class="n">local_size</span><span class="p">);</span>
+<span class="w">        </span><span class="k">if</span><span class="p">(</span><span class="n">incorporation_val</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="n">incorporation_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">        </span><span class="k">else</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">incorporation_val</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="n">incorporation_val</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="optional-world-class-and-data-nodes">
+<h2>(Optional) World Class and Data Nodes<a class="headerlink" href="#optional-world-class-and-data-nodes" title="Link to this heading"></a></h2>
+<p>If you have added new evolvable traits to the organisms, you will probably want to find out information about those traits.
+You may also want to change how the environment impacts the organisms, even if you didn’t make new inheritable traits.
+In either case, you’ll need to create a new “world” class that inherits from <code class="docutils literal notranslate"><span class="pre">SymWorld</span></code> or one of its subclasses.</p>
+<p>For example, here is the start of the <a class="reference external" href="https://github.com/anyaevostinar/SymbulationEmp/blob/main/source/efficient_mode/EfficientWorld.h"><code class="docutils literal notranslate"><span class="pre">EfficientWorld</span></code></a> class:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef EFFWORLD_H</span>
+<span class="cp">#define EFFWORLD_H</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../default_mode/SymWorld.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../default_mode/DataNodes.h&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EfficientWorld</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="k">public</span><span class="w"> </span><span class="n">SymWorld</span><span class="w"> </span><span class="p">{</span>
+<span class="c1">//All new code here</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<section id="datamonitor-node">
+<h3>DataMonitor/Node<a class="headerlink" href="#datamonitor-node" title="Link to this heading"></a></h3>
+<p>Empirical provides a powerful data-tracking framework that works with the world classes, so there is only a bit of setup that you need to do to track and output data from your experiment.
+We’re going to focus on data collection here, but of course if you want to change how the environment interacts with the organisms, you can do that by overwriting <code class="docutils literal notranslate"><span class="pre">SymWorld</span></code> methods in this class as well.</p>
+<p>You’ll need to first make a new instance variable for your <a class="reference external" href="https://empirical.readthedocs.io/en/latest/api/typedef_namespaceemp_1aaf92a6b9dd531666c3e3da2b888c29ba.html"><code class="docutils literal notranslate"><span class="pre">DataMonitor</span></code></a>. A data monitor is a special version of an Empirical <a class="reference external" href="https://empirical.readthedocs.io/en/latest/api/classemp_1_1DataNode.html"><code class="docutils literal notranslate"><span class="pre">DataNode</span></code></a> that is focused on the data that it most recently received and the distribution of values that it has received previously, so it’s useful for tracking what the data looks like every so many updates.
+There is a huge amount of power in the <code class="docutils literal notranslate"><span class="pre">DataNode</span></code> functionality that we are ignoring, so if there are different ways that you’d like to track your data, go take a look at Empirical’s documentation!</p>
+<p>We want our data instance variables to look like this:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">DataMonitor</span><span class="o">&lt;</span><span class="n">type</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">data_node_name</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>For example, here is the new data monitor for tracking the efficiency trait of <code class="docutils literal notranslate"><span class="pre">EfficientSymbiont</span></code>s:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm">    *</span>
+<span class="cm">    * Purpose: Data node tracking the average efficiency of efficient symbionts.</span>
+<span class="cm">    *</span>
+<span class="cm">  */</span>
+<span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">emp</span><span class="o">::</span><span class="n">DataMonitor</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">data_node_efficiency</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>Before we go further, we should make sure to clean up our memory, so let’s define the world destructor to delete the data node:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="o">~</span><span class="n">EfficientWorld</span><span class="p">(){</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">data_node_efficiency</span><span class="p">)</span><span class="w"> </span><span class="n">data_node_efficiency</span><span class="p">.</span><span class="n">Delete</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Next, we need to define what data is going to be stored in the data node.
+The data nodes use anonymous functions and event triggers so the world knows to add to them whenever specific events happen.
+The most common event that we want to add data during is Update, so we’ll have a template that looks like this for defining what our data node does:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="n">emp</span><span class="o">::</span><span class="n">DataMonitor</span><span class="o">&lt;</span><span class="n">type</span><span class="o">&gt;&amp;</span><span class="w"> </span><span class="n">GetNAMEDataNode</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">data_node_name</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//if the data node doesn&#39;t already exist, make it!</span>
+<span class="w">      </span><span class="n">data_node_name</span><span class="p">.</span><span class="n">New</span><span class="p">();</span>
+<span class="w">      </span><span class="n">OnUpdate</span><span class="p">([</span><span class="k">this</span><span class="p">](</span><span class="kt">size_t</span><span class="p">){</span><span class="w"> </span><span class="c1">//this is the anonymous function that is called every update</span>
+<span class="w">        </span><span class="n">data_node_name</span><span class="o">-&gt;</span><span class="n">Reset</span><span class="p">();</span><span class="w"> </span><span class="c1">//assuming you want to clear out data from the previous update</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="w"> </span><span class="n">pop</span><span class="p">.</span><span class="n">size</span><span class="p">();</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">// go through the population</span>
+<span class="w">          </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">IsOccupied</span><span class="p">(</span><span class="n">i</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//check that there is an organism</span>
+<span class="w">            </span><span class="n">data_node_name</span><span class="o">-&gt;</span><span class="n">AddDatum</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">GetData</span><span class="p">());</span><span class="w"> </span><span class="c1">//add whatever data to the data node</span>
+<span class="w">          </span><span class="p">}</span><span class="c1">//close if</span>
+<span class="w">      </span><span class="p">}</span><span class="c1">//close for</span>
+<span class="w">      </span><span class="p">});</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">*</span><span class="n">data_node_efficiency</span><span class="p">;</span><span class="w"> </span><span class="c1">//hand back the data node that&#39;s been created</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>As you can see from the inline comments, we are making a method that makes the data node if it doesn’t already exist.
+When creating it, we add an unnamed function to the world’s OnUpdate to-do list to go through the population and get the information that we want about each of our organisms, which we then add to the data node.</p>
+</section>
+<section id="datafile">
+<h3>DataFile<a class="headerlink" href="#datafile" title="Link to this heading"></a></h3>
+<p>To get data out of the data node and into a file, we use Empirical’s <code class="docutils literal notranslate"><span class="pre">DataFile</span></code> class.
+However, we need a method in the <code class="docutils literal notranslate"><span class="pre">World</span></code> class to actually setup the datafile and tell it what it will be doing.
+Here is the general structure of that method:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm">   * Input: The address of the string representing the file to be</span>
+<span class="cm">   * created&#39;s name</span>
+<span class="cm">   *</span>
+<span class="cm">   * Output: The address of the DataFile that has been created.</span>
+<span class="cm">   *</span>
+<span class="cm">   * Purpose: To set up the file that will be used to track YOUR TRAIT</span>
+<span class="cm">   */</span>
+<span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">DataFile</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="nf">SetupTRAITFile</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">filename</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">file</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">SetupFile</span><span class="p">(</span><span class="n">filename</span><span class="p">);</span><span class="w"> </span><span class="c1">//A method from the Empirical World class</span>
+<span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">GetNAMEDataNode</span><span class="p">();</span><span class="w"> </span><span class="c1">//The method you made previously</span>
+<span class="w">    </span><span class="n">file</span><span class="p">.</span><span class="n">AddVar</span><span class="p">(</span><span class="n">update</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;update&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Update&quot;</span><span class="p">);</span><span class="w"> </span><span class="c1">//You&#39;ll usually want the update information</span>
+<span class="w">    </span><span class="n">file</span><span class="p">.</span><span class="n">AddMean</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;mean_TRAIT&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;Average TRAIT&quot;</span><span class="p">,</span><span class="w"> </span><span class="nb">true</span><span class="p">);</span>
+<span class="w">    </span><span class="n">file</span><span class="p">.</span><span class="n">PrintHeaderKeys</span><span class="p">();</span>
+
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">file</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>Empirical’s <a class="reference external" href="https://empirical.readthedocs.io/en/latest/library/data/data.html">datafiles have many statistical methods already available</a> including all the different flavors of averages, total, min/max, variance, skew, kurtosis, histogram bins, and ways for you to easily add new calculations.
+You can have multiple datanodes pulled from in the same file if you wish as well.</p>
+<p>Finally, you should make a <code class="docutils literal notranslate"><span class="pre">CreateDataFiles</span></code> method that can be called in your <code class="docutils literal notranslate"><span class="pre">.cc</span></code> to make your new file in addition to the files from the superclass:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cm">/**</span>
+<span class="cm">  * Input: None.</span>
+<span class="cm">  *</span>
+<span class="cm">  * Output: None.</span>
+<span class="cm">  *</span>
+<span class="cm">  * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the YOUR_TRAIT condition experiment.</span>
+<span class="cm">  */</span>
+<span class="w">  </span><span class="kt">void</span><span class="w"> </span><span class="nf">CreateDateFiles</span><span class="p">(){</span>
+<span class="w">    </span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="w"> </span><span class="n">file_ending</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;_SEED&quot;</span><span class="o">+</span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">SEED</span><span class="p">())</span><span class="o">+</span><span class="s">&quot;.data&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="n">SymWorld</span><span class="o">::</span><span class="n">CreateDateFiles</span><span class="p">();</span>
+<span class="w">    </span><span class="n">SetupTRAITFile</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">FILE_PATH</span><span class="p">()</span><span class="o">+</span><span class="s">&quot;TRAIT&quot;</span><span class="o">+</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">FILE_NAME</span><span class="p">()</span><span class="o">+</span><span class="n">file_ending</span><span class="p">).</span><span class="n">SetTimingRepeat</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">DATA_INT</span><span class="p">());</span>
+<span class="w">  </span><span class="p">}</span>
+</pre></div>
+</div>
+<p>You should simply replace <code class="docutils literal notranslate"><span class="pre">TRAIT</span></code> with whatever your datafiles are called and add more setup calls if you have multiple datafiles.</p>
+</section>
+</section>
+<section id="optional-world-setup">
+<h2>(Optional) World Setup<a class="headerlink" href="#optional-world-setup" title="Link to this heading"></a></h2>
+<p>If you’ve made new organism(s) and a world, you’ll need a new <code class="docutils literal notranslate"><span class="pre">WorldSetup</span></code> file.
+The world setup function is responsible for making organisms and placing them into the world.
+We are working on refactoring it to reduce duplicated code between modes, but for now, you will need to copy some code that is generally needed by every mode.
+The primary difference will be the organism types added to the world, which should now be your newly created host(s) and symbiont(s).
+Here is the structure with notes of what you should change:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#ifndef NAMEWORLD_SETUP_C </span><span class="c1">//Change to your mode name thoughout the includes</span>
+<span class="cp">#define NAMEWORLD_SETUP_C</span>
+
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;YOURWorld.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../ConfigSetup.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;YOURSymbiont.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;YOURHost.h&quot;</span>
+
+<span class="c1">//Change to your world type below</span>
+<span class="kt">void</span><span class="w"> </span><span class="nf">worldSetup</span><span class="p">(</span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">YOURWorld</span><span class="o">&gt;</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">SymConfigBase</span><span class="o">&gt;</span><span class="w"> </span><span class="n">my_config</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">Random</span><span class="o">&amp;</span><span class="w"> </span><span class="n">random</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">GetRandom</span><span class="p">();</span>
+
+<span class="w">  </span><span class="kt">double</span><span class="w"> </span><span class="n">start_moi</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">START_MOI</span><span class="p">();</span>
+<span class="w">  </span><span class="kt">long</span><span class="w"> </span><span class="kt">unsigned</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">POP_SIZE</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">POP_SIZE</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">POP_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_X</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_Y</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="n">POP_SIZE</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">POP_SIZE</span><span class="p">();</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">random_phen_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">bool</span><span class="w"> </span><span class="n">random_phen_sym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">false</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">HOST_INT</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-2</span><span class="p">)</span><span class="w"> </span><span class="n">random_phen_host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">SYM_INT</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">-2</span><span class="p">)</span><span class="w"> </span><span class="n">random_phen_sym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">true</span><span class="p">;</span>
+
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID</span><span class="p">()</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">world</span><span class="o">-&gt;</span><span class="n">SetPopStruct_Mixed</span><span class="p">(</span><span class="nb">false</span><span class="p">);}</span>
+<span class="w">  </span><span class="k">else</span><span class="w"> </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">SetPopStruct_Grid</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_X</span><span class="p">(),</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_Y</span><span class="p">(),</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span>
+
+<span class="w">  </span><span class="c1">//inject hosts</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">size_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">POP_SIZE</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+<span class="w">    </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">YOURHost</span><span class="o">&gt;</span><span class="w"> </span><span class="n">new_org</span><span class="p">;</span><span class="w"> </span><span class="c1">//Change to your host type</span>
+
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random_phen_host</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">new_org</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="o">&amp;</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="p">,</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="n">GetDouble</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">new_org</span><span class="p">.</span><span class="n">New</span><span class="p">(</span><span class="o">&amp;</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">HOST_INT</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">if</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID</span><span class="p">())</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">AddOrgAt</span><span class="p">(</span><span class="n">new_org</span><span class="p">,</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">WorldPosition</span><span class="p">(</span><span class="n">world</span><span class="o">-&gt;</span><span class="n">GetRandomCellID</span><span class="p">()));</span>
+<span class="w">    </span><span class="p">}</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">AddOrgAt</span><span class="p">(</span><span class="n">new_org</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">size</span><span class="p">());</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+
+<span class="w">  </span><span class="c1">//sets up the world size</span>
+<span class="w">  </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">Resize</span><span class="p">(</span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_X</span><span class="p">(),</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">GRID_Y</span><span class="p">());</span>
+
+<span class="w">  </span><span class="c1">//This loop must be outside of the host generation loop since otherwise</span>
+<span class="w">  </span><span class="c1">//syms try to inject into mostly empty spots at first</span>
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">total_syms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">POP_SIZE</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">start_moi</span><span class="p">;</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">total_syms</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">){</span>
+<span class="w">    </span><span class="kt">double</span><span class="w"> </span><span class="n">sym_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">random_phen_sym</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">sym_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">random</span><span class="p">.</span><span class="n">GetDouble</span><span class="p">(</span><span class="mi">-1</span><span class="p">,</span><span class="mi">1</span><span class="p">);}</span>
+<span class="w">    </span><span class="k">else</span><span class="w"> </span><span class="p">{</span><span class="n">sym_int</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">my_config</span><span class="o">-&gt;</span><span class="n">SYM_INT</span><span class="p">();}</span>
+
+<span class="w">    </span><span class="c1">//Change to your symbiont type below</span>
+<span class="w">    </span><span class="n">emp</span><span class="o">::</span><span class="n">Ptr</span><span class="o">&lt;</span><span class="n">YOURSymbiont</span><span class="o">&gt;</span><span class="w"> </span><span class="n">new_sym</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">emp</span><span class="o">::</span><span class="n">NewPtr</span><span class="o">&lt;</span><span class="n">YOURSymbiont</span><span class="o">&gt;</span><span class="p">(</span><span class="o">&amp;</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="n">my_config</span><span class="p">,</span><span class="w"> </span><span class="n">sym_int</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+<span class="w">    </span><span class="n">world</span><span class="o">-&gt;</span><span class="n">InjectSymbiont</span><span class="p">(</span><span class="n">new_sym</span><span class="p">);</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>If you have any new configuration settings that influence how organisms are first created, you will need to do that here.</p>
+</section>
+<section id="native-file">
+<h2>Native File<a class="headerlink" href="#native-file" title="Link to this heading"></a></h2>
+<p>You’ll next need to make a <code class="docutils literal notranslate"><span class="pre">.cc</span></code> file that sets everything up.
+This file can be fairly simple if you aren’t making major changes from how Symbulation currently works.
+You should first add a file to <code class="docutils literal notranslate"><span class="pre">source/native</span></code> with the name <code class="docutils literal notranslate"><span class="pre">symbulation_&lt;name&gt;.cc</span></code> where <code class="docutils literal notranslate"><span class="pre">&lt;name&gt;</span></code> is whatever you are calling your mode.
+This is the main source file that will allow the experiment to function.
+In it, the world is created, set up according to the setup file, and is permitted to run for the specified number of updates.
+Here is the template for this file:</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../YOUR_mode/YOURWorld.h&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;../YOUR_mode/YOURWorldSetup.cc&quot;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;symbulation.h&quot;</span>
+
+<span class="c1">// This is the main function for the NATIVE version of this project.</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">symbulation_main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="n">SymConfigBase</span><span class="w"> </span><span class="n">config</span><span class="p">;</span>
+<span class="w">  </span><span class="n">CheckConfigFile</span><span class="p">(</span><span class="n">config</span><span class="p">,</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">config</span><span class="p">.</span><span class="n">Write</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">cout</span><span class="p">);</span>
+<span class="w">  </span><span class="n">emp</span><span class="o">::</span><span class="n">Random</span><span class="w"> </span><span class="n">random</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="n">SEED</span><span class="p">());</span>
+
+<span class="w">  </span><span class="n">YOURWorld</span><span class="w"> </span><span class="n">world</span><span class="p">(</span><span class="n">random</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+
+<span class="w">  </span><span class="n">YOURWorldSetup</span><span class="p">(</span><span class="o">&amp;</span><span class="n">world</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">config</span><span class="p">);</span>
+<span class="w">  </span><span class="n">world</span><span class="p">.</span><span class="n">CreateDateFiles</span><span class="p">();</span>
+<span class="w">  </span><span class="n">world</span><span class="p">.</span><span class="n">RunExperiment</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="cm">/*</span>
+<span class="cm">This definition guard prevents main from being defined twice during testing.</span>
+<span class="cm">In testing, Catch will define a main function which will initiate tests</span>
+<span class="cm">(including testing the symbulation_main function above).</span>
+<span class="cm">*/</span>
+<span class="cp">#ifndef CATCH_CONFIG_MAIN</span>
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">argv</span><span class="p">[])</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">symbulation_main</span><span class="p">(</span><span class="n">argc</span><span class="p">,</span><span class="w"> </span><span class="n">argv</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>Of course, if you want to make changes to how the experiment is setup or run, you can make this file more complicated or write your own version of provided functions.</p>
+</section>
+<section id="experiment">
+<h2>Experiment!<a class="headerlink" href="#experiment" title="Link to this heading"></a></h2>
+<p>Once you have created your organisms and corresponding world, added a main source file, and added targets to the Makefile, you are ready to experiment!
+Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">YOUR-mode</span></code> to build your code (and probably solve some bugs along the way).</p>
+<!-- ## Testing
+The following is still in development.
+After you have created your new mode, you must design tests to ensure it is functioning as expected. 
+Add a folder to `source/test` with the name `<name>_mode_test`. 
+Inside of this folder, add testing source files corresponding to each organism. 
+Make sure to also add files that test the interactions between organisms, as well as the data nodes.
+Also make sure to do the following: 
+
+- Include the testing file paths in `source/catch/main.cc`.
+- Add catch tags --></section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="3-CreatingConfigSetting.html" class="btn btn-neutral float-left" title="Creating a New Configuration Setting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../ALIFE2022Tutorial/index.html" class="btn btn-neutral float-right" title="ALIFE 2022 Symbulation Tutorial" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Anya Vostinar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

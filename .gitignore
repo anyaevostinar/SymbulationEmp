@@ -16,8 +16,7 @@ symbulation.test
 *.gcno
 *.gcda
 *.vscode
-local/
+
+*_output/
 output/
-log.txt
-*.json
-*_test_output/
+local/

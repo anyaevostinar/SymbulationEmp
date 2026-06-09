@@ -25,26 +25,23 @@ void SGPWorld::CreateDataFiles() {
     std::filesystem::create_directory(output_dir);
   }
 
-  // NOTE - discuss typical data organization for symbulation
-  //        TODO - update file endings post discussion
-
   // Setup organism count file
-  std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts.csv");
+  std::filesystem::path org_count_fpath = output_dir / ("OrganismCounts"+sgp_config.FILE_NAME()+".csv");
   SetupOrgCountFile(org_count_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup transmission file
-  std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates.csv");
-  SetUpTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
+  std::filesystem::path transmission_fpath = output_dir / ("TransmissionRates"+sgp_config.FILE_NAME()+".csv");
+  SetupTransmissionFile(transmission_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // // Setup sym donated file
-  // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated.csv");
+  // std::filesystem::path sym_donated_fpath = output_dir / ("SymDonated"+sgp_config.FILE_NAME()+".csv");
   // SetupSymDonatedFile(sym_donated_fpath.string()).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup tasks file
-  std::filesystem::path tasks_fpath = output_dir / ("Tasks.csv");
+  std::filesystem::path tasks_fpath = output_dir / ("Tasks"+sgp_config.FILE_NAME()+".csv");
   SetupTasksFile(tasks_fpath).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup current update information file
-  std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo.csv");
+  std::filesystem::path cur_update_info_fpath = output_dir / ("CurrentUpdateInfo"+sgp_config.FILE_NAME()+".csv");
   SetupCurrentUpdateInfoFile(cur_update_info_fpath).SetTimingRepeat(sgp_config.DATA_INT());
   // Setup file for symbiont interaction values
-  std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues.csv");
+  std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues"+sgp_config.FILE_NAME()+".csv");
   SetupSymbiontInteractionValuesFile(sym_int_vals_fpath).SetTimingRepeat(sgp_config.DATA_INT());
 }
 
@@ -678,6 +675,39 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
     snapshot_file.Update();
   }
 
+}
+
+void SGPWorld::OutputDominantDataFile() {
+  // TODO: update to actually work, need to get back a version of "PrintCode"
+  // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
+  //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
+  //   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
+  //     GetDominantInfo();
+
+  // {
+  //   size_t idx = 0;
+  //   for (auto pair : dominant_organisms) {
+  //     auto sample = pair.first.DynamicCast<sgp_host_t>();
+
+  //     ofstream genome_file;
+  //     std::string genome_path = config.FILE_PATH() + "Genome_Host" +
+  //                               std::to_string(idx) + config.FILE_NAME() +
+  //                               file_ending;
+  //     genome_file.open(genome_path);
+  //     sample->GetCPU().PrintCode(genome_file);
+
+  //     for (auto &sym : sample->GetSymbionts()) {
+  //       ofstream genome_file;
+  //       std::string genome_path = config.FILE_PATH() + "Genome_Sym" +
+  //                                 std::to_string(idx) + config.FILE_NAME() +
+  //                                 file_ending;
+  //       genome_file.open(genome_path);
+  //       sym.DynamicCast<sgp_sym_t>()->GetCPU().PrintCode(genome_file);
+  //     }
+
+  //     idx++;
+  //   }
+  // }
 }
 
 }

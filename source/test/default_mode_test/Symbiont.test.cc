@@ -341,6 +341,7 @@ TEST_CASE("mutate", "[default]") {
 
         sym.Delete();
     }
+    
     world.Delete();
     random.Delete();
 }

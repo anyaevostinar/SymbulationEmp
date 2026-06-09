@@ -1,0 +1,231 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALIFE 2022 Symbulation Tutorial &mdash; Symbulation 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css?v=e72958e9" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5aa371e9"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/rtd_search_config.js?v=b0596c34"></script>
+      <script src="../_static/js/rtd_sphinx_search.min.js?v=5e065386"></script>
+      <script src="https://kit.fontawesome.com/8485b453b8.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Host Class" href="../api/library_root.html" />
+    <link rel="prev" title="Creating A New Mode" href="../QuickStartGuides/4-CreatingAMode.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Symbulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using Symbulation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../projects/index.html">Projects using Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../QuickStartGuides/index.html">Quick Start Guides</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">ALIFE 2022 Symbulation Tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-prep">Advanced Prep</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#schedule">Schedule</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#intro">Intro</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hands-on-1">Hands-on 1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#break">Break</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#explaining-code-structure">Explaining Code Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#hands-on-2">Hands-on 2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wrap-up">Wrap-up</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#alife-talks-featuring-symbulation">ALIFE Talks Featuring Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html">Host Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html#symbiont-class">Symbiont Class</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to Symbulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev/symbulation-development-practices.html">Symbulation Development Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/getting-started.html">Getting started with Symbulation development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/contribution-guidelines-and-review.html">Coding guidelines and review checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/adding-documentation.html">Documentation for Symbulation Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/guide-to-testing.html">Guide to Testing in Symbulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Symbulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">ALIFE 2022 Symbulation Tutorial</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="alife-2022-symbulation-tutorial">
+<h1>ALIFE 2022 Symbulation Tutorial<a class="headerlink" href="#alife-2022-symbulation-tutorial" title="Link to this heading"></a></h1>
+<p>We will be hosting a introduction to Symbulation tutorial at the <a class="reference external" href="https://2022.alife.org/">ALIFE 2022 conferece</a>!</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Symbulation is an agent-based modeling platform that enables the study of symbiosis along the parasitism to mutualism spectrum and available at <a class="reference external" href="https://github.com/anyaevostinar/SymbulationEmp">https://github.com/anyaevostinar/SymbulationEmp</a>. It uses the Empirical platform and allows for a large amount of customization based on existing functionality, including allowing symbionts to live outside or inside of hosts, lysogenic and lytic life cycles, several different spatial structures, and enabling symbionts occupying the same host to engage in a public goods game. It also supports the creation of new modes and functionality for those with some C++ experience. There are 56 current configuration options, controlled by an easy-to-use configuration file and customizable data-tracking. It also includes a web-based graphical user interface that can be customized by those with C++ knowledge. Symbulation is already being used  to study how spatial structure and multi-infection interact with the evolution of mutualistic symbiosis, the evolution of lysogeny, and the de novo evolution of endosymbiosis. It has also been used in classroom settings with advanced undergraduate computer science students.</p>
+<p>This tutorial will guide new users in understanding the overall architecture of Symbulation, setting up a project (using our <a class="reference external" href="https://github.com/anyaevostinar/SymbulationProjectTemplate">Cookiecutter</a> template) to conduct an experiment using existing configuration options,  customizing the browser-based graphical user interface, and creating new functionality for those comfortable with C++. The tutorial will build on the existing guides and documentation (available at <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/">https://symbulation.readthedocs.io/en/latest/</a>) and a page for the tutorial will be created there. Attendees will also be able to shape the future directions of Symbulation by discussing new desirable features and contributing their new functionality back to the codebase if they so wish. Attendees will leave the tutorial with the start of a new research project and, ideally, lots of new ideas and potential collaborations.</p>
+<p>All material will be hosted here.</p>
+</section>
+<section id="advanced-prep">
+<h2>Advanced Prep<a class="headerlink" href="#advanced-prep" title="Link to this heading"></a></h2>
+<p>You don’t need to do anything in advance of the workshop to gain from the time.
+However, if you want, there are some things that you could install ahead of time to speed things up:</p>
+<ul class="simple">
+<li><p>If you use a Windows system, we recommend that you install <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/">Windows Subsystem for Linux</a> (Symbulation doesn’t run on Windows unfortunately)</p></li>
+<li><p><a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#install-native-c-compiler">Check if you have <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and if you don’t, install it</a>. <strong>This install can take a while</strong>, hence why it’s good to do ahead of the workshop. (<code class="docutils literal notranslate"><span class="pre">clang</span></code> might work, but we’ll assume that you are using <code class="docutils literal notranslate"><span class="pre">gcc</span></code> and won’t be able to help with issues with <code class="docutils literal notranslate"><span class="pre">clang</span></code>.)</p></li>
+<li><p><a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#using-cookiecutter">Install <code class="docutils literal notranslate"><span class="pre">cookiecutter</span></code> and pull down the Symbulation project template</a> so that we can use it to set up the folder structure more easily. It will give an error at the end about not succeeding to push to GitHub; that’s normal and nothing to worry about.</p></li>
+<li><p><a class="reference external" href="https://docs.rstudio.com/">Install RStudio</a> so that you can make plots of the data that you generate with our provided R scripts (if you don’t have an R program already)</p></li>
+<li><p>If you don’t want to/can’t install things, you can do most things using <a class="reference external" href="https://replit.com/&#64;anyaevostinar/Symbulation-Example">this Replit</a>, just not building the web version.</p></li>
+</ul>
+</section>
+<section id="schedule">
+<h2>Schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h2>
+<section id="intro">
+<h3>Intro<a class="headerlink" href="#intro" title="Link to this heading"></a></h3>
+<p>(~20 Minutes)</p>
+<ul class="simple">
+<li><p>Get started downloading things (can be done in advance, see above for details)</p>
+<ul>
+<li><p>If on Windows: <a class="reference external" href="https://docs.microsoft.com/en-us/windows/wsl/">WSL</a></p></li>
+<li><p><a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#install-native-c-compiler"><code class="docutils literal notranslate"><span class="pre">gcc</span></code></a></p></li>
+<li><p><a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#using-cookiecutter"><code class="docutils literal notranslate"><span class="pre">cookiecutter</span></code></a></p></li>
+</ul>
+</li>
+<li><p>High-level of what Symbulation is and how it works</p></li>
+</ul>
+</section>
+<section id="hands-on-1">
+<h3>Hands-on 1<a class="headerlink" href="#hands-on-1" title="Link to this heading"></a></h3>
+<p>(~15 minutes)</p>
+<ul class="simple">
+<li><p>Work through <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#using-cookiecutter">making a cookie cutter project and running it</a></p></li>
+<li><p>Work through <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/1-GettingRunning.html#install-web-gui">building the web version and running locally</a></p></li>
+<li><p><a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/2-CollectingData.html">Change some settings and get some data</a>; settings you could try changing:</p>
+<ul>
+<li><p>VERTICAL_TRANSMISSION</p></li>
+<li><p>GRID</p></li>
+<li><p>FREE_LIVING_SYMS</p></li>
+<li><p>MUTATION_SIZE</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="break">
+<h3>Break<a class="headerlink" href="#break" title="Link to this heading"></a></h3>
+<p>(~10 minutes)</p>
+</section>
+<section id="explaining-code-structure">
+<h3>Explaining Code Structure<a class="headerlink" href="#explaining-code-structure" title="Link to this heading"></a></h3>
+<p>(~20 minutes)</p>
+<ul class="simple">
+<li><p>How all the classes work together</p></li>
+<li><p>Where the major functionality happens</p></li>
+<li><p>Where you might want to try out making changing</p></li>
+</ul>
+</section>
+<section id="hands-on-2">
+<h3>Hands-on 2<a class="headerlink" href="#hands-on-2" title="Link to this heading"></a></h3>
+<p>(~15 minutes)</p>
+<ul class="simple">
+<li><p>Work through <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/3-CreatingConfigSetting.html">making a new configuration setting</a></p></li>
+<li><p>Work through <a class="reference external" href="https://symbulation.readthedocs.io/en/latest/QuickStartGuides/4-CreatingAMode.html">making a new mode</a></p></li>
+</ul>
+</section>
+<section id="wrap-up">
+<h3>Wrap-up<a class="headerlink" href="#wrap-up" title="Link to this heading"></a></h3>
+<p>(~10 minutes)</p>
+<ul class="simple">
+<li><p>What do you think?</p></li>
+<li><p>What would you want to make Symbulation something you would use in your own research or teaching?</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="alife-talks-featuring-symbulation">
+<h1>ALIFE Talks Featuring Symbulation<a class="headerlink" href="#alife-talks-featuring-symbulation" title="Link to this heading"></a></h1>
+<p>Here are the talks at ALIFE 2022 that feature Symbulation!
+The links are in theory the Google Calendar invites, hopefully they work :).</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=21.+Claire+Schregardus,+Michael+Wiser+and+Anya+VostinarDirty+Transmission+Hypothesis:+Increased+Mutations+During+Horizontal+Transmission+Can+Select+for+Increased+Levels+of+Mutualism+in+Endosymbionts&amp;amp;dates=20220718T133000Z/20220718T135000Z&amp;amp;details&amp;amp;location">Monday 15:30-15:50</a> 21. Claire Schregardus, Michael Wiser and Anya Vostinar Dirty Transmission Hypothesis: Increased Mutations During Horizontal Transmission Can Select for Increased Levels of Mutualism in Endosymbionts</p></li>
+<li><p><a class="reference external" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=19.+Kiara+Johnson,+Piper+Welch,+Emily+Dolson+and+Anya+VostinarEndosymbiosis+or+Bust:+Influence+of+Ectosymbiosis+on+Evolution+of+Obligate+Endosymbiosis&amp;amp;dates=20220720T132000Z/20220720T134000Z&amp;amp;details&amp;amp;location">Wednesday 15:20-15:40</a> 19. Kiara Johnson, Piper Welch, Emily Dolson and Anya Vostinar Endosymbiosis or Bust: Influence of Ectosymbiosis on Evolution of Obligate Endosymbiosis</p></li>
+<li><p><a class="reference external" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=20.+Alison+Cameron,+Seth+Dorchen,+Sarah+Doore+and+Anya+VostinarKeep+Your+Frenemies+Closer:+Bacteriophage+That+Benefit+Their+Hosts+Evolve+to+be+More+Temperate&amp;amp;dates=20220720T134000Z/20220720T140000Z&amp;amp;details&amp;amp;location">Wednesday 15:40-16:00</a> 20. Alison Cameron, Seth Dorchen, Sarah Doore and Anya Vostinar Keep Your Frenemies Closer: Bacteriophage That Benefit Their Hosts Evolve to be More Temperate</p></li>
+<li><p><a class="reference external" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=4.+Anya+Vostinar,+Katherine+Skocelas,+Alexander+Lalejini+and+Luis+ZamanSymbiosis+in+Digital+Evolution:+A+Review+and+Future+Directions&amp;amp;dates=20220721T130000Z/20220721T132000Z&amp;amp;details&amp;amp;location">Thursday 15:00-15:20</a> 4. Anya Vostinar, Katherine Skocelas, Alexander Lalejini and Luis Zaman Symbiosis in Digital Evolution: A Review and Future Directions</p></li>
+<li><p><a class="reference external" href="https://calendar.google.com/calendar/u/0/r/eventedit?text=126.+Emily+Dolson,+Anya+Vostinar,+Shakeal+Hodge+and+Zhen+RenEvolutionary+stability+of+host-endosymbiont+mutualism+is+reduced+by+multi-infection&amp;amp;dates=20220722T130000Z/20220722T132000Z&amp;amp;details&amp;amp;location">Friday 15:00-15:20</a> 126. Emily Dolson, Anya Vostinar, Shakeal Hodge and Zhen Ren Evolutionary stability of host-endosymbiont mutualism is reduced by multi-infection</p></li>
+</ul>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../QuickStartGuides/4-CreatingAMode.html" class="btn btn-neutral float-left" title="Creating A New Mode" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/library_root.html" class="btn btn-neutral float-right" title="Host Class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Anya Vostinar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

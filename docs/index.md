@@ -27,15 +27,14 @@ top left!
 projects/index
 QuickStartGuides/index
 ALIFE2022Tutorial/index
-api/library_root
-
+api/index
 ```
 
 ```{toctree}
 :caption: Contributing to Symbulation
 :maxdepth: 0
 
-dev/Symbulation-development-practices
+dev/symbulation-development-practices
 dev/getting-started
 dev/contribution-guidelines-and-review
 dev/adding-documentation

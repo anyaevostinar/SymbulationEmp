@@ -6,15 +6,25 @@
 #include "../../Empirical/include/emp/Evolve/Systematics.hpp"
 #include "../../Empirical/include/emp/math/random_utils.hpp"
 #include "../../Empirical/include/emp/math/Random.hpp"
+#include "../../Empirical/include/emp/matching/MatchBin.hpp"
+
 #include "../Organism.h"
+#include <cstdlib>
 #include <set>
 #include <math.h>
 
+namespace taxon_t {
+  using info_t = double;
+
+  using base_taxon_t = emp::Taxon<info_t, datastruct::TaxonDataBase>;
+  using host_taxon_t = emp::Taxon<info_t, datastruct::HostTaxonData>;
+  using sym_taxon_t = emp::Taxon<info_t, datastruct::SymbiontTaxonData>;
+}
 
 class SymWorld : public emp::World<Organism>{
 protected:
   // takes an organism (to classify), and returns an int (the org's taxon)
-  using fun_calc_info_t = std::function<int(Organism &)>;
+  using fun_calc_info_t = std::function<taxon_t::info_t(Organism &)>;
 
   /**
     *
@@ -32,8 +42,8 @@ protected:
 
   /**
     *
-    * Purpose: Represents the set of organisms which have been unlinked from 
-    * their standard managing structures and need to be deleted at the end 
+    * Purpose: Represents the set of organisms which have been unlinked from
+    * their standard managing structures and need to be deleted at the end
     * of every update.
     *
   */
@@ -44,7 +54,15 @@ protected:
     * Purpose: Represents a standard function object which determines which taxon an organism belongs to.
     *
   */
-  fun_calc_info_t calc_info_fun;
+  fun_calc_info_t calc_host_info_fun;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which determines which taxon a symbiont belongs to.
+    *
+  */
+  fun_calc_info_t calc_sym_info_fun;
+
 
   /**
     *
@@ -58,14 +76,21 @@ protected:
     * Purpose: Represents the systematics object tracking hosts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> host_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> host_sys;
 
   /**
     *
     * Purpose: Represents the systematics object tracking symbionts.
     *
   */
-  emp::Ptr<emp::Systematics<Organism, int>> sym_sys;
+  emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys;
+
+  /**
+    *
+    * Purpose: Represents the tag distance calculator.
+    *
+  */
+  emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> tag_metric;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -74,15 +99,35 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_syminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_towards_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_from_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_towards_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_sym_from_partner_rate;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_permissiveness;
+  emp::Ptr<emp::DataMonitor<int>> data_node_host_tag_richness;
+  emp::Ptr<emp::DataMonitor<double>> data_node_host_tag_shannon;
+  emp::Ptr<emp::DataMonitor<int>> data_node_symbiont_tag_richness;
+  emp::Ptr<emp::DataMonitor<double>> data_node_symbiont_tag_shannon;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_symcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
-  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_horiztrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_successes_horiztrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_attempts_verttrans;
-  emp::Ptr<emp::DataMonitor<int>> data_node_successes_verttrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tagfail_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_sizefail_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_horiztrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
+
+  // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
+  uint64_t first_mut_sym = 0;
+  uint64_t first_mut_host = 0;
 
   emp::Signal<void()> on_analyze_population_sig;
 
@@ -94,22 +139,94 @@ public:
    *
    * Purpose: To construct an instance of SymWorld
    */
-  SymWorld(emp::Random & _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
-    fun_print_org = [](Organism & org, std::ostream & os) {
+  SymWorld(emp::Random& _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
+    fun_print_org = [](Organism& org, std::ostream& os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
-    };
+      };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
-    if (my_config->PHYLOGENY() == true){
-      host_sys = emp::NewPtr<emp::Systematics<Organism, int>>(GetCalcInfoFun());
-      sym_sys = emp::NewPtr< emp::Systematics<Organism, int>>(GetCalcInfoFun());
+
+    emp_assert(!(my_config->TAG_MATCHING() && my_config->FREE_LIVING_SYMS()));
+
+    if (my_config->PHYLOGENY() == true) {
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
+        calc_host_info_fun = [&](Organism& org) {
+          return org.GetIntVal();
+          };
+
+        calc_sym_info_fun = [&](Organism& org) {
+          return org.GetIntVal();
+          };
+      }
+      else if (my_config->PHYLOGENY_TAXON_TYPE() == 2) {
+        calc_host_info_fun = [&](Organism& org) {
+          return org.GetTag().GetValue();
+          };
+
+        calc_sym_info_fun = [&](Organism& org) {
+          return org.GetTag().GetValue();
+ 	  };
+      }
+      else if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        calc_host_info_fun = [&](Organism& org) {
+          return (long unsigned) host_sys->GetNextID();
+          };
+
+        calc_sym_info_fun = [&](Organism& org) {
+          return (long unsigned) sym_sys->GetNextID();
+          };
+      }
+
+      host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
+      sym_sys = emp::NewPtr< emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>>(GetCalcSymInfoFun());
 
       AddSystematics(host_sys);
       sym_sys->SetStorePosition(false);
 
-      sym_sys-> AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
-      host_sys->AddSnapshotFun( [](const emp::Taxon<int> & t){return std::to_string(t.GetInfo());}, "info");
+      sym_sys->AddSnapshotFun([](const taxon_t::sym_taxon_t& t) {return std::to_string(t.GetInfo()); }, "info");
+      host_sys->AddSnapshotFun([](const taxon_t::host_taxon_t& t) {return std::to_string(t.GetInfo()); }, "info");
+
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 2 || my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        sym_sys->AddSnapshotFun([](const taxon_t::sym_taxon_t& t) {return std::to_string((t.GetData()).GetIntVal()); }, "mean_int_val");
+        host_sys->AddSnapshotFun([](const taxon_t::host_taxon_t& t) {return std::to_string(t.GetData().GetIntVal()); }, "mean_int_val");
+      }
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        sym_sys->AddSnapshotFun([](const taxon_t::sym_taxon_t& t) {return std::to_string(t.GetData().GetHostSwitch()); }, "lineage_host_switch_count");
+      }
+
+      on_placement_sig.AddAction([this](emp::WorldPosition pos) {
+	GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<taxon_t::base_taxon_t>());
+        if(my_config->PHYLOGENY_TAXON_TYPE()==3)GetOrgPtr(pos.GetIndex())->GetTaxon()->GetData().RecordIntVal(GetOrgPtr(pos.GetIndex())->GetIntVal());
+        });
+
+      if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+        std::function<void(emp::Ptr<taxon_t::sym_taxon_t >, Organism&)> inherit_parental_data =
+          [&](emp::Ptr<taxon_t::sym_taxon_t > taxon, Organism& org) {
+          if (taxon->GetParent()) taxon->GetData().SetHostSwitch(taxon->GetParent()->GetData().GetHostSwitch());
+          else taxon->GetData().SetHostSwitch(0);
+          taxon->GetData().RecordIntVal(org.GetIntVal());
+          };
+        sym_sys->OnNew(inherit_parental_data);
+      }
+
+      if (my_config->STORE_EXTINCT()) {
+        sym_sys->SetStoreOutside(true);
+        host_sys->SetStoreOutside(true);
+      }
+    }
+
+    if (my_config->TAG_MATCHING()) {
+      if (my_config->NORMALIZE_TAG_DISTANCES()) {
+        if (my_config->TAG_METRIC() == 0) tag_metric = emp::NewPtr<emp::UnifMod<emp::HammingMetric<TAG_LENGTH>>>();
+        else if (my_config->TAG_METRIC() == 1) tag_metric = emp::NewPtr<emp::UnifMod<emp::StreakMetric<TAG_LENGTH>>>();
+        else if (my_config->TAG_METRIC() == 2) tag_metric = emp::NewPtr<emp::UnifMod<emp::HashMetric<TAG_LENGTH>>>();
+      }
+      else {
+        if (my_config->TAG_METRIC() == 0) tag_metric = emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>();
+        else if (my_config->TAG_METRIC() == 1) tag_metric = emp::NewPtr<emp::StreakMetric<TAG_LENGTH>>();
+        else if (my_config->TAG_METRIC() == 2) tag_metric = emp::NewPtr<emp::HashMetric<TAG_LENGTH>>();
+      }
     }
   }
 
@@ -129,13 +246,29 @@ public:
     if (data_node_syminfectchance) data_node_syminfectchance.Delete();
     if (data_node_freesyminfectchance) data_node_freesyminfectchance.Delete();
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
+    if (data_node_within_host_mean) data_node_within_host_mean.Delete();
+    if (data_node_within_host_variance) data_node_within_host_variance.Delete();
+    if (data_node_host_repro_count) data_node_host_repro_count.Delete();
+    if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
+    if (data_node_host_towards_partner_rate) data_node_host_towards_partner_rate.Delete();
+    if (data_node_host_from_partner_rate) data_node_host_from_partner_rate.Delete();
+    if (data_node_sym_towards_partner_rate) data_node_sym_towards_partner_rate.Delete();
+    if (data_node_sym_from_partner_rate) data_node_sym_from_partner_rate.Delete();
+    if (data_node_host_permissiveness) data_node_host_permissiveness.Delete();
+    if (data_node_host_tag_richness) data_node_host_tag_richness.Delete();
+    if (data_node_host_tag_shannon) data_node_host_tag_shannon.Delete();
+    if (data_node_symbiont_tag_richness) data_node_symbiont_tag_richness.Delete();
+    if (data_node_symbiont_tag_shannon) data_node_symbiont_tag_shannon.Delete();
     if (data_node_hostcount) data_node_hostcount.Delete();
     if (data_node_symcount) data_node_symcount.Delete();
+    if (data_node_tag_dist) data_node_tag_dist.Delete();
     if (data_node_freesymcount) data_node_freesymcount.Delete();
     if (data_node_hostedsymcount) data_node_hostedsymcount.Delete();
     if (data_node_uninf_hosts) data_node_uninf_hosts.Delete();
     if (data_node_attempts_horiztrans) data_node_attempts_horiztrans.Delete();
-    if (data_node_attempts_horiztrans) data_node_successes_horiztrans.Delete();
+    if (data_node_tagfail_horiztrans) data_node_tagfail_horiztrans.Delete();
+    if (data_node_sizefail_horiztrans) data_node_sizefail_horiztrans.Delete();
+    if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
@@ -149,6 +282,10 @@ public:
       Clear(); // delete hosts here so that hosted symbionts get
       // deleted and unlinked from the sym_sys
       sym_sys.Delete();
+    }
+
+    if (my_config->TAG_MATCHING()) {
+      tag_metric.Delete();
     }
   }
 
@@ -173,7 +310,29 @@ public:
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
 
-   /**
+  /**
+   * Input: A pointer to the tag distance metric object
+   *
+   * Output: None
+   *
+   * Purpose: To set the world's tag distance calculator
+   */
+   void SetTagMetric(emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> _in) {
+    tag_metric = _in;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: A pointer to the tag distance metric object
+   *
+   * Purpose: To get the world's tag distance calculator
+   */
+   emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> GetTagMetric() {
+    return tag_metric;
+  }
+
+  /**
    * Input: None
    *
    * Output: A reference to the world graveyard.
@@ -213,7 +372,7 @@ public:
    *
    * Purpose: To retrieve the host systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetHostSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> GetHostSys(){
     return host_sys;
   }
 
@@ -225,7 +384,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<emp::Systematics<Organism,int>> GetSymSys(){
+  emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> GetSymSys(){
     return sym_sys;
   }
 
@@ -233,14 +392,14 @@ public:
   /**
    * Input: None
    *
-   * Output: The standard function object that determines which bin organisms
+   * Output: The standard function object that determines which bin hosts
    * should belong to depending on their interaction value
    *
-   * Purpose: To classify organisms based on their interaction value.
+   * Purpose: To classify hosts based on their interaction value.
    */
-  fun_calc_info_t GetCalcInfoFun() {
-    if (!calc_info_fun) {
-      calc_info_fun = [&](Organism & org){
+  fun_calc_info_t GetCalcHostInfoFun() {
+    if (!calc_host_info_fun) {
+      calc_host_info_fun = [&](Organism & org){
         size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
         //classify orgs into bins base on interaction values,
         //inclusive of lower bound, exclusive of upper
@@ -253,7 +412,25 @@ public:
         return bin;
       };
     }
-    return calc_info_fun;
+    return calc_host_info_fun;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin symbionts
+   * should belong to depending on their interaction value
+   *
+   * Purpose: To classify symbionts based on their interaction value.
+   */
+  fun_calc_info_t GetCalcSymInfoFun() {
+    // By default the sym info function is the same as the host one,
+    // but separating them allows us to change the sym info function
+    // to something else if we need to.
+    if (!calc_sym_info_fun) {
+      calc_sym_info_fun = GetCalcHostInfoFun();
+    }
+    return calc_sym_info_fun;
   }
 
   /**
@@ -263,8 +440,9 @@ public:
    *
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
-  emp::Ptr<emp::Taxon<int>> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<emp::Taxon<int>> parent_taxon=nullptr){
-    emp::Ptr<emp::Taxon<int>> taxon = sym_sys->AddOrg(*sym, emp::WorldPosition(0,0), parent_taxon);
+  emp::Ptr<taxon_t::base_taxon_t> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<taxon_t::base_taxon_t> parent_taxon=nullptr){
+    emp::Ptr<taxon_t::base_taxon_t> taxon =
+      sym_sys->AddOrg(*sym, emp::WorldPosition(0, 0), parent_taxon.Cast<taxon_t::sym_taxon_t>()).Cast<taxon_t::base_taxon_t>();
     sym->SetTaxon(taxon);
     return taxon;
   }
@@ -335,9 +513,14 @@ public:
    *
    * Output: None
    *
-   * Purpose: To add organisms to the graveyard
+   * Purpose: To add organisms to the graveyard (also sets it to dead)
    */
   virtual void SendToGraveyard(emp::Ptr<Organism> org) {
+    emp_assert(
+      org != nullptr,
+      "Tried to send a null organism to the graveyard."
+    );
+    org->SetDead();
     graveyard.push_back(org);
   }
 
@@ -355,11 +538,12 @@ public:
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
+    new_org->SetLocation(pos);
 
     //SYMBIONTS have position in the overall world as their ID
     //HOSTS have position in the overall world as their index
 
-    //if the pos it out of bounds, expand the worlds so that they can fit it.
+    //if the pos is out of bounds, expand the worlds so that they can fit it.
     if(pos.GetPopID() >= sym_pop.size() || pos.GetIndex() >= pop.size()){
       if(pos.GetPopID() > pos.GetIndex()) Resize(pos.GetPopID() + 1);
       else Resize(pos.GetIndex() + 1);
@@ -367,6 +551,14 @@ public:
 
     if(new_org->IsHost()){ //if the org is a host, use the empirical addorgat function
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
+      if(new_org->HasSym()) {
+        //Sometimes we add the symbionts before putting the organism into the world, which messes up the syms' location
+        for(size_t j = 0; j < new_org->GetSymbionts().size(); j++){
+          emp::Ptr<Organism> cur_sym = new_org->GetSymbionts()[j];
+          cur_sym->SetLocation(emp::WorldPosition(j+1, pos.GetIndex()));
+        }
+      }
+
 
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
@@ -374,9 +566,8 @@ public:
       if(!sym_pop[pos_id]) {
         ++num_orgs;
       } else {
-        sym_pop[pos_id].Delete();
+        SendToGraveyard(sym_pop[pos_id]); // don't delete it yet, that can cause a seg fault
       }
-
       //set the cell to point to the new sym
       sym_pop[pos_id] = new_org;
     }
@@ -403,11 +594,47 @@ public:
     if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
+      if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+        datastruct::TaxonDataBase & my_data = new_org->GetTaxon()->GetData();
+        datastruct::HostTaxonData * d = static_cast<datastruct::HostTaxonData*>(&my_data);
+
+        for (auto sym : new_org->GetSymbionts()) {
+          d->AddInteraction(sym->GetTaxon());
+          if (first_mut_host == 0 && new_org->GetIntVal() > 0 && sym->GetIntVal() > 0) {
+            first_mut_host = new_org->GetTaxon()->GetID();
+            first_mut_sym = sym->GetTaxon()->GetID();
+          }
+        }
+
+      }
     }
     else {
       new_org.Delete();
     } // Otherwise delete the organism.
     return pos;
+  }
+
+
+  /**
+   * Input: The world position of the host to perform death upon
+   *
+   * Output: None
+   *
+   * Purpose: To overwrite the empirical DoDeath function to permit cleanup
+   * of false-start (<1 update duration) host taxa when unpruned trees are
+   * being recorded.
+   */
+  void DoDeath(const emp::WorldPosition pos) {
+    if (my_config->PHYLOGENY()) {
+      emp::Ptr<taxon_t::host_taxon_t> taxon = host_sys->GetTaxonAt(pos);
+      if (my_config->STORE_EXTINCT() && taxon->GetOriginationTime() == GetUpdate() && taxon->GetTotalOffspring() == 0) {
+        host_sys->RemoveOrg(pos);
+        host_sys->outside_taxa.erase(taxon);
+        taxon.Delete();
+      }
+    }
+
+    emp::World<Organism>::DoDeath(pos);
   }
 
 
@@ -471,7 +698,17 @@ public:
       new_loc = GetRandomOrgID();
       //if the position is acceptable, add the sym to the host in that position
       if(IsOccupied(new_loc)) {
-        pop[new_loc]->AddSymbiont(new_sym);
+        int sucess = pop[new_loc]->AddSymbiont(new_sym);
+        if(sucess) {
+          if(my_config->TAG_MATCHING()){
+            new_sym->SetTag(pop[new_loc]->GetTag());
+          }
+          if (my_config->PHYLOGENY() && my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+            datastruct::HostTaxonData* d = static_cast<datastruct::HostTaxonData*>(&pop[new_loc]->GetTaxon()->GetData());
+            d->AddInteraction(new_sym->GetTaxon());
+          }
+        }
+
       } else new_sym.Delete();
     } else {
       new_loc = GetRandomCellID();
@@ -483,29 +720,48 @@ public:
   }
 
 
-  /**
-   * Definitions of data node functions, expanded in DataNodes.h
-   */
+  //Definitions of data node functions, expanded in DataNodes.h
   virtual void CreateDataFiles();
+  void MapPhylogenyInteractions();
   void WritePhylogenyFile(const std::string & filename);
+  void WriteOrgDumpFile(const std::string& filename);
+  void WriteTagMatrixFile(const std::string& filename);
   void WriteDominantPhylogenyFiles(const std::string & filename);
-  emp::Ptr<emp::Taxon<int>> GetDominantSymTaxon();
-  emp::Ptr<emp::Taxon<int>> GetDominantHostTaxon();
-  emp::vector<emp::Ptr<emp::Taxon<int>>> GetDominantFreeHostedSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_t::info_t>> GetDominantSymTaxon();
+  emp::Ptr<emp::Taxon<taxon_t::info_t>> GetDominantHostTaxon();
+  emp::vector<emp::Ptr<emp::Taxon<taxon_t::info_t>>> GetDominantFreeHostedSymTaxon();
   emp::DataFile & SetupSymIntValFile(const std::string & filename);
   emp::DataFile & SetupHostIntValFile(const std::string & filename);
-  emp::DataFile & SetUpFreeLivingSymFile(const std::string & filename);
-  emp::DataFile & SetUpTransmissionFile(const std::string & filename);
+  emp::DataFile & SetupFreeLivingSymFile(const std::string & filename);
+  emp::DataFile & SetupReproHistFile(const std::string& filename);
+  emp::DataFile & SetupTransmissionFile(const std::string & filename);
+  emp::DataFile & SetupTagDistFile(const std::string& filename);
+  emp::DataFile & SetupSymDiversityFile(const std::string & filename);
+  virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile & file);
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
   emp::DataMonitor<int>& GetCountFreeSymsDataNode();
   emp::DataMonitor<int>& GetUninfectedHostsDataNode();
-  emp::DataMonitor<int>& GetHorizontalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetHorizontalTransmissionSuccessCount();
-  emp::DataMonitor<int>& GetVerticalTransmissionAttemptCount();
-  emp::DataMonitor<int>& GetVerticalTransmissionSuccessCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionAttemptCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionTagFailCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSizeFailCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
+  emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
+  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
+  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();
+  emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostFromPartnerRateDataNode();
+  emp::DataMonitor<double>& GetHostTagPermissiveness();
+  emp::DataMonitor<int>& GetHostTagRichness();
+  emp::DataMonitor<double>& GetHostTagShannonDiversity();
+  emp::DataMonitor<int>& GetSymbiontTagRichness();
+  emp::DataMonitor<double>& GetSymbiontTagShannonDiversity();
+  emp::DataMonitor<double,emp::data::Histogram>& GetTagDistanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetSymIntValDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymIntValDataNode();
@@ -513,10 +769,11 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetFreeSymInfectChanceDataNode();
   emp::DataMonitor<double,emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostMeanDataNode();
+  emp::DataMonitor<double,emp::data::Histogram>& GetWithinHostVarianceDataNode();
 
-  /**
-   * Definitions of setup functions, expanded in WorldSetup.cc
-   */
+
+  //Definitions of setup functions, expanded in WorldSetup.cc
   virtual void Setup();
   virtual void SetupHosts(long unsigned int* POP_SIZE);
   virtual void SetupSymbionts(long unsigned int* total_syms);
@@ -528,12 +785,13 @@ public:
    * Output: The WorldPosition object describing the symbiont's new location (it describes an
    * invalid position if the symbiont is deleted during movement)
    *
-   * Purpose: To move a symbiont into a new world position.
+   * Purpose: To move a symbiont into a new world position in the sym pop.
    */
   emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
-    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex());
+    emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex()); //GetRandomNeighborPos returns a WorldPosition with the chosen location in the index spot, but we use the pop id to track the location of the symbiont in the world, so we need to switch those around. The 0 means that this position is not in a host.
+
     if(IsInboundsPos(new_pos)){
       sym->SetHost(nullptr);
       AddOrgAt(sym, new_pos, parent_pos);
@@ -582,13 +840,55 @@ public:
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
+        emp::Ptr<Organism> sym_parent;
+        if (parent_pos.GetIndex() == 0) { // free living parent
+          sym_parent = GetSymAt(i);
+        } else { // hosted parent
+          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
+          sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
+        }
+
+        // infections can fail from size limits or tag mismatch
+        // (or, theoretically, no neighbouring hosts)
+        bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
+        bool tag_failed = false;
+        if (my_config->TAG_MATCHING()){
+          double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * TAG_LENGTH;
+          double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? pop[new_host_pos]->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
+          double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
+          tag_failed = tag_distance > cutoff;
+        }
+        if (size_failed || tag_failed) {
+          if (tag_failed && !size_failed) {
+            GetHorizontalTransmissionTagFailCount().AddDatum(sym_parent->GetIntVal());
+          }
+          else if (!tag_failed && size_failed) {
+            GetHorizontalTransmissionSizeFailCount().AddDatum(sym_parent->GetIntVal());
+          }
+          sym_baby.Delete();
+          return emp::WorldPosition();
+        }
+
         int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+
         if(new_index > 0){ //sym successfully infected
+          if (my_config->PHYLOGENY()){
+            if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+              sym_baby->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
+            }
+            if(my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
+              pop[new_host_pos]->GetTaxon().Cast<taxon_t::host_taxon_t>()->GetData().AddInteraction(sym_baby->GetTaxon());
+            }
+          }
+          if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()) {
+            // if tag mismatch or free failure is on, don't subtract points until we think the infection is successful
+            sym_parent->SetPoints(0);
+          }
           return emp::WorldPosition(new_index, new_host_pos);
         } else { //sym got killed trying to infect
           return emp::WorldPosition();
         }
-      } else {
+      } else { // no living neighbors
         sym_baby.Delete();
         return emp::WorldPosition();
       }
@@ -619,7 +919,7 @@ public:
   }
 
   /*
-  * Input: The size_t location of the sym to be pointed to.
+  * Input: The size_t location of the sym to be pointed to in the sym_pop.
   *
   * Output: A pointer to the sym.
   *
@@ -635,9 +935,9 @@ public:
 
   /**
    * Input: The size_t representing the location of the symbiont to be
-   * extracted from the world.
+   * extracted from the world's sym population.
    *
-   * Output: The pointer to the organism that was extracted from the world.
+   * Output: The pointer to the organism that was extracted from the world. Pointer will be null if there was no sym at the location.
    *
    * Purpose: To extract a symbiont from the world without deleting it.
    */
@@ -653,7 +953,7 @@ public:
 
   /**
    * Input: The size_t representing the location of the symbiont to be
-   * deleted from the world.
+   * deleted from the world's symbiont population.
    *
    * Output: None
    *
@@ -714,9 +1014,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: Cure all hosts of symbionts
    */
   void CureHosts(){
@@ -727,8 +1027,10 @@ public:
       auto & host_syms = pop[i]->GetSymbionts();
       for(size_t j = 0; j < host_syms.size(); j++){
         host_syms[j]->SetDead();
+        SendToGraveyard(host_syms[j]);
       }
-    }    
+      pop[i]->ClearSyms(); //TODO: should clear syms just handle setting dead and to graveyard?
+    }
   }
 
   /**
@@ -752,7 +1054,6 @@ public:
       }
       Update();
     }
-
     on_analyze_population_sig.Trigger();
 
     int num_no_mut_updates = my_config->NO_MUT_UPDATES();
@@ -813,6 +1114,20 @@ public:
     return result;
   }
 
+  /**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: To loop over and delete elements in the graveyard.
+   */
+  void CleanupGraveyard() {
+    for (size_t i = 0; i < graveyard.size(); i++) {
+      graveyard[i].Delete();
+    }
+    graveyard.clear();
+  }
+
 
   /**
    * Input: None
@@ -829,7 +1144,15 @@ public:
       total_res += my_config->LIMITED_RES_INFLOW();
     }
 
-    if(my_config->PHYLOGENY()) sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+    if(my_config->PHYLOGENY()) {
+      sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
+
+      if (update % my_config->PHYLOGENY_SNAPSHOT_INTERVAL() == 0) {
+        // MapPhylogenyInteractions();
+        std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED"+std::to_string(my_config->SEED())+".data";
+        WritePhylogenyFile(my_config->FILE_PATH()+"Phylogeny_"+my_config->FILE_NAME()+file_ending);
+      }
+    }
     emp::vector<size_t> schedule = emp::GetPermutation(GetRandom(), GetSize());
     // divvy up and distribute resources to host and symbiont in each cell
     for (size_t i : schedule) {
@@ -846,12 +1169,15 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
-  
+
     // clean up the graveyard
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
+    CleanupGraveyard();
+
+    // clean up systematics
+    if (my_config->PHYLOGENY()) {
+      host_sys->ClearRemoveAfterReproQueue();
+      sym_sys->ClearRemoveAfterReproQueue();
     }
-    graveyard.clear();
   } // Update()
 };// SymWorld class
 #endif
