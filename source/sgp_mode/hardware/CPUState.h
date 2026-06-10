@@ -209,6 +209,17 @@ public:
     emp_assert(input_buf.size() == inputs.size());
   }
 
+  void SetOutputs(const emp::vector<uint32_t>& outputs) {
+    for (size_t i = 0; i < outputs.size(); i++) {
+      if (i < output_buffer.size()) {
+        output_buffer[i] = outputs[i];
+      }
+      else {
+        output_buffer.emplace_back(outputs[i]);
+      }
+    }
+  }
+
   // const emp::WorldPosition& GetLocation() const { return loc; }
 
   void SetOrganism(emp::Ptr<Organism> org_ptr) {

@@ -80,8 +80,24 @@ public:
 
   using fun_do_resource_inflow_t = std::function<void(void)>;
 
-  using fun_apply_nutrient_interaction_t = std::function<double(
+  using fun_calc_host_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
     sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t,     /* task id */
+    size_t     /* symbiont count */
+  )>;
+
+  using fun_calc_sym_nutrient_interaction_t = std::function<double(
+    sgp_host_t&,
+    sgp_sym_t&, /* symbiont */
+    double,     /* task value before nutrient interaction */
+    size_t,     /* task id */
+    size_t     /* symbiont count */
+  )>;
+
+  using func_apply_host_points_t = std::function<void(
+    sgp_host_t&,
     double,     /* task value before nutrient interaction */
     size_t     /* task id */
   )>;
@@ -359,7 +375,6 @@ public:
   );
 
 
-
 protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
   size_t max_world_size; // Maximum number of locations in the world
@@ -409,7 +424,9 @@ protected:
   health_sym_mode_t health_sym_type = health_sym_mode_t::MUTUALIST;
   nutrient_sym_mode_t nutrient_sym_type = nutrient_sym_mode_t::MUTUALIST;
 
-  fun_apply_nutrient_interaction_t fun_apply_nutrient_interaction;
+  fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
+  fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
+  func_apply_host_points_t fun_apply_host_points; 
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -520,6 +537,7 @@ protected:
   void SetupReproduction();
   void SetupSymReproduction();
   void SetupHostReproduction();
+  void SetupHostTaskRewards();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
@@ -616,18 +634,69 @@ public:
   /* Accessor for symbiont task profiles */
   const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
 
-  /**
-   * Input: A symbiont, the value of a task before applying nutrient interaction, and the task id.
-   * Output: The value of the task after applying nutrient interaction.
-   * Purpose: To apply the configured nutrient interaction for the given symbiont and task
+ /**
+   * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The change in the points the host will gain from the task after the nutrient interaction.
+   * Purpose: To calculate the configured nutrient interaction for the given symbiont and task
    */
-  double ApplyNutrientInteraction(
+  double CalcHostNutrientInteraction(
+    sgp_host_t& host,
     sgp_sym_t& sym,
     double task_value_before,
-    size_t task_id
+    size_t task_id,
+    size_t task_matching_sym_count
   ) {
-    return fun_apply_nutrient_interaction(sym, task_value_before, task_id);
+    return fun_calc_host_nutrient_interaction(host,sym, task_value_before, task_id,task_matching_sym_count);
   }
+
+   /**
+   * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
+   * Output: The amount of points that the symbiont will gain/lose after the nutrient interaction.
+   * Purpose: To calculate the configured nutrient interaction for the given symbiont and task
+   */
+  double CalcSymNutrientInteraction(
+    sgp_host_t& host,
+    sgp_sym_t& sym,
+    double task_value_before,
+    size_t task_id,
+    size_t task_matching_sym_count
+  ) {
+    return fun_calc_sym_nutrient_interaction(host,sym, task_value_before, task_id,task_matching_sym_count);
+  }
+
+  /**
+   * Input: A host, the value of a task before applying any interaction, and the task id.
+   * Output: None.
+   * Purpose: To give the points the amount of points it should receieve after all symbiont interactions have been applied
+   */
+  void ApplyHostPoints(
+     sgp_host_t& host,
+    double task_value_before,
+    size_t task_id
+  ){
+    fun_apply_host_points(host,task_value_before, task_id);
+  }
+
+  const emp::BitVector& GetSymTaskProfile(
+    sgp_sym_t& sym
+  ){
+    return fun_get_sym_task_profile(sym);
+  }
+
+  const emp::BitVector& GetHostTaskProfile(
+    sgp_host_t& host
+  ){
+    return fun_get_host_task_profile(host);
+  }
+
+  bool TaskProfileCompatibilityCheck(
+    const emp::BitVector& host_task_profile,
+    const emp::BitVector& sym_task_profile
+  ){
+    return fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+  }
+
+
 
   bool CheckVertTransCompatibility(
     sgp_sym_t& sym,
@@ -665,13 +734,24 @@ public:
       sym, host_offspring.DynamicCast<sgp_host_t>(), host_parent.DynamicCast<sgp_host_t>(), success);
   }
 
+  /* Called before the host of the endosym is processed, different from before endosym processed!*/
+  void TriggerBeforeEndoSymHostProcessSig(
+    const emp::WorldPosition& sym_pos, /* sym_pos */
+    sgp_sym_t& sym,                /* sym */
+    sgp_host_t& host               /* host */
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    before_endosym_host_process_sig.Trigger(sym_pos, sym, host);
+  }
+
+  /* Called before a specific endosym is processed.*/
   void TriggerBeforeEndoSymProcessSig(
     const emp::WorldPosition& sym_pos,
     sgp_sym_t& sym,
     emp::Ptr<Organism> host
   ) {
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
-    before_endosym_host_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+    before_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
   void TriggerAfterEndosymCPUStepSig(

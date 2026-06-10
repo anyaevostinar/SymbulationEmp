@@ -214,6 +214,7 @@ public:
     }
 
     GetHardware().GetCPUState().SetLocation(pos);
+    if(my_host) my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host); //Note: this is different than before_endosym_host_process_sig
     // Cash in cycles for this update
     // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
     const size_t cycles_to_exec = GetHardware().GetCPUState().ExtractCPUCycles();
