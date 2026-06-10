@@ -284,7 +284,7 @@ public:
       cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
         my_world->GetConfig().CYCLES_PER_UPDATE()
       );
-      my_world->before_endosym_host_process_sig.Trigger(
+      my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
         *cur_symbiont,
         *this

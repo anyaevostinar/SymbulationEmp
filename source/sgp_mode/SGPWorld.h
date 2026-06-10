@@ -736,13 +736,24 @@ public:
       sym, host_offspring.DynamicCast<sgp_host_t>(), host_parent.DynamicCast<sgp_host_t>(), success);
   }
 
+  /* Called before the host of the endosym is processed, different from before endosym processed!*/
+  void TriggerBeforeEndoSymHostProcessSig(
+    const emp::WorldPosition& sym_pos, /* sym_pos */
+    sgp_sym_t& sym,                /* sym */
+    sgp_host_t& host               /* host */
+  ) {
+    emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
+    before_endosym_host_process_sig.Trigger(sym_pos, sym, host);
+  }
+
+  /* Called before a specific endosym is processed.*/
   void TriggerBeforeEndoSymProcessSig(
     const emp::WorldPosition& sym_pos,
     sgp_sym_t& sym,
     emp::Ptr<Organism> host
   ) {
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
-    before_endosym_host_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
+    before_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
   void TriggerAfterEndosymCPUStepSig(
