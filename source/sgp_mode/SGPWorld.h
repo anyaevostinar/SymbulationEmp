@@ -738,10 +738,10 @@ public:
   void TriggerBeforeEndoSymHostProcessSig(
     const emp::WorldPosition& sym_pos, /* sym_pos */
     sgp_sym_t& sym,                /* sym */
-    sgp_host_t& host               /* host */
+    emp::Ptr<Organism> host        /* host */
   ) {
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
-    before_endosym_host_process_sig.Trigger(sym_pos, sym, host);
+    before_endosym_host_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
   /* Called before a specific endosym is processed.*/

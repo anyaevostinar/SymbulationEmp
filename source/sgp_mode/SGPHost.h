@@ -287,7 +287,7 @@ public:
       my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
         *cur_symbiont,
-        *this
+        this
       );
     }
     my_world->before_host_cpu_exec_sig.Trigger(*this);
