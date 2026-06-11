@@ -130,6 +130,7 @@ protected:
   double value;
 
   void ApplyAction(tasks::LogicTaskEnvironment::TaskReqInfo& task_req) {
+    std::cout << "Before: " << task_req.task_value;
     switch (action) {
       case action_t::ADD:
         task_req.task_value += value;
@@ -141,6 +142,7 @@ protected:
         task_req.task_value = value;
         break;
     }
+    std::cout << "  After: " << task_req.task_value << std::endl;
   }
 
 public:

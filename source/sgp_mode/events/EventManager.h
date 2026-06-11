@@ -46,11 +46,11 @@ protected:
   emp::vector<emp::Ptr<event_t>> one_time_events; // vector of one time events (Event Object type)
   emp::vector<emp::Ptr<event_t>> recurring_events; // vector of reoccuring events (Event Object type)
 
-  emp::Ptr<Event> LoadEventFromJSON(nlohmann::json& event_json, world_t& world) {
+  emp::Ptr<Event> LoadEventFromJSON(json_t& event_json, world_t& world) {
     // Check that event_json has event type
     emp_assert(event_json.contains("event_type"));
     const std::string event_type(event_json["event_type"]);
-    emp::Ptr<Event> loaded_event;
+    // emp::Ptr<Event> loaded_event;
     // Check if event type is valid (i.e., exists in the event type library)
     emp_assert(event_type_library.IsValidEventType(event_type));
     const size_t event_type_id = event_type_library.GetEventTypeID(event_type);
@@ -59,18 +59,20 @@ protected:
     emp_assert(
       sym_json::ValidateFieldsJSON(event_json, event_type_def.GetRequiredFields())
     );
-    // Delegate event loading based on event type
-    if (event_type == "task_value") {
-      loaded_event = TaskValueEvent::LoadEventFromJSON(event_json, world);
-    } else {
-      std::cout << "Unknown event type (" << event_type << ") Exiting." << std::endl;
-      exit(-1);
-    }
+    return event_type_def.LoadEventFromJSON(event_json, world);
 
-    // Configure loaded event's event_id
-    emp_assert(event_type == loaded_event->GetEventType());
-    loaded_event->SetEventTypeID(event_type_id);
-    return loaded_event;
+    // // Delegate event loading based on event type
+    // if (event_type == "task_value") {
+    //   loaded_event = TaskValueEvent::LoadEventFromJSON(event_json, world);
+    // } else {
+    //   std::cout << "Unknown event type (" << event_type << ") Exiting." << std::endl;
+    //   exit(-1);
+    // }
+
+    // // Configure loaded event's event_id
+    // emp_assert(event_type == loaded_event->GetEventType());
+    // loaded_event->SetEventTypeID(event_type_id);
+    // return loaded_event;
   }
 
   void ProcessOneTimeEvents(world_t& world) {
@@ -83,7 +85,8 @@ protected:
     // If no events to process, skip.
     emp_assert(num_events > 0);
     size_t events_processed = 0;
-    for (size_t event_i = num_events - 1; event_i >= 0; --event_i) {
+    // && event_i < num_events <-- checks for roll over
+    for (size_t event_i = num_events - 1; event_i >= 0 && event_i < num_events; --event_i) {
       emp::Ptr<Event> event = one_time_events[event_i];
       const size_t event_update = event->GetNextUpdate();
       // Event's next update should never be less than current update. If so,
@@ -115,7 +118,7 @@ protected:
     emp_assert(num_events > 0);
     size_t events_deleted = 0;
     size_t events_recurred = 0;
-    for (size_t event_i = num_events - 1; event_i >= 0; --event_i) {
+    for (size_t event_i = num_events - 1; event_i >= 0 && event_i < num_events; --event_i) {
       emp::Ptr<Event> event = recurring_events[event_i];
       emp_assert(event->IsRecurring());
       const size_t event_update = event->GetNextUpdate();
@@ -127,12 +130,13 @@ protected:
       if (event_update > current_update) {
         break;
       }
+      std::cout << "Processing a recurring event " << event_i << std::endl;
       // Otherwise, process this event.
       event_type_library.ProcessEvent(world, event);
       const size_t next_update = event->AdvanceNextUpdate();
       const size_t end_update = event->GetEndUpdate();
       const bool is_done = event->IsDone();
-      if (next_update >= end_update || is_done) {
+      if (next_update > end_update || is_done) {
         event.Delete();
         recurring_events[event_i] = nullptr;
         ++events_deleted;

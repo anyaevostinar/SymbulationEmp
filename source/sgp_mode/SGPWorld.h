@@ -14,6 +14,7 @@
 #include "hardware/SGPHardwareSpec.h"
 #include "hardware/GenomeLibrary.h"
 #include "hardware/SGPHardware.h"
+#include "events/EventManager.h"
 
 #include "emp/Evolve/World_structure.hpp"
 #include "emp/data/DataNode.hpp"
@@ -49,6 +50,7 @@ public:
   using task_io_t = typename task_io_bank_t::TaskIO;
   using mutator_t = SGPMutator<sgp_prog_t, Library>;
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
+  using event_manager_t = EventManager<SGPWorld>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
     emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
@@ -397,6 +399,7 @@ protected:
   ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction
   ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
   tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
+  event_manager_t event_manager;
   mutator_t mutator;  // Handles mutating sgp programs
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
@@ -531,6 +534,7 @@ protected:
   void SetupHostReproduction();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
+  void SetupEvents();
   void SetupMutator();
   void SetupStressInteractions();
   void SetupHealthInteractions();
@@ -646,6 +650,10 @@ public:
    */
   void Update() override {
     emp_assert(setup);
+    // NOTE - When do we want events to occur? Typically, I think we want them
+    //      as the *very* first thing that happens on an update. E.g., changing
+    //      a task value, etc.
+    event_manager.ProcessEvents(*this);
     begin_update_sig.Trigger();
     // Handle resource inflow
     // TODO - implement inflow configuration

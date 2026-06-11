@@ -14,7 +14,10 @@ class EventTypeLibrary {
 public:
   using world_t = WORLD_T;
   using event_type_def_t = EventTypeDefinition<world_t>;
+  using json_t = nlohmann::json;  // json file type
   using fun_event_handler_t = typename event_type_def_t::fun_event_handler_t;
+  using fun_json_loader_t = typename event_type_def_t::fun_json_loader_t;
+
 protected:
   emp::vector<event_type_def_t> event_definitions;
   std::unordered_map<std::string, size_t> event_name_to_id; // event type/name mapped to index of event in event_types. Index is used as event_id
@@ -64,6 +67,7 @@ public:
   void AddEventType(
     const std::string& event_name,
     const fun_event_handler_t& event_handler,
+    const fun_json_loader_t& event_loader,
     const std::string& event_description = "",
     const emp::vector<std::string>& event_required_cfg_fields = {}
   ) {
@@ -74,6 +78,7 @@ public:
       event_id,
       event_name,
       event_handler,
+      event_loader,
       event_description,
       event_required_cfg_fields
     );
@@ -91,6 +96,10 @@ public:
       [](world_t& world, emp::Ptr<Event> event_ptr) {
         emp::Ptr<EVENT_T> event = static_cast<EVENT_T*>(event_ptr.Raw());
         event->Process(world);
+      },
+      [](json_t& event_json, world_t& world) -> emp::Ptr<Event> {
+        // emp::Ptr<EVENT_T> event = static_cast<EVENT_T*>(event_ptr.Raw());
+        return EVENT_T::LoadEventFromJSON(event_json, world);
       },
       event_description,
       event_required_cfg_fields
