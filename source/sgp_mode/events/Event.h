@@ -43,12 +43,14 @@ protected:
   size_t event_type_id = 0;
   std::string event_type{"NULL"};
   EventTiming timing;
-  bool is_done = false;
+  bool is_done = false; // Can be used by an event to end a recurring event before its end update
 
 public:
 
   size_t GetEventTypeID() const { return event_type_id; }
   void SetEventTypeID(size_t id) { event_type_id = id; }
+
+  bool IsDone() const { return is_done; }
 
   const std::string& GetEventType() const { return event_type; }
 
@@ -57,6 +59,11 @@ public:
   size_t GetStartUpdate() const { return timing.GetStartUpdate(); }
   size_t GetEndUpdate() const { return timing.GetEndUpdate(); }
   size_t GetNextUpdate() const { return timing.GetNextUpdate(); }
+  // Advance next update, return new next update.
+  size_t AdvanceNextUpdate() {
+    timing.Step();
+    return timing.GetNextUpdate();
+  }
 
 };
 

@@ -74,13 +74,16 @@ protected:
   }
 
   void ProcessOneTimeEvents(world_t& world) {
+    if (one_time_events.empty()) { return; }
     // One-time events are reverse sorted according to next update.
     //  Sorting should have happened on load (as well as anytime an event was added).
     const size_t current_update = world.GetUpdate();
     // Process one-time events
-    const size_t num_one_time_events = one_time_events.size();
+    const size_t num_events = one_time_events.size();
+    // If no events to process, skip.
+    emp_assert(num_events > 0);
     size_t events_processed = 0;
-    for (size_t event_i = num_one_time_events - 1; (num_one_time_events > 0) && (event_i >= 0); --event_i) {
+    for (size_t event_i = num_events - 1; event_i >= 0; --event_i) {
       emp::Ptr<Event> event = one_time_events[event_i];
       const size_t event_update = event->GetNextUpdate();
       // Event's next update should never be less than current update. If so,
@@ -99,11 +102,69 @@ protected:
       ++events_processed;
     }
     // Chop off processed events
-    one_time_events.resize(num_one_time_events - events_processed);
+    emp_assert(events_processed <= num_events);
+    one_time_events.resize(num_events - events_processed);
   }
 
   void ProcessRecurringEvents(world_t& world) {
-    // TODO
+    if (recurring_events.empty()) { return; }
+    // Recurring events are reverse sorted by the next update they should trigger
+    // on.
+    const size_t current_update = world.GetUpdate();
+    const size_t num_events = recurring_events.size();
+    emp_assert(num_events > 0);
+    size_t events_deleted = 0;
+    size_t events_recurred = 0;
+    for (size_t event_i = num_events - 1; event_i >= 0; --event_i) {
+      emp::Ptr<Event> event = recurring_events[event_i];
+      emp_assert(event->IsRecurring());
+      const size_t event_update = event->GetNextUpdate();
+      // Event's next update should never be less than current update. If so,
+      //  we failed to process it on a previous update. :(
+      emp_assert(event_update >= current_update);
+      // If event's next update is bigger than current update, no more events
+      //  to trigger this update.
+      if (event_update > current_update) {
+        break;
+      }
+      // Otherwise, process this event.
+      event_type_library.ProcessEvent(world, event);
+      const size_t next_update = event->AdvanceNextUpdate();
+      const size_t end_update = event->GetEndUpdate();
+      const bool is_done = event->IsDone();
+      if (next_update >= end_update || is_done) {
+        event.Delete();
+        recurring_events[event_i] = nullptr;
+        ++events_deleted;
+        // Move deleted events to end of vector.
+        // - If we haven't recurred any events, either this is the first event
+        //   or all events procssed this update have been deleted.
+        // - If we have recurred any events, we know that all prior deleted events
+        //   have been swapped to the end of the vector. So, all recurred events
+        //   are in a chunk between this (deleted) event and the rest of the deleted
+        //   events (if any). We want to swap this nullptr with the last recurred
+        //   event in that chunk.
+        if (events_recurred > 0) {
+          // There was an event recurred before this, potentially breaking up
+          //  the sequence of deleted events.
+          // Swap current event with last event in recurred events chunk
+          emp_assert(recurring_events[event_i + events_recurred] != nullptr);
+          std::swap(
+            recurring_events[event_i],
+            recurring_events[event_i + events_recurred]
+          );
+        }
+      } else {
+        // If this event wasn't deleted, it will occur again later.
+        ++events_recurred;
+      }
+
+    }
+    // Resize away the deleted events (that have all been swapped to the end)
+    recurring_events.resize(num_events - events_deleted);
+    // Resort! Perfect application for powersort because most events should
+    //           already be sorted... (versus likely std library's introsort)
+    ReorderRecurringEvents();
   }
 
   // Re-sort the one-time events.
@@ -205,71 +266,13 @@ public:
     //    every update. In option 2, we only pay the resorting cost when a recurring
     //    event triggers (most recurring events will not happen every update).
 
-    // Process all one-time events that need to be triggered this update, then
-    // process all recurring events that need to be triggered this update.
+    // Process all one-time events that need to be triggered this update.
     ProcessOneTimeEvents(world);
+    // Next, process all recurring events that need to be triggered this update.
     ProcessRecurringEvents(world);
   }
 
   // TODO - manual 'AddEvent'
-  // NOTE - must resort!
-
-  // // delete an event from event info vector (single or reoccur)
-  // void DeleteOneEvent(const bool reoccur, const int & index){
-  //     (reoccur) ? reoccur_event_info.erase(reoccur_event_info.begin()+index) :
-  //     single_event_info.erase(single_event_info.begin()+index);
-  // }
-
-  // // Delete all finished events from an event_info vector
-  // void DeleteEvents(const emp::vector<event_object_t> & event_vect){
-  //   // erase remove idiom https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
-  //   event_vect.erase(std::remove_if(event_vect.begin(), event_vect.end(),
-  //   [](const event_object_t & eve){ return eve.GetIsDone(); }),
-  //   event_vect.end());
-  // }
-
-  // // call event_func_t from current_events if possible based on update_indices
-  // void ProcessEvent(const world_t& world){
-  //   // // set update variable to world.GetUpdate() or whaterver gets the world's update
-  //   int update = world.GetUpdate();
-
-  //   // loop through single time events
-  //   for(auto& it = single_event_info.begin(); it != single_event_info.end(); it++){
-  //     if(*it.GetStartUpdate() > update){
-  //       break;
-  //     }
-  //     if(*it.GetStartUpdate() == update){
-  //       // call event function look at how logic task does it
-  //       event_types[*it.GetEventId()].event_function;
-  //       // set to is_done true
-  //       *it.SetIsDone();
-  //     }
-  //   }
-
-  //   // loop through reoccur time events
-  //   for(auto& it = reoccur_event_info.begin(); it != reoccur_event_info.end(); it++){
-  //     if(*it.GetStartUpdate() > update){
-  //       break;
-  //     }
-  //     if(*it.GetStartUpdate() == update){
-  //       // call event function look at how logictask does it
-  //       event_types[*it.GetEventId()].event_function;
-  //       // reset start update
-  //       int new_start = *it.GetStartUpdate() + *it.GetUpdateStep();
-  //       *it.SetStartUpdate(new_start);
-  //       // check if event is done
-  //       if (update >= *it.GetEndUpdate() || *it.GetStartUpdate() > *it.GetEndUpdate()){
-  //         *it.SetIsDone();
-  //       }
-  //     }
-  //   }
-
-  //   // clean up
-  //   DeleteEvents(single_event_info);
-  //   DeleteEvents(reoccur_event_info);
-  //   // don't need to resort single_event_info at the moment
-  //   SortEvents(reoccur_event_info, 0, reoccur_event.size() - 1);
-  // }
 
 };
 
