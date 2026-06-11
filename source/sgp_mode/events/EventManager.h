@@ -73,6 +73,68 @@ protected:
     return loaded_event;
   }
 
+  void ProcessOneTimeEvents(world_t& world) {
+    // One-time events are reverse sorted according to next update.
+    //  Sorting should have happened on load (as well as anytime an event was added).
+    const size_t current_update = world.GetUpdate();
+    // Process one-time events
+    const size_t num_one_time_events = one_time_events.size();
+    size_t events_processed = 0;
+    for (size_t event_i = num_one_time_events - 1; (num_one_time_events > 0) && (event_i >= 0); --event_i) {
+      emp::Ptr<Event> event = one_time_events[event_i];
+      const size_t event_update = event->GetNextUpdate();
+      // Event's next update should never be less than current update. If so,
+      //  we failed to process it on a previous update. :(
+      emp_assert(event_update >= current_update);
+      // If event's next update is bigger than current update, no more events
+      //  to trigger this update.
+      if (event_update > current_update) {
+        break;
+      }
+      emp_assert(event_update == current_update);
+      // Process this event
+      event_type_library.ProcessEvent(world, event);
+      // One-time event processed. Delete, update # events processed.
+      event.Delete();
+      ++events_processed;
+    }
+    // Chop off processed events
+    one_time_events.resize(num_one_time_events - events_processed);
+  }
+
+  void ProcessRecurringEvents(world_t& world) {
+    // TODO
+  }
+
+  // Re-sort the one-time events.
+  // One-time events should be reverse-sorted by their next update (i.e., soonest
+  // next update at end). One-time events must be sorted for processing to be correct.
+  // i.e., when adding a new event, must resort!
+  void ReorderOneTimeEvents() {
+    std::sort(
+      one_time_events.begin(),
+      one_time_events.end(),
+      [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
+  }
+
+  // Reorder recurring events. Should be reverse sorted by each event's next update
+  // (i.e., soonest next update at end of vector). Recurring events must be sorted
+  // for processing to be correct.
+  // I.e., when adding a new event, must sort! And, when re-queueing a recurring
+  //  event, we must make sure it ends up in the appropriate spot by next update.
+  void ReorderRecurringEvents() {
+    std::sort(
+      recurring_events.begin(),
+      recurring_events.end(),
+      [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
+  }
+
 // @AML review: missing public designation here
 public:
 
@@ -119,34 +181,38 @@ public:
       } else {
         one_time_events.emplace_back(new_event_ptr);
       }
-
-      // Sort events according to their next update
-      // TODO - Move into reorder function?
-      std::sort(
-        recurring_events.begin(),
-        recurring_events.end(),
-        [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
-          return a->GetNextUpdate() > b->GetNextUpdate();
-        }
-      );
-      std::sort(
-        one_time_events.begin(),
-        one_time_events.end(),
-        [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
-          return a->GetNextUpdate() > b->GetNextUpdate();
-        }
-      );
     }
+    // Sort events according to their next update
+    ReorderOneTimeEvents();
+    ReorderRecurringEvents();
   }
 
   void ProcessEvents(world_t& world) {
-    // Process one-time events
-    // TODO
-    // Process recurring events
-    // TODO
+    // Get current update in the world. Process all events that should occur on this update.
+    // Options:
+    //  1. Maintain unordered list of events. Loop over entire list each update,
+    //      triggering any events where event->NextUpdate() == current update.
+    //    - Pro: no need to maintain sorted order, simple insertion/deletion
+    //    - Con: need to loop over all events no matter what. Could be costly if
+    //        there are many events that occur throughout the run.
+    //  2. Keep events sorted by their next update to trigger on. Trigger any events
+    //      where event->NextUpdate() == current update.
+    //    - Pro: Very efficient to check if any events need to be triggered. Will
+    //        end up looping over just events that need to be triggered each update.
+    //    - Con: Recurring events need to be resorted if they need to be triggered
+    //        again in the future.
+    // AML thoughts: Leaning toward option 2. In option 1, we pay the expensive part
+    //    every update. In option 2, we only pay the resorting cost when a recurring
+    //    event triggers (most recurring events will not happen every update).
+
+    // Process all one-time events that need to be triggered this update, then
+    // process all recurring events that need to be triggered this update.
+    ProcessOneTimeEvents(world);
+    ProcessRecurringEvents(world);
   }
 
   // TODO - manual 'AddEvent'
+  // NOTE - must resort!
 
   // // delete an event from event info vector (single or reoccur)
   // void DeleteOneEvent(const bool reoccur, const int & index){
