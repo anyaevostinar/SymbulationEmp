@@ -3,7 +3,7 @@
 // @AML review: switch indentation to 2 spaces for consistency
 
 // @AML review: Moved local includes to top for consistency
-#include "Event.h"
+#include "event_types/Event.h"
 #include "EventTypeDefinition.h"
 #include "EventTypeLibrary.h"
 
@@ -265,7 +265,6 @@ public:
     // AML thoughts: Leaning toward option 2. In option 1, we pay the expensive part
     //    every update. In option 2, we only pay the resorting cost when a recurring
     //    event triggers (most recurring events will not happen every update).
-
     // Process all one-time events that need to be triggered this update.
     ProcessOneTimeEvents(world);
     // Next, process all recurring events that need to be triggered this update.

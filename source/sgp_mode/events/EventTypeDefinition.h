@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Event.h"
+#include "event_types/Event.h"
 
 #include "emp/base/Ptr.hpp"
 

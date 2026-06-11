@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Event.h"
+#include "event_types/Event.h"
+#include "event_types/TaskValueEvent.h"
 #include "EventTypeDefinition.h"
 
 #include "emp/base/vector.hpp"
@@ -55,7 +56,9 @@ public:
   // Add default event types
   // NOTE: Called by constructor by default.
   //        Should not be called a second time without clearing first.
-  void AddDefaultEventTypes();
+  void AddDefaultEventTypes() {
+    AddEventType<TaskValueEvent>();
+  }
 
   // Add a new event type to the event library
   void AddEventType(
@@ -94,30 +97,16 @@ public:
     );
   }
 
+  // Add event type assuming EVENT_T has static event spects + a process function
+  template<typename EVENT_T>
+  void AddEventType() {
+    AddEventType<EVENT_T>(
+      EVENT_T::event_specs.event_type,
+      EVENT_T::event_specs.event_description,
+      EVENT_T::event_specs.event_required_fields
+    );
+  }
+
 };
-
-// TODO - create handler factories?
-template<typename WORLD_T>
-void EventTypeLibrary<WORLD_T>::AddDefaultEventTypes() {
-  // Add task value replace
-  // TODO - Might be able to compress this into a templated function
-  // AddEventType(
-  //   "task_value",
-  //   [](world_t& world, emp::Ptr<Event> event_ptr) {
-  //     // Cast event to correct type
-  //     emp::Ptr<TaskValueEvent> task_event_ptr = static_cast<TaskValueEvent*>(event_ptr.Raw());
-  //     task_event_ptr->Process(world);
-  //     // TODO: define function
-  //   },
-  //   "replace a specific preexisting task value with another value"
-  // );
-
-  AddEventType<TaskValueEvent>(
-    "task_value",
-    "replace a specific preexisting task value with another value",
-    {"action", "task_name", "value", "timing"}
-  );
-
-}
 
 }

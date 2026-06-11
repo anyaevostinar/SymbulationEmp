@@ -47,7 +47,7 @@ public:
   }
 
   void Reset(size_t start_u, size_t end_u, size_t freq_u) {
-    // emp_assert(start_u <= end_u);
+    emp_assert(start_u <= end_u);
     start_update = start_u;
     end_update = end_u;
     frequency = freq_u;
