@@ -8,6 +8,7 @@
 #include "EventTypeLibrary.h"
 
 #include "../../json/json.hpp"
+#include "../../json/json_utils.h"
 
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
@@ -36,8 +37,8 @@ public:
   using json_t = nlohmann::json;  // json file type
   using event_t = Event;          // event class alias
   using world_t = WORLD_T;        // world type alias
-  using event_type_def_t = EvenTypeDefinition<world_t>;
-  using event_handler_func_t = typename event_type_def_t::event_handler_func_t;
+  using event_type_def_t = EventTypeDefinition<world_t>;
+  using fun_event_handler_t = typename event_type_def_t::fun_event_handler_t;
 
 protected:
 
@@ -45,26 +46,30 @@ protected:
   emp::vector<emp::Ptr<event_t>> one_time_events; // vector of one time events (Event Object type)
   emp::vector<emp::Ptr<event_t>> recurring_events; // vector of reoccuring events (Event Object type)
 
-  emp::Ptr<Event> LoadEventFromJSON(nlohmann::json& event_json) {
+  emp::Ptr<Event> LoadEventFromJSON(nlohmann::json& event_json, world_t& world) {
     // Check that event_json has event type
     emp_assert(event_json.contains("event_type"));
     const std::string event_type(event_json["event_type"]);
     emp::Ptr<Event> loaded_event;
     // Check if event type is valid (i.e., exists in the event type library)
     emp_assert(event_type_library.IsValidEventType(event_type));
+    const size_t event_type_id = event_type_library.GetEventTypeID(event_type);
+    auto& event_type_def = event_type_library.GetEventTypeDefinition(event_type_id);
+    // Event json must have required fields (as determined by event type definition)
+    emp_assert(
+      sym_json::ValidateFieldsJSON(event_json, event_type_def.GetRequiredFields())
+    );
     // Delegate event loading based on event type
     if (event_type == "task_value") {
-      loaded_event = TaskValueEvent::LoadEventFromJSON(event_json);
+      loaded_event = TaskValueEvent::LoadEventFromJSON(event_json, world);
     } else {
       std::cout << "Unknown event type (" << event_type << ") Exiting." << std::endl;
       exit(-1);
     }
 
     // Configure loaded event's event_id
-    emp_assert(event_type == loaded_event->event_type);
-    const size_t event_id = event_type_library.GetEventTypeID(event_type);
-    loaded_event->SetEventID(event_id);
-
+    emp_assert(event_type == loaded_event->GetEventType());
+    loaded_event->SetEventTypeID(event_type_id);
     return loaded_event;
   }
 
@@ -90,7 +95,7 @@ public:
   }
 
   // load in and process events.json file (includes creating events and checking if they are valid)
-  void LoadEventsFromJSON(const std::string& event_filepath) {
+  void LoadEventsFromJSON(const std::string& event_filepath, world_t& world) {
     std::cout << "Loading events from event file." << std::endl;
     ClearEvents();
     // === Parse events file ===
@@ -107,7 +112,7 @@ public:
     emp_assert(events_json.contains("events"));
     // For each event line in events
     for (auto& event_json : events_json["events"]) {
-      emp::Ptr<Event> new_event_ptr = LoadEventFromJSON(event_json);
+      emp::Ptr<Event> new_event_ptr = LoadEventFromJSON(event_json, world);
       // Categorize event as recurring or one-time
       if (new_event_ptr->IsRecurring()) {
         recurring_events.emplace_back(new_event_ptr);
@@ -121,14 +126,14 @@ public:
         recurring_events.begin(),
         recurring_events.end(),
         [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
-          return a->GetNextUpdate() > b->GetNextUpdate()
+          return a->GetNextUpdate() > b->GetNextUpdate();
         }
       );
       std::sort(
         one_time_events.begin(),
         one_time_events.end(),
         [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
-          return a->GetNextUpdate() > b->GetNextUpdate()
+          return a->GetNextUpdate() > b->GetNextUpdate();
         }
       );
     }

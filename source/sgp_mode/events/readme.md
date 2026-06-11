@@ -4,7 +4,7 @@
 
 Two layers of organization:
 
-1. Event types - Classes or types of events (e.g., change task value, add new task, etc). An event type is specified by an instance of the EventTypeDefinition class.
+1. Event types - Classes or types of events (e.g., change task value, add new task, volcano, tsunami, acid rain, etc). An event type is specified by an instance of the EventTypeDefinition class.
 2. Events - Individual instances of a particular type of event. Each of these events corresponds to an event included in the events file that needs to be triggered during the run.
 
 ### EventTypeLibrary

@@ -1,11 +1,15 @@
 #pragma once
 
+#include "EventTiming.h"
+
 #include "../../json/json.hpp"
+#include "../../json/json_utils.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
 #include "emp/datastructs/set_utils.hpp"
+#include "emp/datastructs/map_utils.hpp"
 #include "emp/math/math.hpp"
 #include "emp/tools/string_utils.hpp"
 
@@ -33,81 +37,20 @@ Event types:
 
 namespace sgpmode {
 
-// note: add event timing helper class to manage event timing?
-
-// helper class to manage event timing
-// TODO - write test for event timer helper
-class EventTiming {
-protected:
-  size_t start_update;
-  size_t end_update;
-  size_t frequency;
-  size_t next_update;
-  bool recurring;
-public:
-  EventTiming() = default;
-
-  // Constructor for recurring events
-  EventTiming(size_t start_u, size_t end_u, size_t freq_u) :
-    start_update(start_u),
-    end_update(end_u),
-    frequency(freq_u),
-    recurring(true)
-  {
-    next_update = start_update;
-  }
-
-  // Constructor for one-time events
-  EventTiming(size_t start_u) :
-    start_update(start_u),
-    end_update((size_t)-1),
-    frequency((size_t)-1),
-    recurring(false)
-  {
-    next_update = start_update;
-  }
-
-  void Reset(size_t start_u) {
-    start_update = start_u;
-    end_update = (size_t)-1;
-    frequency = (size_t)-1;
-    recurring = false;
-    next_update = start_update;
-  }
-
-  void Reset(size_t start_u, size_t end_u, size_t freq_u) {
-    emp_assert(start_u <= end_u);
-    start_update = start_u;
-    end_update = end_u;
-    frequency = freq_u;
-    recurring = true;
-    next_update = start_update;
-  }
-
-  size_t GetStartUpdate() const { return start_update; }
-  size_t GetEndUpdate() const { return end_update; }
-  size_t GetFrequency() const { return frequency; }
-  bool IsRecurring() const { return recurring; }
-  size_t GetNextUpdate() const { return next_update; }
-
-  void Step() {
-    next_update += (recurring) ? frequency : 0;
-  }
-
-};
-
 // Basic event type
 class Event {
 protected:
-  size_t event_id = 0;
+  size_t event_type_id = 0;
   std::string event_type{"NULL"};
   EventTiming timing;
   bool is_done = false;
 
 public:
 
-  size_t GetEventID() const { return event_id; }
-  void SetEventID(size_t id) { event_id = id; }
+  size_t GetEventTypeID() const { return event_type_id; }
+  void SetEventTypeID(size_t id) { event_type_id = id; }
+
+  const std::string& GetEventType() const { return event_type; }
 
   const EventTiming& GetEventTiming() const { return timing; }
   bool IsRecurring() const { return timing.IsRecurring(); }
@@ -121,16 +64,8 @@ class TaskValueEvent : public Event {
 public:
   enum class ACTION_TYPE { CHANGE, ADD, MULT };
   enum class TASK_GROUP { SHARED, HOST, SYM };
-  static const std::unordered_map<std::string, ACTION_TYPE> valid_action_types{
-    {"change", ACTION_TYPE::CHANGE},
-    {"add", ACTION_TYPE::ADD},
-    {"mult", ACTION_TYPE::MULT}
-  };
-  static const std::unordered_map<std::string, TASK_GROUP> valid_task_groups{
-    {"shared", TASK_GROUP::SHARED},
-    {"host", TASK_GROUP::HOST},
-    {"symbiont", TASK_GROUP::SYM}
-  };
+  static const std::unordered_map<std::string, ACTION_TYPE> valid_action_types;
+  static const std::unordered_map<std::string, TASK_GROUP> valid_task_groups;
 
   using json_t = nlohmann::json;
   using action_t = ACTION_TYPE;
@@ -144,19 +79,23 @@ public:
   static emp::Ptr<TaskValueEvent> LoadEventFromJSON(json_t& event_json, WORLD_T& world) {
     // This should be a task_value event
     emp_assert(event_json["event_type"] == "task_value");
-    // Task value events must have the following fields:
-    emp_assert(
-      sym_json::ValidateFieldsJSON(event_json, {"action", "task_name", "value", "timing"})
-    );
     // NOTE: Caller is responsible for event deletion.
     emp::Ptr<TaskValueEvent> event = emp::NewPtr<TaskValueEvent>();
 
     // Get event parameters out of json
 
-    // Extract task name(s)
+    // --- Extract task name(s) ---
     //   If multiple tasks are given as an array, accept as vector.
     //   otherwise, wrap single given task into vector.
-    const emp::vector<std::string> task_names = (event_json["task_name"].is_array()) ? event_json["task_name"] : {event_json["task_name"]};
+    emp::vector<std::string> task_names;
+    if (event_json["task_name"].is_array()) {
+      task_names = event_json["task_name"];
+    } else {
+      const std::string task_name = event_json["task_name"];
+      task_names = {task_name};
+    }
+    std::cout << task_names << std::endl;
+
     // Convert task names to task_ids as known by the task set.
     const auto& world_task_set = world.GetTaskEnv().GetTaskSet();
     emp::vector<size_t> task_ids(task_names.size());
@@ -166,15 +105,16 @@ public:
       task_ids[task_i] = world_task_set.GetID(task_name);
     }
 
-    // Set the action
+    // --- Set the action ---
     const std::string action_str(event_json["action"]);
     emp_assert(emp::Has(valid_action_types, action_str));
-    const action_t action = valid_action_types[action_str];
+    const action_t action = valid_action_types.at(action_str);
 
-    // Set the task value
-    const double task_value = event_json.get<double>("value");
+    // --- Set the task value ---
+    const double task_value = sym_json::GetVal<double>(event_json, "value");
+    // event_json.get<double>("value");
 
-    // Set the timing
+    // --- Set the timing ---
     // TODO - move into a function to be shared by other event types
     const std::string timing_str(event_json["timing"]);
     // EventTiming timing;
@@ -192,10 +132,11 @@ public:
       event->timing.Reset(start_u, stop_u, freq);
     }
 
+    // --- Task group ---
     // Is there a group specification? If not, assume shared.
     const std::string group_str = (event_json.contains("group")) ? event_json["group"] : "shared";
     emp_assert(emp::Has(valid_task_groups, group_str));
-    const task_group_t task_group = valid_task_groups[group_str];
+    const task_group_t task_group = valid_task_groups.at(group_str);
 
     // Create new event to pass out of function.
     // TODO: incorporate these lines above (i.e., no need to create temp variables)
@@ -221,6 +162,23 @@ public:
     event_type = "task_value";
   }
 
+  template<typename WORLD_T>
+  void Process(WORLD_T& world) {
+    // TODO
+  }
+};
+
+// TODO - encapsulate all task value event stuff into single file / namespace(?)
+const std::unordered_map<std::string, TaskValueEvent::ACTION_TYPE> TaskValueEvent::valid_action_types = {
+    {"change", ACTION_TYPE::CHANGE},
+    {"add", ACTION_TYPE::ADD},
+    {"mult", ACTION_TYPE::MULT}
+  };
+
+const std::unordered_map<std::string, TaskValueEvent::TASK_GROUP> TaskValueEvent::valid_task_groups = {
+  {"shared", TASK_GROUP::SHARED},
+  {"host", TASK_GROUP::HOST},
+  {"symbiont", TASK_GROUP::SYM}
 };
 
 // class ChangeTaskRewardTypeEvent : Event {

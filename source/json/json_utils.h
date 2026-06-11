@@ -8,6 +8,7 @@
 
 namespace sym_json {
 
+// Get value from json field with default value if field doesn't exist.
 template<typename RET_TYPE>
 RET_TYPE GetVal(
   nlohmann::json& json,
@@ -17,6 +18,16 @@ RET_TYPE GetVal(
   return (json.contains(field)) ?
     static_cast<RET_TYPE>(json[field]) :
     default_val;
+}
+
+// Get value from jsonm field. Assumes that given field exists.
+template<typename RET_TYPE>
+RET_TYPE GetVal(
+  nlohmann::json& json,
+  const std::string& field
+) {
+  emp_assert(json.contains(field));
+  return static_cast<RET_TYPE>(json[field]);
 }
 
 // @AML review: renamed, fixed inner loop

@@ -7,7 +7,7 @@
 #include <string>
 #include <functional>
 
-namespace sgp_mode {
+namespace sgpmode {
 
 // The event type definition contains the information necessary to define a
 // type of event:
@@ -31,25 +31,29 @@ protected:
   // @AML Review: if a variable should never by negative, prefer size_t over int
   size_t event_id;                        // Event definition ID
   std::string event_name;                 // Human-readable event type name
-  event_handler_func_t event_handler_fun; // Event handler function
+  fun_event_handler_t event_handler_fun; // Event handler function
   std::string description;                // Event type description
   emp::vector<std::string> required_fields;
   // TODO: Any other type parameters?
 
 public:
-  EventDefinition(
+  EventTypeDefinition(
     size_t a_event_id,
     const std::string& a_event_name,
     const fun_event_handler_t& a_event_handler,
-    const emp::vector<std::string>& a_required_fields,
-    const std::string& a_desc
+    const std::string& a_desc,
+    const emp::vector<std::string>& a_required_fields
   ) :
     event_id(a_event_id),
     event_name(a_event_name),
     event_handler_fun(a_event_handler),
-    required_fields(a_required_fields),
-    description(a_desc)
+    description(a_desc),
+    required_fields(a_required_fields)
   { ; }
+
+  const emp::vector<std::string>& GetRequiredFields() const {
+    return required_fields;
+  }
 
   // Run event handler function
   void Process(world_t& world, emp::Ptr<Event> event) {
