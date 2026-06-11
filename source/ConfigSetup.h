@@ -2,6 +2,7 @@
 #define CONFIG_H
 #include <limits>
 #include "../Empirical/include/emp/config/config.hpp"
+#include <string>
 
 const int TAG_LENGTH = 32;
 
@@ -13,8 +14,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(VERTICAL_TRANSMISSION, double, 0.7, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
     VALUE(HOST_INT, double, -2, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
     VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-    VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
-    VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
+    VALUE(GRID_X, int, 10, "Width of the world, just multiplied by the height to get total size"),
+    VALUE(GRID_Y, int, 10, "Height of world, just multiplied by width to get total size"),
     VALUE(POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
@@ -26,7 +27,12 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
     VALUE(SYM_VERT_TRANS_RES, double, 0, "How many resources required for symbiont vertical transmission"),
-    VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
+    // VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
+    // Change to SpatialStructure String + load file param
+        // Possible add option for directed vs undirected connections
+    VALUE(SpatialStructure, std::string, "Grid", "Grid, WellMixed, LoadFile (requires filepath in LoadFile param)"),
+    VALUE(LoadFile, std::string, "", "Path to the file containing the spatial structure"),
+    
     VALUE(SYM_INFECTION_CHANCE, double, 1, "The chance (between 0 and 1) that a sym will infect a parallel host on process"),
     VALUE(SYM_INFECTION_FAILURE_RATE, double, 0, "The chance (between 0 and 1) that a sym will be killed by the world while trying to infect a host"),
     VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),

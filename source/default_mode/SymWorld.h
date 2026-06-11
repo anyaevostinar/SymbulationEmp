@@ -8,6 +8,8 @@
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/matching/MatchBin.hpp"
 
+#include "SpatialStructures.h"
+
 #include "../Organism.h"
 #include <cstdlib>
 #include <set>
@@ -17,6 +19,9 @@ class SymWorld : public emp::World<Organism>{
 public:
   using taxon_info_t = double;
 protected:
+  // Spatial sturc obj
+  SpatialStructure spatial_structure;
+
   // takes an organism (to classify), and returns an int (the org's taxon)
   using fun_calc_info_t = std::function<taxon_info_t(Organism &)>;
 
@@ -526,12 +531,16 @@ public:
    * Purpose: To introduce new organisms to the world.
    */
   emp::WorldPosition DoBirth(emp::Ptr<Organism> new_org, emp::WorldPosition p_pos) {
+
     size_t parent_pos = p_pos.GetIndex();
     before_repro_sig.Trigger(parent_pos);
     emp::WorldPosition pos; // Position of each offspring placed.
 
     offspring_ready_sig.Trigger(*new_org, parent_pos);
+
+    // Spatial Change
     pos = fun_find_birth_pos(new_org, parent_pos);
+
     if (pos.IsValid() && (pos.GetIndex() != parent_pos)) {
       //Add to the specified position, overwriting what may exist there
       AddOrgAt(new_org, pos, parent_pos);
@@ -583,6 +592,28 @@ public:
     }
   }
 
+  // This is my SpatialStructure Function that gets a random neighbor based on the world's spatial structure
+  int GetNeighborHostID(size_t id) {
+
+    auto neighbor = spatial_structure.GetRandomNeighbor(GetRandom(), id);
+
+    if (!neighbor.has_value()) {
+      return -1;
+    }
+
+    return (int)neighbor.value();
+  }
+
+  int GetNeighborCellID(size_t id) {
+    auto neighbor = spatial_structure.GetRandomNeighbor(GetRandom(), id);
+    if (!neighbor.has_value()) {
+        return -1;
+    }
+
+    return (int)neighbor.value();
+    
+  }
+
 
   /**
      * Input: The pointer to a host that will be added to the world. This function assumes that the
@@ -593,7 +624,11 @@ public:
      * Purpose: To add a host to the world.
      */
   void InjectHost(emp::Ptr<Organism> new_host) {
-    if (my_config->GRID()) {
+    // Ask about this
+    // 
+    // AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
+    
+    if (my_config->SpatialStructure() != "WellMixed") {
       AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
     }
     else {
@@ -756,6 +791,7 @@ public:
     size_t i = parent_pos.GetPopID();
     if(my_config->FREE_LIVING_SYMS() == 0){
       int new_host_pos = GetNeighborHost(i);
+      // int new_host_pos = GetNeighborHostID(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
         emp::Ptr<Organism> sym_parent;
         if (parent_pos.GetIndex() == 0) { // free living parent
