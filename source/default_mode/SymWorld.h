@@ -155,9 +155,6 @@ public:
 
         // leave out the last cell and swap it in if potential_neighbor is the same as pos
         size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
-        if (pos.GetIndex() == pop.size() -1) {
-          // TODO: account for if pos is last cell
-        }
         if (potential_neighbor == pos.GetIndex()) {
           potential_neighbor = pop.size() - 1;
         }

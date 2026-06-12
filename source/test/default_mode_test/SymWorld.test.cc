@@ -14,22 +14,39 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
     config.POP_SIZE(4);
     config.GRID(0); // make sure the world is well-mixed
     SymWorld world(random, &config);
+    bool self_neighbor = false;
 
 
-    WHEN(" we repeatedly get a neighbor ") {
-      bool self_neighbor = false;
+    WHEN(" focal position is 0 ") {
       emp::WorldPosition focal_pos(0);
+      WHEN("we repeatedly get a neighbor ") {
+        for (int i = 0; i < 100; i++) {
+          emp::WorldPosition neighbor_pos = world.GetRandomNeighborPos(focal_pos);
+          if (neighbor_pos.GetIndex() == focal_pos.GetIndex()) {
+            self_neighbor = true;
+            break;
+          }
+        }
 
-      for (int i = 0; i < 100; i++) {
-        emp::WorldPosition neighbor_pos = world.GetRandomNeighborPos(focal_pos);
-        if (neighbor_pos.GetIndex() == focal_pos.GetIndex()) {
-          self_neighbor = true;
-          break;
+        THEN(" the neighbor is never the focal position ") {
+          REQUIRE(self_neighbor == false);
         }
       }
+    }
 
-      THEN(" the neighbor is never the focal position ") {
-        REQUIRE(self_neighbor == false);
+    WHEN(" focal position is end of population ") {
+      emp::WorldPosition focal_pos(config.POP_SIZE() - 1);
+      WHEN("we repeatedly get a neighbor ") {
+        for (int i = 0; i < 100; i++) {
+          emp::WorldPosition neighbor_pos = world.GetRandomNeighborPos(focal_pos);
+          if (neighbor_pos.GetIndex() == focal_pos.GetIndex()) {
+            self_neighbor = true;
+            break;
+          }
+        }
+        THEN(" the neighbor is never the focal position ") {
+          REQUIRE(self_neighbor == false);
+        }
       }
     }
   }
@@ -785,10 +802,15 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
         THEN("the sym moves to a random spot in the free world"){
           REQUIRE(world.GetSymPop()[sym_id] == sym); //there should be a sym at pos 0
           world.MoveFreeSym(sym_pos);
-
-          size_t new_sym_id = 2;
-          emp::Ptr<Organism> new_sym = world.GetSymPop()[new_sym_id];
-          REQUIRE(sym == new_sym);
+          // look for where the sym moved to, but shouldn't be original cell
+          bool found_sym = false;
+          for(size_t i=1; i < world_size; i++) {
+            if(world.GetSymPop()[i] == sym) {
+              found_sym = true;
+              break;
+            }
+          }
+          REQUIRE(found_sym);
           REQUIRE(world.GetSymPop()[sym_id] == nullptr);
         }
       }
