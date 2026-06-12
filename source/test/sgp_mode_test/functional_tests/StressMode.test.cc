@@ -81,7 +81,7 @@ TEST_CASE("Stress event", "[sgp]") {
     }
   }
 
-  WHEN("Stress symbionts are nuetral") {
+  WHEN("Stress symbionts are neutral") {
     config.STRESS_TYPE("neutral");
     config.START_MOI(1);
     world_t world(random, &config);
@@ -121,69 +121,59 @@ TEST_CASE("Stress event", "[sgp]") {
 
 }
 
-//TODO!
-TEST_CASE("Evolution stress mode", "[sgp]"){
-
+TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
   sgpmode::SymConfigSGP config;
-//config.ORGANISM_TYPE(HEALTH);
-
-  config.CYCLES_PER_UPDATE(4);
-
-  config.HOST_REPRO_RES(1000); // No repro for these tests
-  config.SYM_HORIZ_TRANS_RES(1000);
-  config.SYM_VERT_TRANS_RES(1000);
-  config.SEED(61);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.FILE_PATH("SGPStressMode_test_output");
-  config.POP_SIZE(100);
-  config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.SEED(983274);
   config.START_MOI(0);
   config.GRID_X(10);
-  config.GRID_Y(10);
+  config.GRID_Y(100);
   config.HOST_REPRO_RES(20);
-  
-  
-  const size_t world_size = config.POP_SIZE(); 
-  
-//TODO: Make this test not so fragile 
-  size_t no_mut_NOT_rate = 15;
-  size_t run_updates = 100;
+  config.BASE_DEATH_CHANCE(0);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+  config.CYCLES_PER_UPDATE(4);
+  config.ENABLE_STRESS(1);
+  size_t world_size = config.GRID_X() * config.GRID_Y();
 
-   // Initialize random number generator
   emp::Random random(config.SEED());
-
-
-  // Stress settings
-  config.ENABLE_STRESS(true);
-  config.STRESS_FREQUENCY(1000);
-  config.PARASITE_DEATH_CHANCE(0.75);
-  config.MUTUALIST_DEATH_CHANCE(0.25);
-  config.BASE_DEATH_CHANCE(0.01);
-
-  //other settings 
-  config.SEED(61);
-
+  world_t world(random, &config);
+  
+  size_t no_mut_NOT_rate = 40000;
+  size_t run_updates = 1000;
+  
   WHEN("Mutation size is 0") {
-    config.MUTATION_SIZE(0);
-    config.SGP_MUT_PER_BIT_RATE(0.01);
-    world_t world(random, &config);
+    config.SGP_MUT_PER_BIT_RATE(0);
     world.Setup();
-    REQUIRE(world.GetNumOrgs() == world_size);
+    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+    size_t total_NOTs = 0;
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
-      auto& org = world.GetOrg(0);
-      auto& sgp_host = static_cast<sgp_host_t&>(org);
-      hardware_t& hw = sgp_host.GetHardware();
+      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
     }
-    THEN("Health hosts do not accrue mutations late in an experiment") {
-      const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-      auto& tasks = world.GetHostTaskSuccesses();
-      
-    
-    
+    THEN("Stress hosts do not accrue mutations late in an experiment") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      REQUIRE(total_NOTs > no_mut_NOT_rate - no_mut_NOT_rate*0.25);
+      REQUIRE(total_NOTs < no_mut_NOT_rate + no_mut_NOT_rate*0.25);
+    }
   }
 
+  WHEN("Mutation size is greater than 0") {
+    config.SGP_MUT_PER_BIT_RATE(0.01);
+    world.Setup();
+    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+    size_t total_NOTs = 0;
+    for (size_t i = 0; i < run_updates; i++) {
+      world.Update();
+      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+    }
+    THEN("Stress hosts accrue more mutations late in an experiment") {
+      REQUIRE(world.GetNumOrgs() == world_size);
+      REQUIRE(total_NOTs > no_mut_NOT_rate * 3);
+    }
   }
 }
 
 // TODO (future): Evolution test
+
+// TODO interaction value test 

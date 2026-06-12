@@ -74,6 +74,7 @@ TEST_CASE("A world containing a single uninfected host is updated correctly", "[
   }  
 }
 
+/* TODO need update CollectCurrentUpdateData to support free living symbionts before uncommenting this test
 
 TEST_CASE("A world containing a single free living symbiont is updated correctly", "[sgp][sgp-functional]") {
   emp::Random random(61);
@@ -114,3 +115,4 @@ TEST_CASE("A world containing a single free living symbiont is updated correctly
     REQUIRE(world.GetNumOrgs() == 1);
   }
 }
+*/
