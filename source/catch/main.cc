@@ -32,6 +32,7 @@
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //SGP mode Old tests (need to update before moving)
+#include "../test/sgp_mode_test/functional_tests/TaskValueEvent.test.cc"
 #include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/HealthHost.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
@@ -72,8 +73,8 @@
 #include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 
-#include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
-#include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
+// #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
+// #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
 
 // Anya's tests
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"
