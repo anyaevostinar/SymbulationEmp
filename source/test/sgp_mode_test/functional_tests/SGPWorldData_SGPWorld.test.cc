@@ -20,6 +20,14 @@ using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_
 using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
+void replaceNan(std::string& str) {
+    size_t pos = str.find("-nan");
+    while (pos != std::string::npos) {
+        str.replace(pos, 4, "nan");
+        pos = str.find("-nan", pos + 3); // Move past the replaced "nan"
+    }
+}
+
 
 TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld with no mutation that is configured to create data files"){
@@ -87,11 +95,13 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
         }
         std::getline(file2, str2);
         THEN("The second should be all zeroes and a nan in the mean column because there are no symbionts"){
-          REQUIRE(str2 == "0,-nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+          replaceNan(str2);
+          REQUIRE(str2 == "0,nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
         }
         std::getline(file2, str2);
         THEN("The third should be all zeroes and a nan in the mean column because there are no symbionts"){
-          REQUIRE(str2 == "2,-nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+          replaceNan(str2);
+          REQUIRE(str2 == "2,nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
         }
       }
       
@@ -142,11 +152,13 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
         // setuphosts should toggle parent task completions; we're adding hosts manually, so their parents won't be toggled 
         std::getline(file5, str5);
         THEN("The second should be 1 count of unique host / host parent task sets, and 0s/nans elsewhere") {
-          REQUIRE(str5 == "0,0,-nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0");
+          replaceNan(str5);
+          REQUIRE(str5 == "0,0,nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0");
         }
         std::getline(file5, str5);
         THEN("The second should be 1 count of unique host / host parent task sets, 1 count of a host who completed NOT, and 0s/nans elsewhere"){
-          REQUIRE(str5 == "2,0,-nan,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0");
+          replaceNan(str5);
+          REQUIRE(str5 == "2,0,nan,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0");
         }
       }
 
@@ -269,11 +281,13 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
         }
         std::getline(file5, str5);
         THEN("The second should accurately track generations and task count/match/mismatch at update 0") {
-          REQUIRE(str5 == "0,0,0,0,-nan,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,2,1,1,0,1,0");
+          replaceNan(str5);
+          REQUIRE(str5 == "0,0,0,0,nan,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,2,1,1,0,1,0");
         }
         std::getline(file5, str5);
         THEN("The third should accurately track generations and task count/match/mismatch at update 2"){
-          REQUIRE(str5 == "2,0,0,0,-nan,1,2,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,2,1,1,0,1,0");
+          replaceNan(str5);
+          REQUIRE(str5 == "2,0,0,0,nan,1,2,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,2,1,1,0,1,0");
         }
       }
 
