@@ -130,7 +130,7 @@ protected:
       if (event_update > current_update) {
         break;
       }
-      std::cout << "Processing a recurring event " << event_i << std::endl;
+      // std::cout << "Processing a recurring event " << event_i << std::endl;
       // Otherwise, process this event.
       event_type_library.ProcessEvent(world, event);
       const size_t next_update = event->AdvanceNextUpdate();
