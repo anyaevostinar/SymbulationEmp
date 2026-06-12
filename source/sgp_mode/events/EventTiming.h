@@ -7,7 +7,6 @@ namespace sgpmode {
 // note: add event timing helper class to manage event timing?
 
 // Helper class for managing event timing
-// TODO - write test for event timer helper
 class EventTiming {
 protected:
   size_t start_update;

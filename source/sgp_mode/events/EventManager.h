@@ -29,8 +29,6 @@
 //           from the rest of the repo)
 namespace sgpmode {
 
-// TODO: Document event types
-
 template<typename WORLD_T>
 class EventManager {
 public:
@@ -42,11 +40,15 @@ public:
 
 protected:
 
-  EventTypeLibrary<world_t> event_type_library;
-  emp::vector<emp::Ptr<event_t>> one_time_events; // vector of one time events (Event Object type)
-  emp::vector<emp::Ptr<event_t>> recurring_events; // vector of reoccuring events (Event Object type)
+  EventTypeLibrary<world_t> event_type_library;    // Manages known event type definitions. Must be updated before loading event cfg file.
+  emp::vector<emp::Ptr<event_t>> one_time_events;  // Manages all one-off events in reverse sorted order by update to apply.
+  emp::vector<emp::Ptr<event_t>> recurring_events; // Manages all recurring events in reverse sorted order by update to apply.
 
-  emp::Ptr<Event> LoadEventFromJSON(json_t& event_json, world_t& world) {
+  // Load a single event from JSON
+  //   Each event type should define it's own loading function (see ExampleEvent),
+  //   so this function grabs the appropriate event type definition and then calls
+  //   that event type's load event function.
+  emp::Ptr<event_t> LoadEventFromJSON(json_t& event_json, world_t& world) {
     // Check that event_json has event type
     emp_assert(event_json.contains("event_type"));
     const std::string event_type(event_json["event_type"]);
@@ -60,21 +62,12 @@ protected:
       sym_json::ValidateFieldsJSON(event_json, event_type_def.GetRequiredFields())
     );
     return event_type_def.LoadEventFromJSON(event_json, world);
-
-    // // Delegate event loading based on event type
-    // if (event_type == "task_value") {
-    //   loaded_event = TaskValueEvent::LoadEventFromJSON(event_json, world);
-    // } else {
-    //   std::cout << "Unknown event type (" << event_type << ") Exiting." << std::endl;
-    //   exit(-1);
-    // }
-
-    // // Configure loaded event's event_id
-    // emp_assert(event_type == loaded_event->GetEventType());
-    // loaded_event->SetEventTypeID(event_type_id);
-    // return loaded_event;
   }
 
+  // Process all one-type events that should be applied this update.
+  //  After processing, delete event.
+  //  Note: this function assumes that one_time_events is in reverse sorted
+  //        order by next update.
   void ProcessOneTimeEvents(world_t& world) {
     if (one_time_events.empty()) { return; }
     // One-time events are reverse sorted according to next update.
@@ -87,7 +80,7 @@ protected:
     size_t events_processed = 0;
     // && event_i < num_events <-- checks for roll over
     for (size_t event_i = num_events - 1; event_i >= 0 && event_i < num_events; --event_i) {
-      emp::Ptr<Event> event = one_time_events[event_i];
+      emp::Ptr<event_t> event = one_time_events[event_i];
       const size_t event_update = event->GetNextUpdate();
       // Event's next update should never be less than current update. If so,
       //  we failed to process it on a previous update. :(
@@ -109,6 +102,11 @@ protected:
     one_time_events.resize(num_events - events_processed);
   }
 
+  // Process any recurring events that should be applied this update.
+  //   After processing, either delete event (if next update is past end update
+  //   or if event was marked as done by the event's process function).
+  //   Note: this function assumes that recurring_events is in reverse sorted order
+  //         by each event's next update.
   void ProcessRecurringEvents(world_t& world) {
     if (recurring_events.empty()) { return; }
     // Recurring events are reverse sorted by the next update they should trigger
@@ -130,7 +128,6 @@ protected:
       if (event_update > current_update) {
         break;
       }
-      // std::cout << "Processing a recurring event " << event_i << std::endl;
       // Otherwise, process this event.
       event_type_library.ProcessEvent(world, event);
       const size_t next_update = event->AdvanceNextUpdate();
@@ -171,7 +168,7 @@ protected:
     ReorderRecurringEvents();
   }
 
-  // Re-sort the one-time events.
+  // Resort the one-time events.
   // One-time events should be reverse-sorted by their next update (i.e., soonest
   // next update at end). One-time events must be sorted for processing to be correct.
   // i.e., when adding a new event, must resort!
@@ -179,7 +176,7 @@ protected:
     std::sort(
       one_time_events.begin(),
       one_time_events.end(),
-      [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
         return a->GetNextUpdate() > b->GetNextUpdate();
       }
     );
@@ -194,7 +191,7 @@ protected:
     std::sort(
       recurring_events.begin(),
       recurring_events.end(),
-      [](emp::Ptr<Event> a, emp::Ptr<Event> b) {
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
         return a->GetNextUpdate() > b->GetNextUpdate();
       }
     );
@@ -275,7 +272,54 @@ public:
     ProcessRecurringEvents(world);
   }
 
-  // TODO - manual 'AddEvent'
+  // Manual add event function. Used when an event that didn't originate from a config
+  // file needs to be added to the event system.
+  void AddEvent(emp::Ptr<event_t> event) {
+    // Check that this event is who they say it is
+    const auto& event_type_name = event->GetEventType();
+    // Check that incoming event is a known event type
+    emp_assert(event_type_library.IsValidEventType(event_type_name));
+    // Set event's type id
+    event->SetEventTypeID(event_type_library.GetEventTypeID(event_type_name));
+    // Add event to either recurring or one-time event set, then reorder.
+    if (event->IsRecurring()) {
+      recurring_events.emplace_back(event);
+      ReorderRecurringEvents();
+    } else {
+      one_time_events.emplace_back(event);
+      ReorderOneTimeEvents();
+    }
+  }
+
+  // Add multiple events. Faster to bulk add than add one at a time to save on
+  // resorting.
+  void AddEvents(emp::vector<emp::Ptr<event_t>> events) {
+    bool resort_recurring = false;
+    bool resort_one_time = false;
+    for (size_t i = 0; i < events.size(); ++i) {
+      // Check that this event is who they say it is
+      const auto& event_type_name = events[i]->GetEventType();
+      // Check that incoming event is a known event type
+      emp_assert(event_type_library.IsValidEventType(event_type_name));
+      // Set event's type id
+      events[i]->SetEventTypeID(event_type_library.GetEventTypeID(event_type_name));
+      // Add event to either recurring or one-time event set.
+      if (events[i]->IsRecurring()) {
+        recurring_events.emplace_back(events[i]);
+        resort_recurring = true;
+      } else {
+        one_time_events.emplace_back(events[i]);
+        resort_one_time = true;
+      }
+    }
+    // Resort as needed
+    if (resort_recurring) {
+      ReorderRecurringEvents();
+    }
+    if (resort_one_time) {
+      ReorderOneTimeEvents();
+    }
+  }
 
 };
 

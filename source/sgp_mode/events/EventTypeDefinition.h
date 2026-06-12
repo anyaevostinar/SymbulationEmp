@@ -15,7 +15,8 @@ namespace sgpmode {
 // - event_id: unique, used to lookup handler function when processing events
 // - event_name: unique, human-readable event type name, used to identify event
 //               in the events file
-// - event_function:
+// - event_handler_fun: Function that handles processing an event of this type
+// - event_json_loader_fun: Function that handles loading an event of this type
 template<typename WORLD_T>
 class EventTypeDefinition {
 public:
@@ -39,7 +40,6 @@ protected:
   fun_json_loader_t event_json_loader_fun;
   std::string description;                // Event type description
   emp::vector<std::string> required_fields;
-  // TODO: Any other type parameters?
 
 public:
   EventTypeDefinition(

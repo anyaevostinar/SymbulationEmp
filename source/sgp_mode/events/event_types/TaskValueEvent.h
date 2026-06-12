@@ -58,7 +58,6 @@ public:
     // --- Extract task name(s) ---
     //   If multiple tasks are given as an array, accept as vector.
     //   otherwise, wrap single given task into vector.
-    // emp::vector<std::string> task_names;
     emp::vector<std::string>& task_names = event->task_names;
     if (event_json["task_name"].is_array()) {
       task_names = event_json["task_name"];
@@ -69,7 +68,6 @@ public:
 
     // Convert task names to task_ids as known by the task set.
     const auto& world_task_set = world.GetTaskEnv().GetTaskSet();
-    // emp::vector<size_t> task_ids(task_names.size());
     emp::vector<size_t>& task_ids = event->task_ids;
     task_ids.resize(task_names.size());
     for (size_t task_i = 0; task_i < task_names.size(); ++task_i) {
@@ -84,53 +82,28 @@ public:
     event->action = valid_action_types.at(action_str);
 
     // --- Set the task value ---
-    // const double task_value = sym_json::GetVal<double>(event_json, "value");
     event->value = sym_json::GetVal<double>(event_json, "value");
 
     // --- Set the timing ---
-    // TODO - move into a function to be shared by other event types
-    const std::string timing_str(event_json["timing"]);
-    // EventTiming timing;
-    // Given as a single (integer) number?
-    if (emp::is_digits(timing_str)) {
-      const size_t start_u = emp::from_string<size_t>(timing_str);
-      event->timing.Reset(start_u);
-    } else {
-      // Timing given as Start:Stop:Step
-      emp::vector<std::string> recurring_str = emp::slice(timing_str, ':');
-      emp_assert(recurring_str.size() == 3);
-      const size_t start_u = emp::from_string<size_t>(recurring_str[0]);
-      const size_t stop_u = emp::from_string<size_t>(recurring_str[1]);
-      const size_t freq = emp::from_string<size_t>(recurring_str[2]);
-      event->timing.Reset(start_u, stop_u, freq);
-    }
+    SetEventTimingFromJSON(event_json, event);
 
     // --- Task group ---
     // Is there a group specification? If not, assume shared.
     const std::string group_str = (event_json.contains("group")) ? event_json["group"] : "shared";
     emp_assert(emp::Has(valid_task_groups, group_str));
-    // const task_group_t task_group = valid_task_groups.at(group_str);
     event->task_group = valid_task_groups.at(group_str);
-
-    // Create new event to pass out of function.
-    // event->action = action;
-    // event->task_ids = task_ids;
-    // event->task_names = task_names;
-    // event->task_group = task_group;
-    // event->value = task_value;
 
     return event;
   }
 
 protected:
-  action_t action;         // What task value action does this event apply?
-  emp::vector<size_t> task_ids;
+  action_t action;                     // What task value action does this event apply?
+  emp::vector<size_t> task_ids;        // List of task ids that this event applies to
   emp::vector<std::string> task_names; // Kept mainly for debugging asserts
-  task_group_t task_group;
-  double value;
+  task_group_t task_group;             // Sym / host / shared?
+  double value;                        // Event value to be applied to task value
 
   void ApplyAction(tasks::LogicTaskEnvironment::TaskReqInfo& task_req) {
-    // std::cout << "Before: " << task_req.task_value;
     switch (action) {
       case action_t::ADD:
         task_req.task_value += value;
@@ -142,7 +115,6 @@ protected:
         task_req.task_value = value;
         break;
     }
-    // std::cout << "  After: " << task_req.task_value << std::endl;
   }
 
 public:
