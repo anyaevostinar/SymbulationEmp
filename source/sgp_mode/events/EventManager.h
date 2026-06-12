@@ -78,9 +78,11 @@ protected:
     // If no events to process, skip.
     emp_assert(num_events > 0);
     size_t events_processed = 0;
+
     // && event_i < num_events <-- checks for roll over
     for (size_t event_i = num_events - 1; event_i >= 0 && event_i < num_events; --event_i) {
       emp::Ptr<event_t> event = one_time_events[event_i];
+      emp_assert(!event->IsRecurring());
       const size_t event_update = event->GetNextUpdate();
       // Event's next update should never be less than current update. If so,
       //  we failed to process it on a previous update. :(

@@ -98,7 +98,6 @@ public:
         event->Process(world);
       },
       [](json_t& event_json, world_t& world) -> emp::Ptr<Event> {
-        // emp::Ptr<EVENT_T> event = static_cast<EVENT_T*>(event_ptr.Raw());
         return EVENT_T::LoadEventFromJSON(event_json, world);
       },
       event_description,

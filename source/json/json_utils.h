@@ -30,12 +30,10 @@ RET_TYPE GetVal(
   return static_cast<RET_TYPE>(json[field]);
 }
 
-// @AML review: renamed, fixed inner loop
 bool ValidateFieldsJSON(
   const nlohmann::json& json_line,
   const emp::vector<std::string>& fields
 ) {
-  // @AML review: Can use const string reference to avoid copying string here
   for (const std::string& name : fields) {
     if (!json_line.contains(name)) {
       return false;

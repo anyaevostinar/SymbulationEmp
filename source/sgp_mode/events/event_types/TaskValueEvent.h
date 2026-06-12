@@ -1,4 +1,6 @@
 #pragma once
+#ifndef TASK_VALUE_EVENT_H
+#define TASK_VALUE_EVENT_H
 
 #include "Event.h"
 #include "../../tasks/LogicTaskEnvironment.h"
@@ -126,8 +128,8 @@ public:
   template<typename WORLD_T>
   void Process(WORLD_T& world) {
     // For each task_id, apply action
+    auto& world_task_env = world.GetTaskEnv();
     for (size_t task_id : task_ids) {
-      auto& world_task_env = world.GetTaskEnv();
       switch(task_group) {
         case task_group_t::SHARED:
           emp_assert(world_task_env.IsHostTask(task_id));
@@ -166,3 +168,5 @@ const std::unordered_map<std::string, TaskValueEvent::TASK_GROUP> TaskValueEvent
 };
 
 }
+
+#endif
