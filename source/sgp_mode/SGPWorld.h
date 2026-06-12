@@ -379,12 +379,12 @@ protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
   size_t max_world_size; // Maximum number of locations in the world
   ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction
-  ProgramBuilder<hw_spec_t> prog_builder; // Utility for building signalgp programs
   tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
-  mutator_t mutator;  // Handles mutating sgp programs
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
+  ProgramBuilder<hw_spec_t> prog_builder = ProgramBuilder<hw_spec_t>(opcode_rectifier); // Utility for building signalgp programs
+  mutator_t mutator = mutator_t(opcode_rectifier);  // Handles mutating sgp programs
 
   emp::vector<StressEscapee> symbiont_stress_escapees;
   emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
@@ -582,9 +582,7 @@ public:
   ) :
     SymWorld(rnd, _config),
     scheduler(rnd),
-    prog_builder(opcode_rectifier),
     task_env(rnd),
-    mutator(opcode_rectifier),
     sgp_config(*_config)
   { }
 
@@ -740,10 +738,10 @@ public:
   void TriggerBeforeEndoSymHostProcessSig(
     const emp::WorldPosition& sym_pos, /* sym_pos */
     sgp_sym_t& sym,                /* sym */
-    sgp_host_t& host               /* host */
+    emp::Ptr<Organism> host        /* host */
   ) {
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
-    before_endosym_host_process_sig.Trigger(sym_pos, sym, host);
+    before_endosym_host_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
   /* Called before a specific endosym is processed.*/

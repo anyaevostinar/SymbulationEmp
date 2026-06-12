@@ -190,7 +190,7 @@ public:
     return matching_syms_to_interact_with;
   }
 
-  size_t SetCountofMatchingSymsToInteractWith(size_t new_matching_count){
+  void SetCountofMatchingSymsToInteractWith(size_t new_matching_count){
     matching_syms_to_interact_with = new_matching_count;
   }
   
@@ -287,7 +287,7 @@ public:
       my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
         *cur_symbiont,
-        *this
+        this
       );
     }
     my_world->before_host_cpu_exec_sig.Trigger(*this);
