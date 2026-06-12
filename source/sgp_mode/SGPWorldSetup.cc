@@ -963,7 +963,7 @@ void SGPWorld::SetupSymReproduction() {
       emp::Ptr<sgp_sym_t> sym_baby_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      return SymAttemptHorizontalTrans(sym_baby_ptr, parent_pos);
+      return SymAttemptHorizontalInfection(sym_baby_ptr, parent_pos);
     };
   } else {
     // Neither horizontal transmission nor free-living symbionts, so fun_sym_do_birth should just return invalid position and clean up the offspring
@@ -981,13 +981,9 @@ void SGPWorld::SetupSymReproduction() {
   // QUESTION - Should this fire for free-living symbionts?
   //            Can instead make this trigger after horizontal transmission
   after_sym_do_birth_sig.AddAction(
-    [this](const emp::WorldPosition& sym_baby_pos) {
-      // Because we're not calling HorizontalTransmission, we need to adjust
-      // these data nodes here
-      GetHorizontalTransmissionAttemptCount().AddDatum(1);
-      if (sym_baby_pos.IsValid()) {
-        GetHorizontalTransmissionSuccessCount().AddDatum(1);
-      }
+    [this](const emp::WorldPosition& sym_baby_pos, const emp::WorldPosition& parent_pos) {
+      auto parent_sym = pop[parent_pos.GetPopID()].GetSymbionts()[parent_pos.GetIndex()];
+      parent_sym->AfterHorizontalTransmission(sym_baby_pos);
     }
   );
 

@@ -225,7 +225,7 @@ public:
       // Did endosymbiont attempt to reproduce?
       // NOTE - want to handle this after every clock cycle?
       if (GetHardware().GetCPUState().ReproAttempt()) {
-        AttemptReproduction(pos);
+        AttemptIndependentReproduction(pos);
       }
 
     }
@@ -298,20 +298,21 @@ public:
   * 
   * Output: None
   * 
-  * Purpose: Start the process for horizontal transmission by marking in progress repo and removing points
+  * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points
+  * Note: before Free-living symbionts can work, we need to decide if the Reproduce instruction is both or if there is a different instruction
   */
-  //TODO: change name and streamline
-  void AttemptReproduction(emp::WorldPosition sym_pos) {
+  void AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
     // NOTE - could make this a configurable functor if we want different success/failure
     //        conditions on attempt
     // NOTE - Do we want to be using the horizontal transmission cost here?
     //        Is this always horizontal transmisstion?
     // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
    emp_assert(my_host.DynamicCast<host_t>(), "SGPSymbiont must have an SGPHost host");
-    const double repro_cost = my_world->GetConfig().SYM_HORIZ_TRANS_RES();
-    if (GetPoints() >= repro_cost) {
+   //AEV notes to self:
+   // the issue with aligning with default mode is that the method HorizontalTransmission is broken up into separate stages in sgp mode, so there is simply no way to call the super Horizontal Transmission because instructions make it necessary to break up that functionality into separate stages. We could reduce code duplication
+    if (Symbiont::AttemptIndependentReproduction(sym_pos)) {
       // Sym pays cost
-      DecPoints(repro_cost);
+      //DecPoints(repro_cost); //Need to check if changing this in default breaks everything, currently set to 0 in super class method
       // Add sym to repro queue
       // TODO - protect with mutex for threading
         const size_t queue_id = my_world->GetReproQueue().Enqueue(
@@ -337,7 +338,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_offspring = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
-    sym_offspring->SetReproCount(reproductions + 1); // QUESTION - why does child have +1 repro count? (is repro count lineage length?)
+    sym_offspring->SetReproCount(reproductions + 1); //repro count is lineage length, so increment by 1 from parent
     auto& offspring_hw = sym_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();

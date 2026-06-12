@@ -780,21 +780,38 @@ public:
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
-  /**
-   * Input: The location of the organism as a emp::WorldPosition(<index of sym in host +1>, <index of host in world>)
-   *
-   * Output: None
-   *
-   * Purpose: To check and allow for horizontal transmission to occur
-   */
-  void HorizontalTransmission(emp::WorldPosition location) {
-    if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      double required_points = my_config->SYM_HORIZ_TRANS_RES();
-      if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
+
+  /* 
+  * Input: None
+  * 
+  * Output: Boolean representing whether or not the symbiont meets requirements to horizontally transmit
+  * 
+  * Purpose: To check if the symbiont meets requirements to horizontally transmit, based on its own internal state, without considering the host or host baby. This is intended to be used in the horizontal transmission process, to determine if the symbiont should attempt to horizontally transmit.
+  * Currently just checks point requirement.
+  */
+  bool MeetsHorizTransRequirements() {
+    double required_points = my_config->SYM_HORIZ_TRANS_RES();
+    if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
         required_points = my_config->FREE_SYM_REPRO_RES();
       }
-      if (GetPoints() >= required_points) {
-        double stored_intval = GetIntVal(); // post-SDB this symbiont may be deleted (?)
+    return GetPoints() >= required_points;
+  }
+
+  /*
+  * Input: sym_pos, world position
+  * 
+  * Output: None
+  * 
+  * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points
+  * Note: before Free-living symbionts can work, we need to decide if the Reproduce instruction is both or if there is a different instruction
+  */
+  boolean AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
+    if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
+      if (MeetsHorizTransRequirements()) {
+
+        emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
+        data_node_attempts_horiztrans.AddDatum(GetIntVal());
+        
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
@@ -803,18 +820,36 @@ public:
         if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
         // removing the above for tag matching--sym parent points are 
         // now set to 0 in symdobirth
-
-        emp::Ptr<Organism> sym_baby = Reproduce();
-        if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
-        emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
-        //horizontal transmission data nodes
-        emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
-        data_node_attempts_horiztrans.AddDatum(stored_intval);
-        emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
-        if(new_pos.IsValid()){
-          data_node_successes_horiztrans.AddDatum(stored_intval);
-        }
+        return true;
       }
+    }
+    return false;
+  }
+
+
+  void AfterHorizontalTransmission(const emp::WorldPosition& sym_baby_pos) {
+    emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
+    if(sym_baby_pos.IsValid()){
+      data_node_successes_horiztrans.AddDatum(GetIntVal());
+    }
+      
+  }
+
+  /**
+   * Input: The location of the organism as a emp::WorldPosition(<index of sym in host +1>, <index of host in world>)
+   *
+   * Output: None
+   *
+   * Purpose: To check and allow for horizontal transmission to occur
+   */
+  void HorizontalTransmission(emp::WorldPosition location) {
+    if(AttemptIndependentReproduction(location)){
+      emp::Ptr<Organism> sym_baby = Reproduce();
+      if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
+      emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
+      
+      AfterHorizontalTransmission(new_pos);
+
     }
   }
 };

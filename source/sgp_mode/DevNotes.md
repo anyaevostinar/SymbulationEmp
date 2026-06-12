@@ -14,7 +14,8 @@
 [x] Port more Symbiont tests
 [ ] Make a list from this commit for further shifting todos and update this doc with those todos https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
 [ ] Horizontal transmission to make parallel to default mode and integrated to support tags with tasks
-    - Need to make new get random neighbor function in default to exclude parent_pos from possibilities but pulling from size -1 distribution and then using last spot as replacement if parent pos used (ht Kai!)
+    - Made the updates to break up Symbiont::HorizontalTransmission into separate methods that can be called by SGPSymbiont functionality, SGP mode now calls the AttemptIndependentReproduction and AfterHorizontalTransmission methods of Symbiont, where data tracking and tag things happen, but I haven't tested anything
+    - Also need to decide and make consistent whether Reproduce should be shared between horizontal transmission and freeliving transmission, what if they can do both? But they can't in free living mode, they would just go to host position and then try to infect, so should be just one instruction, need to check that is the case
 [ ] Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 

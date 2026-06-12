@@ -154,8 +154,9 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   // Trigger any before birth actions
   before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_baby_ptr, parent_pos));
+
   // Trigger any post-birth actions
-  after_sym_do_birth_sig.Trigger(sym_baby_pos);
+  after_sym_do_birth_sig.Trigger(sym_baby_pos, parent_pos);
   return sym_baby_pos;
 }
 
@@ -219,7 +220,7 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
 
 // TODO AEV: integrate this with default mode to support tags with tasks etc
 // Refactor: also try to be parallel with where Symbiont does this, what is in World versus Symbiont?
-emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
+emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_baby_ptr,
   const emp::WorldPosition& parent_pos
 ) {
