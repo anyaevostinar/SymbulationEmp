@@ -1,0 +1,533 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Host Class Documentation &mdash; Symbulation 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css?v=e72958e9" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5aa371e9"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/rtd_search_config.js?v=b0596c34"></script>
+      <script src="../_static/js/rtd_sphinx_search.min.js?v=5e065386"></script>
+      <script src="https://kit.fontawesome.com/8485b453b8.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Symbiont Class Documentation" href="sym_docs.html" />
+    <link rel="prev" title="API Reference" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Symbulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using Symbulation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../projects/index.html">Projects using Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../QuickStartGuides/index.html">Quick Start Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html">ALIFE 2022 Symbulation Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html#alife-talks-featuring-symbulation">ALIFE Talks Featuring Symbulation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#core-classes">Core Classes</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Host Class Documentation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#_CPPv44Host"><code class="docutils literal notranslate"><span class="pre">Host</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="sym_docs.html">Symbiont Class Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to Symbulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dev/symbulation-development-practices.html">Symbulation Development Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/getting-started.html">Getting started with Symbulation development</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/contribution-guidelines-and-review.html">Coding guidelines and review checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/adding-documentation.html">Documentation for Symbulation Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dev/guide-to-testing.html">Guide to Testing in Symbulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Symbulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Host Class Documentation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="host-class-documentation">
+<h1>Host Class Documentation<a class="headerlink" href="#host-class-documentation" title="Link to this heading"></a></h1>
+<dl class="cpp class">
+<dt class="sig sig-object cpp" id="_CPPv44Host">
+<span id="_CPPv34Host"></span><span id="_CPPv24Host"></span><span id="Host"></span><span class="target" id="class_host"></span><span class="k"><span class="pre">class</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Host</span></span></span><span class="w"> </span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="k"><span class="pre">public</span></span><span class="w"> </span><span class="n"><span class="pre">Organism</span></span><a class="headerlink" href="#_CPPv44Host" title="Link to this definition"></a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-functions">Public Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host4HostEN3emp3PtrIN3emp6RandomEEEN3emp3PtrI8SymWorldEEN3emp3PtrI13SymConfigBaseEEdN3emp6vectorIN3emp3PtrI8OrganismEEEEN3emp6vectorIN3emp3PtrI8OrganismEEEEd">
+<span id="_CPPv3N4Host4HostEN3emp3PtrIN3emp6RandomEEEN3emp3PtrI8SymWorldEEN3emp3PtrI13SymConfigBaseEEdN3emp6vectorIN3emp3PtrI8OrganismEEEEN3emp6vectorIN3emp3PtrI8OrganismEEEEd"></span><span id="_CPPv2N4Host4HostEN3emp3PtrIN3emp6RandomEEEN3emp3PtrI8SymWorldEEN3emp3PtrI13SymConfigBaseEEdN3emp6vectorIN3emp3PtrI8OrganismEEEEN3emp6vectorIN3emp3PtrI8OrganismEEEEd"></span><span id="Host::Host__emp::Ptr:emp::Random:.emp::Ptr:SymWorld:.emp::Ptr:SymConfigBase:.double.emp::vector:emp::Ptr:Organism::.emp::vector:emp::Ptr:Organism::.double"></span><span class="target" id="class_host_1a16547fe798f52b70bbcf036f79c87164"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Host</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Random</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_random</span></span>, <span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">SymWorld</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_world</span></span>, <span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">SymConfigBase</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_config</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_intval</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.0</span></span>, <span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_syms</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span>, <span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_repro_syms</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="p"><span class="pre">{</span></span><span class="p"><span class="pre">}</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_points</span></span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="m"><span class="pre">0.0</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host4HostEN3emp3PtrIN3emp6RandomEEEN3emp3PtrI8SymWorldEEN3emp3PtrI13SymConfigBaseEEdN3emp6vectorIN3emp3PtrI8OrganismEEEEN3emp6vectorIN3emp3PtrI8OrganismEEEEd" title="Link to this definition"></a><br /></dt>
+<dd><p>The constructor for the host class </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4HostD0Ev">
+<span id="_CPPv3N4HostD0Ev"></span><span id="_CPPv2N4HostD0Ev"></span><span id="Host::~Host"></span><span class="target" id="class_host_1a6c14f16c39ae6bc5db2672e0141adccd"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">~Host</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4HostD0Ev" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To delete the memory used by a host’s symbionts when the host is deleted. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host4HostERK4Host">
+<span id="_CPPv3N4Host4HostERK4Host"></span><span id="_CPPv2N4Host4HostERK4Host"></span><span id="Host::Host__HostCR"></span><span class="target" id="class_host_1a08b83898510f8c0875fc7c5b5821bf04"></span><span class="sig-name descname"><span class="n"><span class="pre">Host</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv4N4Host4HostERK4Host" title="Host::Host"><span class="n"><span class="pre">Host</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N4Host4HostERK4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To force a copy constructor to be generated by the compiler. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host4HostERR4Host">
+<span id="_CPPv3N4Host4HostERR4Host"></span><span id="_CPPv2N4Host4HostERR4Host"></span><span id="Host::Host__HostRR"></span><span class="target" id="class_host_1a245a8147adfb3beb284637e74e6b5029"></span><span class="sig-name descname"><span class="n"><span class="pre">Host</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4N4Host4HostERR4Host" title="Host::Host"><span class="n"><span class="pre">Host</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N4Host4HostERR4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To force a move constructor to be generated by the compiler </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host4HostEv">
+<span id="_CPPv3N4Host4HostEv"></span><span id="_CPPv2N4Host4HostEv"></span><span id="Host::Host"></span><span class="target" id="class_host_1a91fe7cc47bdcbd3d9f832bd7a208b750"></span><span class="sig-name descname"><span class="n"><span class="pre">Host</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N4Host4HostEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To tell the compiler to use its default generated variants of the constructor </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4HostaSERK4Host">
+<span id="_CPPv3N4HostaSERK4Host"></span><span id="_CPPv2N4HostaSERK4Host"></span><span id="Host::assign-operator__HostCR"></span><span class="target" id="class_host_1a864923e3928275926d067664c0a1d552"></span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N4HostaSERK4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To force a copy assignment operator to be generated by the compiler. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4HostaSERR4Host">
+<span id="_CPPv3N4HostaSERR4Host"></span><span id="_CPPv2N4HostaSERR4Host"></span><span id="Host::assign-operator__HostRR"></span><span class="target" id="class_host_1a19f8aca047cdc4471baf963f5390b599"></span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">=</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="p"><span class="pre">&amp;</span></span><span class="p"><span class="pre">&amp;</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="k"><span class="pre">default</span></span><a class="headerlink" href="#_CPPv4N4HostaSERR4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To force a move assignment operator to be generated by the compiler. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4HosteqERK4Host">
+<span id="_CPPv3NK4HosteqERK4Host"></span><span id="_CPPv2NK4HosteqERK4Host"></span><span id="Host::eq-operator__HostCRC"></span><span class="target" id="class_host_1aefee570934618f17a839a60dcfa3c9db"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">==</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4HosteqERK4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: An object of host to be compared to the current host.</p>
+<p>Output: To boolean representing if thing1 == &amp;thing2</p>
+<p>Purpose: To override the bool operator == to return (thing1 == &amp;thing2) </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4HostneERK4Host">
+<span id="_CPPv3NK4HostneERK4Host"></span><span id="_CPPv2NK4HostneERK4Host"></span><span id="Host::neq-operator__HostCRC"></span><span class="target" id="class_host_1afa5624427022a11d91ae47445834c144"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="k"><span class="pre">operator</span></span><span class="o"><span class="pre">!=</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv44Host" title="Host"><span class="n"><span class="pre">Host</span></span></a><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4HostneERK4Host" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: An object of host, and the address of the thing it is being compared to.</p>
+<p>Output: To boolean representing if *thing1 == thing2</p>
+<p>Purpose: To override the bool operator != to return !(*thing1 == thing2) </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host7GetNameEv">
+<span id="_CPPv3N4Host7GetNameEv"></span><span id="_CPPv2N4Host7GetNameEv"></span><span id="Host::GetName"></span><span class="target" id="class_host_1a8f1c11f470abb7939d595f5c66b3e36b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">std</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">string</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetName</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host7GetNameEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: Name of class as string, <a class="reference internal" href="#class_host"><span class="std std-ref">Host</span></a></p>
+<p>Purpose: To know which subclass the object is </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host13SetReproCountE6size_t">
+<span id="_CPPv3N4Host13SetReproCountE6size_t"></span><span id="_CPPv2N4Host13SetReproCountE6size_t"></span><span id="Host::SetReproCount__s"></span><span class="target" id="class_host_1a3380c2a9dd16f5128dab6bfda4dca9b2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetReproCount</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host13SetReproCountE6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: Set the reproduction counter</p>
+<p>Output: None</p>
+<p>Purpose: To set the count of reproductions in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host13GetReproCountEv">
+<span id="_CPPv3N4Host13GetReproCountEv"></span><span id="_CPPv2N4Host13GetReproCountEv"></span><span id="Host::GetReproCount"></span><span class="target" id="class_host_1af085885d99c373c2564eaa29cdb3a507"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetReproCount</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host13GetReproCountEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None.</p>
+<p>Output: The reproduction count</p>
+<p>Purpose: To get the count of reproductions in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host22SetTowardsPartnerCountE6size_t">
+<span id="_CPPv3N4Host22SetTowardsPartnerCountE6size_t"></span><span id="_CPPv2N4Host22SetTowardsPartnerCountE6size_t"></span><span id="Host::SetTowardsPartnerCount__s"></span><span class="target" id="class_host_1a500db57afe6b79f848192a251e3dce0c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetTowardsPartnerCount</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host22SetTowardsPartnerCountE6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: Set the flips towards a partner counter</p>
+<p>Output: None</p>
+<p>Purpose: To set the count of flips towards a partner in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host22GetTowardsPartnerCountEv">
+<span id="_CPPv3N4Host22GetTowardsPartnerCountEv"></span><span id="_CPPv2N4Host22GetTowardsPartnerCountEv"></span><span id="Host::GetTowardsPartnerCount"></span><span class="target" id="class_host_1ab968d7e748928f5e50b0688fd16f6da4"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetTowardsPartnerCount</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host22GetTowardsPartnerCountEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None.</p>
+<p>Output: The flips towards a partner count</p>
+<p>Purpose: To get the count of flips towards a partner in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host19SetFromPartnerCountE6size_t">
+<span id="_CPPv3N4Host19SetFromPartnerCountE6size_t"></span><span id="_CPPv2N4Host19SetFromPartnerCountE6size_t"></span><span id="Host::SetFromPartnerCount__s"></span><span class="target" id="class_host_1a5732140df087308aad50ad7b13a58a33"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetFromPartnerCount</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host19SetFromPartnerCountE6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: Set the flips from a partner counter</p>
+<p>Output: None</p>
+<p>Purpose: To set the count of flips from a partner in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host19GetFromPartnerCountEv">
+<span id="_CPPv3N4Host19GetFromPartnerCountEv"></span><span id="_CPPv2N4Host19GetFromPartnerCountEv"></span><span id="Host::GetFromPartnerCount"></span><span class="target" id="class_host_1ac167ef7815c97d899c3728328b7b521b"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetFromPartnerCount</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host19GetFromPartnerCountEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None.</p>
+<p>Output: The flips from a partner count</p>
+<p>Purpose: To get the count of flips from a partner in this lineage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4NK4Host9GetIntValEv">
+<span id="_CPPv3NK4Host9GetIntValEv"></span><span id="_CPPv2NK4Host9GetIntValEv"></span><span id="Host::GetIntValC"></span><span class="target" id="class_host_1aa3763407d7d58cc0ba1570ca2bc58aad"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetIntVal</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><span class="w"> </span><span class="k"><span class="pre">const</span></span><a class="headerlink" href="#_CPPv4NK4Host9GetIntValEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: The double representing host’s interaction value</p>
+<p>Purpose: To get the double representing host’s interaction value </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host12GetSymbiontsEv">
+<span id="_CPPv3N4Host12GetSymbiontsEv"></span><span id="_CPPv2N4Host12GetSymbiontsEv"></span><span id="Host::GetSymbionts"></span><span class="target" id="class_host_1a828104f12fbc7b49ea182b70456b5285"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetSymbionts</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host12GetSymbiontsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: A vector of pointers to the organisms that are the host’s syms.</p>
+<p>Purpose: To get the vector containing pointers to the host’s symbionts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host17GetReproSymbiontsEv">
+<span id="_CPPv3N4Host17GetReproSymbiontsEv"></span><span id="_CPPv2N4Host17GetReproSymbiontsEv"></span><span id="Host::GetReproSymbionts"></span><span class="target" id="class_host_1a2e3c7251493d2ae56f755d9a91b540ba"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetReproSymbionts</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host17GetReproSymbiontsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: A vector of pointers to the organisms that are the host’s repro syms.</p>
+<p>Purpose: To get the vector containing pointers to the host’s repro syms. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9GetPointsEv">
+<span id="_CPPv3N4Host9GetPointsEv"></span><span id="_CPPv2N4Host9GetPointsEv"></span><span id="Host::GetPoints"></span><span class="target" id="class_host_1ab990306fafddc495ee6c864a1beb6576"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetPoints</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9GetPointsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: The double representing a host’s points.</p>
+<p>Purpose: To get the host’s points. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host15GetResInProcessEv">
+<span id="_CPPv3N4Host15GetResInProcessEv"></span><span id="_CPPv2N4Host15GetResInProcessEv"></span><span id="Host::GetResInProcess"></span><span class="target" id="class_host_1a9e5c478fa79d4b6f0c122df7ea7a1b05"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetResInProcess</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host15GetResInProcessEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: The double representing res_in_process</p>
+<p>Purpose: To get the value of res_in_process </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6IsHostEv">
+<span id="_CPPv3N4Host6IsHostEv"></span><span id="_CPPv2N4Host6IsHostEv"></span><span id="Host::IsHost"></span><span class="target" id="class_host_1af8f3aba5f8bcf275288631dc040e0e9f"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">IsHost</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6IsHostEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: The bool representing if an organism is a host.</p>
+<p>Purpose: To determine if an organism is a host. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9SetIntValEd">
+<span id="_CPPv3N4Host9SetIntValEd"></span><span id="_CPPv2N4Host9SetIntValEd"></span><span id="Host::SetIntVal__double"></span><span class="target" id="class_host_1a6cc8ff8e00de321a75de88c630f7f0b0"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetIntVal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9SetIntValEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: A double representing the host’s new interaction value.</p>
+<p>Output: None</p>
+<p>Purpose: To set a host’s interaction value. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host12SetSymbiontsEN3emp6vectorIN3emp3PtrI8OrganismEEEE">
+<span id="_CPPv3N4Host12SetSymbiontsEN3emp6vectorIN3emp3PtrI8OrganismEEEE"></span><span id="_CPPv2N4Host12SetSymbiontsEN3emp6vectorIN3emp3PtrI8OrganismEEEE"></span><span id="Host::SetSymbionts__emp::vector:emp::Ptr:Organism::"></span><span class="target" id="class_host_1a1b39a5be5de792042e4cde01dc0c3434"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetSymbionts</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">vector</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host12SetSymbiontsEN3emp6vectorIN3emp3PtrI8OrganismEEEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: A vector of pointers to organisms that will become a host’s symbionts.</p>
+<p>Output: None</p>
+<p>Purpose: To set a host’s symbionts to the input vector of organisms. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9SetPointsEd">
+<span id="_CPPv3N4Host9SetPointsEd"></span><span id="_CPPv2N4Host9SetPointsEd"></span><span id="Host::SetPoints__double"></span><span class="target" id="class_host_1abd2e8d39df4a3c747d46b235872e7ac3"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetPoints</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9SetPointsEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: A double representing a host’s new point value.</p>
+<p>Output: None</p>
+<p>Purpose: To set a host’s points. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9ClearSymsEv">
+<span id="_CPPv3N4Host9ClearSymsEv"></span><span id="_CPPv2N4Host9ClearSymsEv"></span><span id="Host::ClearSyms"></span><span class="target" id="class_host_1aa3dcabcef061c3c45c3a553955530aaa"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ClearSyms</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9ClearSymsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To clear a host’s symbionts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host14ClearReproSymsEv">
+<span id="_CPPv3N4Host14ClearReproSymsEv"></span><span id="_CPPv2N4Host14ClearReproSymsEv"></span><span id="Host::ClearReproSyms"></span><span class="target" id="class_host_1a550ea58cb42d71cf959a75100abc034a"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ClearReproSyms</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host14ClearReproSymsEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To clear a host’s repro symbionts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6SetTagERN3emp6BitSetI10TAG_LENGTHEE">
+<span id="_CPPv3N4Host6SetTagERN3emp6BitSetI10TAG_LENGTHEE"></span><span id="_CPPv2N4Host6SetTagERN3emp6BitSetI10TAG_LENGTHEE"></span><span id="Host::SetTag__emp::BitSet:TAG_LENGTH:R"></span><span class="target" id="class_host_1a5e360e7c93c40dd755a2a23f7377a215"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetTag</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">BitSet</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">TAG_LENGTH</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6SetTagERN3emp6BitSetI10TAG_LENGTHEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The new tag</p>
+<p>Output: None</p>
+<p>Purpose: To set a host’s tag. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6GetTagEv">
+<span id="_CPPv3N4Host6GetTagEv"></span><span id="_CPPv2N4Host6GetTagEv"></span><span id="Host::GetTag"></span><span class="target" id="class_host_1ac57fbf95314a56b2de70895d18514cc5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">BitSet</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">TAG_LENGTH</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="p"><span class="pre">&amp;</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetTag</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6GetTagEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: The host’s tag.</p>
+<p>Purpose: To get a host’s tag. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host7SetDeadEv">
+<span id="_CPPv3N4Host7SetDeadEv"></span><span id="_CPPv2N4Host7SetDeadEv"></span><span id="Host::SetDead"></span><span class="target" id="class_host_1a29947c032dc16454f44aa91d5ed056f1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetDead</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host7SetDeadEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To kill a host. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host15SetResInProcessEd">
+<span id="_CPPv3N4Host15SetResInProcessEd"></span><span id="_CPPv2N4Host15SetResInProcessEd"></span><span id="Host::SetResInProcess__double"></span><span class="target" id="class_host_1a48d81eb2d02b54392f89a6687a4566da"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetResInProcess</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host15SetResInProcessEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The double to be set as res_in_process</p>
+<p>Output: None</p>
+<p>Purpose: To set the value of res_in_process </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host7GetDeadEv">
+<span id="_CPPv3N4Host7GetDeadEv"></span><span id="_CPPv2N4Host7GetDeadEv"></span><span id="Host::GetDead"></span><span class="target" id="class_host_1a08b52d3106cec621e430f9d8cfffee76"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetDead</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host7GetDeadEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: boolean</p>
+<p>Purpose: To determine if a host is dead. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6GetAgeEv">
+<span id="_CPPv3N4Host6GetAgeEv"></span><span id="_CPPv2N4Host6GetAgeEv"></span><span id="Host::GetAge"></span><span class="target" id="class_host_1a01b3216b431f877a7dc2b87eba7be13c"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetAge</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6GetAgeEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: an int representing the current age of the <a class="reference internal" href="#class_host"><span class="std std-ref">Host</span></a></p>
+<p>Purpose: To get the <a class="reference internal" href="#class_host"><span class="std std-ref">Host</span></a>’s age. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6SetAgeEi">
+<span id="_CPPv3N4Host6SetAgeEi"></span><span id="_CPPv2N4Host6SetAgeEi"></span><span id="Host::SetAge__i"></span><span class="target" id="class_host_1aa8913931b6967db106b3bcd7f9fe5f11"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SetAge</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6SetAgeEi" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: An int of what age the <a class="reference internal" href="#class_host"><span class="std std-ref">Host</span></a> should be set to</p>
+<p>Output: None</p>
+<p>Purpose: To set the <a class="reference internal" href="#class_host"><span class="std std-ref">Host</span></a>’s age for testing purposes. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9GrowOlderEv">
+<span id="_CPPv3N4Host9GrowOlderEv"></span><span id="_CPPv2N4Host9GrowOlderEv"></span><span id="Host::GrowOlder"></span><span class="target" id="class_host_1a714952441377e73e73fff0b513291b70"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GrowOlder</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9GrowOlderEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: Increments age by one and kills it if too old. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host14StealResourcesEd">
+<span id="_CPPv3N4Host14StealResourcesEd"></span><span id="_CPPv2N4Host14StealResourcesEd"></span><span id="Host::StealResources__double"></span><span class="target" id="class_host_1aa1ccb7aeef4f3f035e265daf23b6edc2"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">StealResources</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_intval</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host14StealResourcesEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The interaction value of the symbiont that is eligible to steal resources from the host.</p>
+<p>Output: The double representing the amount of resources that are actually stolen from the host.</p>
+<p>Purpose: To determine if a host’s symbiont is eligible to steal resources from the host. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9AddPointsEd">
+<span id="_CPPv3N4Host9AddPointsEd"></span><span id="_CPPv2N4Host9AddPointsEd"></span><span id="Host::AddPoints__double"></span><span class="target" id="class_host_1ae702579a5a21688036a32b5c141318a1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddPoints</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9AddPointsEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The double representing the number of points to be incremented onto a host’s points.</p>
+<p>Output: None</p>
+<p>Purpose: To increment a host’s points by the input value. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host11AddSymbiontEN3emp3PtrI8OrganismEE">
+<span id="_CPPv3N4Host11AddSymbiontEN3emp3PtrI8OrganismEE"></span><span id="_CPPv2N4Host11AddSymbiontEN3emp3PtrI8OrganismEE"></span><span id="Host::AddSymbiont__emp::Ptr:Organism:"></span><span class="target" id="class_host_1a17e65035b4d51c79a5a4f6ad5b9ef4d1"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddSymbiont</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host11AddSymbiontEN3emp3PtrI8OrganismEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The pointer to the organism that is to be added to the host’s symbionts.</p>
+<p>Output: The int describing the symbiont’s position ID, or 0 if it did not successfully get added to the host’s list of symbionts.</p>
+<p>Purpose: To add a symbionts to a host’s symbionts </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host12SymAllowedInEv">
+<span id="_CPPv3N4Host12SymAllowedInEv"></span><span id="_CPPv2N4Host12SymAllowedInEv"></span><span id="Host::SymAllowedIn"></span><span class="target" id="class_host_1aab980ab727ca1466ca44905558e90696"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SymAllowedIn</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host12SymAllowedInEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: A bool representing if a symbiont will be allowed to enter a host.</p>
+<p>Purpose: To determine if a symbiont will be allowed into a host. If phage exclusion is off, this function will always return true. If phage exclusion is on, then there is a 1/2^n chance of a new phage being allowed in, where n is the number of existing phage. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host11AddReproSymEN3emp3PtrI8OrganismEE">
+<span id="_CPPv3N4Host11AddReproSymEN3emp3PtrI8OrganismEE"></span><span id="_CPPv2N4Host11AddReproSymEN3emp3PtrI8OrganismEE"></span><span id="Host::AddReproSym__emp::Ptr:Organism:"></span><span class="target" id="class_host_1a585fd7d01c88deb13fdc0e440c206ee5"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">AddReproSym</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">_in</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host11AddReproSymEN3emp3PtrI8OrganismEE" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: A pointer to the organism to be added to the host’s symbionts.</p>
+<p>Output: None</p>
+<p>Purpose: To add a repro sym to the host’s symbionts. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6HasSymEv">
+<span id="_CPPv3N4Host6HasSymEv"></span><span id="_CPPv2N4Host6HasSymEv"></span><span id="Host::HasSym"></span><span class="target" id="class_host_1a1708fe0418fdd0bfac420eaaa7f13627"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HasSym</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6HasSymEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: A bool representing if a host has any symbionts.</p>
+<p>Purpose: To determine if a host has any symbionts, though they might be corpses that haven’t been removed yet. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host7MakeNewEv">
+<span id="_CPPv3N4Host7MakeNewEv"></span><span id="_CPPv2N4Host7MakeNewEv"></span><span id="Host::MakeNew"></span><span class="target" id="class_host_1ae632c6bb047ddda00638f1a96245a0cb"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MakeNew</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host7MakeNewEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None.</p>
+<p>Output: A new host with same properties as this host.</p>
+<p>Purpose: To avoid creating an organism via constructor in other methods. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host9ReproduceEv">
+<span id="_CPPv3N4Host9ReproduceEv"></span><span id="_CPPv2N4Host9ReproduceEv"></span><span id="Host::Reproduce"></span><span class="target" id="class_host_1a4e60077d5b036f06af3179f030883293"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Reproduce</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host9ReproduceEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None.</p>
+<p>Output: A new host baby of the current host, mutated.</p>
+<p>Purpose: To create a new baby host and reset this host’s points to 0. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host6MutateEv">
+<span id="_CPPv3N4Host6MutateEv"></span><span id="_CPPv2N4Host6MutateEv"></span><span id="Host::Mutate"></span><span class="target" id="class_host_1a5b26454136969312e76c646a96d22c07"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Mutate</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host6MutateEv" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: None</p>
+<p>Output: None</p>
+<p>Purpose: To mutate a host’s interaction value. This is called on newly generated hosts to allow for evolution to occur. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host16DistribResourcesEd">
+<span id="_CPPv3N4Host16DistribResourcesEd"></span><span id="_CPPv2N4Host16DistribResourcesEd"></span><span id="Host::DistribResources__double"></span><span class="target" id="class_host_1ae6b89dd7ece2be5bc147f6284e4712ec"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DistribResources</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resources</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host16DistribResourcesEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The double representing the number of resources to be distributed to the host and its symbionts and the position of the host in the world.</p>
+<p>Output: None</p>
+<p>Purpose: To distribute resources to a host and its symbionts. In the event that the host has no symbionts, the host gets all resources not allocated to defense or given to absent partner. Otherwise, the resource is split into equal chunks for each symbiont </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host19HandleEctosymbiosisEd6size_t">
+<span id="_CPPv3N4Host19HandleEctosymbiosisEd6size_t"></span><span id="_CPPv2N4Host19HandleEctosymbiosisEd6size_t"></span><span id="Host::HandleEctosymbiosis__double.s"></span><span class="target" id="class_host_1a7022763fb7640c40e0529e2dafa9ec0d"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">HandleEctosymbiosis</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">resources</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">location</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host19HandleEctosymbiosisEd6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The total resources received by the host and its location in the world.</p>
+<p>Output: The resources remaining after the host maybe does ectosymbiosis.</p>
+<p>Purpose: To handle ectosymbiosis. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host18GetDoEctosymbiosisE6size_t">
+<span id="_CPPv3N4Host18GetDoEctosymbiosisE6size_t"></span><span id="_CPPv2N4Host18GetDoEctosymbiosisE6size_t"></span><span id="Host::GetDoEctosymbiosis__s"></span><span class="target" id="class_host_1a111959f4c709072608417a0b375bd3a3"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">GetDoEctosymbiosis</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">location</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host18GetDoEctosymbiosisE6size_t" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The location of this host in the world.</p>
+<p>Output: A bool value representing whether this host should interact with a parallel sym</p>
+<p>Purpose: To determine whether a host should interact with a parallel sym </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host15DistribResToSymEN3emp3PtrI8OrganismEEd">
+<span id="_CPPv3N4Host15DistribResToSymEN3emp3PtrI8OrganismEEd"></span><span id="_CPPv2N4Host15DistribResToSymEN3emp3PtrI8OrganismEEd"></span><span id="Host::DistribResToSym__emp::Ptr:Organism:.double"></span><span class="target" id="class_host_1a83a988f7e023192b530cc1f701a299f9"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DistribResToSym</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">Ptr</span></span><span class="p"><span class="pre">&lt;</span></span><span class="n"><span class="pre">Organism</span></span><span class="p"><span class="pre">&gt;</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sym</span></span>, <span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sym_piece</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host15DistribResToSymEN3emp3PtrI8OrganismEEd" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The sym to whom resources are distributed and the resources it might recieve.</p>
+<p>Output: None</p>
+<p>Purpose: To distribute resources between sym and host depending on their interaction values. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv4N4Host7ProcessEN3emp13WorldPositionE">
+<span id="_CPPv3N4Host7ProcessEN3emp13WorldPositionE"></span><span id="_CPPv2N4Host7ProcessEN3emp13WorldPositionE"></span><span id="Host::Process__emp::WorldPosition"></span><span class="target" id="class_host_1afb3ccccc73ddc7c271600f0b9dc90229"></span><span class="k"><span class="pre">inline</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">Process</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">emp</span></span><span class="p"><span class="pre">::</span></span><span class="n"><span class="pre">WorldPosition</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N4Host7ProcessEN3emp13WorldPositionE" title="Link to this definition"></a><br /></dt>
+<dd><p>Input: The size_t value representing the location of the host.</p>
+<p>Output: None</p>
+<p>Purpose: To process the host, meaning determining eligibility for reproduction, checking for vertical transmission, removing dead syms, and processing alive syms. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sym_docs.html" class="btn btn-neutral float-right" title="Symbiont Class Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Anya Vostinar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -38,9 +38,6 @@ all: default-mode efficient-mode lysis-mode pgg-mode sgp-mode symbulation.js
 default-mode:	source/native/symbulation_default.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_default.cc -o symbulation_default
 
-parasite-mode:	source/native/symbulation_parasite.cc
-	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_parasite.cc -o symbulation_parasite
-
 efficient-mode:	source/native/symbulation_efficient.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_efficient.cc -o symbulation_efficient
 
@@ -68,10 +65,6 @@ debug:
 debug-default: CFLAGS_nat := $(CFLAGS_nat_debug)
 debug-default: default-mode
 default-debug: debug-default
-
-debug-parasite: CFLAGS_nat := $(CFLAGS_nat_debug)
-debug-parasite: parasite-mode
-parasite-debug: debug-parasite
 
 debug-efficient: CFLAGS_nat := $(CFLAGS_nat_debug)
 debug-efficient: efficient-mode
@@ -119,49 +112,66 @@ test-debug:
 
 test-default:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [default]
+	./symbulation.test [default] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 test-debug-default:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [default]
+	./symbulation.test [default] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 
 test-efficient:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [efficient]
+	./symbulation.test [efficient] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 test-debug-efficient:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [efficient]
+	./symbulation.test [efficient] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 
 test-lysis:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [lysis]
+	./symbulation.test [lysis] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 test-debug-lysis:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [lysis]
+	./symbulation.test [lysis] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 
 test-pgg:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [pgg]
+	./symbulation.test [pgg] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 test-debug-pgg:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [pgg]
+	./symbulation.test [pgg] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+	./symbulation.test [pgg] || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-sgp:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp]
+	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-sgp-all:
+	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [sgp],[sgp-integration] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test [sgp]
+	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
 
+test-executable-debug:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+
 test-all:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-debug-all:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
 
 # Extras
 .PHONY: clean test serve
@@ -174,4 +184,4 @@ clean:
 
 coverage:
 	$(CXX_nat) $(CFLAGS_nat_coverage) $(TEST_DIR)/main.cc -o symbulation.test
-	./symbulation.test
+	./symbulation.test || { gdb ./symbulation.test --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }

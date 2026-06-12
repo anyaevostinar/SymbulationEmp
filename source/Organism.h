@@ -5,10 +5,12 @@
 #include <optional>
 #include "ConfigSetup.h"
 #include "emp/Evolve/Systematics.hpp"
+#include "TaxonData.h"
 
 class Organism {
 
   public:
+  using taxon_info_t = double;
 
   Organism() = default;
   Organism(const Organism &) = default;
@@ -28,17 +30,25 @@ class Organism {
     throw "Organism method called!";}
 
   virtual double GetIntVal() const {
-    std::cout << "GetIntVal called from Organsim" << std::endl;
+    std::cout << "GetIntVal called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double GetPoints() {
     std::cout << "GetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual emp::WorldPosition GetLocation() {
+    std::cout << "GetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void SetIntVal(double _in) {
     std::cout << "SetIntVal called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual void SetPoints(double _in) {
     std::cout << "SetPoints called from Organism" << std::endl;
     throw "Organism method called!";}
+  virtual void SetLocation(emp::WorldPosition _in) {
+    std::cout << "SetLocation called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void AddPoints(double _in) {
     std::cout << "AddPoints called from Organism" << std::endl;
     throw "Organism method called!";}
@@ -74,6 +84,46 @@ class Organism {
   }
   virtual emp::Ptr<Organism> MakeNew(){
     std::cout << "MakeNew called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual emp::BitSet<TAG_LENGTH> & GetTag() {
+    std::cout << "GetTag called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetTag(emp::BitSet<TAG_LENGTH>& _in) {
+    std::cout << "SetTag called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual size_t GetReproCount() {
+    std::cout << "GetReproCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetReproCount(size_t _in) {
+    std::cout << "SetReproCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetTowardsPartnerCount(size_t _in) {
+    std::cout << "SetTowardsPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual size_t GetTowardsPartnerCount() {
+    std::cout << "GetTowardsPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetFromPartnerCount(size_t _in) {
+    std::cout << "SetFromPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual size_t GetFromPartnerCount() {
+    std::cout << "GetFromPartnerCount called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetTagPermissiveness(double _in) {
+    std::cout << "SetTagPermissiveness called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual double GetTagPermissiveness() {
+    std::cout << "GetTagPermissiveness called from Organism" << std::endl;
     throw "Organism method called!";
   }
 
@@ -118,10 +168,10 @@ class Organism {
   virtual bool InfectionFails() {
     std::cout << "InfectionFails called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual emp::Ptr<emp::Taxon<int>> GetTaxon() {
+  virtual emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> GetTaxon() {
     std::cout << "GetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
-  virtual void SetTaxon(emp::Ptr<emp::Taxon<int>> _in) {
+  virtual void SetTaxon(emp::Ptr<emp::Taxon<taxon_info_t, datastruct::TaxonDataBase>> _in) {
     std::cout << "SetTaxon called from an Organism" << std::endl;
     throw "Organism method called!";}
 
@@ -184,7 +234,14 @@ class Organism {
   virtual void ClearReproSyms() {
     std::cout << "ClearReproSyms called from Organism" << std::endl;
     throw "Organism method called!";}
-
+  virtual void CycleTransfer(int _in){
+    std::cout << "CycleTransfer called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual int GetCyclesGiven(){
+    std::cout << "GetCyclesGiven called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   //Bacterium functions
   virtual double ProcessLysogenResources(double phage_inc_val){
     std::cout << "ProcessLysogenResources called from Organism" << std::endl;
@@ -246,6 +303,13 @@ class Organism {
   virtual double ProcessPool() {
     std::cout << "ProcessPool called from Organism" << std::endl;
     throw "Organism method called!";}
+
+
+  //SGPMode Symbiont Functions
+  virtual float DoTaskInteraction(float score, size_t task_id) {
+    std::cout << "DoTaskInteraction called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
 
 };
 #endif

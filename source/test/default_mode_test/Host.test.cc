@@ -23,7 +23,7 @@ TEST_CASE("Host Constructor", "[default]") {
     
     WHEN("An interaction value < -1 other than -2 is passed") {
       int_val = -1.5;
-      THEN("An excepton is thrown") {
+      THEN("An exception is thrown") {
         REQUIRE_THROWS(emp::NewPtr<Host>(random, world, &config, int_val));
       }
     }
@@ -204,6 +204,7 @@ TEST_CASE("Host Mutate", "[default]") {
         host.Delete();
       }
     }
+    
     random.Delete();
 }
 
@@ -500,6 +501,54 @@ TEST_CASE("Host Reproduce", "[default]"){
     host1.Delete();
     host2.Delete();
     random.Delete();
+}
+
+TEST_CASE("RemoveSymbiont", "[default]") {
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 0;
+
+  GIVEN("A Host with a single symbiont") {
+    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config, int_val);
+    emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+    host->AddSymbiont(symbiont);
+    REQUIRE(host->GetSymbionts().size() == 1);
+    REQUIRE(symbiont->GetHost() == host);
+
+    WHEN("RemoveSymbiont is called with correct index"){
+      emp::Ptr<Organism> removed_sym = host->RemoveSymbiont(1);
+
+      THEN("Symbiont correctly removed") {
+        REQUIRE(host->GetSymbionts().size() == 0);
+        REQUIRE(symbiont->GetHost() == nullptr);
+        REQUIRE(removed_sym == symbiont);
+      }
+      removed_sym.Delete();
+    }
+
+    WHEN("RemoveSymbiont is called with invalid index") {
+      emp::Ptr<Organism> null_sym = host->RemoveSymbiont(2);
+
+      THEN("RemoveSymbiont returns null pointer and nothing changes") {
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(symbiont->GetHost() == host);
+        REQUIRE(null_sym == nullptr);
+      }
+    }
+
+    WHEN("RemoveSymbiont is called with index 0") {
+      emp::Ptr<Organism> null_sym = host->RemoveSymbiont(0);
+
+      THEN("RemoveSymbiont returns null pointer and nothing changes") {
+        REQUIRE(host->GetSymbionts().size() == 1);
+        REQUIRE(symbiont->GetHost() == host);
+        REQUIRE(null_sym == nullptr);
+      }
+    }
+    host.Delete();
+  }
+  random.Delete();
 }
 
 TEST_CASE("AddSymbiont", "[default]"){

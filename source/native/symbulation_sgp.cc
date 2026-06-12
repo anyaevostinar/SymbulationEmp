@@ -10,6 +10,10 @@
 
 #include "symbulation.h"
 
+// Empirical doesn't support more than one translation unit, so any CC files are
+// included last. It still fixes include issues, but doesn't improve build time.
+#include "../default_mode/WorldSetup.cc"
+#include "../sgp_mode/SGPWorldSetup.cc"
 #include "../../Empirical/include/emp/config/ArgManager.hpp"
 
 #include <fstream>
@@ -32,7 +36,7 @@ int symbulation_main(int argc, char *argv[]) {
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
-  world.Run();
+  world.Run(true);
 
   return 0;
 }
