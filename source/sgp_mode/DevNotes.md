@@ -41,6 +41,18 @@
 # Notes
 These are function flows that are complicated to follow:
 
+## Horizontal transmission
+* Reproduce Instruction -> checks cycles, marks repro attempt, also now checks for Horiz_Trans and should also check for FLS once I make a pass through to make sure FLS is supported
+* Process -> Checks for repro attempt, calls AttemptIndependentReproduction
+* AttemptIndependentReproduction -> Calls Symbiont's super method to check points, set points to zero (need to try changing to decrement in super and see if everything breaks), marks attempt in data node; submethod then adds to reproduce queue
+* Repro queue calls fun_reproduce_org
+* fun_reproduce_org -> calls org->Reproduce and then SymDoBirth
+* Reproduce -> calls super class Reproduce (which handles tag updates, etc) and sets up parent task count and lineage tracking
+* SymDoBirth -> calls fun_sym_do_birth and after_sym_do_birth signal
+* fun_sym_do_birth -> calls freeliving or SymAttemptHorizontalInfection (renamed to avoid confusion with HorizontalTransmission) depending on config
+* SymAttemptHorizontalInfection -> finds a host and adds sym to host
+* after_sym_do_birth signal -> calls sym_parent super's AfterHorizontalTransmission, which records success in datanode if appropriate
+
 ## Reproduction
 * Repro Inst -> state.markReproAttempt
 * Host Process checks Repro attempt -> calls AttemptReproduction
