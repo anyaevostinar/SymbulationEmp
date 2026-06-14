@@ -1,0 +1,383 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting started with Symbulation development &mdash; Symbulation 0.0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/rtd_sphinx_search.min.css?v=e72958e9" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5aa371e9"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/js/rtd_search_config.js?v=b0596c34"></script>
+      <script src="../_static/js/rtd_sphinx_search.min.js?v=5e065386"></script>
+      <script src="https://kit.fontawesome.com/8485b453b8.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Coding guidelines and review checklist" href="contribution-guidelines-and-review.html" />
+    <link rel="prev" title="Symbulation Development Practices" href="symbulation-development-practices.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Symbulation
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Using Symbulation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../projects/index.html">Projects using Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../QuickStartGuides/index.html">Quick Start Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html">ALIFE 2022 Symbulation Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../ALIFE2022Tutorial/index.html#alife-talks-featuring-symbulation">ALIFE Talks Featuring Symbulation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html">Host Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/library_root.html#symbiont-class">Symbiont Class</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Contributing to Symbulation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="symbulation-development-practices.html">Symbulation Development Practices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started with Symbulation development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#one-time-preparation">One-time Preparation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#building-symbulation-and-running-the-tests">Building Symbulation and running the tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#claiming-an-issue-and-starting-to-develop">Claiming an issue and starting to develop</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#after-your-first-issue-is-successfully-merged">After your first issue is successfully merged…</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#your-second-contribution">Your second contribution…</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pull-request-cleanup-commit-squashing">Pull request cleanup (commit squashing)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contribution-guidelines-and-review.html">Coding guidelines and review checklist</a></li>
+<li class="toctree-l1"><a class="reference internal" href="adding-documentation.html">Documentation for Symbulation Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guide-to-testing.html">Guide to Testing in Symbulation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Symbulation</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting started with Symbulation development</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started-with-symbulation-development">
+<h1>Getting started with Symbulation development<a class="headerlink" href="#getting-started-with-symbulation-development" title="Link to this heading"></a></h1>
+<p>This document is intended to help those just getting started with
+Symbulation development. It details the initial one-time dependency
+installs and any similar routines necessary to get started with
+development.</p>
+<p>Start by making your own copy of Symbulation and setting yourself up for
+development; then, build Symbulation and run the tests; and finally, claim
+an issue and start developing!</p>
+<p>If you’re unfamiliar with git and branching in particular, check out
+the <a class="reference external" href="http://git-scm.com/book/en/Git-Branching">git-scm book</a>.</p>
+<section id="one-time-preparation">
+<h2>One-time Preparation<a class="headerlink" href="#one-time-preparation" title="Link to this heading"></a></h2>
+<ol class="arabic">
+<li><p>Get a <a class="reference external" href="http://github.com">GitHub</a> account.</p>
+<p>(We use GitHub to manage Symbulation contributions.)</p>
+</li>
+<li><p>Fork
+<a class="reference external" href="https://github.com/anyaevostinar/SymbulationEmp">github.com/anyaevostiar/SymbulationEmp</a>.</p>
+<p>Visit that page, and then click on the ‘fork’ button (upper
+right).</p>
+<p>This makes a copy of the Symbulation source code in your own GitHub
+account. If you have contributor permissions to the main Symbulation
+library, this step is optional (you can instead develop on a branch
+within the main repo).</p>
+<p>Clone your copy of Symbulation and Empirical to your local development environment.</p>
+<p>Your clone URLs should look something like this:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> https://github.com/yourusername/SymbulationEmp.git
+ https://github.com/devosoft/Empirical.git
+</pre></div>
+</div>
+<p>and the UNIX shell command should be:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git clone https://github.com/yourusername/SymbulationEmp.git
+ git clone https://github.com/devosoft/Empirical.git
+</pre></div>
+</div>
+<p>(This makes a local copy of Symbulation on your development machine.)</p>
+<p>Add a git reference to the Symbulation repository:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> cd SymbulationEmp
+ git remote add upstream https://github.com/anyaevostinar/SymbulationEmp.git
+ cd ../
+</pre></div>
+</div>
+<p>(This makes it easy for you to pull down the latest changes in the
+main repository.)</p>
+</li>
+</ol>
+<section id="building-symbulation-and-running-the-tests">
+<h3>Building Symbulation and running the tests<a class="headerlink" href="#building-symbulation-and-running-the-tests" title="Link to this heading"></a></h3>
+<p>To run the tests:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>    make test
+</pre></div>
+</div>
+<p>Congratulations! You’re ready to develop!</p>
+</section>
+</section>
+<section id="claiming-an-issue-and-starting-to-develop">
+<h2>Claiming an issue and starting to develop<a class="headerlink" href="#claiming-an-issue-and-starting-to-develop" title="Link to this heading"></a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>Find an open issue and claim it.
+
+Once you&#39;ve found an issue you like, make sure that no one has been
+assigned to it (see &quot;assignee&quot;, bottom right near
+&quot;notifications&quot;). Then, add a comment &quot;I am working on this
+issue.&quot; You&#39;ve staked your claim!
+
+(We&#39;re trying to avoid having multiple people working on the same
+issue.)
+</pre></div>
+</div>
+<ol class="arabic">
+<li><p>In your local copy of the source code, update your main branch
+from the main Symbulation main branch:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git checkout main
+ git pull upstream main
+</pre></div>
+</div>
+<p>(This pulls in all of the latest changes from whatever we’ve been
+doing on Symbulation.)</p>
+<p>It is possible that when you do a [git pull]{.title-ref} you will
+get a “merge conflict” – This is what happens when something
+changed in the branch you’re pulling in in the same place you made
+a change in your local copy.</p>
+<p>Git will complain loudly about merges and tell you specifically in
+which files they occurred. If you open the file, you’ll see
+something vaguely like this in the place where the merge occurred:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+ Changes made on the branch that is being merged into. In most cases,
+ this is the branch that you have currently checked out
+ =======
+ Changes made on the branch that is being merged in, almost certainly
+ main.
+ &gt;&gt;&gt;&gt;&gt;&gt;&gt; abcde1234
+</pre></div>
+</div>
+<p>Though there are a variety of tools to assist with resolving merge
+conflicts they can be quite complicated at first glance and it is
+usually easy enough to manually resolve the conflict.</p>
+<p>To resolve the conflict you simply have to manually ‘meld’ the
+changes together and remove the merge markers. Make sure that you
+don’t remove someone else’s changes while resolving the merge conflict!</p>
+<p>After this you’ll have to add and commit the merge just like any
+other set of changes. You should also run the tests to make sure
+that everything works as expected.</p>
+</li>
+<li><p>Create a new branch and link it to your fork on GitHub:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git checkout -b fix/brief_issue_description
+ git push -u origin fix/brief_issue_description
+</pre></div>
+</div>
+<p>where you replace “brief_issue_description” with 2-3 words,
+separated by underscores, describing the issue.</p>
+<p>(This is the set of changes you’re going to ask to be merged into
+Symbulation.)</p>
+</li>
+<li><p>Make some changes and commit them.</p>
+<p>Though this will largely be issue-dependent the basics of committing
+are simple. After you’ve made a cohesive set of changes, run the
+command [git status]{.title-ref}. This will display a list of all
+the files git has noticed you changed. A file in the ‘untracked’
+section are files that haven’t existed previously in the repository
+but git has noticed.</p>
+<p>To commit changes you have to ‘stage’ them–this is done by
+issuing the following command:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git add path/to/file
+</pre></div>
+</div>
+<p>If you have a large quantity of changes and you don’t want to add
+each file manually you can do <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">add</span> <span class="pre">--patch</span></code> which will display
+each set of changes to you before staging them for commit.</p>
+<p>Once you have staged your changes, it’s time to make a commit:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git commit -m &quot;added x change&quot;
+</pre></div>
+</div>
+<p>Git will then open your default console text editor to write a
+commit message – this is a short (typically 1-3 sentence)
+description of the changes you’ve made. Please make your commit
+message informative but concise – these messages become part of
+the ‘official’ history of the project.</p>
+<p>Once your changes have been committed, push them up to the remote
+branch:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git push
+</pre></div>
+</div>
+<p>If this is your first commit on a new branch git will error out,
+telling you the remote branch doesn’t exist – This is fine, as it
+will also provide the command to create the branch. Copy/paste/run
+and you should be set.</p>
+</li>
+<li><p>Periodically update your branch from the Symbulation main
+branch:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git pull upstream main
+</pre></div>
+</div>
+<p>(This pulls in all of the latest changes from whatever we’ve been
+doing on the upstream branch- important especially during periods of
+fast change or for long-running pull requests.)</p>
+</li>
+<li><p>Run the tests <em>before</em> pushing to GitHub:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> make test
+</pre></div>
+</div>
+<p>Make sure they all pass!</p>
+</li>
+<li><p>Push your branch to your own GitHub fork:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git push origin
+</pre></div>
+</div>
+<p>(This pushes all of your changes to your own fork.)</p>
+</li>
+<li><p>Repeat until you’re ready to merge your changes into “official”
+Symbulation.</p></li>
+<li><p>Set up a Pull Request asking to merge things into the central
+Symbulation repository.</p>
+<p>In a Web browser, go to your GitHub fork of Symbulation, e.g.:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> https://github.com/yourusername/SymbulationEmp
+</pre></div>
+</div>
+<p>and you will see a list of “recently pushed branches” just above
+the source code listing. On the right side of that should be a
+“Compare &amp; pull request” green button. Click on it!</p>
+<p>Now:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>add a descriptive title (“updated tests for XXX”)</p></li>
+<li><p>put the issue number in the comment (“fixes issue #532”)</p></li>
+</ul>
+</div></blockquote>
+<p>then click “Create pull request.”</p>
+<p>(This creates a new issue where we can all discuss your proposed
+changes; the Symbulation team will be automatically notified and you
+will receive e-mail notifications as we add comments. See <a class="reference external" href="http://scottchacon.com/2011/08/31/github-flow.html">GitHub
+flow</a> for more
+info.)</p>
+</li>
+<li><p>As you add new commits to address bugs or formatting issues, you can
+keep pushing your changes to the pull request by doing:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> git push origin
+</pre></div>
+</div>
+</li>
+<li><p>If we request changes, return to the step “Make some changes and
+commit them” and go from there. Any additional commits you make and
+push to your branch will automatically be added to the pull request
+(which is pretty dang cool.)</p></li>
+</ol>
+</section>
+<section id="after-your-first-issue-is-successfully-merged">
+<h2>After your first issue is successfully merged…<a class="headerlink" href="#after-your-first-issue-is-successfully-merged" title="Link to this heading"></a></h2>
+<p>You’re now an experienced GitHub user! Go ahead and take some more
+tasks; you can broaden out beyond the low hanging fruit if you like.</p>
+</section>
+<section id="your-second-contribution">
+<h2>Your second contribution…<a class="headerlink" href="#your-second-contribution" title="Link to this heading"></a></h2>
+<p>Here are a few pointers on getting started on your second (or third, or
+fourth, or nth contribution).</p>
+<p>So, assuming you’ve found an issue you’d like to work on there are a
+couple things to do to make sure your local copy of the repository is
+ready for a new issue–specifically, we need to make sure it’s in sync
+with the remote repository so you aren’t working on an old copy. So:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git checkout main
+git fetch --all
+git pull
+</pre></div>
+</div>
+<p>This puts you on the latest main branch and pulls down updates from
+GitHub with any changes that may have been made since your last
+contribution (usually including the merge of your last contribution).
+Then we merge those changes into your local copy of the main branch.</p>
+<p>Now, you can go back to <a class="reference internal" href="#claiming-an-issue-and-starting-to-develop">Claiming an issue and starting to
+develop</a>.</p>
+</section>
+<section id="pull-request-cleanup-commit-squashing">
+<h2>Pull request cleanup (commit squashing)<a class="headerlink" href="#pull-request-cleanup-commit-squashing" title="Link to this heading"></a></h2>
+<p>Submitters are invited to reduce the numbers of commits in their pull
+requests either via [git rebase -i upstream/main]{.title-ref} or this
+recipe:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>git pull ## make sure the local is up to date
+git pull upstream main ## get up to date
+## fix any merge conflicts
+git status ## sanity check
+git diff upstream/main ## does the diff look correct? (no merge markers)
+git reset --soft upstream/main ## un-commit the differences from dib/main
+git status ## sanity check
+git commit --all ## package all differences in one commit
+git status ## sanity check
+git push ## should fail
+git push --force ## override what&#39;s in GitHub&#39;s copy of the branch/pull request
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="symbulation-development-practices.html" class="btn btn-neutral float-left" title="Symbulation Development Practices" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="contribution-guidelines-and-review.html" class="btn btn-neutral float-right" title="Coding guidelines and review checklist" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Anya Vostinar.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

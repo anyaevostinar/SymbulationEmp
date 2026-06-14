@@ -1,0 +1,7 @@
+theme: jekyll-theme-primer
+title: Symbulation
+description: A research platform for simulating the evolution of symbionts and hosts
+
+exclude:
+  - signalgp-lite/
+  - Emprical/

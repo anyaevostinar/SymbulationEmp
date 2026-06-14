@@ -3,7 +3,7 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
-
+#include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE("PullResources", "[default]") {
   GIVEN(" a world ") {
@@ -340,6 +340,7 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
         //will get overwritten, and thus # injected != # remaining in world
         REQUIRE(world.GetNumOrgs() < (sym_count + 1));
         REQUIRE(world.GetNumOrgs() > (sym_count - 10));
+        world.CleanupGraveyard();
       }
     }
   }
@@ -413,23 +414,106 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
       config.FREE_LIVING_SYMS(0);
 
       WHEN( "there is a valid neighbouring host" ){
-        size_t host_pos = 1;
-        emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        world.AddOrgAt(host, host_pos);
 
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, 1);
+        WHEN("there is room in the host and free failure due to size constraints is off"){
+          config.FREE_HT_FAILURE(0);
+          config.SYM_LIMIT(2);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
 
-        emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
-        emp::Ptr<Organism> host_sym = syms[0];
+          emp::WorldPosition parent_sym_pos = emp::WorldPosition(1, host_pos);
+          emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(parent_symbiont);
+          emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          new_pos = world.SymDoBirth(new_symbiont, parent_sym_pos);
 
-        THEN( "the sym is inserted into the valid neighbouring host" ){
-          REQUIRE(host_sym == new_symbiont);
-          REQUIRE(world.GetNumOrgs() == 1);
-          REQUIRE(new_pos.IsValid() == true);
+          emp::vector<emp::Ptr<Organism>> syms = host->GetSymbionts();
+          emp::Ptr<Organism> host_sym = syms[1];
 
-          REQUIRE(new_pos.GetIndex() == 1);
-          REQUIRE(new_pos.GetPopID() == host_pos);
+          THEN( "the sym is inserted into the valid neighbouring host" ){
+            REQUIRE(host_sym == new_symbiont);
+            REQUIRE(world.GetNumOrgs() == 1);
+            REQUIRE(new_pos.IsValid() == true);
+            REQUIRE(parent_symbiont->GetPoints() == 0);
+            
+            REQUIRE(new_pos.GetIndex() == 2);
+            REQUIRE(new_pos.GetPopID() == host_pos);
+            REQUIRE(new_symbiont->GetPoints() == 0);
+          }
+        }
+        WHEN("there is room in the host and free failure due to size constraints is on") {
+          config.FREE_HT_FAILURE(1);
+          config.SYM_LIMIT(2);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted and the parent spends points") {
+            REQUIRE(symbiont_parent->GetPoints() == 0);
+            REQUIRE(host->GetSymbionts().size() == 2);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+            REQUIRE(host->GetSymbionts().at(1)->GetPoints() == 0);
+          }
+        }
+        WHEN("there is no room in the host and free failure due to size constraints is on"){
+          config.FREE_HT_FAILURE(1);
+          config.SYM_LIMIT(1);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted nowhere and the parent spends no points") {
+            REQUIRE(symbiont_parent->GetPoints() == starting_resources);
+            REQUIRE(host->GetSymbionts().size() == 1);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+          }
+        }
+        WHEN("there is no room in the host and free failure due to size constraints is off"){
+          config.FREE_HT_FAILURE(0);
+          config.SYM_LIMIT(1);
+          size_t host_pos = 1;
+          emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(host, host_pos);
+
+          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          host->AddSymbiont(symbiont_parent);
+
+          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+          size_t starting_resources = 20;
+          size_t horiz_trans_res_required = 10;
+          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+          symbiont_parent->SetPoints(starting_resources);
+          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+
+          THEN("the sym child is inserted nowhere and the parent's points get set to 0") {
+            REQUIRE(symbiont_parent->GetPoints() == 0);
+            REQUIRE(host->GetSymbionts().size() == 1);
+            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+          }
         }
       }
 
@@ -478,11 +562,12 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
             new_sym_born = true;
           }
         }
-
+        world.CleanupGraveyard();
         REQUIRE(world.GetNumOrgs() == world_size);
         REQUIRE(new_sym_born == true);
         REQUIRE(new_pos.IsValid() == true);
         REQUIRE(world.IsInboundsPos(new_pos) == true);
+        world.CleanupGraveyard();
       }
 
       THEN("it might not find a valid cell and get deleted"){
@@ -652,6 +737,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
         REQUIRE(world.GetNumOrgs() == 2);
         THEN("the sym is deleted"){
           world.MoveFreeSym(sym_pos);
+          world.CleanupGraveyard();
           REQUIRE(world.GetNumOrgs() == 1);
           REQUIRE(!host->HasSym());
         }
@@ -817,6 +903,7 @@ TEST_CASE( "AddOrgAt", "[default]" ){
         world.AddOrgAt(sym, 0);
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(world.GetSymPop()[0] == sym);
+        world.CleanupGraveyard();
       }
     }
     WHEN("a sym is added to an out of bounds pos"){
@@ -1075,260 +1162,6 @@ TEST_CASE( "Spatial structure", "[default]" ){
   }
 }
 
-TEST_CASE( "Host Phylogeny", "[default]" ){
-  emp::Random random(17);
-  SymConfigBase config;
-  config.MUTATION_SIZE(0.09);
-  config.MUTATION_RATE(1);
-  config.PHYLOGENY(1);
-  config.NUM_PHYLO_BINS(20);
-  int int_val = 0;
-  SymWorld world(random, &config);
-  int world_size = 4;
-  world.Resize(world_size);
-
-
-  emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-  emp::Ptr<emp::Systematics<Organism,int>> host_sys = world.GetHostSys();
-
-  //ORGANISMS ADDED TO SYSTEMATICS
-  WHEN("an organism is added to the world"){
-    WHEN("the cell it's added to is occupied"){
-      size_t pos = 0;
-      int_val = -1;
-
-      emp::Ptr<Organism> occupying_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      world.AddOrgAt(occupying_host, pos);
-      size_t expected_occupying_taxon_info = 0;
-      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-
-      REQUIRE(world.GetNumOrgs() == 1);
-      REQUIRE(host_sys->GetNumActive() == 1);
-      REQUIRE(expected_occupying_taxon_info == taxon_info);
-
-      world.AddOrgAt(host, pos);
-      taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 10;
-
-      THEN("the occupying organism is removed from the systematic"){
-        REQUIRE(world.GetNumOrgs() == 1);
-        REQUIRE(host_sys->GetNumActive() == 1);
-        REQUIRE(expected_taxon_info == taxon_info);
-      }
-    }
-
-    WHEN("the cell it's added to is empty"){
-      size_t pos = 0;
-
-      REQUIRE(world.GetNumOrgs() == 0);
-      REQUIRE(host_sys->GetNumActive() == 0);
-
-      world.AddOrgAt(host, pos);
-      size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-      size_t expected_taxon_info = 10;
-
-      THEN("the organism is tracked by the systematic"){
-        REQUIRE(world.GetNumOrgs() == 1);
-        REQUIRE(host_sys->GetNumActive() == 1);
-        REQUIRE(expected_taxon_info == taxon_info);
-      }
-    }
-
-    WHEN("there are 20 taxonomic bins"){
-
-      size_t count = 7;
-      size_t pos = 0;
-
-      double int_vals[7] = {-1, -0.98, -0.9, -0.8, 0.65, 0.9, 1};
-      int expected_taxon_infos[7] = {0, 0, 1, 2, 16, 19, 19};
-
-      THEN("it will be placed in the correct bin"){
-        for(size_t i = 0; i < count; i++){
-          world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
-          int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-          REQUIRE(taxon_info == expected_taxon_infos[i]);
-        }
-      }
-      host.Delete();
-    }
-
-    WHEN("there are 2 taxonomic bins"){
-      config.NUM_PHYLO_BINS(2);
-
-      size_t count = 3;
-      size_t pos = 0;
-
-      double int_vals[3] = {1, 0, -0.001};
-      int expected_taxon_infos[3] = {1, 1, 0};
-
-      THEN("it will be placed in the correct bin"){
-        for(size_t i = 0; i < count; i++){
-          world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
-          int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
-          REQUIRE(taxon_info == expected_taxon_infos[i]);
-        }
-      }
-      host.Delete();
-    }
-  }
-
-  //ORGANISMS AND RELATIONSHIPS TRACKED
-  WHEN("Several generations pass"){
-    THEN("The phylogenetic relationships are tracked and accurate"){
-      world_size = 10;
-      world.Resize(world_size);
-      int num_descendants = 4;
-      //add the first host
-      world.AddOrgAt(host, 0);
-
-      //populate the world with descendents with various interaction values
-      //Can't use num_descendants for the following array sizes because some
-      //compilers don't allow it
-      double int_vals[4] = {0.1, -0.05, -0.2, 0.14};
-      size_t parents[4] = {0, 1, 1, 3};
-      for(int i = 0; i < num_descendants; i++){
-        world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), (i+1), parents[i]);
-      }
-
-      char lineages[][30] = {"Lineage:\n10\n",
-                             "Lineage:\n11\n10\n",
-                             "Lineage:\n9\n11\n10\n",
-                             "Lineage:\n8\n11\n10\n",
-                             "Lineage:\n11\n8\n11\n10\n",
-                           };
-
-
-      for(int i = 0; i < (num_descendants+1); i++){
-        std::stringstream result;
-        host_sys->PrintLineage(host_sys->GetTaxonAt(i), result);
-        REQUIRE(result.str() == lineages[i]);
-      }
-    }
-  }
-}
-
-TEST_CASE( "Symbiont Phylogeny", "[default]" ){
-  emp::Random random(17);
-  SymConfigBase config;
-  config.MUTATION_SIZE(0.09);
-  config.MUTATION_RATE(1);
-  config.FREE_LIVING_SYMS(1);
-  config.PHYLOGENY(1);
-  config.NUM_PHYLO_BINS(20);
-  int int_val = 0;
-  SymWorld world(random, &config);
-  int world_size = 20;
-  world.Resize(world_size);
-
-  emp::Ptr<emp::Systematics<Organism,int>> sym_sys = world.GetSymSys();
-
-  WHEN("symbionts are added to the world"){
-    THEN("they get added to the correct taxonomic bins"){
-      REQUIRE(sym_sys->GetNumActive() == 0);
-      size_t count = 8;
-      //Can't use count for the following array sizes because some
-      //compilers don't allow it
-      double int_vals[8] = {-1, -0.9, -0.82, 0, 0.5, 0.65, 0.9, 1};
-      int taxon_infos[8] = {0, 1, 1, 10, 15, 16, 19, 19};
-
-      emp::Ptr<Organism> syms[count];
-      emp::Ptr<Organism> sym;
-
-      for(size_t i = 0; i < count; i++){
-        sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_vals[i]);
-        world.InjectSymbiont(sym);
-        REQUIRE(sym->GetTaxon()->GetInfo() == taxon_infos[i]);
-      }
-    }
-  }
-
-  WHEN("symbionts are deleted"){
-    THEN("they are no longer tracked by the sym systematic"){
-      world_size = 1;
-      world.Resize(world_size);
-      REQUIRE(sym_sys->GetNumActive() == 0);
-      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-      world.InjectSymbiont(symbiont);
-      REQUIRE(sym_sys->GetNumActive() == 1);
-      world.DoSymDeath(0);
-      REQUIRE(sym_sys->GetNumActive() == 0);
-    }
-
-    THEN("hosted and free symbionts are deleted without a segmentation fault") {
-      world_size = 4;
-      world.Resize(world_size);
-
-      // add a free living sym to the world
-      emp::Ptr<Organism> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-      world.InjectSymbiont(symbiont);
-      
-      // add a host to the world
-      emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      world.InjectHost(host);
-
-      // add a hosted sym to the host
-      emp::Ptr<Organism> hosted_sym = symbiont->Reproduce();
-      host->AddSymbiont(hosted_sym);
-
-      // check that free living organisms have properly been added to the world
-      REQUIRE(world.GetNumOrgs() == 2);
-    }
-  }
-
-  WHEN("generations pass"){
-    config.MUTATION_SIZE(1);
-    config.MUTATION_RATE(1);
-    config.PHYLOGENY(1);
-    size_t num_syms = 4;
-
-    emp::Ptr<Organism> syms[num_syms];
-    syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
-    world.AddSymToSystematic(syms[0]);
-
-    for(size_t i = 1; i < num_syms; i++){
-      syms[i] = syms[i-1]->Reproduce();
-    }
-
-    THEN("Their lineages are tracked"){
-      char lineages[][30] = {"Lineage:\n10\n",
-                             "Lineage:\n16\n10\n",
-                             "Lineage:\n19\n16\n10\n",
-                             "Lineage:\n16\n19\n16\n10\n",
-                           };
-
-      for(size_t i = 0; i < num_syms; i++){
-        std::stringstream result;
-        sym_sys->PrintLineage(syms[i]->GetTaxon(), result);
-        REQUIRE(result.str() == lineages[i]);
-      }
-      syms[0].Delete();
-      syms[1].Delete();
-    }
-
-    THEN("Their birth and destruction dates are tracked"){
-      //all curr syms should have orig times of 0
-      for(size_t i = 0; i < num_syms; i++){
-        REQUIRE(syms[i]->GetTaxon()->GetOriginationTime() == 0);
-      }
-      world.Update();
-
-      //after update, times should now be 1
-      emp::Ptr<emp::Taxon<int>> dest_tax = syms[0]->GetTaxon();
-      syms[0].Delete();
-      REQUIRE(dest_tax->GetDestructionTime() == 1);
-
-      //another update, times 2
-      world.Update();
-      dest_tax = syms[1]->GetTaxon();
-      syms[1].Delete();
-      REQUIRE(dest_tax->GetDestructionTime() == 2);
-    }
-
-    syms[2].Delete();
-    syms[3].Delete();
-  }
-}
-
 TEST_CASE( "SetMutationZero", "[default]") {
   GIVEN("World first created with all mutation settings at 1") {
     emp::Random random(17);
@@ -1572,10 +1405,10 @@ TEST_CASE("SetupSymbionts", "[default]") {
     SymWorld world(random, &config);
 
     size_t world_size = 6;
-    world.Resize(world_size);
-    config.FREE_LIVING_SYMS(1);
-
-    WHEN("SetupSymbionts is called") {
+    
+    WHEN("SetupSymbionts is called and FLS is on") {  
+      world.Resize(world_size);
+      config.FREE_LIVING_SYMS(1);
       size_t num_to_add = 2;
       world.SetupSymbionts(&num_to_add);
 
@@ -1602,9 +1435,11 @@ TEST_CASE("SetupHosts", "[default]") {
 
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
-      world.SetupHosts(&num_to_add);
+      
 
       THEN("The specified number of hosts are added to the world") {
+        world.SetupHosts(&num_to_add);
+
         size_t num_added = world.GetNumOrgs();
         REQUIRE(num_added == num_to_add);
 

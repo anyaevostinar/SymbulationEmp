@@ -10,7 +10,6 @@
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
 
-// TODO - should AssignNewIOEnv be attached to signal that triggers more broadely (e.g., on placement, etc)
 
 // TODO - assert that sym / host has program
 namespace sgpmode {
@@ -47,6 +46,8 @@ void SGPWorld::Setup() {
 
   // Configure task environment
   SetupTaskEnvironment();
+  // Configure events
+  SetupEvents();
 
   // NOTE - Some of this code is repeated from base class.
   //  - Could do some reorganization to copy-paste. E.g., make functions for this,
@@ -107,7 +108,7 @@ void SGPWorld::Setup() {
 
 void SGPWorld::SetupOrgMode() {
   // Convert cfg org type to lowercase
-  std::string cfg_org_type(emp::to_lower(sgp_config.ORGANISM_TYPE()));
+  std::string cfg_org_type(emp::to_lower(sgp_config.INTERACTION_MECHANISM())); // AEV TODO: Change all these other references to org type to interaction mechanism
   // Get organism type (asserts validity)
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
   // Configure stress sym type
@@ -150,11 +151,21 @@ void SGPWorld::SetupOrgMode() {
     );
   }
 
+  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment,
+  // disable the SenseTask instruction
+  if (!sgp_config.SENSE_TASK_INSTRUCTION()) {
+    del_inst(
+      opcode_rectifier.mapper.begin(),
+      opcode_rectifier.mapper.end(),
+      Library::GetOpCode("SenseTask"),
+      Library::GetSize()
+    );
+  }
 }
 // TODO - use compatibility check to determine interaction
 void SGPWorld::SetupHealthInteractions() {
   emp_assert(sgp_config.ENABLE_HEALTH());
-  std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
+  // std::cout << "Setting up health host-endosymbiont interactions" << std::endl;
   // NOTE - currently this does not necessarily make sense for multiple symbiotns
   //        (host gains/loses once and all syms gain/lose same amount; i.e., no splitting)
   // NOTE - currently set up as donate/steal interaction. There's no penalty/multiplier
@@ -316,7 +327,7 @@ void SGPWorld::SetupStressInteractions() {
   //        for parasite vs. mutualist (repeated code; only death chance is different)
   if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
     // Use mutualist death chance
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
@@ -349,7 +360,7 @@ void SGPWorld::SetupStressInteractions() {
     if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match") {
       // Parasites that match with their host get to produce escapees regardless
       // of whether host dies
-      before_host_process_sig.AddAction(
+      before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
           // If host has a symbiont, death_chance = parasite death chance
@@ -389,7 +400,7 @@ void SGPWorld::SetupStressInteractions() {
     } else if (sgp_config.PARASITE_ESCAPEE_TIMING() == "on-match-host-death") {
       // Parasites that match with their host get to produce escapees only when
       // their host dies.
-      before_host_process_sig.AddAction(
+      before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
           // If host has a symbiont, death_chance = parasite death chance
@@ -443,7 +454,7 @@ void SGPWorld::SetupStressInteractions() {
     emp_assert(sgp_config.BASE_DEATH_CHANCE() <= sgp_config.PARASITE_DEATH_CHANCE());
     emp_assert(sgp_config.BASE_DEATH_CHANCE() >= sgp_config.MUTUALIST_DEATH_CHANCE());
     // NOTE - this is implementing assuming 1 host / 1 parasite
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
@@ -517,7 +528,7 @@ void SGPWorld::SetupStressInteractions() {
     );
   } else if (GetStressSymType() == stress_sym_mode_t::NEUTRAL) {
     // Symbionts have no effect on hosts with respect to stress event.
-    before_host_process_sig.AddAction(
+    before_host_cpu_exec_sig.AddAction(
       [this](sgp_host_t& host) {
         if (!stress_extinction_update) return;
         // If host has a symbiont, death_chance = mutualist death chance
@@ -542,7 +553,7 @@ void SGPWorld::SetupStressInteractions() {
 
 void SGPWorld::SetupNutrientInteractions() {
   emp_assert(sgp_config.ENABLE_NUTRIENT());
-  std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
+  // std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
 
   // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks
   if (GetNutrientSymType() == nutrient_sym_mode_t::MUTUALIST) {
@@ -603,7 +614,7 @@ void SGPWorld::SetupNutrientInteractions() {
         // return 0.0;
         return sgp_config.PARASITE_BASE_TASK_VALUE_PROP() * task_points;
       } else {
-        // Task match, donate proportion of earned task points to host.
+        // Task match, steal proportion of earned task points from host.
         // Can't try to steal less than 0 or more than task was worth
         const double to_steal = std::clamp(
           sgp_config.NUTRIENT_STEAL_PROP() * task_points,
@@ -735,9 +746,13 @@ void SGPWorld::SetupReproduction() {
   // Set CPUState's location when organism is added to the world.
   OnBeforePlacement(
     [this](Organism& org, size_t loc) {
-      (org.IsHost()) ?
-        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc}) :
+      if (org.IsHost()) {
+        static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+        this->AssignNewEnvIO(static_cast<sgp_host_t&>(org).GetHardware().GetCPUState()); // AEV Question: is there a better place for this?
+      } else {
         static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().SetLocation({loc});
+        this->AssignNewEnvIO(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState());
+      }
     }
   );
 
@@ -821,7 +836,7 @@ void SGPWorld::SetupSymReproduction() {
 
 
 void SGPWorld::SetupHostSymInteractions() {
-  std::cout << "Setup Host-symbiont interactions" << std::endl;
+  // std::cout << "Setup Host-symbiont interactions" << std::endl;
 
   // Setup what we use for host/symbiont task profiles
   // PARENT-ALL
@@ -1009,7 +1024,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
   // TODO - discuss implications of timing for core launch
   // Launch core if none running.
-  before_host_process_sig.AddAction(
+  before_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
       host.GetHardware().LaunchCPU(START_TAG);
@@ -1044,7 +1059,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       default:
         // org mode has already been verified, so something has gone very wrong
         // with that if we're here.
-        std::cout << "Unrecognized SGP organism type: " << sgp_config.ORGANISM_TYPE() << std::endl;
+        std::cout << "Unrecognized SGP organism type: " << sgp_config.INTERACTION_MECHANISM() << std::endl;
         break;
     }
 
@@ -1063,7 +1078,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       );
       // TODO - add InjectSymIntoHost to wrap
       // NOTE - Move env io assignment to different signal that is triggered on inject?
-      AssignNewEnvIO(new_sym->GetHardware().GetCPUState());
+      // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
       // Set sym's parent task
       if (task_env.IsSymTask(not_task_id)) {
         new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
@@ -1074,7 +1089,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function
-    AssignNewEnvIO(new_host->GetHardware().GetCPUState());
+    // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
     if (task_env.IsHostTask(not_task_id)) {
       new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
       new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
@@ -1115,7 +1130,7 @@ void SGPWorld::SetupTaskEnvironment() {
     sgp_config.TASK_IO_UNIQUE_OUTPUT()
   );
 
-  // Configure oganism input buffers / environment id
+  // Configure organism input buffers / environment id
   // NOTE - now that assigning new env io is in a function, could
   //        hardcode these calls in "ProcessOrg" functions.
   //        If this isn't something we want to configure at runtime, should do that.
@@ -1128,7 +1143,7 @@ void SGPWorld::SetupTaskEnvironment() {
     ) {
       auto& offspring_cpu_state = host_offspring.GetHardware().GetCPUState();
       // auto& parent_cpu_state = host_parent.GetHardware().GetCPUState();
-      AssignNewEnvIO(offspring_cpu_state);
+      // AssignNewEnvIO(offspring_cpu_state); // This is in OnPlacement now, so should be fine
     }
   );
 
@@ -1137,7 +1152,7 @@ void SGPWorld::SetupTaskEnvironment() {
       emp::Ptr<sgp_sym_t> sym_baby_ptr,
       const emp::WorldPosition& parent_pos
     ) {
-      AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState());
+      // AssignNewEnvIO(sym_baby_ptr->GetHardware().GetCPUState()); // This is in AddSymbiont and OnPlacement now, so should be fine
     }
   );
 
@@ -1156,7 +1171,7 @@ void SGPWorld::SetupTaskEnvironment() {
       emp_assert(sym_offspring_ptr != nullptr);
       auto& sym_offspring_cpu_state = sym_offspring_ptr->GetHardware().GetCPUState();
       // auto& sym_parent_cpu_state = sym_parent_ptr->GetHardware().GetCPUState();
-      AssignNewEnvIO(sym_offspring_cpu_state);
+      //AssignNewEnvIO(sym_offspring_cpu_state); // This is in AddSymbiont now, so should be fine
     }
   );
 
@@ -1168,7 +1183,7 @@ void SGPWorld::SetupTaskEnvironment() {
   // TODO - Move this into Process functions
   after_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
-      ProcessHostOutputBuffer(host);
+      host.ProcessOutputBuffer();
     }
   );
 
@@ -1188,6 +1203,10 @@ void SGPWorld::SetupTaskEnvironment() {
       ProcessSymOutputBuffer(sym);
     }
   );
+}
+
+void SGPWorld::SetupEvents() {
+  event_manager.LoadEventsFromJSON(sgp_config.EVENTS_CFG_PATH(), *this);
 }
 
 void SGPWorld::SetupMutator() {

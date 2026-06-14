@@ -40,6 +40,31 @@ get your working environment all set.
 ### Using Cookiecutter
 The easiest thing to do is use our Cookiecutter template. Cookiecutter will attempt to push your new directory to a git repo; establish a git repo with the appropriate project name if you would like to use this functionality. 
 
+#### Virtual Environment setup
+To install cookiecutter, you'll need to be in a [Python Virtual Environment](https://docs.python.org/3/library/venv.html#creating-virtual-environments). If you haven't dealt with virtual environments before, this section will get you set up. If you already have a `venv` setup, skip ahead.
+
+- Make a directory to store your virtual environments. If you use Python for other purposes, you'll likely need different virtual environments.
+
+    ```bash
+    mkdir -p ~/.venvs
+    ```
+- Create a virtual environment for this project in your new folder (you may need to use python3 instead of python):
+
+    ```bash
+    python -m venv ~/.venvs/sym_venv
+    ```
+
+    Note: You may get an error message to install the `python-venv` package. If you get this message, follow the instructions in that message on how to install it in your system.
+
+    In particular, you may then get an error that `apt` or whatever can't find whatever version of `python-venv` it suggests you need. This is generally solved by running `sudo apt update`.
+
+- Activate your virtual environment with the following, after this, you will see your terminal has a `(..)` with the name of your virtual environment, which means you are inside it.
+
+    ```bash
+    source ~/.venvs/sym_venv/bin/activate
+    ```
+#### Cookiecutter
+Do the following inside a Python Virtual Environment to use Cookiecutter:
 - Install the latest Cookiecutter. Depending on your Python, you may need to use pip3 in place of pip:
 
     ```shell
@@ -57,11 +82,17 @@ The easiest thing to do is use our Cookiecutter template. Cookiecutter will atte
     ```
 
 ### Without Cookiecutter
-If you have something against delicious cookies and want to do without Cookiecutter, here are the steps. (Note that these steps don't include making Data and Analysis files, which is assumed for the rest of the guide. If you are doing it this way, we assume you have your own preference for organizing things.)
+If you have something against delicious cookies and want to do without Cookiecutter, here are the steps. Note that these steps don't include making Data and Analysis files, which is assumed for the rest of the guide. If you are doing it this way, we assume you have your own preference for organizing things. If you are here because you didn't want to deal with installing cookiecutter, you should make a folder structure that looks like this:
 
-1. Clone Symbulation:
+```
+Research
+    \Data
+    \Analysis
+```
+
+1. You'll put Symbulation at the top level of your `Research` folder. Clone Symbulation:
     ```shell
-    git clone https://github.com/anyaevostinar/SymbulationEmp
+    git clone --recurse-submodules https://github.com/anyaevostinar/SymbulationEmp
     ```
 
 ### Compiling
