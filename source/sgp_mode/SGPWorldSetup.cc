@@ -6,7 +6,6 @@
 #include "utils.h"
 #include "hardware/SGPHardware.h"
 #include "sgpl/utility/ThreadLocalRandom.hpp"
-
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
