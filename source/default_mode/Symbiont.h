@@ -775,8 +775,8 @@ public:
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
         data_node_successes_verttrans.AddDatum(GetIntVal());
-      }
-    }
+      } 
+    } 
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
@@ -808,7 +808,6 @@ public:
   bool AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if (MeetsIndependentReproRequirements()) {
-
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
         data_node_attempts_horiztrans.AddDatum(GetIntVal());
         
@@ -821,8 +820,8 @@ public:
         // removing the above for tag matching--sym parent points are 
         // now set to 0 in symdobirth
         return true;
-      }
-    }
+      } 
+    } 
     return false;
   }
 

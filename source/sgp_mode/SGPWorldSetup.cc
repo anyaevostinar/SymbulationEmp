@@ -915,7 +915,10 @@ void SGPWorld::SetupReproduction() {
       // NOTE - could move reset repro state in Reproduce functions
       // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     } else {
-      SymDoBirth(child, repro_info.pos);
+      const emp::WorldPosition sym_baby_pos = SymDoBirth(child, repro_info.pos);
+      emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
+      // Trigger any post-birth actions
+      after_sym_do_birth_sig.Trigger(sym_baby_pos, sym_parent);
       // Mark parent as no longer reproducing
       // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     }
@@ -980,10 +983,8 @@ void SGPWorld::SetupSymReproduction() {
   // QUESTION - Should this fire for free-living symbionts?
   //            Can instead make this trigger after horizontal transmission
   after_sym_do_birth_sig.AddAction(
-    [this](const emp::WorldPosition& sym_baby_pos, const emp::WorldPosition& parent_pos) {
-      auto parent_sym = pop[parent_pos.GetPopID()]->GetSymbionts()[parent_pos.GetIndex()];
-      emp::Ptr<sgp_sym_t> parent_symbiont = static_cast<sgp_sym_t*>(parent_sym.Raw());
-      parent_symbiont->AfterIndependentReproduction(sym_baby_pos);
+    [this](const emp::WorldPosition& sym_baby_pos, emp::Ptr<sgp_sym_t> sym_parent_ptr) {
+      sym_parent_ptr->AfterIndependentReproduction(sym_baby_pos);
     }
   );
 

@@ -155,8 +155,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_baby_ptr, parent_pos));
 
-  // Trigger any post-birth actions
-  after_sym_do_birth_sig.Trigger(sym_baby_pos, parent_pos);
+
   return sym_baby_pos;
 }
 

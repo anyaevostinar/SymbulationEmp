@@ -301,6 +301,7 @@ public:
   * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points, also handles free-living symbiont reproduction.
   */
   void AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
+
     // NOTE - could make this a configurable functor if we want different success/failure
     //        conditions on attempt
     // NOTE - Do we want to be using the horizontal transmission cost here?

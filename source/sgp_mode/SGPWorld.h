@@ -228,7 +228,7 @@ public:
   //  Triggers after fun_sym_do_birth() is called.
   emp::Signal<void(
     const emp::WorldPosition&, /* sym_baby_pos */
-    const emp::WorldPosition&  /* parent_pos */
+    emp::Ptr<sgp_sym_t>  /* parent_sym */
   )> after_sym_do_birth_sig;
 
   // fun_sym_do_birth - Configurable functor that handles calling appropriate

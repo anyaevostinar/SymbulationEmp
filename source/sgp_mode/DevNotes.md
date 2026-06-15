@@ -13,9 +13,8 @@
 [x] Put in IO Zero not getting rewarded and test it
 [x] Port more Symbiont tests
 [ ] Make a list from this commit for further shifting todos and update this doc with those todos https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
-[ ] Horizontal transmission to make parallel to default mode and integrated to support tags with tasks
-    - Made the updates to break up Symbiont::HorizontalTransmission into separate methods that can be called by SGPSymbiont functionality, SGP mode now calls the AttemptIndependentReproduction and AfterHorizontalTransmission methods of Symbiont, where data tracking and tag things happen, but I haven't tested anything
-    - Also need to decide and make consistent whether Reproduce should be shared between horizontal transmission and freeliving transmission, what if they can do both? But they can't in free living mode, they would just go to host position and then try to infect, so should be just one instruction, need to check that is the case
+[x] Horizontal transmission to make parallel to default mode and integrated to support tags with tasks
+    - Decisions made: reproduce is shared between horizontal transmission and free-living sym reproduction. If free-living sym repro is on, then reproduce places offspring into sym pop (like in default), and then offspring can infect with Infect instruction (not yet implemented). If FLS is off, reproduce does horizontal transmission. Also decided that if HT is off, an "attempt" is not counted.
 [ ] Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 
@@ -42,16 +41,16 @@
 These are function flows that are complicated to follow:
 
 ## Horizontal transmission
-* Reproduce Instruction -> checks cycles, marks repro attempt, also now checks for Horiz_Trans and should also check for FLS once I make a pass through to make sure FLS is supported
+* Reproduce Instruction -> checks cycles, marks repro attempt, (DOES NOT check for HT being on, since that is handled by Symbiont)
 * Process -> Checks for repro attempt, calls AttemptIndependentReproduction
-* AttemptIndependentReproduction -> Calls Symbiont's super method to check points, set points to zero (need to try changing to decrement in super and see if everything breaks), marks attempt in data node; submethod then adds to reproduce queue
+* AttemptIndependentReproduction -> Calls Symbiont's super method to check if HT is on, check points, set points to zero (need to try changing to decrement in super and see if everything breaks), marks attempt in data node; submethod then adds to reproduce queue
 * Repro queue calls fun_reproduce_org
-* fun_reproduce_org -> calls org->Reproduce and then SymDoBirth
+* fun_reproduce_org -> calls org->Reproduce and then SymDoBirth, then after_sym_do_birth since that's when we have access to parent for easier data tracking
 * Reproduce -> calls super class Reproduce (which handles tag updates, etc) and sets up parent task count and lineage tracking
-* SymDoBirth -> calls fun_sym_do_birth and after_sym_do_birth signal
+* SymDoBirth -> calls fun_sym_do_birth
 * fun_sym_do_birth -> calls freeliving or SymAttemptHorizontalInfection (renamed to avoid confusion with HorizontalTransmission) depending on config
 * SymAttemptHorizontalInfection -> finds a host and adds sym to host
-* after_sym_do_birth signal -> calls sym_parent super's AfterHorizontalTransmission, which records success in datanode if appropriate
+* after_sym_do_birth signal -> calls sym_parent super's AfterHorizontalTransmission, which records success in datanode if appropriate (including int val of parent)
 
 ## Reproduction
 * Repro Inst -> state.markReproAttempt
