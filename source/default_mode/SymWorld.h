@@ -152,7 +152,7 @@ public:
     if (my_config->GRID() == 0) {
       // Neighbors are anywhere in the same population except the pos.
       fun_get_neighbor = [this](emp::WorldPosition pos) { 
-
+        if (pop.size() <=1 ) return emp::WorldPosition(); // if there are no neighbors, return an invalid position
         // leave out the last cell and swap it in if potential_neighbor is the same as pos
         size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
         if (potential_neighbor == pos.GetIndex()) {

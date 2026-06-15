@@ -14,6 +14,7 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
     config.POP_SIZE(4);
     config.GRID(0); // make sure the world is well-mixed
     SymWorld world(random, &config);
+    world.Setup();
     bool self_neighbor = false;
 
 
