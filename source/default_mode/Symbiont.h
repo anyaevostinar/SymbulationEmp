@@ -649,8 +649,8 @@ public:
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
       LoseResources(resources);
     }
-    //Check if horizontal transmission can occur and do it
-    HorizontalTransmission(location);
+    //Check if independent reproduction can occur and do it (either horizontal transmission or free-living reproduction, depending on config)
+    IndependentReproduction(location);
     //Age the organism
     GrowOlder();
     if (my_config->SYM_WITHIN_LIFETIME_MUTATION_RATE()) {
@@ -784,12 +784,13 @@ public:
   /* 
   * Input: None
   * 
-  * Output: Boolean representing whether or not the symbiont meets requirements to horizontally transmit
+  * Output: Boolean representing whether or not the symbiont meets requirements to independently reproduce (horizontally transmission or free-living reproduction, depending on config)
   * 
-  * Purpose: To check if the symbiont meets requirements to horizontally transmit, based on its own internal state, without considering the host or host baby. This is intended to be used in the horizontal transmission process, to determine if the symbiont should attempt to horizontally transmit.
+  * Purpose: To check if the symbiont meets requirements to independently reproduce, based on its own internal state, without considering the host or host baby. This is intended to be used in the horizontal transmission and free-living reproduction process, to determine if the symbiont can attempt to horizontally transmit/independently reproduce.
+  * Adjusts the requirements to free-living symbionts if enabled and the free sym repro resources is different than the horizontal transmission resources.
   * Currently just checks point requirement.
   */
-  bool MeetsHorizTransRequirements() {
+  bool MeetsIndependentReproRequirements() {
     double required_points = my_config->SYM_HORIZ_TRANS_RES();
     if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
         required_points = my_config->FREE_SYM_REPRO_RES();
@@ -803,11 +804,10 @@ public:
   * Output: None
   * 
   * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points
-  * Note: before Free-living symbionts can work, we need to decide if the Reproduce instruction is both or if there is a different instruction
   */
-  boolean AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
+  bool AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      if (MeetsHorizTransRequirements()) {
+      if (MeetsIndependentReproRequirements()) {
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
         data_node_attempts_horiztrans.AddDatum(GetIntVal());
@@ -827,7 +827,7 @@ public:
   }
 
 
-  void AfterHorizontalTransmission(const emp::WorldPosition& sym_baby_pos) {
+  void AfterIndependentReproduction(const emp::WorldPosition& sym_baby_pos) {
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
     if(sym_baby_pos.IsValid()){
       data_node_successes_horiztrans.AddDatum(GetIntVal());
@@ -840,15 +840,15 @@ public:
    *
    * Output: None
    *
-   * Purpose: To check and allow for horizontal transmission to occur
+   * Purpose: To check and allow for independent reproduction to occur (eiter horizontal transmission or free-living reproduction)
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
+  void IndependentReproduction(emp::WorldPosition location) {
     if(AttemptIndependentReproduction(location)){
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
       emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
       
-      AfterHorizontalTransmission(new_pos);
+      AfterIndependentReproduction(new_pos);
 
     }
   }

@@ -505,7 +505,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
 
           symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
 
           THEN("the sym child is inserted in the neighboring host and the parent spends points") {
             REQUIRE(symbiont_parent->GetPoints() == 0);
@@ -529,7 +529,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
 
           symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
 
           THEN("the sym child is inserted nowhere and the parent spends no points") {
             REQUIRE(symbiont_parent->GetPoints() == starting_resources);
@@ -550,7 +550,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
 
           symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_pos));
+          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
 
           THEN("the sym child is inserted nowhere and the parent's points get set to 0") {
             REQUIRE(symbiont_parent->GetPoints() == 0);
@@ -1072,7 +1072,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           emp::WorldPosition sym_parent_pos = emp::WorldPosition(0, 250);
           world.AddOrgAt(sym_parent, sym_parent_pos);
 
-          sym_parent->HorizontalTransmission(sym_parent_pos);
+          sym_parent->IndependentReproduction(sym_parent_pos);
 
 
           int possible_indices[8] = {149, 150, 151, 249, 251, 349, 350, 351};
@@ -1117,7 +1117,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           host_parent->AddSymbiont(sym_parent);
 
           for(size_t sym_count = 1; sym_count <= sym_limit; sym_count++){
-            sym_parent->HorizontalTransmission(emp::WorldPosition(1, host_parent_pos));
+            sym_parent->IndependentReproduction(emp::WorldPosition(1, host_parent_pos));
             REQUIRE(neighboring_host->GetSymbionts().size() == sym_count);
             REQUIRE(distant_host->HasSym() == false);
           }
@@ -1154,7 +1154,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           emp::WorldPosition sym_parent_pos = emp::WorldPosition(0, 250);
           world.AddOrgAt(sym_parent, sym_parent_pos);
 
-          sym_parent->HorizontalTransmission(sym_parent_pos);
+          sym_parent->IndependentReproduction(sym_parent_pos);
 
 
           int possible_indices[8] = {149, 150, 151, 249, 251, 349, 350, 351};
@@ -1199,7 +1199,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
           host_parent->AddSymbiont(sym_parent);
 
           for(size_t sym_count = 1; sym_count <= sym_limit; sym_count++){
-            sym_parent->HorizontalTransmission(emp::WorldPosition(1, host_parent_pos));
+            sym_parent->IndependentReproduction(emp::WorldPosition(1, host_parent_pos));
           }
 
           REQUIRE(neighboring_host->HasSym());

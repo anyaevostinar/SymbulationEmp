@@ -270,7 +270,8 @@ public:
    *
    * Purpose: To check and allow for horizontal transmission to occur
    */
-  void HorizontalTransmission(emp::WorldPosition location) {
+  void IndependentReproduction(emp::WorldPosition location) {
+    //TODO: streamline with default mode's split up ind repro if we revisit this mode
     if (efficient_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
       if(GetPoints() >= efficient_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources

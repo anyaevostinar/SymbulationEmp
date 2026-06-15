@@ -516,7 +516,7 @@ protected:
     const emp::WorldPosition& parent_pos
   );
 
-  emp::WorldPosition SymAttemptHorizontalTrans(
+  emp::WorldPosition SymAttemptHorizontalInfection(
     emp::Ptr<sgp_sym_t> sym_baby_ptr,
     const emp::WorldPosition& parent_pos
   );

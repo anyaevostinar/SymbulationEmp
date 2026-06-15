@@ -947,8 +947,7 @@ void SGPWorld::SetupHostReproduction() {
 // Configure symbiont reproduction signals
 void SGPWorld::SetupSymReproduction() {
 
-  // Configure sym do birth function
-  // Don't need to simultaneously support free-living *and* horizontal transmission
+  // Configure sym do birth function, if free-living, symbiont offspring go right into world
   if (sgp_config.FREE_LIVING_SYMS()) {
     // Configure sym birth in free-living symbiont mode
     fun_sym_do_birth = [this](
@@ -982,8 +981,9 @@ void SGPWorld::SetupSymReproduction() {
   //            Can instead make this trigger after horizontal transmission
   after_sym_do_birth_sig.AddAction(
     [this](const emp::WorldPosition& sym_baby_pos, const emp::WorldPosition& parent_pos) {
-      auto parent_sym = pop[parent_pos.GetPopID()].GetSymbionts()[parent_pos.GetIndex()];
-      parent_sym->AfterHorizontalTransmission(sym_baby_pos);
+      auto parent_sym = pop[parent_pos.GetPopID()]->GetSymbionts()[parent_pos.GetIndex()];
+      emp::Ptr<sgp_sym_t> parent_symbiont = static_cast<sgp_sym_t*>(parent_sym.Raw());
+      parent_symbiont->AfterIndependentReproduction(sym_baby_pos);
     }
   );
 

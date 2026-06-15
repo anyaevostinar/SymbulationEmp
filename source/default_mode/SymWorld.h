@@ -934,7 +934,7 @@ public:
    */
   void MoveFreeSym(emp::WorldPosition pos){
     size_t i = pos.GetPopID();
-    //the sym can either move into a parallel sym or to some random position
+    //the sym can either move into a parallel host or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies

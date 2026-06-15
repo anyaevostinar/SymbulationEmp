@@ -670,7 +670,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
     emp::Ptr<Organism> host_3 = host_2->Reproduce();
     world.DoBirth(host_3, host_2_pos);
     symbiont_1->SetPoints(repro_points + 10);
-    symbiont_1->HorizontalTransmission(emp::WorldPosition(1, host_1_pos.GetIndex()));
+    symbiont_1->IndependentReproduction(emp::WorldPosition(1, host_1_pos.GetIndex()));
     emp::Ptr<Organism> symbiont_3 = host_3->GetSymbionts().at(0);
     emp::Ptr< taxon_t::base_taxon_t> symbiont_3_taxon = symbiont_3->GetTaxon();
 
@@ -888,7 +888,7 @@ TEST_CASE("Host switch counter", "[default]") {
     world.AddOrgAt(host_of_offspring, 1, host_of_parent_pos);
     REQUIRE(host_of_parent->GetTaxon()->GetID() == host_of_offspring->GetTaxon()->GetParent()->GetID());
 
-    symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
+    symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
     REQUIRE(host_of_offspring->HasSym());
     
     emp::Ptr<Organism> symbiont_offspring = host_of_offspring->GetSymbionts().at(0);
@@ -921,7 +921,7 @@ TEST_CASE("Host switch counter", "[default]") {
     world.AddOrgAt(host_of_parent, host_of_parent_pos, host_of_offspring_pos);
     REQUIRE(host_of_parent->GetTaxon()->GetParent()->GetID() == host_of_offspring->GetTaxon()->GetID());
 
-    symbiont_parent->HorizontalTransmission(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
+    symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
     REQUIRE(host_of_offspring->HasSym());
 
     emp::Ptr<Organism> symbiont_offspring = host_of_offspring->GetSymbionts().at(0);
@@ -952,7 +952,7 @@ TEST_CASE("Host switch counter", "[default]") {
     world.AddOrgAt(host_of_parent, symbiont_parent_pos.GetPopID());
     world.AddOrgAt(host_of_offspring, 1);
 
-    symbiont_parent->HorizontalTransmission(symbiont_parent_pos);
+    symbiont_parent->IndependentReproduction(symbiont_parent_pos);
     REQUIRE(host_of_offspring->HasSym());
 
     emp::Ptr<Organism> symbiont_offspring = host_of_offspring->GetSymbionts().at(0);
