@@ -187,12 +187,6 @@ void SGPWorld::Setup() {
   CreateDataFiles();
   SnapshotConfig();
   setup = true;
-  // TODO - Delete this once confident in instruction removal
-  // std::cout << "Opcode rectifier mappings (post setup):";
-  // for (size_t i = 0; i < opcode_rectifier.mapper.size(); ++i) {
-  //   std::cout << " " << (uint32_t)(opcode_rectifier.mapper[i]);
-  // }
-  // std::cout << std::endl;
 }
 
 void SGPWorld::SetupOrgMode() {
@@ -1234,6 +1228,7 @@ void SGPWorld::SetupHostSymInteractions() {
         emp_assert(neighbor_org_ptr->IsHost());
         // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
+        //TODO: Should this check be done during AddSymbiont instead of here?
         const bool compatible = fun_host_sym_horizontal_trans_compatibility_check(
           *neighbor_host_ptr,
           *sym_parent_ptr

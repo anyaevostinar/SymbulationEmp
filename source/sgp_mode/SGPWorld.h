@@ -803,7 +803,7 @@ public:
     // Run scheduler to process organisms
     scheduler.Run(*this);
     // Process reproduction queue
-    DoReproduction();
+    repro_queue.Process();
     ProcessStressEscapees();
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();

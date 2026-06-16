@@ -522,7 +522,7 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     config.MUTATION_SIZE(0.000);
     config.TASK_PROFILE_MODE("parent-all");
     config.GRID_X(2);
-    config.GRID_Y(2);
+    config.GRID_Y(1);
     config.POP_SIZE(0);
     config.OUSTING(1);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
@@ -541,8 +541,6 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     source_host->AddSymbiont(symbiont_parent);
     target_host->AddSymbiont(target_symbiont);
 
-    emp::WorldPosition parent_pos = emp::WorldPosition(1,0);
-    
     // track parent tasks is on, so comparison for symbiont_offspring's injection is occurring between
     // symbiont_parent's parent tasks (symbiont_offspring's grandparent tasks), target_host's parent tasks, and target_symbiont's parent tasks
     target_host->GetHardware().GetCPUState().SetParentTaskPerformed(0);
@@ -553,7 +551,8 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     emp::Ptr<Organism> symbiont_offspring = symbiont_parent->Reproduce();
 
     world.AddOrgAt(source_host, 0);
-    world.AddOrgAt(target_host, 3);
+    world.AddOrgAt(target_host, 1);
+    emp::WorldPosition parent_pos = emp::WorldPosition(1,0); //pop id 0 means in host 0
 
     WHEN("Preferential ousting is on and the target host has a symbiont") {
       WHEN("The incoming symbiont has a better match"){

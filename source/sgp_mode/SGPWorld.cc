@@ -57,9 +57,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 
 }
 
-// Removed: void SGPWorld::ProcessEndosymbiont and moved to Host Process just calling Endosym Process
-// AEV: remove this comment after refactor
-
 
 // TODO - Handle Reproduction?
 // TODO - Go over support for free-living symbionts. Not sure it was
@@ -99,14 +96,6 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     DoSymDeath(pos.GetPopID());
   }
 }
-
-// void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
-// Refactor: Moved to Host::AttemptReproduction()
-
-// void SGPWorld::EndosymAttemptRepro
-// Refactor: Moved to SGPSymbiont::AttemptReproduction
-
-
  
 
 void SGPWorld::FreeLivingSymAttemptRepro(
@@ -143,8 +132,7 @@ void SGPWorld::DoReproduction() {
 }
 
 // Called for symbionts in the reproduction queue
-// TODO - SymDoBirth is for horizontal(?) and free-living repro
-//      - How to distinguish between the two?
+// fun_sym_do_birth is set to either free living or horizontal infection based on config
 emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<Organism> sym_baby,
   emp::WorldPosition parent_pos
@@ -186,19 +174,8 @@ emp::WorldPosition SGPWorld::HostDoBirth(
     emp_assert(!sym_org_ptr->IsHost());
     // Cast generic org pointer to more specific sym pointer type
     emp::Ptr<sgp_sym_t> sym_ptr = static_cast<sgp_sym_t*>(sym_org_ptr.Raw());
-    // Check if symbiont can attempt vertical transmission
 
-    // Refactor AEV note: the below is now in SGPSymbiont::SuccessfulVT
-    // const bool can_attempt = fun_can_attempt_vert_trans(
-    //   *sym_ptr, /* Symbiont attempting to vert. trans */
-    //   *offspring_ptr, /* Host offspring (trans into) */
-    //   *parent_ptr, /* Host parent (trans from) */
-    //   parent_pos
-    // );
-    // if (!can_attempt) {
-    //   continue;
-    // }
-    // This symbiont attempts vertical transmission (returns success if necessary)
+    // This symbiont attempts vertical transmission (returns success if necessary), relevant checks performed in SGPSymbiont
     sym_ptr->VerticalTransmission(offspring_ptr);
   }
 
@@ -230,6 +207,7 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(parent.Raw());
   // hew_host_pos is an optional<emp::WorldPosition>
   const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
+
   if (new_host_pos) {
     const size_t host_id = new_host_pos.value().GetIndex();
     int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
