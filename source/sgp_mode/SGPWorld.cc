@@ -308,9 +308,6 @@ std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
 }
 
-// void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
-// Refactor: Moved to Host::ProcessOutputBuffer()
-
 void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
   auto& cpu_state = sym.GetHardware().GetCPUState();
   const size_t env_task_id = cpu_state.GetTaskEnvID();

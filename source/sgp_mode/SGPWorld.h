@@ -532,13 +532,19 @@ protected:
 
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
-  void SetupOrgMode();
+  void SetupOrgTypeVariables();
+  void DisableConfigurableInstructions();
   void SetupPopStructure();
   void SetupScheduler();
+  void SetupChangingEnvironment();
   void SetupReproduction();
   void SetupSymReproduction();
   void SetupHostReproduction();
   void SetupHostTaskRewards();
+  void SetupTaskProfileMode();
+  void SetupTaskProfileCompatibilityMode();
+  void SetupHorizontalTransmissionCompatibilityMode();
+  void SetupFindHostForHorizontalTransmission();
   void SetupHostSymInteractions();
   void SetupTaskEnvironment();
   void SetupMutator();
@@ -585,7 +591,29 @@ public:
     scheduler(rnd),
     task_env(rnd),
     sgp_config(*_config)
-  { }
+  { 
+      // Configure default (no) nutrient interaction (IMPORTANT!)
+      // - Nutrient interaction setup will override this behavior if enabled.
+      fun_calc_host_nutrient_interaction = [](
+        sgp_host_t& host,
+        sgp_sym_t& sym,
+        double task_points,
+        size_t task_id,
+        size_t task_matching_sym_count
+      ) {
+        return 0.0;
+      };
+  
+      fun_calc_sym_nutrient_interaction = [](
+        sgp_host_t& host,
+        sgp_sym_t& sym,
+        double task_points,
+        size_t task_id,
+        size_t task_matching_sym_count
+      ) {
+        return 0.0;
+      };
+  }
 
   ~SGPWorld() {
     if(data_node_sym_donated) data_node_sym_donated.Delete();
