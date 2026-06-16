@@ -24,7 +24,7 @@ Symbulation has a large amount of tests in the `test` folder. Each mode has its 
 ## SGP Mode
 Because of the additional functionality of SGP Mode, it brought in a large amount of complexity. This subsection aims to provide a roadmap for the core functionality of SGP Mode.
 
-![Overview figure]("https://docs.google.com/drawings/d/e/2PACX-1vRi89yMMLF-7yPNPHa5jKs2VwJbNeI95I1wN_NVUSA4mDoU70Xy2cqRg3kfC6lOeEbZga1vyJe9ouXo/pub?w=960&amp;h=720")
+![Overview figure](https://docs.google.com/drawings/d/e/2PACX-1vRi89yMMLF-7yPNPHa5jKs2VwJbNeI95I1wN_NVUSA4mDoU70Xy2cqRg3kfC6lOeEbZga1vyJe9ouXo/pub?w=960&amp;h=720)
 
 * `native/symbulation_sgp.cc` is what is compiled when you type `make sgp-mode` on the command line. It creates a configuration object from whatever command line arguments you entered along with what is in your `SymSettings.cfg` file. It then creates a world, sets it up based on your configuration settings, and runs the experiment. This file is an ideal place to do further customization of output that can't be handled by the `.cfg` or `.json` files.
 * `SGPWorld` manages everything. The heart of its functionality is a population of `SGPHost`s. There could additionally be a population of free-living `SGPSymbiont`s, if you have enabled that setting. To manage these evolving populations, the world uses many helper objects, such as a   `Scheduler`, `ReproductionQueue`, `LogicTaskEnvironment`, `Mutator`, many `DataMonitors`, etc. Because the world is so large, it has many functions that are defined in helper files. 
