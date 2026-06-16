@@ -67,7 +67,7 @@ protected:
 public:
 
   // Configure spatial structure from mapping of "from" positions to "to" positions
-  void SetStructure(const emp::vector< emp::vector<size_t> >& in_struct) {
+  void SetStructure(const emp::vector<emp::vector<size_t>>& in_struct) {
     // Configure ordered connections (copy over and sort connections)
     const size_t num_positions = in_struct.size();
     ordered_connections = in_struct;
@@ -93,7 +93,7 @@ public:
   }
 
   // Configure spatial structure from a connection matrix (maps [from][to])
-  void SetStructure(const emp::vector< emp::vector<bool> >& in_struct) {
+  void SetStructure(const emp::vector<emp::vector<bool>>& in_struct) {
     // Configure connection matrix (copy from parameter)
     const size_t num_positions = in_struct.size();
     connection_matrix = in_struct;
@@ -116,6 +116,7 @@ public:
   }
 
   // Create a connection between positions, from ==> to
+  // NOTE: This forms a directed connection.
   void Connect(size_t from, size_t to) {
     // Check position validity
     emp_assert(from < GetNumPositions());
@@ -132,6 +133,15 @@ public:
       to
     );
     emp_assert(VerifyConnectionConsistency());
+  }
+
+  // Connect vertices a <==> b
+  void ConnectBidirectional(size_t a, size_t b) {
+    // Check position validity
+    emp_assert(a < GetNumPositions());
+    emp_assert(b < GetNumPositions());
+    Connect(a, b);
+    Connect(b, a);
   }
 
   // Remove connection between positions, from ==> to
@@ -155,6 +165,14 @@ public:
     emp_assert(VerifyConnectionConsistency());
   }
 
+  void DisconnectBidirectional(size_t a, size_t b) {
+    // Check position validity
+    emp_assert(a < GetNumPositions());
+    emp_assert(b < GetNumPositions());
+    Disconnect(a, b);
+    Disconnect(b, a);
+  }
+
   // Return whether or not there is a (directed) connection between "from" position
   // and "to" position.
   bool IsConnected(size_t from, size_t to) const {
@@ -166,7 +184,7 @@ public:
     return connection_matrix.size();
   }
 
-  const emp::vector< emp::vector<bool> >& GetConnectionMatrix() const {
+  const emp::vector<emp::vector<bool>>& GetConnectionMatrix() const {
     return connection_matrix;
   }
 
@@ -191,7 +209,7 @@ public:
 
   // Loads spatial structure from csv file specified by filepath.
   // File should have "from" and "to" columns (labeled in header).
-  // All other columns are ignored. See tests/data/spatial-structure-edges.csv
+  // All other columns are ignored. See source/test/data/spatial-structure-edges.csv
   // for an example of the expected format.
   void LoadStructureFromEdgeCSV(const std::string& filepath) {
     emp::File file(filepath);
@@ -199,8 +217,6 @@ public:
     std::string header_str = file.front();
     emp::vector<std::string> line;
     emp::slice(header_str, line, ',');
-    // std::cout << line << std::endl;
-
     emp_assert(emp::Has(line, {"from"}));
     emp_assert(emp::Has(line, {"to"}));
 
@@ -235,7 +251,6 @@ public:
     }
     const size_t num_positions = node_names.size();
     std::sort(node_names.begin(), node_names.end());
-    // std::cout << node_names << std::endl;
     // Create mapping from names to position
     std::unordered_map<std::string, size_t> name_to_position;
     for (size_t pos = 0; pos < num_positions; ++pos) {
@@ -255,7 +270,7 @@ public:
   }
 
   // Load spatial structure from matrix file format.
-  // See tests/data/spatial-structure-matrix.dat for example expected format.
+  // See source/test/data/spatial-structure-matrix.dat for example expected format.
   void LoadStructureFromMatrix(const std::string& filepath) {
     emp::File file(filepath);
     file.RemoveEmpty();
@@ -300,7 +315,6 @@ public:
     emp_assert(VerifyConnectionConsistency());
     const size_t num_positions = GetNumPositions();
     for (size_t from = 0; from < num_positions; ++from) {
-      // os << "|";
       for (size_t to = 0; to < num_positions; ++to) {
         if (to) os << ",";
         os << (size_t)connection_matrix[from][to];
@@ -360,6 +374,9 @@ void ConfigureToroidalGrid(SpatialStructure& structure, size_t width, size_t hei
 }
 
 // Build well-mixed structure of given size
+// NOTE: This it can be expensive to explicitly represent a fully connected
+//        graph. Generally much better to represent as a flat vector and implicitly
+//        assume all nodes are connected to one another.
 void ConfigureFullyConnected(SpatialStructure& structure, size_t size) {
   emp_assert(size > 0, "Size must be greater than 0");
 
@@ -375,6 +392,5 @@ void ConfigureFullyConnected(SpatialStructure& structure, size_t size) {
   }
 
   structure.SetStructure(matrix);
-
 }
 
