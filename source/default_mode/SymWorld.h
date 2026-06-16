@@ -146,28 +146,6 @@ public:
       };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
-    
-    // For well-mixed, we need to alter the Empirical World neighbor finding to not allow the current location to be returned.
-    //H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
-    if (my_config->GRID() == 0) {
-      // Neighbors are anywhere in the same population except the pos.
-      fun_get_neighbor = [this](emp::WorldPosition pos) { 
-        if (pop.size() <=1 ) return emp::WorldPosition(); // if there are no neighbors, return an invalid position
-        // leave out the last cell and swap it in if potential_neighbor is the same as pos
-        size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
-        if (potential_neighbor == pos.GetIndex()) {
-          potential_neighbor = pop.size() - 1;
-        }
-        return pos.SetIndex(potential_neighbor); 
-      };
-
-      // Neighbors are anywhere in same population, so all organisms are neighbors except for the focal organism.
-      // This might not actually need to be changed for SymWorld, but consistency seemed important
-      fun_is_neighbor = [](emp::WorldPosition pos1, emp::WorldPosition pos2) { 
-        if ((pos1.GetPopID() == pos2.GetPopID()) && (pos1.GetIndex() == pos2.GetIndex())) return false;
-        else return true; 
-      };
-    }
 
     emp_assert(!(my_config->TAG_MATCHING() && my_config->FREE_LIVING_SYMS()));
 
@@ -311,6 +289,29 @@ public:
     }
   }
 
+  void SetPopStruct_Mixed(bool synchronous_gen=false) {
+    emp::World<Organism>::SetPopStruct_Mixed(synchronous_gen);
+
+    // For well-mixed, we need to alter the Empirical World neighbor finding to not allow the current location to be returned.
+    //H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
+    // Neighbors are anywhere in the same population except the pos.
+    fun_get_neighbor = [this](emp::WorldPosition pos) { 
+      if (pop.size() <=1 ) return emp::WorldPosition(); // if there are no neighbors, return an invalid position
+      // leave out the last cell and swap it in if potential_neighbor is the same as pos
+      size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
+      if (potential_neighbor == pos.GetIndex()) {
+        potential_neighbor = pop.size() - 1;
+      }
+      return pos.SetIndex(potential_neighbor); 
+    };
+
+    // Neighbors are anywhere in same population, so all organisms are neighbors except for the focal organism.
+    // This might not actually need to be changed for SymWorld, but consistency seemed important
+    fun_is_neighbor = [](emp::WorldPosition pos1, emp::WorldPosition pos2) { 
+      if ((pos1.GetPopID() == pos2.GetPopID()) && (pos1.GetIndex() == pos2.GetIndex())) return false;
+      else return true; 
+    };
+  }
 
   /**
    * Input: None

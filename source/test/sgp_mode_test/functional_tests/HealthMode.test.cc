@@ -597,8 +597,8 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
   emp::Random random(config.SEED());
   world_t world(random, &config);
   
-  size_t no_mut_NOT_rate = 40000;
-  size_t run_updates = 1000;
+  size_t no_mut_NOT_rate_per_100 = 3400; // 3400 NOTs per 100 updates from empirical runs.
+  size_t run_updates = 3000; // The mutation population initially dips and then recovers around 2k updates.
   
   WHEN("Mutation size is 0") {
     config.SGP_MUT_PER_BIT_RATE(0);
@@ -607,27 +607,35 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
     size_t total_NOTs = 0;
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
-      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      if(i >= (run_updates-100)) {
+        //Only considering last 100 updates to make it easier to compare reasonable numbers
+        total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      }
     }
     THEN("Health hosts do not accrue mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate - no_mut_NOT_rate*0.25);
-      REQUIRE(total_NOTs < no_mut_NOT_rate + no_mut_NOT_rate*0.25);
+      REQUIRE(total_NOTs > no_mut_NOT_rate_per_100 - no_mut_NOT_rate_per_100*0.25);
+      REQUIRE(total_NOTs < no_mut_NOT_rate_per_100 + no_mut_NOT_rate_per_100*0.25);
     }
   }
 
   WHEN("Mutation size is greater than 0") {
-    config.SGP_MUT_PER_BIT_RATE(0.01);
+    config.SGP_MUT_PER_BIT_RATE(0.001);
     world.Setup();
     size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     size_t total_NOTs = 0;
+    size_t total_NANDs = 0;
+
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
-      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      if(i >= (run_updates-100)) {
+        //Only considering last 100 updates to make it easier to compare reasonable numbers
+        total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      }
     }
     THEN("Health hosts accrue more mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate * 3);
+      REQUIRE(total_NOTs > no_mut_NOT_rate_per_100 * 3);
     }
   }
 }

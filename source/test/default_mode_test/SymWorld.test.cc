@@ -24,6 +24,7 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
         for (int i = 0; i < 100; i++) {
           emp::WorldPosition neighbor_pos = world.GetRandomNeighborPos(focal_pos);
           if (neighbor_pos.GetIndex() == focal_pos.GetIndex()) {
+            std::cout << "neighbor pos: " << neighbor_pos.GetIndex() << std::endl;
             self_neighbor = true;
             break;
           }
@@ -455,6 +456,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
     SymWorld world(random, &config);
     size_t world_size = 4;
     world.Resize(world_size);
+    world.SetPopStruct_Mixed();
 
     emp::WorldPosition new_pos;
 

@@ -277,7 +277,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
 }
 
 
-TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional][test]"){
+TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   emp::Random random(42);
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
