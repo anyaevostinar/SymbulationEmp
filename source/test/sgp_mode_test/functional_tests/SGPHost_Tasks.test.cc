@@ -22,7 +22,7 @@ TEST_CASE("Host Task Credit", "[sgp]") {
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SYM_LIMIT(2);
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   world_t world(random, &config);
@@ -34,7 +34,7 @@ TEST_CASE("Host Task Credit", "[sgp]") {
   emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
   world.AddOrgAt(NOT_host, 0);
   for (int i = 0; i < 101; i++) {
-    world.Update(); 
+    world.Update();
   }
 
   WHEN("Host should have done NOT task") {

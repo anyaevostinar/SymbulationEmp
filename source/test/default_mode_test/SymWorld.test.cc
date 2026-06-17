@@ -11,7 +11,7 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
     SymConfigBase config;
     config.GRID_X(2);
     config.GRID_Y(2);
-    config.POP_SIZE(4);
+    config.INIT_POP_SIZE(4);
     config.GRID(0); // make sure the world is well-mixed
     SymWorld world(random, &config);
     world.Setup();
@@ -37,7 +37,7 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
     }
 
     WHEN(" focal position is end of population ") {
-      emp::WorldPosition focal_pos(config.POP_SIZE() - 1);
+      emp::WorldPosition focal_pos(config.INIT_POP_SIZE() - 1);
       WHEN("we repeatedly get a neighbor ") {
         for (int i = 0; i < 100; i++) {
           emp::WorldPosition neighbor_pos = world.GetRandomNeighborPos(focal_pos);
@@ -489,7 +489,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
             REQUIRE(world.GetNumOrgs() == 2);
             REQUIRE(new_pos.IsValid() == true);
             REQUIRE(parent_symbiont->GetPoints() == 0);
-            
+
             REQUIRE(new_pos.GetIndex() == 1);
             REQUIRE(new_pos.GetPopID() == host_pos + 1);
             REQUIRE(new_symbiont->GetPoints() == 0);
@@ -522,7 +522,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           uninfected_host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &world, &config, int_val));
           config.FREE_HT_FAILURE(1);
           config.SYM_LIMIT(1);
-          
+
           emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
           host->AddSymbiont(symbiont_parent);
 
@@ -1414,7 +1414,7 @@ TEST_CASE("Setup", "[default]") {
     }
 
     WHEN("Config option POP_SIZE is -1") {
-      config.POP_SIZE(-1);
+      config.INIT_POP_SIZE(-1);
       world.Setup();
       THEN("The world has full starting population") {
         REQUIRE(world.GetNumOrgs() == width * height);
@@ -1423,7 +1423,7 @@ TEST_CASE("Setup", "[default]") {
 
     WHEN("Config option POP_SIZE is greater than -1") {
       size_t pop_size = (width * height) / 2;
-      config.POP_SIZE(pop_size);
+      config.INIT_POP_SIZE(pop_size);
       world.Setup();
       THEN("The world has a partial starting population") {
         REQUIRE(world.GetNumOrgs() == pop_size);
@@ -1434,13 +1434,13 @@ TEST_CASE("Setup", "[default]") {
       double smoi = 0.02;
       config.START_MOI(smoi);
       config.SYM_LIMIT(10);
-      config.POP_SIZE(-1);
+      config.INIT_POP_SIZE(-1);
       emp::DataMonitor<int>& hosted_sym_count_node = world.GetCountHostedSymsDataNode();
       world.Setup();
       world.Update();
 
       size_t num_syms = hosted_sym_count_node.GetTotal();
-      
+
       THEN("The world is populated with a proportional number of symbionts") {
         REQUIRE(world.GetNumOrgs() == width * height);
         REQUIRE(num_syms == smoi * width * height);
@@ -1456,8 +1456,8 @@ TEST_CASE("SetupSymbionts", "[default]") {
     SymWorld world(random, &config);
 
     size_t world_size = 6;
-    
-    WHEN("SetupSymbionts is called and FLS is on") {  
+
+    WHEN("SetupSymbionts is called and FLS is on") {
       world.Resize(world_size);
       config.FREE_LIVING_SYMS(1);
       size_t num_to_add = 2;
@@ -1486,7 +1486,7 @@ TEST_CASE("SetupHosts", "[default]") {
 
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
-      
+
 
       THEN("The specified number of hosts are added to the world") {
         world.SetupHosts(&num_to_add);

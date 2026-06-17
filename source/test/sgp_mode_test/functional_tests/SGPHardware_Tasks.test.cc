@@ -30,10 +30,10 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
   emp::Random random(config.SEED());
 
   WHEN("logic tasks are used") {
-    config.POP_SIZE(1);  // Initialize 1 host.
+    config.INIT_POP_SIZE(1);  // Initialize 1 host.
     config.START_MOI(0); // No symbionts
     config.CYCLES_PER_UPDATE(1);
-    
+
     world_t world(random, &config);
     world.Setup();
 
@@ -41,9 +41,9 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     REQUIRE(world.GetNumOrgs() == 1);
     auto& org = world.GetOrg(0);
     auto& sgp_host = static_cast<sgp_host_t&>(org);
-    
+
     hardware_t& hw = sgp_host.GetHardware();
-    
+
     REQUIRE(sgp_host.GetReproCount() == 0);
     REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproAttempt());
     REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproInProgress());
@@ -58,7 +58,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
 
     REQUIRE(sgp_host.GetPoints() == 0);
     sgp_host.ProcessOutputBuffer();
-    // Hardware should also have completed NOT task seven times, which is also checking that they 
+    // Hardware should also have completed NOT task seven times, which is also checking that they
     // are able to fully cycle through all possible inputs (they don't do the last one because they need to go back to their first IO to get it)
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     REQUIRE(hw.GetCPUState().GetTaskPerformed(not_task_id));

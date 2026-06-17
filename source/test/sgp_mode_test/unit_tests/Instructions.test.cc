@@ -66,7 +66,7 @@ TEST_CASE("Test non-interactive instructions", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
 
@@ -497,7 +497,7 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.SYM_DONATE_PROP(0.5);
@@ -699,7 +699,7 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.SYM_DONATE_PROP(0.5);

@@ -11,7 +11,7 @@
 #include "emp/math/stats.hpp"
 
 /**
- * This file is dedicated to ensuring that SGPDataNodes create the correct files and track data correctly 
+ * This file is dedicated to ensuring that SGPDataNodes create the correct files and track data correctly
  */
 
 using world_t = sgpmode::SGPWorld;
@@ -35,17 +35,17 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
     config.SEED(2);
     config.INTERACTION_MECHANISM("default");
     config.FILE_NAME("DataTest");
-    config.POP_SIZE(0);
+    config.INIT_POP_SIZE(0);
     config.GRID_X(2);
     config.GRID_Y(2);
     config.HOST_MIN_CYCLES_BEFORE_REPRO(10000);
     config.SYM_MIN_CYCLES_BEFORE_REPRO(10000);
     config.DATA_INT(2);
-    size_t prog_length = 20; 
+    size_t prog_length = 20;
     config.CYCLES_PER_UPDATE(prog_length);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.FILE_PATH("SGPData_test_output");
-    
+
     emp::Random random(config.SEED());
 
     std::filesystem::path org_count_fpath = config.FILE_PATH() + "/" + "OrganismCounts"+config.FILE_NAME() + ".csv";
@@ -56,7 +56,7 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
 
     WHEN("The World is ran for 3 Updates with 1 host"){
       world_t world(random, &config);
-      world.Setup(); 
+      world.Setup();
 
       //Creates a host that only does NOT operations
       emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(prog_length));
@@ -66,10 +66,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
       for (int i = 0; i < 3; i++){
         world.Update();
       }
-      
+
       // OrganismCounts
       std::ifstream file(org_count_fpath);
-      std::string str; 
+      std::string str;
       THEN("The OrganismCounts file should contain 3 lines"){
         std::getline(file, str);
         THEN("The first should be a header"){
@@ -87,7 +87,7 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
 
       // SymbiontInteractionValues
       std::ifstream file2(sym_int_vals_fpath);
-      std::string str2; 
+      std::string str2;
       THEN("The SymbiontInteractionValues File should contain 3 lines"){
         std::getline(file2, str2);
         THEN("The first should be a header"){
@@ -104,10 +104,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
           REQUIRE(str2 == "2,nan,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
         }
       }
-      
+
       // Tasks
       std::ifstream file3(tasks_fpath);
-      std::string str3; 
+      std::string str3;
       THEN("The Task File should contain 3 lines"){
         std::getline(file3, str3);
         THEN("The first should be a header"){
@@ -122,10 +122,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
           REQUIRE(str3 == "2,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
         }
       }
-      
-      // TransmissionRates 
+
+      // TransmissionRates
       std::ifstream file4(transmission_fpath);
-      std::string str4; 
+      std::string str4;
       THEN("The TransmissionRates File should contain 3 lines"){
         std::getline(file4, str4);
         THEN("The first should be a header"){
@@ -143,13 +143,13 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
 
       // CurrentUpdateInfo
       std::ifstream file5(cur_update_info_fpath);
-      std::string str5; 
+      std::string str5;
       THEN("The CurrentUpdateInfo File should contain 3 lines"){
         std::getline(file5, str5);
         THEN("The first should be a header"){
           REQUIRE(str5 == "update,host_mean_generations,host_variance_generations,sym_mean_generations,sym_variance_generations,NAND_in_host_profile_counts,NOT_in_host_profile_counts,OR_NOT_in_host_profile_counts,AND_in_host_profile_counts,OR_in_host_profile_counts,AND_NOT_in_host_profile_counts,NOR_in_host_profile_counts,XOR_in_host_profile_counts,EQU_in_host_profile_counts,NAND_in_sym_profile_counts,NOT_in_sym_profile_counts,OR_NOT_in_sym_profile_counts,AND_in_sym_profile_counts,OR_in_sym_profile_counts,AND_NOT_in_sym_profile_counts,NOR_in_sym_profile_counts,XOR_in_sym_profile_counts,EQU_in_sym_profile_counts,NAND_in_host_parent_org_counts,NOT_in_host_parent_org_counts,OR_NOT_in_host_parent_org_counts,AND_in_host_parent_org_counts,OR_in_host_parent_org_counts,AND_NOT_in_host_parent_org_counts,NOR_in_host_parent_org_counts,XOR_in_host_parent_org_counts,EQU_in_host_parent_org_counts,NAND_in_sym_parent_org_counts,NOT_in_sym_parent_org_counts,OR_NOT_in_sym_parent_org_counts,AND_in_sym_parent_org_counts,OR_in_sym_parent_org_counts,AND_NOT_in_sym_parent_org_counts,NOR_in_sym_parent_org_counts,XOR_in_sym_parent_org_counts,EQU_in_sym_parent_org_counts,NAND_in_host_current_org_counts,NOT_in_host_current_org_counts,OR_NOT_in_host_current_org_counts,AND_in_host_current_org_counts,OR_in_host_current_org_counts,AND_NOT_in_host_current_org_counts,NOR_in_host_current_org_counts,XOR_in_host_current_org_counts,EQU_in_host_current_org_counts,NAND_in_sym_current_org_counts,NOT_in_sym_current_org_counts,OR_NOT_in_sym_current_org_counts,AND_in_sym_current_org_counts,OR_in_sym_current_org_counts,AND_NOT_in_sym_current_org_counts,NOR_in_sym_current_org_counts,XOR_in_sym_current_org_counts,EQU_in_sym_current_org_counts,NAND_host_sym_profile_matches,NOT_host_sym_profile_matches,OR_NOT_host_sym_profile_matches,AND_host_sym_profile_matches,OR_host_sym_profile_matches,AND_NOT_host_sym_profile_matches,NOR_host_sym_profile_matches,XOR_host_sym_profile_matches,EQU_host_sym_profile_matches,NAND_host_sym_profile_mismatches,NOT_host_sym_profile_mismatches,OR_NOT_host_sym_profile_mismatches,AND_host_sym_profile_mismatches,OR_host_sym_profile_mismatches,AND_NOT_host_sym_profile_mismatches,NOR_host_sym_profile_mismatches,XOR_host_sym_profile_mismatches,EQU_host_sym_profile_mismatches,host_sym_perfect_matches_total,host_sym_any_matches_total,host_parent_num_task_sets,host_parent_entropy_task_sets,host_current_num_task_sets,host_current_entropy_task_sets,sym_parent_num_task_sets,sym_parent_entropy_task_sets,sym_current_num_task_sets,sym_current_entropy_task_sets");
         }
-        // setuphosts should toggle parent task completions; we're adding hosts manually, so their parents won't be toggled 
+        // setuphosts should toggle parent task completions; we're adding hosts manually, so their parents won't be toggled
         std::getline(file5, str5);
         THEN("The second should be 1 count of unique host / host parent task sets, and 0s/nans elsewhere") {
           replaceNan(str5);
@@ -176,13 +176,13 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
         REQUIRE(!std::filesystem::exists(cur_update_info_fpath));
       }
     }
-    
+
     WHEN("The World is ran for 3 Updates with 2 hosts and 1 symbiont"){
       config.SYM_INT(1);
       config.TASK_PROFILE_MODE("self-all");
 
       world_t world(random, &config);
-      world.Setup(); 
+      world.Setup();
 
       //Creates a host that only does NOT operations
       emp::Ptr<sgp_host_t> not_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(prog_length));
@@ -198,10 +198,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
       for (int i = 0; i < 3; i++){
         world.Update();
       }
-      
+
       // OrganismCounts
       std::ifstream file(org_count_fpath);
-      std::string str; 
+      std::string str;
       THEN("The OrganismCounts file should contain 3 lines"){
         std::getline(file, str);
         THEN("The first should be a header"){
@@ -219,7 +219,7 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
 
       // SymbiontInteractionValues
       std::ifstream file2(sym_int_vals_fpath);
-      std::string str2; 
+      std::string str2;
       THEN("The SymbiontInteractionValues File should contain 3 lines"){
         std::getline(file2, str2);
         THEN("The first should be a header"){
@@ -234,10 +234,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
           REQUIRE(str2 == "2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1");
         }
       }
-      
+
       // Tasks
       std::ifstream file3(tasks_fpath);
-      std::string str3; 
+      std::string str3;
       THEN("The Task File should contain 3 lines"){
         std::getline(file3, str3);
         THEN("The first should be a header"){
@@ -252,10 +252,10 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
           REQUIRE(str3 == "2,2,4,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0");
         }
       }
-      
-      // TransmissionRates 
+
+      // TransmissionRates
       std::ifstream file4(transmission_fpath);
-      std::string str4; 
+      std::string str4;
       THEN("The TransmissionRates File should contain 3 lines"){
         std::getline(file4, str4);
         THEN("The first should be a header"){
@@ -273,7 +273,7 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
 
       // CurrentUpdateInfo
       std::ifstream file5(cur_update_info_fpath);
-      std::string str5; 
+      std::string str5;
       THEN("The CurrentUpdateInfo File should contain 3 lines"){
         std::getline(file5, str5);
         THEN("The first should be a header"){

@@ -9,7 +9,7 @@
  */
 
 /**
-Overview of expected health mode behvaior: 
+Overview of expected health mode behvaior:
 
 conditions where no host cycles are stolen:
 - uninfected host
@@ -38,17 +38,17 @@ using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 void ConfigureHealthTestConfig(emp::Ptr<sgpmode::SymConfigSGP> config){
   // base world settings
   config->SEED(10);
-  config->POP_SIZE(0);
+  config->INIT_POP_SIZE(0);
   config->START_MOI(0);
   config->GRID_X(2);
   config->GRID_Y(2);
-  
+
   // general sgp settings
   config->TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config->TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config->TASK_PROFILE_MODE("self-all");
   config->CYCLES_PER_UPDATE(4);
-  
+
   // health settings
   config->ENABLE_HEALTH(1);
   config->HEALTH_INTERACTION_CHANCE(1);
@@ -59,7 +59,7 @@ void ConfigureHealthTestConfig(emp::Ptr<sgpmode::SymConfigSGP> config){
   config->MUTUALIST_CYCLE_GAIN_PROP(0.5);
 }
 
-TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp-functional]") { 
+TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp-functional]") {
   GIVEN("A health host is uninfected"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -71,7 +71,7 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
     world.Setup();
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->GetHardware().GetCPUState().MarkTaskPerformed(0);
 
@@ -81,7 +81,7 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
 
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
 
@@ -94,18 +94,18 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
       int total_times_gained_cycles = 0;
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
-        
-        host->GetHardware().GetCPUState().SetLocation(0); 
+
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
 
         size_t new_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
-        
+
         if(new_stack_location - initial_stack_location == 8) {
           total_times_gained_cycles++;
         }
       }
-      
+
       THEN("The host neither looses nor gains cycles"){
         REQUIRE((double)total_times_skipped_cycle/repeats == 0);
         REQUIRE((double)total_times_gained_cycles/repeats == 0);
@@ -115,7 +115,7 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
   }
 }
 
-TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-functional]") { 
+TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching parasite"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -131,7 +131,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> parasite = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(parasite);
 
@@ -144,7 +144,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
 
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
 
@@ -153,7 +153,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
           total_times_skipped_cycle++;
         }
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats * config.PARASITE_CYCLE_LOSS_PROP() * config.HEALTH_INTERACTION_CHANCE();
       double expected_stolen_cycles = (cycles_per_update * repeats) - expected_host_cycles;
       double expected_parasite_cycles = (config.PARASITE_BASE_CYCLE_PROP() * cycles_per_update * repeats) + expected_stolen_cycles;
@@ -166,14 +166,14 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
       }
 
       THEN("The matching parasite gains approximately 50% of the host's cycles"){
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() > expected_parasite_cycles - expected_parasite_cycles*0.05); 
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() < expected_parasite_cycles + expected_parasite_cycles*0.05); 
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() > expected_parasite_cycles - expected_parasite_cycles*0.05);
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() < expected_parasite_cycles + expected_parasite_cycles*0.05);
       }
     }
   }
 }
 
-TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][sgp-functional]") { 
+TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a mismatching parasite"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -187,7 +187,7 @@ TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][s
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> parasite = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(parasite);
 
@@ -197,11 +197,11 @@ TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][s
     WHEN("A matching parasite always steals 50% its host's cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_parasite_cycles = config.PARASITE_BASE_CYCLE_PROP() * cycles_per_update * repeats;
 
@@ -210,13 +210,13 @@ TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][s
       }
 
       THEN("The mismatching parasite gains no cycles"){
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles); 
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYCLE_STEAL_MULTIPLIER is 0", "[sgp][sgp-functional]") { 
+TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYCLE_STEAL_MULTIPLIER is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching parasite"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -231,7 +231,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYC
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> parasite = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(parasite);
 
@@ -241,11 +241,11 @@ TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYC
     WHEN("A matching parasite always steals 0 times 50% its host's cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats * config.PARASITE_CYCLE_LOSS_PROP() * config.HEALTH_INTERACTION_CHANCE();
       double expected_parasite_cycles = config.PARASITE_BASE_CYCLE_PROP() * cycles_per_update * repeats;
 
@@ -254,13 +254,13 @@ TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYC
       }
 
       THEN("The mismatching parasite gains no cycles (the stolen cycles from the host are negated by the 0 multiplier)"){
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles); 
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE_CYCLE_LOSS_PROP is 0", "[sgp][sgp-functional]") { 
+TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE_CYCLE_LOSS_PROP is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching parasite"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -275,7 +275,7 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> parasite = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(parasite);
 
@@ -285,11 +285,11 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE
     WHEN("A matching parasite always steals 0% its host's cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_parasite_cycles = config.PARASITE_BASE_CYCLE_PROP() * cycles_per_update * repeats;
 
@@ -298,13 +298,13 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE
       }
 
       THEN("The mismatching parasite gains no cycles"){
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles); 
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") { 
+TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching parasite"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -319,7 +319,7 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_I
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> parasite = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(parasite);
 
@@ -329,11 +329,11 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_I
     WHEN("A matching parasite never steals 50% its host's cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_parasite_cycles = config.PARASITE_BASE_CYCLE_PROP() * cycles_per_update * repeats;
 
@@ -342,13 +342,13 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_I
       }
 
       THEN("The mismatching parasite gains no cycles"){
-        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles); 
+        REQUIRE(parasite->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_parasite_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functional]") { 
+TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching mutualist"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -363,7 +363,7 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> mutualist = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(mutualist);
 
@@ -375,18 +375,18 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
       int total_times_gained_cycles = 0;
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
-        
-        host->GetHardware().GetCPUState().SetLocation(0); 
+
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
 
         size_t new_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
-        
+
         if(new_stack_location - initial_stack_location == 8) {
           total_times_gained_cycles++;
         }
       }
-      
+
       double expected_donated_cycles = cycles_per_update * repeats * config.MUTUALIST_CYCLE_GAIN_PROP() * config.HEALTH_INTERACTION_CHANCE();
       double expected_host_cycles = (cycles_per_update * repeats) + expected_donated_cycles;
       double expected_mutualist_cycles = (cycles_per_update * repeats) - expected_donated_cycles;
@@ -399,14 +399,14 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
       }
 
       THEN("The matching mutualist loses approximately 50% of its cycles"){
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() > expected_mutualist_cycles - expected_mutualist_cycles*0.05); 
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() < expected_mutualist_cycles + expected_mutualist_cycles*0.05); 
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() > expected_mutualist_cycles - expected_mutualist_cycles*0.05);
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() < expected_mutualist_cycles + expected_mutualist_cycles*0.05);
       }
     }
   }
 }
 
-TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][sgp-functional]") { 
+TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching mutualist"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
@@ -420,7 +420,7 @@ TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> mutualist = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(mutualist);
 
@@ -430,11 +430,11 @@ TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][
     WHEN("A matching mutualist always donates 50% of its cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_mutualist_cycles = cycles_per_update * repeats;
 
@@ -443,20 +443,20 @@ TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][
       }
 
       THEN("The mismatching mutualist does not lose cycles"){
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles); 
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_DONATE_MULTIPLIER is 0", "[sgp][sgp-functional]") {  
+TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_DONATE_MULTIPLIER is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching mutualist"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
     config.HEALTH_TYPE("mutualist");
     config.MUTUALIST_CYCLE_DONATE_MULTIPLIER(0);
     size_t cycles_per_update = 4;
-    
+
     emp::Random random(config.SEED());
 
     world_t world(random, &config);
@@ -464,7 +464,7 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> mutualist = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(mutualist);
 
@@ -474,11 +474,11 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
     WHEN("A matching mutualist always donates 0 times 50% of its cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_attempted_donated_cycles = cycles_per_update * repeats * config.MUTUALIST_CYCLE_GAIN_PROP() * config.HEALTH_INTERACTION_CHANCE();
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_mutualist_cycles = (cycles_per_update * repeats) - expected_attempted_donated_cycles;
@@ -488,20 +488,20 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
       }
 
       THEN("The matching mutualist loses cycles (it tries to donate, but its donations are negated by the 0 multiplier)"){
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles); 
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_GAIN_PROP is 0", "[sgp][sgp-functional]") {  
+TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_GAIN_PROP is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching mutualist"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
     config.HEALTH_TYPE("mutualist");
     config.MUTUALIST_CYCLE_GAIN_PROP(0);
     size_t cycles_per_update = 4;
-    
+
     emp::Random random(config.SEED());
 
     world_t world(random, &config);
@@ -509,7 +509,7 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> mutualist = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(mutualist);
 
@@ -519,11 +519,11 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
     WHEN("A matching mutualist always donates 0% of its cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_mutualist_cycles = cycles_per_update * repeats;
 
@@ -532,20 +532,20 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
       }
 
       THEN("The matching mutualist does not lose cycles"){
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles); 
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles);
       }
     }
   }
 }
 
-TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") { 
+TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") {
   GIVEN("A health host infected by a matching mutualist"){
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(&config);
     config.HEALTH_TYPE("mutualist");
     config.HEALTH_INTERACTION_CHANCE(0);
     size_t cycles_per_update = 4;
-    
+
     emp::Random random(config.SEED());
 
     world_t world(random, &config);
@@ -553,7 +553,7 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
     emp::Ptr<sgp_sym_t> mutualist = emp::NewPtr<sgp_sym_t> (&random, &world, &config, world.GetProgramBuilder().CreateNotProgram(100));
-    
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(mutualist);
 
@@ -563,11 +563,11 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
     WHEN("A matching mutualist never donates 50% of its cycles"){
       int repeats = 25;
       for (int i = 0; i < repeats; i++) {
-        host->GetHardware().GetCPUState().SetLocation(0); 
+        host->GetHardware().GetCPUState().SetLocation(0);
         host->GetHardware().GetCPUState().GainCPUCycles(cycles_per_update);
         host->Process(0);
       }
-      
+
       double expected_host_cycles = cycles_per_update * repeats;
       double expected_mutualist_cycles = cycles_per_update * repeats;
 
@@ -576,7 +576,7 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
       }
 
       THEN("The matching mutualist does not lose cycles"){
-        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles); 
+        REQUIRE(mutualist->GetHardware().GetCPUState().GetCPUCyclesSinceRepro() == expected_mutualist_cycles);
       }
     }
   }
@@ -598,10 +598,10 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
-  
+
   size_t no_mut_NOT_rate_per_100 = 3400; // 3400 NOTs per 100 updates from empirical runs.
   size_t run_updates = 3000; // The mutation population initially dips and then recovers around 2k updates.
-  
+
   WHEN("Mutation size is 0") {
     config.SGP_MUT_PER_BIT_RATE(0);
     world.Setup();

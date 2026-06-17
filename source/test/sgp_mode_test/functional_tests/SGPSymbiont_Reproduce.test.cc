@@ -5,7 +5,7 @@
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 
 /**
- * This file is for testing the various aspects of symbiont reproduction, 
+ * This file is for testing the various aspects of symbiont reproduction,
  * including horizontal and vertical transmission (not just when Reproduce instruction is called).
  */
 using world_t = sgpmode::SGPWorld;
@@ -28,12 +28,12 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
     auto& prog_builder = world.GetProgramBuilder();
     emp::Ptr<sgp_sym_t> sym_parent = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
-        
+
     world.AddOrgAt(host, 0);
     host->AddSymbiont(sym_parent);
 
     WHEN("The Symbiont reproduces"){
-      
+
       THEN("Symbiont child increases its lineage reproduction count") {
         emp::Ptr<sgp_sym_t> sym_baby = (sym_parent->Reproduce()).DynamicCast<sgp_sym_t>();
         REQUIRE(sym_parent->GetReproCount() == sym_baby->GetReproCount() - 1);
@@ -41,7 +41,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
       }
 
       WHEN("Parental task tracking is set to parent-all and parent does NOT before reproduction") {
-        
+
         for (int i = 0; i < 50; i++) {
           world.Update();
         }
@@ -50,7 +50,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
         world.AssignNewEnvIO(sym_baby->GetHardware().GetCPUState());
 
         THEN("All tasks are tracked correctly for three generations") {
-          
+
           REQUIRE(sym_parent->GetHardware().GetCPUState().GetParentTasksPerformed().None());
 
           REQUIRE(sym_parent->GetHardware().GetCPUState().GetTasksPerformed().Get(not_id));
@@ -68,8 +68,8 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
           size_t num_tasks = sym_baby->GetHardware().GetCPUState().GetLineageTaskGain().size();
           for (size_t i=0; i<num_tasks; i++) {
             if (i != not_id) {
-              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);  
-              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);   
+              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);
+              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);
             }
           }
         }
@@ -81,8 +81,8 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
           size_t num_tasks = sym_baby->GetHardware().GetCPUState().GetLineageTaskGain().size();
           for (size_t i=0; i<num_tasks; i++) {
             if (i != not_id) {
-              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);  
-              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);   
+              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskGainCount(i) == 0);
+              REQUIRE(sym_baby->GetHardware().GetCPUState().GetLineageTaskLossCount(i) == 0);
             }
           }
         }
@@ -103,7 +103,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
   config.HORIZ_TRANS(0);
   config.DATA_INT(26);
   config.VERTICAL_TRANSMISSION(1);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   GIVEN("A host infected with a symbiont in the world when self-all task mode and task match required for vt"){
     config.TASK_PROFILE_MODE("self-all");
@@ -236,7 +236,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
   }
 
 }
- 
+
 TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
   //Note: Catch automatically reruns everything from the top of the test case for each WHEN, so the world/orgs get reset
   emp::Random random(51);
@@ -248,7 +248,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
   config.HOST_REPRO_RES(0);
   config.SYM_VERT_TRANS_RES(0);
   config.HORIZ_TRANS(0);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.VERTICAL_TRANSMISSION(0);
   GIVEN("A host infected with a symbiont in the world"){
     world_t world(random, &config);
@@ -283,7 +283,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
   config.GRID_Y(2);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);
   config.VERTICAL_TRANSMISSION(0);
@@ -291,10 +291,10 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.OUSTING(true); // This way, if the offspring happens to try to infect parent's host, the tests still pass because successful horizontal transmission.
-  
+
   GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and self-all task profile mode"){
     config.HORIZ_TRANS(1);
-    
+
     config.TASK_PROFILE_MODE("self-all");
 
     world_t world(random, &config);
@@ -323,9 +323,9 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetCount() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 1);
       }
-      
+
     }
-    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -340,7 +340,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 0);
       }
     }
-          
+
     WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -385,9 +385,9 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetCount() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 0);
       }
-      
+
     }
-    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -398,7 +398,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 1);
       }
     }
-          
+
     WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -439,9 +439,9 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetCount() == 1);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 1);
       }
-      
+
     }
-    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -452,7 +452,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 1);
       }
     }
-          
+
     WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -492,9 +492,9 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionAttemptCount().GetCount() == 0);
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 0);
       }
-      
+
     }
-    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){      
+    WHEN("Only Uninfected Host parent and Symbiont parent share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       host_uninfected->GetHardware().GetCPUState().SetParentTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -505,7 +505,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
         REQUIRE(world.GetHorizontalTransmissionSuccessCount().GetCount() == 0);
       }
     }
-          
+
     WHEN("Host and Symbiont do not share a matching task and symbiont reproduces"){
       sym->GetHardware().GetCPUState().MarkTaskPerformed(0);
       for(int i = 0; i < 26; i++){
@@ -527,7 +527,7 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPSymbiont_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(1); // Initialize host with a symbiont
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.VERTICAL_TRANSMISSION(0); // No vertical transmission for this test
@@ -579,11 +579,11 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
   THEN("Symbiont offspring increases its lineage reproduction count") {
     // Mark repro in progress to check that reproduce function resets repro in progress
     // flag on parent.
-    
+
     size_t q_id = world.GetReproQueue().Enqueue(&sgp_sym, sgp_sym.GetLocation());
     sym_hw.GetCPUState().MarkReproInProgress(q_id);
     REQUIRE(sym_hw.GetCPUState().ReproInProgress());
-    
+
     emp::Ptr<sgp_sym_t> sym_offspring_ptr = static_cast<sgp_sym_t*>(sgp_sym.Reproduce().Raw());
     REQUIRE(sym_offspring_ptr->GetReproCount() == (sgp_sym.GetReproCount() + 1));
     REQUIRE(!sym_hw.GetCPUState().ReproAttempt());
@@ -591,7 +591,7 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
     REQUIRE(sym_hw.GetCPUState().NotReproducing());
     sym_offspring_ptr.Delete();
   }
-  
+
   SECTION("Symbiont offspring inherits parent's completed task profile") {
     // Mark some of parent's tasks completed
     sym_hw.GetCPUState().MarkTaskPerformed(0);

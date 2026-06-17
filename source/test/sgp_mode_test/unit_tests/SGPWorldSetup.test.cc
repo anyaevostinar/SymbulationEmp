@@ -12,7 +12,7 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 using program_t = typename world_t::sgp_prog_t;
 
-// todo: SetupOrgMode test 
+// todo: SetupOrgMode test
 
 TEST_CASE("Setup with an empty population", "[sgp]"){
   sgpmode::SymConfigSGP config;
@@ -20,7 +20,7 @@ TEST_CASE("Setup with an empty population", "[sgp]"){
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SEED(234);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   emp::Random random(config.SEED());
@@ -44,15 +44,15 @@ TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]"){
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SEED(44);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
   world.Resize(0);
 
-  size_t host_count = 4; 
-  config.POP_SIZE(host_count);
-  
+  size_t host_count = 4;
+  config.INIT_POP_SIZE(host_count);
+
   WHEN("SetupHosts is called"){
     world.SetupHosts(&host_count);
     THEN("The correct number of hosts are added"){
@@ -68,16 +68,16 @@ TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]"){
   config.GRID_X(2);
   config.GRID_Y(2);
   config.SEED(44);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.START_MOI(1);
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
   world.Resize(0);
 
-  size_t host_count = 4; 
-  config.POP_SIZE(host_count);
-  
+  size_t host_count = 4;
+  config.INIT_POP_SIZE(host_count);
+
   WHEN("SetupHosts is called and START_MOI is 1"){
     world.SetupHosts(&host_count);
     THEN("The correct number of infected hosts are added"){
@@ -94,7 +94,7 @@ TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]")
 	sgpmode::SymConfigSGP config;
 	config.GRID_X(2);
 	config.GRID_Y(2);
-	config.POP_SIZE(0);
+	config.INIT_POP_SIZE(0);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
 	WHEN("TASK_PROFILE_MODE tracks all parent tasks") {
@@ -118,7 +118,7 @@ TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]")
 		config.TASK_PROFILE_MODE("self-all");
 		world_t world(random, &config);
 		world.Setup();
-		
+
 		emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
 
 		host->GetHardware().GetCPUState().MarkTaskPerformed(0);
@@ -129,7 +129,7 @@ TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]")
 			REQUIRE(world.GetHostTaskProfile(*host).Get(0) == 1);
 		}
 		host.Delete();
-	
+
 	}
 }
 
@@ -138,7 +138,7 @@ TEST_CASE("Setup correctly sets symbiont task profile functions", "[sgp][sgp-uni
 	sgpmode::SymConfigSGP config;
 	config.GRID_X(2);
 	config.GRID_Y(2);
-	config.POP_SIZE(0);
+	config.INIT_POP_SIZE(0);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
 	WHEN("TASK_PROFILE_MODE tracks all parent tasks") {
@@ -162,7 +162,7 @@ TEST_CASE("Setup correctly sets symbiont task profile functions", "[sgp][sgp-uni
 		config.TASK_PROFILE_MODE("self-all");
 		world_t world(random, &config);
 		world.Setup();
-		
+
 		emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
 
 		symbiont->GetHardware().GetCPUState().MarkTaskPerformed(7);
@@ -175,4 +175,3 @@ TEST_CASE("Setup correctly sets symbiont task profile functions", "[sgp][sgp-uni
 		symbiont.Delete();
 	}
 }
-	

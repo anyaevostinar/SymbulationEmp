@@ -48,9 +48,9 @@ private:
 public:
 
   /**
-   * 
+   *
    * The contructor for SymAnimate
-   * 
+   *
    */
   SymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
 
@@ -62,7 +62,7 @@ public:
     //things that don't show up in the GUI correctly
     config_panel.ExcludeSetting("SYM_LIMIT");
     config_panel.ExcludeSetting("DATA_INT");
-    config_panel.ExcludeSetting("POP_SIZE");
+    config_panel.ExcludeSetting("INIT_POP_SIZE");
     config_panel.ExcludeSetting("FILE_PATH");
     config_panel.ExcludeSetting("FILE_NAME");
     config_panel.ExcludeSetting("COMPETITION_MODE");
@@ -178,10 +178,10 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
-   * Purpose: To initialize the world based upon the config setting given 
+   *
+   * Purpose: To initialize the world based upon the config setting given
    */
   void initializeWorld(){
      // Reset the seed and the random machine of world to ensure consistent result (??)
@@ -196,11 +196,11 @@ public:
 
 
   /**
-   * Input: The string representing the button identification. 
-   * 
+   * Input: The string representing the button identification.
+   *
    * Output: None
-   * 
-   * Purpose: To add style to the buttons displayed. 
+   *
+   * Purpose: To add style to the buttons displayed.
    */
   void setButtonStyle(std::string but_id){
     auto but = buttons.Button(but_id);
@@ -211,11 +211,11 @@ public:
 
 
   /**
-   * Input: The canvas being used. 
-   * 
+   * Input: The canvas being used.
+   *
    * Output: None
-   * 
-   * Purpose: To draw the petri dish of basteria and phage. 
+   *
+   * Purpose: To draw the petri dish of basteria and phage.
    */
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
@@ -254,13 +254,13 @@ public:
 
 
   /**
-   * Input: The double representing symbiont or host's interaction value 
-   * 
-   * Output: The string representing the hex value for the color of the organism. 
-   * 
+   * Input: The double representing symbiont or host's interaction value
+   *
+   * Output: The string representing the hex value for the color of the organism.
+   *
    * Purpose: To determine the color that an organism should be, given its
-   * interaction value. 
-   */  
+   * interaction value.
+   */
   std::string matchColor(double intVal){
     if ((-1.0 <= intVal) && (intVal < -0.9)) return "#EFFDF0";
     else if ((-0.9 <= intVal) && (intVal < -0.8)) return "#D4FFDD";
@@ -287,11 +287,11 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
-   * Purpose: To update the frame displayed of the current 
-   * world state. 
+   *
+   * Purpose: To update the frame displayed of the current
+   * world state.
    */
   void DoFrame() {
 

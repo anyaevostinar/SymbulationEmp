@@ -11,7 +11,7 @@
 #include "../../../catch/catch.hpp"
 
 /**
- * This file is dedicated to organism point gain / loss in temporally changing environments 
+ * This file is dedicated to organism point gain / loss in temporally changing environments
  */
 
 using world_t = sgpmode::SGPWorld;
@@ -27,7 +27,7 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.GRID_X(2);
   config.GRID_Y(2);
   config.CYCLES_PER_UPDATE(4);
@@ -42,7 +42,7 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
 
   // Group 1: NOT, AND, OR (start rewarded)
   size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-  
+
   WHEN("A host can do only NOT at the start of the experiment"){
     // NOT-only host
     program_t host_NOT_program;
@@ -82,7 +82,7 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.GRID_X(2);
   config.GRID_Y(2);
   config.CYCLES_PER_UPDATE(4);
@@ -139,7 +139,7 @@ TEST_CASE("Hosts start with a punished task in a temporally changing environment
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.GRID_X(2);
   config.GRID_Y(2);
   config.CYCLES_PER_UPDATE(8);
@@ -195,7 +195,7 @@ TEST_CASE("Symbionts start with a punished task in a temporally changing environ
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.POP_SIZE(0);
+  config.INIT_POP_SIZE(0);
   config.GRID_X(2);
   config.GRID_Y(2);
   config.CYCLES_PER_UPDATE(8);
@@ -243,5 +243,5 @@ TEST_CASE("Symbionts start with a punished task in a temporally changing environ
       REQUIRE(sym_nand_count == 3);
       REQUIRE(symbiont_nand_only->GetPoints() == 5);
     }
-  } 
+  }
 }

@@ -17,13 +17,13 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-  
+
   // set up configs
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPSymbiont_test_output");
   config.SEED(61);
-  config.POP_SIZE(2);
+  config.INIT_POP_SIZE(2);
   config.START_MOI(1); // sym to host ratio
   config.CURE(1);
   config.HOST_REPRO_RES(10000);

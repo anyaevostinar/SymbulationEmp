@@ -30,24 +30,24 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp]"){
     config.MUTATION_SIZE(0.002);
     config.TASK_PROFILE_MODE("self-all");
     config.VT_TASK_MATCH(1);
-    config.POP_SIZE(1);
+    config.INIT_POP_SIZE(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.CYCLES_PER_UPDATE(52);
 
     world_t world(random, &config);
     world.Setup();
     auto& builder = world.GetProgramBuilder();
-      
+
     //Creates a host that does both Not and Nand operations
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotNandProgram(50));
-      
+
     //Creates a symbiont that can not do any tasks
     emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config, builder.CreateNotNandProgram(50));
 
     //Adds host to world and sym to host.
     world.AddOrgAt(host, 0);
     host->AddSymbiont(symbiont);
-    
+
     // get task ids
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
@@ -87,9 +87,9 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp]"){
           REQUIRE(symbiont->GetPoints() == 5);
         }
       }
-    
+
     }
- 
+
     WHEN("Only first task credit for hosts is off"){
       config.HOST_ONLY_FIRST_TASK_CREDIT(0);
       WHEN("Only first task credit for symbionts is on"){

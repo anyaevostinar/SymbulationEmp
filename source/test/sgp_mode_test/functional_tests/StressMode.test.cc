@@ -17,7 +17,7 @@ using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Stress event", "[sgp]") {
- 
+
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(4);
 
@@ -27,7 +27,7 @@ TEST_CASE("Stress event", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPStressMode_test_output");
-  config.POP_SIZE(100);
+  config.INIT_POP_SIZE(100);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   // Zero out mutation rates
   config.MUTATION_RATE(0);
@@ -41,7 +41,7 @@ TEST_CASE("Stress event", "[sgp]") {
   config.BASE_DEATH_CHANCE(0.5);
   // Initialize random number generator
   emp::Random random(config.SEED());
-  const size_t world_size = config.POP_SIZE();
+  const size_t world_size = config.INIT_POP_SIZE();
 
   WHEN("Stress symbionts are mutualists") {
     config.STRESS_TYPE("mutualist");
@@ -138,10 +138,10 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
-  
+
   size_t no_mut_NOT_rate = 40000;
   size_t run_updates = 1000;
-  
+
   WHEN("Mutation size is 0") {
     config.SGP_MUT_PER_BIT_RATE(0);
     world.Setup();
@@ -176,4 +176,4 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
 
 // TODO (future): Evolution test
 
-// TODO interaction value test 
+// TODO interaction value test

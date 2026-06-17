@@ -53,10 +53,10 @@ void SGPWorld::Setup() {
   long unsigned int POP_SIZE;
   // TODO - add pop mode?
   max_world_size = sgp_config.GRID_X() * sgp_config.GRID_Y();
-  if (sgp_config.POP_SIZE() < 0) {
+  if (sgp_config.INIT_POP_SIZE() < 0) {
     POP_SIZE = max_world_size;
   } else {
-    POP_SIZE = sgp_config.POP_SIZE();
+    POP_SIZE = sgp_config.INIT_POP_SIZE();
   }
 
   // Setup mutation operator
@@ -120,7 +120,7 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("and_not")) {
     andn_task_id = task_env.GetTaskSet().GetID("and_not");
   }
-  
+
 
   size_t orn_task_id = task_env.GetTaskSet().GetSize();
   if (task_env.GetTaskSet().HasTask("OR_NOT")) {
@@ -129,7 +129,7 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("or_not")) {
     orn_task_id = task_env.GetTaskSet().GetID("or_not");
   }
-  
+
 
   // grab task ids for NOT, AND, OR
   size_t not_task_id = task_env.GetTaskSet().GetSize();
@@ -155,14 +155,14 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("or")) {
     or_task_id = task_env.GetTaskSet().GetID("or");
   }
-  
+
   // update 0 will flip not-and-or to rewarded and nand-andn-orn to punished
   GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
-  
+
   GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
-  
+
   GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
 
@@ -221,7 +221,7 @@ void SGPWorld::DisableConfigurableInstructions() {
     );
   }
 
-  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment, 
+  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment,
   // disable the SenseTask instruction
   if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
     del_inst(
@@ -377,7 +377,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   before_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
-      
+
       host.GetHardware().LaunchCPU(START_TAG);
     }
   );
@@ -389,7 +389,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   } else if (task_env.GetTaskSet().HasTask("not")) {
     not_task_id = task_env.GetTaskSet().GetID("not");
   }
-  
+
 
   const size_t init_pop_size = *POP_SIZE;
   for (size_t i = 0; i < init_pop_size; ++i) {

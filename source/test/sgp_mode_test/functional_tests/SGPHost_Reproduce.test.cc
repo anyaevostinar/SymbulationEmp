@@ -7,7 +7,7 @@
 
 
 /**
- * This file is dedicated to tests related to SGPHost reproduction, including checking that task tracking 
+ * This file is dedicated to tests related to SGPHost reproduction, including checking that task tracking
  * is working correctly.
  */
 
@@ -28,7 +28,7 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional]") {
     config.HOST_REPRO_RES(0);
     config.CYCLES_PER_UPDATE(1);
     config.SEED(62);
-    config.POP_SIZE(0);
+    config.INIT_POP_SIZE(0);
     config.START_MOI(0);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
@@ -37,7 +37,7 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional]") {
     world.Setup();
     world.Resize(100);
     auto& prog_builder = world.GetProgramBuilder();
-    
+
 
     emp::Ptr<sgp_host_t> host_parent = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(10));
 
@@ -122,7 +122,7 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPHost_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   // Zero out mutation rates
@@ -199,7 +199,7 @@ TEST_CASE("SGPHost lineage tracking test", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPHost_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
 

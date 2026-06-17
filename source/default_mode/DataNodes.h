@@ -14,7 +14,7 @@
 */
 void SymWorld::CreateDataFiles(){
   int TIMING_REPEAT = my_config->DATA_INT();
-  std::string file_ending = "_SEED"+std::to_string(my_config->SEED())+".data";
+  std::string file_ending = "_SEED" + std::to_string(my_config->SEED()) + ".data";
 
   SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
@@ -50,7 +50,7 @@ emp::DataFile & SymWorld::SetupSymIntValFile(const std::string & filename) {
   file.AddMax(node, "max_intval", "Maximum symbiont interaction value");
   file.AddMin(node, "min_intval", "Minimum symbiont interaction value");
   file.AddTotal(node1, "count", "Total number of symbionts");
-  
+
   //interaction val histogram
   file.AddHistBin(node, 0, "Hist_-1", "Count for histogram bin -1 to <-0.9");
   file.AddHistBin(node, 1, "Hist_-0.9", "Count for histogram bin -0.9 to <-0.8");
@@ -198,8 +198,8 @@ emp::DataFile & SymWorld::SetupFreeLivingSymFile(const std::string & filename){
  *
  * Purpose: To set up the file that will be used to track mean
  * information about the number of reproductions in the world.[
- * If tag matching is on, this file also tracks tag similarity / 
- * dissimilarity to parents / partners. 
+ * If tag matching is on, this file also tracks tag similarity /
+ * dissimilarity to parents / partners.
  */
 emp::DataFile& SymWorld::SetupReproHistFile(const std::string& filename) {
   auto& file = SetupFile(filename);
@@ -254,8 +254,8 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
         // integers and small floating points)
         interaction_file << emp::to_string(t->GetID()) + "," +
           emp::to_string(interaction.first) + "," +
-          // emp::to_string(t->GetInfo()) + "," + 
-          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          // emp::to_string(t->GetInfo()) + "," +
+          // emp::to_string(interaction.first->GetInfo()) + "," +
           emp::to_string(interaction.second);
       }
     }
@@ -268,8 +268,8 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
         // integers and small floating points)
         interaction_file << emp::to_string(t->GetID()) + "," +
           emp::to_string(interaction.first) + "," +
-          // emp::to_string(t->GetInfo()) + "," + 
-          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          // emp::to_string(t->GetInfo()) + "," +
+          // emp::to_string(interaction.first->GetInfo()) + "," +
           emp::to_string(interaction.second);
       }
     }
@@ -282,8 +282,8 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
         // integers and small floating points)
         interaction_file << emp::to_string(t->GetID()) + "," +
           emp::to_string(interaction.first) + "," +
-          // emp::to_string(t->GetInfo()) + "," + 
-          // emp::to_string(interaction.first->GetInfo()) + "," + 
+          // emp::to_string(t->GetInfo()) + "," +
+          // emp::to_string(interaction.first->GetInfo()) + "," +
           emp::to_string(interaction.second);
       }
     }
@@ -362,8 +362,8 @@ void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file){
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
-  auto & node4 = GetVerticalTransmissionSuccessCount(); 
-  
+  auto & node4 = GetVerticalTransmissionSuccessCount();
+
   file.AddVar(update, "update", "Update");
   //horizontal transmission
   file.AddHistBin(node1, 0, "horiz_attempt_-1_-0.8", "Count for histogram bin for horizontal attempts with int val -1 to <-0.8");
@@ -470,7 +470,7 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
   auto& symbiont_tag_richness = GetSymbiontTagRichness();
   auto& symbiont_tag_shannon = GetSymbiontTagShannonDiversity();
   auto& host_tag_richness = GetHostTagRichness();
-  
+
 
   file.AddVar(update, "update", "Update");
   file.AddMean(tag_dist_node, "mean_tag_distance", "The mean tag distance between symbionts and their hosts");
@@ -488,7 +488,7 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
   file.AddHistBin(tag_dist_node, 7, "tag_0.8", "Count for tag distance histogram bin 0.7 to <0.8");
   file.AddHistBin(tag_dist_node, 8, "tag_0.9", "Count for tag distance histogram bin 0.8 to <0.9");
   file.AddHistBin(tag_dist_node, 9, "tag_1.0", "Count for tag distance histogram bin 0.9 to 1.0");
-  
+
   if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) {
     auto& host_tag_permissiveness = GetHostTagPermissiveness();
     file.AddMean(host_tag_permissiveness, "mean_host_permissiveness", "The mean permissiveness of hosts");
@@ -503,12 +503,12 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
  *
  * Output: None.
  *
- * Purpose: To write the tags of hosts and symbionts to a data file after an experiment is 
+ * Purpose: To write the tags of hosts and symbionts to a data file after an experiment is
  * concluded
  */
 void SymWorld::WriteOrgDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
-  out_file << "host_int,sym_int,host_repro_count,host_towards_partner_count,host_from_partner_count," << 
+  out_file << "host_int,sym_int,host_repro_count,host_towards_partner_count,host_from_partner_count," <<
     "sym_repro_count,sym_towards_partner_count,sym_from_partner_count";
   if (my_config->TAG_MATCHING()) {
     out_file << ",host_tag,sym_tag,tag_distance";
@@ -521,19 +521,19 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
       if (pop[i]->HasSym()) {
         emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
         for (size_t j = 0; j < symbionts.size(); j++) {
-          out_file << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal() << "," << pop[i]->GetReproCount() << 
-            "," << pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << 
-            "," << symbionts[j]->GetReproCount() << "," << symbionts[j]->GetTowardsPartnerCount() << 
+          out_file << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal() << "," << pop[i]->GetReproCount() <<
+            "," << pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() <<
+            "," << symbionts[j]->GetReproCount() << "," << symbionts[j]->GetTowardsPartnerCount() <<
             "," << symbionts[j]->GetFromPartnerCount();
           if (my_config->TAG_MATCHING()) {
-            out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() << 
+            out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() <<
               "," << (*tag_metric)(pop[i]->GetTag(), symbionts[j]->GetTag());
             if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) out_file << "," << pop[i]->GetTagPermissiveness();
           }
         }
       }
       else {
-        out_file << pop[i]->GetIntVal() << ",," << pop[i]->GetReproCount() << "," << 
+        out_file << pop[i]->GetIntVal() << ",," << pop[i]->GetReproCount() << "," <<
           pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << ",,,";
         if (my_config->TAG_MATCHING()) {
           out_file << "," << pop[i]->GetTag().ToBinaryString() << ",,";
@@ -993,7 +993,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
     data_node_attempts_horiztrans.New();
     data_node_attempts_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
-  
+
   return *data_node_attempts_horiztrans;
 }
 
@@ -1003,7 +1003,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
  * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many horizontal transmissions failed ONLY due to tag mismatch.
  *
- * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions 
+ * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions
  * failed ONLY due to tag mismatch.
  */
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionTagFailCount() {
@@ -1021,7 +1021,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
  * Output: The DataMonitor<double,emp::data::Histogram>& that has the information representing
  * how many horizontal transmissions failed ONLY due to insufficient space in the host.
  *
- * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions failed 
+ * Purpose: To retrieve the data nodes that is tracking how many horizontal transmissions failed
  * ONLY due to insufficient space in the host
  */
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmissionSizeFailCount() {
@@ -1085,7 +1085,7 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetVerticalTransmissio
     data_node_successes_verttrans.New();
     data_node_successes_verttrans->SetupBins(-1.0, 1.2, 11);
   }
-  
+
   return *data_node_successes_verttrans;
 }
 
@@ -1407,5 +1407,5 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
     }
     return *data_node_symbiont_tag_shannon;
   }
-  
+
 #endif
