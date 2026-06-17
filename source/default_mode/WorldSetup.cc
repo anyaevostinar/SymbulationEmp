@@ -169,7 +169,20 @@ void SymWorld::SetupSpatialStructure_Grid() {
 
 
 void SymWorld::SetupSpatialStructure_Load() {
-  // TODO
+  const std::string& load_mode = my_config->SPATIAL_STRUCT_LOAD_MODE();
+  if (load_mode == "matrix") {
+    spatial_structure.LoadStructureFromMatrix(my_config->SPATIAL_STRUCT_CFG_PATH());
+  } else if (load_mode == "edges") {
+    spatial_structure.LoadStructureFromEdgeCSV(my_config->SPATIAL_STRUCT_CFG_PATH());
+  } else {
+    std::cout << "Unknown spatial structure load mode (" << load_mode << ")" << std::endl;
+    exit(-1);
+  }
+  // Initial population size should not exceed world size
+  emp_assert(my_config->INIT_POP_SIZE() <= spatial_structure.GetNumPositions());
+  // Resize world according to spatial structure max size
+  // Resize(max_world_size);
+  SetPopStruct_Custom(false);
 }
 
 

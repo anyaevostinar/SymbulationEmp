@@ -367,8 +367,84 @@ public:
   /**
    *
    */
-  void SetPopStruct_Custom(bool synchronous_gen = false) {
-    // AML TODO
+  void SetPopStruct_Custom(
+    bool synchronous_gen = false
+  ) {
+    const size_t max_world_size = spatial_structure.GetNumPositions();
+    Resize(max_world_size);
+    // Mirrors Empirical world's SetPopStruct functions.
+    pop_sizes.resize(0);
+    is_synchronous = synchronous_gen;
+    is_space_structured = true;
+    is_pheno_structured = false;
+    // -- Setup Functions --
+    // Inject into a random position in the world
+    fun_find_inject_pos = [this](emp::Ptr<Organism> new_org) {
+      (void) new_org;
+      return emp::WorldPosition(
+        GetRandom().GetUInt(spatial_structure.GetNumPositions())
+      );
+    };
+    // Setup neighbors function
+    fun_get_neighbor = [this](emp::WorldPosition pos) {
+      auto neighbor = spatial_structure.GetRandomNeighbor(GetRandom(), pos.GetIndex());
+      // If no valid neighbors, return invalid position.
+      if (!neighbor) {
+        return emp::WorldPosition();
+      }
+      // Must be a valid neighbor.
+      emp_assert(neighbor.value() < GetSize());
+      return pos.SetIndex(neighbor.value());
+    };
+
+    fun_is_neighbor = [this](emp::WorldPosition pos1, emp::WorldPosition pos2) {
+      // NOTE: Order matters for spatial_structure.
+      const bool one_to_two = spatial_structure.IsConnected(
+        pos1.GetIndex(),
+        pos2.GetIndex()
+      );
+      const bool two_to_one = spatial_structure.IsConnected(
+        pos2.GetIndex(),
+        pos1.GetIndex()
+      );
+      return one_to_two || two_to_one;
+    };
+
+    // NOTE: This is what's happening in other structure modes (copied from World's set structure functions),
+    //        but do we actually want to override to use graveyard?
+    fun_kill_org = [this](){
+      // const size_t kill_id = GetRandomCellID();
+      const size_t kill_id = GetRandom().GetUInt(spatial_structure.GetNumPositions());
+      emp_assert(kill_id < GetSize());
+      RemoveOrgAt(kill_id);
+      return kill_id;
+    };
+
+    // Adapted from World.h SetPopStruct_Grid
+    if (synchronous_gen) {
+      // Place births in a neighboring position in the new grid.
+      fun_find_birth_pos = [this](
+        emp::Ptr<Organism> new_org,
+        emp::WorldPosition parent_pos
+      ) {
+        emp_assert(new_org);                                         // New organism must exist.
+        emp::WorldPosition next_pos = fun_get_neighbor(parent_pos);  // Place near parent.
+        return next_pos.SetPopID(1);                                 // Adjust position to next pop and place..
+      };
+      SetAttribute("SynchronousGen", "True");
+    } else {
+      // Asynchronous: always go to a neighbor in current population.
+      fun_find_birth_pos = [this](
+        emp::Ptr<Organism> new_org,
+        emp::WorldPosition parent_pos
+      ) {
+        return emp::WorldPosition(fun_get_neighbor(parent_pos)); // Place org in existing population.
+      };
+      SetAttribute("SynchronousGen", "False");
+    }
+
+    SetAttribute("PopStruct", "Custom");
+    SetSynchronousSystematics(synchronous_gen);
   }
 
   /**

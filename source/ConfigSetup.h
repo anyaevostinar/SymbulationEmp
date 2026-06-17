@@ -46,6 +46,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(SPATIAL_STRUCTURE, "Spatial structure settings"),
     VALUE(SPATIAL_STRUCT_MODE, std::string, "grid", "Options: grid, well-mixed, load (requires filepath in LoadFile param)"),
     VALUE(SPATIAL_STRUCT_CFG_PATH, std::string, "spatial-struct.mat", "Path to the file containing the spatial structure"),
+    VALUE(SPATIAL_STRUCT_LOAD_MODE, std::string, "matrix", "Expected file format for loaded spatial structure. Options: matrix, edges"),
     VALUE(WORLD_WIDTH, int, 10, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),
     VALUE(WORLD_HEIGHT, int, 10, "Used for grid and well-mixed modes. Height of world, just multiplied by width to get total size"),
 
