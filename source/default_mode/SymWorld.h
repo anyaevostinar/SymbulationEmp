@@ -289,6 +289,29 @@ public:
     }
   }
 
+  void SetPopStruct_Mixed(bool synchronous_gen=false) {
+    emp::World<Organism>::SetPopStruct_Mixed(synchronous_gen);
+
+    // For well-mixed, we need to alter the Empirical World neighbor finding to not allow the current location to be returned.
+    //H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
+    // Neighbors are anywhere in the same population except the pos.
+    fun_get_neighbor = [this](emp::WorldPosition pos) { 
+      if (pop.size() <=1 ) return emp::WorldPosition(); // if there are no neighbors, return an invalid position
+      // leave out the last cell and swap it in if potential_neighbor is the same as pos
+      size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
+      if (potential_neighbor == pos.GetIndex()) {
+        potential_neighbor = pop.size() - 1;
+      }
+      return pos.SetIndex(potential_neighbor); 
+    };
+
+    // Neighbors are anywhere in same population, so all organisms are neighbors except for the focal organism.
+    // This might not actually need to be changed for SymWorld, but consistency seemed important
+    fun_is_neighbor = [](emp::WorldPosition pos1, emp::WorldPosition pos2) { 
+      if ((pos1.GetPopID() == pos2.GetPopID()) && (pos1.GetIndex() == pos2.GetIndex())) return false;
+      else return true; 
+    };
+  }
 
   /**
    * Input: None
@@ -563,6 +586,11 @@ public:
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
+      
+      // run before-placement actions
+      before_placement_sig.Trigger(*new_org, pos_id);
+
+      // place symbiont
       if(!sym_pop[pos_id]) {
         ++num_orgs;
       } else {
@@ -907,7 +935,7 @@ public:
    */
   void MoveFreeSym(emp::WorldPosition pos){
     size_t i = pos.GetPopID();
-    //the sym can either move into a parallel sym or to some random position
+    //the sym can either move into a parallel host or to some random position
     if(IsOccupied(i) && sym_pop[i]->WantsToInfect()) {
       emp::Ptr<Organism> sym = ExtractSym(i);
       if(sym->InfectionFails()) sym.Delete(); //if the sym tries to infect and fails it dies

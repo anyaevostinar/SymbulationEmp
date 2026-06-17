@@ -121,7 +121,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(similar_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, similar_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
         
         THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
@@ -153,7 +153,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(similar_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, similar_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == true);
@@ -179,7 +179,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(distant_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, distant_tag) > tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == false);
@@ -295,7 +295,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(similar_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, similar_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
@@ -327,7 +327,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(similar_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, similar_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == true);
@@ -353,7 +353,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(distant_tag);
         REQUIRE((*world.GetTagMetric())(symbiont_tag, distant_tag) > tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == false);
@@ -460,7 +460,7 @@ TEST_CASE("Tag matching", "[default]") {
 
         REQUIRE((*world.GetTagMetric())(similar_tag, symbiont_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
@@ -492,7 +492,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(similar_tag);
         REQUIRE((*world.GetTagMetric())(similar_tag, symbiont_tag) <= tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == true);
@@ -518,7 +518,7 @@ TEST_CASE("Tag matching", "[default]") {
         target_host->SetTag(distant_tag);
         REQUIRE((*world.GetTagMetric())(distant_tag, symbiont_tag) > tag_distance_mean);
 
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
 
         THEN("The symbiont fails") {
           REQUIRE(target_host->HasSym() == false);
@@ -615,7 +615,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
       WHEN("The host's permissiveness is too low") {
         target_host->SetTagPermissiveness(0);
         THEN("The symbiont offspring cannot horizontally transmit") {
-          symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+          symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
           REQUIRE(!target_host->HasSym());
           REQUIRE(symbiont->GetPoints() == starting_res);
           // since free HT failure is off, we know that if the point check here fails, it's because of
@@ -626,7 +626,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
       WHEN("The host's permissiveness is sufficiently high") {
         target_host->SetTagPermissiveness(1);
         THEN("The symbiont offspring can horizontally transmit") {
-          symbiont->HorizontalTransmission(emp::WorldPosition(1, source_pos));
+          symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
           REQUIRE(target_host->HasSym());
           REQUIRE(symbiont->GetPoints() < starting_res);
         }

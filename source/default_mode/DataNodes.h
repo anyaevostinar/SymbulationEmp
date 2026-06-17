@@ -1049,7 +1049,6 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHorizontalTransmiss
     data_node_successes_horiztrans.New();
     data_node_successes_horiztrans->SetupBins(-1.0, 1.2, 11);
   }
-  
   return *data_node_successes_horiztrans;
 }
 

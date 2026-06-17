@@ -604,7 +604,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
       world.AddOrgAt(symbiont, parent_pos);
 
       WHEN("A symbiont successfully transmits into a free living cell"){
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
         THEN("The count of attempted horizontal transmissions increments"){
@@ -614,7 +614,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
       }
         WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
         world.Resize(0);
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);
         THEN("The count of attempted horizontal transmissions increments"){
           REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
@@ -630,7 +630,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
       world.AddOrgAt(host, 1);
 
       WHEN("A symbiont successfully horizontally transmits into a host"){
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(host->HasSym() == true);
         THEN("The count of attempted horizontal transmissions increments"){
           REQUIRE(data_node_attempts_horiztrans.GetCount() == 1);
@@ -641,7 +641,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]"){
         config.SYM_LIMIT(1);
         emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         host->AddSymbiont(parent_symbiont);
-        symbiont->HorizontalTransmission(emp::WorldPosition(1,1));
+        symbiont->IndependentReproduction(emp::WorldPosition(1,1));
         REQUIRE(host->HasSym() == true);
         REQUIRE(host->GetSymbionts().size() == 1);
         REQUIRE(host->GetSymbionts().at(0) == parent_symbiont);
@@ -675,7 +675,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       world.AddOrgAt(host, target_pos);
-      symbiont->HorizontalTransmission(parent_pos);
+      symbiont->IndependentReproduction(parent_pos);
       REQUIRE(host->HasSym() == true);
       THEN("The tag failure count is NOT incremented") {
         REQUIRE(data_node_tagfail_horiztrans.GetCount() == 0);
@@ -701,7 +701,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
 
       WHEN("The failure is only due to tag mismatch") {
         target_host->SetTag(dissimilar_tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == false);
         THEN("The tag failure count is incremented") {
           REQUIRE(data_node_tagfail_horiztrans.GetCount() == 1);
@@ -712,7 +712,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
         emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == true);
         REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
         THEN("The tag failure count is NOT incremented") {
@@ -724,7 +724,7 @@ TEST_CASE("GetHorizontalTransmissionTagFailCount", "[default]") {
         emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(dissimilar_tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == true);
         REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
         THEN("The tag failure count is NOT incremented") {
@@ -755,7 +755,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       world.AddOrgAt(host, target_pos);
-      symbiont->HorizontalTransmission(parent_pos);
+      symbiont->IndependentReproduction(parent_pos);
       REQUIRE(host->HasSym() == true);
       THEN("The tag failure count is NOT incremented") {
         REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
@@ -781,7 +781,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
 
       WHEN("The failure is only due to tag mismatch") {
         target_host->SetTag(dissimilar_tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == false);
         THEN("The size failure count is NOT incremented") {
           REQUIRE(data_node_sizefail_horiztrans.GetCount() == 0);
@@ -792,7 +792,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
         emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == true);
         REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
         THEN("The size failure count is incremented") {
@@ -804,7 +804,7 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
         emp::Ptr<Organism> filler_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         target_host->AddSymbiont(filler_symbiont);
         target_host->SetTag(dissimilar_tag);
-        parent_symbiont->HorizontalTransmission(sym_parent_pos);
+        parent_symbiont->IndependentReproduction(sym_parent_pos);
         REQUIRE(target_host->HasSym() == true);
         REQUIRE(target_host->GetSymbionts().at(0) == filler_symbiont);
         THEN("The size failure count is NOT incremented") {
@@ -836,7 +836,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
       world.AddOrgAt(symbiont, parent_pos);
 
       WHEN("A symbiont successfully transmits into a free living cell"){
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(world.GetNumOrgs() == 2);
 
         THEN("The count of successful horizontal transmissions increments"){
@@ -846,7 +846,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
       }
       WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit"){
         world.Resize(0);
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);
         THEN("The count of successful horizontal transmissions does not change"){
           REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
@@ -862,7 +862,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
       world.AddOrgAt(host, 1);
 
       WHEN("A symbiont successfully horizontally transmits into a host"){
-        symbiont->HorizontalTransmission(parent_pos);
+        symbiont->IndependentReproduction(parent_pos);
         REQUIRE(host->HasSym() == true);
         THEN("The count of successful horizontal transmissions increments"){
           REQUIRE(data_node_successes_horiztrans.GetCount() == 1);
@@ -873,7 +873,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
         config.SYM_LIMIT(1);
         emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         host->AddSymbiont(parent_symbiont);
-        symbiont->HorizontalTransmission(emp::WorldPosition(1, 1));
+        symbiont->IndependentReproduction(emp::WorldPosition(1, 1));
         REQUIRE(host->HasSym() == true);
         REQUIRE(host->GetSymbionts().size() == 1);
         REQUIRE(host->GetSymbionts().at(0) == parent_symbiont);

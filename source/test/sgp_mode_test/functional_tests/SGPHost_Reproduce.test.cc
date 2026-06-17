@@ -1,6 +1,8 @@
 #include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 //#include "../../../sgp_mode/SGPDataNodes.h"
 
 
@@ -73,7 +75,6 @@ TEST_CASE("Mutations occur during reproduction", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   emp::Random random(61);

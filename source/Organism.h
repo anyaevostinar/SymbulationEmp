@@ -141,8 +141,8 @@ class Organism {
     std::cout << "VerticalTransmission called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void HorizontalTransmission(emp::WorldPosition location) {
-    std::cout << "HorizontalTransmission called from Organism" << std::endl;
+  virtual void IndependentReproduction(emp::WorldPosition location) {
+    std::cout << "IndependentReproduction called from Organism" << std::endl;
     throw "Organism method called!";}
   virtual double ProcessResources(double sym_piece){
     std::cout << "ProcessResources called from an Organism" << std::endl;

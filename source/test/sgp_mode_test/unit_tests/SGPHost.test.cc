@@ -18,6 +18,11 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Mutate", "[sgp]") {
 
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.GRID_X(2);
@@ -84,10 +89,34 @@ TEST_CASE("No Mutate", "[sgp]") {
   second_host.Delete();
 }
 
-// TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit][refactor]") {
-//     //TODO test for organism correctly invalidating its place in repro queue
-// }
+TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
+    GIVEN("A host"){
+        emp::Random random(31);
+        sgpmode::SymConfigSGP config;
+        config.GRID_X(1);
+        config.GRID_Y(1);
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
+        world_t world(random, &config);
+        world.Setup();
+        auto& prog_builder = world.GetProgramBuilder();
+
+        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+        
+        emp::WorldPosition host_pos = emp::WorldPosition(1, 2);
+        host->SetLocation(host_pos);
+        const size_t queue_id = world.GetReproQueue().Enqueue(host->GetHardware().GetCPUState().GetOrgPtr(), host_pos); 
+        host->GetHardware().GetCPUState().MarkReproInProgress(queue_id);
+
+        WHEN("The host is destroyed") {
+            host.Delete(); 
+            
+            THEN("The host's position in the reproduction queue is marked as invalid") {
+                REQUIRE(world.GetReproQueue().GetQueue()[queue_id].valid == false);
+            }
+        }
+    }
+}
 
 TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
 
@@ -150,14 +179,12 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
     }
 }
 
-
 TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]"){
     GIVEN("A host"){
         emp::Random random(31);
         sgpmode::SymConfigSGP config;
         config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
         world_t world(random, &config);
-        auto& prog_builder = world.GetProgramBuilder();
         
         emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
 
@@ -192,6 +219,35 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]"){
                 THEN("Repro count of the host is 1"){
                     REQUIRE(host->GetReproCount() == 1);
                 }
+            }
+        }
+    }
+}
+
+TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]"){
+    GIVEN("A host with valid values in its input and output buffers"){
+        emp::Random random(31);
+        sgpmode::SymConfigSGP config;
+        config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/echo-task-env.json");
+        world_t world(random, &config);
+        world.Setup();
+        auto& prog_builder = world.GetProgramBuilder();
+        emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+        world.AddOrgAt(host, 0);
+
+        // save two of the inputs
+        emp::vector<uint32_t> inputs;
+        for (int i = 0; i < 2; i++) {
+            inputs.push_back(host->GetHardware().GetCPUState().GetInputBuffer().read());
+        }
+        inputs.push_back(0); // add some incorrect output to make sure they aren't getting points for those
+        inputs.push_back(1); 
+        host->GetHardware().GetCPUState().SetOutputs(inputs); // set output buffer to inputs with with some extra incorrect outputs
+        WHEN("ProcessOutputBuffer is called"){
+            host->ProcessOutputBuffer();
+            THEN("The output buffer is cleared and host received 10 points for correctly echoing 2 inputs"){
+                REQUIRE(host->GetHardware().GetCPUState().GetOutputBuffer().empty());
+                REQUIRE(host->GetPoints() == 10);
             }
         }
     }
