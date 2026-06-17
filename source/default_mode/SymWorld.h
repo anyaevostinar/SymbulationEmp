@@ -1,6 +1,8 @@
 #ifndef SYM_WORLD_H
 #define SYM_WORLD_H
 
+#include "SpatialStructure.h"
+
 #include "../../Empirical/include/emp/Evolve/World.hpp"
 #include "../../Empirical/include/emp/data/DataFile.hpp"
 #include "../../Empirical/include/emp/Evolve/Systematics.hpp"
@@ -8,12 +10,12 @@
 #include "../../Empirical/include/emp/math/Random.hpp"
 #include "../../Empirical/include/emp/matching/MatchBin.hpp"
 
-#include "SpatialStructures.h"
-
 #include "../Organism.h"
+
 #include <cstdlib>
 #include <set>
 #include <math.h>
+#include <unordered_map>
 
 namespace taxon_t {
   using info_t = double;
@@ -23,13 +25,19 @@ namespace taxon_t {
   using sym_taxon_t = emp::Taxon<info_t, datastruct::SymbiontTaxonData>;
 }
 
-class SymWorld : public emp::World<Organism>{
-protected:
-  // Spatial sturc obj
-  SpatialStructure spatial_structure;
-
+class SymWorld : public emp::World<Organism> {
+public:
   // takes an organism (to classify), and returns an int (the org's taxon)
   using fun_calc_info_t = std::function<taxon_t::info_t(Organism &)>;
+
+  // AML TODO: UPDATE pop mode tests
+  // AML TODO: +phylogeny mode tests
+  // AML TODO: +tag metric mode tests
+  enum class SPATIAL_STRUCT_MODE { WELL_MIXED, GRID, LOAD };
+  static const std::unordered_map<std::string, SPATIAL_STRUCT_MODE> spatial_struct_mode_cfg_mapping;
+
+protected:
+
 
   /**
     *
@@ -47,8 +55,8 @@ protected:
 
   /**
     *
-    * Purpose: Represents the set of organisms which have been unlinked from 
-    * their standard managing structures and need to be deleted at the end 
+    * Purpose: Represents the set of organisms which have been unlinked from
+    * their standard managing structures and need to be deleted at the end
     * of every update.
     *
   */
@@ -97,6 +105,19 @@ protected:
   */
   emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> tag_metric;
 
+  /**
+   *
+   * Purpose: Maintains population's spatial structure represented as a graph,
+   *          except when using a well-mixed population (this is not used to
+   *          store a fully connected graph for efficiency reasons).
+   */
+  SpatialStructure spatial_structure;
+
+  /**
+   * Purspose: Stores which spatial structure mode the world is configured as.
+   */
+  SPATIAL_STRUCT_MODE spatial_struct_mode;
+
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_freesymintval;
@@ -106,7 +127,7 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostedsyminfectchance;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
-  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity  
+  emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity
   emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
   emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_towards_partner_rate;
@@ -136,6 +157,27 @@ protected:
 
   emp::Signal<void()> on_analyze_population_sig;
 
+  /**
+   * Purpose: Internal setup helper function to hold setup-time configuration for
+   *          different spatial structure modes.
+   */
+  void SetupSpatialStructure();
+
+  /**
+   * Purpose: Internal setup helper function used by SetupSpatialStructure().
+   */
+  void SetupSpatialStructure_WellMixed();
+
+  /**
+   * Purpose: Internal setup helper function used by SetupSpatialStructure().
+   */
+  void SetupSpatialStructure_Grid();
+
+  /**
+   * Purpose: Internal setup helper function used by SetupSpatialStructure().
+   */
+  void SetupSpatialStructure_Load();
+
 public:
   /**
    * Input: The world's random seed and a pointer to this world's config object
@@ -148,7 +190,7 @@ public:
     fun_print_org = [](Organism& org, std::ostream& os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
-      };
+    };
     my_config = _config;
     total_res = my_config->LIMITED_RES_TOTAL();
 
@@ -158,29 +200,29 @@ public:
       if (my_config->PHYLOGENY_TAXON_TYPE() == 1) {
         calc_host_info_fun = [&](Organism& org) {
           return org.GetIntVal();
-          };
+        };
 
         calc_sym_info_fun = [&](Organism& org) {
           return org.GetIntVal();
-          };
+        };
       }
       else if (my_config->PHYLOGENY_TAXON_TYPE() == 2) {
         calc_host_info_fun = [&](Organism& org) {
           return org.GetTag().GetValue();
-          };
+        };
 
         calc_sym_info_fun = [&](Organism& org) {
           return org.GetTag().GetValue();
- 	  };
+ 	      };
       }
       else if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
         calc_host_info_fun = [&](Organism& org) {
           return (long unsigned) host_sys->GetNextID();
-          };
+        };
 
         calc_sym_info_fun = [&](Organism& org) {
           return (long unsigned) sym_sys->GetNextID();
-          };
+        };
       }
 
       host_sys = emp::NewPtr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>>(GetCalcHostInfoFun());
@@ -200,17 +242,21 @@ public:
         sym_sys->AddSnapshotFun([](const taxon_t::sym_taxon_t& t) {return std::to_string(t.GetData().GetHostSwitch()); }, "lineage_host_switch_count");
       }
 
-      on_placement_sig.AddAction([this](emp::WorldPosition pos) {
-	GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<taxon_t::base_taxon_t>());
-        if(my_config->PHYLOGENY_TAXON_TYPE()==3)GetOrgPtr(pos.GetIndex())->GetTaxon()->GetData().RecordIntVal(GetOrgPtr(pos.GetIndex())->GetIntVal());
-        });
+      on_placement_sig.AddAction(
+        [this](emp::WorldPosition pos) {
+	        GetOrgPtr(pos.GetIndex())->SetTaxon(host_sys->GetTaxonAt(pos).Cast<taxon_t::base_taxon_t>());
+          if (my_config->PHYLOGENY_TAXON_TYPE()==3) {
+            GetOrgPtr(pos.GetIndex())->GetTaxon()->GetData().RecordIntVal(GetOrgPtr(pos.GetIndex())->GetIntVal());
+          }
+        }
+      );
 
       if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
         std::function<void(emp::Ptr<taxon_t::sym_taxon_t >, Organism&)> inherit_parental_data =
           [&](emp::Ptr<taxon_t::sym_taxon_t > taxon, Organism& org) {
-          if (taxon->GetParent()) taxon->GetData().SetHostSwitch(taxon->GetParent()->GetData().GetHostSwitch());
-          else taxon->GetData().SetHostSwitch(0);
-          taxon->GetData().RecordIntVal(org.GetIntVal());
+            if (taxon->GetParent()) taxon->GetData().SetHostSwitch(taxon->GetParent()->GetData().GetHostSwitch());
+            else taxon->GetData().SetHostSwitch(0);
+            taxon->GetData().RecordIntVal(org.GetIntVal());
           };
         sym_sys->OnNew(inherit_parental_data);
       }
@@ -234,7 +280,7 @@ public:
       }
     }
   }
-  
+
 
   /**
    * Input: None
@@ -277,13 +323,13 @@ public:
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
-    for(size_t i = 0; i < sym_pop.size(); i++){ //host population deletion is handled by empirical world destructor
+    for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
       if(sym_pop[i]) {
         DoSymDeath(i);
       }
     }
 
-    if(my_config->PHYLOGENY()){ //host systematic deletion is handled by empirical world destructor
+    if (my_config->PHYLOGENY()) { //host systematic deletion is handled by empirical world destructor
       Clear(); // delete hosts here so that hosted symbionts get
       // deleted and unlinked from the sym_sys
       sym_sys.Delete();
@@ -298,24 +344,31 @@ public:
     emp::World<Organism>::SetPopStruct_Mixed(synchronous_gen);
 
     // For well-mixed, we need to alter the Empirical World neighbor finding to not allow the current location to be returned.
-    //H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
+    // H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
     // Neighbors are anywhere in the same population except the pos.
-    fun_get_neighbor = [this](emp::WorldPosition pos) { 
+    fun_get_neighbor = [this](emp::WorldPosition pos) {
       if (pop.size() <=1 ) return emp::WorldPosition(); // if there are no neighbors, return an invalid position
       // leave out the last cell and swap it in if potential_neighbor is the same as pos
-      size_t potential_neighbor = GetRandomCellID(0, pop.size()-1); 
+      size_t potential_neighbor = GetRandomCellID(0, pop.size()-1);
       if (potential_neighbor == pos.GetIndex()) {
         potential_neighbor = pop.size() - 1;
       }
-      return pos.SetIndex(potential_neighbor); 
+      return pos.SetIndex(potential_neighbor);
     };
 
     // Neighbors are anywhere in same population, so all organisms are neighbors except for the focal organism.
     // This might not actually need to be changed for SymWorld, but consistency seemed important
-    fun_is_neighbor = [](emp::WorldPosition pos1, emp::WorldPosition pos2) { 
+    fun_is_neighbor = [](emp::WorldPosition pos1, emp::WorldPosition pos2) {
       if ((pos1.GetPopID() == pos2.GetPopID()) && (pos1.GetIndex() == pos2.GetIndex())) return false;
-      else return true; 
+      else return true;
     };
+  }
+
+  /**
+   *
+   */
+  void SetPopStruct_Custom(bool synchronous_gen = false) {
+    // AML TODO
   }
 
   /**
@@ -337,7 +390,16 @@ public:
    * Purpose: To get the world's symbiont population.
    */
   emp::World<Organism>::pop_t GetSymPop() {return sym_pop;}
-  
+
+  /**
+   * Input: None
+   * Output: The world's spatial structure mode.
+   * Purpose: Get the world's currently configured spatial structure mode.
+   *          Spatial structure mode is configured on setup. It is intentionally
+   *          not able to be modified by a setter function.
+   */
+  SPATIAL_STRUCT_MODE GetSpatialStructureMode() const { return spatial_struct_mode; }
+
   /**
    * Input: A pointer to the tag distance metric object
    *
@@ -345,7 +407,7 @@ public:
    *
    * Purpose: To set the world's tag distance calculator
    */
-   void SetTagMetric(emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> _in) {
+  void SetTagMetric(emp::Ptr<emp::BaseMetric<emp::BitSet<TAG_LENGTH>, emp::BitSet<TAG_LENGTH>>> _in) {
     tag_metric = _in;
   }
 
@@ -469,7 +531,7 @@ public:
    * Purpose: To add a symbiont to the systematic and to set it to track its taxon
    */
   emp::Ptr<taxon_t::base_taxon_t> AddSymToSystematic(emp::Ptr<Organism> sym, emp::Ptr<taxon_t::base_taxon_t> parent_taxon=nullptr){
-    emp::Ptr<taxon_t::base_taxon_t> taxon = 
+    emp::Ptr<taxon_t::base_taxon_t> taxon =
       sym_sys->AddOrg(*sym, emp::WorldPosition(0, 0), parent_taxon.Cast<taxon_t::sym_taxon_t>()).Cast<taxon_t::base_taxon_t>();
     sym->SetTaxon(taxon);
     return taxon;
@@ -514,8 +576,9 @@ public:
    * Purpose: To overwrite the Empirical resize so that sym_pop is also resized
    */
   void Resize(size_t new_width, size_t new_height) {
-    size_t new_size = new_width * new_height;
+    const size_t new_size = new_width * new_height;
     Resize(new_size);
+    pop_sizes.resize(2);
     pop_sizes[0] = new_width; pop_sizes[1] = new_height;
   }
 
@@ -529,10 +592,10 @@ public:
    * a single-arg method that can be used for AddOrgAt vector
    * expansions
    */
-  void Resize(size_t new_size){
+  void Resize(size_t new_size) {
+    // TODO: Update to include organism removal?
     pop.resize(new_size);
     sym_pop.resize(new_size);
-    pop_sizes.resize(2);
   }
 
 
@@ -586,12 +649,12 @@ public:
           cur_sym->SetLocation(emp::WorldPosition(j+1, pos.GetIndex()));
         }
       }
-      
+
 
     } else { //if it is not a host, then add it to the sym population
       //for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
-      
+
       // run before-placement actions
       before_placement_sig.Trigger(*new_org, pos_id);
 
@@ -658,7 +721,7 @@ public:
    * Output: None
    *
    * Purpose: To overwrite the empirical DoDeath function to permit cleanup
-   * of false-start (<1 update duration) host taxa when unpruned trees are 
+   * of false-start (<1 update duration) host taxa when unpruned trees are
    * being recorded.
    */
   void DoDeath(const emp::WorldPosition pos) {
@@ -721,7 +784,7 @@ public:
     }
 
     return (int)neighbor.value();
-    
+
   }
 
 
@@ -735,9 +798,9 @@ public:
      */
   void InjectHost(emp::Ptr<Organism> new_host) {
     // Ask about this
-    // 
+    //
     // AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
-    
+
     if (my_config->SpatialStructure() != "WellMixed") {
       AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
     }
@@ -1011,7 +1074,7 @@ public:
       sym = sym_pop[i];
       num_orgs--;
       sym_pop[i] = nullptr;
-    } 
+    }
     return sym;
   }
 
@@ -1078,9 +1141,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: Cure all hosts of symbionts
    */
   void CureHosts(){
@@ -1094,7 +1157,7 @@ public:
         SendToGraveyard(host_syms[j]);
       }
       pop[i]->ClearSyms(); //TODO: should clear syms just handle setting dead and to graveyard?
-    }    
+    }
   }
 
   /**
@@ -1233,15 +1296,26 @@ public:
         else sym_pop[i]->Process(sym_pos); //index 0, since it's freeliving, and id its location in the world
       }
     } // for each cell in schedule
-  
+
     // clean up the graveyard
     CleanupGraveyard();
-    
+
     // clean up systematics
     if (my_config->PHYLOGENY()) {
       host_sys->ClearRemoveAfterReproQueue();
       sym_sys->ClearRemoveAfterReproQueue();
     }
   } // Update()
+
 };// SymWorld class
+
+const std::unordered_map<
+  std::string,
+  SymWorld::SPATIAL_STRUCT_MODE
+> SymWorld::spatial_struct_mode_cfg_mapping = {
+  {"well-mixed", SPATIAL_STRUCT_MODE::WELL_MIXED },
+  {"grid", SPATIAL_STRUCT_MODE::GRID },
+  {"load", SPATIAL_STRUCT_MODE::LOAD }
+};
+
 #endif
