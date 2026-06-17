@@ -5,23 +5,18 @@
 // - Efficient random neighbor selection
 // - Efficient neighbor checking
 
-//
-
-#include <iostream>
-#include <algorithm>
-#include <unordered_set>
-#include <optional>
-#include <string>
 #include "emp/base/vector.hpp"
 #include "emp/datastructs/vector_utils.hpp"
-#include "emp/math/Random.hpp"
+#include "emp/io/File.hpp"
 #include "emp/math/random_utils.hpp"
+#include "emp/math/Random.hpp"
 #include "emp/tools/string_utils.hpp"
 
-#include "emp/io/File.hpp"
-
-
-class SpatialStructure;
+#include <algorithm>
+#include <iostream>
+#include <optional>
+#include <string>
+#include <unordered_set>
 
 // Implements a 2D spatial structure
 class SpatialStructure {
