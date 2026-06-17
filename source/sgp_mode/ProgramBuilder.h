@@ -230,7 +230,6 @@ public:
     // nand r1, r1, r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
@@ -344,6 +343,7 @@ public:
     AddInst(program, io_op); 
     AddTask_Not(program);  // Add not task
     AddInst(program, io_op); 
+    AddInst(program, io_op, 1);
     AddTask_Nand(program); // Add nand task, IO will happen at start of next time through genome
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
@@ -364,6 +364,7 @@ public:
     );
     // Add not instruction
     AddInst(program, io_op);
+    AddInst(program, io_op, 1);
     AddTask_Nand(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);

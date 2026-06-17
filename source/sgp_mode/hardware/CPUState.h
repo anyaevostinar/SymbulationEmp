@@ -169,7 +169,7 @@ public:
     location = loc;
   }
   const emp::WorldPosition& GetLocation() const { return location; }
-
+  
   void SetCPUCyclesToExec(size_t num) {
     cpu_cycles_to_exec = num;
   }
@@ -207,6 +207,17 @@ public:
   void SetInputs(const emp::vector<uint32_t>& inputs) {
     input_buf.SetBuffer(inputs);
     emp_assert(input_buf.size() == inputs.size());
+  }
+
+  void SetOutputs(const emp::vector<uint32_t>& outputs) {
+    for (size_t i = 0; i < outputs.size(); i++) {
+      if (i < output_buffer.size()) {
+        output_buffer[i] = outputs[i];
+      }
+      else {
+        output_buffer.emplace_back(outputs[i]);
+      }
+    }
   }
 
   // const emp::WorldPosition& GetLocation() const { return loc; }
@@ -357,8 +368,16 @@ public:
     return lineage_task_change_loss[task_id];
   }
 
+  const emp::vector<size_t>& GetLineageTaskLoss() const { 
+    return lineage_task_change_loss; 
+  }
+
   size_t GetLineageTaskGainCount(size_t task_id) const {
     return lineage_task_change_gain[task_id];
+  }
+
+  const emp::vector<size_t>& GetLineageTaskGain() const { 
+    return lineage_task_change_gain; 
   }
 
   void SetLineageTaskLossCount(size_t task_id, size_t count) {

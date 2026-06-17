@@ -25,10 +25,13 @@
 #include "../sgp_mode/SGPWorld.cc"
 #include "../sgp_mode/SGPWorldSetup.cc"
 #include "../sgp_mode/SGPWorldData.cc"
+#include "../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../sgp_mode/SGPW_TaskProfileSetup.cc"
 
 // This is the main function for the NATIVE version of this project.
 
 int symbulation_main(int argc, char *argv[]) {
+
   sgpmode::SymConfigSGP config;
   CheckConfigFile(config, argc, argv);
 
@@ -37,6 +40,8 @@ int symbulation_main(int argc, char *argv[]) {
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
   world.Run(true);
+
+  world.OutputDominantDataFile();
 
   return 0;
 }

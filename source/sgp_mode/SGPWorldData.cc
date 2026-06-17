@@ -677,6 +677,51 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
 
 }
 
+void SGPWorld::OutputDominantDataFile() {
+
+  output_dir = sgp_config.FILE_PATH();
+  std::string dominant_dir = "DominantGenomes";
+  // If setup has not been run, create output directory.
+  if (!setup) {
+    std::filesystem::create_directory(output_dir);
+  }
+  std::filesystem::create_directory(output_dir / dominant_dir);
+
+  // TODO: update to actually work, need to get back a version of "PrintCode" 
+  // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
+  //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
+      GetDominantInfo();
+
+
+  {
+    size_t idx = 0;
+    for (auto pair : dominant_organisms) {
+      auto sample = pair.first.DynamicCast<sgp_host_t>();
+
+      std::ofstream genome_file;
+      std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+ 
+        std::to_string(idx) + sgp_config.FILE_NAME()+".data"); // Any ending that actually does make sense for these files?
+
+      genome_file.open(genome_path);
+      sample->GetHardware().PrintCode(genome_file);
+
+      size_t sym_idx = 0;
+      for (auto &sym : sample->GetSymbionts()) {
+        std::ofstream genome_file;
+        std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+ 
+          std::to_string(sym_idx) + "_From_Host"+ 
+          std::to_string(idx) + sgp_config.FILE_NAME()+".data");
+        genome_file.open(genome_path);
+        sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);
+        sym_idx++;
+      }
+
+      idx++;
+    }
+  }
+}
+
 }
 
 #endif

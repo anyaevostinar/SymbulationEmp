@@ -27,7 +27,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TASK_PROFILE_MODE, std::string, "self-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.? Options are parent-all, self-all, self-first, parent-first. 'all' means all tasks, 'first' means only first task performed."),
   VALUE(TASK_PROFILE_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for task profiles? always, task-any-match, task-perfect-match"),
-  VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission?"),
+  VALUE(HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE, std::string, "always", "How is compatibility determined for horizontal transmission? Relies on TASK_PROFILE_COMPATIBILITY_MODE being set appropriately. Options are: always, task-profile-compatible, task-profile-strictly-stronger-match, task-profile-stronger-or-equal-match"),
 
   GROUP(SGP_MUTATION, "SGP mutation group"),
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
@@ -67,6 +67,11 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),
   VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give sym credit for one task (whatever they do first)?"),
+
+  GROUP(TEMP_CHANGING_ENVIRONMENT, "Temporally changing environment settings (task rewards change over time)"),
+  VALUE(ENABLE_TEMP_CHANGING_ENVIRONMENT, bool, false, "Do task reward values change over time?"),
+  VALUE(TEMP_CHANGING_ENVIRONMENT_INTERVAL, size_t, 100, "How many updates elapse between task reward value shuffling?"),
+  VALUE(TEMP_CHANGING_ENVIRONMENT_ORG_TYPE, std::string, "static", "Can organisms sense task reward values? (plastic-both: both symbionts and hosts can sense whether tasks are rewarded; static: neither hosts nor symbiont can sense whether tasks are rewarded)"),
 
   GROUP(DATA, "Data settings"),
   VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")

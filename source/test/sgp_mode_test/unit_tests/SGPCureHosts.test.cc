@@ -15,7 +15,6 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   
@@ -35,7 +34,7 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   config.UPDATES(total_updates);
   // config.SYM_LIMIT(2) // allow multiple symbionts to infect one host
 
-  // initalize world
+  // initialize world
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();

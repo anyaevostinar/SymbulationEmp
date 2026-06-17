@@ -55,6 +55,7 @@ public:
     emp::vector<emp::vector<IOSet>> correct_outputs; // Indexed by task id. For each task id, correct outputs associated with particular inputs.
     std::unordered_map<output_t, emp::vector<size_t>> task_lookup; // Which output belongs to which task?
     bool is_collision=false;
+    bool output_is_zero=false;
 
     // Clear task io
     void Clear() {
@@ -63,6 +64,7 @@ public:
       correct_outputs.clear();
       task_lookup.clear();
       is_collision=false;
+      output_is_zero=false;
     }
 
     bool operator==(const TaskIO& other) const {
@@ -113,10 +115,13 @@ protected:
       task_io.correct_outputs.resize(task_id+1, {});
     }
     const output_t output_val = io_set.output;
+    if (output_val == 0) {
+      task_io.output_is_zero = true;
+    }
     task_io.correct_outputs[task_id].emplace_back(io_set);  // Add this input-output pairing for this task
     task_io.is_collision = emp::Has(task_io.valid_outputs, output_val); // Mark if io contains an output collision.
     task_io.valid_outputs.emplace(output_val);                          // Add output value to valid outputs set.
-    // Add output value to task lookup (regardless of whether or not we've seen this output value before)
+    // Add output value to task lookup (regardless of whether or not we've seen this output value before or it's zero)
     if (emp::Has(task_io.task_lookup, output_val)) {
       task_io.task_lookup[output_val].emplace_back(task_id);
     } else {
@@ -129,7 +134,8 @@ protected:
   TaskIO BuildTaskIO(bool unique_outputs, size_t num_inputs_per_task = 4) {
     TaskIO task_io;
     task_io.is_collision=false;
-    bool collision_bail = false; // Should we bail because of a collision?
+    task_io.output_is_zero=false;
+    bool collision_or_zero_bail = false; // Should we bail because of a collision or zero output?
     size_t build_tries = 0;
     // For each task, build IO combinations for num_inputs_per_task inputs
     do {
@@ -148,7 +154,7 @@ protected:
         input_buffer[i] = rand_in;
       }
       // For each task, generate output values for input pairings
-      for (size_t task_id = 0; (task_id < task_set.GetSize()) && !collision_bail; ++task_id) {
+      for (size_t task_id = 0; (task_id < task_set.GetSize()) && !collision_or_zero_bail; ++task_id) {
         const auto& task_def = task_set.GetTaskDef(task_id);
         for (size_t input_idx = 0; input_idx < input_buffer.size(); ++input_idx) {
           // Call task function with rotated inputs
@@ -161,11 +167,11 @@ protected:
           SetTaskOutput(task_io, task_id, IOSet{buffer, task_output});
         }
         // Any collisions?
-        collision_bail = unique_outputs && task_io.is_collision;
+        collision_or_zero_bail = unique_outputs && (task_io.is_collision || task_io.output_is_zero);
       }
       ++build_tries;
-    } while (collision_bail && (build_tries < this_t::MAX_ENV_BUILD_TRIES));
-    emp_assert_warning(build_tries <= this_t::MAX_ENV_BUILD_TRIES, "Failed to build environment with unique outputs for each task.");
+    } while (collision_or_zero_bail && (build_tries < this_t::MAX_ENV_BUILD_TRIES));
+    emp_assert_warning(build_tries <= this_t::MAX_ENV_BUILD_TRIES, "Failed to build environment with unique, non-zero outputs for each task.");
     return task_io;
   }
 

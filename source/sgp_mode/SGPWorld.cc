@@ -48,7 +48,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
     sgp_config.CYCLES_PER_UPDATE()
   );
 
-
   host.Process(pos);
 
   //check if host is dead at return
@@ -58,84 +57,6 @@ void SGPWorld::ProcessHostAt(const emp::WorldPosition& pos, sgp_host_t& host) {
 
 }
 
-void SGPWorld::ProcessEndosymbionts(sgp_host_t& host) {
-  // If host doesn't have a symbiont, return.
-  if (!host.HasSym()) {
-    return;
-  }
-  emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
-  size_t sym_count = syms.size();
-  for (size_t sym_i = 0; sym_i < sym_count; /*sym_i handled internally*/) {
-    emp_assert(!(syms[sym_i]->IsHost()));
-    // If host is dead (e.g., because of previous symbiont), stop processing.
-    if (host.GetDead()) {
-      return;
-    }
-    emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_i].Raw());
-    const bool dead = cur_symbiont->GetDead();
-    if (!dead) {
-      // Symbiont not dead, process it
-      // TODO - change to functor?
-      // cur_symbiont->Process({sym_i + 1, host.GetLocation().GetIndex()});
-      ProcessEndosymbiont(
-        {sym_i + 1, host.GetLocation().GetIndex()},
-        *cur_symbiont,
-        host
-      );
-      ++sym_i;
-    } else {
-      emp_assert(sym_count > 0);
-      // TODO - Check that it is okay to re-order symbionts to avoid erase calls
-      // Symbiont is dead, need to delete it.
-      cur_symbiont.Delete();
-      // Swap this symbiont with last in list, decrementing sym_count
-      std::swap(syms[sym_i], syms[--sym_count]);
-      // We will need to process what we just swapped into place, so
-      // re-process sym_i (don't increment it)
-    }
-  }
-  // Resize syms to remove deleted dead symbionts swapped to end
-  emp_assert(sym_count <= syms.size());
-  syms.resize(sym_count);
-  // TODO - signal?
-}
-
-// TODO - discuss timing
-// NOTE - Go over reproduction
-void SGPWorld::ProcessEndosymbiont(
-  const emp::WorldPosition& sym_pos,
-  sgp_sym_t& sym,
-  sgp_host_t& host
-) {
-  // NOTE - is there anything that should be moved here common to all endosymbionts?
-  // If symbiont is dead, no need to process it.
-  if (sym.GetDead()) {
-    return;
-  }
-  sym.GetHardware().GetCPUState().SetLocation(sym_pos);
-  before_endosym_process_sig.Trigger(sym_pos, sym, host);
-  // Cash in cycles for this update
-  // NOTE - Do we want to drain cpu cycles here (i.e., get cashed in for execution?)
-  const size_t cycles_to_exec = sym.GetHardware().GetCPUState().ExtractCPUCycles();
-  for (size_t i = 0; i < cycles_to_exec; ++i) {
-    sym.GetHardware().RunCPUStep(1);
-    after_endosym_cpu_step_sig.Trigger(sym_pos, sym, host);
-
-    // Did endosymbiont attempt to reproduce?
-    // NOTE - want to handle this after every clock cycle?
-    if (sym.GetHardware().GetCPUState().ReproAttempt()) {
-      // upside to handling this here: we have direct access to organism
-      EndosymAttemptRepro(sym_pos, sym, host);
-    }
-
-  }
-  after_endosym_cpu_exec_sig.Trigger(sym_pos, sym, host);
-  // Call symbiont's process function
-  sym.Process(sym_pos);
-  after_endosym_process_sig.Trigger(sym_pos, sym, host);
-}
-
-// TODO - discuss timing
 
 // TODO - Handle Reproduction?
 // TODO - Go over support for free-living symbionts. Not sure it was
@@ -175,37 +96,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     DoSymDeath(pos.GetPopID());
   }
 }
-
-// void SGPWorld::HostAttemptRepro(const emp::WorldPosition& pos, sgp_host_t& host) {
-// Refactor: Moved to Host::AttemptReproduction()
-
-void SGPWorld::EndosymAttemptRepro(
-  const emp::WorldPosition& pos,
-  sgp_sym_t& sym,
-  sgp_host_t& host
-) {
-  // NOTE - could make this a configurable functor if we want different success/failure
-  //        conditions on attempt
-  // NOTE - Do we want to be using the horizontal transmission cost here?
-  //        Is this always horizontal transmisstion?
-  // NOTE - Do we need a flag indicating horizontal transmission vs. free-living?
-  const double repro_cost = sgp_config.SYM_HORIZ_TRANS_RES();
-  if (sym.GetPoints() >= repro_cost) {
-    // Sym pays cost
-    sym.DecPoints(repro_cost);
-    // Add sym to repro queue
-    // TODO - protect with mutex for threading
-    const size_t queue_id = repro_queue.Enqueue(
-      sym.GetHardware().GetCPUState().GetOrgPtr(),
-      pos
-    );
-    // Mark symbiont's hardware as repro in progress, no longer in "attempt" state
-    sym.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-  } else {
-    // Attempt failed, so reset repro state.
-    sym.GetHardware().GetCPUState().ResetReproState();
-  }
-}
+ 
 
 void SGPWorld::FreeLivingSymAttemptRepro(
   const emp::WorldPosition& pos,
@@ -241,8 +132,7 @@ void SGPWorld::DoReproduction() {
 }
 
 // Called for symbionts in the reproduction queue
-// TODO - SymDoBirth is for horizontal(?) and free-living repro
-//      - How to distinguish between the two?
+// fun_sym_do_birth is set to either free living or horizontal infection based on config
 emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<Organism> sym_baby,
   emp::WorldPosition parent_pos
@@ -252,8 +142,8 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   // Trigger any before birth actions
   before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_baby_ptr, parent_pos));
-  // Trigger any post-birth actions
-  after_sym_do_birth_sig.Trigger(sym_baby_pos);
+
+
   return sym_baby_pos;
 }
 
@@ -284,23 +174,9 @@ emp::WorldPosition SGPWorld::HostDoBirth(
     emp_assert(!sym_org_ptr->IsHost());
     // Cast generic org pointer to more specific sym pointer type
     emp::Ptr<sgp_sym_t> sym_ptr = static_cast<sgp_sym_t*>(sym_org_ptr.Raw());
-    // Check if symbiont can attempt vertical transmission
-    const bool can_attempt = fun_can_attempt_vert_trans(
-      *sym_ptr, /* Symbiont attempting to vert. trans */
-      *offspring_ptr, /* Host offspring (trans into) */
-      *parent_ptr, /* Host parent (trans from) */
-      parent_pos
-    );
-    if (!can_attempt) {
-      continue;
-    }
-    // This symbiont attempts vertical transmission (returns success if necessary)
-    EndosymAttemptVertTransmission(
-      sym_ptr,
-      offspring_ptr,
-      parent_ptr,
-      parent_pos
-    );
+
+    // This symbiont attempts vertical transmission (returns success if necessary), relevant checks performed in SGPSymbiont
+    sym_ptr->VerticalTransmission(offspring_ptr);
   }
 
   // Call emp::World's DoBirth for host offspring that we're currently "birthing".
@@ -318,7 +194,9 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
 }
 
-emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
+// TODO AEV: integrate this with default mode to support tags with tasks etc
+// Refactor: also try to be parallel with where Symbiont does this, what is in World versus Symbiont?
+emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_baby_ptr,
   const emp::WorldPosition& parent_pos
 ) {
@@ -329,8 +207,8 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
   emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(parent.Raw());
   // hew_host_pos is an optional<emp::WorldPosition>
   const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
+
   if (new_host_pos) {
-    // -1 means no living neighbors
     const size_t host_id = new_host_pos.value().GetIndex();
     int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
     if (new_index > 0) {
@@ -344,45 +222,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalTrans(
     sym_baby_ptr.Delete();
     return emp::WorldPosition();
   }
-}
-
-bool SGPWorld::EndosymAttemptVertTransmission(
-  emp::Ptr<sgp_sym_t> endosym_ptr,                  /* Endosymbiont attempting transmission */
-  emp::Ptr<sgp_host_t> host_offspring_ptr,          /* Host offspring (transmit to) */
-  emp::Ptr<sgp_host_t> host_parent_ptr,             /* Host parent (transmit from) */
-  const emp::WorldPosition& parent_pos /* Parent location */
-) {
-  // NOTE - Make DoVerticalTransmission function?
-  // No need to mark reproduction in progress here, as this isn't managed by repro queue.
-  // endosym_ptr->GetHardware().GetCPUState().MarkReproInProgress();
-  // Trigger before transmission signal.
-  before_sym_vert_transmission_sig.Trigger(
-    endosym_ptr,          /* symbiont producing offspring */
-    host_offspring_ptr, /* transmission to */
-    host_parent_ptr,  /* transmission from */
-    parent_pos
-  );
-  // Do vertical transmission
-  // NOTE - easy way to grab the new symbiont?
-  // TODO - How to know if vertical transmission is successful?
-  auto endosym_offspring = endosym_ptr->VerticalTransmission(host_offspring_ptr);
-  const bool success = (bool)endosym_offspring;
-  emp::Ptr<sgp_sym_t> endosym_offspring_ptr = (success) ?
-    static_cast<sgp_sym_t*>(endosym_offspring.value().Raw()) :
-    nullptr;
-  // TODO -
-  // Trigger after transmission signal.
-  after_sym_vert_transmission_sig.Trigger(
-    endosym_offspring_ptr, /* endosym offspring (if successful) */
-    endosym_ptr,                         /* endosym parent*/
-    host_offspring_ptr,                  /* transmission to */
-    host_parent_ptr,                     /* transmission from */
-    parent_pos,
-    success
-  );
-  // NOTE - ResetReproState here or in Reproduce function?
-  // endosym_ptr->GetHardware().GetCPUState().ResetReproState();
-  return success;
 }
 
 // Process any symbiont offspring that "escaped" the stress event
@@ -469,9 +308,6 @@ std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
 }
 
-// void SGPWorld::ProcessHostOutputBuffer(sgp_host_t& host) {
-// Refactor: Moved to Host::ProcessOutputBuffer()
-
 void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
   auto& cpu_state = sym.GetHardware().GetCPUState();
   const size_t env_task_id = cpu_state.GetTaskEnvID();
@@ -522,9 +358,12 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
           sym.GetPoints()
         );
         double task_points = new_points - sym.GetPoints();
-        // Apply nutrient interaction (if any have been configured) to points
-        // NOTE - can inject nutrient interaction here to modify points?
-        task_points = fun_apply_nutrient_interaction(sym, task_points, task_id);
+  
+        //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
+        if(sgp_config.ENABLE_NUTRIENT() && GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
+          task_points *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
+        } 
+ 
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
         // // Enforce limits on points

@@ -101,15 +101,17 @@ INST(Swap, { std::swap(a, b); });
 INST(Reproduce, {
   const emp::WorldPosition& org_loc = state.GetLocation();
   // Check whether this attempt at reproduction is allowed.
+  auto& world_config = state.GetWorld().GetConfig();
+
+
   const bool too_soon = (state.IsHost()) ?
-    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().HOST_MIN_CYCLES_BEFORE_REPRO() :
-    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().SYM_MIN_CYCLES_BEFORE_REPRO();
+    state.GetCPUCyclesSinceRepro() < world_config.HOST_MIN_CYCLES_BEFORE_REPRO() :
+    state.GetCPUCyclesSinceRepro() < world_config.SYM_MIN_CYCLES_BEFORE_REPRO();
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
                                || state.ReproAttempt() || too_soon;
   if (invalid_attempt) {
     return;
   }
-  // std::cout << "  Mark repro attempt!" << std::endl;
   state.MarkReproAttempt();
 });
 
@@ -180,6 +182,43 @@ INST(Infect, {
     return;
   }
   state.GetWorld().FreeLivingSymDoInfect(state.GetOrg());
+});
+
+// only active if ENABLE_TEMP_CHANGING_ENVIRONMENT turned on and static turned off
+INST(SenseTask, {
+  const size_t env_task_id = state.GetTaskEnvID();
+  auto& task_env = state.GetWorld().GetTaskEnv();
+  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+
+  // Check loaded value
+  if (task_io.IsValidOutput(a)) {
+    // Yes, this output is correct.
+    // Get all task ids associated with this output value
+    const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(a);
+
+    // Give credit for completed tasks
+    for (size_t task_id : task_ids) {
+      // Is this a host task?
+      if (!task_env.IsHostTask(task_id)) continue;
+      // Not first task
+      const bool not_first_task = state.GetWorld().GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && state.GetFirstTaskPerformed().Any() && !state.GetFirstTaskPerformed().Get(task_id);
+      if (not_first_task) {
+        continue;
+      }
+      // Has this organism already gotten credit with this output on this task?
+      if (state.OutputCredited(task_id, a)) continue;
+      // Check task requirements
+      auto& task_req_info = task_env.GetHostTaskReq(task_id);
+      if (!state.GetWorld().CanPerformTask(state, task_req_info)) {
+        continue;
+      }
+      
+      // check task reward or punishment
+      b = task_req_info.task_value > 0;
+      return;
+    }
+  }
+
 });
 
 // NOTE - Discuss following old instructions that were unused (and whether we still want them)

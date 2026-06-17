@@ -1,0 +1,7 @@
+{
+  "shared": {
+    "tasks": [
+      {"name": "ECHO", "value": 5, "reward_mode": "add"}
+    ]
+  }
+}
