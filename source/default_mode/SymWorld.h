@@ -1274,7 +1274,7 @@ public:
     for (size_t i = 0; i < pop.size(); i++) {
       // see if position in world is occupied
       if (!IsOccupied(i)) continue;
-      auto & host_syms = pop[i]->GetSymbionts();
+      auto& host_syms = pop[i]->GetSymbionts();
       for (size_t j = 0; j < host_syms.size(); j++) {
         host_syms[j]->SetDead();
         SendToGraveyard(host_syms[j]);

@@ -22,6 +22,23 @@ void SGPWorld::Setup() {
   // Clear any config snapshot entries
   config_snapshot_entries.clear();
 
+  // Configure population's spatial connectivity
+  SetupSpatialStructure();
+  // NOTE - Some of this code is repeated from base class.
+  //  - Could do some reorganization to copy-paste. E.g., make functions for this,
+  //     add hooks into the base setup to give more 1wnstream flexibility.
+  const double start_moi = sgp_config.START_MOI();
+  // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
+  long unsigned int POP_SIZE;
+  // TODO - add pop mode?
+  // NOTE - SetupSpatialStructure should configure pop vector size to be carrying capacity.
+  max_world_size = GetSize();
+  if (sgp_config.INIT_POP_SIZE() < 0) {
+    POP_SIZE = max_world_size;
+  } else {
+    POP_SIZE = sgp_config.INIT_POP_SIZE();
+  }
+
   // Reset the seed of the main sgp thread based on the config
   // TODO - should this be here? (used to be inside scheduler)
   sgpl::tlrand.Get().ResetSeed(sgp_config.SEED());
@@ -45,25 +62,8 @@ void SGPWorld::Setup() {
   // Configure task environment
   SetupTaskEnvironment();
 
-  // NOTE - Some of this code is repeated from base class.
-  //  - Could do some reorganization to copy-paste. E.g., make functions for this,
-  //     add hooks into the base setup to give more 1wnstream flexibility.
-  double start_moi = sgp_config.START_MOI();
-  // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
-  long unsigned int POP_SIZE;
-  // TODO - add pop mode?
-  max_world_size = sgp_config.GRID_X() * sgp_config.GRID_Y();
-  if (sgp_config.INIT_POP_SIZE() < 0) {
-    POP_SIZE = max_world_size;
-  } else {
-    POP_SIZE = sgp_config.INIT_POP_SIZE();
-  }
-
   // Setup mutation operator
   SetupMutator();
-
-  // Setup population structure
-  SetupPopStructure();
 
   // Setup scheduler
   SetupScheduler();
@@ -91,7 +91,6 @@ void SGPWorld::Setup() {
   }
 
   SetupHosts(&POP_SIZE);
-  Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
@@ -231,18 +230,6 @@ void SGPWorld::DisableConfigurableInstructions() {
       Library::GetSize()
     );
   }
-}
-
-void SGPWorld::SetupPopStructure() {
-  // set world structure (either mixed or a grid with some dimensions)
-  // and set synchronous generations to false
-  if (!sgp_config.GRID()) {
-    SetPopStruct_Mixed(false);
-  } else {
-    SetPopStruct_Grid(sgp_config.GRID_X(), sgp_config.GRID_Y(), false);
-  }
-  // Resize world capacity to max_world_size
-  // Resize(max_world_size); // TODO - move ethis back here
 }
 
 void SGPWorld::SetupScheduler() {

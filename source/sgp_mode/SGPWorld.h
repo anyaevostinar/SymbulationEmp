@@ -427,7 +427,7 @@ protected:
 
   fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
   fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
-  func_apply_host_points_t fun_apply_host_points; 
+  func_apply_host_points_t fun_apply_host_points;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -493,13 +493,13 @@ protected:
   //  a given symbiont can vertically transmit into host offspring.
   fun_vert_trans_compatible_t fun_vert_trans_compatible;
 
-  
+
 
   // ----- Internal helper functions -----
   // Called by Update()
   void DoReproduction();
 
-  
+
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
   //   symbionts within the host.
@@ -591,7 +591,7 @@ public:
     scheduler(rnd),
     task_env(rnd),
     sgp_config(*_config)
-  { 
+  {
       // Configure default (no) nutrient interaction (IMPORTANT!)
       // - Nutrient interaction setup will override this behavior if enabled.
       fun_calc_host_nutrient_interaction = [](
@@ -603,7 +603,7 @@ public:
       ) {
         return 0.0;
       };
-  
+
       fun_calc_sym_nutrient_interaction = [](
         sgp_host_t& host,
         sgp_sym_t& sym,
@@ -659,7 +659,7 @@ public:
 
   /* Accessor for host task profiles */
   const emp::BitVector& GetHostTaskProfile(const sgp_host_t& host){return fun_get_host_task_profile(host);}
-  
+
   /* Accessor for symbiont task profiles */
   const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
 
@@ -702,26 +702,26 @@ public:
      sgp_host_t& host,
     double task_value_before,
     size_t task_id
-  ){
+  ) {
     fun_apply_host_points(host,task_value_before, task_id);
   }
 
   const emp::BitVector& GetSymTaskProfile(
     sgp_sym_t& sym
-  ){
+  ) {
     return fun_get_sym_task_profile(sym);
   }
 
   const emp::BitVector& GetHostTaskProfile(
     sgp_host_t& host
-  ){
+  ) {
     return fun_get_host_task_profile(host);
   }
 
   bool TaskProfileCompatibilityCheck(
     const emp::BitVector& host_task_profile,
     const emp::BitVector& sym_task_profile
-  ){
+  ) {
     return fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
   }
 
@@ -736,9 +736,9 @@ public:
     emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
     return fun_vert_trans_compatible(sym, static_cast<sgp_host_t&>(*host_offspring), static_cast<sgp_host_t&>(*host));
   }
-  
+
   void TriggerBeforeSymVertTransmissionSig(
-    emp::Ptr<sgp_sym_t> sym,   
+    emp::Ptr<sgp_sym_t> sym,
     emp::Ptr<Organism> host_offspring,
     emp::Ptr<Organism> host_parent
   ) {
@@ -749,7 +749,7 @@ public:
 
   void TriggerAfterSymVertTransmissionSig(
     std::optional<emp::Ptr<Organism>> sym_offspring,
-    emp::Ptr<sgp_sym_t> sym,   
+    emp::Ptr<sgp_sym_t> sym,
     emp::Ptr<Organism> host_offspring,
     emp::Ptr<Organism> host_parent,
     bool success
@@ -847,7 +847,7 @@ public:
       sym_sys->Update();
     }
   }
-  
+
   // TODO: AEV: Why is this separate from RunExperiment in SymWorld? Needs to be combined to support all the other functionality from RunExperiment
   void Run(bool verbose = false) {
     emp_assert(setup);
@@ -898,6 +898,8 @@ public:
   // NOTE - Can we get rid of passing these values in as pointers?
   void SetupHosts(long unsigned int* POP_SIZE) override;
   void SetupSymbionts(long unsigned int* total_syms) override;
+
+  void SetMutationZero();
 
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
