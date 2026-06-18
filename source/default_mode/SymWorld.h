@@ -805,7 +805,7 @@ public:
       case SPATIAL_STRUCT_MODE::WELL_MIXED:
         // In well-mixed mode, use base neighbor organism ids
         return base_world_t::GetValidNeighborOrgIDs(id);
-      case SPATIAL_STRUCT_MODE::GRID:
+      case SPATIAL_STRUCT_MODE::GRID: {
         const size_t grid_width = my_config->WORLD_WIDTH();
         const size_t grid_height = my_config->WORLD_HEIGHT();
         using dir_t = grid2D_utils::GRID_DIR;
@@ -824,7 +824,8 @@ public:
           }
         }
         return neighbor_ids;
-      case SPATIAL_STRUCT_MODE::LOAD:
+      }
+      case SPATIAL_STRUCT_MODE::LOAD: {
         const auto& neighboring_positions = spatial_structure.GetNeighbors(id);
         for (size_t neighbor_id : neighboring_positions) {
           // This check is copied over from emp::World's version of this function.
@@ -833,6 +834,7 @@ public:
           }
         }
         return neighbor_ids;
+      }
       default:
         emp_error("Unknown spatial structure mode");
         return neighbor_ids;
@@ -1056,7 +1058,7 @@ public:
 
         if (new_index > 0) { // sym successfully infected
           if (my_config->PHYLOGENY()) {
-            if (my_config->PHYLOGENY_TAXON_TYPE() == 3) {
+            if (phylo_taxon_type == PHYLO_TAXON_TYPE::INDIVIDUAL) {
               sym_baby->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
             }
             if (my_config->TRACK_PHYLOGENY_INTERACTIONS()) {

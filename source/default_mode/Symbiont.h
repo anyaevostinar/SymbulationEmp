@@ -72,7 +72,7 @@ protected:
     *
   */
   size_t from_partner_count = 0;
-  
+
   /**
     *
     * Purpose: Represents an instance of random.
@@ -116,7 +116,7 @@ protected:
   emp::BitSet<TAG_LENGTH> tag;
 
   /**
-   * 
+   *
    * Purpose: To track location in the world
    * id/Index is position in the host's symbiont vector if the symbiont is hosted, and 0 if the symbiont is free-living
    * If the symbiont is hosted, the population id is the host's location in the world. If the symbiont is free-living, it is the location in the sym pop
@@ -296,9 +296,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: The world position of the organism
-   * 
+   *
    * Purpose: To get the world position of the organism
    */
   emp::WorldPosition GetLocation() {return location;}
@@ -390,8 +390,8 @@ public:
    *
    * Purpose: To set a symbiont to dead
    */
-  void SetDead() { 
-    dead = true; 
+  void SetDead() {
+    dead = true;
   }
 
 
@@ -443,12 +443,12 @@ public:
 
   /**
    * Input: A new world position
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: To set the organism's world position
    */
-  void SetLocation(emp::WorldPosition _in) {location = _in;} 
+  void SetLocation(emp::WorldPosition _in) {location = _in;}
 
   /**
    * Input: None
@@ -632,8 +632,8 @@ public:
   }
 
   /**
-   * Input: A WorldPosition parameter describing the location of the symbiont; 
-   * ID is where they are in the world, INDEX is where they are in the host's symbiont 
+   * Input: A WorldPosition parameter describing the location of the symbiont;
+   * ID is where they are in the world, INDEX is where they are in the host's symbiont
    * list (or 0 if they're free living).
    *
    * Output: None
@@ -643,7 +643,9 @@ public:
    */
   void Process(emp::WorldPosition location) {
     // if doing tag-based or individual phylogenies, track int val of this organism
-    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+    if (my_config->PHYLOGENY() && my_world->GetPhylogenyTaxonType() == SymWorld::PHYLO_TAXON_TYPE::TAG) {
+      my_taxon->GetData().RecordIntVal(GetIntVal());
+    }
 
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS()) { //free living symbiont
       double resources = my_world->PullResources(my_config->FREE_SYM_RES_DISTRIBUTE()); //receive resources from the world
@@ -658,7 +660,7 @@ public:
         Mutate();
       }
     }
-    //Check if the organism should move and do it 
+    //Check if the organism should move and do it
     if (my_host.IsNull() && my_config->FREE_LIVING_SYMS() && !dead) {
       //if the symbiont should move, and hasn't been killed
       my_world->MoveFreeSym(location);
@@ -704,7 +706,7 @@ public:
 
       // difference in matching-ness, with match in child
       emp::BitSet<TAG_LENGTH> child_towards = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_baby_matching);
-      
+
       // difference in matching-ness, with match in parent
       emp::BitSet<TAG_LENGTH> child_from = host_sym_baby_matching.XOR(host_sym_parent_matching).AND(host_sym_parent_matching);
 
@@ -731,9 +733,9 @@ public:
 
   /**
   * Input: emp::Ptr<Organism> to host offspring, emp::Ptr<Organism> to symbiont offspring
-  * 
+  *
   * Output: boolean, whether or not sym/sym offspring meets requirements to successfully vertically transmit
-  * 
+  *
   * Purpose: To test for compatibility between sym parent/offspring and host parent/offspring, such as tags
   * */
   virtual bool SuccessfulVT(emp::Ptr<Organism> host_baby, emp::Ptr<Organism> sym_baby) {
@@ -759,11 +761,11 @@ public:
     bool success = false;
     emp::Ptr<Organism> sym_baby;
     if(my_world->WillTransmit()) {
-    
+
       //vertical transmission data node
       emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(GetIntVal());
-      
+
       if(MeetsVTRequirements()){
         sym_baby = Reproduce();
         if(!SuccessfulVT(host_baby, sym_baby)) {
@@ -775,17 +777,17 @@ public:
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
         data_node_successes_verttrans.AddDatum(GetIntVal());
-      } 
-    } 
+      }
+    }
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
   }
 
 
-  /* 
+  /*
   * Input: None
-  * 
+  *
   * Output: Boolean representing whether or not the symbiont meets requirements to independently reproduce (horizontally transmission or free-living reproduction, depending on config)
-  * 
+  *
   * Purpose: To check if the symbiont meets requirements to independently reproduce, based on its own internal state, without considering the host or host baby. This is intended to be used in the horizontal transmission and free-living reproduction process, to determine if the symbiont can attempt to horizontally transmit/independently reproduce.
   * Adjusts the requirements to free-living symbionts if enabled and the free sym repro resources is different than the horizontal transmission resources.
   * Currently just checks point requirement.
@@ -800,9 +802,9 @@ public:
 
   /*
   * Input: sym_pos, world position
-  * 
+  *
   * Output: None
-  * 
+  *
   * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points
   */
   bool AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
@@ -810,18 +812,18 @@ public:
       if (MeetsIndependentReproRequirements()) {
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
         data_node_attempts_horiztrans.AddDatum(GetIntVal());
-        
+
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         //TODO: try just subtracting points to be consistent with vertical transmission
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
-        
+
 
         if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
-        // removing the above for tag matching--sym parent points are 
+        // removing the above for tag matching--sym parent points are
         // now set to 0 in symdobirth
         return true;
-      } 
-    } 
+      }
+    }
     return false;
   }
 
@@ -831,7 +833,7 @@ public:
     if(sym_baby_pos.IsValid()){
       data_node_successes_horiztrans.AddDatum(GetIntVal());
     }
-      
+
   }
 
   /**
@@ -846,7 +848,7 @@ public:
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
       emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
-      
+
       AfterIndependentReproduction(new_pos);
 
     }

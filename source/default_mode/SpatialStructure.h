@@ -1,3 +1,4 @@
+#pragma once
 // This file contains the SpatialStructure class that defines and manages
 // spatial structure for the AEcoWorld.
 //
@@ -19,12 +20,9 @@
 #include <string>
 #include <unordered_set>
 
-// Implements a 2D spatial structure
 class SpatialStructure {
-public:
 
 protected:
-
   // Mapping of source positions ==> destination positions.
   // Destination IDs are kept in sorted order.
   emp::vector< emp::vector<size_t> > ordered_connections;
@@ -430,20 +428,6 @@ size_t GridIDFromXY(const emp::array<size_t, 2>& pos_xy, size_t grid_width, size
   return (y * grid_width) + x;
 }
 
-size_t GetGridNeighbor(
-  size_t grid_id,
-  GRID_DIR dir,
-  size_t grid_width,
-  size_t grid_height
-) {
-  const emp::array<size_t, 2> grid_xy{GridXYFromID(grid_id, grid_width, grid_height)};
-  return GridIDFromXY(
-    GetGridNeighbor(grid_xy, dir, grid_width, grid_height),
-    grid_width,
-    grid_height
-  );
-}
-
 emp::array<size_t, 2> GetGridNeighbor(
   const emp::array<size_t, 2>& pos_xy,
   GRID_DIR dir,
@@ -498,8 +482,22 @@ emp::array<size_t, 2> GetGridNeighbor(
       };
     default:
       emp_error("Unimplemented direction");
-      return {-1, -1};
+      return {(size_t)-1, (size_t)-1};
   }
+}
+
+size_t GetGridNeighbor(
+  size_t grid_id,
+  GRID_DIR dir,
+  size_t grid_width,
+  size_t grid_height
+) {
+  const emp::array<size_t, 2> grid_xy{GridXYFromID(grid_id, grid_width, grid_height)};
+  return GridIDFromXY(
+    GetGridNeighbor(grid_xy, dir, grid_width, grid_height),
+    grid_width,
+    grid_height
+  );
 }
 
 }

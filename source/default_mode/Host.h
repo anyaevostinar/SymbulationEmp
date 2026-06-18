@@ -126,17 +126,17 @@ protected:
     *
   */
   emp::BitSet<TAG_LENGTH> tag;
-  
+
   /**
-    * 
+    *
     * Purpose: Tracks the taxon of this organism.
     *
   */
   emp::Ptr<taxon_t::base_taxon_t> my_taxon = NULL;
-   
-  /** 
+
+  /**
    * Purpose: To track location in the world
-   * 
+   *
    */
   emp::WorldPosition location;
 
@@ -377,9 +377,9 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: The world position of the organism
-   * 
+   *
    * Purpose: To get the world position of the organism
    */
   emp::WorldPosition GetLocation() {return location;}
@@ -437,12 +437,12 @@ public:
 
   /**
    * Input: A new world position
-   * 
+   *
    * Output: None
-   * 
+   *
    * Purpose: To set the organism's world position
    */
-  virtual void SetLocation(emp::WorldPosition _in) {location = _in;} 
+  virtual void SetLocation(emp::WorldPosition _in) {location = _in;}
 
 
   /**
@@ -474,7 +474,7 @@ public:
    * Purpose: To set a host's tag.
    */
   void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
-  
+
   /**
    * Input: None
    *
@@ -603,9 +603,9 @@ public:
 
   /**
    * Input: The symbiont index position to remove (remember it should be 1-indexed)
-   * 
+   *
    * Output: The removed symbiont or null if invalid index given
-   * 
+   *
    * Purpose: To allow removal of a symbiont
    */
   emp::Ptr<Organism> RemoveSymbiont(int index) {
@@ -614,7 +614,7 @@ public:
       return nullptr;
     } else {
       emp::Ptr<Organism> to_remove = syms[index-1];
-      syms.erase(syms.begin() + (index-1)); 
+      syms.erase(syms.begin() + (index-1));
       to_remove->SetHost(nullptr);
       to_remove->SetLocation(emp::WorldPosition::invalid_id);
       return to_remove;
@@ -725,7 +725,7 @@ public:
    */
   emp::Ptr<Organism> Reproduce(){
     emp::Ptr<Organism> host_baby = MakeNew();
-    
+
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
     SetPoints(0);
@@ -761,12 +761,12 @@ public:
     if (mutation_size == -1) mutation_size = my_config->MUTATION_SIZE();
     double mutation_rate = my_config->HOST_MUTATION_RATE();
     if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
-    
+
     if(random->GetDouble(0.0, 1.0) <= mutation_rate){
       interaction_val += random->GetNormal(0.0, mutation_size);
       if(interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
-      
+
     }
 
     if (my_config->TAG_MATCHING()) {
@@ -888,53 +888,56 @@ public:
    */
   void Process(emp::WorldPosition pos) {
     // tracking int val for tag and individual phylogenies
-    if (my_config->PHYLOGENY() && my_config->PHYLOGENY_TAXON_TYPE() == 2) my_taxon->GetData().RecordIntVal(GetIntVal());
+    if (my_config->PHYLOGENY() && my_world->GetPhylogenyTaxonType() == SymWorld::PHYLO_TAXON_TYPE::TAG) {
+      my_taxon->GetData().RecordIntVal(GetIntVal());
+    }
 
     size_t location = pos.GetIndex();
     //Currently just wrapping to use the existing function
     double desired_resources = my_config->RES_DISTRIBUTE();
     double world_resources = my_world->PullResources(desired_resources); //receive resources from the world
     double resources = HandleEctosymbiosis(world_resources, location);
-    if(resources > 0) DistribResources(resources); //if there are enough resources left, distribute them.
+    if (resources > 0) DistribResources(resources); //if there are enough resources left, distribute them.
 
     // Check reproduction
     if (GetPoints() >= my_config->HOST_REPRO_RES() && repro_syms.size() == 0) {  // if host has more points than required for repro
-        // will replicate & mutate a random offset from parent values
-        // while resetting resource points for host and symbiont to zero
-       emp::Ptr<Organism> host_baby = Reproduce();
+      // will replicate & mutate a random offset from parent values
+      // while resetting resource points for host and symbiont to zero
+      emp::Ptr<Organism> host_baby = Reproduce();
 
-        //Now check if symbionts get to vertically transmit
-        for(size_t j = 0; j< (GetSymbionts()).size(); j++){
-          emp::Ptr<Organism> parent = GetSymbionts()[j];
-          parent->VerticalTransmission(host_baby);
-        }
-        my_world->DoBirth(host_baby, location); //Automatically deals with grid
+      //Now check if symbionts get to vertically transmit
+      for(size_t j = 0; j< (GetSymbionts()).size(); j++){
+        emp::Ptr<Organism> parent = GetSymbionts()[j];
+        parent->VerticalTransmission(host_baby);
       }
-    if (GetDead()){
-        return; //If host is dead, return
-      }
+      my_world->DoBirth(host_baby, location); //Automatically deals with grid
+    }
+    if (GetDead()) {
+      return; //If host is dead, return
+    }
     if (HasSym()) { //let each sym do whatever they need to do
-        emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
-        for(size_t j = 0; j < syms.size(); j++){
-          emp::Ptr<Organism> cur_sym = syms[j];
-          if (GetDead()){
-            return; //If previous symbiont killed host, we're done
-          }
-          //sym position should have host index as pop_id and
-          //position in syms list + 1 as index (0 as fls index)
-          emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
-          if(!cur_sym->GetDead()){
-              cur_sym->Process(sym_pos);
-          }
-          if(cur_sym->GetDead()) {
-            //if the symbiont dies during their process, remove from syms list
-            //UNLESS they died by getting ousted
-            syms.erase(syms.begin() + j);
-            cur_sym.Delete();
-          }
-        } //for each sym in syms
-      } //if org has syms
+      emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+      for(size_t j = 0; j < syms.size(); j++){
+        emp::Ptr<Organism> cur_sym = syms[j];
+        if (GetDead()) {
+          return; //If previous symbiont killed host, we're done
+        }
+        //sym position should have host index as pop_id and
+        //position in syms list + 1 as index (0 as fls index)
+        emp::WorldPosition sym_pos = emp::WorldPosition(j+1, location);
+        if (!cur_sym->GetDead()) {
+          cur_sym->Process(sym_pos);
+        }
+        if (cur_sym->GetDead()) {
+          //if the symbiont dies during their process, remove from syms list
+          //UNLESS they died by getting ousted
+          syms.erase(syms.begin() + j);
+          cur_sym.Delete();
+        }
+      } //for each sym in syms
+    } //if org has syms
     GrowOlder();
   }
-};//Host
+}; //Host
+
 #endif
