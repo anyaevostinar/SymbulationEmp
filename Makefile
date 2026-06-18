@@ -2,10 +2,12 @@
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
+TAG_NUM_BITS = 32
 
 # Flags to use regardless of compiler
 VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
+COMPILE_TIME_ARGS := -DTAG_NUM_BITS ${TAG_NUM_BITS}
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS} ${COMPILE_TIME_ARGS}
 
 # Native compiler information
 CXX_nat := g++
@@ -157,6 +159,10 @@ test-sgp-all:
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-debug-events:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [events] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test
