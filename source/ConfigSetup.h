@@ -6,8 +6,11 @@
 #include <limits>
 #include <string>
 
-const int TAG_LENGTH = 32; // TODO -> Make a compile-time option?
-// AML TODO: edit makefile appropriately
+// Allow for compile-time tag size configuration
+#ifndef TAG_NUM_BITS
+#define TAG_NUM_BITS 32
+#endif
+constexpr size_t TAG_LENGTH = TAG_NUM_BITS;
 
 EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(MAIN, "Global Settings"),
@@ -47,8 +50,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SPATIAL_STRUCT_MODE, std::string, "grid", "Options: grid, well-mixed, load (requires filepath in LoadFile param)"),
     VALUE(SPATIAL_STRUCT_CFG_PATH, std::string, "spatial-struct.mat", "Path to the file containing the spatial structure"),
     VALUE(SPATIAL_STRUCT_LOAD_MODE, std::string, "matrix", "Expected file format for loaded spatial structure. Options: matrix, edges"),
-    VALUE(WORLD_WIDTH, int, 10, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),
-    VALUE(WORLD_HEIGHT, int, 10, "Used for grid and well-mixed modes. Height of world, just multiplied by width to get total size"),
+    VALUE(WORLD_WIDTH, size_t, 10, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),
+    VALUE(WORLD_HEIGHT, size_t, 10, "Used for grid and well-mixed modes. Height of world, just multiplied by width to get total size"),
 
     GROUP(PHYLOGENY, "PHYLOGENY"),
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
@@ -56,7 +59,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
-    VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values, 2 = bitset tag (for tag matching condition), 3 = individual-level"),
+    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-values-binned", "What are phylogeny taxa based on? Options: interaction-values-binned, interaction-values-exact, tag, individual"),
     VALUE(STORE_EXTINCT, bool, 0, "Should extinct taxa be stored? (0 for no, 1 for yes)"),
 
     GROUP(MUTATION, "Mutation"),
@@ -83,7 +86,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(TAG_MATCHING, "Settings for tag matching"),
     VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
-    VALUE(TAG_METRIC, int, 0, "Which tag matching metric should be used to compute distances between tags? (0 for hamming [proportion of bits mismatching], 1 for streak [ratio of continuously matching/mismatching bits], or 2 for hash [arbitrary but consistent difference])"),
+    // VALUE(TAG_METRIC, int, 0, "Which tag matching metric should be used to compute distances between tags? (0 for hamming [proportion of bits mismatching], 1 for streak [ratio of continuously matching/mismatching bits], or 2 for hash [arbitrary but consistent difference])"),
+    VALUE(TAG_METRIC, std::string, "hamming", "Which tag matching metric should be used to compute distances between tags? hamming [proportion of bits mismatching], streak [ratio of continuously matching/mismatching bits], or hash [arbitrary but consistent difference]"),
     VALUE(NORMALIZE_TAG_DISTANCES, bool, 0, "Should distances between pairs of tags be uniformicated? (0 for no, 1 for yes)"),
     VALUE(TAG_PERMISSIVENESS, double, 0.125, "What is the Poisson mean for divergence allowed between tags for a successful infection? (1 = perfect mismatch, 0 = perfect match)"),
     VALUE(HOST_TAG_PERMISSIVENESS_EVOLVES, bool, 0, "Should each host have a tag permissiveness that evolves as hosts reproduce? If yes, starting tag permissiveness values will be set to the TAG_PERMISSIVENESS config option. (0 for no, 1 for yes)"),
