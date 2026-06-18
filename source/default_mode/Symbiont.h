@@ -213,7 +213,7 @@ public:
     *
     * Purpose: To know which subclass the object is
     */
-    std::string const GetName() {
+    std::string const GetName() const {
       return  "Symbiont";
     }
 
@@ -234,7 +234,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  size_t GetReproCount() { return reproductions; }
+  size_t GetReproCount() const { return reproductions; }
 
   /**
    * Input: Set the flips towards a partner counter
@@ -253,7 +253,7 @@ public:
    *
    * Purpose: To get the count of flips towards a partner in this lineage.
    */
-  size_t GetTowardsPartnerCount() { return towards_partner_count; }
+  size_t GetTowardsPartnerCount() const { return towards_partner_count; }
 
 
   /**
@@ -273,7 +273,7 @@ public:
    *
    * Purpose: To get the count of flips from a partner in this lineage.
    */
-  size_t GetFromPartnerCount() { return from_partner_count; }
+  size_t GetFromPartnerCount() const { return from_partner_count; }
 
   /**
    * Input: None
@@ -292,7 +292,7 @@ public:
    *
    * Purpose: To get a symbiont's points.
    */
-  double GetPoints() {return points;}
+  double GetPoints() const { return points; }
 
   /**
    * Input: None
@@ -301,7 +301,7 @@ public:
    *
    * Purpose: To get the world position of the organism
    */
-  emp::WorldPosition GetLocation() {return location;}
+  emp::WorldPosition GetLocation() const { return location; }
 
 
   /**
@@ -311,7 +311,7 @@ public:
    *
    * Purpose: To determine if a symbiont is a phage
    */
-  bool IsPhage() {return false;}
+  bool IsPhage() const { return false; }
 
 
   /**
@@ -321,7 +321,7 @@ public:
    *
    * Purpose: To determine if a symbiont is a host
    */
-  bool IsHost() {return false;}
+  bool IsHost() const { return false; }
 
 
  /**
@@ -332,7 +332,7 @@ public:
    *
    * Purpose: To determine a symbiont's infection chance
    */
-  double GetInfectionChance() {return infection_chance;}
+  double GetInfectionChance() const { return infection_chance; }
 
 
   /**
@@ -402,7 +402,7 @@ public:
    *
    * Purpose: To determine if a symbiont is dead
    */
-  bool GetDead() { return dead; }
+  bool GetDead() const { return dead; }
 
 
   /**
@@ -457,7 +457,7 @@ public:
    *
    * Purpose: To get the Symbiont's age.
    */
-  int GetAge() {return age;}
+  int GetAge() const { return age; }
 
   /**
    * Input: An int of what age the Symbiont should be set to

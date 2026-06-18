@@ -234,7 +234,7 @@ public:
    *
    * Purpose: To override the bool operator == to return (thing1 == &thing2)
    */
-  bool operator==(const Host &other) const { return (this == &other);}
+  bool operator==(const Host& other) const { return (this == &other); }
 
 
   /**
@@ -255,8 +255,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "Host";
+  std::string const GetName() const {
+    return "Host";
   }
 
 
@@ -277,7 +277,7 @@ public:
    *
    * Purpose: To get the count of reproductions in this lineage.
    */
-  size_t GetReproCount() { return reproductions; }
+  size_t GetReproCount() const { return reproductions; }
 
 
   /**
@@ -297,7 +297,7 @@ public:
    *
    * Purpose: To get the count of flips towards a partner in this lineage.
    */
-  size_t GetTowardsPartnerCount() { return towards_partner_count; }
+  size_t GetTowardsPartnerCount() const { return towards_partner_count; }
 
 
   /**
@@ -317,7 +317,7 @@ public:
    *
    * Purpose: To get the count of flips from a partner in this lineage.
    */
-  size_t GetFromPartnerCount() { return from_partner_count; }
+  size_t GetFromPartnerCount() const { return from_partner_count; }
 
 
 /**
@@ -344,7 +344,7 @@ public:
   *
   * Purpose: To get the vector containing pointers to the host's symbionts.
   */
-  emp::vector<emp::Ptr<Organism>>& GetSymbionts() {return syms;}
+  emp::vector<emp::Ptr<Organism>>& GetSymbionts() { return syms; }
 
 /**
  * Input: None
@@ -353,7 +353,7 @@ public:
  *
  * Purpose: To get the vector containing pointers to the host's repro syms.
  */
-  emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {return repro_syms;}
+  emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() { return repro_syms; }
 
 
   /**
@@ -363,7 +363,7 @@ public:
    *
    * Purpose: To get the host's points.
    */
-  double GetPoints() { return points;}
+  double GetPoints() const { return points; }
 
 
   /**
@@ -373,7 +373,7 @@ public:
    *
    * Purpose: To get the value of res_in_process
    */
-  double GetResInProcess() { return res_in_process;}
+  double GetResInProcess() const { return res_in_process; }
 
   /**
    * Input: None
@@ -382,7 +382,7 @@ public:
    *
    * Purpose: To get the world position of the organism
    */
-  emp::WorldPosition GetLocation() {return location;}
+  emp::WorldPosition GetLocation() const { return location; }
 
   /**
    * Input: None
@@ -391,7 +391,7 @@ public:
    *
    * Purpose: To determine if an organism is a host.
   */
- bool IsHost() { return true; }
+ bool IsHost() const { return true; }
 
 
   /**
@@ -500,7 +500,7 @@ public:
   *
   * Purpose: To get the tag permissiveness value of this host
   */
-  double GetTagPermissiveness() { return tag_permissiveness; }
+  double GetTagPermissiveness() const { return tag_permissiveness; }
 
   /**
    * Input: None
@@ -528,7 +528,7 @@ public:
    *
    * Purpose: To determine if a host is dead.
    */
-  bool GetDead() {return dead;}
+  bool GetDead() const { return dead; }
 
   /**
    * Input: None
@@ -537,7 +537,7 @@ public:
    *
    * Purpose: To get the Host's age.
    */
-  int GetAge() {return age;}
+  int GetAge() const { return age; }
 
   /**
    * Input: An int of what age the Host should be set to
@@ -696,7 +696,7 @@ public:
    *
    * Purpose: To determine if a host has any symbionts, though they might be corpses that haven't been removed yet.
    */
-  bool HasSym() {
+  bool HasSym() const {
     return syms.size() != 0;
   }
 
