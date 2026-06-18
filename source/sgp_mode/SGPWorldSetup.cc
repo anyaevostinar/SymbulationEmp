@@ -79,7 +79,7 @@ void SGPWorld::Setup() {
   if (sgp_config.CURE()) {
     begin_update_sig.AddAction(
       [this]() {
-        if(GetUpdate() == sgp_config.CURE_UPDATES()) {
+        if (GetUpdate() == sgp_config.CURE_UPDATES()) {
           CureHosts();
         }
       }

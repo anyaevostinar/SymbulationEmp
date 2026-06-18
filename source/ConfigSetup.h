@@ -44,7 +44,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_PATH, std::string, "Data", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
     VALUE(CURE, bool, 0, "Should all symbionts die (0 for no, 1 for yes)"),
-    VALUE(CURE_UPDATES, int, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
+    VALUE(CURE_UPDATES, size_t, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
 
     GROUP(SPATIAL_STRUCTURE, "Spatial structure settings"),
     VALUE(SPATIAL_STRUCT_MODE, std::string, "grid", "Options: grid, well-mixed, load (requires filepath in LoadFile param)"),
