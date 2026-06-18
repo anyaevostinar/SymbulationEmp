@@ -57,10 +57,16 @@ void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
 void SymWorld::Setup() {
   double start_moi = my_config->START_MOI();
   long unsigned int POP_SIZE;
+  // Configure population's spatial connectivity
   SetupSpatialStructure();
-
+  // Calculate initial population size
+  if (my_config->INIT_POP_SIZE() == -1) {
+    // SetupSpatialStructure will have resized the world's pop size.
+    POP_SIZE = GetSize();
+  } else {
+    POP_SIZE = my_config->INIT_POP_SIZE();
+  }
   SetupHosts(&POP_SIZE);
-
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
 }
@@ -95,56 +101,6 @@ void SymWorld::SetupSpatialStructure() {
       emp_error("Given spatial structure mode undefined.");
       break;
   }
-
-  // // set world structure (either mixed or a grid with some dimensions) and set synchronous generations to false
-  // if (my_config->SpatialStructure() == "WellMixed") {
-
-  //   SetPopStruct_Mixed(false);
-
-  // }
-  // else{
-  //   fun_find_birth_pos =
-  //   [this](emp::Ptr<Organism>, emp::WorldPosition parent_pos) {
-  //     int pos = GetNeighborCellID(parent_pos.GetIndex());
-
-  //     // Ensure the position is valid
-  //     if (pos < 0) {
-  //       return emp::WorldPosition();
-  //     }
-
-  //     return emp::WorldPosition(pos);
-  //   };
-
-  //   if (my_config->SpatialStructure() == "Grid") {
-  //     SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
-  //     ConfigureToroidalGrid(spatial_structure, my_config->GRID_X(), my_config->GRID_Y());
-  //   }
-  //   else if (my_config->SpatialStructure() == "LoadFile") {
-  //     SetPopStruct_Grid(my_config->GRID_X(), my_config->GRID_Y(), false);
-  //     spatial_structure.LoadStructureFromMatrix(my_config->LoadFile());
-  //   }
-  //   else {
-  //     std::cerr << "Invalid Spatial Structure config option: " << my_config->SpatialStructure() << std::endl;
-  //     exit(1);
-  //   }
-  // }
-  // // Change in here for spatial structure as pop size is NOT equal to grid size
-  // if (my_config->INIT_POP_SIZE() == -1) {
-  //   // This could be changed to look for load file, and load files pulls for the Spatial Struc, while grid and well mixed are handled differently
-  //   if (my_config->SpatialStructure() != "WellMixed") {
-  //     POP_SIZE = spatial_structure.GetNumPositions();
-  //   }
-  //   else {
-  //     POP_SIZE = my_config->GRID_X() * my_config->GRID_Y();
-  //   }
-  // }
-  // else {
-  //   // Should probaly check that the pop size is not as large as the size of the spatial struct
-  //   // Also we might want to indicate where each pop starts in spatial structs
-  //   POP_SIZE = my_config->INIT_POP_SIZE();
-  // }
-  // spatial_structure.Print();
-  // Resize(my_config->GRID_X(), my_config->GRID_Y());
 }
 
 
