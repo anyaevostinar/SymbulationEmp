@@ -135,7 +135,10 @@ void SymWorld::SetupSpatialStructure_Load() {
     exit(-1);
   }
   // Initial population size should not exceed world size
-  emp_assert(my_config->INIT_POP_SIZE() <= spatial_structure.GetNumPositions());
+  emp_assert(
+    my_config->INIT_POP_SIZE() == -1 ||
+    (size_t)my_config->INIT_POP_SIZE() <= spatial_structure.GetNumPositions()
+  );
   // Resize world according to spatial structure max size
   Resize(spatial_structure.GetNumPositions());
   SetPopStruct_Custom(false);
