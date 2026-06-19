@@ -87,8 +87,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "Bacterium";
+  std::string const GetName() const {
+    return "Bacterium";
   }
 
   /**
@@ -98,7 +98,7 @@ public:
    *
    * Purpose: To determine a genome's value.
    */
-  double GetIncVal() {return host_incorporation_val;}
+  double GetIncVal() const { return host_incorporation_val; }
 
 
   /**

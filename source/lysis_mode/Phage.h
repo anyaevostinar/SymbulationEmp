@@ -116,8 +116,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "Phage";
+  std::string const GetName() const {
+    return "Phage";
   }
 
   /**Input: None
@@ -126,7 +126,7 @@ public:
    *
    * Purpose: To get a phage's burst timer.
    */
-  double GetBurstTimer() {return burst_timer;}
+  double GetBurstTimer() const { return burst_timer; }
 
 
   /**
@@ -156,7 +156,7 @@ public:
    *
    * Purpose: To determine a phage's chance of lysis.
    */
-  double GetLysisChance() {return chance_of_lysis;}
+  double GetLysisChance() const { return chance_of_lysis; }
 
 
   /**
@@ -175,7 +175,7 @@ public:
    *
    * Purpose: To determine a phage's incorporation value.
    */
-  double GetIncVal() {return incorporation_val;}
+  double GetIncVal() const { return incorporation_val; }
 
 
   /**
@@ -194,7 +194,7 @@ public:
    *
    * Purpose: To determine a lysogenic phage's chance of inducing
    */
-  double GetInductionChance() {return induction_chance;}
+  double GetInductionChance() const { return induction_chance; }
 
   /**
    * Input: The double to be set as the phage's chance of induction
@@ -222,7 +222,7 @@ public:
    *
    * Purpose: To determine if an organism is a phage.
    */
-  bool IsPhage() {return true;}
+  bool IsPhage() const { return true; }
 
 
   /**
