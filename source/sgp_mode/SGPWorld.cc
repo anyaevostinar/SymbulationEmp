@@ -265,7 +265,8 @@ void SGPWorld::ProcessStressEscapees() {
         if (!can_infect) continue;
         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
         //AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState()); // AEV No longer needed, added to AddSymbiont
-        int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+        // int new_index =
+        neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
         // AddSymbiont might fail (but when it does, it deletes the offspring)
         // so not possible to keep attempting until actual success
         success = true;
