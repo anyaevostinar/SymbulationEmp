@@ -115,8 +115,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "EfficientSymbiont";
+  std::string const GetName() const {
+    return "EfficientSymbiont";
   }
 
   /**
@@ -138,7 +138,7 @@ public:
    *
    * Purpose: Getting an efficient symbiont's efficiency value.
    */
-  double GetEfficiency() {return efficiency;}
+  double GetEfficiency() const { return efficiency; }
 
 
   /**
@@ -162,7 +162,7 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  void Mutate(std::string mode){
+  void Mutate(const std::string& mode) {
     double local_size;
     double local_rate;
     double int_rate;
@@ -234,7 +234,7 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  emp::Ptr<Organism> Reproduce(std::string mode) {
+  emp::Ptr<Organism> Reproduce(const std::string& mode) {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate(mode);
     return sym_baby;

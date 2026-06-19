@@ -525,7 +525,7 @@ public:
    * from a normal distribution centered on 0 with the mutation size as the standard
    * deviation.
    */
-  void Mutate(){
+  void Mutate() {
     double local_rate = my_config->MUTATION_RATE();
     double local_size = my_config->MUTATION_SIZE();
 

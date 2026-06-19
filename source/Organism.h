@@ -213,7 +213,7 @@ class Organism {
     std::cout << "EfficientSymbiont's Reproduce called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void Mutate(std::string mode) {
+  virtual void Mutate(const std::string& mode) {
     std::cout << "EfficientSymbiont's Mutate called from Organism" << std::endl;
     throw "Organism method called!";
   }
