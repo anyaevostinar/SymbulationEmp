@@ -1236,7 +1236,7 @@ public:
         std::cout.flush();
       }
       // Check CURE config
-      if (my_config->CURE() && i == my_config->CURE_UPDATES()) {
+      if (my_config->CURE() && (size_t)i == my_config->CURE_UPDATES()) {
         CureHosts();
       }
       Update();
@@ -1257,7 +1257,7 @@ public:
         std::cout.flush();
       }
       // Check CURE config
-      if (my_config->CURE() && i == my_config->CURE_UPDATES()) {
+      if (my_config->CURE() && (size_t)i == my_config->CURE_UPDATES()) {
         CureHosts();
       }
       Update();
