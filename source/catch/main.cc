@@ -14,6 +14,7 @@
 #include "../test/default_mode_test/CureHosts.test.cc"
 #include "../test/default_mode_test/Phylogenies.test.cc"
 #include "../test/default_mode_test/TagMatching.test.cc"
+#include "../test/default_mode_test/SpatialStructure.test.cc"
 
 #include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
 #include "../test/efficient_mode_test/EfficientHost.test.cc"

@@ -960,6 +960,8 @@ public:
 
   // Definitions of setup functions, expanded in WorldSetup.cc
   virtual void Setup();
+  // NOTE: The SetupHosts / SetupSymbionts should probably be protected.
+  //        For testing, we could setup a derived class that exposes all internal functions
   virtual void SetupHosts(long unsigned int* POP_SIZE);
   virtual void SetupSymbionts(long unsigned int* total_syms);
 
