@@ -5,6 +5,15 @@
 #include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
 
+void SetEmptyWellMixed(SymConfigBase& cfg) {
+  // Set spatial structure mode to well-mixed
+  config.SPATIAL_STRUCT_MODE("well-mixed");
+  // Set size 0 environment with 0 initial population size
+  config.WORLD_WIDTH(0);
+  config.WORLD_HEIGHT(0);
+  config.INIT_POP_SIZE(0);
+}
+
 TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
   GIVEN(" a world ") {
     emp::Random random(17);
@@ -195,8 +204,11 @@ TEST_CASE( "World Capacity", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
+    // Configure empty well-mixed environment
+    SetEmptyWellMixed(config);
 
     SymWorld world(random, &config);
+    world.Setup();
 
     WHEN( "hosts are added" ) {
 
@@ -311,7 +323,9 @@ TEST_CASE( "Hosts injected correctly", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
+    SetEmptyWellMixed(config);
     SymWorld world(random, &config);
+    world.Setup();
 
     WHEN( "host added with interaction value 1" ) {
       //inject organism
@@ -350,8 +364,10 @@ TEST_CASE( "InjectSymbiont", "[default]" ){
   GIVEN( "a world" ){
     emp::Random random(17);
     SymConfigBase config;
+    SetEmptyWellMixed(config);
     int int_val = 0;
     SymWorld world(random, &config);
+    world.Setup();
     int world_size = 4;
 
     WHEN( "free living syms are not allowed" ){
@@ -399,8 +415,10 @@ TEST_CASE( "DoBirth", "[default]" ){
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
+    SetEmptyWellMixed(config);
     int int_val = 0;
     SymWorld world(random, &config);
+    world.Setup();
     int world_size = 4;
     world.Resize(world_size);
     config.FREE_LIVING_SYMS(1);
@@ -452,8 +470,12 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
+    SetEmptyWellMixed(config);
+
     int int_val = 0;
     SymWorld world(random, &config);
+    world.Setup();
+
     size_t world_size = 4;
     world.Resize(world_size);
     world.SetPopStruct_Mixed();
@@ -634,8 +656,15 @@ TEST_CASE( "Update without free living symbionts", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
+    // Configure empty well-mixed environment
+    config.SPATIAL_STRUCT_MODE("well-mixed");
+    config.WORLD_WIDTH(0);
+    config.WORLD_HEIGHT(0);
+    config.INIT_POP_SIZE(0);
+
     int int_val = 0;
     SymWorld world(random, &config);
+    world.Setup();
     int world_size = 4;
     world.Resize(world_size);
     int res_per_update = 10;
@@ -668,8 +697,15 @@ TEST_CASE( "Update with free living symbionts", "[default]" ){
   GIVEN("a world"){
     emp::Random random(17);
     SymConfigBase config;
+    // Configure empty well-mixed environment
+    config.SPATIAL_STRUCT_MODE("well-mixed");
+    config.WORLD_WIDTH(0);
+    config.WORLD_HEIGHT(0);
+    config.INIT_POP_SIZE(0);
+
     int int_val = 0;
     SymWorld world(random, &config);
+    world.Setup();
     int world_size = 4;
     world.Resize(world_size);
     int res_per_update = 10;
@@ -760,8 +796,13 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
   GIVEN("free living syms are allowed"){
     emp::Random random(14);
     SymConfigBase config;
-    SymWorld world(random, &config);
+    // Configure empty well-mixed environment
+    config.SPATIAL_STRUCT_MODE("well-mixed");
+    config.WORLD_WIDTH(0);
+    config.WORLD_HEIGHT(0);
+    config.INIT_POP_SIZE(0);
     config.FREE_LIVING_SYMS(1);
+    SymWorld world(random, &config);
     int int_val = 0;
     size_t world_size = 4;
     world.Resize(world_size);
