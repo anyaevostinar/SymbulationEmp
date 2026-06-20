@@ -1,5 +1,4 @@
 #include "../test_utils.h"
-
 #include "../../default_mode/SymWorld.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../lysis_mode/Phage.h"
@@ -8,10 +7,11 @@
 #include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
+  using sym_world_t = test_utils::SymWorld_Testing;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
+    sym_world_t world(random, &config);
     int width = 100;
     int height = 100;
     config.WORLD_WIDTH(width);
@@ -25,10 +25,11 @@ TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
 
     WHEN("Grid is on") {
       config.SPATIAL_STRUCT_MODE("grid");
+      world.SetupSpatialStructure();
       // world.SetPopStruct_Grid(width, height, false);
-      world.Setup();
+      // world.Setup();
 
-      THEN("Host offspring are born next to their parents"){
+      THEN("Host offspring are born next to their parents") {
         emp::Ptr<Organism> host_parent = emp::NewPtr<Host>(&random, &world, &config, 1);
         size_t host_parent_pos = 101;
         world.AddOrgAt(host_parent, host_parent_pos);
@@ -111,7 +112,8 @@ TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
     WHEN("Grid is off, and population is well-mixed") {
       config.SPATIAL_STRUCT_MODE("well-mixed");
       // world.SetPopStruct_Mixed(false);
-      world.Setup();
+      // world.Setup();
+      world.SetupSpatialStructure();
       //given the size of the world, it's very unlikely that
       //organisms will randomly be placed in a neighbor position
       THEN("Host babies are born into a random position anywhere in the world") {
@@ -124,8 +126,8 @@ TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
 
         int possible_indices[8] = {0, 1, 2, 100, 102, 200, 201, 202};
         bool found_baby = false;
-        for(int i = 0; i < 8; i++){
-          if(world.GetPop()[possible_indices[i]] == host_baby){
+        for (int i = 0; i < 8; i++) {
+          if (world.GetPop()[possible_indices[i]] == host_baby) {
             found_baby = true;
           }
         }
@@ -143,8 +145,8 @@ TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
 
           int possible_indices[8] = {149, 150, 151, 249, 251, 349, 350, 351};
           bool found_baby = false;
-          for(int i = 0; i < 8; i++){
-            if(world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent){
+          for (int i = 0; i < 8; i++) {
+            if (world.GetSymPop()[possible_indices[i]] != nullptr && world.GetSymPop()[possible_indices[i]] != sym_parent) {
               found_baby = true;
             }
           }

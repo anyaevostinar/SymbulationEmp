@@ -740,9 +740,9 @@ public:
   * */
   virtual bool SuccessfulVT(emp::Ptr<Organism> host_baby, emp::Ptr<Organism> sym_baby) {
     if (my_config->TAG_MATCHING()) {
-      double tag_distance = (*my_world->GetTagMetric())(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
-      double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? host_baby->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
-      double cutoff = random->GetPoisson(permissiveness_mean * TAG_LENGTH);
+      const double tag_distance = (*my_world->GetTagMetric())(host_baby->GetTag(), sym_baby->GetTag())* TAG_LENGTH;
+      const double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? host_baby->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
+      const double cutoff = random->GetPoisson(permissiveness_mean * TAG_LENGTH);
       if (tag_distance > cutoff) {
         return false;
       }
@@ -765,10 +765,9 @@ public:
       //vertical transmission data node
       emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = my_world->GetVerticalTransmissionAttemptCount();
       data_node_attempts_verttrans.AddDatum(GetIntVal());
-
-      if(MeetsVTRequirements()){
+      if (MeetsVTRequirements()) {
         sym_baby = Reproduce();
-        if(!SuccessfulVT(host_baby, sym_baby)) {
+        if (!SuccessfulVT(host_baby, sym_baby)) {
           sym_baby.Delete();
           return std::nullopt;
         }

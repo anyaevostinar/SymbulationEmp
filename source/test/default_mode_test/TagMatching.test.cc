@@ -22,6 +22,7 @@ TEST_CASE("Tag matching", "[default]") {
   config.TAG_MATCHING(1);
   config.TAG_PERMISSIVENESS(tag_distance_mean);
   config.TAG_MUTATION_SIZE(0.0);
+  config.VERTICAL_TRANSMISSION(1.0); // REVIEW NOTE: Is there a reason to not set this to 1?
 
   WHEN("Hamming metric is used") {
     config.TAG_METRIC("hamming");
@@ -111,6 +112,7 @@ TEST_CASE("Tag matching", "[default]") {
       WHEN("Their tags are sufficiently close and the host has room") {
         size_t source_pos = 0;
         size_t target_pos = 1;
+        world.Clear(); // Reset world occupants
         world.AddOrgAt(source_host, source_pos);
         source_host->AddSymbiont(symbiont);
         symbiont->AddPoints(starting_res);
@@ -139,7 +141,7 @@ TEST_CASE("Tag matching", "[default]") {
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-
+        world.Clear(); // Reset world occupants
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -167,6 +169,7 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
+        world.Clear(); // Reset world occupants
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -197,7 +200,7 @@ TEST_CASE("Tag matching", "[default]") {
   WHEN("Streak metric is used") {
     config.TAG_METRIC("streak");
     SymWorld world(random, &config);
-
+    world.Setup();
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag = emp::BitSet<TAG_LENGTH>("00100101011000000000000000000000");
     emp::BitSet<TAG_LENGTH> distant_tag = emp::BitSet<TAG_LENGTH>("00111111111111111111110000000000");
@@ -283,6 +286,7 @@ TEST_CASE("Tag matching", "[default]") {
       symbiont->SetTag(symbiont_tag);
 
       WHEN("Their tags are sufficiently close and the host has room") {
+        world.Clear(); // Reset world occupants
         size_t source_pos = 0;
         size_t target_pos = 1;
         world.AddOrgAt(source_host, source_pos);
@@ -313,7 +317,7 @@ TEST_CASE("Tag matching", "[default]") {
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-
+        world.Clear(); // Reset world occupants
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -343,6 +347,7 @@ TEST_CASE("Tag matching", "[default]") {
       WHEN("Their tags are too dissimilar") {
         size_t source_pos = 1;
         size_t target_pos = 0;
+        world.Clear(); // Reset world occupants
         world.AddOrgAt(source_host, source_pos);
         source_host->AddSymbiont(symbiont);
         symbiont->AddPoints(starting_res);
@@ -371,7 +376,7 @@ TEST_CASE("Tag matching", "[default]") {
   WHEN("Hash metric is used") {
     config.TAG_METRIC("hash");
     SymWorld world(random, &config);
-
+    world.Setup();
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("10000000011000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> distant_tag = emp::BitSet<TAG_LENGTH>("00000000011000000010000000000001");
@@ -447,6 +452,7 @@ TEST_CASE("Tag matching", "[default]") {
       symbiont->SetTag(symbiont_tag);
 
       WHEN("Their tags are sufficiently close and the host has room") {
+        world.Clear(); // Reset world occupants
         size_t source_pos = 0;
         size_t target_pos = 1;
         world.AddOrgAt(source_host, source_pos);
@@ -477,8 +483,8 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
+        world.Clear(); // Reset world occupants
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -506,6 +512,7 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
+        world.Clear(); // Reset world occupants
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -639,10 +646,12 @@ TEST_CASE("Evolvable tag permissiveness", "[default]") {
 }
 
 TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
+  using sym_world_t = test_utils::SymWorld_Testing;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
+    test_utils::SetEmptyWellMixed(config);
+    sym_world_t world(random, &config);
 
     size_t world_size = 6;
 
@@ -650,6 +659,7 @@ TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
       config.TAG_MATCHING(1);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
       config.STARTING_TAGS_ONE_PROB(0.1);
+      world.SetupSpatialStructure();
       world.SetupHosts(&world_size);
 
       size_t num_to_add = 4;
@@ -660,7 +670,7 @@ TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
         size_t total_ones = 0;
         size_t num_added = 0;
         for (size_t i = 0; i < world_size; i++) {
-          Organism & host = world.GetOrg(i);
+          Organism& host = world.GetOrg(i);
           for (auto sym : host.GetSymbionts()) {
             num_added++;
             int ones = sym->GetTag().CountOnes();
