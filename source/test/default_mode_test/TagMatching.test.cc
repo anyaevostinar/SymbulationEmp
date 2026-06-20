@@ -1,3 +1,4 @@
+#include "../test_utils.h"
 #include "../../default_mode/SymWorld.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
@@ -13,6 +14,7 @@ TEST_CASE("Tag matching", "[default]") {
   SymConfigBase config;
   config.WORLD_WIDTH(2);
   config.WORLD_HEIGHT(2);
+  config.SPATIAL_STRUCT_MODE("well-mixed");
   config.FREE_HT_FAILURE(1);
   config.SYM_LIMIT(1);
   config.SYM_HORIZ_TRANS_RES(trans_res);
@@ -24,6 +26,7 @@ TEST_CASE("Tag matching", "[default]") {
   WHEN("Hamming metric is used") {
     config.TAG_METRIC("hamming");
     SymWorld world(random, &config);
+    world.Setup();
 
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag =  emp::BitSet<TAG_LENGTH>("00000000000000010000010000100000");
@@ -126,11 +129,11 @@ TEST_CASE("Tag matching", "[default]") {
         THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
         }
-        THEN("The parent symbiont spends points on reproduction"){
+        THEN("The parent symbiont spends points on reproduction") {
           // horiz trans sets points to 0, rather than subtracting
           REQUIRE(symbiont->GetPoints() == 0);
         }
-        THEN("The child symbiont starts with 0 points"){
+        THEN("The child symbiont starts with 0 points") {
           REQUIRE(target_host->GetSymbionts().at(0)->GetPoints() == 0);
         }
       }
@@ -191,7 +194,7 @@ TEST_CASE("Tag matching", "[default]") {
     }
   }
 
-  WHEN("Streak metric is used"){
+  WHEN("Streak metric is used") {
     config.TAG_METRIC("streak");
     SymWorld world(random, &config);
 
@@ -205,7 +208,7 @@ TEST_CASE("Tag matching", "[default]") {
         double calculated_difference = (*world.GetTagMetric())(symbiont_tag, emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000"));
         REQUIRE(std::abs(expected_difference - calculated_difference) < 0.000001);
       }
-      THEN("Close tag distance is calculated correctly"){
+      THEN("Close tag distance is calculated correctly") {
         int mismatch = 2;
         int match = 21;
         const double pow_match = static_cast<double>(TAG_LENGTH - match + 1) / std::pow(2, match);
@@ -217,7 +220,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(expected_difference == calculated_difference);
         REQUIRE(tag_distance_mean > calculated_difference + 0.05);
       }
-      THEN("Distant tag distance is calculated correctly"){
+      THEN("Distant tag distance is calculated correctly") {
         int mismatch = 20;
         int match = 10;
         const double pow_match = static_cast<double>(TAG_LENGTH - match + 1) / std::pow(2, match);
@@ -365,7 +368,7 @@ TEST_CASE("Tag matching", "[default]") {
     }
   }
 
-  WHEN("Hash metric is used"){
+  WHEN("Hash metric is used") {
     config.TAG_METRIC("hash");
     SymWorld world(random, &config);
 
@@ -531,7 +534,7 @@ TEST_CASE("Tag matching", "[default]") {
   }
 }
 
-TEST_CASE("Evolvable tag permissiveness", "[default]"){
+TEST_CASE("Evolvable tag permissiveness", "[default]") {
   int trans_res = 10;
   int starting_res = 15;
   double tag_distance_mean = 0.25;
@@ -567,7 +570,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
       host->SetTag(host_tag);
       host->AddSymbiont(symbiont);
 
-      WHEN("The host's permissiveness is too low"){
+      WHEN("The host's permissiveness is too low") {
         double host_permissiveness = 0;
         host->SetTagPermissiveness(host_permissiveness);
         THEN("The symbiont offspring cannot vertically transmit") {
@@ -635,7 +638,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
   }
 }
 
-TEST_CASE("SetupSymbionts with tag matching on", "[default]"){
+TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
@@ -680,7 +683,7 @@ TEST_CASE("SetupHosts with tag matching on", "[default]") {
     SymWorld world(random, &config);
     size_t num_to_add = 5;
 
-    WHEN("Random starting tags are on"){
+    WHEN("Random starting tags are on") {
       config.TAG_MATCHING(1);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
       config.STARTING_TAGS_ONE_PROB(0.1);
@@ -691,9 +694,9 @@ TEST_CASE("SetupHosts with tag matching on", "[default]") {
       size_t num_added = world.GetNumOrgs();
       REQUIRE(num_added == num_to_add);
 
-      THEN("Tags are randomly initialized per the starting ones probability"){
+      THEN("Tags are randomly initialized per the starting ones probability") {
         int total_ones = 0;
-        for(size_t i = 0; i < num_added; i++){
+        for(size_t i = 0; i < num_added; i++) {
           int ones = world.GetOrg(i).GetTag().CountOnes();
           total_ones += ones;
           REQUIRE(ones >= 0);
@@ -850,7 +853,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("Symbiont Mutate tag", "[default]"){
+TEST_CASE("Symbiont Mutate tag", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(37);
   SymConfigBase config;
   config.TAG_MATCHING(1);

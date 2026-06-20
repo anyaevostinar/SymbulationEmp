@@ -1,26 +1,30 @@
+#include "../test_utils.h"
 #include "../../default_mode/SymWorld.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
 
-TEST_CASE( "Host Phylogeny", "[default]" ){
+TEST_CASE( "Host Phylogeny", "[default]" ) {
   emp::Random random(17);
   SymConfigBase config;
+  test_utils::SetEmptyWellMixed(config);
   config.MUTATION_SIZE(0.09);
   config.MUTATION_RATE(1);
   config.PHYLOGENY(1);
   config.NUM_PHYLO_BINS(20);
+  config.PHYLOGENY_TAXON_TYPE("interaction-value-binned");
   int int_val = 0;
   SymWorld world(random, &config);
+  world.Setup();
   int world_size = 4;
   world.Resize(world_size);
 
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
 
-  //ORGANISMS ADDED TO SYSTEMATICS
-  WHEN("an organism is added to the world"){
-    WHEN("the cell it's added to is occupied"){
+  // ORGANISMS ADDED TO SYSTEMATICS
+  WHEN("an organism is added to the world") {
+    WHEN("the cell it's added to is occupied") {
       size_t pos = 0;
       int_val = -1;
 
@@ -37,14 +41,14 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       size_t expected_taxon_info = 10;
 
-      THEN("the occupying organism is removed from the systematic"){
+      THEN("the occupying organism is removed from the systematic") {
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(host_sys->GetNumActive() == 1);
         REQUIRE(expected_taxon_info == taxon_info);
       }
     }
 
-    WHEN("the cell it's added to is empty"){
+    WHEN("the cell it's added to is empty") {
       size_t pos = 0;
 
       REQUIRE(world.GetNumOrgs() == 0);
@@ -54,14 +58,14 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       size_t taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
       size_t expected_taxon_info = 10;
 
-      THEN("the organism is tracked by the systematic"){
+      THEN("the organism is tracked by the systematic") {
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(host_sys->GetNumActive() == 1);
         REQUIRE(expected_taxon_info == taxon_info);
       }
     }
 
-    WHEN("there are 20 taxonomic bins"){
+    WHEN("there are 20 taxonomic bins") {
 
       size_t count = 7;
       size_t pos = 0;
@@ -69,8 +73,8 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       double int_vals[7] = {-1, -0.98, -0.9, -0.8, 0.65, 0.9, 1};
       int expected_taxon_infos[7] = {0, 0, 1, 2, 16, 19, 19};
 
-      THEN("it will be placed in the correct bin"){
-        for(size_t i = 0; i < count; i++){
+      THEN("it will be placed in the correct bin") {
+        for(size_t i = 0; i < count; i++) {
           world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
           int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
           REQUIRE(taxon_info == expected_taxon_infos[i]);
@@ -79,7 +83,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       host.Delete();
     }
 
-    WHEN("there are 2 taxonomic bins"){
+    WHEN("there are 2 taxonomic bins") {
       config.NUM_PHYLO_BINS(2);
 
       size_t count = 3;
@@ -88,8 +92,8 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       double int_vals[3] = {1, 0, -0.001};
       int expected_taxon_infos[3] = {1, 1, 0};
 
-      THEN("it will be placed in the correct bin"){
-        for(size_t i = 0; i < count; i++){
+      THEN("it will be placed in the correct bin") {
+        for(size_t i = 0; i < count; i++) {
           world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), pos);
           int taxon_info = host_sys->GetTaxonAt(pos)->GetInfo();
           REQUIRE(taxon_info == expected_taxon_infos[i]);
@@ -100,8 +104,8 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   }
 
   //ORGANISMS AND RELATIONSHIPS TRACKED
-  WHEN("Several generations pass"){
-    THEN("The phylogenetic relationships are tracked and accurate"){
+  WHEN("Several generations pass") {
+    THEN("The phylogenetic relationships are tracked and accurate") {
       world_size = 10;
       world.Resize(world_size);
       int num_descendants = 4;
@@ -113,7 +117,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
       //compilers don't allow it
       double int_vals[4] = {0.1, -0.05, -0.2, 0.14};
       size_t parents[4] = {0, 1, 1, 3};
-      for(int i = 0; i < num_descendants; i++){
+      for(int i = 0; i < num_descendants; i++) {
         world.AddOrgAt(emp::NewPtr<Host>(&random, &world, &config, int_vals[i]), (i+1), parents[i]);
       }
 
@@ -125,7 +129,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
                            };
 
 
-      for(int i = 0; i < (num_descendants+1); i++){
+      for(int i = 0; i < (num_descendants+1); i++) {
         std::stringstream result;
         host_sys->PrintLineage(host_sys->GetTaxonAt(i), result);
         REQUIRE(result.str() == lineages[i]);
@@ -134,7 +138,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ){
   }
 }
 
-TEST_CASE( "Symbiont Phylogeny", "[default]" ){
+TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
   emp::Random random(17);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
@@ -149,8 +153,8 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
 
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
 
-  WHEN("symbionts are added to the world"){
-    THEN("they get added to the correct taxonomic bins"){
+  WHEN("symbionts are added to the world") {
+    THEN("they get added to the correct taxonomic bins") {
       REQUIRE(sym_sys->GetNumActive() == 0);
       size_t count = 8;
       //Can't use count for the following array sizes because some
@@ -161,7 +165,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       emp::Ptr<Organism> syms[count];
       emp::Ptr<Organism> sym;
 
-      for(size_t i = 0; i < count; i++){
+      for(size_t i = 0; i < count; i++) {
         sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_vals[i]);
         world.InjectSymbiont(sym);
         REQUIRE(sym->GetTaxon()->GetInfo() == taxon_infos[i]);
@@ -170,8 +174,8 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     world.CleanupGraveyard();
   }
 
-  WHEN("symbionts are deleted"){
-    THEN("they are no longer tracked by the sym systematic"){
+  WHEN("symbionts are deleted") {
+    THEN("they are no longer tracked by the sym systematic") {
       world_size = 1;
       world.Resize(world_size);
       REQUIRE(sym_sys->GetNumActive() == 0);
@@ -203,7 +207,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     }
   }
 
-  WHEN("generations pass"){
+  WHEN("generations pass") {
     config.MUTATION_SIZE(1);
     config.MUTATION_RATE(1);
     config.PHYLOGENY(1);
@@ -213,18 +217,18 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
     syms[0] = emp::NewPtr<Symbiont>(&random, &world, &config, 0);
     world.AddSymToSystematic(syms[0]);
 
-    for(size_t i = 1; i < num_syms; i++){
+    for(size_t i = 1; i < num_syms; i++) {
       syms[i] = syms[i-1]->Reproduce();
     }
 
-    THEN("Their lineages are tracked"){
+    THEN("Their lineages are tracked") {
       char lineages[][30] = {"Lineage:\n10\n",
                              "Lineage:\n16\n10\n",
                              "Lineage:\n19\n16\n10\n",
                              "Lineage:\n16\n19\n16\n10\n",
                            };
 
-      for(size_t i = 0; i < num_syms; i++){
+      for(size_t i = 0; i < num_syms; i++) {
         std::stringstream result;
         sym_sys->PrintLineage(syms[i]->GetTaxon().Cast<taxon_t::sym_taxon_t>(), result);
         REQUIRE(result.str() == lineages[i]);
@@ -233,9 +237,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ){
       syms[1].Delete();
     }
 
-    THEN("Their birth and destruction dates are tracked"){
+    THEN("Their birth and destruction dates are tracked") {
       //all curr syms should have orig times of 0
-      for(size_t i = 0; i < num_syms; i++){
+      for(size_t i = 0; i < num_syms; i++) {
         REQUIRE(syms[i]->GetTaxon()->GetOriginationTime() == 0);
       }
       world.Update();
@@ -358,6 +362,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   config.PHYLOGENY_TAXON_TYPE("tag");
   config.VERTICAL_TRANSMISSION(0);
   config.STARTING_TAGS_ONE_PROB(0);
+  test_utils::SetEmptyWellMixed(config);
 
   int int_val = 0;
   emp::WorldPosition fake_pos = emp::WorldPosition(0, 0);
@@ -366,6 +371,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   using h_taxon_t = emp::Taxon<taxon_info_t, datastruct::HostTaxonData>;
 
   SymWorld world(random, &config);
+  world.Setup();
 
   emp::HammingMetric<TAG_LENGTH> tag_metric = emp::HammingMetric<TAG_LENGTH>();
 
@@ -389,7 +395,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
     // so update here to ensure it gets tracked
     world.Update();
 
-    THEN("The host is added to the systematic"){
+    THEN("The host is added to the systematic") {
       REQUIRE(host_active->size() == 1);
       REQUIRE((*host_active->begin())->GetID() == parent_host->GetTaxon()->GetID());
       REQUIRE(parent_host->GetTaxon()->GetData().GetIntVal() == int_val);
@@ -425,7 +431,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
         REQUIRE(child_symbiont->GetIntVal() != parent_symbiont->GetIntVal());
         REQUIRE(tag_metric.calculate(child_symbiont->GetTag(), parent_symbiont->GetTag()) == 0);
 
-        WHEN("The child does not call Process"){
+        WHEN("The child does not call Process") {
           THEN("The child is placed into the same taxon as its parent") {
             REQUIRE(child_symbiont->GetTaxon()->GetID() == parent_symbiont->GetTaxon()->GetID());
           }
@@ -1055,7 +1061,7 @@ TEST_CASE("Unpruned phylogenies", "[default]") {
       world.DoDeath(pos);
       world.Update();
 
-      THEN("The tip is not stored in the set of outside taxa; the tip's ancestors are stored in the set of outside taxa"){
+      THEN("The tip is not stored in the set of outside taxa; the tip's ancestors are stored in the set of outside taxa") {
         REQUIRE(world.GetSymSys()->GetNumOutside() == 2);
         REQUIRE(world.GetSymSys()->outside_taxa.contains(sym_grandparent_taxon.Cast<taxon_t::sym_taxon_t>()));
         REQUIRE(world.GetSymSys()->outside_taxa.contains(sym_parent_taxon.Cast<taxon_t::sym_taxon_t>()));

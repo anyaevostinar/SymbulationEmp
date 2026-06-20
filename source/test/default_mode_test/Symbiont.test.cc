@@ -5,8 +5,10 @@ TEST_CASE("Symbiont Constructor", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
-    double int_val; 
+    world->Setup();
+    double int_val;
 
     WHEN("An interaction value of -2 is passed") {
       int_val = -2;
@@ -57,7 +59,9 @@ TEST_CASE("SetIntVal, GetIntVal", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
 
     double int_val = -1;
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
@@ -101,7 +105,9 @@ TEST_CASE("SetInfectionChance, GetInfectionChance", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
 
     double int_val = -1;
     emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
@@ -129,7 +135,9 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
 
     double int_val = -1;
     emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
@@ -160,7 +168,9 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
 TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
 
     double int_val = -1;
     emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
@@ -182,7 +192,9 @@ TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
 TEST_CASE("WantsToInfect", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
     double int_val = 0;
 
     WHEN("Symbiont infection chance is 0"){
@@ -219,7 +231,9 @@ TEST_CASE("WantsToInfect", "[default]"){
 TEST_CASE("InfectionFails", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
     double int_val = 0;
 
     WHEN("Symbiont infection failure rate is 0"){
@@ -282,7 +296,9 @@ TEST_CASE("mutate", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(37);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
 
     WHEN("Mutation rate is not zero") {
         double int_val = 0;
@@ -341,7 +357,7 @@ TEST_CASE("mutate", "[default]") {
 
         sym.Delete();
     }
-    
+
     world.Delete();
     random.Delete();
 }
@@ -350,8 +366,8 @@ TEST_CASE("reproduce", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
-
 
     WHEN("Mutation rate is zero")  {
         double int_val = 0;
@@ -364,6 +380,7 @@ TEST_CASE("reproduce", "[default]") {
         config.MUTATION_SIZE(0);
         config.FREE_LIVING_SYMS(1);
         config.SYM_INFECTION_CHANCE(inf_chance);
+        world->Setup();
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val, points);
         sym->SetAge(10);
 
@@ -450,8 +467,9 @@ TEST_CASE("Process", "[default]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
-
+    world->Setup();
     //add new test for free living sym not moving when it shouldn't
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
         double int_val = 1;
@@ -623,7 +641,9 @@ TEST_CASE("Process", "[default]") {
 TEST_CASE("Symbiont ProcessResources", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
+    world->Setup();
     config.SYNERGY(5);
 
 
@@ -720,7 +740,9 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 TEST_CASE("Symbiont GrowOlder", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     SymWorld world(*random, &config);
+    world.Setup();
     world.Resize(2,2);
     config.SYM_AGE_MAX(2);
 
@@ -764,7 +786,9 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
 TEST_CASE("Symbiont MakeNew", "[default]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
     SymConfigBase config;
+    test_utils::SetEmptyWellMixed(config);
     SymWorld world(*random, &config);
+    world.Setup();
 
     double sym_int_val = 0.2;
     emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);

@@ -59,7 +59,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
-    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-values-binned", "What are phylogeny taxa based on? Options: interaction-values-binned, interaction-values-exact, tag, individual"),
+    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-value-binned", "What are phylogeny taxa based on? Options: interaction-value-binned, interaction-value-exact, tag, individual"),
     VALUE(STORE_EXTINCT, bool, 0, "Should extinct taxa be stored? (0 for no, 1 for yes)"),
 
     GROUP(MUTATION, "Mutation"),

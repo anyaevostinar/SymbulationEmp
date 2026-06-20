@@ -1,3 +1,4 @@
+#include "../test_utils.h"
 #include "../../default_mode/DataNodes.h"
 #include "../../default_mode/Symbiont.h"
 #include "../../default_mode/Host.h"
@@ -852,7 +853,7 @@ TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]"){
           REQUIRE(data_node_successes_horiztrans.GetCount() == 0);
           REQUIRE(data_node_successes_horiztrans.GetHistCounts()[9] == 0);
         }
-        symbiont.Delete(); // won't be caught by symworld destructor due to resize 
+        symbiont.Delete(); // won't be caught by symworld destructor due to resize
       }
     }
     WHEN("Free living symbionts are not allowed"){
@@ -899,10 +900,10 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
     world.Resize(world_size);
     config.SYM_VERT_TRANS_RES(0);
     config.VERTICAL_TRANSMISSION(1);
-    
+
     emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_verttrans = world.GetVerticalTransmissionAttemptCount();
     REQUIRE(data_node_attempts_verttrans.GetCount() == 0);
-    
+
     WHEN("A symbiont baby gets vertically transmitted into a host baby"){
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -938,11 +939,11 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
       symbiont.Delete();
       host_baby.Delete();
     }
-    
+
     WHEN("A symbiont baby tries to vertically transmitted into a host baby but their tags mismatch") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host_baby = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      
+
       emp::BitSet<TAG_LENGTH> sym_bit_set = emp::BitSet<TAG_LENGTH>();
       emp::BitSet<TAG_LENGTH> host_bit_set = emp::BitSet<TAG_LENGTH>(TAG_LENGTH, random, TAG_LENGTH/2);
       symbiont->SetTag(sym_bit_set);
@@ -975,7 +976,7 @@ TEST_CASE("GetVerticalTransmissionAttemptCount", "[default]"){
           REQUIRE(data_node_attempts_verttrans.GetHistCounts()[0] == 1);
         }
       }
-      
+
       symbiont.Delete();
       host_baby.Delete();
     }
@@ -1033,7 +1034,7 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
           REQUIRE(data_node_successes_verttrans.GetHistCounts()[0] == 1);
         }
       }
-      
+
       symbiont.Delete();
       host_baby.Delete();
     }
@@ -1065,7 +1066,9 @@ TEST_CASE("GetHostTagPermissiveness", "[default]") {
     SymConfigBase config;
     int int_val = 0;
     config.TAG_MATCHING(1);
+    test_utils::SetEmptyWellMixed(config);
     SymWorld world(random, &config);
+    world.Setup();
 
     emp::DataMonitor<double>& data_node_host_permissiveness = world.GetHostTagPermissiveness();
     REQUIRE(data_node_host_permissiveness.GetCount() == 0);

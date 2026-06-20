@@ -168,8 +168,8 @@ void SymWorld::SetupPhylogenyTracking() {
         float prog = (int_val + 1);
         prog = (prog/size_of_bin) + (0.0000000000001);
         size_t bin = (size_t) prog;
-        // if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-        bin = num_phylo_bins - (size_t)(bin >= num_phylo_bins);
+        if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
+        // bin = num_phylo_bins - (size_t)(bin >= num_phylo_bins);
         return bin;
       };
       calc_sym_info_fun = calc_host_info_fun;
