@@ -3,465 +3,464 @@
 
 TEST_CASE("Symbiont SetHost, GetHost", "[default]") {
 
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    SymWorld world(*random, &config);
-    double int_val = 1;
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 1;
 
-    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config);
-    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config);
+  emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
-    symbiont->SetHost(host);
+  symbiont->SetHost(host);
 
-    REQUIRE(symbiont->GetHost() == host);
+  REQUIRE(symbiont->GetHost() == host);
 
-    symbiont.Delete();
-    host.Delete();
-    random.Delete();
+  symbiont.Delete();
+  host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Host SetSymbionts", "[default]") {
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    SymWorld world(*random, &config);
-    double int_val = 1;
-    config.SYM_LIMIT(2);
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 1;
+  config.SYM_LIMIT(2);
 
-    emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config);
-    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Organism> host = emp::NewPtr<Host>(random, &world, &config);
+  emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
-    emp::vector<emp::Ptr<Organism>> syms;
-    syms.push_back(sym1);
-    syms.push_back(sym2);
+  emp::vector<emp::Ptr<Organism>> syms;
+  syms.push_back(sym1);
+  syms.push_back(sym2);
 
-    host->SetSymbionts(syms);
+  host->SetSymbionts(syms);
 
-    REQUIRE(host->GetSymbionts().size() == syms.size());
+  REQUIRE(host->GetSymbionts().size() == syms.size());
 
-    for(size_t i = 0; i < syms.size(); i++){
-        emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
-        emp::Ptr<Organism> curSym = host_syms[i];
-        emp::Ptr<Organism> curHost = curSym->GetHost();
-        REQUIRE(curSym == (emp::Ptr<Organism>) syms[i]);
-        REQUIRE(curHost == host);
-    }
+  for(size_t i = 0; i < syms.size(); i++){
+    emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
+    emp::Ptr<Organism> curSym = host_syms[i];
+    emp::Ptr<Organism> curHost = curSym->GetHost();
+    REQUIRE(curSym == (emp::Ptr<Organism>) syms[i]);
+    REQUIRE(curHost == host);
+  }
 
-    bool has_sym = true;
-    REQUIRE(host->HasSym() == has_sym);
+  bool has_sym = true;
+  REQUIRE(host->HasSym() == has_sym);
 
-    host.Delete();
-    random.Delete();
+  host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Host SymLimit", "[default]") {
-    emp::Ptr<emp::Random> random;
-    random.New(1);
-    SymConfigBase config;
-    SymWorld world(*random, &config);
-    double int_val = 1;
+  emp::Ptr<emp::Random> random;
+  random.New(1);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  double int_val = 1;
 
-    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
 
-    emp::Ptr<Symbiont> sym1;
-    sym1.New(random, &world, &config, int_val);
-    emp::Ptr<Symbiont> sym2;
-    sym2.New(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym1;
+  sym1.New(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym2;
+  sym2.New(random, &world, &config, int_val);
 
-    emp::vector<emp::Ptr<Organism>> syms;
+  emp::vector<emp::Ptr<Organism>> syms;
 
-    syms.push_back(sym1);
-    host->AddSymbiont(sym1);
-    REQUIRE(host->GetSymbionts() == syms);
+  syms.push_back(sym1);
+  host->AddSymbiont(sym1);
+  REQUIRE(host->GetSymbionts() == syms);
 
-    WHEN("A symbiont is added once the SymLimit has been reached ") {
-        host->AddSymbiont(sym2);
+  WHEN("A symbiont is added once the SymLimit has been reached ") {
+    host->AddSymbiont(sym2);
 
-        THEN("The symbiont is not added to the host's syms") {
-            REQUIRE(host->GetSymbionts() == syms); // sym2 is not added, sym limit was reached
-
-        }
+    THEN("The symbiont is not added to the host's syms") {
+      REQUIRE(host->GetSymbionts() == syms); // sym2 is not added, sym limit was reached
 
     }
-    random.Delete();
-    host.Delete();
+
+  }
+  random.Delete();
+  host.Delete();
 }
 
 TEST_CASE("Host AddSymbiont", "[default]") {
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    config.SYM_LIMIT(6);
-    SymWorld world(*random, &config);
-    double int_val = 1;
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  config.SYM_LIMIT(6);
+  SymWorld world(*random, &config);
+  double int_val = 1;
 
-    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
 
-    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
-    emp::vector<emp::Ptr<Organism>> syms;
+  emp::vector<emp::Ptr<Organism>> syms;
 
-    syms.push_back(sym1);
-    host->AddSymbiont(sym1);
+  syms.push_back(sym1);
+  host->AddSymbiont(sym1);
 
-    REQUIRE(host->GetSymbionts() == syms);
-    bool has_sym = true;
-    REQUIRE(host->HasSym() == has_sym);
+  REQUIRE(host->GetSymbionts() == syms);
+  bool has_sym = true;
+  REQUIRE(host->HasSym() == has_sym);
 
-    host->AddSymbiont(sym2);
-    syms.push_back(sym2);
-    REQUIRE(host->GetSymbionts() == syms);
+  host->AddSymbiont(sym2);
+  syms.push_back(sym2);
+  REQUIRE(host->GetSymbionts() == syms);
 
-    host.Delete();
-    random.Delete();
+  host.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Host AddReproSym, ClearReproSym, GetReproSymbionts", "[default]") {
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    config.SYM_LIMIT(6);
-    SymWorld world(*random, &config);
-    double int_val = 1;
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  config.SYM_LIMIT(6);
+  SymWorld world(*random, &config);
+  double int_val = 1;
 
-    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
+  emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config);
 
-    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
-    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
+  emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, int_val);
 
-    emp::vector<emp::Ptr<Organism>> repro_syms;
+  emp::vector<emp::Ptr<Organism>> repro_syms;
 
-    repro_syms.push_back(sym1);
-    host->AddReproSym(sym1);
+  repro_syms.push_back(sym1);
+  host->AddReproSym(sym1);
 
-    REQUIRE(host->GetReproSymbionts() == repro_syms);
+  REQUIRE(host->GetReproSymbionts() == repro_syms);
 
-    repro_syms.push_back(sym2);
-    host->AddReproSym(sym2);
+  repro_syms.push_back(sym2);
+  host->AddReproSym(sym2);
 
-    REQUIRE(host->GetReproSymbionts() == repro_syms);
+  REQUIRE(host->GetReproSymbionts() == repro_syms);
 
-    host->ClearReproSyms();
-    repro_syms.clear();
-    REQUIRE(host->GetReproSymbionts() == repro_syms);
+  host->ClearReproSyms();
+  repro_syms.clear();
+  REQUIRE(host->GetReproSymbionts() == repro_syms);
 
-    host.Delete();
-    sym1.Delete();
-    sym2.Delete();
-    random.Delete();
+  host.Delete();
+  sym1.Delete();
+  sym2.Delete();
+  random.Delete();
 }
 
 TEST_CASE("Host DistribResources", "[default]") {
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    SymWorld world(*random, &config);
-    config.SYM_LIMIT(6);
-    config.SYNERGY(5);
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld world(*random, &config);
+  config.SYM_LIMIT(6);
+  config.SYNERGY(5);
 
-    WHEN("Host interaction value >= 0 and  Symbiont interaction value >= 0") {
+  WHEN("Host interaction value >= 0 and  Symbiont interaction value >= 0") {
 
-        double host_int_val = 0.5;
-        double sym_int_val = 1;
+    double host_int_val = 0.5;
+    double sym_int_val = 1;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-
-
-        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
-        host->SetSymbionts(syms);
-
-        double resources = 120;
-        host->DistribResources(resources);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
 
 
-        int num_syms = 3;
-        double sym_piece = resources / num_syms; // how much resource each sym gets
-        double host_donation = sym_piece * host_int_val;
-        double host_portion = sym_piece - host_donation;
-        double sym_return = (host_donation * sym_int_val) * config.SYNERGY();
-        double sym_portion = host_donation - (host_donation * sym_int_val);
-        host_portion += sym_return;
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+    host->SetSymbionts(syms);
 
-        double host_points = num_syms * host_portion; // * by num_syms bc points are added during each iteration through host's syms
-        double sym_points = sym_portion;
+    double resources = 120;
+    host->DistribResources(resources);
 
 
-        THEN("Host and Symbionts points increase") {
+    int num_syms = 3;
+    double sym_piece = resources / num_syms; // how much resource each sym gets
+    double host_donation = sym_piece * host_int_val;
+    double host_portion = sym_piece - host_donation;
+    double sym_return = (host_donation * sym_int_val) * config.SYNERGY();
+    double sym_portion = host_donation - (host_donation * sym_int_val);
+    host_portion += sym_return;
 
-            for( emp::Ptr<Organism> symbiont : syms) {
-                REQUIRE(symbiont->GetPoints() == sym_points);
-            }
-            REQUIRE(host->GetPoints() == host_points);
+    double host_points = num_syms * host_portion; // * by num_syms bc points are added during each iteration through host's syms
+    double sym_points = sym_portion;
+
+
+    THEN("Host and Symbionts points increase") {
+
+      for( emp::Ptr<Organism> symbiont : syms) {
+        REQUIRE(symbiont->GetPoints() == sym_points);
+      }
+      REQUIRE(host->GetPoints() == host_points);
+    }
+    host.Delete();
+  }
+
+
+  WHEN("Host interaction value <= 0 and Symbiont interaction value < 0") {
+
+    WHEN("Host interaction value < Symbionts' interaction value") {
+      double host_int_val = -0.5;
+      double sym_int_val = -0.1;
+      double host_orig_points = 0;
+      double sym_orig_points = 0;
+
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+
+      emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+      host->SetSymbionts(syms);
+
+      double resources = 120;
+      host->DistribResources(resources);
+
+      int num_syms = 3;
+      double sym_piece = resources / num_syms; // how much resource each sym gets
+      double host_defense = -1 * (host_int_val * sym_piece);
+      double remaining_resources = sym_piece - host_defense;
+      double host_points = remaining_resources * num_syms; // * by num_syms bc points are added during each iteration through host's syms
+
+      THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
+        for( emp::Ptr<Organism> symbiont : syms) {
+          REQUIRE(symbiont->GetPoints() == sym_orig_points);
         }
-        host.Delete();
+        REQUIRE(host->GetPoints() == host_points);
+        REQUIRE(host->GetPoints() > host_orig_points);
+      }
+      host.Delete();
     }
 
+    WHEN("Host interaction value > Symbionts' interaction value") {
+      double host_int_val = -0.2;
+      double sym_int_val = -0.6;
+      double host_orig_points = 0;
+      double sym_orig_points = 0;
 
-    WHEN("Host interaction value <= 0 and Symbiont interaction value < 0") {
-
-        WHEN("Host interaction value < Symbionts' interaction value") {
-            double host_int_val = -0.5;
-            double sym_int_val = -0.1;
-            double host_orig_points = 0;
-            double sym_orig_points = 0;
-
-            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+      emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
 
 
-            emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
-            host->SetSymbionts(syms);
+      emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+      emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+      host->SetSymbionts(syms);
 
-            double resources = 120;
-            host->DistribResources(resources);
+      double resources = 120;
+      host->DistribResources(resources);
 
-            int num_syms = 3;
-            double sym_piece = resources / num_syms; // how much resource each sym gets
-            double host_defense = -1 * (host_int_val * sym_piece);
-            double remaining_resources = sym_piece - host_defense;
-            double host_points = remaining_resources * num_syms; // * by num_syms bc points are added during each iteration through host's syms
+      int num_syms = 3;
+      double sym_piece = resources / num_syms; // how much resource each sym gets
+      double host_defense = -1 * (host_int_val * sym_piece);
+      double remaining_resources = sym_piece - host_defense;
+      double sym_steals = (host_int_val - sym_int_val) * remaining_resources;
+      double sym_points = sym_steals;
+      double host_points = (remaining_resources - sym_steals) * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
-            THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
-                for( emp::Ptr<Organism> symbiont : syms) {
-                    REQUIRE(symbiont->GetPoints() == sym_orig_points);
-                }
-                REQUIRE(host->GetPoints() == host_points);
-                REQUIRE(host->GetPoints() > host_orig_points);
-            }
-            host.Delete();
+      THEN("Symbionts points and Host points increase") {
+        for( emp::Ptr<Organism> symbiont : syms) {
+          REQUIRE(symbiont->GetPoints() == sym_points);
+          REQUIRE(symbiont->GetPoints() > sym_orig_points);
         }
-
-        WHEN("Host interaction value > Symbionts' interaction value") {
-            double host_int_val = -0.2;
-            double sym_int_val = -0.6;
-            double host_orig_points = 0;
-            double sym_orig_points = 0;
-
-            emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-
-
-            emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-            emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
-            host->SetSymbionts(syms);
-
-            double resources = 120;
-            host->DistribResources(resources);
-
-            int num_syms = 3;
-            double sym_piece = resources / num_syms; // how much resource each sym gets
-            double host_defense = -1 * (host_int_val * sym_piece);
-            double remaining_resources = sym_piece - host_defense;
-            double sym_steals = (host_int_val - sym_int_val) * remaining_resources;
-            double sym_points = sym_steals;
-            double host_points = (remaining_resources - sym_steals) * num_syms; // * by num_syms bc points are added during each iteration through host's syms
-
-            THEN("Symbionts points and Host points increase") {
-                for( emp::Ptr<Organism> symbiont : syms) {
-                    REQUIRE(symbiont->GetPoints() == sym_points);
-                    REQUIRE(symbiont->GetPoints() > sym_orig_points);
-                }
-                REQUIRE(host->GetPoints() == host_points);
-                REQUIRE(host->GetPoints() > host_orig_points);
-            }
-            host.Delete();
-        }
+        REQUIRE(host->GetPoints() == host_points);
+        REQUIRE(host->GetPoints() > host_orig_points);
+      }
+      host.Delete();
     }
-    WHEN("Host interaction value > 0 and Symbiont interaction value < 0, single symbiont") {
-        double host_int_val = 0.1;
-        double sym_int_val = -0.1;
-        double host_orig_points = 0;
-        double sym_orig_points = 0;
+  }
+  WHEN("Host interaction value > 0 and Symbiont interaction value < 0, single symbiont") {
+    double host_int_val = 0.1;
+    double sym_int_val = -0.1;
+    double host_orig_points = 0;
+    double sym_orig_points = 0;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
-        host->AddSymbiont(symbiont);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+    host->AddSymbiont(symbiont);
 
-        int resources = 100;
-        host->DistribResources(resources);
+    int resources = 100;
+    host->DistribResources(resources);
 
-        // int host_donation = 10; //host_int_val * resources
-        int host_portion = 90;  //remaining amount
-        int sym_steals = 9; //host_portion * sym_int_val * -1; new code value should be 18
-        int sym_portion = 19; //sym_steals + host_donation; new code value should be 28
-        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
+    // int host_donation = 10; //host_int_val * resources
+    int host_portion = 90;  //remaining amount
+    int sym_steals = 9; //host_portion * sym_int_val * -1; new code value should be 18
+    int sym_portion = 19; //sym_steals + host_donation; new code value should be 28
+    host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
 
-        THEN("Symbionts points and Host points increase the correct amounts") {
-            REQUIRE(symbiont->GetPoints() == sym_orig_points+sym_portion);
-            REQUIRE(host->GetPoints() == host_orig_points+host_portion);
-        }
-        host.Delete();
+    THEN("Symbionts points and Host points increase the correct amounts") {
+      REQUIRE(symbiont->GetPoints() == sym_orig_points+sym_portion);
+      REQUIRE(host->GetPoints() == host_orig_points+host_portion);
     }
-    WHEN("Host interaction value > 0 and Symbiont interaction value < 0, multiple symbionts") {
-        double host_int_val = 0.1;
-        double sym_int_val = -0.1;
-        double host_orig_points = 0;
-        double sym_orig_points = 0;
+    host.Delete();
+  }
+  WHEN("Host interaction value > 0 and Symbiont interaction value < 0, multiple symbionts") {
+    double host_int_val = 0.1;
+    double sym_int_val = -0.1;
+    double host_orig_points = 0;
+    double sym_orig_points = 0;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
-
-
-        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
-        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
-        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
-        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
-        host->SetSymbionts(syms);
-
-        double resources = 120;
-        host->DistribResources(resources);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
 
 
-        int num_syms = 3;
-        // double sym_piece = 40; //resources / num_syms
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+    emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val, sym_orig_points);
+    emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+    host->SetSymbionts(syms);
 
-        // int host_donation = 4; //host_int_val * sym_piece
-        double host_portion = 36;  //remaining amount
-        double sym_steals = 3.6; //host_portion * sym_int_val * -1
-        double sym_portion = 7.6; //sym_steals + host_donation
-        host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
-
-        double host_final_portion = host_portion * num_syms;
+    double resources = 120;
+    host->DistribResources(resources);
 
 
-       THEN("Symbionts points and Host points increase") {
-           for( emp::Ptr<Organism> symbiont : syms) {
+    int num_syms = 3;
+    // double sym_piece = 40; //resources / num_syms
+
+    // int host_donation = 4; //host_int_val * sym_piece
+    double host_portion = 36;  //remaining amount
+    double sym_steals = 3.6; //host_portion * sym_int_val * -1
+    double sym_portion = 7.6; //sym_steals + host_donation
+    host_portion = host_portion - sym_steals; //remove stolen resources from host's portion
+
+    double host_final_portion = host_portion * num_syms;
 
 
-               REQUIRE(symbiont->GetPoints() == sym_portion);
-               REQUIRE(symbiont->GetPoints() > sym_orig_points);
-            }
+    THEN("Symbionts points and Host points increase") {
+      for( emp::Ptr<Organism> symbiont : syms) {
 
-            REQUIRE(host->GetPoints() == host_final_portion);
-            REQUIRE(host->GetPoints() > host_orig_points);
-        }
-        host.Delete();
+
+        REQUIRE(symbiont->GetPoints() == sym_portion);
+        REQUIRE(symbiont->GetPoints() > sym_orig_points);
+      }
+
+      REQUIRE(host->GetPoints() == host_final_portion);
+      REQUIRE(host->GetPoints() > host_orig_points);
     }
+    host.Delete();
+  }
 
 
-    WHEN("Host interaction value < 0 and Symbiont interaction value >= 0") {
-        double host_int_val = -0.1;
-        double sym_int_val = 0.8;
-        double host_orig_points = 0;
-        double symbiont_orig_points = 0;
+  WHEN("Host interaction value < 0 and Symbiont interaction value >= 0") {
+    double host_int_val = -0.1;
+    double sym_int_val = 0.8;
+    double host_orig_points = 0;
+    double symbiont_orig_points = 0;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, host_int_val);
 
 
-        emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
-        emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
-        host->SetSymbionts(syms);
+    emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::Ptr<Symbiont> sym3 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
+    emp::vector<emp::Ptr<Organism>> syms = {sym1, sym2, sym3};
+    host->SetSymbionts(syms);
 
-        double resources = 120;
-        host->DistribResources(resources);
+    double resources = 120;
+    host->DistribResources(resources);
 
-        int num_syms = 3;
-        double sym_piece = resources / num_syms;
-        double host_defense = -1 * (host_int_val * sym_piece);
-        double host_portion = sym_piece - host_defense;
-        double sym_portion = 0;
+    int num_syms = 3;
+    double sym_piece = resources / num_syms;
+    double host_defense = -1 * (host_int_val * sym_piece);
+    double host_portion = sym_piece - host_defense;
+    double sym_portion = 0;
 
-        double sym_points = sym_portion;
-        double host_points = host_portion * num_syms; // * by num_syms bc points are added during each iteration through host's syms
+    double sym_points = sym_portion;
+    double host_points = host_portion * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
-        THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
-            for( emp::Ptr<Organism> symbiont : syms) {
-                REQUIRE(symbiont->GetPoints() == sym_points);
-                REQUIRE(symbiont->GetPoints() == symbiont_orig_points);
-            }
-            REQUIRE(host->GetPoints() == host_points);
-            REQUIRE(host->GetPoints() > host_orig_points);
+    THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
+      for( emp::Ptr<Organism> symbiont : syms) {
+        REQUIRE(symbiont->GetPoints() == sym_points);
+        REQUIRE(symbiont->GetPoints() == symbiont_orig_points);
+      }
+      REQUIRE(host->GetPoints() == host_points);
+      REQUIRE(host->GetPoints() > host_orig_points);
 
-        }
-        host.Delete();
     }
-    random.Delete();
+    host.Delete();
+  }
+  random.Delete();
 }
 
 TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
-    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
-    SymConfigBase config;
-    SymWorld w(*random, &config);
-    SymWorld * world = &w;
+  emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
+  SymConfigBase config;
+  SymWorld w(*random, &config);
+  SymWorld * world = &w;
 
 
 
-    WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
-        config.VERTICAL_TRANSMISSION(1);
-        double points_required = 50;
-        double points_recieved = points_required;
-        config.SYM_VERT_TRANS_RES(points_required);
-        double host_int_val = .5;
-        double sym_int_val = -.5;
+  WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
+    config.VERTICAL_TRANSMISSION(1);
+    double points_required = 50;
+    double points_recieved = points_required;
+    config.SYM_VERT_TRANS_RES(points_required);
+    double host_int_val = .5;
+    double sym_int_val = -.5;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
-        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
-        symbiont->AddPoints(points_recieved);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
+    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
+    symbiont->AddPoints(points_recieved);
 
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
-        long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
-        symbiont->VerticalTransmission(host_baby);
+    emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
+    long unsigned int expected_sym_size = host_baby->GetSymbionts().size() + 1;
+    symbiont->VerticalTransmission(host_baby);
 
-        THEN("Symbiont offspring are injected into host offspring") {
-            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
-        }
-
-        THEN("Symbiont parent has lost the points needed for reproduction and is down to 0") {
-            REQUIRE(symbiont->GetPoints() == 0);
-        }
-        symbiont.Delete();
-        host.Delete();
-        host_baby.Delete();
+    THEN("Symbiont offspring are injected into host offspring") {
+      REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
     }
-    WHEN("When vertical transmission is disabled"){
-        config.VERTICAL_TRANSMISSION(0);
-        double host_int_val = .5;
-        double sym_int_val = -.5;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
-        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
-
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
-        long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-        symbiont->VerticalTransmission(host_baby);
-
-        THEN("Symbiont offspring are not injected into host offspring") {
-            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
-        }
-        symbiont.Delete();
-        host.Delete();
-        host_baby.Delete();
+    THEN("Symbiont parent has lost the points needed for reproduction and is down to 0") {
+      REQUIRE(symbiont->GetPoints() == 0);
     }
-    WHEN("When the sym does not have enough resources to transmit"){
-        config.VERTICAL_TRANSMISSION(1);
-        double int_val = 0;
-        double points_required = 50;
-        double points_recieved = points_required - 1;
-        config.SYM_VERT_TRANS_RES(points_required);
+    symbiont.Delete();
+    host.Delete();
+    host_baby.Delete();
+  }
+  WHEN("When vertical transmission is disabled"){
+    config.VERTICAL_TRANSMISSION(0);
+    double host_int_val = .5;
+    double sym_int_val = -.5;
 
-        emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, int_val);
-        emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
+    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
 
-        symbiont->AddPoints(points_recieved);
+    emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
+    long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+    symbiont->VerticalTransmission(host_baby);
 
-        emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
-        long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
-        symbiont->VerticalTransmission(host_baby);
-
-        THEN("Symbiont offspring are not injected into host offspring") {
-            REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
-        }
-
-        symbiont.Delete();
-        host.Delete();
-        host_baby.Delete();
+    THEN("Symbiont offspring are not injected into host offspring") {
+      REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
     }
-    random.Delete();
+    symbiont.Delete();
+    host.Delete();
+    host_baby.Delete();
+  }
+  WHEN("When the sym does not have enough resources to transmit"){
+    config.VERTICAL_TRANSMISSION(1);
+    double int_val = 0;
+    double points_required = 50;
+    double points_recieved = points_required - 1;
+    config.SYM_VERT_TRANS_RES(points_required);
+
+    emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, int_val);
+    emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(random, world, &config, int_val);
+
+    symbiont->AddPoints(points_recieved);
+
+    emp::Ptr<Host> host_baby = emp::NewPtr<Host>(random, world, &config, host->GetIntVal());
+    long unsigned int expected_sym_size = host_baby->GetSymbionts().size();
+    symbiont->VerticalTransmission(host_baby);
+
+    THEN("Symbiont offspring are not injected into host offspring") {
+      REQUIRE(host_baby->GetSymbionts().size() == expected_sym_size);
+    }
+
+    symbiont.Delete();
+    host.Delete();
+    host_baby.Delete();
+  }
+  random.Delete();
 }
 
 TEST_CASE("HandleEctosymbiosis"){
