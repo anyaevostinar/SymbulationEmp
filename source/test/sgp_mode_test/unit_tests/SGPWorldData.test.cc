@@ -24,8 +24,8 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 TEST_CASE("CreateDataFiles creates data files", "[sgp][sgp-functional]") {
   sgpmode::SymConfigSGP config;
   config.INIT_POP_SIZE(0);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPData_test_output");
   config.FILE_PATH("_test");

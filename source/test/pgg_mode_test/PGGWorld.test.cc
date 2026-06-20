@@ -45,7 +45,7 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
     emp::Random random(17);
     PGGWorld world(random, &config);
     world.SetPopStruct_Mixed();
-    config.GRID(0);
+    config.SPATIAL_STRUCT_MODE("well-mixed");
     config.VERTICAL_TRANSMISSION(0.7);
     config.VERTICAL_TRANSMISSION(0.7);
     config.MUTATION_SIZE(0.002);

@@ -12,8 +12,8 @@ TEST_CASE("A world containing a single infected host and its symbiont is updated
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
@@ -46,8 +46,8 @@ TEST_CASE("A world containing a single uninfected host is updated correctly", "[
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
@@ -80,8 +80,8 @@ TEST_CASE("A world containing a single free living symbiont is updated correctly
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 

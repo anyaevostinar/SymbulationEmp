@@ -249,8 +249,8 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
     LysisWorld * world = &w;
 
     config.LYSIS(1);
-    config.GRID_X(2);
-    config.GRID_Y(1);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(1);
     config.SYM_LIMIT(10);
     int location = 0;
 

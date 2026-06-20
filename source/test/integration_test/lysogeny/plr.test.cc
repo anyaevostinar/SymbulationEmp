@@ -5,8 +5,8 @@ TEST_CASE("Prophage Loss Rate Results", "[integration]"){
     SymConfigLysis config;
 
     //smaller world than actual experiment, starting with full population
-    config.GRID_X(100);
-    config.GRID_Y(100);
+    config.WORLD_WIDTH(100);
+    config.WORLD_HEIGHT(100);
 
     //PLR settings that are different than defaults
     config.MUTATION_SIZE(0.02);

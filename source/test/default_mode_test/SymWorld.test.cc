@@ -9,10 +9,10 @@ TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
   GIVEN(" a world ") {
     emp::Random random(17);
     SymConfigBase config;
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.INIT_POP_SIZE(4);
-    config.GRID(0); // make sure the world is well-mixed
+    config.SPATIAL_STRUCT_MODE("well-mixed"); // make sure the world is well-mixed
     SymWorld world(random, &config);
     world.Setup();
     bool self_neighbor = false;
@@ -267,7 +267,7 @@ TEST_CASE( "Interaction Patterns", "[default]" ) {
     emp::Random random(17);
     SymWorld world(random, &config);
     world.SetPopStruct_Mixed();
-    config.GRID(0);
+    config.SPATIAL_STRUCT_MODE("well-mixed");
     config.VERTICAL_TRANSMISSION(0.7);
     config.VERTICAL_TRANSMISSION(0.7);
     config.MUTATION_SIZE(0.002);
@@ -763,7 +763,7 @@ TEST_CASE( "MoveFreeSym", "[default]" ){
     SymWorld world(random, &config);
     config.FREE_LIVING_SYMS(1);
     int int_val = 0;
-    int world_size = 4;
+    size_t world_size = 4;
     world.Resize(world_size);
     size_t host_pos = 0;
     emp::WorldPosition sym_pos = emp::WorldPosition(0, host_pos);
@@ -1033,8 +1033,8 @@ TEST_CASE( "Spatial structure", "[default]" ){
     SymWorld world(random, &config);
     int width = 100;
     int height = 100;
-    config.GRID_X(width);
-    config.GRID_Y(height);
+    config.WORLD_WIDTH(width);
+    config.WORLD_HEIGHT(height);
     world.Resize(width * height);
     config.FREE_LIVING_SYMS(1);
     config.MOVE_FREE_SYMS(1);
@@ -1043,7 +1043,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
     config.SYM_LIMIT(sym_limit);
 
     WHEN("Grid is on"){
-      config.GRID(1);
+      config.SPATIAL_STRUCT_MODE("grid");
       world.SetPopStruct_Grid(width, height, false);
 
       THEN("Host babies are born next to their parents"){
@@ -1129,7 +1129,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
     }
 
     WHEN("Grid is off"){
-      config.GRID(0);
+      config.SPATIAL_STRUCT_MODE("well-mixed");
       world.SetPopStruct_Mixed(false);
       //given the size of the world, it's very unlikely that
       //organisms will randomly be placed in a neighbor position
@@ -1352,7 +1352,7 @@ TEST_CASE("InjectHost", "[default]") {
     int int_val = 0;
 
     WHEN("Spatial structure is turned off") {
-      config.GRID(0);
+      config.SPATIAL_STRUCT_MODE("well-mixed");
       THEN("Hosts are placed side-by-side in the world") {
         REQUIRE(world.GetNumOrgs() == 0);
 
@@ -1371,7 +1371,7 @@ TEST_CASE("InjectHost", "[default]") {
       }
     }
     WHEN("Spatial structure is turned on") {
-      config.GRID(1);
+      config.SPATIAL_STRUCT_MODE("grid");
       world.Resize(9); // world should be resized before injecting hosts if spatial structure is on
       THEN("Hosts are placed randomly in the world") {
         REQUIRE(world.GetNumOrgs() == 0);
@@ -1400,11 +1400,11 @@ TEST_CASE("Setup", "[default]") {
 
     size_t width = 10;
     size_t height = 20;
-    config.GRID_X(width);
-    config.GRID_Y(height);
+    config.WORLD_WIDTH(width);
+    config.WORLD_HEIGHT(height);
 
     WHEN("Grid is on") {
-      config.GRID(1);
+      config.SPATIAL_STRUCT_MODE("grid");
       world.Setup();
       THEN("World size, width, and height are set correctly") {
         REQUIRE(world.GetWidth() == width);

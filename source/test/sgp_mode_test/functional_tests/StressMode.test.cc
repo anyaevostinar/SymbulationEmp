@@ -125,8 +125,8 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
   sgpmode::SymConfigSGP config;
   config.SEED(983274);
   config.START_MOI(0);
-  config.GRID_X(10);
-  config.GRID_Y(100);
+  config.WORLD_WIDTH(10);
+  config.WORLD_HEIGHT(100);
   config.HOST_REPRO_RES(20);
   config.BASE_DEATH_CHANCE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -134,7 +134,7 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
   config.TASK_PROFILE_MODE("self-all");
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_STRESS(1);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  size_t world_size = config.WORLD_WIDTH() * config.WORLD_HEIGHT();
 
   emp::Random random(config.SEED());
   world_t world(random, &config);

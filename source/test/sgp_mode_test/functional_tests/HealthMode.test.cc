@@ -40,8 +40,8 @@ void ConfigureHealthTestConfig(emp::Ptr<sgpmode::SymConfigSGP> config){
   config->SEED(10);
   config->INIT_POP_SIZE(0);
   config->START_MOI(0);
-  config->GRID_X(2);
-  config->GRID_Y(2);
+  config->WORLD_WIDTH(2);
+  config->WORLD_HEIGHT(2);
 
   // general sgp settings
   config->TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -586,15 +586,15 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
   sgpmode::SymConfigSGP config;
   config.SEED(32);
   config.START_MOI(0);
-  config.GRID_X(10);
-  config.GRID_Y(100);
+  config.WORLD_WIDTH(10);
+  config.WORLD_HEIGHT(100);
   config.HOST_REPRO_RES(20);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_HEALTH(1);
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  size_t world_size = config.WORLD_WIDTH() * config.WORLD_HEIGHT();
 
   emp::Random random(config.SEED());
   world_t world(random, &config);

@@ -23,8 +23,8 @@ TEST_CASE("Update only hosts test", "[sgp]") {
 
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.INIT_POP_SIZE(0);
 
@@ -59,8 +59,8 @@ TEST_CASE("Update only hosts test", "[sgp]") {
 TEST_CASE("Ousting is permitted", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.OUSTING(1);
   config.SYM_LIMIT(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -90,8 +90,8 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
 TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -125,8 +125,8 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming wors
 TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equal match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -160,8 +160,8 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equa
 TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming better match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -195,8 +195,8 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming bette
 TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -230,8 +230,8 @@ TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match",
 TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -265,8 +265,8 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
 TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.WORLD_WIDTH(1);
+  config.WORLD_HEIGHT(1);
   config.SEED(2312);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -301,8 +301,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
   GIVEN("A host infected with a symbiont"){
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.SEED(33);
     config.INIT_POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
@@ -347,8 +347,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
   GIVEN("A host infected with a symbiont"){
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.SEED(11);
     config.INIT_POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
@@ -393,8 +393,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
   GIVEN("A host infected with a symbiont"){
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.SEED(11);
     config.INIT_POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
@@ -439,8 +439,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
   GIVEN("A host infected with a symbiont"){
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.SEED(11);
     config.INIT_POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
@@ -484,8 +484,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
   GIVEN("A host infected with a symbiont"){
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.SEED(11);
     config.INIT_POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
@@ -521,8 +521,8 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.000);
     config.TASK_PROFILE_MODE("parent-all");
-    config.GRID_X(2);
-    config.GRID_Y(1);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(1);
     config.INIT_POP_SIZE(0);
     config.OUSTING(1);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);

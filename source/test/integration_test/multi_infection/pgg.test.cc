@@ -12,13 +12,13 @@ TEST_CASE("Multi-infection results", "[integration]") {
   config.UPDATES(2000);
   world.Setup();
 
-  config.GRID_X(5);
-  config.GRID_Y(5);
-  
+  config.WORLD_WIDTH(5);
+  config.WORLD_HEIGHT(5);
+
   emp::DataMonitor<double, emp::data::Histogram>& sym_val_node = world.GetHostedSymIntValDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& host_val_node = world.GetHostIntValDataNode();
 
-  
+
   WHEN("There are few symbionts per host") {
 	config.SYM_LIMIT(1);
 	WHEN("Vertical transmission rate is intermediate") {

@@ -17,8 +17,8 @@ using program_t = typename world_t::sgp_prog_t;
 TEST_CASE("Setup with an empty population", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.SEED(234);
   config.INIT_POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -41,8 +41,8 @@ TEST_CASE("Setup with an empty population", "[sgp]"){
 TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]"){
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.SEED(44);
   config.INIT_POP_SIZE(0);
   emp::Random random(config.SEED());
@@ -65,8 +65,8 @@ TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]"){
 TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]"){
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.SEED(44);
   config.INIT_POP_SIZE(0);
   config.START_MOI(1);
@@ -92,8 +92,8 @@ TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]"){
 TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]") {
 	emp::Random random(61);
 	sgpmode::SymConfigSGP config;
-	config.GRID_X(2);
-	config.GRID_Y(2);
+	config.WORLD_WIDTH(2);
+	config.WORLD_HEIGHT(2);
 	config.INIT_POP_SIZE(0);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
@@ -136,8 +136,8 @@ TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]")
 TEST_CASE("Setup correctly sets symbiont task profile functions", "[sgp][sgp-unit]") {
 	emp::Random random(61);
 	sgpmode::SymConfigSGP config;
-	config.GRID_X(2);
-	config.GRID_Y(2);
+	config.WORLD_WIDTH(2);
+	config.WORLD_HEIGHT(2);
 	config.INIT_POP_SIZE(0);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 

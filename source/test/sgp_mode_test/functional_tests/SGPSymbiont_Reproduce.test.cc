@@ -96,8 +96,8 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
   //Note: Catch automatically reruns everything from the top of the test case for each GIVEN and WHEN, so the world/orgs get reset
   emp::Random random(51);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(10);
-  config.GRID_Y(10);
+  config.WORLD_WIDTH(10);
+  config.WORLD_HEIGHT(10);
   config.HOST_REPRO_RES(0);
   config.SYM_VERT_TRANS_RES(0);
   config.HORIZ_TRANS(0);
@@ -242,8 +242,8 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
   emp::Random random(51);
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.GRID_X(10);
-  config.GRID_Y(10);
+  config.WORLD_WIDTH(10);
+  config.WORLD_HEIGHT(10);
   config.DATA_INT(26);
   config.HOST_REPRO_RES(0);
   config.SYM_VERT_TRANS_RES(0);
@@ -281,8 +281,8 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
 TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   emp::Random random(42);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.INIT_POP_SIZE(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);

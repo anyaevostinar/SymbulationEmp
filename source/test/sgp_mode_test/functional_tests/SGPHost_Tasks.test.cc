@@ -19,8 +19,8 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 TEST_CASE("Host Task Credit", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.SYM_LIMIT(2);
   config.INIT_POP_SIZE(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");

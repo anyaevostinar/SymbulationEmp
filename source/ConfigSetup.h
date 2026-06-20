@@ -47,7 +47,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(CURE_UPDATES, size_t, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
 
     GROUP(SPATIAL_STRUCTURE, "Spatial structure settings"),
-    VALUE(SPATIAL_STRUCT_MODE, std::string, "grid", "Options: grid, well-mixed, load (requires filepath in LoadFile param)"),
+    VALUE(SPATIAL_STRUCT_MODE, std::string, "well-mixed", "Options: well-mixed, grid, load (requires filepath in LoadFile param)"),
     VALUE(SPATIAL_STRUCT_CFG_PATH, std::string, "spatial-struct.mat", "Path to the file containing the spatial structure"),
     VALUE(SPATIAL_STRUCT_LOAD_MODE, std::string, "matrix", "Expected file format for loaded spatial structure. Options: matrix, edges"),
     VALUE(WORLD_WIDTH, size_t, 10, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),

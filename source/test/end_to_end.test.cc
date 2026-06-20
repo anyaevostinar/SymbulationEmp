@@ -22,8 +22,8 @@ void Test(std::string expected_result_file, int seed = 10, int data_int = 100, d
   config.VERTICAL_TRANSMISSION(vertical_transmission); //Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces
   config.HOST_INT(host_int);              //Interaction value from -1 to 1 that hosts should have initially, -2 for random
   config.SYM_INT(sym_int);               //Interaction value from -1 to 1 that symbionts should have initially, -2 for random
-  config.GRID_X(grid_x);                //Width of the world, just multiplied by the height to get total size
-  config.GRID_Y(grid_y);                //Height of world, just multiplied by width to get total size
+  config.WORLD_WIDTH(grid_x);                //Width of the world, just multiplied by the height to get total size
+  config.WORLD_HEIGHT(grid_y);                //Height of world, just multiplied by width to get total size
   config.UPDATES(updates);               //Number of updates to run before quitting
   config.SYM_LIMIT(sym_limit);             //Number of symbiont allowed to infect a single host
   config.LYSIS(lysis);                 //Should lysis occur? 0 for no, 1 for yes

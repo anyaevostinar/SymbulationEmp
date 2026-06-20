@@ -23,8 +23,8 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional]") {
 
     emp::Random random(65);
     sgpmode::SymConfigSGP config;
-    config.GRID_X(10);
-    config.GRID_Y(10);
+    config.WORLD_WIDTH(10);
+    config.WORLD_HEIGHT(10);
     config.HOST_REPRO_RES(0);
     config.CYCLES_PER_UPDATE(1);
     config.SEED(62);
@@ -32,7 +32,7 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional]") {
     config.START_MOI(0);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
-    int world_size = config.GRID_X() * config.GRID_Y();
+    int world_size = config.WORLD_WIDTH() * config.WORLD_HEIGHT();
     world_t world(random, &config);
     world.Setup();
     world.Resize(100);
@@ -79,8 +79,8 @@ TEST_CASE("Mutations occur during reproduction", "[sgp]") {
 
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.SGP_MUT_PER_BIT_RATE(1.0);
   config.HOST_REPRO_RES(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");

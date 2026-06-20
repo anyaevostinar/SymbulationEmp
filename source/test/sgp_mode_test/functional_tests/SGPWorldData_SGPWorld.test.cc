@@ -36,8 +36,8 @@ TEST_CASE("Correct data files are created and written to", "[sgp][sgp-functional
     config.INTERACTION_MECHANISM("default");
     config.FILE_NAME("DataTest");
     config.INIT_POP_SIZE(0);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
     config.HOST_MIN_CYCLES_BEFORE_REPRO(10000);
     config.SYM_MIN_CYCLES_BEFORE_REPRO(10000);
     config.DATA_INT(2);

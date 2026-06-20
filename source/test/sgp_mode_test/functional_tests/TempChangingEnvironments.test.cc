@@ -28,8 +28,8 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   config.INIT_POP_SIZE(0);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -83,8 +83,8 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   config.INIT_POP_SIZE(0);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -140,8 +140,8 @@ TEST_CASE("Hosts start with a punished task in a temporally changing environment
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   config.INIT_POP_SIZE(0);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.CYCLES_PER_UPDATE(8);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -196,8 +196,8 @@ TEST_CASE("Symbionts start with a punished task in a temporally changing environ
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   config.INIT_POP_SIZE(0);
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
   config.CYCLES_PER_UPDATE(8);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);

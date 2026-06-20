@@ -12,7 +12,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
 
   emp::DataMonitor<double, emp::data::Histogram>& sym_val_node = world.GetHostedSymIntValDataNode();
   emp::DataMonitor<int>& sym_count_node = world.GetCountHostedSymsDataNode();
-  
+
   WHEN("Mutualists are already present in the population (mixed population)") {
     config.HOST_INT(-2);
     config.SYM_INT(-2);
@@ -51,7 +51,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
   WHEN("Organisms begin the experiment with an interaction value of 0 (all-neutral population)") {
     config.HOST_INT(0);
     config.SYM_INT(0);
-   
+
 
     WHEN("Vertical transmission rate is 1") {
       config.VERTICAL_TRANSMISSION(1);
@@ -75,7 +75,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
   WHEN("Symbionts begin the experiment with parasitic phenotypes"){
     config.HOST_INT(0);
     // not using random parasite values, which the paper used
-    config.SYM_INT(-0.5); 
+    config.SYM_INT(-0.5);
     world.Setup();
 
     WHEN("Vertical transmission rate is 0") {
@@ -90,7 +90,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       world.RunExperiment(false);
       THEN("Symbionts become slightly parasitic"){
         REQUIRE(sym_val_node.GetMean() < -0.2);
-      
+
       }
     }
     WHEN("Vertical transmission rate is high"){
@@ -133,7 +133,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       }
     }
   }
-  
+
   WHEN("Spatial structure is on") {
     SymWorld off_world(random, &config);
     emp::DataMonitor<double, emp::data::Histogram>& off_sym_val_node = off_world.GetHostedSymIntValDataNode();
@@ -141,15 +141,15 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
 
     config.HOST_INT(0);
     config.SYM_INT(0);
-    config.GRID(1);
+    config.SPATIAL_STRUCT_MODE("grid");
     world.Setup();
 
     WHEN("Vertical transmission rate is high-intermediate (0.7)"){
       config.VERTICAL_TRANSMISSION(0.7);
       world.RunExperiment(false);
-      
-      config.GRID(0);
-      off_world.Setup(); 
+
+      config.SPATIAL_STRUCT_MODE("well-mixed");
+      off_world.Setup();
       off_world.RunExperiment(false);
 
       double grid_on_sym_val = sym_val_node.GetMean();
@@ -166,7 +166,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       config.VERTICAL_TRANSMISSION(0.3);
       world.RunExperiment(false);
 
-      config.GRID(0);
+      config.SPATIAL_STRUCT_MODE("well-mixed");
       off_world.Setup();
       off_world.RunExperiment(false);
 

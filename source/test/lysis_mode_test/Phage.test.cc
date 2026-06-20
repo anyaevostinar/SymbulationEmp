@@ -403,8 +403,8 @@ TEST_CASE("Phage process", "[lysis]"){
     LysisWorld world(*random, &config);
 
     config.LYSIS(1); //phage process only happens when lysis is enabled
-    config.GRID_X(2);
-    config.GRID_Y(1);
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(1);
     config.SYM_LIMIT(2);
     int location = 0;
 
