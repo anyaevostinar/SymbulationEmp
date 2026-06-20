@@ -1,13 +1,16 @@
+#include "../test_utils.h"
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/Bacterium.h"
 
 TEST_CASE("Phage Process", "[lysis]") {
 
   GIVEN("A world and some phage") {
-    emp::Ptr<emp::Random> random;
-    random.New(5);
+    emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(5);
     SymConfigLysis config;
+    test_utils::SetEmptyWellMixed(config);
     LysisWorld world(*random, &config);
+    world.Setup();
+    world.Clear();
     config.LYSIS(1);
     double int_val = -1;
 
@@ -15,9 +18,7 @@ TEST_CASE("Phage Process", "[lysis]") {
       emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, int_val);
       emp::Ptr<Phage> phage1 = emp::NewPtr<Phage>(random, &world, &config, int_val);
       emp::Ptr<Phage> phage2 = emp::NewPtr<Phage>(random, &world, &config, int_val);
-
-      emp::Ptr<Bacterium> bacterium;
-      bacterium.New(random, world, &config);
+      emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, &world, &config);
 
       phage->SetHost(bacterium);
       int time = 15;
