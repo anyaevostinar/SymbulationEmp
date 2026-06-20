@@ -12,7 +12,7 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
 
   LysisWorld world(random, &config);
   world.Resize(world_size);
-  
+
   config.LYSIS(1);
   config.LYSIS_CHANCE(1);
   config.RES_DISTRIBUTE(res_per_update);
@@ -92,10 +92,14 @@ TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
 }
 
 TEST_CASE("Lysis SetupHosts", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;
-    LysisWorld world(random, &config);
+    test_utils::SetEmptyWellMixed(config);
+    // LysisWorld world(random, &config);
+    lysis_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;

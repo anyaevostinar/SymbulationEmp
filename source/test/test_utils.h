@@ -32,4 +32,19 @@ public:
   }
 };
 
+template<typename BASE_T, typename CONFIG_T>
+class TestingWorldWrapper : public BASE_T {
+public:
+  using wrapped_world_t = BASE_T;
+  using wrapped_config_t = CONFIG_T;
+
+  TestingWorldWrapper(emp::Random& _random, emp::Ptr<wrapped_config_t> _config) :
+    wrapped_world_t(_random, _config)
+  { }
+
+  void SetupSpatialStructure() {
+    wrapped_world_t::SetupSpatialStructure();
+  }
+};
+
 }
