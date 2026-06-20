@@ -1,9 +1,10 @@
+#include "../test_utils.h"
 #include "../../pgg_mode/PGGHost.h"
 #include "../../pgg_mode/PGGSymbiont.h"
 
 TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
   SymConfigPGG config;
-
+  test_utils::SetEmptyWellMixed(config);
   GIVEN( "a PGGworld without vertical transmission" ) {
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
     PGGWorld world(*random, &config);
@@ -15,26 +16,27 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
     config.RES_DISTRIBUTE(100);
     config.SYNERGY(5);
     config.PGG(1);
-
+    world.Setup();
+    world.Clear();
+    REQUIRE(world.GetNumOrgs() == 0);
     WHEN( "hostile hosts meet generous symbionts" ) {
-
       //inject organisms
-      for (size_t i = 0; i < 10; i++){
+      for (size_t i = 0; i < 10; i++) {
         emp::Ptr<PGGHost> new_org = emp::NewPtr<PGGHost>(random, &world, &config, -0.1);
         world.AddOrgAt(new_org, world.size());
       }
-      for (size_t i = 0; i< 10; i++){
+      for (size_t i = 0; i< 10; i++) {
         emp::Ptr<PGGSymbiont> new_sym = emp::NewPtr<PGGSymbiont>(random, &world, &config, 0.1);
         world.InjectSymbiont(new_sym);
       }
 
       //Simulate
-      for(int i = 0; i < 100; i++) {
+      for (int i = 0; i < 100; i++) {
         world.Update();
       }
 
       THEN( "the symbionts all die" ) {
-        for(size_t i = 0; i < world.GetPop().size(); i++)
+        for (size_t i = 0; i < world.GetPop().size(); i++)
           REQUIRE( !(world.GetPop()[i] && world.GetPop()[i]->HasSym()) );//We can't have a host exist with a symbiont in it.
       }
     }
@@ -44,8 +46,8 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
   GIVEN( "a PGGworld" ) {
     emp::Random random(17);
     PGGWorld world(random, &config);
-    world.SetPopStruct_Mixed();
-    config.SPATIAL_STRUCT_MODE("well-mixed");
+    // world.SetPopStruct_Mixed();
+    // config.SPATIAL_STRUCT_MODE("well-mixed");
     config.VERTICAL_TRANSMISSION(0.7);
     config.VERTICAL_TRANSMISSION(0.7);
     config.MUTATION_SIZE(0.002);
@@ -55,26 +57,30 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
     config.RES_DISTRIBUTE(100);
     config.SYNERGY(5);
     config.PGG(1);
+    // Setup to configure spatial structure
+    world.Setup();
+    // Clear to remove all initial organisms
+    world.Clear();
+    REQUIRE(world.GetNumOrgs() == 0);
     int world_size = 20000;
     world.Resize(world_size);
-
 
     WHEN( "very generous hosts meet many very hostile symbionts" ) {
 
       //inject organisms
-      for (size_t i = 0; i < 200; i++){
+      for (size_t i = 0; i < 200; i++) {
         emp::Ptr<PGGHost> new_org;
         new_org.New(&random, &world, &config, 1);
         world.AddOrgAt(new_org, world.size());
       }
-      for (size_t i = 0; i < 10000; i++){
+      for (size_t i = 0; i < 10000; i++) {
         emp::Ptr<PGGSymbiont> new_sym;
         new_sym.New(&random, &world, &config, -1);
         world.InjectSymbiont(new_sym);
       }
 
       //Simulate
-      for(int i = 0; i < 100; i++)
+      for (int i = 0; i < 100; i++)
         world.Update();
 
       THEN( "the hosts cannot reproduce" ) {
@@ -119,8 +125,11 @@ TEST_CASE("PGG SetupHosts", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigPGG config;
+    test_utils::SetEmptyWellMixed(config);
     PGGWorld world(random, &config);
-
+    world.Setup();
+    world.Clear();
+    REQUIRE(world.GetNumOrgs() == 0);
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
       world.SetupHosts(&num_to_add);
