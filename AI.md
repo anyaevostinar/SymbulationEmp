@@ -5,7 +5,7 @@ The **guiding principle** of this document is that a human must be directly and 
 AI agents are not allowed to contribute.
 
 # Specifics
-1. **Commit Attribution:** Commits may **not** be attributed to an agentic AI tool or other AI tools. All commits must be directly submitted by a human developer account and by making a commit, the human developer is indicating that they take full responsibility for the code that they are submitting.
+1. **Commit Attribution:** Commits may **not** be attributed to an agentic AI tool or other AI tools. All commits must be directly submitted by a human developer account and by making a commit, the human developer is indicating that they take full responsibility for the code that they are submitting. Agentic AI is also not allowed to be a co-contributor to a commit because we reserve the word "contributor" for humans.
 2. **Use of AI during code creation:** Human developers may use AI (by any definition) in their development process. We recognize that there is really no way that we could police that anyway. 
 3. **In-code citations:** Because AI-assistance is often tightly intertwined with independent human development, we do not require or expect in-code citations for small amounts of AI-assistance (e.g. autocomplete of C++ syntax). If a specialized AI tool is used for a significant contribution, that may warrant an in-code citation.
 4. **Standard of oversight:** Contributors and reviewers are expected to have mentally stepped through the code and made sense of it before requesting or approving a review. Exemptions should be requested explicitly where the judged effort tradeoff is not worthwhile. This standard will be subject to further consideration and possible future adjustment.

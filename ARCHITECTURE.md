@@ -47,6 +47,7 @@ Here, we attempt to write down the general principles that have guided our devel
     3. If an event occurs between more than one host or free-living symbiont (i.e. at the population level conceptually), then it likely should be handled by the World, such as host reproduction and horizontal transmission from one host to another.
     4. Events handled by the world should still try to call host and symbiont methods to enable those classes to handle their own internal state as much as possible.
 2. We leverage functors and signals to allow for easier hooking into core events to customize experimental setup based on configuration settings.
+    1. Signals should be held by the World both because they apply to many different organisms, and so don't belong to any single organisms, and because this avoids them needing to be continuous recreated whenever an organism is born.
 3. We aim for many short and well-named methods along with longer (if necessary) and clear variable names. We want individual components of the codebase to be highly readable, such that a newcomer is able to start reading a relevant section and understand what that small part does at least.
 4. We like efficient code, but we would rather have understandable code even if it means small efficiency sacrifices. We believe it is always possible to have both efficient and readable code, but it might take us some additional effort.
 5. We believe in the value of thorough documentation and aim for 100% correct and complete documentation.
