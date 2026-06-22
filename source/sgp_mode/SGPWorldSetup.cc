@@ -377,8 +377,11 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     not_task_id = task_env.GetTaskSet().GetID("not");
   }
 
+  // Going to use the scheduler to fill world up to init pop size.
+  scheduler.UpdateSchedule(); // Shuffles schedule
 
   const size_t init_pop_size = *POP_SIZE;
+  emp_assert(init_pop_size <= scheduler.GetScheduleSize());
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
@@ -433,7 +436,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
       new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
     }
-    InjectHost(new_host);
+    // Needs to be add org at instead of inject because we've already resized the
+    //   world. (inject in well-mixed mode will inject at end of population).
+    // Using the scheduler to fill world randomly (without position replacement)
+    // Will fill world completely if init pop size = full carrying capacity.
+    const size_t pos = scheduler.GetCurSchedule()[i];
+    AddOrgAt(new_host, emp::WorldPosition(pos));
   }
 }
 

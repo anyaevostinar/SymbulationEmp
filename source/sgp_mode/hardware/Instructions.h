@@ -212,7 +212,7 @@ INST(SenseTask, {
       if (!state.GetWorld().CanPerformTask(state, task_req_info)) {
         continue;
       }
-      
+
       // check task reward or punishment
       b = task_req_info.task_value > 0;
       return;
