@@ -6,11 +6,11 @@
 #include "LysisConfigSetup.h"
 
 class LysisWorld : public SymWorld {
-private:
+protected:
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -27,6 +27,12 @@ private:
   emp::Ptr<emp::DataMonitor<double>> data_node_burst_size;
   emp::Ptr<emp::DataMonitor<int>> data_node_burst_count;
   emp::Ptr<emp::DataMonitor<int>> data_node_cfu;
+
+  /**
+   * Definitions of setup functions, expanded in LysisWorldSetup.cc
+   */
+  void SetupHosts(long unsigned int* POP_SIZE);
+  void SetupSymbionts(long unsigned int* total_syms);
 
 public:
   /**
@@ -47,7 +53,7 @@ public:
    *
    * Purpose: To destruct the data nodes belonging to LysisWorld to conserve memory.
    */
-  ~LysisWorld(){
+  ~LysisWorld() {
     if (data_node_lysischance) data_node_lysischance.Delete();
     if (data_node_inductionchance) data_node_inductionchance.Delete();
     if (data_node_incorporation_difference) data_node_incorporation_difference.Delete();
@@ -58,20 +64,13 @@ public:
 
 
   /**
-   * Definitions of setup functions, expanded in LysisWorldSetup.cc
-   */
-  void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(long unsigned int* total_syms);
-
-
-  /**
   * Input: None.
   *
   * Output: None.
   *
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
-  void CreateDataFiles(){
+  void CreateDataFiles() {
     std::string file_ending = "_SEED"+std::to_string(lysis_config->SEED())+".data";
     SymWorld::CreateDataFiles();
     SetupLysisChanceFile(lysis_config->FILE_PATH()+"LysisChance"+lysis_config->FILE_NAME()+file_ending).SetTimingRepeat(lysis_config->DATA_INT());
@@ -86,7 +85,7 @@ public:
    *
    * Purpose: To add bacterium data nodes to be tracked to the bacterium data file.
    */
-  void SetupHostFileColumns(emp::DataFile & file){
+  void SetupHostFileColumns(emp::DataFile & file) {
     SymWorld::SetupHostFileColumns(file);
     auto & cfu_node = GetCFUDataNode();
     file.AddTotal(cfu_node, "cfu_count", "Total number of colony forming units"); //colony forming units are hosts that
@@ -206,17 +205,17 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetLysisChanceDataNode() {
     if (!data_node_lysischance) {
       data_node_lysischance.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_lysischance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
               data_node_lysischance->AddDatum(syms[j]->GetLysisChance());
             }//close for
           }//close if
-          if (sym_pop[i]){
+          if (sym_pop[i]) {
             data_node_lysischance->AddDatum(sym_pop[i]->GetLysisChance());
           }
         }//close for
@@ -271,17 +270,17 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetInductionChanceDataNode() {
     if (!data_node_inductionchance) {
       data_node_inductionchance.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_inductionchance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
               data_node_inductionchance->AddDatum(syms[j]->GetInductionChance());
             }//close for
           }//close if
-          if (sym_pop[i]){
+          if (sym_pop[i]) {
             data_node_inductionchance->AddDatum(sym_pop[i]->GetInductionChance());
           }
         }//close for
@@ -303,7 +302,7 @@ public:
   emp::DataMonitor<double,emp::data::Histogram>& GetIncorporationDifferenceDataNode() {
     if (!data_node_incorporation_difference) {
       data_node_incorporation_difference.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_incorporation_difference->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
@@ -311,7 +310,7 @@ public:
 
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             long unsigned int sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
               double inc_val_difference = abs(host_inc_val - syms[j]->GetIncVal());
               data_node_incorporation_difference->AddDatum(inc_val_difference);
             }
@@ -334,28 +333,28 @@ public:
    */
   emp::DataMonitor<int>& GetCFUDataNode() {
     //keep track of host organisms that are uninfected or infected with only lysogenic phage
-    if(!data_node_cfu) {
+    if (!data_node_cfu) {
       data_node_cfu.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_cfu -> Reset();
 
         for (size_t i = 0; i < pop.size(); i++) {
-          if(IsOccupied(i)) {
+          if (IsOccupied(i)) {
             //uninfected hosts
-            if((pop[i]->GetSymbionts()).empty()) {
+            if ((pop[i]->GetSymbionts()).empty()) {
               data_node_cfu->AddDatum(1);
             }
 
             //infected hosts, check if all symbionts are lysogenic
-            if(pop[i]->HasSym()) {
+            if (pop[i]->HasSym()) {
               emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
               bool all_lysogenic = true;
-              for(long unsigned int j = 0; j < syms.size(); j++){
-                if(syms[j]->IsPhage() && syms[j]->GetLysogeny() == false){
+              for (long unsigned int j = 0; j < syms.size(); j++) {
+                if (syms[j]->IsPhage() && syms[j]->GetLysogeny() == false) {
                   all_lysogenic = false;
                 }
               }
-              if(all_lysogenic){
+              if (all_lysogenic) {
                 data_node_cfu->AddDatum(1);
               }
             }

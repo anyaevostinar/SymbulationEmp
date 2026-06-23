@@ -16,7 +16,19 @@
  *
  * Purpose: To populate the world with hosts with appropriate phenotypes.
  */
-void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
+void SymWorld::SetupHosts(long unsigned int* POP_SIZE) {
+  // emp::vector<size_t> world_positions(GetSize(), 0);
+  // std::iota(
+  //   world_positions.begin(),
+  //   world_positions.end(),
+  //   0
+  // );
+  // emp::Shuffle(GetRandom(), world_positions);
+  emp_assert(*POP_SIZE <= GetSize());
+  emp::vector<size_t> world_positions(
+    utils::GenerateRandomOrdering(GetRandom(), GetSize())
+  );
+  emp_assert(world_positions.size() == GetSize());
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<Host> new_org;
     new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
@@ -24,7 +36,12 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE){
       emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->STARTING_TAGS_ONE_PROB());
       new_org->SetTag(new_tag);
     }
-    InjectHost(new_org);
+    // Needs to be add org at instead of inject because we've already resized the
+    //   world. (inject in well-mixed mode will inject at end of population).
+    // Using a shuffled list of positions to fill world in a random order. If
+    //   init pop size is same as capacity, will fill to capacity.
+    const size_t pos = world_positions[i];
+    AddOrgAt(new_org, emp::WorldPosition(pos));
   }
 }
 

@@ -1,6 +1,12 @@
 #pragma once
 
 #include "emp/datastructs/map_utils.hpp"
+#include "emp/base/vector.hpp"
+#include "emp/math/Random.hpp"
+#include "emp/math/random_utils.hpp"
+#include "emp/base/assert.hpp"
+
+#include <algorithm>
 
 namespace utils {
 
@@ -20,5 +26,32 @@ void ValidateConfigMode(
     exit(-1);
   }
 }
+
+emp::vector<size_t> GenerateRandomOrdering(
+  emp::Random& random,
+  size_t first,
+  size_t end
+) {
+  emp_assert(end > first);
+  const size_t num_positions = end - first;
+  emp::vector<size_t> positions(num_positions);
+  std::iota(
+    positions.begin(),
+    positions.end(),
+    first
+  );
+  emp::Shuffle(random, positions);
+  return positions;
+}
+
+emp::vector<size_t> GenerateRandomOrdering(
+  emp::Random& random,
+  size_t end
+) {
+  emp_assert(end > 0);
+  return GenerateRandomOrdering(random, 0, end);
+}
+
+
 
 }

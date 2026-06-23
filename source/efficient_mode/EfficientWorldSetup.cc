@@ -4,6 +4,7 @@
 #include "EfficientWorld.h"
 #include "EfficientSymbiont.h"
 #include "EfficientHost.h"
+#include "../default_mode/utils.h"
 
 /**
  * Input: The number of efficient hosts.
@@ -13,10 +14,15 @@
  * Purpose: To populate the world with efficient hosts with appropriate phenotypes.
  */
 void EfficientWorld::SetupHosts(long unsigned int* POP_SIZE) {
+  emp::vector<size_t> world_positions(
+    utils::GenerateRandomOrdering(GetRandom(), GetSize())
+  );
+  emp_assert(*POP_SIZE <= GetSize());
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<EfficientHost> new_org;
     new_org.New(&GetRandom(), this, efficient_config, efficient_config->HOST_INT());
-    InjectHost(new_org);
+    const size_t pos = world_positions[i];
+    AddOrgAt(new_org, emp::WorldPosition(pos));
   }
 }
 

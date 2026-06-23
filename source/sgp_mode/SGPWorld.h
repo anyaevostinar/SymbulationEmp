@@ -532,6 +532,9 @@ protected:
 
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
+  // NOTE - Can we get rid of passing these values in as pointers?
+  void SetupHosts(long unsigned int* POP_SIZE) override;
+  void SetupSymbionts(long unsigned int* total_syms) override;
   void SetupOrgTypeVariables();
   void DisableConfigurableInstructions();
   void SetupPopStructure();
@@ -895,9 +898,6 @@ public:
    * and populating the world with hosts and symbionts.
    */
   void Setup() override;
-  // NOTE - Can we get rid of passing these values in as pointers?
-  void SetupHosts(long unsigned int* POP_SIZE) override;
-  void SetupSymbionts(long unsigned int* total_syms) override;
 
   void SetMutationZero();
 
