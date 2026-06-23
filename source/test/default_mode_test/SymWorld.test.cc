@@ -992,7 +992,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
     config.SYM_LIMIT(sym_limit);
 
     WHEN("Grid is on"){
-      config.GRID(1);
+      config.SpatialStructure("Grid");
       world.SetPopStruct_Grid(width, height, false);
 
       THEN("Host babies are born next to their parents"){
@@ -1078,7 +1078,7 @@ TEST_CASE( "Spatial structure", "[default]" ){
     }
 
     WHEN("Grid is off"){
-      config.GRID(0);
+      config.SpatialStructure("WellMixed");
       world.SetPopStruct_Mixed(false);
       //given the size of the world, it's very unlikely that
       //organisms will randomly be placed in a neighbor position
@@ -1701,7 +1701,7 @@ TEST_CASE("Setup", "[default]") {
     config.GRID_Y(height);
 
     WHEN("Grid is on") {
-      config.GRID(1);
+      config.SpatialStructure("Grid");
       world.Setup();
       THEN("World size, width, and height are set correctly") {
         REQUIRE(world.GetWidth() == width);
