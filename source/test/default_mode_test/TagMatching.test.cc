@@ -646,7 +646,7 @@ TEST_CASE("Evolvable tag permissiveness", "[default]") {
 }
 
 TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
-  using sym_world_t = test_utils::SymWorld_Testing;
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
@@ -687,10 +687,11 @@ TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
 }
 
 TEST_CASE("SetupHosts with tag matching on", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
+    sym_world_t world(random, &config);
     size_t num_to_add = 5;
 
     WHEN("Random starting tags are on") {

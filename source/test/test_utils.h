@@ -25,7 +25,7 @@ void SetEmptyWellMixed(SymConfigBase& cfg) {
 //          own risk. protected functions need testing, too ;)
 // Example USAGE:
 //    using world_t = test_utils::TestingWorldWrapper<LysisWorld,SymConfigLysis>;
-template<typename WORLD_T, typename CONFIG_T>
+template<typename WORLD_T, typename CONFIG_T=SymConfigBase>
 class TestingWorldWrapper : public WORLD_T {
 public:
   using wrapped_world_t = WORLD_T;

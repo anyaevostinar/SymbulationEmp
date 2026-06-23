@@ -91,10 +91,11 @@ TEST_CASE( "PGG Interaction Patterns", "[pgg]" ) {
 }
 
 TEST_CASE("PGG SetupSymbionts", "[pgg]") {
+  using pgg_world_t = test_utils::TestingWorldWrapper<PGGWorld, SymConfigPGG>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigPGG config;
-    PGGWorld world(random, &config);
+    pgg_world_t world(random, &config);
 
     size_t world_size = 6;
     world.Resize(world_size);
@@ -122,11 +123,12 @@ TEST_CASE("PGG SetupSymbionts", "[pgg]") {
 }
 
 TEST_CASE("PGG SetupHosts", "[pgg]") {
+  using pgg_world_t = test_utils::TestingWorldWrapper<PGGWorld, SymConfigPGG>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigPGG config;
     test_utils::SetEmptyWellMixed(config);
-    PGGWorld world(random, &config);
+    pgg_world_t world(random, &config);
     world.Setup();
     world.Clear();
     REQUIRE(world.GetNumOrgs() == 0);

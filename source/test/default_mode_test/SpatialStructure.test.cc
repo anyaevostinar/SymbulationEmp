@@ -7,7 +7,7 @@
 #include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE( "Spatial structure grid mode", "[default][spatial-structure]" ) {
-  using sym_world_t = test_utils::SymWorld_Testing;
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;

@@ -56,10 +56,11 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
 }
 
 TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld,SymConfigLysis>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;
-    LysisWorld world(random, &config);
+    lysis_world_t world(random, &config);
 
     size_t world_size = 6;
     world.Resize(world_size);
