@@ -19,23 +19,16 @@ void SetEmptyWellMixed(SymConfigBase& cfg) {
   cfg.INIT_POP_SIZE(0);
 }
 
-// Wrapper class that exposes internal SymWorld functions exclusively for use
-// in unit testing.
-class SymWorld_Testing : public SymWorld {
+// Wrapper for Symbumlation world classes intended to expose protected
+// functions as public for testing.
+// WARNING: protected functions were likely protected for a reason! Use at your
+//          own risk. protected functions need testing, too ;)
+// Example USAGE:
+//    using world_t = test_utils::TestingWorldWrapper<LysisWorld,SymConfigLysis>;
+template<typename WORLD_T, typename CONFIG_T>
+class TestingWorldWrapper : public WORLD_T {
 public:
-  SymWorld_Testing(emp::Random& _random, emp::Ptr<SymConfigBase> _config) :
-    SymWorld(_random, _config)
-  { }
-
-  void SetupSpatialStructure() {
-    SymWorld::SetupSpatialStructure();
-  }
-};
-
-template<typename BASE_T, typename CONFIG_T>
-class TestingWorldWrapper : public BASE_T {
-public:
-  using wrapped_world_t = BASE_T;
+  using wrapped_world_t = WORLD_T;
   using wrapped_config_t = CONFIG_T;
 
   TestingWorldWrapper(emp::Random& _random, emp::Ptr<wrapped_config_t> _config) :
@@ -45,6 +38,15 @@ public:
   void SetupSpatialStructure() {
     wrapped_world_t::SetupSpatialStructure();
   }
+
+  void SetupHosts(long unsigned int* POP_SIZE) override {
+    wrapped_world_t::SetupHosts(POP_SIZE);
+  }
+
+  void SetupSymbionts(long unsigned int* total_syms) override {
+    wrapped_world_t::SetupSymbionts(total_syms);
+  }
+
 };
 
 }
