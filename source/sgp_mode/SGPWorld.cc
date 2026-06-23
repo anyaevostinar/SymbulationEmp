@@ -4,7 +4,7 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
-#include "utils.h"
+#include "../utils.h"
 
 namespace sgpmode {
 

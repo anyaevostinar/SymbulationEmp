@@ -4,7 +4,7 @@
 #include "EfficientWorld.h"
 #include "EfficientSymbiont.h"
 #include "EfficientHost.h"
-#include "../default_mode/utils.h"
+#include "../utils.h"
 
 /**
  * Input: The number of efficient hosts.

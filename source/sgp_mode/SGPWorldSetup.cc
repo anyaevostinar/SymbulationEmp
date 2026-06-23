@@ -3,14 +3,15 @@
 
 #include "SGPWorld.h"
 #include "org_type_info.h"
-#include "utils.h"
 #include "hardware/SGPHardware.h"
-#include "sgpl/utility/ThreadLocalRandom.hpp"
+#include "../utils.h"
 
+#include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
+
 
 
 // TODO - assert that sym / host has program

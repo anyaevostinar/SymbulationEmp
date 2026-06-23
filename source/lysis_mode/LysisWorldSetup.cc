@@ -4,7 +4,7 @@
 #include "LysisWorld.h"
 #include "Phage.h"
 #include "Bacterium.h"
-#include "../default_mode/utils.h"
+#include "../utils.h"
 
 /**
  * Input: The number of bacteria.

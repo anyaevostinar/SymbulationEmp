@@ -5,7 +5,7 @@
 #include "Host.h"
 #include "Symbiont.h"
 #include "SpatialStructure.h"
-#include "utils.h"
+#include "../utils.h"
 
 #include "../../Empirical/include/emp/datastructs/map_utils.hpp"
 
