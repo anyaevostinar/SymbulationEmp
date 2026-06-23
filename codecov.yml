@@ -1,9 +1,10 @@
 ignore:
-  - "source/catch"  # ignore folders and all its contents
-  - "stats_scripts" # the scripts for statistics do not currently have a test framework
-  - "web" # the web code does not currently have a test framework
+  - "source/catch/**/*"  # ignore folders and all its contents
+  - "stats_scripts/**/*" # the scripts for statistics do not currently have a test framework
+  - "web/**/*" # the web code does not currently have a test framework
   - "source/Organism.h"
   - "source/*.test.cc"
-  - "Empirical"
-  - "coverage_source"
-  - "source/test
+  - "Empirical/**/*"
+  - "coverage_source/**/*"
+  - "source/test/**/*
+  - "signalgp-lite/**/*"
