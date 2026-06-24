@@ -116,7 +116,7 @@ emp::vector<size_t> GenerateRandomOrdering(
   size_t first,
   size_t end
 ) {
-  emp_assert(end > first);
+  emp_assert(end >= first);
   const size_t num_positions = end - first;
   emp::vector<size_t> positions(num_positions);
   std::iota(
@@ -132,7 +132,7 @@ emp::vector<size_t> GenerateRandomOrdering(
   emp::Random& random,
   size_t end
 ) {
-  emp_assert(end > 0);
+  emp_assert(end >= 0);
   return GenerateRandomOrdering(random, 0, end);
 }
 
