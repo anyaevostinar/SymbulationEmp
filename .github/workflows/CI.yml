@@ -35,7 +35,8 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           root_dir: SymbulationEmp
-          branch: ${{ github.ref_name }}
+          override_branch: ${{ github.ref_name }}
+          slug: anyaevostinar/SymbulationEmp
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       
