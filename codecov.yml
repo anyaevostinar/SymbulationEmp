@@ -6,5 +6,5 @@ ignore:
   - "source/*.test.cc"
   - "Empirical/**/*"
   - "coverage_source/**/*"
-  - "source/test/**/*
+  - "source/test/**/*"
   - "signalgp-lite/**/*"
