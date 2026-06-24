@@ -649,11 +649,11 @@ TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
   using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
+    size_t world_size = 6;
     SymConfigBase config;
-    test_utils::SetEmptyWellMixed(config);
+    test_utils::SetWellMixed(config, world_size);
     sym_world_t world(random, &config);
 
-    size_t world_size = 6;
 
     WHEN("SetupSymbionts is called and random tag start is on") {
       config.TAG_MATCHING(1);

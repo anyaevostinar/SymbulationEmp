@@ -2,8 +2,6 @@
 
 #include "../../default_mode/SymWorld.h"
 #include "../../default_mode/Symbiont.h"
-#include "../../lysis_mode/Phage.h"
-#include "../../lysis_mode/LysisWorld.h"
 #include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
 
@@ -1337,13 +1335,10 @@ TEST_CASE("SetupHosts", "[default]") {
     emp::Random random(17);
     SymConfigBase config;
     sym_world_t world(random, &config);
-    // Need to manually setup world spatial structure before adding any hosts/symbionts
-    test_utils::SetEmptyWellMixed(config);
-    world.SetupSpatialStructure();
-
     WHEN("SetupHosts is called") {
       size_t num_to_add = 5;
-
+      test_utils::SetWellMixed(config, num_to_add);
+      world.SetupSpatialStructure();
 
       THEN("The specified number of hosts are added to the world") {
         world.SetupHosts(&num_to_add);
