@@ -1,4 +1,8 @@
 #include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientHost.h"
+#include "../../efficient_mode/EfficientSymbiont.h"
+#include "../../efficient_mode/EfficientConfigSetup.h"
+#include "../../efficient_mode/EfficientWorldSetup.cc"
 
 TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
   GIVEN("a world") {

@@ -1,6 +1,7 @@
 #include "../../efficient_mode/EfficientHost.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
 #include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientWorldSetup.cc"
 
 TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
   GIVEN("a world"){
@@ -10,7 +11,7 @@ TEST_CASE("GetEfficiencyDataNode", "[efficient]"){
     double points = 10;
     EfficientWorld world(random, &config);
     world.Resize(4);
-    
+
     config.FREE_LIVING_SYMS(1);
     config.SYM_INFECTION_CHANCE(0);
     config.SYM_LIMIT(3);

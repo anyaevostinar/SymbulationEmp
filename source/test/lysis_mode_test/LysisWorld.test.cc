@@ -1,5 +1,6 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
+#include "../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Lysis mode Update()", "[lysis]") {
   emp::Random random(17);

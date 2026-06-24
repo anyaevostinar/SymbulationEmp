@@ -1,5 +1,8 @@
 #include "../../efficient_mode/EfficientHost.h"
 #include "../../efficient_mode/EfficientSymbiont.h"
+#include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientWorldSetup.cc"
+
 
 TEST_CASE("EfficientSymbiont Constructor", "[efficient]"){
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);

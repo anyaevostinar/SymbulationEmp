@@ -19,6 +19,19 @@ void SetEmptyWellMixed(SymConfigBase& cfg) {
   cfg.INIT_POP_SIZE(0);
 }
 
+void SetWellMixed(
+  SymConfigBase& cfg,
+  size_t capacity,
+  size_t init_pop_size = 0
+) {
+  // Set spatial structure mode to well-mixed
+  cfg.SPATIAL_STRUCT_MODE("well-mixed");
+  // Set capacity x 1 size
+  cfg.WORLD_WIDTH(capacity);
+  cfg.WORLD_HEIGHT(1);
+  cfg.INIT_POP_SIZE(init_pop_size);
+}
+
 // Wrapper for Symbumlation world classes intended to expose protected
 // functions as public for testing.
 // WARNING: protected functions were likely protected for a reason! Use at your
@@ -39,11 +52,11 @@ public:
     wrapped_world_t::SetupSpatialStructure();
   }
 
-  void SetupHosts(long unsigned int* POP_SIZE) override {
+  void SetupHosts(long unsigned int* POP_SIZE) {
     wrapped_world_t::SetupHosts(POP_SIZE);
   }
 
-  void SetupSymbionts(long unsigned int* total_syms) override {
+  void SetupSymbionts(long unsigned int* total_syms) {
     wrapped_world_t::SetupSymbionts(total_syms);
   }
 
