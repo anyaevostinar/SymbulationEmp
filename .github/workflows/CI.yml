@@ -37,7 +37,6 @@ jobs:
           root_dir: SymbulationEmp
           override_branch: ${{ github.ref_name }}
           slug: anyaevostinar/SymbulationEmp
-          files: ./SymbulationEmp/codecov.yml
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       
