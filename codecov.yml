@@ -1,3 +1,6 @@
+codecov:
+  strict_yaml_branch: main
+
 ignore:
   - "SymbulationEmp/source/catch/**/*"
   - "SymbulationEmp/stats_scripts/**/*"
