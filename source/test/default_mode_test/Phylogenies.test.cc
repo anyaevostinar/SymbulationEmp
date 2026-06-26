@@ -361,7 +361,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   config.TAG_MATCHING(1);
   config.PHYLOGENY_TAXON_TYPE("tag");
   config.VERTICAL_TRANSMISSION(0);
-  config.STARTING_TAGS_ONE_PROB(0);
+  config.HOST_STARTING_TAGS_ONE_PROB(0);
   test_utils::SetEmptyWellMixed(config);
 
   int int_val = 0;
@@ -383,7 +383,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   WHEN("A host and symbiont are added to the world") {
     emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
     emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-    emp::BitSet<TAG_LENGTH> zeros_tag = emp::BitSet<TAG_LENGTH>(random, config.STARTING_TAGS_ONE_PROB());
+    emp::BitSet<TAG_LENGTH> zeros_tag = emp::BitSet<TAG_LENGTH>(random, config.HOST_STARTING_TAGS_ONE_PROB());
     parent_host->SetTag(zeros_tag);
     parent_symbiont->SetTag(zeros_tag);
 

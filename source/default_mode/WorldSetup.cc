@@ -17,13 +17,6 @@
  * Purpose: To populate the world with hosts with appropriate phenotypes.
  */
 void SymWorld::SetupHosts(long unsigned int* POP_SIZE) {
-  // emp::vector<size_t> world_positions(GetSize(), 0);
-  // std::iota(
-  //   world_positions.begin(),
-  //   world_positions.end(),
-  //   0
-  // );
-  // emp::Shuffle(GetRandom(), world_positions);
   emp_assert(*POP_SIZE <= GetSize());
   emp::vector<size_t> world_positions(
     utils::GenerateRandomOrdering(GetRandom(), GetSize())
@@ -33,7 +26,7 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE) {
     emp::Ptr<Host> new_org;
     new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
     if (my_config->TAG_MATCHING()) {
-      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->STARTING_TAGS_ONE_PROB());
+      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->HOST_STARTING_TAGS_ONE_PROB());
       new_org->SetTag(new_tag);
     }
     // Needs to be add org at instead of inject because we've already resized the
@@ -57,7 +50,7 @@ void SymWorld::SetupSymbionts(long unsigned int *total_syms) {
   for (size_t j = 0; j < *total_syms; j++) {
     emp::Ptr<Symbiont> new_sym = emp::NewPtr<Symbiont>(&GetRandom(), this, my_config, my_config->SYM_INT(), 0);
     if (my_config->TAG_MATCHING()) {
-      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->STARTING_TAGS_ONE_PROB());
+      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->HOST_STARTING_TAGS_ONE_PROB());
       new_sym->SetTag(new_tag); // if this sym is hosted, this tag will be overwritten upon injection
     }
     InjectSymbiont(new_sym);

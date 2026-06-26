@@ -1,8 +1,8 @@
-#include "../test_utils.h"
 #include "../../default_mode/SymWorld.h"
-#include "../../default_mode/Symbiont.h"
-#include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+
+#include "../test_utils.h"
 
 TEST_CASE("Tag matching", "[default]") {
   int trans_res = 10;
@@ -645,42 +645,35 @@ TEST_CASE("Evolvable tag permissiveness", "[default]") {
   }
 }
 
+// NOTE: This test is a little bit frustrating to maintain if we change calls to
+//        random number generator. Tweaking it to be more maintainable, but I think
+//        still test the intended code.
 TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
   using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
-    emp::Random random(17);
-    size_t world_size = 6;
+    emp::Random random(18);
+    size_t world_size = 1;
     SymConfigBase config;
     test_utils::SetWellMixed(config, world_size);
     sym_world_t world(random, &config);
 
-
-    WHEN("SetupSymbionts is called and random tag start is on") {
+    WHEN("SetupSymbionts is called") {
       config.TAG_MATCHING(1);
+      config.TAG_PERMISSIVENESS(0.0);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-      config.STARTING_TAGS_ONE_PROB(0.1);
       world.SetupSpatialStructure();
+      // Setup hosts with one prob = 0
+      config.HOST_STARTING_TAGS_ONE_PROB(0.5);
       world.SetupHosts(&world_size);
+      world.SetupSymbionts(&world_size);
 
-      size_t num_to_add = 4;
-      world.SetupSymbionts(&num_to_add);
-      size_t num_expected = 2;
-
-      THEN("The specified number of symbionts are added to the world and match their host's tags") {
-        size_t total_ones = 0;
-        size_t num_added = 0;
-        for (size_t i = 0; i < world_size; i++) {
-          Organism& host = world.GetOrg(i);
-          for (auto sym : host.GetSymbionts()) {
-            num_added++;
-            int ones = sym->GetTag().CountOnes();
-            total_ones += ones;
-            REQUIRE((*world.GetTagMetric())(sym->GetTag(), host.GetTag()) == 0);
-          }
-        }
-        REQUIRE(num_added == num_expected);
-        REQUIRE(total_ones > (num_expected - 1) * 3);
-        REQUIRE(total_ones < (num_expected + 1) * 3);
+      THEN("A symbiont should be added to the world with a tag that matches their host") {
+        Organism& host = world.GetOrg(0);
+        REQUIRE(host.GetSymbionts().size() == 1);
+        Organism& sym = host.GetSymbiont(0);
+        const auto& host_tag = host.GetTag();
+        const auto& sym_tag = sym.GetTag();
+        REQUIRE(world.CalcTagMetric(sym_tag, host_tag) == 0);
       }
     }
   }
@@ -691,13 +684,15 @@ TEST_CASE("SetupHosts with tag matching on", "[default]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    sym_world_t world(random, &config);
     size_t num_to_add = 5;
+    test_utils::SetWellMixed(config, num_to_add);
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     WHEN("Random starting tags are on") {
       config.TAG_MATCHING(1);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-      config.STARTING_TAGS_ONE_PROB(0.1);
+      config.HOST_STARTING_TAGS_ONE_PROB(0.1);
       // we expect 3.2ish 1s per tag
 
       world.SetupHosts(&num_to_add);

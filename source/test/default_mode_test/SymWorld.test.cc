@@ -1,10 +1,8 @@
-#include "../test_utils.h"
-
 #include "../../default_mode/SymWorld.h"
-#include "../../default_mode/Symbiont.h"
-#include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
 
+#include "../test_utils.h"
 
 TEST_CASE("Well-Mixed Neighbor doesn't include focal org", "[default]") {
   GIVEN(" a world ") {

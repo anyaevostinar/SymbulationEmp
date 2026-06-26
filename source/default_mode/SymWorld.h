@@ -293,8 +293,12 @@ public:
     }
   }
 
+  /**
+   * TODO: explain why overwritting empirical's mixed
+   */
   void SetPopStruct_Mixed(bool synchronous_gen=false) {
     emp::World<Organism>::SetPopStruct_Mixed(synchronous_gen);
+    // TODO: redefine inject to not grow pop
 
     // For well-mixed, we need to alter the Empirical World neighbor finding to not allow the current location to be returned.
     // H/t to Kai Johnson for suggestion to exclude upper cell and swap it in if needed
@@ -457,8 +461,12 @@ public:
    *
    * Purpose: To get the world's tag distance calculator
    */
-   emp::Ptr<tag_metric_t> GetTagMetric() {
+  emp::Ptr<tag_metric_t> GetTagMetric() {
     return tag_metric;
+  }
+
+  double CalcTagMetric(const tag_t& tag_a, const tag_t& tag_b) const {
+    return (*tag_metric)(tag_a, tag_b);
   }
 
   /**
@@ -885,8 +893,8 @@ public:
       new_loc = GetRandomOrgID();
       // If the position is acceptable, add the sym to the host in that position
       if (IsOccupied(new_loc)) {
-        const bool sucess = pop[new_loc]->AddSymbiont(new_sym) != 0;
-        if (sucess) {
+        const bool success = pop[new_loc]->AddSymbiont(new_sym) != 0;
+        if (success) {
           if (my_config->TAG_MATCHING()) {
             new_sym->SetTag(pop[new_loc]->GetTag());
           }
