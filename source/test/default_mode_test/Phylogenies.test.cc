@@ -5,6 +5,7 @@
 #include "../../default_mode/WorldSetup.cc"
 
 TEST_CASE( "Host Phylogeny", "[default]" ) {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -14,7 +15,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ) {
   config.NUM_PHYLO_BINS(20);
   config.PHYLOGENY_TAXON_TYPE("interaction-value-binned");
   int int_val = 0;
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   world.Setup();
   int world_size = 4;
   world.Resize(world_size);
@@ -139,6 +140,7 @@ TEST_CASE( "Host Phylogeny", "[default]" ) {
 }
 
 TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   config.MUTATION_SIZE(0.09);
@@ -147,7 +149,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
   config.PHYLOGENY(1);
   config.NUM_PHYLO_BINS(20);
   int int_val = 0;
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
 
@@ -262,17 +264,18 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
 }
 
 TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   config.PHYLOGENY(1);
   config.NUM_PHYLO_BINS(20);
   config.TRACK_PHYLOGENY_INTERACTIONS(1);
   int int_val = -1;
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   size_t grid_side = 4;
   config.WORLD_WIDTH(grid_side);
   config.WORLD_HEIGHT(grid_side);
-
+  world.SetupSpatialStructure();
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
 
@@ -282,7 +285,6 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
     emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
     world.InjectHost(host);
-    world.Resize(grid_side, grid_side);
     world.InjectSymbiont(symbiont);
     REQUIRE(world.GetNumOrgs() == 1);
     REQUIRE(host->HasSym());
@@ -309,7 +311,6 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
   WHEN("A symbiont is born into a host (symdobirth or dobirth--HT or VT)") {
     config.VERTICAL_TRANSMISSION(1);
     config.SYM_VERT_TRANS_RES(0);
-    world.Resize(grid_side, grid_side);
 
     size_t pos = 2;
 
@@ -353,6 +354,7 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
 }
 
 TEST_CASE("Tag-based Phylogeny", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(5);
   SymConfigBase config;
   config.MUTATION_SIZE(0.1);
@@ -362,7 +364,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   config.PHYLOGENY_TAXON_TYPE("tag");
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_STARTING_TAGS_ONE_PROB(0);
-  test_utils::SetEmptyWellMixed(config);
+  test_utils::SetWellMixed(config, 10);
 
   int int_val = 0;
   emp::WorldPosition fake_pos = emp::WorldPosition(0, 0);
@@ -370,8 +372,8 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   using s_taxon_t = emp::Taxon<taxon_info_t, datastruct::SymbiontTaxonData>;
   using h_taxon_t = emp::Taxon<taxon_info_t, datastruct::HostTaxonData>;
 
-  SymWorld world(random, &config);
-  world.Setup();
+  sym_world_t world(random, &config);
+  world.SetupSpatialStructure();
 
   emp::HammingMetric<TAG_LENGTH> tag_metric = emp::HammingMetric<TAG_LENGTH>();
 
@@ -558,6 +560,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
 }
 
 TEST_CASE("Individual-level phylogenies", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   int repro_points = 100;
@@ -568,7 +571,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   config.PHYLOGENY(1);
   config.PHYLOGENY_TAXON_TYPE("individual");
 
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   int int_val = 0;
   int world_size = 10;
   world.Resize(world_size);
@@ -834,6 +837,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
 }
 
 TEST_CASE("Host switch counter", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   int repro_points = 100;
@@ -845,7 +849,7 @@ TEST_CASE("Host switch counter", "[default]") {
   config.PHYLOGENY(1);
   config.PHYLOGENY_TAXON_TYPE("individual");
 
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   int int_val = 0;
   int world_size = 4;
   world.Resize(world_size);
@@ -972,7 +976,7 @@ TEST_CASE("Host switch counter", "[default]") {
 }
 
 TEST_CASE("Unpruned phylogenies", "[default]") {
-
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
   int repro_points = 100;
@@ -984,7 +988,7 @@ TEST_CASE("Unpruned phylogenies", "[default]") {
   config.PHYLOGENY_TAXON_TYPE("individual");
   config.STORE_EXTINCT(1);
 
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   int int_val = 0;
   int world_size = 5;
   world.Resize(world_size);

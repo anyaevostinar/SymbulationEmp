@@ -3,6 +3,7 @@
 #include "../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Lysis mode Update()", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   emp::Random random(17);
   SymConfigLysis config;
   int int_val = 0;
@@ -11,7 +12,7 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
   int num_updates = 5;
   int burst_time = 2;
 
-  LysisWorld world(random, &config);
+  lysis_world_t world(random, &config);
   world.Resize(world_size);
 
   config.LYSIS(1);
@@ -57,7 +58,7 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
 }
 
 TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
-  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld,SymConfigLysis>;
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;

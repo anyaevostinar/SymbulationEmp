@@ -1,3 +1,4 @@
+#include "../test_utils.h"
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 
@@ -39,7 +40,7 @@ TEST_CASE("Host SetSymbionts", "[default]") {
 
   REQUIRE(host->GetSymbionts().size() == syms.size());
 
-  for(size_t i = 0; i < syms.size(); i++){
+  for (size_t i = 0; i < syms.size(); i++) {
     emp::vector<emp::Ptr<Organism>> host_syms = host->GetSymbionts();
     emp::Ptr<Organism> curSym = host_syms[i];
     emp::Ptr<Organism> curHost = curSym->GetHost();
@@ -189,7 +190,7 @@ TEST_CASE("Host DistribResources", "[default]") {
 
     THEN("Host and Symbionts points increase") {
 
-      for( emp::Ptr<Organism> symbiont : syms) {
+      for ( emp::Ptr<Organism> symbiont : syms) {
         REQUIRE(symbiont->GetPoints() == sym_points);
       }
       REQUIRE(host->GetPoints() == host_points);
@@ -224,7 +225,7 @@ TEST_CASE("Host DistribResources", "[default]") {
       double host_points = remaining_resources * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
       THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
-        for( emp::Ptr<Organism> symbiont : syms) {
+        for ( emp::Ptr<Organism> symbiont : syms) {
           REQUIRE(symbiont->GetPoints() == sym_orig_points);
         }
         REQUIRE(host->GetPoints() == host_points);
@@ -260,7 +261,7 @@ TEST_CASE("Host DistribResources", "[default]") {
       double host_points = (remaining_resources - sym_steals) * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
       THEN("Symbionts points and Host points increase") {
-        for( emp::Ptr<Organism> symbiont : syms) {
+        for ( emp::Ptr<Organism> symbiont : syms) {
           REQUIRE(symbiont->GetPoints() == sym_points);
           REQUIRE(symbiont->GetPoints() > sym_orig_points);
         }
@@ -327,7 +328,7 @@ TEST_CASE("Host DistribResources", "[default]") {
 
 
     THEN("Symbionts points and Host points increase") {
-      for( emp::Ptr<Organism> symbiont : syms) {
+      for ( emp::Ptr<Organism> symbiont : syms) {
 
 
         REQUIRE(symbiont->GetPoints() == sym_portion);
@@ -369,7 +370,7 @@ TEST_CASE("Host DistribResources", "[default]") {
     double host_points = host_portion * num_syms; // * by num_syms bc points are added during each iteration through host's syms
 
     THEN("Symbiont points do not change (gets nothing from host), Host points increase") {
-      for( emp::Ptr<Organism> symbiont : syms) {
+      for ( emp::Ptr<Organism> symbiont : syms) {
         REQUIRE(symbiont->GetPoints() == sym_points);
         REQUIRE(symbiont->GetPoints() == symbiont_orig_points);
       }
@@ -388,9 +389,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
   SymWorld w(*random, &config);
   SymWorld * world = &w;
 
-
-
-  WHEN("When vertical transmission is enabled and the sym has enough resources to transmit"){
+  WHEN("When vertical transmission is enabled and the sym has enough resources to transmit") {
     config.VERTICAL_TRANSMISSION(1);
     double points_required = 50;
     double points_recieved = points_required;
@@ -417,7 +416,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
     host.Delete();
     host_baby.Delete();
   }
-  WHEN("When vertical transmission is disabled"){
+  WHEN("When vertical transmission is disabled") {
     config.VERTICAL_TRANSMISSION(0);
     double host_int_val = .5;
     double sym_int_val = -.5;
@@ -436,7 +435,7 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
     host.Delete();
     host_baby.Delete();
   }
-  WHEN("When the sym does not have enough resources to transmit"){
+  WHEN("When the sym does not have enough resources to transmit") {
     config.VERTICAL_TRANSMISSION(1);
     double int_val = 0;
     double points_required = 50;
@@ -463,17 +462,18 @@ TEST_CASE("Vertical Transmission of Symbiont", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("HandleEctosymbiosis"){
+TEST_CASE("HandleEctosymbiosis") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Random random(17);
   SymConfigBase config;
-  SymWorld world(random, &config);
+  sym_world_t world(random, &config);
   world.Resize(1,1);
   double int_val = 0.5;
 
   config.FREE_LIVING_SYMS(1);
   config.SYM_INFECTION_CHANCE(0.0);
 
-  WHEN("Ectosymbiosis is off"){
+  WHEN("Ectosymbiosis is off") {
     config.ECTOSYMBIOSIS(0);
 
     emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -490,16 +490,16 @@ TEST_CASE("HandleEctosymbiosis"){
     double leftover_res = host->HandleEctosymbiosis(res, 0);
     host->DistribResources(leftover_res);
 
-    THEN("Parallel organisms don't distribute resources together"){
+    THEN("Parallel organisms don't distribute resources together") {
       REQUIRE(sym->GetPoints() == sym_res);
       REQUIRE(host->GetPoints() == host_res);
       REQUIRE(leftover_res == res);
     }
   }
-  WHEN("Ectosymbiosis is on"){
+  WHEN("Ectosymbiosis is on") {
     config.ECTOSYMBIOSIS(1);
 
-    WHEN("There is no endosymbiont, only ectosymbiont"){
+    WHEN("There is no endosymbiont, only ectosymbiont") {
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
@@ -517,14 +517,14 @@ TEST_CASE("HandleEctosymbiosis"){
 
       double leftover_res = host->HandleEctosymbiosis(res, 0);
 
-      THEN("Ecto symbiont benefits fully"){
+      THEN("Ecto symbiont benefits fully") {
         REQUIRE(sym->GetPoints() == sym_res);
         REQUIRE(host->GetPoints() == host_res);
         REQUIRE(leftover_res == 0);
       }
     }
 
-    WHEN("A hosted sym does not confer immunity to ectosymbiosis"){
+    WHEN("A hosted sym does not confer immunity to ectosymbiosis") {
       int synergy = 1;
       config.ECTOSYMBIOTIC_IMMUNITY(0);
       config.SYNERGY(synergy);
@@ -551,7 +551,7 @@ TEST_CASE("HandleEctosymbiosis"){
       double leftover_res = host->HandleEctosymbiosis(res, 0);
       host->DistribResources(leftover_res);
 
-      THEN("Both symbionts get the same amount of resources"){
+      THEN("Both symbionts get the same amount of resources") {
         REQUIRE(hosted_sym->GetPoints() == sym_res);
         REQUIRE(parallel_sym->GetPoints() == sym_res);
         REQUIRE(host->GetPoints() == host_res);
@@ -559,7 +559,7 @@ TEST_CASE("HandleEctosymbiosis"){
       }
     }
 
-    WHEN("A hosted sym confers immunity to ectosymbiosis"){
+    WHEN("A hosted sym confers immunity to ectosymbiosis") {
       config.ECTOSYMBIOTIC_IMMUNITY(1);
 
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -583,14 +583,14 @@ TEST_CASE("HandleEctosymbiosis"){
       double leftover_res = host->HandleEctosymbiosis(res, 0);
       host->DistribResources(leftover_res);
 
-      THEN("The parallel symbiont does not receive resources"){
+      THEN("The parallel symbiont does not receive resources") {
         REQUIRE(hosted_sym->GetPoints() == hosted_sym_res);
         REQUIRE(parallel_sym->GetPoints() == 0);
         REQUIRE(host->GetPoints() == host_res);
         REQUIRE(leftover_res == res); //ectosymbiosis doesn't happen
       }
     }
-    WHEN("There is no parallel sym"){
+    WHEN("There is no parallel sym") {
       double int_val = 0.5;
 
       config.ECTOSYMBIOSIS(1);
@@ -605,7 +605,7 @@ TEST_CASE("HandleEctosymbiosis"){
       double leftover_res = host->HandleEctosymbiosis(res, 0);
       host->DistribResources(leftover_res);
 
-      THEN("The host does not get a sym modifier on its resources"){
+      THEN("The host does not get a sym modifier on its resources") {
         REQUIRE(host->GetPoints() == host_res);
         REQUIRE(leftover_res == res);
       }

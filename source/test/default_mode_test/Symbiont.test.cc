@@ -1,3 +1,4 @@
+#include "../test_utils.h"
 #include "../../default_mode/Host.h"
 #include "../../default_mode/Symbiont.h"
 
@@ -165,7 +166,7 @@ TEST_CASE("SetPoints, GetPoints", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
+TEST_CASE("Symbiont SetDead, GetDead", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -189,7 +190,7 @@ TEST_CASE("Symbiont SetDead, GetDead", "[default]"){
   random.Delete();
 }
 
-TEST_CASE("WantsToInfect", "[default]"){
+TEST_CASE("WantsToInfect", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -197,12 +198,12 @@ TEST_CASE("WantsToInfect", "[default]"){
   world->Setup();
   double int_val = 0;
 
-  WHEN("Symbiont infection chance is 0"){
+  WHEN("Symbiont infection chance is 0") {
     config.SYM_INFECTION_CHANCE(0);
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
 
-    THEN("Symbionts never want to infect"){
+    THEN("Symbionts never want to infect") {
       REQUIRE(sym1->WantsToInfect() == false);
       REQUIRE(sym2->WantsToInfect() == false);
     }
@@ -211,12 +212,12 @@ TEST_CASE("WantsToInfect", "[default]"){
     sym2.Delete();
   }
 
-  WHEN("Symbiont infection chance is 1"){
+  WHEN("Symbiont infection chance is 1") {
     config.SYM_INFECTION_CHANCE(1);
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
 
-    THEN("Symbionts always want to infect"){
+    THEN("Symbionts always want to infect") {
       REQUIRE(sym1->WantsToInfect() == true);
       REQUIRE(sym2->WantsToInfect() == true);
     }
@@ -228,7 +229,7 @@ TEST_CASE("WantsToInfect", "[default]"){
   random.Delete();
 }
 
-TEST_CASE("InfectionFails", "[default]"){
+TEST_CASE("InfectionFails", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(17);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -236,12 +237,12 @@ TEST_CASE("InfectionFails", "[default]"){
   world->Setup();
   double int_val = 0;
 
-  WHEN("Symbiont infection failure rate is 0"){
+  WHEN("Symbiont infection failure rate is 0") {
     config.SYM_INFECTION_FAILURE_RATE(0);
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
 
-    THEN("infection never fails"){
+    THEN("infection never fails") {
       REQUIRE(sym1->InfectionFails() == false);
       REQUIRE(sym2->InfectionFails() == false);
     }
@@ -250,7 +251,7 @@ TEST_CASE("InfectionFails", "[default]"){
     sym2.Delete();
   }
 
-  WHEN("Symbiont infection failure rate is between 0 and 1"){
+  WHEN("Symbiont infection failure rate is between 0 and 1") {
     config.SYM_INFECTION_FAILURE_RATE(0.5);
     emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     emp::Ptr<Organism> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
@@ -259,12 +260,12 @@ TEST_CASE("InfectionFails", "[default]"){
     size_t failed_infection_count = 0;
     size_t total_possible = 4;
 
-    if(sym1->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
-    if(sym2->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
-    if(sym3->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
-    if(sym4->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+    if (sym1->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+    if (sym2->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+    if (sym3->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
+    if (sym4->InfectionFails() == true) failed_infection_count = failed_infection_count + 1;
 
-    THEN("infection sometimes fails, sometimes doesn't"){
+    THEN("infection sometimes fails, sometimes doesn't") {
       REQUIRE(failed_infection_count < total_possible);
       REQUIRE(failed_infection_count > 0);
     }
@@ -275,12 +276,12 @@ TEST_CASE("InfectionFails", "[default]"){
     sym4.Delete();
   }
 
-  WHEN("Symbiont infection failure rate is 1"){
+  WHEN("Symbiont infection failure rate is 1") {
     config.SYM_INFECTION_FAILURE_RATE(1);
     emp::Ptr<Symbiont> sym1 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
     emp::Ptr<Symbiont> sym2 = emp::NewPtr<Symbiont>(random, world, &config, int_val);
 
-    THEN("infection always fails"){
+    THEN("infection always fails") {
       REQUIRE(sym1->InfectionFails() == true);
       REQUIRE(sym2->InfectionFails() == true);
     }
@@ -305,13 +306,13 @@ TEST_CASE("mutate", "[default]") {
     double orig_infection_chance = 1;
     config.MUTATION_SIZE(0.002);
 
-    WHEN("free living symbionts are allowed"){
+    WHEN("free living symbionts are allowed") {
       config.FREE_LIVING_SYMS(1);
       config.SYM_INFECTION_CHANCE(orig_infection_chance);
       emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
       sym->Mutate();
 
-      THEN("Mutation occurs and both interaction value and infection chance change"){
+      THEN("Mutation occurs and both interaction value and infection chance change") {
         REQUIRE(sym->GetIntVal() != int_val);
         REQUIRE(sym->GetIntVal() <= 1);
         REQUIRE(sym->GetIntVal() >= -1);
@@ -323,7 +324,7 @@ TEST_CASE("mutate", "[default]") {
       sym.Delete();
     }
 
-    WHEN("free living symbionts are not allowed"){
+    WHEN("free living symbionts are not allowed") {
       emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
       sym->Mutate();
 
@@ -464,12 +465,12 @@ TEST_CASE("reproduce", "[default]") {
 }
 
 TEST_CASE("Process", "[default]") {
-
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;
-  test_utils::SetEmptyWellMixed(config);
-  emp::Ptr<SymWorld> world = emp::NewPtr<SymWorld>(*random, &config);
-  world->Setup();
+  test_utils::SetWellMixed(config, 100);
+  emp::Ptr<sym_world_t> world = emp::NewPtr<sym_world_t>(*random, &config);
+  world->SetupSpatialStructure();
   //add new test for free living sym not moving when it shouldn't
   WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
     double int_val = 1;
@@ -638,7 +639,7 @@ TEST_CASE("Process", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("Symbiont ProcessResources", "[default]"){
+TEST_CASE("Symbiont ProcessResources", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -647,10 +648,10 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
   config.SYNERGY(5);
 
 
-  WHEN("sym_int_val < 0"){
+  WHEN("sym_int_val < 0") {
     double sym_int_val = -0.6;
 
-    WHEN("host_int_val > 0"){
+    WHEN("host_int_val > 0") {
       double host_int_val = 0.2;
       emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
       emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
@@ -661,7 +662,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
       host->SetResInProcess(80);
 
-      THEN("sym receives a donation and stolen resources, host receives betrayal"){
+      THEN("sym receives a donation and stolen resources, host receives betrayal") {
         REQUIRE(sym->ProcessResources(20) == expected_return);
         REQUIRE(sym->GetPoints() == expected_sym_points);
 
@@ -670,9 +671,9 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
       host.Delete();
     }
 
-    WHEN("host_int_val < 0 and resources are placed into defense"){
+    WHEN("host_int_val < 0 and resources are placed into defense") {
 
-      WHEN("host successfully defends from symsteal"){
+      WHEN("host successfully defends from symsteal") {
         double host_int_val = -0.8;
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
@@ -682,7 +683,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
         double expected_return = 0; // hostportion * synergy
 
         host->SetResInProcess(20);
-        THEN("symbiont is unsuccessful at stealing"){
+        THEN("symbiont is unsuccessful at stealing") {
           REQUIRE(sym->ProcessResources(0) == expected_return);
           REQUIRE(sym->GetPoints() == expected_sym_points);
         }
@@ -690,7 +691,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
         host.Delete();
       }
 
-      WHEN("host fails at defense"){
+      WHEN("host fails at defense") {
         double host_int_val = -0.5;
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, world, &config, host_int_val);
         emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, sym_int_val);
@@ -701,7 +702,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
 
         host->SetResInProcess(50);
 
-        THEN("Sym steals successfully"){
+        THEN("Sym steals successfully") {
           REQUIRE(sym->ProcessResources(0) == expected_return);
           REQUIRE(sym->GetPoints() == Approx(expected_sym_points));
         }
@@ -726,7 +727,7 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
     host->SetResInProcess(50);
 
 
-    THEN("Sym attempts to give benefit back"){
+    THEN("Sym attempts to give benefit back") {
       REQUIRE(sym->ProcessResources(50) == expected_return);
       REQUIRE(sym->GetPoints() == expected_sym_points);
     }
@@ -737,20 +738,21 @@ TEST_CASE("Symbiont ProcessResources", "[default]"){
   random.Delete();
 }
 
-TEST_CASE("Symbiont GrowOlder", "[default]"){
+TEST_CASE("Symbiont GrowOlder", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
-  SymWorld world(*random, &config);
+  sym_world_t world(*random, &config);
   world.Setup();
   world.Resize(2,2);
   config.SYM_AGE_MAX(2);
 
-  WHEN ("A free-living symbiont reaches its maximum age"){
+  WHEN ("A free-living symbiont reaches its maximum age") {
     config.FREE_LIVING_SYMS(1);
     emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &world, &config, 1);
     world.AddOrgAt(sym, emp::WorldPosition(0,1));
-    THEN("The symbiont dies and gets removed from the world"){
+    THEN("The symbiont dies and gets removed from the world") {
       REQUIRE(world.GetNumOrgs() == 1);
       REQUIRE(sym->GetDead() == false);
       REQUIRE(sym->GetAge() == 0);
@@ -763,12 +765,12 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
       REQUIRE(world.GetNumOrgs() == 0);
     }
   }
-  WHEN ("A hosted symbiont reaches its maximum age"){
+  WHEN ("A hosted symbiont reaches its maximum age") {
     emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, &world, &config, 1);
     emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, 1);
     world.AddOrgAt(host, 1);
     host->AddSymbiont(sym);
-    THEN("It dies and gets removed from its host"){
+    THEN("It dies and gets removed from its host") {
       REQUIRE(host->HasSym() == true);
       REQUIRE(sym->GetAge() == 0);
       host->Process(1);
@@ -783,7 +785,7 @@ TEST_CASE("Symbiont GrowOlder", "[default]"){
   random.Delete();
 }
 
-TEST_CASE("Symbiont MakeNew", "[default]"){
+TEST_CASE("Symbiont MakeNew", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;
   test_utils::SetEmptyWellMixed(config);
@@ -794,7 +796,7 @@ TEST_CASE("Symbiont MakeNew", "[default]"){
   emp::Ptr<Organism> sym1 = emp::NewPtr<Symbiont>(random, &world, &config, sym_int_val);
   emp::Ptr<Organism> sym2 = sym1->MakeNew();
 
-  THEN("The new symbiont has the same genome as its parent, but age and points 0"){
+  THEN("The new symbiont has the same genome as its parent, but age and points 0") {
     REQUIRE(sym2->GetIntVal() == sym1->GetIntVal());
     REQUIRE(sym2->GetInfectionChance() == sym1->GetInfectionChance());
     REQUIRE(sym2->GetAge() == 0);

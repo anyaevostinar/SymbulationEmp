@@ -83,17 +83,17 @@ TEST_CASE("Phage Process", "[lysis]") {
   }
 }
 
-TEST_CASE("Phage Vertical Transmission", "[lysis]"){
+TEST_CASE("Phage Vertical Transmission", "[lysis]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(4);
   SymConfigLysis config;
   LysisWorld w(*random, &config);
   LysisWorld * world = &w;
   config.LYSIS(1);
 
-  WHEN("phage is lytic"){
+  WHEN("phage is lytic") {
     config.LYSIS_CHANCE(1);
 
-    WHEN("Vertical Transmission is enabled"){
+    WHEN("Vertical Transmission is enabled") {
       config.VERTICAL_TRANSMISSION(1);
       double host_int_val = .5;
       double sym_int_val = -.5;
@@ -112,7 +112,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
       bacterium.Delete();
       host_baby.Delete();
     }
-    WHEN("Vertical Transmission is disabled"){
+    WHEN("Vertical Transmission is disabled") {
       config.VERTICAL_TRANSMISSION(0);
       double host_int_val = .5;
       double sym_int_val = -.5;
@@ -134,10 +134,10 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
 
   }
 
-  WHEN("phage is lysogenic"){
+  WHEN("phage is lysogenic") {
     config.LYSIS_CHANCE(0);
 
-    WHEN("Vertical Transmission is enabled"){
+    WHEN("Vertical Transmission is enabled") {
       config.VERTICAL_TRANSMISSION(1);
       double host_int_val = .5;
       double sym_int_val = -.5;
@@ -156,7 +156,7 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
       bacterium.Delete();
       host_baby.Delete();
     }
-    WHEN("Vertical Transmission is disabled"){
+    WHEN("Vertical Transmission is disabled") {
       config.VERTICAL_TRANSMISSION(0);
       double host_int_val = .5;
       double sym_int_val = -.5;
@@ -180,14 +180,14 @@ TEST_CASE("Phage Vertical Transmission", "[lysis]"){
   random.Delete();
 }
 
-TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
+TEST_CASE("Host phage death and removal from syms list", "[lysis]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
   SymConfigLysis config;
   LysisWorld w(*random, &config);
   LysisWorld *world = &w;
   config.SYM_LIMIT(2);
 
-  WHEN("there is a single lysogenic phage and it is dead"){
+  WHEN("there is a single lysogenic phage and it is dead") {
     config.LYSIS_CHANCE(0);
     double host_int_val = .5;
     double sym_int_val = -.5;
@@ -201,13 +201,13 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     long unsigned int expected_sym_size = 0;
     bacterium->Process(0);
 
-    THEN("phage is removed from syms list"){
+    THEN("phage is removed from syms list") {
       REQUIRE(bacterium->GetSymbionts().size() == expected_sym_size);
     }
     bacterium.Delete();
   }
 
-  WHEN("There are multiple lysogenic phage and only one dies"){
+  WHEN("There are multiple lysogenic phage and only one dies") {
     config.LYSIS_CHANCE(0);
     double host_int_val = .5;
     double sym_int_val = -.5;
@@ -223,7 +223,7 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
     long unsigned int expected_sym_size = 1;
     bacterium->Process(0);
 
-    THEN("Only the dead phage is removed from the syms list"){
+    THEN("Only the dead phage is removed from the syms list") {
       REQUIRE(bacterium->GetSymbionts().size() == expected_sym_size);
 
       emp::Ptr<Organism> curSym = bacterium->GetSymbionts()[0];
@@ -235,27 +235,27 @@ TEST_CASE("Host phage death and removal from syms list", "[lysis]"){
   random.Delete();
 }
 
-TEST_CASE("Phage LysisBurst", "[lysis]"){
+TEST_CASE("Phage LysisBurst", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(6);
   SymConfigLysis config;
-  LysisWorld w(*random, &config);
-  LysisWorld * world = &w;
-
   config.LYSIS(1);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(1);
   config.SYM_LIMIT(10);
+  test_utils::SetWellMixed(config, 2);
+  lysis_world_t world(*random, &config);
+  world.SetupSpatialStructure();
+
   int location = 0;
 
   double int_val = 0;
-  emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, world, &config, int_val);
+  emp::Ptr<Phage> phage = emp::NewPtr<Phage>(random, &world, &config, int_val);
 
-  GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms"){
-    emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
-    emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
+  GIVEN("create two hosts and add both to world as neighbors, add phage offspring to the original host's repro syms") {
+    emp::Ptr<Bacterium> orig_bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
+    emp::Ptr<Bacterium> new_bacterium = emp::NewPtr<Bacterium>(random, &world, &config, int_val);
     orig_bacterium->AddSymbiont(phage);
-    world->AddOrgAt(orig_bacterium, 0);
-    world->AddOrgAt(new_bacterium, 1);
+    world.AddOrgAt(orig_bacterium, 0);
+    world.AddOrgAt(new_bacterium, 1);
 
     emp::Ptr<Organism> p_baby1 = phage->Reproduce();
     emp::Ptr<Organism> p_baby2 = phage->Reproduce();
@@ -266,7 +266,7 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
       int original_sym_num = new_bacterium->GetSymbionts().size() + orig_bacterium->GetSymbionts().size();
       phage->LysisBurst(location);
 
-      THEN("the repro syms go into the other host as symbionts and the original host dies"){
+      THEN("the repro syms go into the other host as symbionts and the original host dies") {
         int new_sym_num = new_bacterium->GetSymbionts().size() + orig_bacterium->GetSymbionts().size();
         REQUIRE(new_sym_num == original_sym_num+2);
         REQUIRE(size(orig_bacterium->GetReproSymbionts()) == 0);
@@ -277,7 +277,7 @@ TEST_CASE("Phage LysisBurst", "[lysis]"){
   random.Delete();
 }
 
-TEST_CASE("Phage LysisStep", "[lysis]"){
+TEST_CASE("Phage LysisStep", "[lysis]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
   SymConfigLysis config;
   LysisWorld w(*random, &config);
@@ -292,7 +292,7 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
   emp::Ptr<Bacterium> bacterium = emp::NewPtr<Bacterium>(random, world, &config, int_val);
   bacterium->AddSymbiont(phage);
 
-  WHEN("The phage doesn't have enough resources to reproduce"){
+  WHEN("The phage doesn't have enough resources to reproduce") {
     double repro_syms_size_pre_process = size(bacterium->GetReproSymbionts());
     double orig_points = 3.0;
     double expected_points = 3.0;
@@ -301,14 +301,14 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
     phage->SetBurstTimer(orig_burst_time);
 
     phage->LysisStep();
-    THEN("The burst timer is incremented but no offspring are created"){
+    THEN("The burst timer is incremented but no offspring are created") {
       REQUIRE(phage->GetBurstTimer() > orig_burst_time);
       REQUIRE(size(bacterium->GetReproSymbionts()) == repro_syms_size_pre_process);
       REQUIRE(phage->GetPoints() == expected_points);
     }
   }
 
-  WHEN("The phage does have enough resources to reproduce"){
+  WHEN("The phage does have enough resources to reproduce") {
     double expected_repro_syms_size_post_process = size(bacterium->GetReproSymbionts()) + 1; //one offspring created
     double orig_points = sym_repro_points;//symbiont given enough resources to produce one offspring
     double expected_points = 0.0;
@@ -317,7 +317,7 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
     phage->SetBurstTimer(orig_burst_time);
 
     phage->LysisStep();
-    THEN("The burst timer is incremented and offspring are created"){
+    THEN("The burst timer is incremented and offspring are created") {
       REQUIRE(phage->GetBurstTimer() > orig_burst_time);
       REQUIRE(size(bacterium->GetReproSymbionts()) == expected_repro_syms_size_post_process);
       REQUIRE(phage->GetPoints() == expected_points);
@@ -328,7 +328,7 @@ TEST_CASE("Phage LysisStep", "[lysis]"){
   random.Delete();
 }
 
-TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]"){
+TEST_CASE("Phage overwrites Symbiont ProcessResources", "[lysis]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
   SymConfigLysis config;
   LysisWorld w(*random, &config);

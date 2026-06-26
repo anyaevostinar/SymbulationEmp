@@ -5,14 +5,15 @@
 #include "../../Empirical/include/emp/math/Random.hpp"
 
 TEST_CASE("Cure Hosts tests", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     // make world
     emp::Random random(17);
     SymConfigBase config;
-    test_utils::SetEmptyWellMixed(config);
-    SymWorld world(random, &config);
-    world.Setup();
     int pop_size = 3;
+    test_utils::SetWellMixed(config, pop_size);
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     emp::vector<emp::Ptr<Organism>> host_vect;
     emp::vector<emp::Ptr<Organism>> sym_vect;
@@ -22,11 +23,11 @@ TEST_CASE("Cure Hosts tests", "[default]") {
       emp::Ptr<Host> host;
       host.New(&random, &world, &config);
       world.AddOrgAt(host, i);
-      host_vect.push_back(host);
+      host_vect.emplace_back(host);
       emp::Ptr<Symbiont> sym;
       sym.New(&random, &world, &config);
       host->AddSymbiont(sym);
-      sym_vect.push_back(sym);
+      sym_vect.emplace_back(sym);
     }
 
     WHEN("Hosts are not cured") {

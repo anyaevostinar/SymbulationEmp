@@ -398,14 +398,16 @@ TEST_CASE("Phage Mutate", "[lysis]") {
 }
 
 TEST_CASE("Phage process", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
   SymConfigLysis config;
-  LysisWorld world(*random, &config);
-
-  config.LYSIS(1); //phage process only happens when lysis is enabled
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(1);
+  config.LYSIS(1); // phage process only happens when lysis is enabled
   config.SYM_LIMIT(2);
+  test_utils::SetWellMixed(config, 2);
+
+  lysis_world_t world(*random, &config);
+  world.SetupSpatialStructure();
+
   int location = 0;
 
   WHEN("The phage chooses lysogeny") {

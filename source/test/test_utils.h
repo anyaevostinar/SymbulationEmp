@@ -37,7 +37,7 @@ void SetWellMixed(
 // WARNING: protected functions were likely protected for a reason! Use at your
 //          own risk. protected functions need testing, too ;)
 // Example USAGE:
-//    using world_t = test_utils::TestingWorldWrapper<LysisWorld,SymConfigLysis>;
+//    using world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
 template<typename WORLD_T, typename CONFIG_T=SymConfigBase>
 class TestingWorldWrapper : public WORLD_T {
 public:
@@ -58,6 +58,14 @@ public:
 
   void SetupSymbionts(long unsigned int* total_syms) {
     wrapped_world_t::SetupSymbionts(total_syms);
+  }
+
+  void Resize(size_t new_width, size_t new_height) {
+    wrapped_world_t::Resize(new_width, new_height);
+  }
+
+  void Resize(size_t new_size) {
+    wrapped_world_t::Resize(new_size);
   }
 
 };
