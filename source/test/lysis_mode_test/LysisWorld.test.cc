@@ -98,13 +98,12 @@ TEST_CASE("Lysis SetupHosts", "[lysis]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;
-    test_utils::SetEmptyWellMixed(config);
-    // LysisWorld world(random, &config);
+    size_t num_to_add = 5;
+    test_utils::SetWellMixed(config, num_to_add);
     lysis_world_t world(random, &config);
     world.SetupSpatialStructure();
 
     WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
       world.SetupHosts(&num_to_add);
 
       THEN("The specified number of bacteria are added to the world") {

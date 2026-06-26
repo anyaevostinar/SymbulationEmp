@@ -129,13 +129,13 @@ TEST_CASE("PGG SetupHosts", "[pgg]") {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigPGG config;
-    test_utils::SetEmptyWellMixed(config);
+    size_t num_to_add = 5;
+    test_utils::SetWellMixed(config, num_to_add);
     pgg_world_t world(random, &config);
-    world.Setup();
-    world.Clear();
+    world.SetupSpatialStructure();
     REQUIRE(world.GetNumOrgs() == 0);
     WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
+
       world.SetupHosts(&num_to_add);
 
       THEN("The specified number of PGG hosts are added to the world") {
