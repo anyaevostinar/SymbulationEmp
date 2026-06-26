@@ -224,6 +224,14 @@ class Organism {
     std::cout << "GetSymbionts called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual Organism& GetSymbiont(size_t sym_id) {
+    std::cout << "GetSymbiont called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual const Organism& GetSymbiont(size_t sym_id) const {
+    std::cout << "GetSymbiont const called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual emp::vector<emp::Ptr<Organism>>& GetReproSymbionts() {
     std::cout << "GetReproSymbionts called from Organism" << std::endl;
     throw "Organism method called!";
