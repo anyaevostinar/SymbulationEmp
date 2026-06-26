@@ -96,6 +96,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
     VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
-    VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
+    VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
 )
 #endif
