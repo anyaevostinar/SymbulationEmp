@@ -342,7 +342,7 @@ public:
    *
    * Purpose: To retrieve a symbiont's host
    */
-  emp::Ptr<Organism> GetHost() {return my_host;}
+  emp::Ptr<Organism> GetHost() { return my_host; }
 
 
   /**
@@ -352,7 +352,7 @@ public:
    *
    * Purpose: To retrieve the symbiont's taxon
    */
-   emp::Ptr<taxon_t::base_taxon_t> GetTaxon() {return my_taxon;}
+   emp::Ptr<taxon_t::base_taxon_t> GetTaxon() { return my_taxon; }
 
    /**
     * Input: A pointer to the taxon that this organism should belong to.
@@ -361,27 +361,34 @@ public:
     *
     * Purpose: To set the symbiont's taxon
     */
-   void SetTaxon(emp::Ptr<taxon_t::base_taxon_t> _in) {my_taxon = _in;}
+  void SetTaxon(emp::Ptr<taxon_t::base_taxon_t> _in) { my_taxon = _in; }
 
-  //  std::set<int> GetResTypes() const {return res_types;}
-
-   /**
+  /**
    * Input: The new tag
    *
    * Output: None
    *
    * Purpose: To set a symbiont's tag.
    */
-   void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
+  void SetTag(const emp::BitSet<TAG_LENGTH>& _in) { tag.Import(_in); }
 
-   /**
+  /**
    * Input: None
    *
    * Output: The symbiont's tag.
    *
    * Purpose: To get a symbiont's tag.
    */
-   emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
+  emp::BitSet<TAG_LENGTH>& GetTag() { return tag; }
+
+  /**
+   * Input: None
+   *
+   * Output: const reference to the host's tag.
+   *
+   * Purpose: To get a host's tag.
+   */
+  const emp::BitSet<TAG_LENGTH>& GetTag() const { return tag; }
 
   /**
    * Input: None
@@ -429,7 +436,7 @@ public:
    *
    * Purpose: To set a symbiont's points
    */
-  void SetPoints(double _in) {points = _in;}
+  void SetPoints(double _in) { points = _in; }
 
 
   /**
@@ -439,7 +446,7 @@ public:
    *
    * Purpose: To increment a symbiont's points
    */
-  void AddPoints(double _in) { points += _in;}
+  void AddPoints(double _in) { points += _in; }
 
   /**
    * Input: A new world position
@@ -448,7 +455,7 @@ public:
    *
    * Purpose: To set the organism's world position
    */
-  void SetLocation(emp::WorldPosition _in) {location = _in;}
+  void SetLocation(emp::WorldPosition _in) { location = _in; }
 
   /**
    * Input: None

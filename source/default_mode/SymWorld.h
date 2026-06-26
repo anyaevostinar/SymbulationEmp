@@ -136,6 +136,13 @@ protected:
   SpatialStructure spatial_structure;
 
   /**
+   *
+   * Purpose: Tracks whether spatial structure has been configured
+   *
+   */
+  bool setup_spatial_structure = false;
+
+  /**
    * Purspose: Stores which spatial structure mode the world is configured as.
    */
   SPATIAL_STRUCT_MODE spatial_struct_mode;
@@ -183,6 +190,36 @@ protected:
   // SetupSpatialStructure has been called prior to hosts/symbionts getting setup.
   virtual void SetupHosts(long unsigned int* POP_SIZE);
   virtual void SetupSymbionts(long unsigned int* total_syms);
+
+  /**
+   * Input: The size_t representing the world's new width;
+   * the size_t representing the world's new height.
+   *
+   * Output: None
+   *
+   * Purpose: To overwrite the Empirical resize so that sym_pop is also resized
+   */
+  void Resize(size_t new_width, size_t new_height) {
+    const size_t new_size = new_width * new_height;
+    Resize(new_size);
+    pop_sizes.resize(2);
+    pop_sizes[0] = new_width; pop_sizes[1] = new_height;
+  }
+
+  /**
+   * Input: The size_t representing the new size of the world
+   *
+   * Output: None
+   *
+   * Purpose: To override the Empirical Resize function with
+   * a single-arg method that can be used for AddOrgAt vector
+   * expansions
+   */
+  void Resize(size_t new_size) {
+    // TODO: Update to include organism removal?
+    pop.resize(new_size);
+    sym_pop.resize(new_size);
+  }
 
   /**
    * Purpose: Internal setup helper function to hold setup-time configuration for
@@ -611,39 +648,6 @@ public:
     }
   }
 
-
-  /**
-   * Input: The size_t representing the world's new width;
-   * the size_t representing the world's new height.
-   *
-   * Output: None
-   *
-   * Purpose: To overwrite the Empirical resize so that sym_pop is also resized
-   */
-  void Resize(size_t new_width, size_t new_height) {
-    const size_t new_size = new_width * new_height;
-    Resize(new_size);
-    pop_sizes.resize(2);
-    pop_sizes[0] = new_width; pop_sizes[1] = new_height;
-  }
-
-
-  /**
-   * Input: The size_t representing the new size of the world
-   *
-   * Output: None
-   *
-   * Purpose: To override the Empirical Resize function with
-   * a single-arg method that can be used for AddOrgAt vector
-   * expansions
-   */
-  void Resize(size_t new_size) {
-    // TODO: Update to include organism removal?
-    pop.resize(new_size);
-    sym_pop.resize(new_size);
-  }
-
-
   /**
    * Input: An organism pointer to add to the graveyard
    *
@@ -669,26 +673,19 @@ public:
    * Output: None
    *
    * Purpose: To overwrite the empirical AddOrgAt function to permit syms to
-   * be added into sym_pop
+   * be added into sym_pop. Only existing positions allowed; does not grow population
+   * capacity.
    */
   void AddOrgAt(emp::Ptr<Organism> new_org, emp::WorldPosition pos, emp::WorldPosition p_pos=emp::WorldPosition()) {
     emp_assert(new_org);         // The new organism must exist.
     emp_assert(pos.IsValid());   // Position must be legal.
-    new_org->SetLocation(pos);
 
     // SYMBIONTS have position in the overall world as their ID
     // HOSTS have position in the overall world as their index
-
-    // If the pos is out of bounds, expand the worlds so that they can fit it.
-    // AML NOTE: We don't want automatic world resizing for grid / custom spatial structure(?)
-    //           The added organism will be isolated.
-    if (pos.GetPopID() >= sym_pop.size() || pos.GetIndex() >= pop.size()) {
-      emp_assert(IsWellMixedPopStruct(), "Should not dynamically grow population capacity outside of well-mixed population structure mode.");
-      // Resize world to accomodate given pop ID (which ever is bigger between sym and host)
-      Resize(emp::Max(pos.GetIndex(), pos.GetPopID()) + 1);
-    }
+    new_org->SetLocation(pos);
 
     if (new_org->IsHost()) { // if the org is a host, use the empirical addorgat function
+      emp_assert(pos.GetIndex() < pop.size());
       emp::World<Organism>::AddOrgAt(new_org, pos, p_pos);
       if (new_org->HasSym()) {
         // Sometimes we add the symbionts before putting the organism into the world, which messes up the syms' location
@@ -698,6 +695,7 @@ public:
         }
       }
     } else { // if it is not a host, then add it to the sym population
+      emp_assert(pos.GetPopID() < sym_pop.size());
       // for symbionts, their place in their host's world is indicated by their ID
       size_t pos_id = pos.GetPopID();
 

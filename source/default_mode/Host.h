@@ -510,7 +510,7 @@ public:
    *
    * Purpose: To set a host's tag.
    */
-  void SetTag(emp::BitSet<TAG_LENGTH> & _in) { tag.Import(_in); }
+  void SetTag(const emp::BitSet<TAG_LENGTH>& _in) { tag.Import(_in); }
 
   /**
    * Input: None
@@ -519,7 +519,16 @@ public:
    *
    * Purpose: To get a host's tag.
    */
-  emp::BitSet<TAG_LENGTH> & GetTag() { return tag; }
+  emp::BitSet<TAG_LENGTH>& GetTag() { return tag; }
+
+  /**
+   * Input: None
+   *
+   * Output: const reference to the host's tag.
+   *
+   * Purpose: To get a host's tag.
+   */
+  const emp::BitSet<TAG_LENGTH>& GetTag() const { return tag; }
 
   /**
   * Input: The tag permissiveness value to set for this host

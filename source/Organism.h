@@ -102,7 +102,11 @@ class Organism {
     std::cout << "GetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void SetTag(emp::BitSet<TAG_LENGTH>& _in) {
+  virtual const emp::BitSet<TAG_LENGTH>& GetTag() const {
+    std::cout << "GetTag const called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void SetTag(const emp::BitSet<TAG_LENGTH>& _in) {
     std::cout << "SetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }

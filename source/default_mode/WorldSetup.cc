@@ -23,11 +23,14 @@ void SymWorld::SetupHosts(long unsigned int* POP_SIZE) {
   );
   emp_assert(world_positions.size() == GetSize());
   for (size_t i = 0; i < *POP_SIZE; i++) {
-    emp::Ptr<Host> new_org;
-    new_org.New(&GetRandom(), this, my_config, my_config->HOST_INT());
+    emp::Ptr<Host> new_org = emp::NewPtr<Host>(&GetRandom(), this, my_config, my_config->HOST_INT());
     if (my_config->TAG_MATCHING()) {
-      emp::BitSet<TAG_LENGTH> new_tag = emp::BitSet<TAG_LENGTH>(GetRandom(), my_config->HOST_STARTING_TAGS_ONE_PROB());
-      new_org->SetTag(new_tag);
+      new_org->SetTag(
+        emp::BitSet<TAG_LENGTH>(
+          GetRandom(),
+          my_config->HOST_STARTING_TAGS_ONE_PROB()
+        )
+      );
     }
     // Needs to be add org at instead of inject because we've already resized the
     //   world. (inject in well-mixed mode will inject at end of population).
@@ -111,6 +114,7 @@ void SymWorld::SetupSpatialStructure() {
       emp_error("Given spatial structure mode undefined.");
       break;
   }
+  setup_spatial_structure = true;
 }
 
 
