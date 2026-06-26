@@ -1,38 +1,45 @@
-#include "emp/math/Random.hpp"
-
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../test_utils.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 #include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
+
+#include "emp/math/Random.hpp"
 
 #include <array>
 
 namespace inst_tests_internal {
 
-using hw_spec_t = sgpmode::SGPHardwareSpec<
-  sgpmode::Library,
-  sgpmode::CPUState<sgpmode::SGPWorld>,
-  sgpmode::SGPWorld
->;
+using world_t = sgpmode::SGPWorld;
+using cpu_state_t = sgpmode::CPUState<world_t>;
+using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+using program_t = typename world_t::sgp_prog_t;
+using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+using tag_t = typename hw_spec_t::tag_t;
+
 constexpr size_t num_registers = hw_spec_t::num_registers;
 
 }
 
 bool CheckRegisterContents(
-  sgpmode::SGPWorld::sgp_hw_t& hardware,
+  inst_tests_internal::hardware_t& hardware,
   const emp::vector<uint32_t>& req_register_values
 ) {
-   auto& registers = hardware.GetCPU().GetActiveCore().registers;
+  auto& registers = hardware.GetCPU().GetActiveCore().registers;
   emp_assert(req_register_values.size() <= registers.size());
   for (size_t reg_i = 0; reg_i < req_register_values.size(); ++reg_i) {
     // NOTE - All instructions in symbulation cast sgp-lite's float register values
     //        to uint32_t
-    // if (GetRegisterAs<uint32_t>(registers, reg_i) != req_register_values[reg_i]) {
-    // if ((registers[reg_i]) != req_register_values[reg_i]) {
     if (hardware.GetRegister(reg_i) != req_register_values[reg_i]) {
       return false;
     }
@@ -41,7 +48,7 @@ bool CheckRegisterContents(
 }
 
 void PrintRegisterContents(
-  sgpmode::SGPWorld::sgp_hw_t& hardware
+  inst_tests_internal::hardware_t& hardware
 ) {
   auto& registers = hardware.GetCPU().GetActiveCore().registers;
   for (size_t reg_i = 0; reg_i < registers.size(); ++reg_i) {
@@ -52,13 +59,7 @@ void PrintRegisterContents(
 }
 
 TEST_CASE("Test non-interactive instructions", "[sgp]") {
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using tag_t = typename hw_spec_t::tag_t;
+  using namespace inst_tests_internal;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
@@ -66,9 +67,10 @@ TEST_CASE("Test non-interactive instructions", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
+  config.TASK_IO_BANK_SIZE(10);
   config.TASK_IO_UNIQUE_OUTPUT(true);
+  test_utils::SetWellMixed(config, 1, 1);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -483,24 +485,18 @@ TEST_CASE("Test non-interactive instructions", "[sgp]") {
 
 
 TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-
+  using namespace inst_tests_internal;
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.TASK_IO_BANK_SIZE(10);
   config.SYM_DONATE_PROP(0.5);
+  test_utils::SetWellMixed(config, 1, 1);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -685,13 +681,7 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
 }
 
 TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
-  using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using program_t = typename world_t::sgp_prog_t;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+  using namespace inst_tests_internal;
 
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
@@ -699,13 +689,14 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
-  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.TASK_IO_BANK_SIZE(10);
   config.SYM_DONATE_PROP(0.5);
   config.FREE_LIVING_SYMS(true);
   config.SYM_LIMIT(1);
   config.PHAGE_EXCLUDE(false);
+  test_utils::SetWellMixed(config, 1, 1);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -746,7 +737,6 @@ TEST_CASE("Test freeliving symbiont instructions", "[sgp]") {
       program_t sym_program;
       prog_builder.AddStartAnchor(sym_program);
       prog_builder.AddInst(sym_program, "Infect");
-      world.Resize(1); // Resize sym pop to 1
       world.InjectSymbiont(
         emp::NewPtr<sgp_sym_t>(&random, &world, &config, sym_program)
       );
