@@ -1,9 +1,14 @@
 #include "../../test_utils.h"
 
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 #include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
@@ -32,42 +37,43 @@ conditions where no cycles are donated:
 TODO: test interaction value based health mode
 */
 
-using world_t = sgpmode::SGPWorld;
-using cpu_state_t = sgpmode::CPUState<world_t>;
-using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-
-void ConfigureHealthTestConfig(emp::Ptr<sgpmode::SymConfigSGP> config) {
+void ConfigureHealthTestConfig(sgpmode::SymConfigSGP& config) {
   // base world settings
-  config->SEED(10);
-  config->INIT_POP_SIZE(0);
-  config->START_MOI(0);
-  config->WORLD_WIDTH(2);
-  config->WORLD_HEIGHT(2);
-  config->SPATIAL_STRUCT_MODE("well-mixed");
+  config.SEED(10);
+  config.INIT_POP_SIZE(0);
+  config.START_MOI(0);
+  config.WORLD_WIDTH(2);
+  config.WORLD_HEIGHT(2);
+  config.SPATIAL_STRUCT_MODE("well-mixed");
 
   // general sgp settings
-  config->TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config->TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
-  config->TASK_PROFILE_MODE("self-all");
-  config->CYCLES_PER_UPDATE(4);
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.TASK_PROFILE_MODE("self-all");
+  config.CYCLES_PER_UPDATE(4);
+  config.TASK_IO_BANK_SIZE(10);
 
   // health settings
-  config->ENABLE_HEALTH(1);
-  config->HEALTH_INTERACTION_CHANCE(1);
-  config->PARASITE_CYCLE_LOSS_PROP(0.5);
-  config->PARASITE_CYCLE_STEAL_MULTIPLIER(1);
-  config->PARASITE_BASE_CYCLE_PROP(0.5);
-  config->MUTUALIST_CYCLE_DONATE_MULTIPLIER(1);
-  config->MUTUALIST_CYCLE_GAIN_PROP(0.5);
+  config.ENABLE_HEALTH(1);
+  config.HEALTH_INTERACTION_CHANCE(1);
+  config.PARASITE_CYCLE_LOSS_PROP(0.5);
+  config.PARASITE_CYCLE_STEAL_MULTIPLIER(1);
+  config.PARASITE_BASE_CYCLE_PROP(0.5);
+  config.MUTUALIST_CYCLE_DONATE_MULTIPLIER(1);
+  config.MUTUALIST_CYCLE_GAIN_PROP(0.5);
 }
 
 TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+
   GIVEN("A health host is uninfected") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     size_t cycles_per_update = 4;
 
     emp::Random random(config.SEED());
@@ -121,9 +127,15 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
 }
 
 TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
     config.HEALTH_INTERACTION_CHANCE(0.5);
     config.PARASITE_CYCLE_LOSS_PROP(1);
@@ -179,9 +191,15 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
 }
 
 TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a mismatching parasite") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
     size_t cycles_per_update = 4;
 
@@ -222,9 +240,15 @@ TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][s
 }
 
 TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYCLE_STEAL_MULTIPLIER is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
     config.PARASITE_CYCLE_STEAL_MULTIPLIER(0);
     size_t cycles_per_update = 4;
@@ -266,9 +290,15 @@ TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYC
 }
 
 TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE_CYCLE_LOSS_PROP is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
     config.PARASITE_CYCLE_LOSS_PROP(0);
     size_t cycles_per_update = 4;
@@ -310,9 +340,15 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE
 }
 
 TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
     config.HEALTH_INTERACTION_CHANCE(0);
     size_t cycles_per_update = 4;
@@ -354,9 +390,15 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_I
 }
 
 TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("mutualist");
     config.HEALTH_INTERACTION_CHANCE(0.5);
     config.MUTUALIST_CYCLE_GAIN_PROP(1);
@@ -412,9 +454,15 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
 }
 
 TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("mutualist");
     size_t cycles_per_update = 4;
 
@@ -455,9 +503,15 @@ TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][
 }
 
 TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_DONATE_MULTIPLIER is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("mutualist");
     config.MUTUALIST_CYCLE_DONATE_MULTIPLIER(0);
     size_t cycles_per_update = 4;
@@ -500,9 +554,15 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
 }
 
 TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALIST_CYCLE_GAIN_PROP is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("mutualist");
     config.MUTUALIST_CYCLE_GAIN_PROP(0);
     size_t cycles_per_update = 4;
@@ -544,9 +604,15 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
 }
 
 TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_INTERACTION_CHANCE is 0", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
     sgpmode::SymConfigSGP config;
-    ConfigureHealthTestConfig(&config);
+    ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("mutualist");
     config.HEALTH_INTERACTION_CHANCE(0);
     size_t cycles_per_update = 4;
@@ -588,6 +654,12 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
 }
 
 TEST_CASE("Health hosts evolve", "[sgp][sgp-functional][health-mode-evolution]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   sgpmode::SymConfigSGP config;
   config.SEED(32);
   config.START_MOI(0);
