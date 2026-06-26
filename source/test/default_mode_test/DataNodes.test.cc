@@ -1061,14 +1061,15 @@ TEST_CASE("GetVerticalTransmissionSuccessCount", "[default]") {
 }
 
 TEST_CASE("GetHostTagPermissiveness", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
     int int_val = 0;
     config.TAG_MATCHING(1);
-    test_utils::SetEmptyWellMixed(config);
-    SymWorld world(random, &config);
-    world.Setup();
+    test_utils::SetWellMixed(config, 10);
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     emp::DataMonitor<double>& data_node_host_permissiveness = world.GetHostTagPermissiveness();
     REQUIRE(data_node_host_permissiveness.GetCount() == 0);

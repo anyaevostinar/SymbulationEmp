@@ -277,7 +277,7 @@ public:
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
     for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
-      if(sym_pop[i]) {
+      if (sym_pop[i]) {
         DoSymDeath(i);
       }
     }
@@ -367,7 +367,7 @@ public:
 
     // NOTE: This is what's happening in other structure modes (copied from World's set structure functions),
     //        but do we actually want to override to use graveyard?
-    fun_kill_org = [this](){
+    fun_kill_org = [this]() {
       // const size_t kill_id = GetRandomCellID();
       const size_t kill_id = GetRandom().GetUInt(spatial_structure.GetNumPositions());
       emp_assert(kill_id < GetSize());
@@ -511,7 +511,7 @@ public:
    *
    * Purpose: To retrieve the host systematic
    */
-  emp::Ptr<host_systematics_t> GetHostSys(){
+  emp::Ptr<host_systematics_t> GetHostSys() {
     return host_sys;
   }
 
@@ -523,7 +523,7 @@ public:
    *
    * Purpose: To retrieve the symbiont systematic
    */
-  emp::Ptr<sym_systematics_t> GetSymSys(){
+  emp::Ptr<sym_systematics_t> GetSymSys() {
     return sym_sys;
   }
 
@@ -705,7 +705,7 @@ public:
       before_placement_sig.Trigger(*new_org, pos_id);
 
       // place symbiont
-      if(!sym_pop[pos_id]) {
+      if (!sym_pop[pos_id]) {
         ++num_orgs;
       } else {
         SendToGraveyard(sym_pop[pos_id]); // don't delete it yet, that can cause a seg fault
@@ -856,23 +856,15 @@ public:
 
 
   /**
-     * Input: The pointer to a host that will be added to the world. This function assumes that the
-     * pop vector has not been resized to fit the world yet.
-     *
-     * Output: None
-     *
-     * Purpose: To add a host to the world.
-     */
+   * Input: The pointer to a host that will be added to the world.
+   *        This function assumes that the pop vector has been sized.
+   *
+   * Output: None
+   *
+   * Purpose: To add a host to the world at a random location.
+   */
   void InjectHost(emp::Ptr<Organism> new_host) {
-    // If well-mixed, we can grow the population size.
-    if (IsWellMixedPopStruct()) {
-      AddOrgAt(new_host, pop.size());
-    } else {
-      // If in custom or grid spatial structure mode, the world should *not* dynamically
-      // grow on inject!
-      // NOTE: Discuss during code review!
-      AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
-    }
+    AddOrgAt(new_host, emp::WorldPosition(GetRandomCellID()));
   }
 
 
@@ -983,7 +975,7 @@ public:
    *
    * Purpose: To move a symbiont into a new world position in the sym pop.
    */
-  emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos){
+  emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex()); //GetRandomNeighborPos returns a WorldPosition with the chosen location in the index spot, but we use the pop id to track the location of the symbiont in the world, so we need to switch those around. The 0 means that this position is not in a host.
@@ -1008,7 +1000,7 @@ public:
    * sym_pop vectors).
    */
   bool IsInboundsPos(emp::WorldPosition pos) {
-    if(!pos.IsValid()) {
+    if (!pos.IsValid()) {
       return false;
     } else if (pos.GetIndex() >= pop.size()) {
       return false;
@@ -1048,7 +1040,7 @@ public:
         // (or, theoretically, no neighbouring hosts)
         const bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
         bool tag_failed = false;
-        if (my_config->TAG_MATCHING()){
+        if (my_config->TAG_MATCHING()) {
           const double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * TAG_LENGTH;
           const double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? pop[new_host_pos]->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
           const double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
@@ -1139,7 +1131,7 @@ public:
    *
    * Purpose: To extract a symbiont from the world without deleting it.
    */
-  emp::Ptr<Organism> ExtractSym(size_t i){
+  emp::Ptr<Organism> ExtractSym(size_t i) {
     emp::Ptr<Organism> sym;
     if (sym_pop[i]) {
       sym = sym_pop[i];

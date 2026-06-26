@@ -1193,34 +1193,15 @@ TEST_CASE( "IsInboundsPos", "[default]" ) {
 }
 
 TEST_CASE("InjectHost", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
+    sym_world_t world(random, &config);
+    test_utils::SetWellMixed(config, 100);
+    world.SetupSpatialStructure();
     int int_val = 0;
-
-    WHEN("Spatial structure is turned off") {
-      config.SPATIAL_STRUCT_MODE("well-mixed");
-      THEN("Hosts are placed side-by-side in the world") {
-        REQUIRE(world.GetNumOrgs() == 0);
-
-        emp::Ptr<Organism> host0 = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        emp::Ptr<Organism> host1 = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        emp::Ptr<Organism> host2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
-
-        world.InjectHost(host0);
-        world.InjectHost(host1);
-        world.InjectHost(host2);
-
-        REQUIRE(world.GetNumOrgs() == 3);
-        REQUIRE(world.GetPop()[0] == host0);
-        REQUIRE(world.GetPop()[1] == host1);
-        REQUIRE(world.GetPop()[2] == host2);
-      }
-    }
-    WHEN("Spatial structure is turned on") {
-      config.SPATIAL_STRUCT_MODE("grid");
-      world.Resize(9); // world should be resized before injecting hosts if spatial structure is on
+    WHEN("Hosts are injected") {
       THEN("Hosts are placed randomly in the world") {
         REQUIRE(world.GetNumOrgs() == 0);
 
@@ -1232,7 +1213,11 @@ TEST_CASE("InjectHost", "[default]") {
         world.InjectHost(host1);
         world.InjectHost(host2);
 
-        REQUIRE(world.GetNumOrgs() == 3);
+        size_t num_occupied = 0;
+        for (size_t i = 0; i < world.GetSize(); ++i) {
+          num_occupied += (size_t)world.IsOccupied(i);
+        }
+        REQUIRE(num_occupied == 3);
         bool hosts_sequentially_placed = world.GetPop()[0] == host0 && world.GetPop()[1] == host1 && world.GetPop()[2] == host2;
         REQUIRE(hosts_sequentially_placed == false);
       }

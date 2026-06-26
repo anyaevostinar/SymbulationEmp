@@ -21,7 +21,7 @@ TEST_CASE("Cure Hosts tests", "[default]") {
     for (int i = 0; i < pop_size; i++) {
       emp::Ptr<Host> host;
       host.New(&random, &world, &config);
-      world.InjectHost(host);
+      world.AddOrgAt(host, i);
       host_vect.push_back(host);
       emp::Ptr<Symbiont> sym;
       sym.New(&random, &world, &config);
