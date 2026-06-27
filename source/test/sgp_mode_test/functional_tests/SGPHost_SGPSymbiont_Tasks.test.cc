@@ -1,13 +1,19 @@
-#include "emp/math/Random.hpp"
+#include "../../test_utils.h"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
+
+#include "emp/math/Random.hpp"
 
 /**
  * This file is dedicated to checking the combination of only first task credit between hosts and symbionts
@@ -30,9 +36,10 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp]"){
     config.MUTATION_SIZE(0.002);
     config.TASK_PROFILE_MODE("self-all");
     config.VT_TASK_MATCH(1);
-    config.INIT_POP_SIZE(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.CYCLES_PER_UPDATE(52);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 1, 1);
 
     world_t world(random, &config);
     world.Setup();
