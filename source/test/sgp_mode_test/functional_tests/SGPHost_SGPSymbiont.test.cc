@@ -1,8 +1,15 @@
-#include "../../../sgp_mode/SGPHost.h"
+#include "../../test_utils.h"
+
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 
 /**
@@ -15,6 +22,7 @@ using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_
 using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
 using program_t = typename world_t::sgp_prog_t;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
 TEST_CASE("Host Process allows symbionts to process", "[sgp][sgp-functional]") {
   GIVEN("An SGPWorld with a host infected with a symbiont"){
@@ -22,6 +30,8 @@ TEST_CASE("Host Process allows symbionts to process", "[sgp][sgp-functional]") {
     sgpmode::SymConfigSGP config;
     config.CYCLES_PER_UPDATE(8);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 1, 1);
     world_t world(random, &config);
     world.Setup();
     auto& builder = world.GetProgramBuilder();
