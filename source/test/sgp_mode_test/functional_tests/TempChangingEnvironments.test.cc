@@ -1,14 +1,19 @@
-#include "emp/math/Random.hpp"
+#include "../../test_utils.h"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
-#include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 #include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
+
+#include "emp/math/Random.hpp"
 
 /**
  * This file is dedicated to organism point gain / loss in temporally changing environments
@@ -27,9 +32,8 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.INIT_POP_SIZE(0);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -82,9 +86,8 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.INIT_POP_SIZE(0);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -139,9 +142,8 @@ TEST_CASE("Hosts start with a punished task in a temporally changing environment
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.INIT_POP_SIZE(0);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(8);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
@@ -195,9 +197,8 @@ TEST_CASE("Symbionts start with a punished task in a temporally changing environ
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
-  config.INIT_POP_SIZE(0);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(8);
   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
   config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
