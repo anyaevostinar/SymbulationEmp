@@ -86,7 +86,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(TAG_MATCHING, "Settings for tag matching"),
     VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
-    // VALUE(TAG_METRIC, int, 0, "Which tag matching metric should be used to compute distances between tags? (0 for hamming [proportion of bits mismatching], 1 for streak [ratio of continuously matching/mismatching bits], or 2 for hash [arbitrary but consistent difference])"),
     VALUE(TAG_METRIC, std::string, "hamming", "Which tag matching metric should be used to compute distances between tags? hamming [proportion of bits mismatching], streak [ratio of continuously matching/mismatching bits], or hash [arbitrary but consistent difference]"),
     VALUE(NORMALIZE_TAG_DISTANCES, bool, 0, "Should distances between pairs of tags be uniformicated? (0 for no, 1 for yes)"),
     VALUE(TAG_PERMISSIVENESS, double, 0.125, "What is the Poisson mean for divergence allowed between tags for a successful infection? (1 = perfect mismatch, 0 = perfect match)"),
