@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../ConfigSetup.h"
+#include "../sgp_mode/SGPConfigSetup.h"
 
 #include "../default_mode/SymWorld.h"
 
@@ -30,6 +31,17 @@ void SetWellMixed(
   cfg.WORLD_WIDTH(capacity);
   cfg.WORLD_HEIGHT(1);
   cfg.INIT_POP_SIZE(init_pop_size);
+}
+
+void SetNoMutation(sgpmode::SymConfigSGP& cfg) {
+  cfg.MUTATION_RATE(0);
+  cfg.MUTATION_SIZE(0);
+  cfg.SGP_MUT_PER_BIT_RATE(0);
+}
+
+void SetNoMutation(SymConfigBase& cfg) {
+  cfg.MUTATION_RATE(0);
+  cfg.MUTATION_SIZE(0);
 }
 
 // Wrapper for Symbumlation world classes intended to expose protected
