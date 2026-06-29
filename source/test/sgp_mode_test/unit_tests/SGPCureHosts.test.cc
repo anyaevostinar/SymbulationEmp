@@ -1,17 +1,20 @@
-#include "emp/math/Random.hpp"
-
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../test_utils.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
-#include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 #include "../../../sgp_mode/ProgramBuilder.h"
+
+#include "emp/math/Random.hpp"
 
 #include "../../../catch/catch.hpp"
 
-
-TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
+TEST_CASE("SGP Cure Hosts tests", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -21,9 +24,10 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   // set up configs
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.FILE_PATH("SGPSymbiont_test_output");
+  config.FILE_PATH("SGPCureHosts_test_output");
   config.SEED(61);
-  config.INIT_POP_SIZE(2);
+  test_utils::SetWellMixed(config, 2, 2);
+  config.TASK_IO_BANK_SIZE(10);
   config.START_MOI(1); // sym to host ratio
   config.CURE(1);
   config.HOST_REPRO_RES(10000);
@@ -59,33 +63,30 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]"){
   REQUIRE(sym2.GetHardware().GetCPUState().HasHost());
 
   // Cure Hosts Segmentation fault core dumped
-  WHEN("Host is cured"){
+  WHEN("Host is cured") {
     world.CureHosts();
     world.Update();
     REQUIRE(host1.HasSym() == false);
     REQUIRE(host2.HasSym() == false);
   }
   // Run causes segmentation fault core dumped, on update num_updates
-  WHEN("World is run"){
+  WHEN("World is run") {
   world.Run();
     REQUIRE(host1.HasSym() == false);
     REQUIRE(host2.HasSym() == false);
   }
 
-
   WHEN("Updates are run") {
-    for (int i = 0; i < total_updates; i++){
+    for (int i = 0; i < total_updates; i++) {
       world.Update();
-      if (i >= num_updates){
+      if (i >= num_updates) {
         REQUIRE(host1.HasSym() == false);
         REQUIRE(host2.HasSym() == false);
-      }
-      else {
+      } else {
         REQUIRE(host1.HasSym());
         REQUIRE(host2.HasSym());
       }
     }
   }
-
 
 } //TEST_CASE
