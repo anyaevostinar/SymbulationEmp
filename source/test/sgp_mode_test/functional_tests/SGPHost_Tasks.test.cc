@@ -1,9 +1,15 @@
-#include "../../../sgp_mode/SGPHost.h"
+#include "../../test_utils.h"
+
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
+#include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
-//#include "../../../sgp_mode/SGPDataNodes.h"
+#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 /**
  * This file is dedicated to interactions between Hosts and Tasks
@@ -19,17 +25,15 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 TEST_CASE("Host Task Credit", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 1);
   config.SYM_LIMIT(2);
-  config.INIT_POP_SIZE(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   world_t world(random, &config);
   world.Setup();
-  world.Resize(2, 2);
-  auto& builder = world.GetProgramBuilder();
 
+  auto& builder = world.GetProgramBuilder();
 
   emp::Ptr<sgp_host_t> NOT_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNotProgram(100));
   world.AddOrgAt(NOT_host, 0);
