@@ -1,12 +1,17 @@
-#include "emp/math/Random.hpp"
+#include "../../test_utils.h"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
-//include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
+
+#include "emp/math/Random.hpp"
 
 #include "../../../catch/catch.hpp"
 
@@ -18,14 +23,14 @@ using program_t = typename world_t::sgp_prog_t;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
-
-
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPHardware_test_output");
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1);
 
   emp::Random random(config.SEED());
 
