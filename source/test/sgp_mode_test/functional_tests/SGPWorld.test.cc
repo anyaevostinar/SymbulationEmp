@@ -1,6 +1,15 @@
+#include "../../test_utils.h"
+
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
-#include "../../../sgp_mode/SGPHost.h"
+#include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
 
 /**
  * This file is dedicated to testing SGPWorld functionality
@@ -9,17 +18,19 @@
 // TODO - refactor task match checks into compatibiliity mode checks
 //        (test all compatibility modes)
 TEST_CASE("A world containing a single infected host and its symbiont is updated correctly", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
-  config.INIT_POP_SIZE(0);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
-  world.Resize(2,2);
 
   auto& prog_builder = world.GetProgramBuilder();
 
@@ -43,17 +54,19 @@ TEST_CASE("A world containing a single infected host and its symbiont is updated
 }
 
 TEST_CASE("A world containing a single uninfected host is updated correctly", "[sgp][sgp-functional]") {
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.FREE_LIVING_SYMS(1);
-  config.WORLD_WIDTH(2);
-  config.WORLD_HEIGHT(2);
-  config.INIT_POP_SIZE(0);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
-  world.Resize(2,2);
 
   auto& prog_builder = world.GetProgramBuilder();
 
