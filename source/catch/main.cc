@@ -5,6 +5,7 @@
 
 #include "sanity_check.test.cc"
 
+#include "../test/utils.test.cc"
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
 #include "../test/default_mode_test/Host.test.cc"
@@ -59,7 +60,6 @@
 
 #include "../test/sgp_mode_test/unit_tests/RingBuffer.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
-#include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldData.test.cc"
 
