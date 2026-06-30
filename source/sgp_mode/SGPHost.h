@@ -3,7 +3,7 @@
 
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
-// #include "SGPWorld.h"
+#include "SGPConfigSetup.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/Bits.hpp"

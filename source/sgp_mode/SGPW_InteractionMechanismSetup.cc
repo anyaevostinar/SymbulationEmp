@@ -14,7 +14,7 @@ void SGPWorld::SetupHostSymInteractions() {
   SetupHorizontalTransmissionCompatibilityMode();
 
   SetupFindHostForHorizontalTransmission();
-  
+
   // Configure stress
   if (sgp_config.ENABLE_STRESS()) {
     SetupStressInteractions();
@@ -55,7 +55,7 @@ void SGPWorld::SetupFindHostForHorizontalTransmission() {
         );
         if (compatible) {
           return std::optional<emp::WorldPosition>{candidate_pos};
-        } 
+        }
       }
     }
     return std::nullopt;
@@ -65,7 +65,7 @@ void SGPWorld::SetupFindHostForHorizontalTransmission() {
 void SGPWorld::SetupOrgTypeVariables(){
 
   // Convert cfg org type to lowercase
-  std::string cfg_org_type(emp::to_lower(sgp_config.INTERACTION_MECHANISM())); 
+  std::string cfg_org_type(emp::to_lower(sgp_config.INTERACTION_MECHANISM()));
   // Get organism type (asserts validity)
   sgp_org_type = org_info::GetOrganismType(cfg_org_type);
   // Configure stress sym type
@@ -79,7 +79,7 @@ void SGPWorld::SetupOrgTypeVariables(){
   std::string cfg_nutrient_sym_type(emp::to_lower(sgp_config.NUTRIENT_TYPE()));
   nutrient_sym_type = org_info::GetNutrientSymType(cfg_nutrient_sym_type);
 
-  
+
 }
 
 
@@ -117,11 +117,11 @@ void SGPWorld::SetupHealthInteractions() {
         emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
         const double sym_cycles = (double)sym_state.GetCPUCyclesToExec();
         // How much will sym donate?
-        
+
         size_t sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles));
         if(host.GetCountofMatchingSymsToInteractWith() > 0){
           sym_donate = (size_t)(((double)interact) * (donate_prop * sym_cycles)/host.GetCountofMatchingSymsToInteractWith());
-          
+
         }
         emp_assert(sym_donate >= 0);
         sym_state.LoseCPUCycles(emp::Min(sym_donate, sym_state.GetCPUCyclesToExec()));
@@ -506,10 +506,10 @@ void SGPWorld::SetupNutrientInteractions() {
       double task_points,
       size_t task_id,
       size_t task_matching_sym_count
-      
+
     ) -> double {
         //Assumes that symbiont has performed task_id
-      
+
         // Task match, donate proportion of task points to host.
         // Can't donate more than task value or less than 0.0
        double to_donate = std::clamp(
@@ -518,10 +518,10 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         to_donate = std::min(to_donate, sym.GetPoints());
-        
+
         // Returns amount of points the symbiont will lose from giving to the host
         return (-to_donate)/task_matching_sym_count;
-      
+
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
     // Nutrient parasite - if parasite performs task that host also performs,
@@ -535,7 +535,7 @@ void SGPWorld::SetupNutrientInteractions() {
       size_t task_matching_sym_count
     ) -> double {
         //Assumes that symbiont has performed task_id
-      
+
         // Task match, steal proportion of earned task points from host.
         // Can't try to steal less than 0 or more than task was worth
         const double to_steal = std::clamp(
@@ -546,7 +546,7 @@ void SGPWorld::SetupNutrientInteractions() {
 
         // Returns amount of points this parasite will get from stealing from the host
         return (to_steal * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/task_matching_sym_count;
-      
+
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
     // Symbiont interaction value determines whether interaction is parasitic (negative)
@@ -561,7 +561,7 @@ void SGPWorld::SetupNutrientInteractions() {
       size_t task_matching_sym_count
     ) -> double {
       //Assumes that symbiont has performed task_id
-      
+
       const double sym_interaction_value = sym.GetIntVal();
       emp_assert(-1.0 <= sym_interaction_value && sym_interaction_value <= 1.0);
       if (sym_interaction_value > 0.0) {
@@ -576,7 +576,7 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         to_donate = std::min(to_donate, sym.GetPoints());
-        
+
         // Returns amount of points the symbiont will lose from giving to the host
         return (-to_donate)/task_matching_sym_count;
       } else if (sym_interaction_value < 0.0) {
@@ -588,8 +588,8 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        
-        
+
+
         // Returns amount of points this parasite will get from stealing from the host
         return (to_steal * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/task_matching_sym_count;
       }
@@ -624,10 +624,10 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         to_donate = std::min(to_donate, sym.GetPoints());
-        
+
         // Return amount of additional points host will receieve from this symbiont
         return (to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/task_matching_sym_count;
-      
+
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::PARASITE) {
     // Nutrient parasite - if parasite performs task that host also performs,
@@ -639,9 +639,9 @@ void SGPWorld::SetupNutrientInteractions() {
       double task_points,
       size_t task_id,
       size_t task_matching_sym_count
-      
+
     ) -> double {
-     
+
         // Task match, steal proportion of earned task points from host.
         // Can't try to steal less than 0 or more than task was worth
         const double to_steal = std::clamp(
@@ -652,7 +652,7 @@ void SGPWorld::SetupNutrientInteractions() {
 
         // Return amount of points host will lose from this symbiont
         return (-to_steal)/task_matching_sym_count;
-      
+
     };
   } else if (GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED) {
     // Symbiont interaction value determines whether interaction is parasitic (negative)
@@ -667,7 +667,7 @@ void SGPWorld::SetupNutrientInteractions() {
       size_t task_matching_sym_count
     ) -> double {
       //Assumes that symbiont has performed task_id
-     
+
       const double sym_interaction_value = sym.GetIntVal();
       emp_assert(-1.0 <= sym_interaction_value && sym_interaction_value <= 1.0);
       if (sym_interaction_value > 0.0) {
@@ -682,7 +682,7 @@ void SGPWorld::SetupNutrientInteractions() {
           task_points
         );
         to_donate = std::min(to_donate, sym.GetPoints());
-        
+
         // Return amount of additional points host will receieve from this symbiont
          return (to_donate * sgp_config.NUTRIENT_INTERACTION_MULTIPLIER())/task_matching_sym_count;
       } else if (sym_interaction_value < 0.0) {
@@ -694,8 +694,8 @@ void SGPWorld::SetupNutrientInteractions() {
           0.0,
           task_points
         );
-        
-        
+
+
         // Return amount of points host will lose from this symbiont
         return (-to_steal)/task_matching_sym_count;
       }
@@ -726,7 +726,7 @@ void SGPWorld::SetupHostTaskRewards() {
         host.AddPoints(task_value_before);
     };
   }
-  else{
+  else {
     fun_apply_host_points = [this](
       sgp_host_t& host,
       double task_value_before,
@@ -735,7 +735,7 @@ void SGPWorld::SetupHostTaskRewards() {
         int task_matching_sym_count = 0;
         emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
         for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-        
+
           emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
           bool dead = cur_symbiont->GetDead();
           // Skip if dead
@@ -746,13 +746,13 @@ void SGPWorld::SetupHostTaskRewards() {
           const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
           bool sym_performed = endosym_task_profile.Get(task_id);
           task_matching_sym_count += sym_performed;
-          
+
         }
 
         double point_difference_from_syms = 0;
         if(task_matching_sym_count > 0){
           for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-        
+
             emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
             bool dead = cur_symbiont->GetDead();
             // Skip if dead
@@ -767,10 +767,10 @@ void SGPWorld::SetupHostTaskRewards() {
               point_difference_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
               cur_symbiont->AddPoints(sym_task_point);
             }
-          
+
         }
         }
-       
+
         host.AddPoints(task_value_before+point_difference_from_syms);
     };
 
