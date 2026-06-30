@@ -12,7 +12,7 @@
 *
 * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
 */
-void SymWorld::CreateDataFiles(){
+void SymWorld::CreateDataFiles() {
   int TIMING_REPEAT = my_config->DATA_INT();
   std::string file_ending = "_SEED" + std::to_string(my_config->SEED()) + ".data";
 
@@ -21,7 +21,7 @@ void SymWorld::CreateDataFiles(){
   SetupTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
-  if(my_config->FREE_LIVING_SYMS() == 1){
+  if (my_config->FREE_LIVING_SYMS() == 1) {
     SetupFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
   if (my_config->TAG_MATCHING()) {
@@ -106,7 +106,7 @@ emp::DataFile & SymWorld::SetupHostIntValFile(const std::string & filename) {
  * Purpose: To define which data nodes should be tracked by this data file. Defines
  * what columns should be called.
  */
-void SymWorld::SetupHostFileColumns(emp::DataFile & file){
+void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
   auto & node = GetHostIntValDataNode();
   auto & node1 = GetHostCountDataNode();
   auto & uninf_hosts_node = GetUninfectedHostsDataNode();
@@ -154,7 +154,7 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file){
  * infection chances from the total population, free symbionts,
  * and hosted symbionts.
  */
-emp::DataFile & SymWorld::SetupFreeLivingSymFile(const std::string & filename){
+emp::DataFile & SymWorld::SetupFreeLivingSymFile(const std::string & filename) {
   auto & file = SetupFile(filename);
   auto & node1 = GetSymCountDataNode(); //count
   auto & node2 = GetCountFreeSymsDataNode();
@@ -358,7 +358,7 @@ void SymWorld::MapPhylogenyInteractions() {
  *
  * Purpose: To setup the columns tracking symbiont transmission.
  */
-void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file){
+void SymWorld::SetupTransmissionFileColumns(emp::DataFile& file) {
   auto & node1 = GetHorizontalTransmissionAttemptCount();
   auto & node2 = GetHorizontalTransmissionSuccessCount();
   auto & node3 = GetVerticalTransmissionAttemptCount();
@@ -651,12 +651,12 @@ void SymWorld::WriteTagMatrixFile(const std::string& filename) {
  * data file that is tracking host count
  */
 emp::DataMonitor<int>& SymWorld::GetHostCountDataNode() {
-  if(!data_node_hostcount) {
+  if (!data_node_hostcount) {
     data_node_hostcount.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_hostcount -> Reset();
-      for (size_t i = 0; i< pop.size(); i++){
-        if (IsOccupied(i)){
+      for (size_t i = 0; i< pop.size(); i++) {
+        if (IsOccupied(i)) {
           data_node_hostcount->AddDatum(1);
         }
       }
@@ -676,15 +676,15 @@ emp::DataMonitor<int>& SymWorld::GetHostCountDataNode() {
  * data file that is tracking symbiont count
  */
 emp::DataMonitor<int>& SymWorld::GetSymCountDataNode() {
-  if(!data_node_symcount) {
+  if (!data_node_symcount) {
     data_node_symcount.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_symcount -> Reset();
-      for (size_t i = 0; i < pop.size(); i++){
-        if(IsOccupied(i)){
+      for (size_t i = 0; i < pop.size(); i++) {
+        if (IsOccupied(i)) {
           data_node_symcount->AddDatum((pop[i]->GetSymbionts()).size());
         }
-        if(sym_pop[i]){
+        if (sym_pop[i]) {
           data_node_symcount->AddDatum(1);
         }
       }
@@ -703,17 +703,19 @@ emp::DataMonitor<int>& SymWorld::GetSymCountDataNode() {
  * Purpose: To collect data on the count of the hosted symbionts to be saved to the
  * data file that is tracking the count of the hosted symbionts.
  */
-emp::DataMonitor<int>& SymWorld::GetCountHostedSymsDataNode(){
+emp::DataMonitor<int>& SymWorld::GetCountHostedSymsDataNode() {
   if (!data_node_hostedsymcount) {
     data_node_hostedsymcount.New();
-    OnUpdate([this](size_t){
-      data_node_hostedsymcount->Reset();
-      for (size_t i = 0; i< pop.size(); i++){
-        if (IsOccupied(i)){
-          data_node_hostedsymcount->AddDatum(pop[i]->GetSymbionts().size());
+    OnUpdate(
+      [this](size_t) {
+        data_node_hostedsymcount->Reset();
+        for (size_t i = 0; i< pop.size(); i++) {
+          if (IsOccupied(i)) {
+            data_node_hostedsymcount->AddDatum(pop[i]->GetSymbionts().size());
+          }
         }
       }
-    });
+    );
   }
   return *data_node_hostedsymcount;
 }
@@ -728,17 +730,19 @@ emp::DataMonitor<int>& SymWorld::GetCountHostedSymsDataNode(){
  * Purpose: To collect data on the count of the free symbionts to be saved to the
  * data file that is tracking the count of the free symbionts.
  */
-emp::DataMonitor<int>& SymWorld::GetCountFreeSymsDataNode(){
+emp::DataMonitor<int>& SymWorld::GetCountFreeSymsDataNode() {
   if (!data_node_freesymcount) {
     data_node_freesymcount.New();
-    OnUpdate([this](size_t){
-      data_node_freesymcount->Reset();
-      for (size_t i = 0; i< pop.size(); i++){
-        if (sym_pop[i]){
-          data_node_freesymcount->AddDatum(1);
+    OnUpdate(
+      [this](size_t) {
+        data_node_freesymcount->Reset();
+        for (size_t i = 0; i < pop.size(); i++) {
+          if (sym_pop[i]) {
+            data_node_freesymcount->AddDatum(1);
+          }
         }
       }
-    });
+    );
   }
   return *data_node_freesymcount;
 }
@@ -755,19 +759,20 @@ emp::DataMonitor<int>& SymWorld::GetCountFreeSymsDataNode(){
  */
 emp::DataMonitor<int>& SymWorld::GetUninfectedHostsDataNode() {
   //keep track of host organisms that are uninfected
-  if(!data_node_uninf_hosts) {
+  if (!data_node_uninf_hosts) {
     data_node_uninf_hosts.New();
-    OnUpdate([this](size_t){
-  data_node_uninf_hosts -> Reset();
-
-  for (size_t i = 0; i < pop.size(); i++) {
-    if(IsOccupied(i)) {
-      if((pop[i]->GetSymbionts()).empty()) {
-        data_node_uninf_hosts->AddDatum(1);
+    OnUpdate(
+      [this](size_t) {
+        data_node_uninf_hosts -> Reset();
+        for (size_t i = 0; i < pop.size(); i++) {
+          if (IsOccupied(i)) {
+            if ((pop[i]->GetSymbionts()).empty()) {
+              data_node_uninf_hosts->AddDatum(1);
+            }
+          } //endif
+        } //end for
       }
-    } //endif
-  } //end for
-}); //end OnUpdate
+    ); //end OnUpdate
   } //end if
   return *data_node_uninf_hosts;
 }
@@ -787,10 +792,10 @@ emp::DataMonitor<int>& SymWorld::GetUninfectedHostsDataNode() {
 emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHostIntValDataNode() {
   if (!data_node_hostintval) {
     data_node_hostintval.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_hostintval->Reset();
-      for (size_t i = 0; i< pop.size(); i++){
-        if (IsOccupied(i)){
+      for (size_t i = 0; i< pop.size(); i++) {
+        if (IsOccupied(i)) {
           data_node_hostintval->AddDatum(pop[i]->GetIntVal());
         }
       }
@@ -813,13 +818,13 @@ emp::DataMonitor<double, emp::data::Histogram>& SymWorld::GetHostIntValDataNode(
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymIntValDataNode() {
   if (!data_node_symintval) {
     data_node_symintval.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_symintval->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (IsOccupied(i)) {
           emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
           size_t sym_size = syms.size();
-          for(size_t j=0; j< sym_size; j++){
+          for (size_t j=0; j< sym_size; j++) {
             data_node_symintval->AddDatum(syms[j]->GetIntVal());
           }//close for
         }
@@ -846,7 +851,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymIntValDataNode() 
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymIntValDataNode() {
   if (!data_node_freesymintval) {
     data_node_freesymintval.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_freesymintval->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (sym_pop[i]) {
@@ -871,13 +876,13 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymIntValDataNod
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymIntValDataNode() {
   if (!data_node_hostedsymintval) {
     data_node_hostedsymintval.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_hostedsymintval->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (IsOccupied(i)) {
           emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
           size_t sym_size = syms.size();
-          for(size_t j=0; j< sym_size; j++){
+          for (size_t j=0; j< sym_size; j++) {
             data_node_hostedsymintval->AddDatum(syms[j]->GetIntVal());
           }//close for
         }//close if
@@ -901,13 +906,13 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymIntValDataN
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymInfectChanceDataNode() {
   if (!data_node_syminfectchance) {
     data_node_syminfectchance.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_syminfectchance->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (IsOccupied(i)) {
           emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
           size_t sym_size = syms.size();
-          for(size_t j=0; j< sym_size; j++){
+          for (size_t j=0; j< sym_size; j++) {
             data_node_syminfectchance->AddDatum(syms[j]->GetInfectionChance());
           }//close for
         }
@@ -935,7 +940,7 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetSymInfectChanceDataN
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymInfectChanceDataNode() {
   if (!data_node_freesyminfectchance) {
     data_node_freesyminfectchance.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_freesyminfectchance->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (sym_pop[i]) {
@@ -961,13 +966,13 @@ emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetFreeSymInfectChanceD
 emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetHostedSymInfectChanceDataNode() {
   if (!data_node_hostedsyminfectchance) {
     data_node_hostedsyminfectchance.New();
-    OnUpdate([this](size_t){
+    OnUpdate([this](size_t) {
       data_node_hostedsyminfectchance->Reset();
       for (size_t i = 0; i< pop.size(); i++) {
         if (IsOccupied(i)) {
           emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
           size_t sym_size = syms.size();
-          for(size_t j=0; j< sym_size; j++){
+          for (size_t j=0; j< sym_size; j++) {
             data_node_hostedsyminfectchance->AddDatum(syms[j]->GetInfectionChance());
           }//close for
         }
@@ -1149,7 +1154,7 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
   emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetWithinHostVarianceDataNode() {
     if (!data_node_within_host_variance) {
       data_node_within_host_variance.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_within_host_variance->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost() && pop[i]->HasSym()) {
@@ -1157,7 +1162,7 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
 	          size_t sym_size = syms.size();
             if (sym_size > 1) { // Can't take the variance of 1 thing
               emp::vector<double> int_vals(sym_size);
-              for(size_t j=0; j< sym_size; j++){
+              for (size_t j=0; j< sym_size; j++) {
                 int_vals[j] = syms[j]->GetIntVal();
               }//close for
               data_node_within_host_variance->AddDatum(emp::Variance(int_vals));
@@ -1175,14 +1180,14 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
   emp::DataMonitor<double,emp::data::Histogram>& SymWorld::GetWithinHostMeanDataNode() {
     if (!data_node_within_host_mean) {
       data_node_within_host_mean.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_within_host_mean->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost() && pop[i]->HasSym()) {
 	          emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
 	          size_t sym_size = syms.size();
 	          emp::vector<double> int_vals(sym_size);
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
 	            int_vals[j] = syms[j]->GetIntVal();
 	          }//close for
             data_node_within_host_mean->AddDatum(emp::Mean(int_vals));

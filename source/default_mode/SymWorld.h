@@ -253,7 +253,9 @@ public:
    *
    * Purpose: To construct an instance of SymWorld
    */
-  SymWorld(emp::Random& _random, emp::Ptr<SymConfigBase> _config) : emp::World<Organism>(_random) {
+  SymWorld(emp::Random& _random, emp::Ptr<SymConfigBase> _config) :
+    emp::World<Organism>(_random)
+  {
     fun_print_org = [](Organism& org, std::ostream& os) {
       //os << PrintHost(&org);
       os << "This doesn't work currently";
