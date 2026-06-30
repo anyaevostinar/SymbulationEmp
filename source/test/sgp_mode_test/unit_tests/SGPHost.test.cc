@@ -58,7 +58,6 @@ TEST_CASE("No Mutate", "[sgp]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   emp::Random random(61);
@@ -93,7 +92,6 @@ TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduc
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   GIVEN("A host") {
@@ -128,7 +126,6 @@ TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   GIVEN("A host") {
@@ -169,7 +166,6 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   GIVEN("two different hosts") {
@@ -199,7 +195,6 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   GIVEN("A host") {
@@ -226,7 +221,6 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
   GIVEN("An SGPWorld and a host") {
@@ -259,7 +253,6 @@ TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   GIVEN("A host with valid values in its input and output buffers") {
     emp::Random random(31);

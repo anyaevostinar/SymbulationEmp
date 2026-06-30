@@ -65,11 +65,6 @@ void ConfigureHealthTestConfig(sgpmode::SymConfigSGP& config) {
 
 TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp-functional]") {
   using world_t = sgpmode::SGPWorld;
-  using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
   GIVEN("A health host is uninfected") {
     sgpmode::SymConfigSGP config;
@@ -130,8 +125,6 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
     sgpmode::SymConfigSGP config;
@@ -194,7 +187,6 @@ TEST_CASE("Health host cycles are not stolen by mismatching parasites", "[sgp][s
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a mismatching parasite") {
@@ -243,7 +235,6 @@ TEST_CASE("Health host cycles are stolen by matching parasites when PARASITE_CYC
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
@@ -293,7 +284,6 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when PARASITE
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
@@ -343,7 +333,6 @@ TEST_CASE("Health host cycles are not stolen by matching parasites when HEALTH_I
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching parasite") {
@@ -393,7 +382,6 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
@@ -457,7 +445,6 @@ TEST_CASE("Mismatching mutualists do not donate cycles to health hosts", "[sgp][
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
@@ -506,7 +493,6 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
@@ -557,7 +543,6 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when MUTUALI
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
@@ -607,7 +592,6 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   GIVEN("A health host infected by a matching mutualist") {
@@ -656,10 +640,6 @@ TEST_CASE("Matching mutualists do not donate cycles to health hosts when HEALTH_
 TEST_CASE("Health hosts evolve", "[sgp][sgp-functional][health-mode-evolution]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
-  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
-  using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
-  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
   sgpmode::SymConfigSGP config;
   config.SEED(32);
   config.START_MOI(0);
@@ -706,7 +686,6 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional][health-mode-evolution]")
     world.Setup();
     size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     size_t total_NOTs = 0;
-    size_t total_NANDs = 0;
 
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
