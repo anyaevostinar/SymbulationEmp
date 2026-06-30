@@ -3,14 +3,15 @@
 
 #include "SGPWorld.h"
 #include "org_type_info.h"
-#include "utils.h"
 #include "hardware/SGPHardware.h"
-#include "sgpl/utility/ThreadLocalRandom.hpp"
+#include "../utils.h"
 
+#include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
+
 
 
 // TODO - assert that sym / host has program
@@ -21,6 +22,23 @@ void SGPWorld::Setup() {
   ClearWorldSignals();
   // Clear any config snapshot entries
   config_snapshot_entries.clear();
+
+  // Configure population's spatial connectivity
+  SetupSpatialStructure();
+  // NOTE - Some of this code is repeated from base class.
+  //  - Could do some reorganization to copy-paste. E.g., make functions for this,
+  //     add hooks into the base setup to give more 1wnstream flexibility.
+  const double start_moi = sgp_config.START_MOI();
+  // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
+  long unsigned int POP_SIZE;
+  // TODO - add pop mode?
+  // NOTE - SetupSpatialStructure should configure pop vector size to be carrying capacity.
+  max_world_size = GetSize();
+  if (sgp_config.INIT_POP_SIZE() < 0) {
+    POP_SIZE = max_world_size;
+  } else {
+    POP_SIZE = sgp_config.INIT_POP_SIZE();
+  }
 
   // Reset the seed of the main sgp thread based on the config
   // TODO - should this be here? (used to be inside scheduler)
@@ -45,25 +63,8 @@ void SGPWorld::Setup() {
   // Configure task environment
   SetupTaskEnvironment();
 
-  // NOTE - Some of this code is repeated from base class.
-  //  - Could do some reorganization to copy-paste. E.g., make functions for this,
-  //     add hooks into the base setup to give more 1wnstream flexibility.
-  double start_moi = sgp_config.START_MOI();
-  // NOTE - should POP_SIZE be changed to INIT_POP_SIZE for clarity?
-  long unsigned int POP_SIZE;
-  // TODO - add pop mode?
-  max_world_size = sgp_config.GRID_X() * sgp_config.GRID_Y();
-  if (sgp_config.POP_SIZE() < 0) {
-    POP_SIZE = max_world_size;
-  } else {
-    POP_SIZE = sgp_config.POP_SIZE();
-  }
-
   // Setup mutation operator
   SetupMutator();
-
-  // Setup population structure
-  SetupPopStructure();
 
   // Setup scheduler
   SetupScheduler();
@@ -79,7 +80,7 @@ void SGPWorld::Setup() {
   if (sgp_config.CURE()) {
     begin_update_sig.AddAction(
       [this]() {
-        if(GetUpdate() == sgp_config.CURE_UPDATES()) {
+        if (GetUpdate() == sgp_config.CURE_UPDATES()) {
           CureHosts();
         }
       }
@@ -91,7 +92,6 @@ void SGPWorld::Setup() {
   }
 
   SetupHosts(&POP_SIZE);
-  Resize(max_world_size); // TODO - move this back to setup pop structure after fixing setup hosts
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
@@ -120,7 +120,7 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("and_not")) {
     andn_task_id = task_env.GetTaskSet().GetID("and_not");
   }
-  
+
 
   size_t orn_task_id = task_env.GetTaskSet().GetSize();
   if (task_env.GetTaskSet().HasTask("OR_NOT")) {
@@ -129,7 +129,7 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("or_not")) {
     orn_task_id = task_env.GetTaskSet().GetID("or_not");
   }
-  
+
 
   // grab task ids for NOT, AND, OR
   size_t not_task_id = task_env.GetTaskSet().GetSize();
@@ -155,14 +155,14 @@ void SGPWorld::SetupChangingEnvironment() {
   else if (task_env.GetTaskSet().HasTask("or")) {
     or_task_id = task_env.GetTaskSet().GetID("or");
   }
-  
+
   // update 0 will flip not-and-or to rewarded and nand-andn-orn to punished
   GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
-  
+
   GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
-  
+
   GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
 
@@ -221,7 +221,7 @@ void SGPWorld::DisableConfigurableInstructions() {
     );
   }
 
-  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment, 
+  // if temporally changing environment are off, or if organisms aren't allowed to sense their environment,
   // disable the SenseTask instruction
   if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
     del_inst(
@@ -231,18 +231,6 @@ void SGPWorld::DisableConfigurableInstructions() {
       Library::GetSize()
     );
   }
-}
-
-void SGPWorld::SetupPopStructure() {
-  // set world structure (either mixed or a grid with some dimensions)
-  // and set synchronous generations to false
-  if (!sgp_config.GRID()) {
-    SetPopStruct_Mixed(false);
-  } else {
-    SetPopStruct_Grid(sgp_config.GRID_X(), sgp_config.GRID_Y(), false);
-  }
-  // Resize world capacity to max_world_size
-  // Resize(max_world_size); // TODO - move ethis back here
 }
 
 void SGPWorld::SetupScheduler() {
@@ -377,7 +365,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   before_host_cpu_exec_sig.AddAction(
     [this](sgp_host_t& host) {
       // NOTE - currently, LaunchCPU will only launch if no cores currently running
-      
+
       host.GetHardware().LaunchCPU(START_TAG);
     }
   );
@@ -389,9 +377,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   } else if (task_env.GetTaskSet().HasTask("not")) {
     not_task_id = task_env.GetTaskSet().GetID("not");
   }
-  
+
+  // Going to use the scheduler to fill world up to init pop size.
+  scheduler.UpdateSchedule(); // Shuffles schedule
 
   const size_t init_pop_size = *POP_SIZE;
+  emp_assert(init_pop_size <= scheduler.GetScheduleSize());
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
@@ -446,7 +437,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
       new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
     }
-    InjectHost(new_host);
+    // Needs to be add org at instead of inject because we've already resized the
+    //   world. (inject in well-mixed mode will inject at end of population).
+    // Using the scheduler to fill world randomly (without position replacement)
+    // Will fill world completely if init pop size = full carrying capacity.
+    const size_t pos = scheduler.GetCurSchedule()[i];
+    AddOrgAt(new_host, emp::WorldPosition(pos));
   }
 }
 

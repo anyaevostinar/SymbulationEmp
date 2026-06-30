@@ -6,10 +6,10 @@
 #include "EfficientConfigSetup.h"
 
 class EfficientWorld : public SymWorld {
-private:
+protected:
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -21,10 +21,14 @@ private:
     *
   */
   emp::Ptr<emp::DataMonitor<double>> data_node_efficiency;
+
+  void SetupHosts(long unsigned int* POP_SIZE);
+  void SetupSymbionts(long unsigned int* total_syms);
+
 public:
   /**
    * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
-   * 
+   *
    * Output: None
    *
    * Purpose: To construct an instance of EfficientWorld
@@ -40,7 +44,7 @@ public:
    *
    * Purpose: To destruct the data nodes belonging to EfficientWorld to conserve memory.
    */
-  ~EfficientWorld(){
+  ~EfficientWorld() {
       if (data_node_efficiency) data_node_efficiency.Delete();
   }
 
@@ -49,8 +53,6 @@ public:
   * Definitions of setup functions, expanded in EfficientWorldSetup.cc
   */
   void Setup();
-  void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(long unsigned int* total_syms);
 
 
   /**
@@ -60,7 +62,7 @@ public:
   *
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the efficient condition experiment.
   */
-  void CreateDataFiles(){
+  void CreateDataFiles() {
     std::string file_ending = "_SEED"+std::to_string(efficient_config->SEED())+".data";
     SymWorld::CreateDataFiles();
     SetupEfficiencyFile(efficient_config->FILE_PATH()+"Efficiency"+efficient_config->FILE_NAME()+file_ending).SetTimingRepeat(efficient_config->DATA_INT());
@@ -96,17 +98,17 @@ public:
   emp::DataMonitor<double>& GetEfficiencyDataNode() {
     if (!data_node_efficiency) {
       data_node_efficiency.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_efficiency->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) {
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
               data_node_efficiency->AddDatum(syms[j]->GetEfficiency());
             }//close for
           }//close if
-          if(sym_pop[i]) {
+          if (sym_pop[i]) {
             data_node_efficiency->AddDatum(sym_pop[i]->GetEfficiency());
           }//close if
       }//close for

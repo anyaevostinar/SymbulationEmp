@@ -1,9 +1,16 @@
 #ifndef CONFIG_H
 #define CONFIG_H
-#include <limits>
+
 #include "../Empirical/include/emp/config/config.hpp"
 
-const int TAG_LENGTH = 32;
+#include <limits>
+#include <string>
+
+// Allow for compile-time tag size configuration
+#ifndef TAG_NUM_BITS
+#define TAG_NUM_BITS 32
+#endif
+constexpr size_t TAG_LENGTH = TAG_NUM_BITS;
 
 EMP_BUILD_CONFIG(SymConfigBase,
     GROUP(MAIN, "Global Settings"),
@@ -13,9 +20,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(VERTICAL_TRANSMISSION, double, 0.7, "Value 0 to 1 of probability of symbiont vertically transmitting when host reproduces"),
     VALUE(HOST_INT, double, -2, "Interaction value from -1 to 1 that hosts should have initially, -2 for random"),
     VALUE(SYM_INT, double, -2, "Interaction value from -1 to 1 that symbionts should have initially, -2 for random"),
-    VALUE(GRID_X, int, 100, "Width of the world, just multiplied by the height to get total size"),
-    VALUE(GRID_Y, int, 100, "Height of world, just multiplied by width to get total size"),
-    VALUE(POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
+    VALUE(INIT_POP_SIZE, int, -1, "Starting size of the host population, -1 for full starting population"),
     VALUE(SYM_LIMIT, int, 1, "Number of symbiont allowed to infect a single host"),
     VALUE(START_MOI, double, 1, "Ratio of symbionts to hosts that experiment should start with"),
     VALUE(UPDATES, int, 1001, "Number of updates to run before quitting"),
@@ -26,7 +31,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_REPRO_RES, double, 1000, "How many resources required for host reproduction"),
     VALUE(SYM_HORIZ_TRANS_RES, double, 100, "How many resources required for symbiont non-lytic horizontal transmission"),
     VALUE(SYM_VERT_TRANS_RES, double, 0, "How many resources required for symbiont vertical transmission"),
-    VALUE(GRID, bool, 0, "Do offspring get placed immediately next to parents on grid, same for symbiont spreading"),
     VALUE(SYM_INFECTION_CHANCE, double, 1, "The chance (between 0 and 1) that a sym will infect a parallel host on process"),
     VALUE(SYM_INFECTION_FAILURE_RATE, double, 0, "The chance (between 0 and 1) that a sym will be killed by the world while trying to infect a host"),
     VALUE(HOST_AGE_MAX, int, -1, "The maximum number of updates hosts are allowed to live, -1 for infinite"),
@@ -40,17 +44,23 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(FILE_PATH, std::string, "Data", "Output file path"),
     VALUE(FILE_NAME, std::string, "_data", "Root output file name"),
     VALUE(CURE, bool, 0, "Should all symbionts die (0 for no, 1 for yes)"),
-    VALUE(CURE_UPDATES, int, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
-    
+    VALUE(CURE_UPDATES, size_t, 0, "How many updates should run before all symbionts die, will take the next update for effect"),
+
+    GROUP(SPATIAL_STRUCTURE, "Spatial structure settings"),
+    VALUE(SPATIAL_STRUCT_MODE, std::string, "well-mixed", "Options: well-mixed, grid, load (requires filepath in LoadFile param)"),
+    VALUE(SPATIAL_STRUCT_CFG_PATH, std::string, "spatial-struct.mat", "Path to the file containing the spatial structure"),
+    VALUE(SPATIAL_STRUCT_LOAD_MODE, std::string, "matrix", "Expected file format for loaded spatial structure. Options: matrix, edges"),
+    VALUE(WORLD_WIDTH, size_t, 100, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),
+    VALUE(WORLD_HEIGHT, size_t, 100, "Used for grid and well-mixed modes. Height of world, just multiplied by width to get total size"),
+
     GROUP(PHYLOGENY, "PHYLOGENY"),
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
     VALUE(TRACK_PHYLOGENY_INTERACTIONS, bool, 0, "Should the world keep track of interactions between hosts and symbionts, then write the count of all (including historical) interactions committed by tracked taxa? (0 for no, 1 for yes)?"),
     VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
-    VALUE(PHYLOGENY_TAXON_TYPE, size_t, 0, "What are phylogeny taxa based on? 0 = binned genotypes values, 1 = exact phenotype values, 2 = bitset tag (for tag matching condition), 3 = individual-level"),
+    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-value-binned", "What are phylogeny taxa based on? Options: interaction-value-binned, interaction-value-exact, tag, individual"),
     VALUE(STORE_EXTINCT, bool, 0, "Should extinct taxa be stored? (0 for no, 1 for yes)"),
-
 
     GROUP(MUTATION, "Mutation"),
     VALUE(MUTATION_SIZE, double, 0.002, "Standard deviation of the distribution to mutate by"),
@@ -76,7 +86,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
 
     GROUP(TAG_MATCHING, "Settings for tag matching"),
     VALUE(TAG_MATCHING, bool, 0, "Should organisms have tags that they use to decide whether symbionts can infect hosts?"),
-    VALUE(TAG_METRIC, int, 0, "Which tag matching metric should be used to compute distances between tags? (0 for hamming [proportion of bits mismatching], 1 for streak [ratio of continuously matching/mismatching bits], or 2 for hash [arbitrary but consistent difference])"),
+    VALUE(TAG_METRIC, std::string, "hamming", "Which tag matching metric should be used to compute distances between tags? hamming [proportion of bits mismatching], streak [ratio of continuously matching/mismatching bits], or hash [arbitrary but consistent difference]"),
     VALUE(NORMALIZE_TAG_DISTANCES, bool, 0, "Should distances between pairs of tags be uniformicated? (0 for no, 1 for yes)"),
     VALUE(TAG_PERMISSIVENESS, double, 0.125, "What is the Poisson mean for divergence allowed between tags for a successful infection? (1 = perfect mismatch, 0 = perfect match)"),
     VALUE(HOST_TAG_PERMISSIVENESS_EVOLVES, bool, 0, "Should each host have a tag permissiveness that evolves as hosts reproduce? If yes, starting tag permissiveness values will be set to the TAG_PERMISSIVENESS config option. (0 for no, 1 for yes)"),
@@ -85,6 +95,6 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
     VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
-    VALUE(STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
+    VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
 )
 #endif

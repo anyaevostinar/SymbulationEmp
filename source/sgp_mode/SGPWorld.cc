@@ -4,7 +4,7 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
-#include "utils.h"
+#include "../utils.h"
 
 namespace sgpmode {
 
@@ -96,7 +96,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     DoSymDeath(pos.GetPopID());
   }
 }
- 
+
 
 void SGPWorld::FreeLivingSymAttemptRepro(
   const emp::WorldPosition& pos,
@@ -122,6 +122,13 @@ void SGPWorld::FreeLivingSymAttemptRepro(
     // Attempt failed, so reset repro state.
     sym.GetHardware().GetCPUState().ResetReproState();
   }
+}
+
+void SGPWorld::SetMutationZero() {
+  // Call base world's set mutation to zero function
+  SymWorld::SetMutationZero();
+  // Set sgp mutation rate to 0
+  mutator.SetPerBitMutationRate(0);
 }
 
 void SGPWorld::DoReproduction() {
@@ -256,7 +263,8 @@ void SGPWorld::ProcessStressEscapees() {
         if (!can_infect) continue;
         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
         //AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState()); // AEV No longer needed, added to AddSymbiont
-        int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+        // int new_index =
+        neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
         // AddSymbiont might fail (but when it does, it deletes the offspring)
         // so not possible to keep attempting until actual success
         success = true;
@@ -356,12 +364,12 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
           sym.GetPoints()
         );
         double task_points = new_points - sym.GetPoints();
-  
+
         //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
         if(sgp_config.ENABLE_NUTRIENT() && GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
           task_points *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
-        } 
- 
+        }
+
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
         // // Enforce limits on points

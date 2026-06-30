@@ -1,12 +1,17 @@
-#include "emp/math/Random.hpp"
+#include "../../test_utils.h"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
-//include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPWorldData.cc"
 #include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
 #include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
+
+#include "emp/math/Random.hpp"
 
 #include "../../../catch/catch.hpp"
 
@@ -18,22 +23,22 @@ using program_t = typename world_t::sgp_prog_t;
 using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 
 TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
-
-
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("SGPHardware_test_output");
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1);
 
   emp::Random random(config.SEED());
 
   WHEN("logic tasks are used") {
-    config.POP_SIZE(1);  // Initialize 1 host.
+    config.INIT_POP_SIZE(1);  // Initialize 1 host.
     config.START_MOI(0); // No symbionts
     config.CYCLES_PER_UPDATE(1);
-    
+
     world_t world(random, &config);
     world.Setup();
 
@@ -41,9 +46,9 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     REQUIRE(world.GetNumOrgs() == 1);
     auto& org = world.GetOrg(0);
     auto& sgp_host = static_cast<sgp_host_t&>(org);
-    
+
     hardware_t& hw = sgp_host.GetHardware();
-    
+
     REQUIRE(sgp_host.GetReproCount() == 0);
     REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproAttempt());
     REQUIRE(!sgp_host.GetHardware().GetCPUState().ReproInProgress());
@@ -58,7 +63,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
 
     REQUIRE(sgp_host.GetPoints() == 0);
     sgp_host.ProcessOutputBuffer();
-    // Hardware should also have completed NOT task seven times, which is also checking that they 
+    // Hardware should also have completed NOT task seven times, which is also checking that they
     // are able to fully cycle through all possible inputs (they don't do the last one because they need to go back to their first IO to get it)
     const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
     REQUIRE(hw.GetCPUState().GetTaskPerformed(not_task_id));

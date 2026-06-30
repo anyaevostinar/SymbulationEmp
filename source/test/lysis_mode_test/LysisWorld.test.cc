@@ -1,7 +1,9 @@
 #include "../../lysis_mode/Phage.h"
 #include "../../lysis_mode/LysisWorld.h"
+#include "../../lysis_mode/LysisWorldSetup.cc"
 
 TEST_CASE("Lysis mode Update()", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   emp::Random random(17);
   SymConfigLysis config;
   int int_val = 0;
@@ -10,9 +12,9 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
   int num_updates = 5;
   int burst_time = 2;
 
-  LysisWorld world(random, &config);
+  lysis_world_t world(random, &config);
   world.Resize(world_size);
-  
+
   config.LYSIS(1);
   config.LYSIS_CHANCE(1);
   config.RES_DISTRIBUTE(res_per_update);
@@ -56,10 +58,11 @@ TEST_CASE("Lysis mode Update()", "[lysis]") {
 }
 
 TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;
-    LysisWorld world(random, &config);
+    lysis_world_t world(random, &config);
 
     size_t world_size = 6;
     world.Resize(world_size);
@@ -92,13 +95,16 @@ TEST_CASE("Lysis SetupSymbionts", "[lysis]") {
 }
 
 TEST_CASE("Lysis SetupHosts", "[lysis]") {
+  using lysis_world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigLysis config;
-    LysisWorld world(random, &config);
+    size_t num_to_add = 5;
+    test_utils::SetWellMixed(config, num_to_add);
+    lysis_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     WHEN("SetupHosts is called") {
-      size_t num_to_add = 5;
       world.SetupHosts(&num_to_add);
 
       THEN("The specified number of bacteria are added to the world") {

@@ -19,7 +19,7 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
 
   SymConfigSGP config;
   config.SYNERGY(1);
-  config.SEED(10);  
+  config.SEED(10);
   config.INTERACTION_MECHANISM(1); //Health hosts
   config.SYMBIONT_TYPE(1); //Parasites
   config.LIMITED_RES_TOTAL(10);
@@ -27,21 +27,21 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_REPRO_RES(100);
   config.SYM_HORIZ_TRANS_RES(0);
- 
+
 
   config.OUSTING(1);
 
 
-  size_t world_size = config.GRID_X() * config.GRID_Y();
+  size_t world_size = config.WORLD_WIDTH() * config.WORLD_HEIGHT();
   SGPWorld world(random, &config, LogicTasks);
 
 
   size_t run_updates = 8000;
   WHEN("There are parasites") {
     config.START_MOI(1);
-    
+
     world.Setup();
-  
+
     REQUIRE(world.GetNumOrgs() == world_size);
     for (size_t i = 0; i < run_updates; i++) {
       if (i % 100 == 0) {
@@ -62,9 +62,9 @@ TEST_CASE("Health hosts evolve less NOT with parasites than without", "[sgp][int
   }
   WHEN("There are no parasites") {
     config.START_MOI(0);
-    
+
     world.Setup();
-  
+
     REQUIRE(world.GetNumOrgs() == world_size);
     //TODO: Use RunExperiment(false)
     for (size_t i = 0; i < run_updates; i++) {

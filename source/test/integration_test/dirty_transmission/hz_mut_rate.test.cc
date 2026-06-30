@@ -1,6 +1,6 @@
 #include "../../../efficient_mode/EfficientWorldSetup.cc"
 
-TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
+TEST_CASE("Horizontal Mutation Rate Results", "[integration]") {
   emp::Random random(14);
   SymConfigEfficient config;
   EfficientWorld world(random, &config);
@@ -14,13 +14,13 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
   config.SYM_AGE_MAX(50);
   config.UPDATES(2001);
 
-  config.GRID_X(10);
-  config.GRID_Y(10);
+  config.WORLD_WIDTH(10);
+  config.WORLD_HEIGHT(10);
 
   emp::DataMonitor<double, emp::data::Histogram>& sym_val_node = world.GetHostedSymIntValDataNode();
   emp::DataMonitor<double>& sym_eff_node = world.GetEfficiencyDataNode();
 
-  WHEN("Vertical transmission rate is low"){
+  WHEN("Vertical transmission rate is low") {
 	config.VERTICAL_TRANSMISSION(0.1);
 	world.Setup();
 	WHEN("Horizontal transmission mutation rate is low") {
@@ -49,11 +49,11 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
 	}
   }
   WHEN("Vertical transmission rate is intermediate") {
-	//other tests work fine with both constrained and paper-replicating world conditions 
-	// (large to reduce drift vs. small for speed 
+	//other tests work fine with both constrained and paper-replicating world conditions
+	// (large to reduce drift vs. small for speed
 	//but in intermediate case need larger world to replicate paper results
-	config.GRID_X(100);
-	config.GRID_Y(100);
+	config.WORLD_WIDTH(100);
+	config.WORLD_HEIGHT(100);
 	config.VERTICAL_TRANSMISSION(0.3);
 	world.Setup();
 	WHEN("Horizontal transmission mutation rate is low") {

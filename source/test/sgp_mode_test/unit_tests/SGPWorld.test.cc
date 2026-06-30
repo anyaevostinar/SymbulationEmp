@@ -1,8 +1,15 @@
+#include "../../test_utils.h"
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
-#include "../../../sgp_mode/SGPHost.h"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../../../sgp_mode/ProgramBuilder.h"
+
 #include "../../../catch/catch.hpp"
 
 /**
@@ -23,18 +30,19 @@ TEST_CASE("Update only hosts test", "[sgp]") {
 
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.POP_SIZE(0);
-
-
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 4, 0);
   world_t world(random, &config);
-  world.Resize(2,2);
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
-  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateReproProgram(100));
+  emp::Ptr<sgp_host_t> uninfected_host = emp::NewPtr<sgp_host_t>(
+    &random,
+    &world,
+    &config,
+    builder.CreateReproProgram(100)
+  );
 
   world.AddOrgAt(uninfected_host, 0);
   // TODO: this doesn't work if you add at position 1 instead, is that a problem?
@@ -43,8 +51,6 @@ TEST_CASE("Update only hosts test", "[sgp]") {
     REQUIRE(world.GetNumOrgs() == 1);
     REQUIRE(world.GetOrgPtr(0)->GetAge() == 0);
   }
-
-
 
   for (int i = 0; i < 10; i++) {
     world.Update();
@@ -59,19 +65,19 @@ TEST_CASE("Update only hosts test", "[sgp]") {
 TEST_CASE("Ousting is permitted", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 4, 0);
   config.OUSTING(1);
   config.SYM_LIMIT(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
 
   world_t world(random, &config);
   world.Setup();
-  world.Resize(2, 2);
 
   emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
   emp::Ptr<sgp_sym_t> old_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
   emp::Ptr<sgp_sym_t> new_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
+
   WHEN("Symbiont is added to host that has a symbiont") {
     host->AddSymbiont(old_symbiont);
     world.AddOrgAt(host, 0);
@@ -87,13 +93,12 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   world.CleanupGraveyard();
 }
 
-TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming worse match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -109,12 +114,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming wors
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has a worse match than an existing symbiont"){
+  WHEN("An incoming symbiont has a worse match than an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(8);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
 
-    THEN("NoBetterOrEquallyMatchingSymbionts returns false"){
+    THEN("NoBetterOrEquallyMatchingSymbionts returns false") {
       REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
     }
   }
@@ -122,13 +127,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming wors
   incoming_symbiont.Delete();
 }
 
-TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equal match", "[sgp]"){
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equal match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -144,12 +148,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equa
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has an equal match as an existing symbiont"){
+  WHEN("An incoming symbiont has an equal match as an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(8);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
 
-    THEN("NoBetterOrEquallyMatchingSymbionts returns false"){
+    THEN("NoBetterOrEquallyMatchingSymbionts returns false") {
       REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
     }
   }
@@ -157,13 +161,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equa
   incoming_symbiont.Delete();
 }
 
-TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming better match", "[sgp]"){
+TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming better match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -179,12 +182,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming bette
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has a better match than an existing symbiont"){
+  WHEN("An incoming symbiont has a better match than an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(8);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
 
-    THEN("NoBetterOrEquallyMatchingSymbionts returns true"){
+    THEN("NoBetterOrEquallyMatchingSymbionts returns true") {
       REQUIRE(world.NoBetterOrEquallyMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
     }
   }
@@ -192,13 +195,12 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming bette
   incoming_symbiont.Delete();
 }
 
-TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match", "[sgp]"){
+TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -214,12 +216,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match",
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has a worse match than an existing symbiont"){
+  WHEN("An incoming symbiont has a worse match than an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(4);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(4);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
 
-    THEN("NoBetterMatchingSymbionts returns false"){
+    THEN("NoBetterMatchingSymbionts returns false") {
       REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == false);
     }
   }
@@ -227,13 +229,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match",
   incoming_symbiont.Delete();
 }
 
-TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", "[sgp]"){
+TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -249,12 +250,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has an equal match as an existing symbiont"){
+  WHEN("An incoming symbiont has an equal match as an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(2);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(2);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(2);
 
-    THEN("NoBetterMatchingSymbionts returns true"){
+    THEN("NoBetterMatchingSymbionts returns true") {
       REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
     }
   }
@@ -262,13 +263,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
   incoming_symbiont.Delete();
 }
 
-TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match", "[sgp]"){
+TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.SYM_LIMIT(1);
-  config.GRID_X(1);
-  config.GRID_Y(1);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
-  config.POP_SIZE(0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
@@ -284,12 +284,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match",
 
   host->AddSymbiont(symbiont);
 
-  WHEN("An incoming symbiont has a better match than an existing symbiont"){
+  WHEN("An incoming symbiont has a better match than an existing symbiont") {
     host->GetHardware().GetCPUState().MarkTaskPerformed(4);
     symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
     incoming_symbiont->GetHardware().GetCPUState().MarkTaskPerformed(4);
 
-    THEN("NoBetterMatchingSymbionts returns true"){
+    THEN("NoBetterMatchingSymbionts returns true") {
       REQUIRE(world.NoBetterMatchingSymbionts(*host, incoming_symbiont->GetHardware().GetCPUState().GetTasksPerformed()) == true);
     }
   }
@@ -298,13 +298,12 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match",
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is a nearby matching host", "[sgp][sgp-unit]") {
-  GIVEN("A host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont") {
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 4, 0);
     config.SEED(33);
-    config.POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
@@ -313,7 +312,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     emp::Random random(config.SEED());
     world_t world(random, &config);
     world.Setup();
-    
+
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
     emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
     host->AddSymbiont(symbiont);
@@ -322,17 +321,17 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     size_t source_id = symbiont->GetLocation().GetPopID();
 
     WHEN("There exists three nearby hosts all with matching tasks with the incoming symbiont") {
-      for (size_t i = 1; i<4; i++) {
+      for (size_t i = 1; i < 4; i++) {
         emp::WorldPosition neighbor_position = emp::WorldPosition(i,0);
         emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
         world.AddOrgAt(neighbor_host, neighbor_position);
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
-        
+
       }
       symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
       WHEN("Task matching is not required for horizontal transmission") {
         auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-        THEN("The position of the nearby matching host is not 0 (which is the current host), and PopID is same as current host"){
+        THEN("The position of the nearby matching host is not 0 (which is the current host), and PopID is same as current host") {
           REQUIRE(pos_found);
           REQUIRE(world.IsOccupied(*pos_found));
           REQUIRE(pos_found->GetIndex() != 0);
@@ -344,13 +343,12 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizontal transmission and there is a nearby matching host", "[sgp][sgp-unit]") {
-  GIVEN("A host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont") {
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 4, 0);
     config.SEED(11);
-    config.POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
@@ -378,7 +376,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
 
         WHEN("Task matching is required for horizontal transmission") {
           auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-          THEN("The position of the nearby, matching host is returned"){
+          THEN("The position of the nearby, matching host is returned") {
             REQUIRE(pos_found.has_value() == true);
             REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
             REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
@@ -390,13 +388,12 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is a nearby non-matching host", "[sgp][sgp-unit]") {
-  GIVEN("A host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont") {
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 4, 0);
     config.SEED(11);
-    config.POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
@@ -421,10 +418,10 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
       WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
         symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
-        
+
         WHEN("Task matching is not required for horizontal transmission") {
           auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-          THEN("The position of the nearby, non-matching host is returned"){
+          THEN("The position of the nearby, non-matching host is returned") {
             REQUIRE(pos_found.has_value() == true);
             REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
             REQUIRE(pos_found->GetPopID() == neighbor_position.GetPopID());
@@ -436,13 +433,12 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizontal transmission and there is a nearby non-matching host", "[sgp][sgp-unit]") {
-  GIVEN("A host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont") {
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 4, 0);
     config.SEED(11);
-    config.POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
@@ -468,10 +464,10 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
         symbiont->GetHardware().GetCPUState().MarkTaskPerformed(6);
 
-        
+
         WHEN("Task matching is required for horizontal transmission") {
           auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-          THEN("Nothing is returned (no acceptable neighboring host)"){
+          THEN("Nothing is returned (no acceptable neighboring host)") {
             REQUIRE(pos_found.has_value() == false);
           }
         }
@@ -481,13 +477,12 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
 }
 
 TEST_CASE("FindHostForHorizontalTrans when task matching is not required for horizontal transmission and there is not a nearby host", "[sgp][sgp-unit]") {
-  GIVEN("A host infected with a symbiont"){
+  GIVEN("A host infected with a symbiont") {
     sgpmode::SymConfigSGP config;
     config.SYM_LIMIT(1);
-    config.GRID_X(2);
-    config.GRID_Y(2);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 4, 0);
     config.SEED(11);
-    config.POP_SIZE(0);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
@@ -506,7 +501,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 
     WHEN("There does not exist a nearby host") {
       auto pos_found = world.FindHostForHorizontalTrans(source_id, symbiont);
-      THEN("Nothing is returned (no acceptable neighboring host)"){
+      THEN("Nothing is returned (no acceptable neighboring host)") {
         REQUIRE(pos_found.has_value() == false);
       }
     }
@@ -514,16 +509,16 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 }
 
 TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
-  GIVEN("A target host and an incoming symbiont"){
+  GIVEN("A target host and an incoming symbiont") {
     emp::Random random(1);
     sgpmode::SymConfigSGP config;
     config.SEED(2);
     config.MUTATION_RATE(0.0);
     config.MUTATION_SIZE(0.000);
     config.TASK_PROFILE_MODE("parent-all");
-    config.GRID_X(2);
-    config.GRID_Y(1);
-    config.POP_SIZE(0);
+    config.TASK_IO_BANK_SIZE(10);
+    test_utils::SetWellMixed(config, 2, 0);
+    config.INIT_POP_SIZE(0);
     config.OUSTING(1);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
@@ -537,7 +532,7 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
 
     emp::Ptr<sgp_sym_t> symbiont_parent = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
     emp::Ptr<sgp_sym_t> target_symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
-    
+
     source_host->AddSymbiont(symbiont_parent);
     target_host->AddSymbiont(target_symbiont);
 
@@ -555,18 +550,18 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     emp::WorldPosition parent_pos = emp::WorldPosition(1,0); //pop id 0 means in host 0
 
     WHEN("Preferential ousting is on and the target host has a symbiont") {
-      WHEN("The incoming symbiont has a better match"){
+      WHEN("The incoming symbiont has a better match") {
         symbiont_parent->GetHardware().GetCPUState().SetParentTaskPerformed(1);
         world.SymDoBirth(symbiont_offspring, parent_pos);
-        THEN("The incoming symbiont successfully ousts"){
+        THEN("The incoming symbiont successfully ousts") {
           REQUIRE(target_host->HasSym());
-          REQUIRE(target_host->GetSymbionts().at(0) == symbiont_offspring); 
+          REQUIRE(target_host->GetSymbionts().at(0) == symbiont_offspring);
           REQUIRE(world.GetGraveyard().size() == 1);
         }
         world.CleanupGraveyard();
       }
-      
-      WHEN("The incoming symbiont has a worse match"){
+
+      WHEN("The incoming symbiont has a worse match") {
         target_symbiont->GetHardware().GetCPUState().SetParentTaskPerformed(1);
 
         world.SymDoBirth(symbiont_offspring, parent_pos);

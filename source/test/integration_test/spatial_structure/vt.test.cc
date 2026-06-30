@@ -1,18 +1,23 @@
+#include "../../../default_mode/SymWorld.h"
 #include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 
+#include "../../test_utils.h"
 
-TEST_CASE("Vertical Transmission Results", "[integration]"){
-  //based on paper: Vostinar and Ofria, 2018, "Spatial Structure Can Decrease Symbiotic Cooperation."
+TEST_CASE("Vertical Transmission Results", "[integration]") {
+  // based on paper: Vostinar and Ofria, 2018, "Spatial Structure Can Decrease Symbiotic Cooperation."
 
   emp::Random random(29);
   SymConfigBase config;
   SymWorld world(random, &config);
-
+  // Explicitly set these parameters to be robust to changes in default values.
+  config.UPDATES(1000);
+  test_utils::SetWellMixed(config, 1000, -1);
   config.MUTATION_SIZE(0.05);
 
   emp::DataMonitor<double, emp::data::Histogram>& sym_val_node = world.GetHostedSymIntValDataNode();
   emp::DataMonitor<int>& sym_count_node = world.GetCountHostedSymsDataNode();
-  
+
   WHEN("Mutualists are already present in the population (mixed population)") {
     config.HOST_INT(-2);
     config.SYM_INT(-2);
@@ -32,15 +37,15 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
         REQUIRE(sym_val_node.GetMean() > 0.5);
       }
     }
-    WHEN("Vertical transmission rate  is low (0.09)") {
+    WHEN("Vertical transmission rate is low (0.09)") {
       config.VERTICAL_TRANSMISSION(0.09);
-      int parasite_count = 0;
-      int mutualist_count = 0;
+      size_t parasite_count = 0;
+      size_t mutualist_count = 0;
       world.RunExperiment(false);
       THEN("A cooexistence between parasitic and mutualistic symbionts may develop") {
-        for (int i = 0; i < 6; i++) {
+        for (size_t i = 0; i < 6; i++) {
           parasite_count += sym_val_node.GetHistCounts()[i];
-          mutualist_count += sym_val_node.GetHistCounts()[19-i];
+          mutualist_count += sym_val_node.GetHistCounts()[19 - i];
         }
         REQUIRE(mutualist_count > 0);
         REQUIRE(parasite_count > 0);
@@ -51,13 +56,12 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
   WHEN("Organisms begin the experiment with an interaction value of 0 (all-neutral population)") {
     config.HOST_INT(0);
     config.SYM_INT(0);
-   
 
     WHEN("Vertical transmission rate is 1") {
       config.VERTICAL_TRANSMISSION(1);
       world.Setup();
       world.RunExperiment(false);
-      THEN("Mutualists evolve"){
+      THEN("Mutualists evolve") {
         REQUIRE(sym_val_node.GetMean() > 0.5);
       }
     }
@@ -67,45 +71,45 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       config.START_MOI(0.5);
       world.Setup();
       world.RunExperiment(false);
-      THEN("Symbionts go extinct"){
+      THEN("Symbionts go extinct") {
         REQUIRE(sym_count_node.GetTotal() == 0);
       }
     }
   }
-  WHEN("Symbionts begin the experiment with parasitic phenotypes"){
+  WHEN("Symbionts begin the experiment with parasitic phenotypes") {
     config.HOST_INT(0);
     // not using random parasite values, which the paper used
-    config.SYM_INT(-0.5); 
+    config.SYM_INT(-0.5);
     world.Setup();
 
     WHEN("Vertical transmission rate is 0") {
       config.VERTICAL_TRANSMISSION(0);
       world.RunExperiment(false);
-      THEN("Symbionts become very parasitic"){
+      THEN("Symbionts become very parasitic") {
         REQUIRE(sym_val_node.GetMean() < -0.5);
       }
     }
-    WHEN("Vertical transmission rate is intermediate (0.5)"){
+    WHEN("Vertical transmission rate is intermediate (0.5)") {
       config.VERTICAL_TRANSMISSION(0.5);
       world.RunExperiment(false);
-      THEN("Symbionts become slightly parasitic"){
+      THEN("Symbionts become slightly parasitic") {
         REQUIRE(sym_val_node.GetMean() < -0.2);
-      
+
       }
     }
-    WHEN("Vertical transmission rate is high"){
+    WHEN("Vertical transmission rate is high") {
       config.VERTICAL_TRANSMISSION(0.7);
       config.MUTATION_RATE(0.95);
       config.MUTATION_SIZE(0.04);
       world.RunExperiment(false);
-      THEN("Symbionts become nearly neutral"){
+      THEN("Symbionts become nearly neutral") {
         double mean_sym_val = sym_val_node.GetMean();
         REQUIRE(mean_sym_val > -0.3);
         REQUIRE(mean_sym_val < 0.3);
       }
     }
   }
-  WHEN("Symbionts begin the experiment with mutualistic phenotypes"){
+  WHEN("Symbionts begin the experiment with mutualistic phenotypes") {
     config.HOST_INT(0);
     // not using random parasite values, which the paper used
     config.SYM_INT(0.5);
@@ -133,7 +137,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       }
     }
   }
-  
+
   WHEN("Spatial structure is on") {
     SymWorld off_world(random, &config);
     emp::DataMonitor<double, emp::data::Histogram>& off_sym_val_node = off_world.GetHostedSymIntValDataNode();
@@ -141,21 +145,21 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
 
     config.HOST_INT(0);
     config.SYM_INT(0);
-    config.GRID(1);
+    config.SPATIAL_STRUCT_MODE("grid");
     world.Setup();
 
-    WHEN("Vertical transmission rate is high-intermediate (0.7)"){
+    WHEN("Vertical transmission rate is high-intermediate (0.7)") {
       config.VERTICAL_TRANSMISSION(0.7);
       world.RunExperiment(false);
-      
-      config.GRID(0);
-      off_world.Setup(); 
+
+      config.SPATIAL_STRUCT_MODE("well-mixed");
+      off_world.Setup();
       off_world.RunExperiment(false);
 
       double grid_on_sym_val = sym_val_node.GetMean();
       double grid_off_sym_val = off_sym_val_node.GetMean();
 
-      THEN("Symbionts evolve to be more parasitic compared to when spatial structure is off"){
+      THEN("Symbionts evolve to be more parasitic compared to when spatial structure is off") {
         REQUIRE(off_sym_count_node.GetTotal() > 0);
         REQUIRE(sym_count_node.GetTotal() > 0);
         REQUIRE(grid_on_sym_val < grid_off_sym_val);
@@ -166,7 +170,7 @@ TEST_CASE("Vertical Transmission Results", "[integration]"){
       config.VERTICAL_TRANSMISSION(0.3);
       world.RunExperiment(false);
 
-      config.GRID(0);
+      config.SPATIAL_STRUCT_MODE("well-mixed");
       off_world.Setup();
       off_world.RunExperiment(false);
 

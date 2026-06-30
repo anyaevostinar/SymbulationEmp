@@ -1,7 +1,8 @@
 
 /// updated implementation of unit tests for refactor:
-#include "../../../sgp_mode/utils.h"
-#include "../../../catch/catch.hpp"
+#include "../utils.h"
+#include "../catch/catch.hpp"
+
 #include "emp/bits/Bits.hpp"
 
 TEST_CASE("AnyMatchingOnes Test", "[sgp]") {
@@ -9,19 +10,19 @@ TEST_CASE("AnyMatchingOnes Test", "[sgp]") {
     SECTION("Matching ones", "[sgp]") {
         emp::BitSet<3> bits_a("001");
         emp::BitSet<3> bits_b("001");
-        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == true);
+        REQUIRE(utils::AnyMatchingOnes(bits_a, bits_b) == true);
     }
-    
+
     SECTION("Matching zeroes", "[sgp]") {
         emp::BitSet<3> bits_a("001");
         emp::BitSet<3> bits_b("000");
-        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == false);
+        REQUIRE(utils::AnyMatchingOnes(bits_a, bits_b) == false);
     }
 
     SECTION("No matching bits", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("000");
-        REQUIRE(sgpmode::utils::AnyMatchingOnes(bits_a, bits_b) == false);
+        REQUIRE(utils::AnyMatchingOnes(bits_a, bits_b) == false);
     }
 }
 
@@ -30,19 +31,19 @@ TEST_CASE("MatchingOnesCount Test", "[sgp]") {
     SECTION("Matching bits count - 2", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("110");
-        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 2);
+        REQUIRE(utils::MatchingOnesCount(bits_a, bits_b) == 2);
     }
 
     SECTION("Matching bits count - 1", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("100");
-        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 1);
+        REQUIRE(utils::MatchingOnesCount(bits_a, bits_b) == 1);
     }
 
     SECTION("No matching bits", "[sgp]") {
         emp::BitSet<3> bits_a("111");
         emp::BitSet<3> bits_b("000");
-        REQUIRE(sgpmode::utils::MatchingOnesCount(bits_a, bits_b) == 0);
+        REQUIRE(utils::MatchingOnesCount(bits_a, bits_b) == 0);
     }
 }
 
@@ -52,7 +53,7 @@ TEST_CASE("ResizeClear Test - no ones", "[sgp]") {
 
 
     SECTION("Resize and clear", "[sgp]") {
-        sgpmode::utils::ResizeClear(bits, 5);
+        utils::ResizeClear(bits, 5);
         REQUIRE(bits.size() == 5);
         REQUIRE(bits.CountOnes() == 0);
     }
@@ -62,7 +63,7 @@ TEST_CASE("ResizeFill Test", "[sgp]") {
     std::vector<int> container = {1, 2, 3, 4, 5};
 
     // Resize and fill with value
-    sgpmode::utils::ResizeFill(container, 7, 0);
+    utils::ResizeFill(container, 7, 0);
     REQUIRE(container.size() == 7);
     REQUIRE(container[0] == 0);
     REQUIRE(container[1] == 0);
@@ -73,7 +74,7 @@ TEST_CASE("ResizeFill Test", "[sgp]") {
     REQUIRE(container[6] == 0);
 
     // Resize and fill with another value
-    sgpmode::utils::ResizeFill(container, 7, 10);
+    utils::ResizeFill(container, 7, 10);
     REQUIRE(container.size() == 7);
     for (size_t i = 0; i < container.size(); ++i) {
         REQUIRE(container[i] == 10);

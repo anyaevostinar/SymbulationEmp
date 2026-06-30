@@ -67,13 +67,13 @@ public:
     chance_of_lysis = lysis_config->LYSIS_CHANCE();
     induction_chance = lysis_config->CHANCE_OF_INDUCTION();
     incorporation_val = lysis_config->PHAGE_INC_VAL();
-    if(chance_of_lysis == -1){
+    if (chance_of_lysis == -1) {
       chance_of_lysis = random->GetDouble(0.0, 1.0);
     }
-    if(induction_chance == -1){
+    if (induction_chance == -1) {
       induction_chance = random->GetDouble(0.0, 1.0);
     }
-    if(incorporation_val == -1){
+    if (incorporation_val == -1) {
       incorporation_val = random->GetDouble(0.0, 1.0);
     }
     my_world = _world;
@@ -116,8 +116,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "Phage";
+  std::string const GetName() const {
+    return "Phage";
   }
 
   /**Input: None
@@ -126,7 +126,7 @@ public:
    *
    * Purpose: To get a phage's burst timer.
    */
-  double GetBurstTimer() {return burst_timer;}
+  double GetBurstTimer() const { return burst_timer; }
 
 
   /**
@@ -156,7 +156,7 @@ public:
    *
    * Purpose: To determine a phage's chance of lysis.
    */
-  double GetLysisChance() {return chance_of_lysis;}
+  double GetLysisChance() const { return chance_of_lysis; }
 
 
   /**
@@ -175,7 +175,7 @@ public:
    *
    * Purpose: To determine a phage's incorporation value.
    */
-  double GetIncVal() {return incorporation_val;}
+  double GetIncVal() const { return incorporation_val; }
 
 
   /**
@@ -194,7 +194,7 @@ public:
    *
    * Purpose: To determine a lysogenic phage's chance of inducing
    */
-  double GetInductionChance() {return induction_chance;}
+  double GetInductionChance() const { return induction_chance; }
 
   /**
    * Input: The double to be set as the phage's chance of induction
@@ -222,7 +222,7 @@ public:
    *
    * Purpose: To determine if an organism is a phage.
    */
-  bool IsPhage() {return true;}
+  bool IsPhage() const { return true; }
 
 
   /**
@@ -237,7 +237,7 @@ public:
    */
   void UponInjection() {
     double rand_chance = random->GetDouble(0.0, 1.0);
-    if (rand_chance <= chance_of_lysis){
+    if (rand_chance <= chance_of_lysis) {
       lysogeny = false;
     } else {
       lysogeny = true;
@@ -261,19 +261,19 @@ public:
     double local_size = lysis_config->MUTATION_SIZE();
     if (random->GetDouble(0.0, 1.0) <= local_rate) {
       //mutate chance of lysis/lysogeny, if enabled
-      if(lysis_config->MUTATE_LYSIS_CHANCE()){
+      if (lysis_config->MUTATE_LYSIS_CHANCE()) {
         chance_of_lysis += random->GetNormal(0.0, local_size);
-        if(chance_of_lysis < 0) chance_of_lysis = 0;
+        if (chance_of_lysis < 0) chance_of_lysis = 0;
         else if (chance_of_lysis > 1) chance_of_lysis = 1;
       }
-      if(lysis_config->MUTATE_INDUCTION_CHANCE()){
+      if (lysis_config->MUTATE_INDUCTION_CHANCE()) {
         induction_chance += random->GetNormal(0.0, local_size);
-        if(induction_chance < 0) induction_chance = 0;
+        if (induction_chance < 0) induction_chance = 0;
         else if (induction_chance > 1) induction_chance = 1;
       }
-      if(lysis_config->MUTATE_INC_VAL()){
+      if (lysis_config->MUTATE_INC_VAL()) {
         incorporation_val += random->GetNormal(0.0, local_size);
-        if(incorporation_val < 0) incorporation_val = 0;
+        if (incorporation_val < 0) incorporation_val = 0;
         else if (incorporation_val > 1) incorporation_val = 1;
       }
     }
@@ -303,7 +303,7 @@ public:
    *
    * Purpose: To burst host and release offspring
    */
-  void LysisBurst(emp::WorldPosition location){
+  void LysisBurst(emp::WorldPosition location) {
     emp::vector<emp::Ptr<Organism>>& repro_syms = my_host->GetReproSymbionts();
     //Record the burst size and count
     emp::DataMonitor<double>& data_node_burst_size = my_world->GetBurstSizeDataNode();
@@ -313,12 +313,12 @@ public:
     emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
 
-    for(size_t r=0; r<repro_syms.size(); r++) {
+    for (size_t r=0; r<repro_syms.size(); r++) {
       emp::WorldPosition new_pos = my_world->SymDoBirth(repro_syms[r], location);
 
       //horizontal transmission data nodes
       data_node_attempts_horiztrans.AddDatum(GetIntVal());
-      if(new_pos.IsValid()){
+      if (new_pos.IsValid()) {
         data_node_successes_horiztrans.AddDatum(GetIntVal());
       }
     }
@@ -334,9 +334,9 @@ public:
    *
    * Purpose: To allow lytic phage to produce offspring and increment the burst timer
    */
-  void LysisStep(){
+  void LysisStep() {
     IncBurstTimer();
-    if(lysis_config->SYM_LYSIS_RES() == 0) {
+    if (lysis_config->SYM_LYSIS_RES() == 0) {
       std::cout << "Lysis with a sym_lysis_res of 0 leads to an \
       infinite loop, please change" << std::endl;
       std::exit(1);
@@ -361,7 +361,7 @@ public:
     bool success = false;
     emp::Ptr<Organism> phage_baby;
     //lysogenic phage have 100% chance of vertical transmission, lytic phage have 0% chance
-    if(lysogeny){
+    if (lysogeny) {
       phage_baby = Reproduce();
       success = host_baby->AddSymbiont(phage_baby) > 0;
 
@@ -383,18 +383,18 @@ public:
    *
    * Purpose: To allow a phage to steal or use donated resources from their host.
    */
-  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
-    if(host == nullptr){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr) {
+    if (host == nullptr) {
       host = my_host;
     }
-    if(lysogeny){
-      if(lysis_config->BENEFIT_TO_HOST()){
+    if (lysogeny) {
+      if (lysis_config->BENEFIT_TO_HOST()) {
         return host->ProcessLysogenResources(incorporation_val);
-      } else{
+      } else {
         return 0;
       }
     }
-    else{
+    else {
       return Symbiont::ProcessResources(host_donation, host); //lytic phage do steal resources
     }
   }
@@ -407,21 +407,21 @@ public:
    * Purpose: To process a phage, meaning check for reproduction, check for lysis, and move the phage.
    */
   void Process(emp::WorldPosition location) {
-    if(lysis_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
-      if(!lysogeny){ //phage has chosen lysis
-        if(GetBurstTimer() >= lysis_config->BURST_TIME() ) { //time to lyse!
+    if (lysis_config->LYSIS() && !GetHost().IsNull()) { //lysis enabled and phage is in a host
+      if (!lysogeny) { //phage has chosen lysis
+        if (GetBurstTimer() >= lysis_config->BURST_TIME() ) { //time to lyse!
           LysisBurst(location);
         }
         else { //not time to lyse
           LysisStep();
         }
       }
-      else if(lysogeny){ //phage has chosen lysogeny
+      else if (lysogeny) { //phage has chosen lysogeny
         double rand_chance = random->GetDouble(0.0, 1.0);
-        if (rand_chance <= induction_chance){//phage has chosen to induce and turn lytic
+        if (rand_chance <= induction_chance) {//phage has chosen to induce and turn lytic
           lysogeny = false;
         }
-        else if(random->GetDouble(0.0, 1.0) <= lysis_config->PROPHAGE_LOSS_RATE()){ //check if the phage's host should become susceptible again
+        else if (random->GetDouble(0.0, 1.0) <= lysis_config->PROPHAGE_LOSS_RATE()) { //check if the phage's host should become susceptible again
           SetDead();
         }
       }

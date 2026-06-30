@@ -1,18 +1,20 @@
 #include "../../default_mode/SymWorld.h"
-#include "../../default_mode/Symbiont.h"
-#include "../../default_mode/Host.h"
 #include "../../default_mode/WorldSetup.cc"
+#include "../../default_mode/DataNodes.h"
+
+#include "../test_utils.h"
 
 TEST_CASE("Tag matching", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   int trans_res = 10;
   int starting_res = 15;
   double tag_distance_mean = 0.25;
   double int_val = 0;
+  const size_t pop_size = 4;
 
   emp::Random random(17);
   SymConfigBase config;
-  config.GRID_X(2);
-  config.GRID_Y(2);
+  test_utils::SetWellMixed(config, pop_size);
   config.FREE_HT_FAILURE(1);
   config.SYM_LIMIT(1);
   config.SYM_HORIZ_TRANS_RES(trans_res);
@@ -20,10 +22,12 @@ TEST_CASE("Tag matching", "[default]") {
   config.TAG_MATCHING(1);
   config.TAG_PERMISSIVENESS(tag_distance_mean);
   config.TAG_MUTATION_SIZE(0.0);
-  
+  config.VERTICAL_TRANSMISSION(1.0); // REVIEW NOTE: Is there a reason to not set this to 1?
+
   WHEN("Hamming metric is used") {
-    config.TAG_METRIC(0);
-    SymWorld world(random, &config);
+    config.TAG_METRIC("hamming");
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag =  emp::BitSet<TAG_LENGTH>("00000000000000010000010000100000");
@@ -57,7 +61,7 @@ TEST_CASE("Tag matching", "[default]") {
     WHEN("A symbiont tries to vertically transmit offspring into a host child") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      
+
       symbiont->SetTag(symbiont_tag);
       symbiont->AddPoints(starting_res);
 
@@ -94,9 +98,9 @@ TEST_CASE("Tag matching", "[default]") {
       host.Delete();
       symbiont.Delete();
     }
-    
+
     WHEN("A symbiont tries to horizontally transmit offspring into a host") {
-      // note that these can fail simply because the empty 
+      // note that these can fail simply because the empty
       // neighbor host is not selected by getrandomneighbor
 
       emp::Ptr<Host> source_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -104,10 +108,12 @@ TEST_CASE("Tag matching", "[default]") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
       symbiont->SetTag(symbiont_tag);
-      
+
       WHEN("Their tags are sufficiently close and the host has room") {
         size_t source_pos = 0;
         size_t target_pos = 1;
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         world.AddOrgAt(source_host, source_pos);
         source_host->AddSymbiont(symbiont);
         symbiont->AddPoints(starting_res);
@@ -122,21 +128,22 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE((*world.GetTagMetric())(symbiont_tag, similar_tag) <= tag_distance_mean);
 
         symbiont->IndependentReproduction(emp::WorldPosition(1, source_pos));
-        
+
         THEN("The symbiont succeeds") {
           REQUIRE(target_host->HasSym() == true);
         }
-        THEN("The parent symbiont spends points on reproduction"){
+        THEN("The parent symbiont spends points on reproduction") {
           // horiz trans sets points to 0, rather than subtracting
           REQUIRE(symbiont->GetPoints() == 0);
         }
-        THEN("The child symbiont starts with 0 points"){
+        THEN("The child symbiont starts with 0 points") {
           REQUIRE(target_host->GetSymbionts().at(0)->GetPoints() == 0);
         }
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -164,6 +171,8 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -190,11 +199,11 @@ TEST_CASE("Tag matching", "[default]") {
       }
     }
   }
-  
-  WHEN("Streak metric is used"){
-    config.TAG_METRIC(1);
-    SymWorld world(random, &config);
 
+  WHEN("Streak metric is used") {
+    config.TAG_METRIC("streak");
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag = emp::BitSet<TAG_LENGTH>("00100101011000000000000000000000");
     emp::BitSet<TAG_LENGTH> distant_tag = emp::BitSet<TAG_LENGTH>("00111111111111111111110000000000");
@@ -205,7 +214,7 @@ TEST_CASE("Tag matching", "[default]") {
         double calculated_difference = (*world.GetTagMetric())(symbiont_tag, emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000"));
         REQUIRE(std::abs(expected_difference - calculated_difference) < 0.000001);
       }
-      THEN("Close tag distance is calculated correctly"){
+      THEN("Close tag distance is calculated correctly") {
         int mismatch = 2;
         int match = 21;
         const double pow_match = static_cast<double>(TAG_LENGTH - match + 1) / std::pow(2, match);
@@ -217,7 +226,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(expected_difference == calculated_difference);
         REQUIRE(tag_distance_mean > calculated_difference + 0.05);
       }
-      THEN("Distant tag distance is calculated correctly"){
+      THEN("Distant tag distance is calculated correctly") {
         int mismatch = 20;
         int match = 10;
         const double pow_match = static_cast<double>(TAG_LENGTH - match + 1) / std::pow(2, match);
@@ -280,6 +289,8 @@ TEST_CASE("Tag matching", "[default]") {
       symbiont->SetTag(symbiont_tag);
 
       WHEN("Their tags are sufficiently close and the host has room") {
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 0;
         size_t target_pos = 1;
         world.AddOrgAt(source_host, source_pos);
@@ -310,7 +321,8 @@ TEST_CASE("Tag matching", "[default]") {
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -340,6 +352,8 @@ TEST_CASE("Tag matching", "[default]") {
       WHEN("Their tags are too dissimilar") {
         size_t source_pos = 1;
         size_t target_pos = 0;
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         world.AddOrgAt(source_host, source_pos);
         source_host->AddSymbiont(symbiont);
         symbiont->AddPoints(starting_res);
@@ -364,11 +378,11 @@ TEST_CASE("Tag matching", "[default]") {
       }
     }
   }
-  
-  WHEN("Hash metric is used"){
-    config.TAG_METRIC(2);
-    SymWorld world(random, &config);
 
+  WHEN("Hash metric is used") {
+    config.TAG_METRIC("hash");
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("10000000011000000000000000000000");
     emp::BitSet<TAG_LENGTH> similar_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
     emp::BitSet<TAG_LENGTH> distant_tag = emp::BitSet<TAG_LENGTH>("00000000011000000010000000000001");
@@ -394,7 +408,7 @@ TEST_CASE("Tag matching", "[default]") {
         REQUIRE(tag_distance_mean < calculated_difference - 0.05);
       }
     }
-    
+
     WHEN("A symbiont tries to vertically transmit offspring into a host child") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -435,7 +449,7 @@ TEST_CASE("Tag matching", "[default]") {
       host.Delete();
       symbiont.Delete();
     }
-    
+
     WHEN("A symbiont tries to horizontally transmit offspring into a host") {
       emp::Ptr<Host> source_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
       emp::Ptr<Host> target_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -444,6 +458,8 @@ TEST_CASE("Tag matching", "[default]") {
       symbiont->SetTag(symbiont_tag);
 
       WHEN("Their tags are sufficiently close and the host has room") {
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 0;
         size_t target_pos = 1;
         world.AddOrgAt(source_host, source_pos);
@@ -474,8 +490,9 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are sufficiently close and the host does not have room") {
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         emp::Ptr<Organism> obstructive_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -503,6 +520,8 @@ TEST_CASE("Tag matching", "[default]") {
         }
       }
       WHEN("Their tags are too dissimilar") {
+        world.Clear(); // Reset world occupants
+        world.Resize(pop_size);
         size_t source_pos = 1;
         size_t target_pos = 0;
         world.AddOrgAt(source_host, source_pos);
@@ -531,7 +550,8 @@ TEST_CASE("Tag matching", "[default]") {
   }
 }
 
-TEST_CASE("Evolvable tag permissiveness", "[default]"){
+TEST_CASE("Evolvable tag permissiveness", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   int trans_res = 10;
   int starting_res = 15;
   double tag_distance_mean = 0.25;
@@ -546,12 +566,14 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
 
   config.TAG_MATCHING(1);
   config.TAG_MUTATION_SIZE(0.0);
-  config.TAG_METRIC(0);
+  config.TAG_METRIC("hamming");
   config.TAG_PERMISSIVENESS(tag_distance_mean);
   config.HOST_TAG_PERMISSIVENESS_EVOLVES(1);
   config.HOST_TAG_PERMISSIVENESS_MUTATION_SIZE(0);
 
-  SymWorld world(random, &config);
+  test_utils::SetWellMixed(config, 10);
+  sym_world_t world(random, &config);
+  world.SetupSpatialStructure();
 
   WHEN("Host tag permissiveness values can evolve") {
     emp::BitSet<TAG_LENGTH> symbiont_tag = emp::BitSet<TAG_LENGTH>("00000000000000000000000000000000");
@@ -561,13 +583,13 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
       config.VERTICAL_TRANSMISSION(1);
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-      
+
       symbiont->SetPoints(starting_res);
       symbiont->SetTag(symbiont_tag);
       host->SetTag(host_tag);
       host->AddSymbiont(symbiont);
-      
-      WHEN("The host's permissiveness is too low"){
+
+      WHEN("The host's permissiveness is too low") {
         double host_permissiveness = 0;
         host->SetTagPermissiveness(host_permissiveness);
         THEN("The symbiont offspring cannot vertically transmit") {
@@ -592,10 +614,10 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
           host_baby.Delete();
         }
       }
-      
+
       host.Delete();
     }
-    
+
     WHEN("A symbiont transmits horizontally") {
       emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
       emp::Ptr<Host> source_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -635,55 +657,54 @@ TEST_CASE("Evolvable tag permissiveness", "[default]"){
   }
 }
 
-TEST_CASE("SetupSymbionts with tag matching on", "[default]"){
+// NOTE: This test is a little bit frustrating to maintain if we change calls to
+//        random number generator. Tweaking it to be more maintainable, but I think
+//        still test the intended code.
+TEST_CASE("SetupSymbionts with tag matching on", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
-    emp::Random random(17);
+    emp::Random random(18);
+    size_t world_size = 1;
     SymConfigBase config;
-    SymWorld world(random, &config);
+    test_utils::SetWellMixed(config, world_size);
+    sym_world_t world(random, &config);
 
-    size_t world_size = 6;
-
-    WHEN("SetupSymbionts is called and random tag start is on") {
+    WHEN("SetupSymbionts is called") {
       config.TAG_MATCHING(1);
+      config.TAG_PERMISSIVENESS(0.0);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-      config.STARTING_TAGS_ONE_PROB(0.1);
+      world.SetupSpatialStructure();
+      // Setup hosts with one prob = 0
+      config.HOST_STARTING_TAGS_ONE_PROB(0.5);
       world.SetupHosts(&world_size);
+      world.SetupSymbionts(&world_size);
 
-      size_t num_to_add = 4;
-      world.SetupSymbionts(&num_to_add);
-      size_t num_expected = 2;
-      
-      THEN("The specified number of symbionts are added to the world and match their host's tags") {
-        size_t total_ones = 0;
-        size_t num_added = 0;
-        for (size_t i = 0; i < world_size; i++) {
-          Organism & host = world.GetOrg(i);
-          for (auto sym : host.GetSymbionts()) {
-            num_added++;
-            int ones = sym->GetTag().CountOnes();
-            total_ones += ones;
-            REQUIRE((*world.GetTagMetric())(sym->GetTag(), host.GetTag()) == 0);
-          }
-        }
-        REQUIRE(num_added == num_expected);
-        REQUIRE(total_ones > (num_expected - 1) * 3);
-        REQUIRE(total_ones < (num_expected + 1) * 3);
+      THEN("A symbiont should be added to the world with a tag that matches their host") {
+        Organism& host = world.GetOrg(0);
+        REQUIRE(host.GetSymbionts().size() == 1);
+        Organism& sym = host.GetSymbiont(0);
+        const auto& host_tag = host.GetTag();
+        const auto& sym_tag = sym.GetTag();
+        REQUIRE(world.CalcTagMetric(sym_tag, host_tag) == 0);
       }
     }
   }
 }
 
 TEST_CASE("SetupHosts with tag matching on", "[default]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
-    SymWorld world(random, &config);
     size_t num_to_add = 5;
+    test_utils::SetWellMixed(config, num_to_add);
+    sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
 
-    WHEN("Random starting tags are on"){
+    WHEN("Random starting tags are on") {
       config.TAG_MATCHING(1);
       world.SetTagMetric(emp::NewPtr<emp::HammingMetric<TAG_LENGTH>>());
-      config.STARTING_TAGS_ONE_PROB(0.1); 
+      config.HOST_STARTING_TAGS_ONE_PROB(0.1);
       // we expect 3.2ish 1s per tag
 
       world.SetupHosts(&num_to_add);
@@ -691,9 +712,9 @@ TEST_CASE("SetupHosts with tag matching on", "[default]") {
       size_t num_added = world.GetNumOrgs();
       REQUIRE(num_added == num_to_add);
 
-      THEN("Tags are randomly initialized per the starting ones probability"){
+      THEN("Tags are randomly initialized per the starting ones probability") {
         int total_ones = 0;
-        for(size_t i = 0; i < num_added; i++){
+        for(size_t i = 0; i < num_added; i++) {
           int ones = world.GetOrg(i).GetTag().CountOnes();
           total_ones += ones;
           REQUIRE(ones >= 0);
@@ -752,7 +773,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
   SymWorld world(*random, &config);
 
   emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
-  
+
   WHEN("Tag permissiveness mutation rate is positive and high") {
     config.HOST_TAG_PERMISSIVENESS_MUTATION_RATE(0.6);
 
@@ -850,7 +871,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation size", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("Symbiont Mutate tag", "[default]"){
+TEST_CASE("Symbiont Mutate tag", "[default]") {
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(37);
   SymConfigBase config;
   config.TAG_MATCHING(1);
@@ -887,7 +908,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
   SymWorld world(random, &config);
 
   double int_val = 0;
-  
+
   emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
   emp::Ptr<Symbiont> symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
@@ -895,13 +916,13 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
   host->SetTag(host_tag);
   emp::BitSet<TAG_LENGTH> sym_tag = emp::BitSet<TAG_LENGTH>("00000000111111110000000011111111");
   symbiont->SetTag(sym_tag);
-  
+
   WHEN("A symbiont reproduces") {
     host->AddSymbiont(symbiont);
-    
+
     REQUIRE(symbiont->GetFromPartnerCount() == 0);
     REQUIRE(symbiont->GetTowardsPartnerCount() == 0);
-    
+
     unsigned int towards_gen_1 = 4;
     unsigned int from_gen_1 = 6;
     emp::Ptr<Organism> sym_baby = symbiont->Reproduce();
@@ -943,7 +964,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
     host_2.Delete();
     sym_grandbaby.Delete();
   }
-  
+
   WHEN("A host reproduces") {
     WHEN("The host parent has a symbiont partner") {
       random.ResetSeed(11);
@@ -956,7 +977,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
       emp::Ptr<Organism> host_baby = host->Reproduce();
 
       // 00000000111111110000000011111111  // symbiont
-      // 00000000000000001111111111111111  // host 
+      // 00000000000000001111111111111111  // host
       // 11100001100100111000111010001111  // host baby
 
       // 11100001000000000000000001110000 from (7)
@@ -1010,7 +1031,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
       host_baby.Delete();
     }
   }
-  
+
   if (!host->HasSym()) symbiont.Delete();
   host.Delete();
 }

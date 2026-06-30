@@ -5,7 +5,7 @@
 #include "../../../catch/catch.hpp"
 
 /**
- * This file is dedicated to testing StressHost specifc aspects. 
+ * This file is dedicated to testing StressHost specifc aspects.
  * This includes free rerpoduction on extinction, Task Matching for symbiont interactions and Safe Time pre extinction
  */
 
@@ -29,13 +29,13 @@ TEST_CASE("Stress parasites can reproduce for free when their host is killed in 
 
     host->AddSymbiont(matching_symbiont);
     host->AddSymbiont(non_matching_symbiont);
-    
+
     REQUIRE(host->GetSymbionts().size() == 2);
 
     host->GetCPU().state.parent_tasks_performed->Set(1);
     matching_symbiont->GetCPU().state.tasks_performed->Set(0); // this gets used to create the parent task set for the escapees
     matching_symbiont->GetCPU().state.parent_tasks_performed->Set(1); // this gets used to determine escapee infection ability
-    
+
     world.AddOrgAt(host, 0);
 
     WHEN("A host dies"){
@@ -91,8 +91,8 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
     config.SYM_HORIZ_TRANS_RES(100);
     config.SYM_MIN_CYCLES_BEFORE_REPRO(50);
     config.HOST_MIN_CYCLES_BEFORE_REPRO(100);
-    config.GRID_X(10);
-    config.GRID_Y(10);
+    config.WORLD_WIDTH(10);
+    config.WORLD_HEIGHT(10);
 
     SGPWorld world(random, &config, LogicTasks);
     world.Resize(10);
@@ -111,7 +111,7 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
     REQUIRE(world.GetNumOrgs() == 3);
 
     WHEN("Preferential ousting is off") {
-      host->GetCPU().state.parent_tasks_performed->Set(0); 
+      host->GetCPU().state.parent_tasks_performed->Set(0);
       host_2->GetCPU().state.parent_tasks_performed->Set(0); // vulnerable (to infection) surviving host
       host_3->GetCPU().state.parent_tasks_performed->Set(1); // non-vulnerable surviving host
       symbiont->GetCPU().state.parent_tasks_performed->Set(0);
@@ -124,9 +124,9 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
         REQUIRE(world.IsOccupied(1) == true); // host_2 should have survived
         REQUIRE(world.IsOccupied(2) == true); // host_3 should have survived
 
-        REQUIRE(host_2->GetSymbionts().size() > 0); // with six offspring, let's expect the vulnerable host to be infected 
+        REQUIRE(host_2->GetSymbionts().size() > 0); // with six offspring, let's expect the vulnerable host to be infected
         REQUIRE(host_2->GetSymbionts().at(0).DynamicCast<SGPSymbiont>()->GetCPU().state.parent_tasks_performed->Get(1) == true);
-        REQUIRE(host_3->GetSymbionts().size() == 0); // and the non-matching host to be spared  
+        REQUIRE(host_3->GetSymbionts().size() == 0); // and the non-matching host to be spared
       }
       THEN("The queue is left empty") {
         REQUIRE(world.symbiont_stress_escapee_offspring.size() == 0);
@@ -146,17 +146,17 @@ TEST_CASE("ProcessStressEscapeeOffspring", "[sgp][sgp-functional]") {
       emp::Ptr<SGPSymbiont> symbiont_4 = emp::NewPtr<SGPSymbiont>(&random, &world, &config);
       host_4->AddSymbiont(symbiont_4);
 
-      // most can do one common task 
+      // most can do one common task
       host->GetCPU().state.parent_tasks_performed->Set(6);   // infected but not parasitized
       host_2->GetCPU().state.parent_tasks_performed->Set(0); // uninfected
       host_3->GetCPU().state.parent_tasks_performed->Set(0); // parasitized
       host_4->GetCPU().state.parent_tasks_performed->Set(0); // parasitized
 
       symbiont->GetCPU().state.parent_tasks_performed->Set(0);
-      
+
       symbiont_3->GetCPU().state.parent_tasks_performed->Set(0);
       symbiont_3->GetCPU().state.tasks_performed->Set(5);    // used as a tag to identify self (it doesn't get ousted by an escapee offspring)
-      
+
       symbiont_4->GetCPU().state.parent_tasks_performed->Set(0);
       symbiont_4->GetCPU().state.parent_tasks_performed->Set(6);
       symbiont_4->GetCPU().state.tasks_performed->Set(2);    // used as a tag to identify escapee offspring
@@ -204,7 +204,7 @@ TEST_CASE("Task matching required for (stress) symbiotic behavior", "[sgp][sgp-f
     emp::Ptr<StressHost> matching_host = emp::NewPtr<StressHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
     emp::Ptr<SGPSymbiont> matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
     emp::Ptr<SGPSymbiont> other_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
-    
+
     emp::Ptr<StressHost> non_matching_host = emp::NewPtr<StressHost>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
     emp::Ptr<SGPSymbiont> non_matching_symbiont = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(PROGRAM_LENGTH));
 
@@ -273,12 +273,12 @@ TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
     config.INTERACTION_MECHANISM(STRESS);
     config.EXTINCTION_FREQUENCY(10);
     config.SAFE_TIME(20);
-    config.GRID_X(10);
-    config.GRID_Y(10);
-    size_t world_size = config.GRID_X() * config.GRID_Y();
+    config.WORLD_WIDTH(10);
+    config.WORLD_HEIGHT(10);
+    size_t world_size = config.WORLD_WIDTH() * config.WORLD_HEIGHT();
 
-    double parasite_death_chance = 0.5; 
-    double mutualist_death_chance = 0.125; 
+    double parasite_death_chance = 0.5;
+    double mutualist_death_chance = 0.125;
     double base_death_chance = 0.25;
     config.PARASITE_DEATH_CHANCE(parasite_death_chance);
     config.MUTUALIST_DEATH_CHANCE(mutualist_death_chance);
@@ -298,11 +298,11 @@ TEST_CASE("Safe time configuration option", "[sgp][sgp-functional]") {
           REQUIRE(world.GetNumOrgs() == world_size);
         }
       }
-      
+
       WHEN("Stress symbionts are parasites and it's during the safe time") {
         config.SYMBIONT_TYPE(PARASITE);
         world.Update();
-        THEN("No hosts die") {        
+        THEN("No hosts die") {
           REQUIRE(world.GetNumOrgs() == world_size);
         }
       }

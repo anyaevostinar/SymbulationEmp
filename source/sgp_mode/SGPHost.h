@@ -3,7 +3,7 @@
 
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
-// #include "SGPWorld.h"
+#include "SGPConfigSetup.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/Bits.hpp"
@@ -63,7 +63,7 @@ protected:
   // }
 
 public:
-  
+
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -170,10 +170,10 @@ public:
    */
   void SetReproCount(size_t _in) { reproductions = _in; }
 
-  void SetLocation(const emp::WorldPosition& pos) {
+  void SetLocation(emp::WorldPosition pos) {
     hardware.GetCPUState().SetLocation(pos);
   }
-  const emp::WorldPosition& GetLocation() const {
+  emp::WorldPosition GetLocation() const {
     return hardware.GetCPUState().GetLocation();
   }
 
@@ -185,7 +185,7 @@ public:
   }
 
   size_t matching_syms_to_interact_with = 0;
-  
+
   size_t GetCountofMatchingSymsToInteractWith(){
     return matching_syms_to_interact_with;
   }
@@ -193,7 +193,7 @@ public:
   void SetCountofMatchingSymsToInteractWith(size_t new_matching_count){
     matching_syms_to_interact_with = new_matching_count;
   }
-  
+
 
   /**
    * Input: None.
@@ -430,14 +430,14 @@ public:
           if (not_first_task) {
             continue;
           }
-          
+
         // Has this organism already gotten credit with this output on this task?
         if (cpu_state.OutputCredited(task_id, val)) continue;
         // Check task requirements
         auto& task_req_info = task_env.GetHostTaskReq(task_id);
         if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
           continue;
-        } 
+        }
 
         // Manage CPU state after completing a task:
         //   (1) Mark task as being performed
@@ -596,7 +596,7 @@ public:
 
 
   /*
-   *Input: None 
+   *Input: None
    *Output: None
    *Purpose: To update the host's counter for the number of their symbionts that they task match with
    */
@@ -604,17 +604,17 @@ public:
     matching_syms_to_interact_with = 0;
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-          
+
       emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
-      
+
       const emp::BitVector& endosym_task_profile = my_world->GetSymTaskProfile(*cur_symbiont);
       const emp::BitVector& host_task_profile = my_world->GetHostTaskProfile(*this);
       bool is_matching = my_world->TaskProfileCompatibilityCheck(host_task_profile,endosym_task_profile);
       matching_syms_to_interact_with += is_matching;
-            
+
       }
   }
-  
+
 };
 
 }
