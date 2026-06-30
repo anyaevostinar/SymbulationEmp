@@ -504,7 +504,7 @@ public:
    *
    * Purpose: Does nothing for now, added for backwards compatibility from phage to symbiont
    */
-  void UponInjection(){
+  void UponInjection() {
     //does nothing for now, added for backwards compatibility from phage to symbiont
   }
 
@@ -515,9 +515,9 @@ public:
    *
    * Purpose: Increments age by one and kills it if too old.
    */
-  void GrowOlder(){
+  void GrowOlder() {
     age = age + 1;
-    if(age > my_config->SYM_AGE_MAX() && my_config->SYM_AGE_MAX() > 0){
+    if(age > my_config->SYM_AGE_MAX() && my_config->SYM_AGE_MAX() > 0) {
       SetDead();
     }
   }
@@ -542,7 +542,7 @@ public:
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
-      if(my_config->FREE_LIVING_SYMS()){
+      if(my_config->FREE_LIVING_SYMS()) {
         infection_chance += random->GetNormal(0.0, local_size);
         if (infection_chance < 0) infection_chance = 0;
         else if (infection_chance > 1) infection_chance = 1;
@@ -562,8 +562,8 @@ public:
    *
    * Purpose: To process and distribute resources.
    */
-  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr){
-    if(host == nullptr){
+  double ProcessResources(double host_donation, emp::Ptr<Organism> host = nullptr) {
+    if(host == nullptr) {
       host = my_host;
     }
     double sym_int_val = GetIntVal();
@@ -571,12 +571,12 @@ public:
     double host_portion = 0;
     double synergy = my_config->SYNERGY();
 
-    if (sym_int_val<0){
+    if (sym_int_val<0) {
       double stolen = host->StealResources(sym_int_val);
       host_portion = 0;
       sym_portion = stolen + host_donation;
     }
-    else if (sym_int_val >= 0){
+    else if (sym_int_val >= 0) {
       host_portion = host_donation * sym_int_val;
       sym_portion = host_donation - host_portion;
     }
@@ -594,7 +594,7 @@ public:
    * Purpose: To determine if a symbiont wants to
    * infect a host based upon its infection chance
    */
-  bool WantsToInfect(){
+  bool WantsToInfect() {
     bool result = random->GetDouble(0.0, 1.0) < infection_chance;
     return result;
   }
@@ -609,7 +609,7 @@ public:
    * Purpose: To determine if a symbiont will survive
    * crossing over into the host world based on infection risk.
    */
-  bool InfectionFails(){
+  bool InfectionFails() {
     //note: this can be returned true, and an infecting sym can then be killed by a host that is already infected.
     bool sym_dies = random->GetDouble(0.0, 1.0) < my_config->SYM_INFECTION_FAILURE_RATE();
     return sym_dies;
@@ -623,11 +623,11 @@ public:
    * Purpose:  Free living symbionts specialized to interact with hosts
    * (extreme interaction value in either direction) lose some of the resources that they get from the world.
    */
-  void LoseResources(double resources){
+  void LoseResources(double resources) {
     double int_val = interaction_val;
     if(my_host.IsNull()) { // this method should only be called on free-living syms, but double check!
 
-      if(int_val >= 0){
+      if(int_val >= 0) {
 	      double spent = resources * int_val;
         this->AddPoints(resources - spent);
       }
@@ -701,7 +701,7 @@ public:
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
     sym_baby->SetReproCount(reproductions + 1);
-    if(my_config->PHYLOGENY() == 1){
+    if(my_config->PHYLOGENY() == 1) {
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic
     }
@@ -836,7 +836,7 @@ public:
 
   void AfterIndependentReproduction(const emp::WorldPosition& sym_baby_pos) {
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
-    if(sym_baby_pos.IsValid()){
+    if(sym_baby_pos.IsValid()) {
       data_node_successes_horiztrans.AddDatum(GetIntVal());
     }
 
@@ -850,7 +850,7 @@ public:
    * Purpose: To check and allow for independent reproduction to occur (eiter horizontal transmission or free-living reproduction)
    */
   void IndependentReproduction(emp::WorldPosition location) {
-    if(AttemptIndependentReproduction(location)){
+    if(AttemptIndependentReproduction(location)) {
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
       emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
