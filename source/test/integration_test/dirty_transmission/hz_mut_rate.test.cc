@@ -1,6 +1,6 @@
 #include "../../../efficient_mode/EfficientWorldSetup.cc"
 
-TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
+TEST_CASE("Horizontal Mutation Rate Results", "[integration]") {
   emp::Random random(14);
   SymConfigEfficient config;
   EfficientWorld world(random, &config);
@@ -20,7 +20,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]"){
   emp::DataMonitor<double, emp::data::Histogram>& sym_val_node = world.GetHostedSymIntValDataNode();
   emp::DataMonitor<double>& sym_eff_node = world.GetEfficiencyDataNode();
 
-  WHEN("Vertical transmission rate is low"){
+  WHEN("Vertical transmission rate is low") {
 	config.VERTICAL_TRANSMISSION(0.1);
 	world.Setup();
 	WHEN("Horizontal transmission mutation rate is low") {
