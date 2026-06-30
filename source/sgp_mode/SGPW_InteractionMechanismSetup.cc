@@ -33,35 +33,6 @@ void SGPWorld::SetupHostSymInteractions() {
 
 }
 
-void SGPWorld::SetupFindHostForHorizontalTransmission() {
-  // Setup function that gets host neighbor (used for symbiont)
-  // Excludes current host, since they really shouldn't be considered a neighbor
-  // TODO - add different configuration options for this?
-  fun_find_host_for_horizontal_trans = [this](
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
-  ) -> std::optional<emp::WorldPosition> {
-    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-      emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
-      if (candidate_pos.IsValid() && IsOccupied(candidate_pos) && candidate_pos.GetIndex() != host_world_id) {
-        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-        emp_assert(neighbor_org_ptr->IsHost());
-        // Cast neighbor as sgp_host_t ptr.
-        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-        //TODO: Should this check be done during AddSymbiont instead of here?
-        const bool compatible = fun_host_sym_horizontal_trans_compatibility_check(
-          *neighbor_host_ptr,
-          *sym_parent_ptr
-        );
-        if (compatible) {
-          return std::optional<emp::WorldPosition>{candidate_pos};
-        }
-      }
-    }
-    return std::nullopt;
-  };
-}
-
 void SGPWorld::SetupOrgTypeVariables(){
 
   // Convert cfg org type to lowercase
@@ -766,11 +737,11 @@ void SGPWorld::SetupHostTaskRewards() {
               double sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
               point_difference_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
               cur_symbiont->AddPoints(sym_task_point);
+
             }
 
         }
         }
-
         host.AddPoints(task_value_before+point_difference_from_syms);
     };
 

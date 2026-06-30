@@ -201,8 +201,6 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
 }
 
-// TODO AEV: integrate this with default mode to support tags with tasks etc
-// Refactor: also try to be parallel with where Symbiont does this, what is in World versus Symbiont?
 emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_baby_ptr,
   const emp::WorldPosition& parent_pos

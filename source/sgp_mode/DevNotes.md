@@ -1,6 +1,7 @@
 (delete once Anya is done with joint refactoring)
 
 ## Further refactoring list:
+* Add SGP mode to API reference doc
 * Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 * Move SymDoMutation into SGPSymbiont to parallel host
 * Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym

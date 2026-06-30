@@ -4,7 +4,7 @@ Symbulation is an artificial life software tool for agent-based modeling of the 
 
 [![CI](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml/badge.svg)](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/anyaevostinar/SymbulationEmp/branch/main/graph/badge.svg?token=BVQUX9SK5S)](https://codecov.io/gh/anyaevostinar/SymbulationEmp)
-[![DOI](https://zenodo.org/badge/92536524.svg)](https://zenodo.org/badge/latestdoi/92536524)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20732915.svg)](https://doi.org/10.5281/zenodo.20732915)
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
 [<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
 [![GitHub contributors](https://img.shields.io/github/contributors/anyaevostinar/SymbulationEmp.svg?style=flat-square)](https://github.com/anyaevostinar/SymbulationEmp/graphs/contributors)

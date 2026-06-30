@@ -35,6 +35,10 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           root_dir: SymbulationEmp
+          override_branch: ${{ github.ref_name }}
+          slug: anyaevostinar/SymbulationEmp
+          #Codecov is being frustrating and not reading in the updates to codecov.yml, so trying this to get the desired behavior
+          exclude: SymbulationEmp/source/catch,SymbulationEmp/stats_scripts,SymbulationEmp/web,SymbulationEmp/Empirical,SymbulationEmp/coverage_source,SymbulationEmp/source/test,SymbulationEmp/signalgp-lite
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
