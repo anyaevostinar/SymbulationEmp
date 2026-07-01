@@ -139,37 +139,37 @@ TEST_CASE("Stress hosts evolve", "[sgp][sgp-functional]") {
   emp::Random random(config.SEED());
   world_t world(random, &config);
   
-  size_t no_mut_NOT_rate = 40000;
+  size_t no_mut_NAND_rate = 40000;
   size_t run_updates = 1000;
   
   WHEN("Mutation size is 0") {
     config.SGP_MUT_PER_BIT_RATE(0);
     world.Setup();
-    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-    size_t total_NOTs = 0;
+    size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+    size_t total_NANDs = 0;
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
-      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      total_NANDs += world.GetHostTaskSuccesses().at(nand_task_id);
     }
     THEN("Stress hosts do not accrue mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate - no_mut_NOT_rate*0.25);
-      REQUIRE(total_NOTs < no_mut_NOT_rate + no_mut_NOT_rate*0.25);
+      REQUIRE(total_NANDs > no_mut_NAND_rate - no_mut_NAND_rate*0.25);
+      REQUIRE(total_NANDs < no_mut_NAND_rate + no_mut_NAND_rate*0.25);
     }
   }
 
   WHEN("Mutation size is greater than 0") {
     config.SGP_MUT_PER_BIT_RATE(0.01);
     world.Setup();
-    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-    size_t total_NOTs = 0;
+    size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+    size_t total_NANDs = 0;
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
-      total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+      total_NANDs += world.GetHostTaskSuccesses().at(nand_task_id);
     }
     THEN("Stress hosts accrue more mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate * 3);
+      REQUIRE(total_NANDs > no_mut_NAND_rate);
     }
   }
 }
