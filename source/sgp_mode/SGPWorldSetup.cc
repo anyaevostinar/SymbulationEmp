@@ -383,11 +383,11 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   );
 
   // TODO - inject initial population at fixed positions (unless configured otherwise)
-  size_t not_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("NOT")) {
-    not_task_id = task_env.GetTaskSet().GetID("NOT");
-  } else if (task_env.GetTaskSet().HasTask("not")) {
-    not_task_id = task_env.GetTaskSet().GetID("not");
+  size_t nand_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NAND")) {
+    nand_task_id = task_env.GetTaskSet().GetID("NAND");
+  } else if (task_env.GetTaskSet().HasTask("nand")) {
+    nand_task_id = task_env.GetTaskSet().GetID("nand");
   }
   
 
@@ -395,7 +395,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
-      prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+      prog_builder.CreateNandProgram(PROGRAM_LENGTH)
     );
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
@@ -419,7 +419,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
       sgp_prog_t sym_prog(
-        prog_builder.CreateNotProgram(PROGRAM_LENGTH)
+        prog_builder.CreateNandProgram(PROGRAM_LENGTH)
       );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
@@ -432,19 +432,19 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       // NOTE - Move env io assignment to different signal that is triggered on inject?
       // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
       // Set sym's parent task
-      if (task_env.IsSymTask(not_task_id)) {
-        new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-        new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
-        new_sym->GetHardware().GetCPUState().MarkTaskPerformed(not_task_id);
+      if (task_env.IsSymTask(nand_task_id)) {
+        new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id, true);
+        new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(nand_task_id, true);
+        new_sym->GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
       }
       // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function
     // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
-    if (task_env.IsHostTask(not_task_id)) {
-      new_host->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-      new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(not_task_id, true);
+    if (task_env.IsHostTask(nand_task_id)) {
+      new_host->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id, true);
+      new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(nand_task_id, true);
     }
     InjectHost(new_host);
   }

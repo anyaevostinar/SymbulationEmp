@@ -599,45 +599,44 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional]") {
   emp::Random random(config.SEED());
   world_t world(random, &config);
   
-  size_t no_mut_NOT_rate_per_100 = 3400; // 3400 NOTs per 100 updates from empirical runs.
+  size_t no_mut_NAND_rate_per_100 = 3700; // Approx 3700 NANDs per 100 updates from empirical runs.
   size_t run_updates = 3000; // The mutation population initially dips and then recovers around 2k updates.
   
   WHEN("Mutation size is 0") {
     config.SGP_MUT_PER_BIT_RATE(0);
     world.Setup();
-    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-    size_t total_NOTs = 0;
+    size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+    size_t total_NANDs = 0;
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
       if(i >= (run_updates-100)) {
         //Only considering last 100 updates to make it easier to compare reasonable numbers
-        total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+        total_NANDs += world.GetHostTaskSuccesses().at(nand_task_id);
       }
     }
     THEN("Health hosts do not accrue mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate_per_100 - no_mut_NOT_rate_per_100*0.25);
-      REQUIRE(total_NOTs < no_mut_NOT_rate_per_100 + no_mut_NOT_rate_per_100*0.25);
+      REQUIRE(total_NANDs > no_mut_NAND_rate_per_100 - no_mut_NAND_rate_per_100*0.25);
+      REQUIRE(total_NANDs < no_mut_NAND_rate_per_100 + no_mut_NAND_rate_per_100*0.25);
     }
   }
 
   WHEN("Mutation size is greater than 0") {
     config.SGP_MUT_PER_BIT_RATE(0.001);
     world.Setup();
-    size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
-    size_t total_NOTs = 0;
+    size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
     size_t total_NANDs = 0;
 
     for (size_t i = 0; i < run_updates; i++) {
       world.Update();
       if(i >= (run_updates-100)) {
         //Only considering last 100 updates to make it easier to compare reasonable numbers
-        total_NOTs += world.GetHostTaskSuccesses().at(not_task_id);
+        total_NANDs += world.GetHostTaskSuccesses().at(nand_task_id);
       }
     }
     THEN("Health hosts accrue more mutations late in an experiment") {
       REQUIRE(world.GetNumOrgs() == world_size);
-      REQUIRE(total_NOTs > no_mut_NOT_rate_per_100 * 3);
+      REQUIRE(total_NANDs > no_mut_NAND_rate_per_100);
     }
   }
 }

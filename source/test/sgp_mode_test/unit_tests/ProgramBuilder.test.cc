@@ -489,14 +489,15 @@ TEST_CASE("CreateNandProgram()", "[sgp][sgp-unit]"){
         REQUIRE(program[0].op_code == sgpmode::Library::GetOpCode("Global Anchor"));
       }
 
-      THEN("The program contains IO, IO, Nand"){
+      THEN("The program contains IO, IO, IO, Nand"){
         REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
         REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
-        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("IO"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
       }
 
-      THEN("The program contains 94 nop instructions in a row"){
-        for (size_t i = 4; i < (program.size() - 1); ++i) {
+      THEN("The program contains 93 nop instructions in a row"){
+        for (size_t i = 5; i < (program.size() - 1); ++i) {
           REQUIRE(program[i].op_code == 0);
         }
       }

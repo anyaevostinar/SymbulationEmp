@@ -362,9 +362,10 @@ public:
       "Global Anchor",
       start_tag
     );
-    // Add not instruction
+    // Add nand instruction
     AddInst(program, io_op);
     AddInst(program, io_op, 1);
+    AddInst(program, io_op);
     AddTask_Nand(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
