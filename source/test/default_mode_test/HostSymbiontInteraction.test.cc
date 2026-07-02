@@ -261,3 +261,40 @@ TEST_CASE( "Host-Symbiont interactions", "[default]") {
 }
 
 
+TEST_CASE( "Host multi symbiont, all symbionts processed", "[default]") {
+  SymConfigBase config;
+  config.SYM_LIMIT(3);
+
+  // Put 3 symbionts in with one marked dead, make sure the dead one is removed and the other two are older
+
+  GIVEN( "a host with 3 symbionts, 1 dead" ) {
+    emp::Random random(10);
+    SymWorld world(random, &config);
+    Host host(&random, &world, &config, -.2);
+    emp::Ptr<Symbiont> symbiont1;
+    symbiont1.New(&random, &world, &config, 1);
+    host.AddSymbiont(symbiont1);
+    emp::Ptr<Symbiont> symbiont2;
+    symbiont2.New(&random, &world, &config, -.15);
+    host.AddSymbiont(symbiont2);
+    emp::Ptr<Symbiont> symbiont3;
+    symbiont3.New(&random, &world, &config, -.73);
+    host.AddSymbiont(symbiont3);
+    symbiont2->SetDead();
+
+    WHEN("The host is processed") {
+      host.Process(0);
+
+      THEN("The dead symbiont is removed and the other two are older") {
+        REQUIRE(host.GetSymbionts().size() == 2);
+        REQUIRE(*(host.GetSymbionts()[0]) == *(symbiont1));
+        REQUIRE(*(host.GetSymbionts()[1]) == *(symbiont3));
+        REQUIRE(symbiont1->GetAge() == 1);
+        REQUIRE(symbiont3->GetAge() == 1);
+      }
+    }
+  }
+}
+
+    
+

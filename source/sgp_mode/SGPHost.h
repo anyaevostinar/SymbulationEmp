@@ -333,6 +333,7 @@ public:
     my_world->after_host_process_sig.Trigger(*this);
   }
 
+  // TODO: break process endosymbionts out in Host.h so that this code isn't being duplicated
   void ProcessEndosymbionts() {
   // If host doesn't have a symbiont, return.
   if (!HasSym()) {

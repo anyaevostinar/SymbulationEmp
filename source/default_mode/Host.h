@@ -931,6 +931,7 @@ public:
             //UNLESS they died by getting ousted
             syms.erase(syms.begin() + j);
             cur_sym.Delete();
+            j--; // move j back so next sym gets processed correctly
           }
         } //for each sym in syms
       } //if org has syms
