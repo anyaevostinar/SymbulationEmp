@@ -4,6 +4,7 @@
 #include "../default_mode/SymWorld.h"
 #include "../default_mode/DataNodes.h"
 #include "LysisConfigSetup.h"
+#include <cmath>
 
 class LysisWorld : public SymWorld {
 private:
@@ -312,7 +313,7 @@ public:
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             long unsigned int sym_size = syms.size();
             for(size_t j=0; j< sym_size; j++){
-              double inc_val_difference = abs(host_inc_val - syms[j]->GetIncVal());
+              double inc_val_difference = std::abs(host_inc_val - syms[j]->GetIncVal());
               data_node_incorporation_difference->AddDatum(inc_val_difference);
             }
           }//close if

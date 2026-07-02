@@ -3,6 +3,7 @@
 
 #include "../default_mode/Host.h"
 #include "LysisWorld.h"
+#include <cmath>
 
 
 class Bacterium : public Host {
@@ -149,7 +150,7 @@ public:
   }
 
   double ProcessLysogenResources(double phage_inc_val){
-    double incorporation_success = 1 - abs(GetIncVal() - phage_inc_val);
+    double incorporation_success = 1 - std::abs(GetIncVal() - phage_inc_val);
     double processed_resources = GetResInProcess() * incorporation_success * lysis_config->SYNERGY();
     SetResInProcess(0);
     return processed_resources;
