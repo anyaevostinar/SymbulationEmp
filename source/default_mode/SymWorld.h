@@ -31,7 +31,7 @@ protected:
     * Purpose: Represents the total resources in the world. This can be set with SetTotalRes()
     *
   */
-  int total_res = -1;
+  double total_res = -1;
 
   /**
     *
