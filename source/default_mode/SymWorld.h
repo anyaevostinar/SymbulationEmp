@@ -872,7 +872,7 @@ public:
         if (parent_pos.GetIndex() == 0) { // free living parent
           sym_parent = GetSymAt(i);
         } else { // hosted parent
-          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
+          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() > (parent_pos.GetIndex() - 1));
           sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
         }
 
