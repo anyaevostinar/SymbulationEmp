@@ -376,7 +376,7 @@ public:
     AddInst(program, nand_op, 0, 1, 0); // reg 0 = c NAND d
 
     AddInst(program, io_op); // reg 0 = a
-    AddInst(program, nand_op, 0, 1, 1); // reg 0 = a NAND d
+    AddInst(program, nand_op, 0, 1, 1); // reg 1 = a NAND d
 
 
     // AddInst(program, io_op); // also output a NAND b, reg 0 = c
