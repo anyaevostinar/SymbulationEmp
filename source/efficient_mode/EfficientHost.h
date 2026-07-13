@@ -23,7 +23,7 @@ protected:
 
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -74,13 +74,13 @@ public:
 
   /**
   * Input: None
-  * 
+  *
   * Output: Name of class as string, EfficientHost
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "EfficientHost";
+  std::string const GetName() const {
+    return "EfficientHost";
   }
 
   /**
@@ -102,7 +102,7 @@ public:
    *
    * Purpose: Getting an efficient symbiont's efficiency value.
    */
-  double GetEfficiency() {return efficiency;}
+  double GetEfficiency() const { return efficiency; }
 
   /**
    * Input: None.
@@ -111,7 +111,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<EfficientHost> host_baby = emp::NewPtr<EfficientHost>(random, my_world, efficient_config, GetIntVal());
     host_baby->SetEfficiency(GetEfficiency());
     return host_baby;

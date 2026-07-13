@@ -66,12 +66,12 @@ public:
     efficiency = _efficient;
     my_world = _world;
     efficient_config = _config;
-    if(efficient_config->HORIZ_MUTATION_RATE() < 0){
+    if (efficient_config->HORIZ_MUTATION_RATE() < 0) {
       ht_mut_rate = efficient_config->MUTATION_RATE();
     } else {
       ht_mut_rate = efficient_config->HORIZ_MUTATION_RATE();
     }
-    if(efficient_config->HORIZ_MUTATION_SIZE() < 0) {
+    if (efficient_config->HORIZ_MUTATION_SIZE() < 0) {
       ht_mut_size = efficient_config->MUTATION_SIZE();
     } else {
       ht_mut_size = efficient_config->HORIZ_MUTATION_SIZE();
@@ -115,8 +115,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "EfficientSymbiont";
+  std::string const GetName() const {
+    return "EfficientSymbiont";
   }
 
   /**
@@ -127,7 +127,7 @@ public:
    * Purpose: Setting an efficient symbiont's efficiency value.
    */
   void SetEfficiency(double _in) {
-    if(_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
+    if (_in > 1 || _in < 0) throw "Invalid efficiency chance. Must be between 0 and 1 (inclusive)";
     efficiency = _in;
   }
 
@@ -138,7 +138,7 @@ public:
    *
    * Purpose: Getting an efficient symbiont's efficiency value.
    */
-  double GetEfficiency() {return efficiency;}
+  double GetEfficiency() const { return efficiency; }
 
 
   /**
@@ -162,28 +162,28 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  void Mutate(std::string mode){
+  void Mutate(const std::string& mode) {
     double local_size;
     double local_rate;
     double int_rate;
 
-    if(mode == "vertical"){
+    if (mode == "vertical") {
       local_rate = efficient_config->MUTATION_RATE();
       local_size = efficient_config->MUTATION_SIZE();
-    } else if(mode == "horizontal") {
+    } else if (mode == "horizontal") {
       local_rate = ht_mut_rate;
       local_size = ht_mut_size;
     } else {
       throw "Illegal argument passed to mutate in EfficientSymbiont";
     }
 
-    if(efficient_config->EFFICIENCY_MUT_RATE() >= 0) {
+    if (efficient_config->EFFICIENCY_MUT_RATE() >= 0) {
       eff_mut_rate = efficient_config->EFFICIENCY_MUT_RATE();
     } else {
       eff_mut_rate = local_rate;
     }
 
-    if(efficient_config->INT_VAL_MUT_RATE() >= 0) {
+    if (efficient_config->INT_VAL_MUT_RATE() >= 0) {
       int_rate = efficient_config->INT_VAL_MUT_RATE();
     } else {
       int_rate = local_rate;
@@ -191,11 +191,11 @@ public:
 
     if (random->GetDouble(0.0, 1.0) <= int_rate) {
       interaction_val += random->GetNormal(0.0, local_size);
-      if(interaction_val < -1) interaction_val = -1;
+      if (interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
 
       //also modify infection chance, which is between 0 and 1
-      if(efficient_config->FREE_LIVING_SYMS()){
+      if (efficient_config->FREE_LIVING_SYMS()) {
         infection_chance += random->GetNormal(0.0, local_size);
         if (infection_chance < 0) infection_chance = 0;
         else if (infection_chance > 1) infection_chance = 1;
@@ -203,7 +203,7 @@ public:
     }
     if (random->GetDouble(0.0, 1.0) <= eff_mut_rate) {
       efficiency += random->GetNormal(0.0, local_size);
-      if(efficiency < 0) efficiency = 0;
+      if (efficiency < 0) efficiency = 0;
       else if (efficiency > 1) efficiency = 1;
     }
   }
@@ -218,7 +218,7 @@ public:
    *
    * Purpose: To avoid creating an organism via constructor in other methods.
    */
-  emp::Ptr<Organism> MakeNew(){
+  emp::Ptr<Organism> MakeNew() {
     emp::Ptr<EfficientSymbiont> sym_baby = emp::NewPtr<EfficientSymbiont>(random, my_world, efficient_config, GetIntVal());
     sym_baby->SetInfectionChance(GetInfectionChance());
     sym_baby->SetEfficiency(GetEfficiency());
@@ -234,7 +234,7 @@ public:
    */
   #pragma clang diagnostic push
   #pragma clang diagnostic ignored "-Woverloaded-virtual"
-  emp::Ptr<Organism> Reproduce(std::string mode) {
+  emp::Ptr<Organism> Reproduce(const std::string& mode) {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate(mode);
     return sym_baby;
@@ -252,7 +252,7 @@ public:
   std::optional<emp::Ptr<Organism>> VerticalTransmission(emp::Ptr<Organism> host_baby) {
     bool success = false;
     emp::Ptr<Organism> sym_baby;
-    if((my_world->WillTransmit()) && GetPoints() >= efficient_config->SYM_VERT_TRANS_RES()){ //if the world permits vertical tranmission and the sym has enough resources, transmit!
+    if ((my_world->WillTransmit()) && GetPoints() >= efficient_config->SYM_VERT_TRANS_RES()) { //if the world permits vertical tranmission and the sym has enough resources, transmit!
       sym_baby = Reproduce("vertical");
       success = host_baby->AddSymbiont(sym_baby) > 0;
 
@@ -273,7 +273,7 @@ public:
   void IndependentReproduction(emp::WorldPosition location) {
     //TODO: streamline with default mode's split up ind repro if we revisit this mode
     if (efficient_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      if(GetPoints() >= efficient_config->SYM_HORIZ_TRANS_RES()) {
+      if (GetPoints() >= efficient_config->SYM_HORIZ_TRANS_RES()) {
         // symbiont reproduces independently (horizontal transmission) if it has enough resources
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
@@ -285,7 +285,7 @@ public:
         data_node_attempts_horiztrans.AddDatum(GetIntVal());
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
-        if(new_pos.IsValid()){
+        if (new_pos.IsValid()) {
           data_node_successes_horiztrans.AddDatum(GetIntVal());
         }
       }

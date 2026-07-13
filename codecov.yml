@@ -1,13 +1,11 @@
-codecov:
-  strict_yaml_branch: main
-
 ignore:
-  - "SymbulationEmp/source/catch/**/*"
-  - "SymbulationEmp/stats_scripts/**/*"
-  - "SymbulationEmp/web/**/*"
-  - "SymbulationEmp/source/Organism.h"
-  - "SymbulationEmp/source/*.test.cc"
-  - "SymbulationEmp/Empirical/**/*"
-  - "SymbulationEmp/coverage_source/**/*"
-  - "SymbulationEmp/source/test/**/*"
-  - "SymbulationEmp/signalgp-lite/**/*"
+  - "**/source/catch/**"
+  - "**/source/json/**"
+  - "stats_scripts/**/*"
+  - "web/**/*"
+  - "source/Organism.h"
+  - "source/*.test.cc"
+  - "Empirical/**/*"
+  - "coverage_source/**/*"
+  - "**/source/test/**"
+  - "signalgp-lite/**/*"

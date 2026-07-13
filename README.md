@@ -16,6 +16,7 @@ Interested in starting a new project with Symbulation? We have a cookiecutter te
 Symbulation is built with the [Empirical platform](https://github.com/devosoft/Empirical) and the cookiecutter includes our recommended directory layout and example analysis files. 
 
 ## Usage
+(Note, you'll need a Python virtual environment to use cookiecutter)
 Install the latest Cookiecutter:
 
 ```

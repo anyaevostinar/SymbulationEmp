@@ -637,9 +637,15 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
 
 
   config_snapshot_entries.emplace_back(
-    "tag_size",
+    "sgp_hardware_tag_size",
     emp::to_string(hw_spec_t::tag_t::GetCTSize())
   );
+
+  config_snapshot_entries.emplace_back(
+    "tag_length",
+    emp::to_string(TAG_LENGTH)
+  );
+
   // NOTE - Difficult to get metric out of hw_spec_t w/out
   //        some finagling. Can do it if we want.
 
@@ -687,7 +693,7 @@ void SGPWorld::OutputDominantDataFile() {
   }
   std::filesystem::create_directory(output_dir / dominant_dir);
 
-  // TODO: update to actually work, need to get back a version of "PrintCode" 
+  // TODO: update to actually work, need to get back a version of "PrintCode"
   // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
   //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
@@ -700,7 +706,7 @@ void SGPWorld::OutputDominantDataFile() {
       auto sample = pair.first.DynamicCast<sgp_host_t>();
 
       std::ofstream genome_file;
-      std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+ 
+      std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+
         std::to_string(idx) + sgp_config.FILE_NAME()+".data"); // Any ending that actually does make sense for these files?
 
       genome_file.open(genome_path);
@@ -709,8 +715,8 @@ void SGPWorld::OutputDominantDataFile() {
       size_t sym_idx = 0;
       for (auto &sym : sample->GetSymbionts()) {
         std::ofstream genome_file;
-        std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+ 
-          std::to_string(sym_idx) + "_From_Host"+ 
+        std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+
+          std::to_string(sym_idx) + "_From_Host"+
           std::to_string(idx) + sgp_config.FILE_NAME()+".data");
         genome_file.open(genome_path);
         sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);

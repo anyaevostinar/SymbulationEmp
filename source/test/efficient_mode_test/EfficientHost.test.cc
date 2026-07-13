@@ -1,4 +1,7 @@
 #include "../../efficient_mode/EfficientHost.h"
+#include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientWorldSetup.cc"
+
 #include <typeinfo>
 
 TEST_CASE("EfficientHost Constructor", "[efficient]"){

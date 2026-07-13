@@ -18,30 +18,24 @@ jobs:
       - name: Checkout Symbulation
         uses: actions/checkout@v4
         with:
-          path: SymbulationEmp
           submodules: "recursive"
 
       - name: run symbulation
-        run: cd SymbulationEmp && make debug-default && ./symbulation_default -GRID_X 5 -GRID_Y 5
+        run: make debug-default && ./symbulation_default -WORLD_WIDTH 5 -WORLD_HEIGHT 5
 
       # Runs a single command using the runners shell
       - name: Make tests
-        run: sudo apt-get update && sudo apt-get install gdb && cd SymbulationEmp && make coverage
+        run: sudo apt-get update && sudo apt-get install gdb && make coverage
         
       - name: Generate coverage
-        run: cd SymbulationEmp && gcov -abcfu symbulation.test-main.cc
+        run: gcov -abcfu symbulation.test-main.cc
         
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          root_dir: SymbulationEmp
-          override_branch: ${{ github.ref_name }}
-          slug: anyaevostinar/SymbulationEmp
-          #Codecov is being frustrating and not reading in the updates to codecov.yml, so trying this to get the desired behavior
-          exclude: SymbulationEmp/source/catch,SymbulationEmp/stats_scripts,SymbulationEmp/web,SymbulationEmp/Empirical,SymbulationEmp/coverage_source,SymbulationEmp/source/test,SymbulationEmp/signalgp-lite
+          exclude: source/catch,source/json,source/test
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      
+
       #- name: test web build
       #  run: cd SymbulationEmp/emsdk && ./emsdk install 3.1.18 && ./emsdk activate 3.1.18 && source ./emsdk_env.sh && cd .. && make web
-

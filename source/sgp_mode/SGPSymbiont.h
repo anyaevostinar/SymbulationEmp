@@ -184,7 +184,7 @@ public:
    * Purpose: To set a symbiont's host
    */
   void SetHost(emp::Ptr<Organism> host) {
-    emp_assert(host.DynamicCast<host_t>(), "SGPSymbiont must have an SGPHost host");
+    emp_assert(host.DynamicCast<host_t>() || host == nullptr, "SGPSymbiont must have an SGPHost host or no host at all");
     Symbiont::SetHost(host);
     // TODO - add has host flag? (rather condition on boolean than pointer)
 
@@ -231,7 +231,7 @@ public:
     }
 
     if(my_host) my_world->TriggerAfterEndosymCPUExecSig(pos, *this, my_host);
-    
+
     // Age the organism
     GrowOlder();
     if(my_host) my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
@@ -239,16 +239,16 @@ public:
 
   /**
   * Input: emp::Ptr<Organism> to host offspring, emp::Ptr<Organism> to symbiont offspring
-  * 
+  *
   * Output: boolean, whether or not sym/sym offspring meets requirements to successfully vertically transmit
-  * 
+  *
   * Purpose: Overwritten to add functor call for task profiles
   * Originally, to test for compatibility between sym parent/offspring and host parent/offspring, such as tags
   * */
   //TODO: AEV: add test for tags and sgp together
   bool SuccessfulVT(emp::Ptr<Organism> host_baby, emp::Ptr<Organism> sym_baby) {
     bool super_result = Symbiont::SuccessfulVT(host_baby, sym_baby);
-    bool world_reqs = my_world->CheckVertTransCompatibility(*this, host_baby, my_host); 
+    bool world_reqs = my_world->CheckVertTransCompatibility(*this, host_baby, my_host);
     return super_result && world_reqs;
   }
 
@@ -278,7 +278,7 @@ public:
 
     const bool success = (bool)sym_offspring;
 
-    
+
 
     // Trigger after transmission signal.
     my_world->TriggerAfterSymVertTransmissionSig(
@@ -295,13 +295,12 @@ public:
 
   /*
   * Input: sym_pos, world position
-  * 
+  *
   * Output: None
-  * 
+  *
   * Purpose: Start the process for independent reproduction, generally through horizontal transmission, by marking in progress repo and removing points, also handles free-living symbiont reproduction.
   */
   void AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
-
     // NOTE - could make this a configurable functor if we want different success/failure
     //        conditions on attempt
     // NOTE - Do we want to be using the horizontal transmission cost here?

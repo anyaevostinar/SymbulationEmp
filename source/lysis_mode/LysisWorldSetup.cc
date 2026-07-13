@@ -4,6 +4,7 @@
 #include "LysisWorld.h"
 #include "Phage.h"
 #include "Bacterium.h"
+#include "../utils.h"
 
 /**
  * Input: The number of bacteria.
@@ -13,10 +14,15 @@
  * Purpose: To populate the world with bacteria with appropriate phenotypes.
  */
 void LysisWorld::SetupHosts(long unsigned int* POP_SIZE) {
+  emp::vector<size_t> world_positions(
+    utils::GenerateRandomOrdering(GetRandom(), GetSize())
+  );
+  emp_assert(*POP_SIZE <= GetSize());
   for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<Bacterium> new_org;
     new_org.New(&GetRandom(), this, lysis_config, lysis_config->HOST_INT());
-    InjectHost(new_org);
+    const size_t pos = world_positions[i];
+    AddOrgAt(new_org, emp::WorldPosition(pos));
   }
 }
 

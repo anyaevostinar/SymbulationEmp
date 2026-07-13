@@ -1,0 +1,150 @@
+#pragma once
+
+#include "../ConfigSetup.h"
+#include "../sgp_mode/SGPConfigSetup.h"
+
+#include "../default_mode/SymWorld.h"
+
+#include "../../Empirical/include/emp/Evolve/World.hpp"
+#include "../../Empirical/include/emp/math/random_utils.hpp"
+#include "../../Empirical/include/emp/math/Random.hpp"
+
+namespace test_utils {
+
+void SetEmptyWellMixed(SymConfigBase& cfg) {
+  // Set spatial structure mode to well-mixed
+  cfg.SPATIAL_STRUCT_MODE("well-mixed");
+  // Set size 0 environment with 0 initial population size
+  cfg.WORLD_WIDTH(0);
+  cfg.WORLD_HEIGHT(0);
+  cfg.INIT_POP_SIZE(0);
+}
+
+void SetWellMixed(
+  SymConfigBase& cfg,
+  size_t capacity,
+  size_t init_pop_size = 0
+) {
+  // Set spatial structure mode to well-mixed
+  cfg.SPATIAL_STRUCT_MODE("well-mixed");
+  // Set capacity x 1 size
+  cfg.WORLD_WIDTH(capacity);
+  cfg.WORLD_HEIGHT(1);
+  cfg.INIT_POP_SIZE(init_pop_size);
+}
+
+void SetNoMutation(sgpmode::SymConfigSGP& cfg) {
+  cfg.MUTATION_RATE(0);
+  cfg.MUTATION_SIZE(0);
+  cfg.SGP_MUT_PER_BIT_RATE(0);
+}
+
+void SetNoMutation(SymConfigBase& cfg) {
+  cfg.MUTATION_RATE(0);
+  cfg.MUTATION_SIZE(0);
+}
+
+// Wrapper for Symbulation world classes intended to expose protected
+// functions as public for testing.
+// WARNING: protected functions were likely protected for a reason! Use at your
+//          own risk. protected functions need testing, too ;)
+// Example USAGE:
+//    using world_t = test_utils::TestingWorldWrapper<LysisWorld, SymConfigLysis>;
+template<typename WORLD_T, typename CONFIG_T=SymConfigBase>
+class TestingWorldWrapper : public WORLD_T {
+public:
+  using wrapped_world_t = WORLD_T;
+  using wrapped_config_t = CONFIG_T;
+
+  TestingWorldWrapper(emp::Random& _random, emp::Ptr<wrapped_config_t> _config) :
+    wrapped_world_t(_random, _config)
+  { }
+
+  void SetupSpatialStructure() {
+    wrapped_world_t::SetupSpatialStructure();
+  }
+
+  void SetupHosts(long unsigned int* POP_SIZE) {
+    wrapped_world_t::SetupHosts(POP_SIZE);
+  }
+
+  void SetupSymbionts(long unsigned int* total_syms) {
+    wrapped_world_t::SetupSymbionts(total_syms);
+  }
+
+  void Resize(size_t new_width, size_t new_height) {
+    wrapped_world_t::Resize(new_width, new_height);
+  }
+
+  void Resize(size_t new_size) {
+    wrapped_world_t::Resize(new_size);
+  }
+
+};
+
+namespace spatial {
+
+emp::vector<emp::vector<size_t>> AdjListFromMatrix(
+  const emp::vector< emp::vector<bool> >& matrix
+) {
+  const size_t num_nodes = matrix.size();
+  emp::vector<emp::vector<size_t>> adj_list(num_nodes, {});
+  for (size_t from = 0; from < num_nodes; ++from) {
+    emp_assert(matrix[from].size() == num_nodes);
+    for (size_t to = 0; to < num_nodes; ++to) {
+      if (matrix[from][to]) {
+        adj_list[from].emplace_back(to);
+      }
+    }
+  }
+  return adj_list;
+}
+
+emp::vector<emp::vector<bool>> MatrixFromAdjList(
+  const emp::vector< emp::vector<size_t> >& adj_list
+) {
+  const size_t num_nodes = adj_list.size();
+  // Initialize matrix with no connections
+  emp::vector<emp::vector<bool>> matrix(
+    num_nodes,
+    emp::vector<bool>(num_nodes, false)
+  );
+  for (size_t from = 0; from < num_nodes; ++from) {
+    for (size_t to : adj_list[from]) {
+      emp_assert(to < num_nodes);
+      matrix[from][to] = true;
+    }
+  }
+  return matrix;
+}
+
+bool VerifyStructure(
+  const emp::vector< emp::vector<bool> >& matrix,
+  const SpatialStructure& structure
+) {
+  emp_assert(matrix.size() == structure.GetNumPositions());
+  // (1) Check that everything in the given matrix is connected
+  const size_t num_nodes = structure.GetNumPositions();
+  for (size_t from = 0; from < num_nodes; ++from) {
+    for (size_t to = 0; to < num_nodes; ++to) {
+      const bool conn_in_matrix = matrix[from][to];
+      const bool conn_in_structure = structure.IsConnected(from, to);
+      if (conn_in_matrix != conn_in_structure) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+bool VerifyStructure(
+  const emp::vector< emp::vector<size_t> >& adj_list,
+  const SpatialStructure& structure
+) {
+  emp_assert(adj_list.size() == structure.GetNumPositions());
+  return VerifyStructure(MatrixFromAdjList(adj_list), structure);
+}
+
+} // end spatial
+
+} // end test_utils

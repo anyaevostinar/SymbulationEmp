@@ -4,14 +4,13 @@
 #include "SGPWorld.h"
 #include "SGPHost.h"
 #include "SGPSymbiont.h"
-#include "utils.h"
+#include "../utils.h"
 
 namespace sgpmode {
 
 // TODO - Make clear that this will process host and free-living symbiont
 //        ProcessOrgsAt?
 void SGPWorld::ProcessOrgsAt(size_t pop_id) {
-  // std::cout << "ProcessOrgsAt " << pop_id << "; " << IsOccupied(pop_id) << std::endl;
   // Process host at this location (if any)
   if (IsOccupied(pop_id)) {
     auto& org = GetOrg(pop_id);;
@@ -96,7 +95,7 @@ void SGPWorld::ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& 
     DoSymDeath(pos.GetPopID());
   }
 }
- 
+
 
 void SGPWorld::FreeLivingSymAttemptRepro(
   const emp::WorldPosition& pos,
@@ -122,6 +121,13 @@ void SGPWorld::FreeLivingSymAttemptRepro(
     // Attempt failed, so reset repro state.
     sym.GetHardware().GetCPUState().ResetReproState();
   }
+}
+
+void SGPWorld::SetMutationZero() {
+  // Call base world's set mutation to zero function
+  SymWorld::SetMutationZero();
+  // Set sgp mutation rate to 0
+  mutator.SetPerBitMutationRate(0);
 }
 
 void SGPWorld::DoReproduction() {
@@ -205,7 +211,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(parent.Raw());
   // hew_host_pos is an optional<emp::WorldPosition>
   const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
-
   if (new_host_pos) {
     const size_t host_id = new_host_pos.value().GetIndex();
     int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
@@ -256,7 +261,8 @@ void SGPWorld::ProcessStressEscapees() {
         if (!can_infect) continue;
         // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
         //AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState()); // AEV No longer needed, added to AddSymbiont
-        int new_index = neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+        // int new_index =
+        neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
         // AddSymbiont might fail (but when it does, it deletes the offspring)
         // so not possible to keep attempting until actual success
         success = true;
@@ -356,12 +362,12 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
           sym.GetPoints()
         );
         double task_points = new_points - sym.GetPoints();
-  
+
         //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
         if(sgp_config.ENABLE_NUTRIENT() && GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
           task_points *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
-        } 
- 
+        }
+
         // Add earned task points to symbiont's point total
         sym.AddPoints(task_points);
         // // Enforce limits on points
