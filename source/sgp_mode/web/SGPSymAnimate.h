@@ -92,8 +92,8 @@ public:
    */
   SGPSymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
 
-    config.GRID_X(30);
-    config.GRID_Y(30);
+    config.WORLD_WIDTH(30);
+    config.WORLD_HEIGHT(30);
     config.CYCLES_PER_UPDATE(16);
     config.UPDATES(30000);
     config.HOST_REPRO_RES(128);
@@ -264,8 +264,8 @@ public:
       but.SetLabel("Start");
 
       // redraw petri dish
-      mycanvas.SetWidth(RECT_WIDTH*config.GRID_X());
-      mycanvas.SetHeight(RECT_WIDTH*config.GRID_Y());
+      mycanvas.SetWidth(RECT_WIDTH*config.WORLD_WIDTH());
+      mycanvas.SetHeight(RECT_WIDTH*config.WORLD_HEIGHT());
       drawPetriDish(mycanvas);
       ToggleActive();//turn on quick to update the grid if the size changed
       ToggleActive();//turn off again
@@ -282,7 +282,7 @@ public:
     buttons << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
-    mycanvas = animation.AddCanvas(RECT_WIDTH*config.GRID_X(), RECT_WIDTH*config.GRID_Y(), "can");
+    mycanvas = animation.AddCanvas(RECT_WIDTH*config.WORLD_WIDTH(), RECT_WIDTH*config.WORLD_HEIGHT(), "can");
     targets.push_back(mycanvas);
     drawPetriDish(mycanvas);
     animation << "<br>";
@@ -339,8 +339,8 @@ public:
         num_mutualistic = 0;
         num_parasitic = 0;
         //bool temp_passed = true;
-        for (int x = 0; x < config.GRID_X(); x++){
-            for (int y = 0; y < config.GRID_Y(); y++){
+        for (int x = 0; x < config.WORLD_WIDTH(); x++){
+            for (int y = 0; y < config.WORLD_HEIGHT(); y++){
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
 
