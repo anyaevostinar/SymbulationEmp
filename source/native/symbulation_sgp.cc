@@ -40,8 +40,11 @@ int symbulation_main(int argc, char *argv[]) {
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
   world.Run(true);
+<<<<<<< HEAD
 
   world.OutputDominantDataFile();
+=======
+>>>>>>> ff4400a9eb15a1fdbd0e686ccd216c215f1add71
 
   return 0;
 }

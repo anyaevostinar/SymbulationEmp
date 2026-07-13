@@ -4,6 +4,7 @@
 #include "LogicTaskIOBank.h"
 
 #include "../../json/json.hpp"
+#include "../../json/json_utils.h"
 
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
@@ -65,21 +66,11 @@ protected:
   // TODO - track task performance?
 
   // TODO - move this into util file in json directory
-  template<typename RET_TYPE>
-  RET_TYPE GetVal(
-    json_t& json,
-    const std::string& field,
-    RET_TYPE default_val
-  ) {
-    return (json.contains(field)) ?
-      static_cast<RET_TYPE>(json[field]) :
-      default_val;
-  }
 
   void SetTaskReqInfo(TaskReqInfo& info, json_t& task_cfg_json) {
-    info.task_value = GetVal<double>(task_cfg_json, "value", 1);
-    info.max_repeats = GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
-    const std::string reward_mode = GetVal<std::string>(task_cfg_json, "reward_mode", "add");
+    info.task_value = sym_json::GetVal<double>(task_cfg_json, "value", 1);
+    info.max_repeats = sym_json::GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
+    const std::string reward_mode = sym_json::GetVal<std::string>(task_cfg_json, "reward_mode", "add");
     emp_assert(emp::Has(this_t::predefined_reward_functions, reward_mode));
     info.fun_calc_task_val = this_t::predefined_reward_functions.at(reward_mode);
   }

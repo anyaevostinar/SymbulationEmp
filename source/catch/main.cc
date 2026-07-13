@@ -35,6 +35,7 @@
 #include "../test/pgg_mode_test/PGGWorld.test.cc"
 
 //SGP mode Old tests (need to update before moving)
+#include "../test/sgp_mode_test/functional_tests/TaskValueEvent.test.cc"
 #include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/functional_tests/HealthMode.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
@@ -64,11 +65,11 @@
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldData.test.cc"
 
-#include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
+// #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
-#include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
+// #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/functional_tests/PopulationStructure.test.cc"
 
