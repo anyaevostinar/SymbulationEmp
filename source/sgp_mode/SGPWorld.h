@@ -384,7 +384,6 @@ protected:
   ReproductionQueue repro_queue; // Stores which organisms are queued for reproduction
   tasks::LogicTaskEnvironment task_env;   // Manages task set, task requirements, and task rewards
   event_manager_t event_manager;
-  mutator_t mutator;  // Handles mutating sgp programs
   // TODO - Consider having symbiont rectifier and host rectifier
   //        -> Symbiont-specific instructions wouldn't be in host's instruction set
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration

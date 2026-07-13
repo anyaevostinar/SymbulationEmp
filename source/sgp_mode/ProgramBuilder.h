@@ -230,10 +230,6 @@ public:
     // nand r1, r1, r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-<<<<<<< HEAD
-=======
-
->>>>>>> ff4400a9eb15a1fdbd0e686ccd216c215f1add71
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
