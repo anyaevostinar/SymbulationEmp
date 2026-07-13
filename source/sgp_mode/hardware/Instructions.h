@@ -11,7 +11,9 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include <functional>
+#include <map>
 #include <mutex>
+#include <set>
 
 namespace sgpmode::inst {
 
@@ -28,6 +30,7 @@ namespace sgpmode::inst {
  */
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
+    /* Runtime call path, run when this instruction executes in a program. */  \
     template <typename HW_SPEC_T>                                                   \
     static void run(                                                           \
       sgpl::Core<HW_SPEC_T>& core,                                                  \
@@ -42,8 +45,20 @@ namespace sgpmode::inst {
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
     }                                                                          \
+    /* Make all instruction types eqiprobable to mutate in. */                 \
     static size_t prevalence() { return 1; }                                   \
+    /* Instruction class name e.g., "Nop" */                                   \
     static std::string name() { return #InstName; }                            \
+    /* Metadata for instruction instance, left empty (needed by JSON write). */\
+    template<typename Spec>                                                    \
+    static auto descriptors(const sgpl::Instruction<Spec>&) {                  \
+      return std::map<std::string, std::string>{};                             \
+    }                                                                          \
+    /* Metadata for instruction instance, left empty (needed by JSON write). */\
+    template<typename Spec>                                                    \
+    static auto categories(const sgpl::Instruction<Spec>&) {                   \
+      return std::set<std::string>{};                                          \
+    }                                                                          \
   };
 
 INST(Increment, {
