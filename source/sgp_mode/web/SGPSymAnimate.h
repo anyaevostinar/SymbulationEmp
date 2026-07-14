@@ -79,8 +79,7 @@ private:
   emp::vector<emp::Ptr<Organism>> p;
 
 
-  int num_mutualistic = 0;
-  int num_parasitic = 0;
+  int taskCompletions[9] = {0};
 
 
 public:
@@ -231,7 +230,7 @@ public:
 
     // Add explanation for organism color:
     explanation << "<br><br><img style=\"max-width:175px;\" src=\"diagram1.png\"> <br>" <<
-      "<img style=\"max-width:600px;\" src = \"gradient1.png\"/> <br>";
+      "<img style=\"max-width:600px;\" src = \"TaskGradient.png\"/> <br>";
 
 
     // ----------------------- Add a button that allows for pause and start toggle -----------------------
@@ -277,8 +276,15 @@ public:
     // ----------------------- Keep track of number of updates -----------------------
     buttons << "<br>";
     buttons << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } ) << "  ";
-    buttons << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } ) << "  ";
-    buttons << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
+    buttons << UI::Text("not") << "Tasks: {" << UI::Live( [this](){ return taskCompletions[0]; } ) << ",";
+    buttons << UI::Text("nand") << " " << UI::Live( [this](){ return taskCompletions[1]; } ) << ",";
+    buttons << UI::Text("orn") << " " << UI::Live( [this](){ return taskCompletions[2]; } ) << ",";
+    buttons << UI::Text("and") << " " << UI::Live( [this](){ return taskCompletions[3]; } ) << ",";
+    buttons << UI::Text("or") << " " << UI::Live( [this](){ return taskCompletions[4]; } ) << ",";
+    buttons << UI::Text("andn") << " " << UI::Live( [this](){ return taskCompletions[5]; } ) << ",";
+    buttons << UI::Text("nor") << " " << UI::Live( [this](){ return taskCompletions[6]; } ) << ",";
+    buttons << UI::Text("xor") << " " << UI::Live( [this](){ return taskCompletions[7]; } ) << ",";
+    buttons << UI::Text("equ") << " " << UI::Live( [this](){ return taskCompletions[8]; } ) << "}";
     buttons << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
@@ -336,11 +342,17 @@ public:
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
-        num_mutualistic = 0;
-        num_parasitic = 0;
+        for(int j = 0; j < 9; j++){
+          taskCompletions[j] = 0;
+        }
         //bool temp_passed = true;
         for (int x = 0; x < config.WORLD_WIDTH(); x++){
             for (int y = 0; y < config.WORLD_HEIGHT(); y++){
+
+                if(p[i]->GetDead()){
+                  i++;
+                  continue;
+                }
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
 
@@ -352,6 +364,7 @@ public:
                   if(host.GetHardware().GetCPUState().GetTaskPerformed(task_id)){
                     
                     color_host = matchColor(task_id);
+                    taskCompletions[task_id] += 1;
                     break;
                   }
                 }
@@ -361,6 +374,7 @@ public:
                     if(host.GetHardware().GetCPUState().GetParentTaskPerformed(task_id)){
                       
                       color_host = matchColor(task_id);
+                      taskCompletions[task_id] += 1;
                       break;
                     }
                   }
@@ -376,10 +390,14 @@ public:
                 int radius = RECT_WIDTH / 4;
                 if(syms.size() == 1) {
                   sgpmode::SGPWorld::sgp_sym_t& sym = *static_cast<sgpmode::SGPWorld::sgp_sym_t*>(syms[0].Raw());
+                  if(sym.GetDead()){
+                    continue;
+                  }
                   std::string color_sym = "#EFFDF0";
                   for(int task_id = 8; task_id >= 0; task_id--){
                     if(sym.GetHardware().GetCPUState().GetTaskPerformed(task_id)){
                       color_sym = matchColor(task_id);
+                      taskCompletions[task_id] += 1;
                       break;
                     }
                   }
@@ -389,14 +407,13 @@ public:
                     if(sym.GetHardware().GetCPUState().GetParentTaskPerformed(task_id)){
                       
                       color_sym = matchColor(task_id);
+                      taskCompletions[task_id] += 1;
                       break;
                     }
                   }
                 }
                   
-                  // while drawing, test whether every organism is mutualistic
-                  if (syms[0]->GetIntVal() <= 0) num_parasitic++;
-                  else num_mutualistic++;
+                  
                   can.Circle(x * RECT_WIDTH + RECT_WIDTH/2, y * RECT_WIDTH + RECT_WIDTH/2, radius, color_sym, "black");
                 }
                 i++;
@@ -419,7 +436,7 @@ public:
    * interaction value. 
    */  
   std::string matchColor(int taskComplete){
-    if(taskComplete == 0){return "#000000";}
+    if(taskComplete == 0){return "#b700ff";}
     else if(taskComplete == 1){return "#0051ff";}
     else if(taskComplete == 2){return "#36c6ff";}
     else if(taskComplete == 3){return "#31f7c6";}
@@ -453,11 +470,18 @@ public:
       world.Update();
       }
       p = world.GetPop();
-      std::cout << "hey hey"<< std::endl;
+    
       drawPetriDish(mycanvas);
       buttons.Text("update").Redraw();
-      //buttons.Text("mut").Redraw();
-      //buttons.Text("par").Redraw();
+      buttons.Text("not").Redraw();
+      buttons.Text("nand").Redraw();
+      buttons.Text("orn").Redraw();
+      buttons.Text("and").Redraw();
+      buttons.Text("or").Redraw();
+      buttons.Text("andn").Redraw();
+      buttons.Text("nor").Redraw();
+      buttons.Text("xor").Redraw();
+      buttons.Text("equ").Redraw();
     }
   }
 };
