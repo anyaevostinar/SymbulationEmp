@@ -18,7 +18,10 @@ CFLAGS_nat_coverage := --coverage -pthread $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
-OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 #--embed-file configs
+# Embed destinations are absolute because the config defaults they satisfy --
+# TASK_ENV_CFG_PATH in source/sgp_mode/SGPConfigSetup.h and SPATIAL_STRUCT_CFG_PATH
+# in source/ConfigSetup.h -- are resolved from the filesystem root at startup.
+OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 --embed-file example-settings-cfg/environment.json@/environment.json --embed-file example-settings-cfg/spatial-struct.mat@/spatial-struct.mat --embed-file example-settings-cfg/spatial-struct-edges.csv@/spatial-struct-edges.csv
 OFLAGS_web := -Oz -DNDEBUG -fpermissive
 OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
 OFLAGS_sgp_web := -s INITIAL_MEMORY=536870912 -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$allocate,$$ALLOC_STACK,$$stringToUTF8OnStack'
