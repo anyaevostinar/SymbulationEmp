@@ -314,7 +314,6 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
           << tag_name;
 
     } else if (name == "Global Anchor") {
-      //out << tag_name << " " << ins.tag << ':';
       out << tag_name << ':';
     } else {
       out << "<unknown " << name << ">";
