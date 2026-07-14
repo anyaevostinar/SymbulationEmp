@@ -345,17 +345,21 @@ public:
         for(int j = 0; j < 9; j++){
           taskCompletions[j] = 0;
         }
+        p = world.GetPop();
         //bool temp_passed = true;
         for (int x = 0; x < config.WORLD_WIDTH(); x++){
             for (int y = 0; y < config.WORLD_HEIGHT(); y++){
 
-                if(p[i]->GetDead()){
+         
+                if(p[i] == nullptr || p[i]->GetDead()){
                   i++;
+                  can.Rect(x * RECT_WIDTH, y * RECT_WIDTH, RECT_WIDTH, RECT_WIDTH, "black", "black");
                   continue;
                 }
+                
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
-
+                
 
 
                 sgpmode::SGPWorld::sgp_host_t& host = *static_cast<sgpmode::SGPWorld::sgp_host_t*>(p[i].Raw());
@@ -469,8 +473,11 @@ public:
       for(int i = 0; i < 10;i++){
       world.Update();
       }
+   
       p = world.GetPop();
+
     
+      
       drawPetriDish(mycanvas);
       buttons.Text("update").Redraw();
       buttons.Text("not").Redraw();
