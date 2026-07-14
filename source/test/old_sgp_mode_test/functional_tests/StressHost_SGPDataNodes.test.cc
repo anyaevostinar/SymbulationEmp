@@ -27,7 +27,7 @@ TEST_CASE("GetStressEscapeeOffspringAttemptCount", "[sgp][sgp-functional]") {
     host->AddSymbiont(matching_symbiont);
 
     host->GetCPU().state.parent_tasks_performed->Set(1);
-    matching_symbiont->GetCPU().state.parent_tasks_performed->Set(1); 
+    matching_symbiont->GetCPU().state.parent_tasks_performed->Set(1);
 
     world.AddOrgAt(host, 0);
 
@@ -56,7 +56,7 @@ TEST_CASE("GetStressEscapeeOffspringSuccessCount", "[sgp][sgp-functional]") {
     config.SYMBIONT_TYPE(1);
     config.BASE_DEATH_CHANCE(0);
     config.PARASITE_DEATH_CHANCE(1);
-    config.GRID(1);
+    config.SPATIAL_STRUCT_MODE("grid");
 
     SGPWorld world(random, &config, LogicTasks);
 

@@ -5,6 +5,7 @@
 
 #include "sanity_check.test.cc"
 
+#include "../test/utils.test.cc"
 #include "../test/default_mode_test/SymWorld.test.cc"
 #include "../test/default_mode_test/DataNodes.test.cc"
 #include "../test/default_mode_test/Host.test.cc"
@@ -14,6 +15,8 @@
 #include "../test/default_mode_test/CureHosts.test.cc"
 #include "../test/default_mode_test/Phylogenies.test.cc"
 #include "../test/default_mode_test/TagMatching.test.cc"
+#include "../test/default_mode_test/SpatialStructure.test.cc"
+#include "../test/default_mode_test/PopulationStructure.test.cc"
 
 #include "../test/efficient_mode_test/EfficientSymbiont.test.cc"
 #include "../test/efficient_mode_test/EfficientHost.test.cc"
@@ -34,21 +37,16 @@
 //SGP mode Old tests (need to update before moving)
 #include "../test/sgp_mode_test/functional_tests/TaskValueEvent.test.cc"
 #include "../test/sgp_mode_test/unit_tests/ProgramBuilder.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/HealthHost.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/SGPSymbiont.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/SGPWorld.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
-// #include "../test/old_sgp_mode_test/unit_tests/StressHost.test.cc"
+#include "../test/sgp_mode_test/functional_tests/HealthMode.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPWorldSetup.test.cc"
 // #include "../test/old_sgp_mode_test/unit_tests/Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
-// #include "../test/old_sgp_mode_test/unit_tests/SGPHost.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/GenomeLibrary_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/HealthHost_Instructions.test.cc"
-// #include "../test/old_sgp_mode_test/functional_tests/SGPDataNodes_SGPWorld.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPWorldData_SGPWorld.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPSymbiont_Tasks.test.cc"
-// #include "../test/old_sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPWorld_StressHost.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/SGPWorld_SGPConfig.test.cc"
 // #include "../test/old_sgp_mode_test/functional_tests/StressHost_SGPDataNodes.test.cc"
@@ -57,24 +55,23 @@
 // Alex fork tests, some updates needed?
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Instructions.test.cc"
-// // #include "../test/sgp_mode_test/SGPHost.test.cc"
-
-// // #include "../test/sgp_mode_test/GenomeLibrary.test.cc"
-// // #include "../test/sgp_mode_test/SGPWorld.test.cc"
-// #include "../test/sgp_mode_test/SGPHost.test.cc"
 // #include "../test/sgp_mode_test/SGPSymbiont.test.cc"
-// // #include "../test/sgp_mode_test/StressHost.test.cc"
-#include "../test/sgp_mode_test/functional_tests/SGPStressMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/StressMode.test.cc"
 
 
 
 #include "../test/sgp_mode_test/unit_tests/RingBuffer.test.cc"
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
-#include "../test/sgp_mode_test/unit_tests/utils.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
+#include "../test/sgp_mode_test/unit_tests/SGPWorldData.test.cc"
 
-// #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
 // #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
+// #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SGPWorld.test.cc"
+#include "../test/sgp_mode_test/functional_tests/PopulationStructure.test.cc"
 
 // Anya's tests
 #include "../test/sgp_mode_test/unit_tests/SGPWorld.test.cc"

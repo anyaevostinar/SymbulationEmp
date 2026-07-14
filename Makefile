@@ -2,10 +2,12 @@
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
+TAG_NUM_BITS = 32
 
 # Flags to use regardless of compiler
 VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
+COMPILE_TIME_ARGS := -DTAG_NUM_BITS=$(TAG_NUM_BITS)
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++

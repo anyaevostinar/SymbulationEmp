@@ -48,21 +48,21 @@ private:
 public:
 
   /**
-   * 
+   *
    * The contructor for SymAnimate
-   * 
+   *
    */
   SymAnimate() : animation("emp_animate"), settings("emp_settings"), explanation("emp_explanation"), learnmore("emp_learnmore"), buttons("emp_buttons") {
 
-    config.GRID_X(50);
-    config.GRID_Y(50);
+    config.WORLD_WIDTH(50);
+    config.WORLD_HEIGHT(50);
     config.UPDATES(30000);
     emp::prefab::ConfigPanel config_panel(config);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
     config_panel.ExcludeSetting("SYM_LIMIT");
     config_panel.ExcludeSetting("DATA_INT");
-    config_panel.ExcludeSetting("POP_SIZE");
+    config_panel.ExcludeSetting("INIT_POP_SIZE");
     config_panel.ExcludeSetting("FILE_PATH");
     config_panel.ExcludeSetting("FILE_NAME");
     config_panel.ExcludeSetting("COMPETITION_MODE");
@@ -148,8 +148,8 @@ public:
       but.SetLabel("Start");
 
       // redraw petri dish
-      mycanvas.SetWidth(RECT_WIDTH*config.GRID_X());
-      mycanvas.SetHeight(RECT_WIDTH*config.GRID_Y());
+      mycanvas.SetWidth(RECT_WIDTH*config.WORLD_WIDTH());
+      mycanvas.SetHeight(RECT_WIDTH*config.WORLD_HEIGHT());
       drawPetriDish(mycanvas);
       ToggleActive();//turn on quick to update the grid if the size changed
       ToggleActive();//turn off again
@@ -166,7 +166,7 @@ public:
     buttons << "<br>";
 
     // Add a canvas for petri dish and draw the initial petri dish
-    mycanvas = animation.AddCanvas(RECT_WIDTH*config.GRID_X(), RECT_WIDTH*config.GRID_Y(), "can");
+    mycanvas = animation.AddCanvas(RECT_WIDTH*config.WORLD_WIDTH(), RECT_WIDTH*config.WORLD_HEIGHT(), "can");
     targets.push_back(mycanvas);
     drawPetriDish(mycanvas);
     animation << "<br>";
@@ -178,10 +178,10 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
-   * Purpose: To initialize the world based upon the config setting given 
+   *
+   * Purpose: To initialize the world based upon the config setting given
    */
   void initializeWorld(){
      // Reset the seed and the random machine of world to ensure consistent result (??)
@@ -196,11 +196,11 @@ public:
 
 
   /**
-   * Input: The string representing the button identification. 
-   * 
+   * Input: The string representing the button identification.
+   *
    * Output: None
-   * 
-   * Purpose: To add style to the buttons displayed. 
+   *
+   * Purpose: To add style to the buttons displayed.
    */
   void setButtonStyle(std::string but_id){
     auto but = buttons.Button(but_id);
@@ -211,11 +211,11 @@ public:
 
 
   /**
-   * Input: The canvas being used. 
-   * 
+   * Input: The canvas being used.
+   *
    * Output: None
-   * 
-   * Purpose: To draw the petri dish of basteria and phage. 
+   *
+   * Purpose: To draw the petri dish of basteria and phage.
    */
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
@@ -223,8 +223,8 @@ public:
         num_mutualistic = 0;
         num_parasitic = 0;
         //bool temp_passed = true;
-        for (int x = 0; x < config.GRID_X(); x++){
-            for (int y = 0; y < config.GRID_Y(); y++){
+        for (int x = 0; x < config.WORLD_WIDTH(); x++){
+            for (int y = 0; y < config.WORLD_HEIGHT(); y++){
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
                 // color setting for host and symbiont
 
@@ -254,13 +254,13 @@ public:
 
 
   /**
-   * Input: The double representing symbiont or host's interaction value 
-   * 
-   * Output: The string representing the hex value for the color of the organism. 
-   * 
+   * Input: The double representing symbiont or host's interaction value
+   *
+   * Output: The string representing the hex value for the color of the organism.
+   *
    * Purpose: To determine the color that an organism should be, given its
-   * interaction value. 
-   */  
+   * interaction value.
+   */
   std::string matchColor(double intVal){
     if ((-1.0 <= intVal) && (intVal < -0.9)) return "#EFFDF0";
     else if ((-0.9 <= intVal) && (intVal < -0.8)) return "#D4FFDD";
@@ -287,11 +287,11 @@ public:
 
   /**
    * Input: None
-   * 
+   *
    * Output: None
-   * 
-   * Purpose: To update the frame displayed of the current 
-   * world state. 
+   *
+   * Purpose: To update the frame displayed of the current
+   * world state.
    */
   void DoFrame() {
 

@@ -230,7 +230,6 @@ public:
     // nand r1, r1, r1
     // nand r0, r1, r0
     // nand r0, r0, r0
-
     AddInst(program, nand_op, 0, 0, 0);
     AddInst(program, nand_op, 1, 1, 1);
     AddInst(program, nand_op, 0, 1, 0);
@@ -363,34 +362,11 @@ public:
       "Global Anchor",
       start_tag
     );
-    // Add not instruction
-    AddInst(program, io_op);  // reg 0 = input a
-    AddInst(program, io_op, 1); // reg 1 = input b
-    AddTask_Nand(program); // reg 0 = a NAND b
-
-    // fixing taskvalue error
-    AddInst(program, io_op); // reg 0 = c
-    AddInst(program, nand_op, 0, 1, 1); // reg 1 = c NAND b
-
-    AddInst(program, io_op, 1); // reg 1 = d
-    AddInst(program, nand_op, 0, 1, 0); // reg 0 = c NAND d
-
-    AddInst(program, io_op); // reg 0 = a
-    AddInst(program, nand_op, 0, 1, 1); // reg 1 = a NAND d
-
-
-    // AddInst(program, io_op); // also output a NAND b, reg 0 = c
-
-    // AddInst(program, nand_op, 0, 1, 1); // reg 1 = b NAND c
-
-    // AddInst(program, io_op, 1); // reg 1 = d
-
-    // AddInst(program, nand_op, 0, 1, 0); // reg 0 = c NAND d
-
-    // // AddInst(program, io_op, 0); // reg 0 = a (reg 1 = d)
-
-    // // AddInst(program, nand_op, 0, 1, 1); // reg 0 = a NAND d
-
+    // Add nand instruction
+    AddInst(program, io_op);
+    AddInst(program, io_op, 1);
+    AddInst(program, io_op);
+    AddTask_Nand(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);

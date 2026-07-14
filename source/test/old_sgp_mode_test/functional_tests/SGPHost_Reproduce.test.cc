@@ -5,7 +5,7 @@
 #include "../../../sgp_mode/SGPDataNodes.h"
 
 /**
- * This file is dedicated to tests related to SGPHost reproduction, including checking that task tracking 
+ * This file is dedicated to tests related to SGPHost reproduction, including checking that task tracking
  * is working correctly.
  */
 
@@ -14,7 +14,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
     emp::Random random(31);
     SymConfigSGP config;
     SGPWorld world(random, &config, LogicTasks);
-    
+
     WHEN("Parental task tracking is on") {
       config.HOST_REPRO_RES(5000);
       config.MUTATION_RATE(0);
@@ -39,7 +39,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
             world.Update();
           }
           THEN("After running for several updates, it is only tracked as completing NOT") {
-            // NOT id is 0 
+            // NOT id is 0
             REQUIRE(host_tasks->Get(0));
             REQUIRE(host_tasks->CountOnes() == 1);
 
@@ -58,10 +58,10 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
 
           world.AddOrgAt(host, 0);
           REQUIRE(world.GetNumOrgs() == 1);
-          
+
           emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> host_tasks = host->GetCPU().state.tasks_performed;
           emp::Ptr<emp::BitSet<CPU_BITSET_LENGTH>> parent_tasks = host->GetCPU().state.parent_tasks_performed;
-          
+
           THEN("Its own tasks are initially all marked as uncompleted") {
             REQUIRE(host_tasks->None());
           }
@@ -69,7 +69,7 @@ TEST_CASE("SGPHost Reproduce parental task tracking", "[sgp][sgp-functional]") {
           for (int i = 0; i < 25; i++) {
             world.Update();
           }
-          
+
           THEN("Only NOT is recorded are successful for its parent") {
             REQUIRE(parent_tasks->Get(0));
             REQUIRE(parent_tasks->CountOnes() == 1);
@@ -107,7 +107,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
         for (int i = 0; i < 25; i++) {
           world.Update();
         }
-        
+
         THEN("Host child inherits its parent's completed task bitset") {
           emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
           REQUIRE(host_parent->GetCPU().state.parent_tasks_performed->None());
@@ -121,10 +121,10 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
         }
 
         THEN("The host child tracks any gains or loses in task completions") {
-          // gen 1 (host_parent) parent tasks: all ones 
+          // gen 1 (host_parent) parent tasks: all ones
           // gen 2 (host_gen2) parent tasks: only NOT (gains nothing, loses everything but not) : checks task-specific loss
           // gen 3 (host_gen3) parent tasks: only NAND (gains NAND, loses NOT) : checks task-specific gain
-          // gen 4 (host_gen4) parent tasks: NOT and EQU (gains NOT and EQU, loses NAND) : checks loss of >1 
+          // gen 4 (host_gen4) parent tasks: NOT and EQU (gains NOT and EQU, loses NAND) : checks loss of >1
           // gen 5 (host_gen5) parent tasks: NOT and NAND (gains NAND, loses EQU) : checks gain of >1
 
           enum TaskIndices {NOT_i = 0, NAND_i = 1, EQU_i = 8};
@@ -146,7 +146,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
               REQUIRE(host_gen3->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen3->GetCPU().state.task_change_gain[i] == 1);
             }
-            else{
+            else {
               REQUIRE(host_gen3->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen3->GetCPU().state.task_change_gain[i] == 0);
             }
@@ -159,12 +159,12 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
             if(i == NOT_i || i == EQU_i){ // gains NOT & EQU this gen, lost them previously
               REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 1);
-            } 
+            }
             else if(i == NAND_i){ // lost NAND this gen, lost it and gained it once each previously
               REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 2);
               REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 1);
             }
-            else{
+            else {
               REQUIRE(host_gen4->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen4->GetCPU().state.task_change_gain[i] == 0);
             }
@@ -177,7 +177,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
             if(i == NOT_i){ // keeps NOT this gen, lost it previously
               REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 1);
-            } 
+            }
             else if(i == NAND_i){ // gained NAND this gen, lost it twice and gained it once previously
               REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 2);
               REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 2);
@@ -186,12 +186,12 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
               REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 2);
               REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 1);
             }
-            else{
+            else {
               REQUIRE(host_gen5->GetCPU().state.task_change_lose[i] == 1);
               REQUIRE(host_gen5->GetCPU().state.task_change_gain[i] == 0);
             }
           }
-          
+
           host_gen2.Delete();
           host_gen3.Delete();
           host_gen4.Delete();
@@ -212,7 +212,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
         WHEN("The host parent has a symbiont") {
           host_parent->AddSymbiont(emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100)));
           emp::Ptr<SGPHost> host_baby = (host_parent->Reproduce()).DynamicCast<SGPHost>();
-          
+
           THEN("The host child tracks how its tasks compare to its parent's partner's tasks") {
 
             REQUIRE(host_baby->GetCPU().state.task_toward_partner[0] == 0);
@@ -225,7 +225,7 @@ TEST_CASE("SGPHost Reproduce", "[sgp][sgp-functional]") {
           }
           host_baby.Delete();
         }
-      } 
+      }
     }
   }
 }

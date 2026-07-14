@@ -4,7 +4,7 @@
 #include "RingBuffer.h"
 #include "Stacks.h"
 #include "../org_type_info.h"
-#include "../utils.h"
+#include "../../utils.h"
 #include "../../Organism.h"
 
 #include "emp/Evolve/World_structure.hpp"
@@ -209,6 +209,17 @@ public:
     emp_assert(input_buf.size() == inputs.size());
   }
 
+  void SetOutputs(const emp::vector<uint32_t>& outputs) {
+    for (size_t i = 0; i < outputs.size(); i++) {
+      if (i < output_buffer.size()) {
+        output_buffer[i] = outputs[i];
+      }
+      else {
+        output_buffer.emplace_back(outputs[i]);
+      }
+    }
+  }
+
   // const emp::WorldPosition& GetLocation() const { return loc; }
 
   void SetOrganism(emp::Ptr<Organism> org_ptr) {
@@ -357,8 +368,16 @@ public:
     return lineage_task_change_loss[task_id];
   }
 
+  const emp::vector<size_t>& GetLineageTaskLoss() const {
+    return lineage_task_change_loss;
+  }
+
   size_t GetLineageTaskGainCount(size_t task_id) const {
     return lineage_task_change_gain[task_id];
+  }
+
+  const emp::vector<size_t>& GetLineageTaskGain() const {
+    return lineage_task_change_gain;
   }
 
   void SetLineageTaskLossCount(size_t task_id, size_t count) {

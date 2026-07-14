@@ -20,8 +20,8 @@
 //   config.SYM_VERT_TRANS_RES(200);
 //   config.SYM_HORIZ_TRANS_RES(300);
 //   config.HOST_REPRO_RES(600);
-//   config.GRID_X(100);
-//   config.GRID_Y(100);
+//   config.WORLD_WIDTH(100);
+//   config.WORLD_HEIGHT(100);
 //   config.UPDATES(1000); //shorter than standard experiments
 //   config.RES_DISTRIBUTE(500); //intermediary host res amount
 

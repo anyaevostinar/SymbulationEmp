@@ -1,4 +1,8 @@
 #include "../../efficient_mode/EfficientWorld.h"
+#include "../../efficient_mode/EfficientHost.h"
+#include "../../efficient_mode/EfficientSymbiont.h"
+#include "../../efficient_mode/EfficientConfigSetup.h"
+#include "../../efficient_mode/EfficientWorldSetup.cc"
 
 TEST_CASE("Efficient SetupSymbionts", "[efficient]") {
   GIVEN("a world") {
@@ -58,8 +62,8 @@ TEST_CASE("Efficient Setup", "[efficient]") {
     emp::Random random(17);
     SymConfigEfficient config;
     EfficientWorld world(random, &config);
-    config.GRID_X(1);
-    config.GRID_Y(1);
+    config.WORLD_WIDTH(1);
+    config.WORLD_HEIGHT(1);
 
     double eff_mut_rate;
     double horiz_mut_rate = 1;
@@ -82,5 +86,5 @@ TEST_CASE("Efficient Setup", "[efficient]") {
       }
     }
   }
-  
+
 }
