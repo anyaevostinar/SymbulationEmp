@@ -17,10 +17,8 @@
 #include "emp/web/UrlParams.hpp"
 #include "default_mode/WorldSetup.cc"
 
-
 namespace UI = emp::web;
 SymConfigBase config; // load the default configuration
-
 
 
 class SymAnimate : public UI::Animate {
@@ -57,6 +55,7 @@ public:
     config.WORLD_WIDTH(50);
     config.WORLD_HEIGHT(50);
     config.UPDATES(30000);
+
     emp::prefab::ConfigPanel config_panel(config);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
@@ -76,6 +75,8 @@ public:
     config_panel.ExcludeGroup("DTH");
     config_panel.ExcludeGroup("PGG");
     config_panel.ExcludeGroup("ECTOSYMBIOSIS");
+    config_panel.ExcludeGroup("TAG_MATCHING");
+    config_panel.ExcludeGroup("PHYLOGENY");
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");
