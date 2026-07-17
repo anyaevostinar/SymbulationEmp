@@ -131,8 +131,6 @@ public:
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
     settings.SetCSS("flex-grow", "1");
-    settings.SetCSS("flex-shrink", "0");
-    settings.SetCSS("min-width", "100");
     settings.SetCSS("max-width", "3000px");
     explanation.SetCSS("flex-grow", "1");
     explanation.SetCSS("max-width", "600px");
