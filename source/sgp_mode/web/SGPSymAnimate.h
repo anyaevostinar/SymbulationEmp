@@ -80,7 +80,19 @@ private:
 
 
   int taskCompletions[9] = {0};
+  std::map<std::string, int> task_map = {
+        {"NOT", 0},
+        {"NAND", 1},
+        {"ORN", 2},
+        {"AND", 3},
+        {"OR", 4},
+        {"ANDN", 5},
+        {"NOR", 6},
+        {"XOR", 7},
+        {"EQU", 8},
+    };
 
+  int is_poisoned = 1;
 
 public:
 
@@ -98,30 +110,6 @@ public:
     config.HOST_REPRO_RES(128);
     config.START_MOI(1);
 
-    const char *json_data = R"json({
-        "shared": {
-            "tasks": [
-                {"name": "NOT", "value": 1, "reward_mode": "add"},
-                {"name": "NAND", "value": 1, "reward_mode": "add"},
-                {"name": "OR_NOT", "value": 2, "reward_mode": "add"},
-                {"name": "AND", "value": 2, "reward_mode": "add"},
-                {"name": "OR", "value": 4, "reward_mode": "add"},
-                {"name": "AND_NOT", "value": 4, "reward_mode": "add"},
-                {"name": "NOR", "value": 8, "reward_mode": "add"},
-                {"name": "XOR", "value": 8, "reward_mode": "add"},
-                {"name": "EQU", "value": 16, "reward_mode": "add"}
-            ]
-        }
-    })json";
-
-    FILE *file = fopen("environment.json", "w");
-    if (file == NULL) {
-        printf("Error opening file inside virtual filesystem!\n");
-      
-    }
-
-    fprintf(file, "%s", json_data);
-    fclose(file);
     
 
     //Make json itself and add it to file
@@ -340,6 +328,8 @@ public:
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
         int i = 0;
+        //task_set
+        const sgpmode::tasks::LogicTaskSet& task_set = world.GetTaskEnv().GetTaskSet();
         for(int j = 0; j < 9; j++){
           taskCompletions[j] = 0;
         }
@@ -365,8 +355,9 @@ public:
                 for(int task_id = 8; task_id >= 0; task_id--){
                   if(host.GetHardware().GetCPUState().GetTaskPerformed(task_id)){
                     
-                    color_host = matchColor(task_id);
-                    taskCompletions[task_id] += 1;
+                    int real_task_id = task_map[task_set.GetName(task_id)];
+                    color_host = matchColor(real_task_id);
+                    taskCompletions[real_task_id] += 1;
                     break;
                   }
                 }
@@ -375,8 +366,9 @@ public:
                   for(int task_id = 8; task_id >= 0; task_id--){
                     if(host.GetHardware().GetCPUState().GetParentTaskPerformed(task_id)){
                       
-                      color_host = matchColor(task_id);
-                      taskCompletions[task_id] += 1;
+                      int real_task_id = task_map[task_set.GetName(task_id)];
+                      color_host = matchColor(real_task_id);
+                      taskCompletions[real_task_id] += 1;
                       break;
                     }
                   }
@@ -398,8 +390,10 @@ public:
                   std::string color_sym = "#EFFDF0";
                   for(int task_id = 8; task_id >= 0; task_id--){
                     if(sym.GetHardware().GetCPUState().GetTaskPerformed(task_id)){
-                      color_sym = matchColor(task_id);
-                      taskCompletions[task_id] += 1;
+
+                      int real_task_id = task_map[task_set.GetName(task_id)];
+                      color_sym = matchColor(real_task_id);
+                      taskCompletions[real_task_id] += 1;
                       break;
                     }
                   }
@@ -408,8 +402,9 @@ public:
                   for(int task_id = 8; task_id >= 0; task_id--){
                     if(sym.GetHardware().GetCPUState().GetParentTaskPerformed(task_id)){
                       
-                      color_sym = matchColor(task_id);
-                      taskCompletions[task_id] += 1;
+                      int real_task_id = task_map[task_set.GetName(task_id)];
+                      color_sym = matchColor(real_task_id);
+                      taskCompletions[real_task_id] += 1;
                       break;
                     }
                   }
@@ -450,6 +445,33 @@ public:
 
   }
 
+  std::string matchPoisonColor(int taskComplete){
+    if(taskComplete == 6){return "#e100ff";}
+    else if(taskComplete == 7){return"#e100ff";}
+    else if(taskComplete == 8){return "#e100ff";}
+    else if(is_poisoned == 1){
+      if(taskComplete == 0){return "#ff0000";}
+      else if(taskComplete == 1){return "#00ff08";}
+      else if(taskComplete == 2){return "#ff0000";}
+      else if(taskComplete == 3){return "#00ff08";}
+      else if(taskComplete == 4){return "#ff0000";}
+      else if(taskComplete == 5){return "#00ff08";}
+    }
+    else{
+      if(taskComplete == 0){return "#00ff08";}
+      else if(taskComplete == 1){return "#ff0000";}
+      else if(taskComplete == 2){return "#00ff08";}
+      else if(taskComplete == 3){return "#ff0000";}
+      else if(taskComplete == 4){return "#00ff08";}
+      else if(taskComplete == 5){return "#ff0000";}
+    }
+    
+
+  }
+  
+
+ 
+
 
   /**
    * Input: None
@@ -469,7 +491,12 @@ public:
 
       // Update world and draw the new petri dish
       for(int i = 0; i < 10;i++){
-      world.Update();
+        world.Update();
+        if(config.ENABLE_TEMP_CHANGING_ENVIRONMENT()){
+          if(world.GetUpdate() % config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0){
+            is_poisoned *= -1;
+          }
+        }
       }
    
       p = world.GetPop();
