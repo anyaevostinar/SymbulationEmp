@@ -58,19 +58,22 @@ public:
 
     
 
-
+    
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
+
     settings.SetCSS("flex-grow", "1");
     settings.SetCSS("max-width", "1000px");
-    settings.SetCSS("min-width", "685px");
+    settings.SetCSS("min-width", "660px");
+    
     explanation.SetCSS("flex-grow", "1");
     explanation.SetCSS("max-width", "600px");
+    
     learnmore.SetCSS("flex-grow", "1");
     learnmore.SetCSS("max-width", "600px");
     buttons.SetCSS("flex-grow", "1");
     buttons.SetCSS("max-width", "600px");
-
+    
 
     
 
