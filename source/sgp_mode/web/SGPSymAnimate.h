@@ -107,14 +107,9 @@ public:
     config.WORLD_HEIGHT(30);
     config.CYCLES_PER_UPDATE(16);
     config.UPDATES(30000);
-    config.HOST_REPRO_RES(128);
+    config.HOST_REPRO_RES(5);
     config.START_MOI(1);
 
-    
-
-    //Make json itself and add it to file
-    //config.TASK_ENV_CFG_PATH("/flat-reward-1-env.json");
-   
 
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
@@ -127,8 +122,6 @@ public:
     buttons.SetCSS("flex-grow", "1");
     buttons.SetCSS("max-width", "600px");
 
-
-    //emscripten_async_wget("http://localhost:8000/flat-reward-1-env.json", "/flat-reward-1-env.json", onLoad, onError);
 
      // apply configuration query params and config files to config
     auto specs = emp::ArgManager::make_builtin_specs(&config);

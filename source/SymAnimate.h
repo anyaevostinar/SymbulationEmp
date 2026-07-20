@@ -56,7 +56,36 @@ public:
     config.WORLD_HEIGHT(50);
     config.UPDATES(30000);
 
-    emp::prefab::ConfigPanel config_panel(config);
+    
+
+
+    animation.SetCSS("flex-grow", "1");
+    animation.SetCSS("max-width", "500px");
+    settings.SetCSS("flex-grow", "1");
+    settings.SetCSS("max-width", "1000px");
+    settings.SetCSS("min-width", "685px");
+    explanation.SetCSS("flex-grow", "1");
+    explanation.SetCSS("max-width", "600px");
+    learnmore.SetCSS("flex-grow", "1");
+    learnmore.SetCSS("max-width", "600px");
+    buttons.SetCSS("flex-grow", "1");
+    buttons.SetCSS("max-width", "600px");
+
+
+    
+
+
+
+    // apply configuration query params and config files to config
+    auto specs = emp::ArgManager::make_builtin_specs(&config);
+    emp::ArgManager am(emp::web::GetUrlParams(), specs);
+    // cfg.Read("config.cfg");
+    am.UseCallbacks();
+    if (am.HasUnused()) std::exit(EXIT_FAILURE);
+
+    initializeWorld();
+
+    emp::prefab::ConfigPanel config_panel(config, true);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
     config_panel.ExcludeSetting("SYM_LIMIT");
@@ -74,41 +103,19 @@ public:
     config_panel.ExcludeGroup("LYSIS");
     config_panel.ExcludeGroup("DTH");
     config_panel.ExcludeGroup("PGG");
-    config_panel.ExcludeGroup("ECTOSYMBIOSIS");
-    config_panel.ExcludeGroup("TAG_MATCHING");
-    config_panel.ExcludeGroup("PHYLOGENY");
+    config_panel.ExcludeGroup("ECTOSYMBIOSIS_GROUP");
+    config_panel.ExcludeGroup("TAG_MATCHING_GROUP");
+    config_panel.ExcludeGroup("PHYLOGENY_GROUP");
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");
     config_panel.SetRange("SYM_AGE_MAX", "-1", "1000");
     config_panel.SetRange("HOST_AGE_MAX", "-1", "1000");
     config_panel.SetRange("LIMITED_RES_TOTAL", "-1", "10000");
-
-
-    animation.SetCSS("flex-grow", "1");
-    animation.SetCSS("max-width", "500px");
-    settings.SetCSS("flex-grow", "1");
-    settings.SetCSS("max-width", "700px");
-    explanation.SetCSS("flex-grow", "1");
-    explanation.SetCSS("max-width", "600px");
-    learnmore.SetCSS("flex-grow", "1");
-    learnmore.SetCSS("max-width", "600px");
-    buttons.SetCSS("flex-grow", "1");
-    buttons.SetCSS("max-width", "600px");
-
-
-    initializeWorld();
+    
     emp::prefab::Card config_panel_ex("INIT_CLOSED");
     settings << config_panel_ex;
     config_panel_ex.AddHeaderContent("<h3>Settings</h3>");
-
-    // apply configuration query params and config files to config
-    auto specs = emp::ArgManager::make_builtin_specs(&config);
-    emp::ArgManager am(emp::web::GetUrlParams(), specs);
-    // cfg.Read("config.cfg");
-    am.UseCallbacks();
-    if (am.HasUnused()) std::exit(EXIT_FAILURE);
-
     // setup configuration panel
     //config_panel.Setup();
     config_panel_ex << config_panel;
