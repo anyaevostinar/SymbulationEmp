@@ -55,8 +55,8 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
     REQUIRE(hw.GetCPUState().GetLocation().IsValid());
 
     // Run organism's hardware for 200 steps
-    hw.RunCPUStep(200);
-    // After 200 updates, the hardware should have flagged a repro attempt.
+    hw.RunCPUStep(100);
+    // After 100 cycles, the hardware should have flagged a repro attempt.
     REQUIRE(hw.GetCPUState().ReproAttempt());
     REQUIRE(!hw.GetCPUState().ReproInProgress());
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();

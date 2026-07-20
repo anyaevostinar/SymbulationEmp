@@ -150,11 +150,11 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
       auto& host_parent_tasks = hw.GetCPUState().GetParentTasksPerformed();
       auto& host_tasks = hw.GetCPUState().GetTasksPerformed();
 
-      THEN("Its own tasks are initially all marked as not completed") {
-        REQUIRE(host_tasks.None());
+      THEN("Its own tasks are marked with initial nand task") {
+        REQUIRE(host_tasks.Get(start_task_id));
       }
 
-      THEN("Its parent's tasks are marked with initial not task") {
+      THEN("Its parent's tasks are marked with initial nand task") {
         REQUIRE(host_parent_tasks.Get(start_task_id));
       }
 

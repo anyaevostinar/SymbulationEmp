@@ -603,10 +603,7 @@ public:
       start_tag
     );
     // Add nand instruction
-    AddInst(program, io_op);
-    AddInst(program, io_op, 1);
-    AddInst(program, io_op);
-    AddTask_Nand(program);
+    AddTask_NandIO(program);
     // Nop filler is length minus current size + repro instructions
     // const size_t nop_filler = length - (program.size() + 1);
     program.resize(length - 1);

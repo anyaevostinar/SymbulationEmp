@@ -44,20 +44,20 @@
             "descriptors": []
         },
         {
-            "operation": "IO",
+            "operation": "Nand",
             "args": {
                 "value0": 0,
-                "value1": 0,
+                "value1": 1,
                 "value2": 0
             },
             "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
             "descriptors": []
         },
         {
-            "operation": "Nand",
+            "operation": "IO",
             "args": {
                 "value0": 0,
-                "value1": 1,
+                "value1": 0,
                 "value2": 0
             },
             "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",

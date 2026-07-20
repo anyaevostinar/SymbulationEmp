@@ -614,8 +614,8 @@ TEST_CASE("CreateNandProgram()", "[sgp][sgp-unit]"){
       THEN("The program contains IO, IO, IO, Nand"){
         REQUIRE(program[1].op_code == sgpmode::Library::GetOpCode("IO"));
         REQUIRE(program[2].op_code == sgpmode::Library::GetOpCode("IO"));
-        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("IO"));
-        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[3].op_code == sgpmode::Library::GetOpCode("Nand"));
+        REQUIRE(program[4].op_code == sgpmode::Library::GetOpCode("IO"));
       }
 
       THEN("The program contains 93 nop instructions in a row"){

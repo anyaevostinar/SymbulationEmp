@@ -43,6 +43,9 @@ void SGPWorld::CreateDataFiles() {
   // Setup file for symbiont interaction values
   std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues"+sgp_config.FILE_NAME()+".csv");
   SetupSymbiontInteractionValuesFile(sym_int_vals_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+
+  std::filesystem::path repro_rate_fpath = output_dir / ("ReproRate" + my_config->FILE_NAME() + ".csv");
+  SetupReproRateFile(repro_rate_fpath).SetTimingRepeat(sgp_config.DATA_INT());
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {

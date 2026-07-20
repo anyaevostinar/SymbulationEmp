@@ -27,6 +27,7 @@ void SymWorld::CreateDataFiles() {
   if (my_config->TAG_MATCHING()) {
     SetupTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
+  SetupReproRateFile(my_config->FILE_PATH() + "ReproRate" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
 }
 
 /**
@@ -140,6 +141,20 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
 }
 
 
+emp::DataFile & SymWorld::SetupReproRateFile(const std::string & filename) {
+  auto & file = SetupFile(filename);
+  auto & node1 = GetHostReproRateDataNode();
+  auto & node2 = GetSymReproRateDataNode();
+
+  file.AddVar(update, "update", "Update");
+  file.AddTotal(node1, "success_host_repro_count", "Total number of successful host reproductions",true);
+  file.AddTotal(node2, "success_sym_repro_count", "Total number of successful sym reproductions",true);
+
+  file.PrintHeaderKeys();
+
+  return file;
+
+}
 /**
  * Input: The address of the string representing the file to be
  * created's name
@@ -1411,6 +1426,21 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
       data_node_symbiont_tag_shannon.New();
     }
     return *data_node_symbiont_tag_shannon;
+  }
+
+  emp::DataMonitor<int>& SymWorld::GetSymReproRateDataNode() {
+    if (!data_node_sym_repro_rate) {
+      data_node_sym_repro_rate.New();
+    }
+    return *data_node_sym_repro_rate;
+  }
+
+  emp::DataMonitor<int>& SymWorld::GetHostReproRateDataNode() {
+    if (!data_node_host_repro_rate) {
+      
+      data_node_host_repro_rate.New();
+    }
+    return *data_node_host_repro_rate;
   }
 
 #endif

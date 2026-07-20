@@ -785,6 +785,9 @@ public:
       host_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
     }
 
+    emp::DataMonitor<int>& data_node_host_repro_rate = my_world->GetHostReproRateDataNode();
+    data_node_host_repro_rate.AddDatum(1);
+
     return host_baby;
   }
 

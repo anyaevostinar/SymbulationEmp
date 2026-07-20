@@ -178,6 +178,9 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
 
+  emp::Ptr<emp::DataMonitor<int>> data_node_host_repro_rate;
+  emp::Ptr<emp::DataMonitor<int>> data_node_sym_repro_rate;
+
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
   uint64_t first_mut_host = 0;
@@ -312,6 +315,9 @@ public:
     if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
+
+    if (data_node_host_repro_rate) data_node_host_repro_rate.Delete();
+    if (data_node_sym_repro_rate) data_node_sym_repro_rate.Delete();
 
     for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
       if (sym_pop[i]) {
@@ -992,8 +998,11 @@ public:
   emp::DataFile& SetupTransmissionFile(const std::string& filename);
   emp::DataFile& SetupTagDistFile(const std::string& filename);
   emp::DataFile& SetupSymDiversityFile(const std::string& filename);
+  emp::DataFile& SetupReproRateFile(const std::string& filename);
   virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile& file);
+  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
@@ -1005,8 +1014,6 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
-  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
-  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
   emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();
   emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
   emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
@@ -1026,6 +1033,8 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetWithinHostMeanDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetWithinHostVarianceDataNode();
+  emp::DataMonitor<int>& GetHostReproRateDataNode();
+  emp::DataMonitor<int>& GetSymReproRateDataNode();
 
 
   // Definitions of setup function, expanded in WorldSetup.cc
