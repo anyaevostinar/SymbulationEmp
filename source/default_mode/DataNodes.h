@@ -140,7 +140,15 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
   file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
 }
 
-
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track the number 
+ * of reproductions of both Hosts and Symbionts
+ */
 emp::DataFile & SymWorld::SetupReproRateFile(const std::string & filename) {
   auto & file = SetupFile(filename);
   auto & node1 = GetHostReproRateDataNode();
@@ -155,6 +163,8 @@ emp::DataFile & SymWorld::SetupReproRateFile(const std::string & filename) {
   return file;
 
 }
+
+
 /**
  * Input: The address of the string representing the file to be
  * created's name
@@ -1428,6 +1438,15 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
     return *data_node_symbiont_tag_shannon;
   }
 
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of symbiont reproductions this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * number of symbiont reproductions this update.
+   */
   emp::DataMonitor<int>& SymWorld::GetSymReproRateDataNode() {
     if (!data_node_sym_repro_rate) {
       data_node_sym_repro_rate.New();
@@ -1435,6 +1454,15 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
     return *data_node_sym_repro_rate;
   }
 
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of host reproductions this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * number of host reproductions this update.
+   */
   emp::DataMonitor<int>& SymWorld::GetHostReproRateDataNode() {
     if (!data_node_host_repro_rate) {
       
