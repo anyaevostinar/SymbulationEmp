@@ -47,6 +47,7 @@
 
 #include <emscripten.h>
 #include <stdio.h>
+#include <unistd.h>
 
 namespace UI = emp::web;
 sgpmode::SymConfigSGP config; // load the default configuration
@@ -62,6 +63,7 @@ void onError(const char* file) {
 
 class SGPSymAnimate : public UI::Animate {
 private:
+
 
   UI::Document animation;
   UI::Document settings;
@@ -110,7 +112,7 @@ public:
     config.HOST_REPRO_RES(5);
     config.START_MOI(1);
 
-
+    
     animation.SetCSS("flex-grow", "1");
     animation.SetCSS("max-width", "500px");
 
@@ -167,12 +169,20 @@ public:
     config_panel.ExcludeSetting("PHYLOGENY");
     config_panel.ExcludeSetting("NUM_PHYLO_BINS");
 
+    config_panel.ExcludeSetting("PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION");
+
+    config_panel.ExcludeSetting("HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE");
+    config_panel.ExcludeSetting("TASK_PROFILE_COMPATIBILITY_MODE");
+    config_panel.ExcludeSetting("NUM_PHYLO_BINS");
+
     config_panel.ExcludeGroup("LYSIS");
     config_panel.ExcludeGroup("DTH");
     config_panel.ExcludeGroup("PGG");
-    config_panel.ExcludeGroup("ECTOSYMBIOSIS");
-    config_panel.ExcludeGroup("TAG_MATCHING");
-    config_panel.ExcludeGroup("PHYLOGENY");
+    config_panel.ExcludeGroup("ECTOSYMBIOSIS_GROUP");
+    config_panel.ExcludeGroup("TAG_MATCHING_GROUP");
+    config_panel.ExcludeGroup("PHYLOGENY_GROUP");
+    config_panel.ExcludeGroup("TEMP_CHANGING_ENVIRONMENT");
+  
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");
@@ -282,6 +292,11 @@ public:
   }
 
 
+  void playSoundEffect() {
+    emscripten_run_script("new Audio('sfx/BEEEP.wav').play();");
+
+  }
+
   /**
    * Input: None
    * 
@@ -290,12 +305,26 @@ public:
    * Purpose: To initialize the world based upon the config setting given 
    */
   void initializeWorld(){
+    //playSoundEffect();
      // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
     world.SetRandom(random);
 
     world.Setup();
-
+    
+    /*
+    world.before_host_do_birth_sig.AddAction(
+    [this](
+      sgpmode::SGPWorld::sgp_host_t& host_offspring,
+     sgpmode::SGPWorld:: sgp_host_t& host_parent,
+      const emp::WorldPosition&  parent_pos
+      ) {
+        playSoundEffect();
+        
+        
+      }
+    );
+    */
     p = world.GetPop();
 
   }
@@ -325,6 +354,7 @@ public:
    */
   // now draw a virtual petri dish with coordinate offset from the left frame
   void drawPetriDish(UI::Canvas & can){
+  
         int i = 0;
         //task_set
         const sgpmode::tasks::LogicTaskSet& task_set = world.GetTaskEnv().GetTaskSet();
@@ -480,22 +510,26 @@ public:
    * world state. 
    */
   void DoFrame() {
+    
 
     if (world.GetUpdate() >= config.UPDATES() && GetActive()) {
         ToggleActive();
     } else {
+      
+      
+  
       mycanvas = animation.Canvas("can"); // get canvas by id
       mycanvas.Clear();
 
       // Update world and draw the new petri dish
-      for(int i = 0; i < 10;i++){
+      
         world.Update();
         if(config.ENABLE_TEMP_CHANGING_ENVIRONMENT()){
           if(world.GetUpdate() % config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0){
             is_poisoned *= -1;
           }
         }
-      }
+      
    
       p = world.GetPop();
 
