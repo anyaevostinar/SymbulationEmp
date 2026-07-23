@@ -100,6 +100,7 @@ TEST_CASE("Symbionts start with a poisoned task in a temporally changing environ
 
   // Group 1: NOT, AND, OR (start rewarded)
   size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+  
 
   WHEN("A symbiont can do only NOT at the start of the experiment"){
     // NOT-only symbiont
@@ -209,8 +210,10 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
+
   // Group 2: NAND, AND-NOT, OR-NOT (start punished)
   size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+  
 
   WHEN("A symbiont can do only NAND at the start of the experiment"){
     // NAND-only symbiont
@@ -246,3 +249,143 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
     }
   }
 }
+
+
+TEST_CASE("Check if tasks values are switching correctly with a enviornment change", "[sgp]") {
+  // set up configs
+  sgpmode::SymConfigSGP config;
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("TempChangingEnv_test_output");
+  config.SEED(89);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
+  config.CYCLES_PER_UPDATE(8);
+  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
+  config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
+
+  // initialize world
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& builder = world.GetProgramBuilder();
+
+  sgpmode::SGPWorld::task_env_t& task_env = world.GetTaskEnv();
+  //get the ids for all of the tasks
+  size_t nand_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NAND")) {
+    nand_task_id = task_env.GetTaskSet().GetID("NAND");
+  }
+  else if (task_env.GetTaskSet().HasTask("nand")) {
+    nand_task_id = task_env.GetTaskSet().GetID("nand");
+  }
+
+  size_t andn_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("AND_NOT")) {
+    andn_task_id = task_env.GetTaskSet().GetID("AND_NOT");
+  }
+  else if (task_env.GetTaskSet().HasTask("and_not")) {
+    andn_task_id = task_env.GetTaskSet().GetID("and_not");
+  }
+  
+  size_t orn_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("OR_NOT")) {
+    orn_task_id = task_env.GetTaskSet().GetID("OR_NOT");
+  }
+  else if (task_env.GetTaskSet().HasTask("or_not")) {
+    orn_task_id = task_env.GetTaskSet().GetID("or_not");
+  }
+  
+  size_t not_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NOT")) {
+    not_task_id = task_env.GetTaskSet().GetID("NOT");
+  }
+  else if (task_env.GetTaskSet().HasTask("not")) {
+    not_task_id = task_env.GetTaskSet().GetID("not");
+  }
+
+  size_t and_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("AND")) {
+    and_task_id = task_env.GetTaskSet().GetID("AND");
+  }
+  else if (task_env.GetTaskSet().HasTask("and")) {
+    and_task_id = task_env.GetTaskSet().GetID("and");
+  }
+
+  size_t or_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("OR")) {
+    or_task_id = task_env.GetTaskSet().GetID("OR");
+  }
+  else if (task_env.GetTaskSet().HasTask("or")) {
+    or_task_id = task_env.GetTaskSet().GetID("or");
+  }
+  
+  size_t nor_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NOR")) {
+    nor_task_id = task_env.GetTaskSet().GetID("NOR");
+  }
+  else if (task_env.GetTaskSet().HasTask("nor")) {
+    nor_task_id = task_env.GetTaskSet().GetID("nor");
+  }
+
+  size_t xor_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("XOR")) {
+    xor_task_id = task_env.GetTaskSet().GetID("XOR");
+  }
+  else if (task_env.GetTaskSet().HasTask("xor")) {
+    xor_task_id = task_env.GetTaskSet().GetID("xor");
+  }
+
+  WHEN("the world is initialized"){
+    world.Update();
+    
+    THEN("NAND, ANDN, ORN, and XOR should be rewarded and NOT, AND, OR, NOR punished"){
+      REQUIRE(task_env.GetHostTaskReq(nand_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(andn_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(orn_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(xor_task_id).task_value == 5);
+
+      REQUIRE(task_env.GetHostTaskReq(not_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(and_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(or_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(nor_task_id).task_value == -5);
+
+      REQUIRE(task_env.GetSymTaskReq(nand_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(andn_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(orn_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(xor_task_id).task_value == 5); 
+
+      REQUIRE(task_env.GetSymTaskReq(not_task_id).task_value == -5); 
+      REQUIRE(task_env.GetSymTaskReq(and_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(or_task_id).task_value == -5); 
+      REQUIRE(task_env.GetSymTaskReq(nor_task_id).task_value == -5); 
+      }
+
+    //update world once to swap enviornment
+    world.Update();
+
+    THEN("The rewarded tasks should be punished now, and the punished tasks should be rewarded"){
+      REQUIRE(task_env.GetHostTaskReq(nand_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(andn_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(orn_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(xor_task_id).task_value == -5);
+
+      REQUIRE(task_env.GetHostTaskReq(not_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(and_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(or_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(nor_task_id).task_value == 5);
+
+      REQUIRE(task_env.GetSymTaskReq(nand_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(andn_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(orn_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(xor_task_id).task_value == -5); 
+
+      REQUIRE(task_env.GetSymTaskReq(not_task_id).task_value == 5); 
+      REQUIRE(task_env.GetSymTaskReq(and_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(or_task_id).task_value == 5); 
+      REQUIRE(task_env.GetSymTaskReq(nor_task_id).task_value == 5); 
+      }
+
+    }
+
+  }
+

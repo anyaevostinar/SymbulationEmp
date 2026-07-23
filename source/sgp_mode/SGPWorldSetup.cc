@@ -154,6 +154,23 @@ void SGPWorld::SetupChangingEnvironment() {
     or_task_id = task_env.GetTaskSet().GetID("or");
   }
   
+  size_t nor_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NOR")) {
+    nor_task_id = task_env.GetTaskSet().GetID("NOR");
+  }
+  else if (task_env.GetTaskSet().HasTask("nor")) {
+    nor_task_id = task_env.GetTaskSet().GetID("nor");
+  }
+
+  size_t xor_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("XOR")) {
+    xor_task_id = task_env.GetTaskSet().GetID("XOR");
+  }
+  else if (task_env.GetTaskSet().HasTask("xor")) {
+    xor_task_id = task_env.GetTaskSet().GetID("xor");
+  }
+  
+  
   // update 0 will flip nand-andn-orn to rewarded and not-and-or to punished
   GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
@@ -164,26 +181,32 @@ void SGPWorld::SetupChangingEnvironment() {
   GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
   GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
 
+  GetTaskEnv().GetHostTaskReq(xor_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(xor_task_id).task_value;
+  GetTaskEnv().GetSymTaskReq(xor_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(xor_task_id).task_value;
+
   begin_update_sig.AddAction(
-    [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id]() {
+    [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id, xor_task_id, nor_task_id]() {
       if (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0) {
 
         GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
         GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
         GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
+        GetTaskEnv().GetHostTaskReq(xor_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(xor_task_id).task_value;
 
         GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
         GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
         GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
+        GetTaskEnv().GetHostTaskReq(nor_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nor_task_id).task_value;
 
         GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
         GetTaskEnv().GetSymTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(andn_task_id).task_value;
         GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
+        GetTaskEnv().GetSymTaskReq(xor_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(xor_task_id).task_value;
 
         GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
         GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
         GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
-
+        GetTaskEnv().GetSymTaskReq(nor_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nor_task_id).task_value;
         
       }
     }
