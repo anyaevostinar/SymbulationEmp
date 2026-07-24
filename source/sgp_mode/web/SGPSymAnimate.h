@@ -53,14 +53,6 @@ namespace UI = emp::web;
 sgpmode::SymConfigSGP config; // load the default configuration
 
 
-void onLoad(const char* file) {
-    
-  }
-
-void onError(const char* file) {
-    // Wow file not loaded
-}
-
 class SGPSymAnimate : public UI::Animate {
 private:
 
@@ -94,7 +86,7 @@ private:
         {"EQU", 8},
     };
 
-  int is_poisoned = 1;
+  int frame_count = 0;
 
 public:
 
@@ -292,8 +284,15 @@ public:
   }
 
 
+   /**
+   * Input: None
+   * 
+   * Output: None
+   * 
+   * Purpose: Plays a short beep audio effect
+   */
   void playSoundEffect() {
-    emscripten_run_script("new Audio('sfx/BEEEP.wav').play();");
+    emscripten_run_script("new Audio('sfx/short_beep.wav').play();");
 
   }
 
@@ -305,12 +304,13 @@ public:
    * Purpose: To initialize the world based upon the config setting given 
    */
   void initializeWorld(){
-    //playSoundEffect();
+  
      // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
     world.SetRandom(random);
 
     world.Setup();
+    
     
     /*
     world.before_host_do_birth_sig.AddAction(
@@ -319,7 +319,7 @@ public:
      sgpmode::SGPWorld:: sgp_host_t& host_parent,
       const emp::WorldPosition&  parent_pos
       ) {
-        playSoundEffect();
+        //playSoundEffect();
         
         
       }
@@ -374,10 +374,10 @@ public:
                 }
                 
                 emp::vector<emp::Ptr<Organism>>& syms = p[i]->GetSymbionts(); // retrieve all syms for this host (assume only 1 sym for each host)
-                // color setting for host and symbiont
+                
                 
 
-
+                // color setting for host and symbiont
                 sgpmode::SGPWorld::sgp_host_t& host = *static_cast<sgpmode::SGPWorld::sgp_host_t*>(p[i].Raw());
                 std::string color_host = "#EFFDF0";
                 for(int task_id = 8; task_id >= 0; task_id--){
@@ -473,29 +473,6 @@ public:
 
   }
 
-  std::string matchPoisonColor(int taskComplete){
-    if(taskComplete == 6){return "#e100ff";}
-    else if(taskComplete == 7){return"#e100ff";}
-    else if(taskComplete == 8){return "#e100ff";}
-    else if(is_poisoned == 1){
-      if(taskComplete == 0){return "#ff0000";}
-      else if(taskComplete == 1){return "#00ff08";}
-      else if(taskComplete == 2){return "#ff0000";}
-      else if(taskComplete == 3){return "#00ff08";}
-      else if(taskComplete == 4){return "#ff0000";}
-      else if(taskComplete == 5){return "#00ff08";}
-    }
-    else{
-      if(taskComplete == 0){return "#00ff08";}
-      else if(taskComplete == 1){return "#ff0000";}
-      else if(taskComplete == 2){return "#00ff08";}
-      else if(taskComplete == 3){return "#ff0000";}
-      else if(taskComplete == 4){return "#00ff08";}
-      else if(taskComplete == 5){return "#ff0000";}
-    }
-    
-
-  }
   
 
  
@@ -516,21 +493,20 @@ public:
         ToggleActive();
     } else {
       
-      
-  
-      mycanvas = animation.Canvas("can"); // get canvas by id
-      mycanvas.Clear();
 
-      // Update world and draw the new petri dish
-      
+      //When Sound effects are added, increase RunFrame to at least 10
+      int run_frame = 0;
+      frame_count += 1;
+      if(frame_count >= run_frame){
+        //playSoundEffect(); <- Uncomment to enable sound effects
+        mycanvas = animation.Canvas("can"); // get canvas by id
+        mycanvas.Clear();
+
+        // Update world and draw the new petri dish
         world.Update();
-        if(config.ENABLE_TEMP_CHANGING_ENVIRONMENT()){
-          if(world.GetUpdate() % config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0){
-            is_poisoned *= -1;
-          }
-        }
-      
-   
+         
+        frame_count = 0;
+      }
       p = world.GetPop();
 
     
