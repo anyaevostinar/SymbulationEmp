@@ -129,8 +129,8 @@ These instructions are for if you want to make *changes* to the web GUI and run 
 First, you'll need to set up Emscripten, which is included in the `SymbulationEmp` folder:
 ```bash
 cd emsdk
-./emsdk install 1.38.48
-./emsdk activate 1.38.48
+./emsdk install 3.1.49
+./emsdk activate 3.1.49
 ```
 
 Then every time that you want to build and run Symbulation's web GUI, you'll need to load Emscripten into your `PATH` for a given terminal session. If you've closed and opened a new terminal, you'll need to do this again (this is what people usually forget to do after they've been away for a while):
