@@ -42,7 +42,14 @@ pggWorld_h
 ```{toctree}
 :maxdepth: 1
 
-sgpWorld_h
+SGPHost_h
+SGPSymbiont_h
+SGPWorld_h
+Scheduler_h
+SGPMutator_h
+ProgramBuilder_h
+ReproductionQueue_h
+
 ```
 
 ## GUI Classes

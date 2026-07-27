@@ -52,7 +52,7 @@ breathe_default_project = "Symbulation"
 breathe_projects_source = {
     "auto" : ( "../source", ["default_mode/Host.h", "default_mode/Symbiont.h","default_mode/SymWorld.h","default_mode/DataNodes.h","default_mode/WorldSetup.cc","efficient_mode/EfficientHost.h"
     ,"efficient_mode/EfficientSymbiont.h","efficient_mode/EfficientWorld.h","lysis_mode/Bacterium.h","lysis_mode/Phage.h","lysis_mode/LysisWorld.h",
-    "pgg_mode/PGGHost.h","pgg_mode/PGGSymbiont.h","pgg_mode/PGGWorld.h","SymAnimate.h","sgp_mode/SGPWorld.h","sgp_mode/SGPHost.h"] )
+    "pgg_mode/PGGHost.h","pgg_mode/PGGSymbiont.h","pgg_mode/PGGWorld.h","SymAnimate.h","sgp_mode/SGPWorld.h","sgp_mode/SGPHost.h","sgp_mode/SGPSymbiont.h","sgp_mode/ProgramBuilder.h","sgp_mode/ReproductionQueue.h","sgp_mode/Scheduler.h","sgp_mode/SGPMutator.h"] )
 }
 
 # Tell sphinx what the primary language being documented is.
