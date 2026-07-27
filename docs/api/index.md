@@ -38,6 +38,13 @@ pggSymbiont_h
 pggWorld_h
 ```
 
+## SGP Mode Classes
+```{toctree}
+:maxdepth: 1
+
+sgpWorld_h
+```
+
 ## GUI Classes
 ```{toctree}
 :maxdepth: 1
