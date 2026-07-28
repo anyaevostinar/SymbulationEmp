@@ -389,3 +389,49 @@ TEST_CASE("Check if tasks values are switching correctly with a enviornment chan
 
   }
 
+TEST_CASE("Check if random enviornment change works", "[sgp]") {
+  // set up configs
+  sgpmode::SymConfigSGP config;
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.FILE_PATH("TempChangingEnv_test_output");
+  config.SEED(89);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
+  config.CYCLES_PER_UPDATE(8);
+  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(2);
+  config.RANDOM_CHANGING_ENVIRONMENT_AVERAGE(2);
+
+  // initialize world
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& builder = world.GetProgramBuilder();
+
+  bool Env_change = false;
+
+  WHEN("the world is initialized"){
+    world.Update();
+    sgpmode::SGPWorld::task_env_t& task_env = world.GetTaskEnv();
+    
+  //get the ids for all of the tasks
+  size_t nand_task_id = task_env.GetTaskSet().GetSize();
+  if (task_env.GetTaskSet().HasTask("NAND")) {
+    nand_task_id = task_env.GetTaskSet().GetID("NAND");
+  }
+
+  //update the world 4 times (should have changed at least once by now)
+  for (int i = 1; i <= 4; i++) {
+        world.Update();
+        if(task_env.GetHostTaskReq(nand_task_id).task_value == -5){
+          Env_change = true;
+        }
+  }
+  
+    THEN("Task reward values should have swapped at least once"){
+       REQUIRE(Env_change);
+    }
+
+  }
+
+}
+

@@ -87,7 +87,7 @@ void SGPWorld::Setup() {
     );
   }
 
-  if (sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT()) {
+  if (sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() > 0) {
     SetupChangingEnvironment();
   }
 
@@ -186,7 +186,7 @@ void SGPWorld::SetupChangingEnvironment() {
 
   begin_update_sig.AddAction(
     [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id, xor_task_id, nor_task_id]() {
-      if (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0) {
+      if (((sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() == 1) && (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0)) || ((sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() == 2) && CheckRandomEnvironment())) {
 
         GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
         GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
@@ -211,6 +211,12 @@ void SGPWorld::SetupChangingEnvironment() {
       }
     }
   );
+}
+
+//Checks if the random environment switches or not
+bool SGPWorld::CheckRandomEnvironment(){
+  bool environment_change = random_ptr->P(1.0/sgp_config.RANDOM_CHANGING_ENVIRONMENT_AVERAGE());
+  return (environment_change == true || GetUpdate() == 0);
 }
 
 void SGPWorld::DisableConfigurableInstructions() {

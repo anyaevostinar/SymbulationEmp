@@ -375,6 +375,8 @@ public:
     sgp_sym_t& sym
   );
 
+  bool CheckRandomEnvironment();
+
 
 protected:
   Scheduler scheduler; // Manages order that world locations (organisms) are processed each update
