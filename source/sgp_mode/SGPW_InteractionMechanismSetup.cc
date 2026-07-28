@@ -217,6 +217,25 @@ namespace sgpmode {
 
 
   /************************** Stress ********************************* */
+  struct StressEscapee {
+    emp::Ptr<SGPWorld::sgp_sym_t> sym_offspring;
+    emp::BitVector parent_task_profile;
+    size_t escape_location;
+
+    StressEscapee() = default;
+    StressEscapee(
+      emp::Ptr<SGPWorld::sgp_sym_t> sym,
+      const emp::BitVector& tasks,
+      size_t loc
+    ) :
+      sym_offspring(sym),
+      parent_task_profile(tasks),
+      escape_location(loc)
+    { }
+  };
+
+  emp::vector<StressEscapee> symbiont_stress_escapees;
+
   void SGPWorld::SetupStressInteractions() {
     emp_assert(sgp_config.ENABLE_STRESS());
     // Setup extinction variable
@@ -234,22 +253,17 @@ namespace sgpmode {
     // NOTE - this can be simplified assuming no other desired differences in logic
     //        for parasite vs. mutualist (repeated code; only death chance is different)
     if (GetStressSymType() == stress_sym_mode_t::MUTUALIST) {
-      // Use mutualist death chance
       before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
-          // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
-          // Otherwise, base death chance.
+          
           const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
           bool interact = false;
           auto& endosymbionts = host.GetSymbionts();
           for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
             // Check if symbiont matches task profile
             emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            // interact = utils::AnyMatchingOnes(
-            //   host_task_profile,
-            //   fun_get_sym_task_profile(*endosym_ptr)
-            // );
+            
             interact = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
             if (interact) {
               break;
@@ -271,8 +285,8 @@ namespace sgpmode {
         before_host_cpu_exec_sig.AddAction(
           [this](sgp_host_t& host) {
             if (!stress_extinction_update) return;
-            // If host has a symbiont, death_chance = parasite death chance
-            // Otherwise, base death chance.
+            
+            // base death chance if no symbionts
             double death_chance = sgp_config.BASE_DEATH_CHANCE();
             auto& endosymbionts = host.GetSymbionts();
             const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
@@ -311,8 +325,8 @@ namespace sgpmode {
         before_host_cpu_exec_sig.AddAction(
           [this](sgp_host_t& host) {
             if (!stress_extinction_update) return;
-            // If host has a symbiont, death_chance = parasite death chance
-            // Otherwise, base death chance.
+
+            // base death chance if no symbionts
             double death_chance = sgp_config.BASE_DEATH_CHANCE();
             auto& endosymbionts = host.GetSymbionts();
             const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
@@ -452,10 +466,49 @@ namespace sgpmode {
       exit(-1);
     }
 
-    // TODO - Add instruction-mediated stress interaction mode
+    // GABE TODO might want to put in a seperate function?
+    after_reproduction_sig.AddAction(
+      [this]() {
+        // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
+        emp::vector<size_t> escapee_ids;
+        escapee_ids.resize(symbiont_stress_escapees.size(), 0);
+        std::iota(
+          escapee_ids.begin(),
+          escapee_ids.end(),
+          0
+        );
+        emp::Shuffle(*random_ptr, escapee_ids);
 
-    // NOTE - What about free-living symbionts (if any)?
-    //        Or endosymbionts?
+        for (size_t esc_i : escapee_ids) {
+          auto& escapee_info = symbiont_stress_escapees[esc_i];
+          bool success = false;
+          for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+            //test a possible location
+            emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
+            if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
+
+              emp::Ptr<Organism> prospective_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
+              emp_assert(prospective_org_ptr->IsHost());
+              emp::Ptr<sgp_host_t> prospective_host_ptr = static_cast<sgp_host_t*>(prospective_org_ptr.Raw());
+
+              const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
+                *prospective_host_ptr,
+                escapee_info.parent_task_profile
+              );
+              if (!can_infect) continue;
+              prospective_host_ptr->AddSymbiont(escapee_info.sym_offspring);
+              success = true;
+              break;
+            }
+          }
+          if (!success) {
+            escapee_info.sym_offspring.Delete();
+          }
+        }
+        symbiont_stress_escapees.clear();
+        // TODO - add data collection for successful escapes
+      }
+    );
   }
 
 

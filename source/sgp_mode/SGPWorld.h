@@ -187,24 +187,6 @@ public:
 
   } current_update_data;
 
-  struct StressEscapee {
-    emp::Ptr<sgp_sym_t> sym_offspring;
-    // emp::WorldPosition escape_location;
-    emp::BitVector parent_task_profile;
-    size_t escape_location;
-
-    StressEscapee() = default;
-    StressEscapee(
-      emp::Ptr<sgp_sym_t> sym,
-      const emp::BitVector& tasks,
-      size_t loc
-    ) :
-      sym_offspring(sym),
-      parent_task_profile(tasks),
-      escape_location(loc)
-    { }
-  };
-
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
@@ -215,6 +197,10 @@ public:
   //  Triggers before schedule update, before processing any organisms.
   //  E.g., used for resetting any per-update data tracking.
   emp::Signal<void(void)> begin_update_sig;
+
+  // after_reproduction_sig - Triggers after the ReproductionQueue has been processed
+  // E.g., used for processing additional mode specific reproduction queues
+  emp::Signal<void(void)> after_reproduction_sig;
 
   // ---- Symbiont birth signals / functors ----
   // before_sym_do_birth_sig - Triggers during SymDoBirth function.
@@ -387,9 +373,6 @@ protected:
   ProgramBuilder<hw_spec_t> prog_builder = ProgramBuilder<hw_spec_t>(opcode_rectifier); // Utility for building signalgp programs
   mutator_t mutator = mutator_t(opcode_rectifier);  // Handles mutating sgp programs
 
-  emp::vector<StressEscapee> symbiont_stress_escapees;
-  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
-
   // Flag for whether setup has been run.
   bool setup = false;
 
@@ -528,8 +511,6 @@ protected:
   // Internal helper function to delete dead organisms in graveyard.
   void ProcessGraveyard();
 
-  void ProcessStressEscapees();
-
   // --- Internal setup helper functions ---.
   // Called internally on world setup.
   // NOTE - Can we get rid of passing these values in as pointers?
@@ -557,6 +538,7 @@ protected:
   // Clear all world signals
   void ClearWorldSignals() {
     begin_update_sig.Clear();
+    after_reproduction_sig.Clear();
     before_sym_do_birth_sig.Clear();
     after_sym_do_birth_sig.Clear();
     before_sym_vert_transmission_sig.Clear();
@@ -834,7 +816,7 @@ public:
     scheduler.Run(*this);
     // Process reproduction queue
     repro_queue.Process();
-    ProcessStressEscapees();
+    after_reproduction_sig.Trigger();
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
     // NOTE - these were previously called at the beginning of the update

@@ -227,57 +227,6 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   }
 }
 
-// Process any symbiont offspring that "escaped" the stress event
-void SGPWorld::ProcessStressEscapees() {
-  emp_assert(repro_queue.GetSize() == 0);
-
-  // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
-  escapee_ids.resize(symbiont_stress_escapees.size(), 0);
-  std::iota(
-    escapee_ids.begin(),
-    escapee_ids.end(),
-    0
-  );
-  emp::Shuffle(*random_ptr, escapee_ids);
-  // for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
-  for (size_t esc_i : escapee_ids) {
-    // (1) Find place to AddSymbiont
-    auto& escapee_info = symbiont_stress_escapees[esc_i];
-
-    bool success = false;
-    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-      emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
-      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
-        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-        emp_assert(neighbor_org_ptr->IsHost());
-        // Cast neighbor as sgp_host_t ptr.
-        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-        // Check whether escapee can infect?
-        const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
-          *neighbor_host_ptr,
-          escapee_info.parent_task_profile
-        );
-        // TODO - add stress infect success tracking
-        if (!can_infect) continue;
-        // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
-        //AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState()); // AEV No longer needed, added to AddSymbiont
-        // int new_index =
-        neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
-        // AddSymbiont might fail (but when it does, it deletes the offspring)
-        // so not possible to keep attempting until actual success
-        success = true;
-        break;
-      }
-    }
-    // If sym didn't successfully infect, delete it.
-    if (!success) {
-      escapee_info.sym_offspring.Delete();
-    }
-  }
-  symbiont_stress_escapees.clear();
-  // TODO - add data collection for successful escapes
-}
-
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
   for (size_t i = 0; i < graveyard.size(); ++i) {
