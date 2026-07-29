@@ -5,7 +5,6 @@
 * Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 * Move SymDoMutation into SGPSymbiont to parallel host
 * Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
-* Look at fun_host_sym_stress_trans_compatibility_check to try to reduce code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
 * Move world properties back into protected and make necessary accesssors
 * Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
 * Look into what is going on with SGPHost local sgp_config not working
@@ -31,6 +30,8 @@
     - Decisions made: reproduce is shared between horizontal transmission and free-living sym reproduction. If free-living sym repro is on, then reproduce places offspring into sym pop (like in default), and then offspring can infect with Infect instruction (not yet implemented). If FLS is off, reproduce does horizontal transmission. Also decided that if HT is off, an "attempt" is not counted.
 [x] Try to fold ProcessStressEscapees into existing code/reduce duplication
     - Initially we attempted to turn ReproductionQueue into a birth queue, however this hurts performance. ReproductionQueue will skip organisms who have died and therefore should not reproduce before Reproduce() is called. With a birth queue, the children would already be constructed. This uses more memory and wastes resources on construction. Instead ProcessStressEscapees was moved into a signal. 
+[x] Look at fun_host_sym_stress_trans_compatibility_check to try to reduce  code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
+    - Completed with above refactor. Now does not rely on parents as they may be dead at the time of reproduction (stress escapees). This change allowed processing escapees to be streamlined
 
 # Journal
 4/15/26

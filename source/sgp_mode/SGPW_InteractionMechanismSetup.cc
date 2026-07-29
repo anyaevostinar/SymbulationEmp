@@ -220,6 +220,7 @@ namespace sgpmode {
   struct StressEscapee {
     emp::Ptr<SGPWorld::sgp_sym_t> sym_offspring;
     emp::BitVector parent_task_profile;
+    //^^^ why are we keeping track of this and not using sym profile?
     size_t escape_location;
 
     StressEscapee() = default;
@@ -466,7 +467,6 @@ namespace sgpmode {
       exit(-1);
     }
 
-    // GABE TODO might want to put in a seperate function?
     after_reproduction_sig.AddAction(
       [this]() {
         // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
@@ -481,27 +481,10 @@ namespace sgpmode {
 
         for (size_t esc_i : escapee_ids) {
           auto& escapee_info = symbiont_stress_escapees[esc_i];
-          bool success = false;
-          for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-            //test a possible location
-            emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
-            if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
 
-              emp::Ptr<Organism> prospective_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-              emp_assert(prospective_org_ptr->IsHost());
-              emp::Ptr<sgp_host_t> prospective_host_ptr = static_cast<sgp_host_t*>(prospective_org_ptr.Raw());
+          emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.escape_location);
 
-              const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
-                *prospective_host_ptr,
-                escapee_info.parent_task_profile
-              );
-              if (!can_infect) continue;
-              prospective_host_ptr->AddSymbiont(escapee_info.sym_offspring);
-              success = true;
-              break;
-            }
-          }
-          if (!success) {
+          if (pos) {
             escapee_info.sym_offspring.Delete();
           }
         }

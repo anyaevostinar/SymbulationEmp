@@ -66,7 +66,7 @@ public:
   // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
   using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
     sgp_host_t&,
-    sgp_sym_t&
+    const emp::BitVector&
   )>;
 
   // Determines whether two task profiles are "compatible" with one another.
@@ -430,13 +430,7 @@ protected:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-  fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
-
-  // Function used to check compatibility between host and symbiont that reproduced
-  // via a stress event.
-  // - Can't use same function as when checking horizontal transmission compatibility because
-  //   we no longer have access to the symbiont parent for a stress transmission event.
-  std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
+  fun_horizontal_transmission_compatibility_check_t fun_horizontal_trans_compatibility_check;
 
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
