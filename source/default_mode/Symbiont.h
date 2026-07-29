@@ -821,7 +821,15 @@ public:
 
 
         if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) {
-          AddPoints(-1 * my_config->SYM_HORIZ_TRANS_RES());
+          if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
+            this->AddPoints(-1 * my_config->FREE_SYM_REPRO_RES());
+          } else {
+            this->AddPoints(-1 * my_config->SYM_HORIZ_TRANS_RES());
+          }
+        }
+
+        if(points != 0) {
+          std::cout << "under: " << points << std::endl;
         }
         // removing the above for tag matching--sym parent points are
         // now set to 0 in symdobirth
