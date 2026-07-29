@@ -58,12 +58,25 @@ protected:
 
 public:
 
+  /**
+    * Input: The name of a task.
+    *
+    * Output: Whether there already exists a definition for that task
+    *
+    * Purpose: Allows checking whether that task has a definition before adding it
+    * and its definition it to the taskset.
+  */
   static bool IsPredefined(const std::string& name) {
     return emp::Has(this_t::predefined_tasks, name);
   }
 
-  /*
-    Add tasks by name from a set of pre-defined tasks
+
+  /**
+    * Input: A Vector of task names
+    *
+    * Output: None.
+    *
+    * Purpose: Adds tasks to the taskset by name from a set of pre-defined tasks
   */
   void AddTasksByName(const emp::vector<std::string>& names) {
     std::vector<std::string> unused_names;
@@ -83,8 +96,12 @@ public:
     emp_assert(unused_names.size()==0, unused_names);
   }
 
-  /*
-    Add new logic task from given logic task spec.
+   /**
+    * Input: A logic task spec of the new task
+    *
+    * Output: Id of the new task.
+    *
+    * Purpose: Add new logic task from given logic task spec.
   */
   size_t AddLogicTask(const LogicTaskSpec& spec) {
     return AddTask(
@@ -95,6 +112,13 @@ public:
     );
   }
 
+  /**
+    * Input: The name of a predifined task
+    *
+    * Output: Id of the new task.
+    *
+    * Purpose: Add logic task based on its name.
+  */
   size_t AddLogicTask(const std::string& name) {
     emp_assert(emp::Has(this_t::predefined_tasks, name));
     const auto& task_spec = this_t::predefined_tasks.at(name);
