@@ -303,16 +303,18 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
     } else {
       tag_name = "<nowhere>";
     }
-
-    if (name == "JumpIfNEq" || name == "JumpIfLess") {
+    
+    if (name == "JumpIfNEq" || name == "JumpIfLess" || name == "JumpIfEq") {
+      
       out << "    " << emp::to_lower(name);
       for (size_t i = 0; i < 12 - name.length(); i++) {
         out << ' ';
       }
       out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
           << tag_name;
+
     } else if (name == "Global Anchor") {
-      out << tag_name << " " << ins.tag << ':';
+      out << tag_name << ':';
     } else {
       out << "<unknown " << name << ">";
     }
