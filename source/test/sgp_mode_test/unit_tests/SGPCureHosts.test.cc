@@ -24,6 +24,7 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]") {
   // set up configs
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPCureHosts_test_output");
   config.SEED(61);
   test_utils::SetWellMixed(config, 2, 2);

@@ -113,7 +113,6 @@ TEST_CASE("TaskValueEvent Multiple Reoccuring Events", "[sgp][events]") {
       world_t world(random, &config);
       world.Setup();
 
-      auto& builder = world.GetProgramBuilder();
       auto& event_manager = world.GetEventManager();
       REQUIRE(event_manager.GetOneTimeEvents().size() == 0);
       REQUIRE(event_manager.GetRecurringEvents().size() == 2);
@@ -197,8 +196,6 @@ TEST_CASE("TaskValueEvent Reoccuring Multiply Event", "[sgp][events]") {
       auto& builder = world.GetProgramBuilder();
       auto& event_manager = world.GetEventManager();
       auto& recurring_events = event_manager.GetRecurringEvents();
-      auto& one_time_events = event_manager.GetOneTimeEvents();
-
       // create host with NAND operation
       emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNandProgram(50));
       // create symbiont with NAND operation
@@ -247,10 +244,8 @@ TEST_CASE("TaskValueEvent Reoccuring Add Event", "[sgp][events]") {
     WHEN("Reoccuring add task-value events are loaded") {
       world_t world(random, &config);
       world.Setup();
-      auto& builder = world.GetProgramBuilder();
       auto& event_manager = world.GetEventManager();
       auto& recurring_events = event_manager.GetRecurringEvents();
-      auto& one_time_events = event_manager.GetOneTimeEvents();
 
       // get NAND Task id
       const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
@@ -293,10 +288,6 @@ TEST_CASE("TaskValueEvent Reoccuring Change Event", "[sgp][events]") {
     WHEN("Reoccuring change task-value event is loaded") {
       world_t world(random, &config);
       world.Setup();
-      auto& builder = world.GetProgramBuilder();
-      auto& event_manager = world.GetEventManager();
-      auto& recurring_events = event_manager.GetRecurringEvents();
-      auto& one_time_events = event_manager.GetOneTimeEvents();
 
       // get NAND Task id
       const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
@@ -344,9 +335,6 @@ TEST_CASE("TaskValueEvent Host/Sym Only Events", "[sgp][events]") {
       world.Setup();
       auto& builder = world.GetProgramBuilder();
       auto& event_manager = world.GetEventManager();
-      auto& recurring_events = event_manager.GetRecurringEvents();
-      auto& one_time_events = event_manager.GetOneTimeEvents();
-
       // create host with NAND operation
       emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNandProgram(50));
       // create symbiont with NAND operation
@@ -392,11 +380,7 @@ TEST_CASE("TaskValueEvent Mulitple Task Names Events", "[sgp][events]") {
     WHEN("Multiple tasks are in a single event") {
       world_t world(random, &config);
       world.Setup();
-      auto& builder = world.GetProgramBuilder();
       auto& event_manager = world.GetEventManager();
-      auto& recurring_events = event_manager.GetRecurringEvents();
-      auto& one_time_events = event_manager.GetOneTimeEvents();
-
       // get task ids
       const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
       const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");

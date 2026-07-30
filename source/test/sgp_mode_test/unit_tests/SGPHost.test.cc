@@ -30,7 +30,7 @@ TEST_CASE("Mutate", "[sgp]") {
   config.TASK_IO_BANK_SIZE(10);
   config.SGP_MUT_PER_BIT_RATE(1.0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   world_t world(random, &config);
   world.Setup();
 
@@ -66,7 +66,7 @@ TEST_CASE("No Mutate", "[sgp]") {
   config.TASK_IO_BANK_SIZE(10);
   config.SGP_MUT_PER_BIT_RATE(0.0);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   world_t world(random, &config);
   world.Setup();
 
@@ -100,6 +100,7 @@ TEST_CASE("SGPHost destructor cleans up shared pointers and in-progress reproduc
     test_utils::SetWellMixed(config, 1, 0);
     config.TASK_IO_BANK_SIZE(10);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
     world_t world(random, &config);
     world.Setup();
@@ -132,6 +133,7 @@ TEST_CASE("Host == operators", "[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_IO_BANK_SIZE(10);
     world_t world(random, &config);
     auto& prog_builder = world.GetProgramBuilder();
@@ -172,6 +174,7 @@ TEST_CASE("Host > & < operators", "[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_IO_BANK_SIZE(10);
     world_t world(random, &config);
     auto& prog_builder = world.GetProgramBuilder();
@@ -201,6 +204,7 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     world_t world(random, &config);
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
@@ -227,6 +231,7 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     test_utils::SetWellMixed(config, 4, 0);
     config.TASK_IO_BANK_SIZE(10);
     world_t world(random, &config);
@@ -257,6 +262,7 @@ TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]") {
   GIVEN("A host with valid values in its input and output buffers") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/echo-task-env.json");
     config.TASK_IO_BANK_SIZE(10);
     test_utils::SetWellMixed(config, 1, 0);
@@ -284,29 +290,35 @@ TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]") {
   }
 }
 
-
-TEST_CASE("Check that hosts and syms can't have negative points", "[sgp][sgp-unit]"){
+TEST_CASE("Check that hosts and syms can't have negative points", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
   using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
-  GIVEN("A host and sym starting with zero points"){
-      emp::Random random(31);
-      sgpmode::SymConfigSGP config;
-      config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-      world_t world(random, &config);
-      auto& prog_builder = world.GetProgramBuilder();
-      emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
-      emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
 
-      WHEN("points are added to make total points negative"){
-        sym->AddPoints(-100);
-        host->AddPoints(-100);
-          THEN("point value should be set to zero"){
-              REQUIRE(host->GetPoints() == 0);
-              REQUIRE(sym->GetPoints() == 0);
+  GIVEN("A host and sym starting with zero points") {
+    emp::Random random(31);
+    sgpmode::SymConfigSGP config;
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+    test_utils::SetWellMixed(config, 1, 0);
+    world_t world(random, &config);
+    world.Setup();
+
+    auto& prog_builder = world.GetProgramBuilder();
+    emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+    emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateNotProgram(100));
+
+    WHEN("points are added to make total points negative") {
+      sym->AddPoints(-100);
+      host->AddPoints(-100);
+      THEN("point value should be set to zero") {
+        REQUIRE(host->GetPoints() == 0);
+        REQUIRE(sym->GetPoints() == 0);
       }
     }
+    host.Delete();
+    sym.Delete();
   }
 }

@@ -31,6 +31,7 @@ TEST_CASE("Setup with an empty population", "[sgp]") {
 	config.TASK_IO_BANK_SIZE(10);
   config.SEED(234);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+	config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   emp::Random random(config.SEED());
   world_t world(random, &config);
 
@@ -50,6 +51,7 @@ TEST_CASE("Setup with an empty population", "[sgp]") {
 TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]") {
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+	config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 	test_utils::SetWellMixed(config, 4, 0);
 	config.TASK_IO_BANK_SIZE(10);
   config.SEED(44);
@@ -71,6 +73,7 @@ TEST_CASE("SetupHosts adds correct number of hosts", "[sgp][sgp-unit]") {
 TEST_CASE("SetupHosts adds infected hosts correctly", "[sgp][sgp-unit]") {
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+	config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 	test_utils::SetWellMixed(config, 4);
 	config.TASK_IO_BANK_SIZE(10);
   config.SEED(44);
@@ -100,6 +103,7 @@ TEST_CASE("Setup correctly sets host task profile functions", "[sgp][sgp-unit]")
 	test_utils::SetWellMixed(config, 4, 0);
 	config.TASK_IO_BANK_SIZE(10);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+	config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
 	WHEN("TASK_PROFILE_MODE tracks all parent tasks") {
 		config.TASK_PROFILE_MODE("parent-all");
@@ -142,6 +146,7 @@ TEST_CASE("Setup correctly sets symbiont task profile functions", "[sgp][sgp-uni
 	test_utils::SetWellMixed(config, 4, 0);
 	config.TASK_IO_BANK_SIZE(10);
 	config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+	config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
 	WHEN("TASK_PROFILE_MODE tracks all parent tasks") {
 		config.TASK_PROFILE_MODE("parent-all");

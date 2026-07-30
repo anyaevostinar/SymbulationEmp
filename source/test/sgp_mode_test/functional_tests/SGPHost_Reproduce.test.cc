@@ -34,6 +34,7 @@ TEST_CASE("Reproduction without points or mutations", "[sgp][sgp-functional]") {
     config.SEED(62);
     config.START_MOI(0);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
     world_t world(random, &config);
     world.Setup();
@@ -84,6 +85,7 @@ TEST_CASE("Mutations occur during reproduction", "[sgp]") {
     config.SGP_MUT_PER_BIT_RATE(1.0);
     config.HOST_REPRO_RES(0);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
     world_t world(random, &config);
     world.Setup();
@@ -119,6 +121,7 @@ TEST_CASE("SGPHost Reproduce function results in correct parental task tracking"
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPHost_test_output");
   test_utils::SetWellMixed(config, 1, 1);
   config.START_MOI(0);
@@ -196,6 +199,7 @@ TEST_CASE("SGPHost lineage tracking test", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPHost_test_output");
   test_utils::SetWellMixed(config, 1, 1);
   config.TASK_IO_BANK_SIZE(10);

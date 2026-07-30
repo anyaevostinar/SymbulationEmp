@@ -28,6 +28,7 @@ TEST_CASE("Ancestor hardware can attempt reproduction and do NOT", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPHardware_test_output");
   config.TASK_IO_BANK_SIZE(10);
   test_utils::SetWellMixed(config, 1);

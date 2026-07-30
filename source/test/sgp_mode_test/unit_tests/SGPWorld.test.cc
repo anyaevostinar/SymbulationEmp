@@ -31,6 +31,7 @@ TEST_CASE("Update only hosts test", "[sgp]") {
   emp::Random random(61);
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_IO_BANK_SIZE(10);
   test_utils::SetWellMixed(config, 4, 0);
   world_t world(random, &config);
@@ -70,6 +71,7 @@ TEST_CASE("Ousting is permitted", "[sgp]") {
   config.OUSTING(1);
   config.SYM_LIMIT(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
   world_t world(random, &config);
   world.Setup();
@@ -100,6 +102,7 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming wors
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -134,6 +137,7 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns false for an incoming equa
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -168,6 +172,7 @@ TEST_CASE("NoBetterOrEquallyMatchingSymbionts returns true for an incoming bette
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -202,6 +207,7 @@ TEST_CASE("NoBetterMatchingSymbionts returns false for an incoming worse match",
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -236,6 +242,7 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming equal match", 
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -270,6 +277,7 @@ TEST_CASE("NoBetterMatchingSymbionts returns true for an incoming better match",
   test_utils::SetWellMixed(config, 1, 0);
   config.SEED(2312);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
 
@@ -306,6 +314,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     config.SEED(33);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
 
@@ -351,6 +360,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
     config.SEED(11);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
 
@@ -396,6 +406,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     config.SEED(11);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
 
@@ -441,6 +452,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
     config.SEED(11);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(5); // increase attempts to avoid issues if randomly picks current host first
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
 
@@ -485,6 +497,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     config.SEED(11);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("always");
     config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
 
@@ -522,6 +535,7 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
     config.OUSTING(1);
     config.FIND_NEIGHBOR_HOST_ATTEMPTS(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-strictly-stronger-match");
 
     world_t world(random, &config);
