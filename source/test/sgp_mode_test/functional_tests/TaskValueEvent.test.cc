@@ -334,7 +334,6 @@ TEST_CASE("TaskValueEvent Host/Sym Only Events", "[sgp][events]") {
       world_t world(random, &config);
       world.Setup();
       auto& builder = world.GetProgramBuilder();
-      auto& event_manager = world.GetEventManager();
       // create host with NAND operation
       emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, builder.CreateNandProgram(50));
       // create symbiont with NAND operation
@@ -380,7 +379,6 @@ TEST_CASE("TaskValueEvent Mulitple Task Names Events", "[sgp][events]") {
     WHEN("Multiple tasks are in a single event") {
       world_t world(random, &config);
       world.Setup();
-      auto& event_manager = world.GetEventManager();
       // get task ids
       const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
       const size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");

@@ -271,6 +271,7 @@ public:
     const bool event_file_exists = std::filesystem::exists(event_filepath);
     if (!event_file_exists) {
       std::cout << "Event file does not exist: " << event_filepath << std::endl;
+      emp_assert(false, "Event file does not exist.");
       std::exit(EXIT_FAILURE);
     }
     // read event.json file
