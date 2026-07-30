@@ -25,31 +25,71 @@
 
 namespace sgpmode {
 
-/*
-- task_value: change the task value of one or more existing tasks to a new value
-  - Parameters:
-    - task_name: name of task to change or list of names to change
-    - value: value to change to
-    - timing: event timing. For one-time event, provide a single number. For a recurring event, provide start:stop:step.
-    - group: [optional] Which task group to apply change to? shared / symbiont / host
-*/
-
+/**
+ * Purpose: Definition of a task_value event type.
+ *          A task_value event modifies the value of a task.
+ *          Event configuration options:
+ *            - action: How should this event modify task values?
+ *                - Options:
+ *                    - change: set the value of this task to the given value
+ *                    - add: add the given value to this task's current value
+ *                    - mult: multiply the task's current value by the given value
+ *            - task_name: Which task(s) should be affected? Can be given as
+ *                         either a string indicating a single task or a list of
+ *                         tasks. All tasks must be valid.
+ *            - value: Value used to update task value according to event action.
+ *            - timing: Event timing.
+ *            - group: Optional. Should this event affect sym, host, or shared tasks?
+ */
 class TaskValueEvent : public Event {
 public:
+
+  /**
+   * Purpose: Event specification object shared by all instances of this event
+   *          type.
+   */
   static const EventTypeDefinitionSpecs event_specs;
 
+  /**
+   * Purpose: Defines valid actions for a task value event.
+   */
   enum class ACTION_TYPE { CHANGE, ADD, MULT };
+
+  /**
+   * Purpose: Defines valid task groups that can be affected by task value event.
+   */
   enum class TASK_GROUP { SHARED, HOST, SYM };
+
+  /**
+   * Purpose: Mapping from string to action type. Shared by all instances of this
+   *          class.
+   */
   static const std::unordered_map<std::string, ACTION_TYPE> valid_action_types;
+
+  /**
+   * Purpose: Mapping from string to task group. Shared by all instances of this
+   *          class.
+   */
   static const std::unordered_map<std::string, TASK_GROUP> valid_task_groups;
 
   using json_t = nlohmann::json;
   using action_t = ACTION_TYPE;
   using task_group_t = TASK_GROUP;
 
-  // World is necessary for parsing the task id
+  /**
+   * Purpose: Required LoadEventFromJSON function. Configures this event based on
+   *          given json object.
+   *
+   * Input: json object to load from, reference to world.
+   *
+   * Output: Pointer to a new TaskValueEvent created by this function.
+   *
+   */
   template <typename WORLD_T>
-  static emp::Ptr<TaskValueEvent> LoadEventFromJSON(json_t& event_json, WORLD_T& world) {
+  static emp::Ptr<TaskValueEvent> LoadEventFromJSON(
+    json_t& event_json,
+    WORLD_T& world
+  ) {
     // This should be a task_value event
     emp_assert(event_json["event_type"] == event_specs.event_type);
     // NOTE: Caller is responsible for event deletion.
@@ -99,12 +139,41 @@ public:
   }
 
 protected:
-  action_t action;                     // What task value action does this event apply?
-  emp::vector<size_t> task_ids;        // List of task ids that this event applies to
-  emp::vector<std::string> task_names; // Kept mainly for debugging asserts
-  task_group_t task_group;             // Sym / host / shared?
-  double value;                        // Event value to be applied to task value
 
+  /**
+   * Purpose: What task value action does this event apply?
+   */
+  action_t action;
+
+  /**
+   * Purpose: List of task ids that this event applies to
+   */
+  emp::vector<size_t> task_ids;
+
+  /**
+   * Purpose: List of task names that this event applies to. Corresponds to task_ids.
+   *          Redundant information (with task_ids) that is kept for debugging asserts.
+   */
+   emp::vector<std::string> task_names;
+
+   /**
+   * Purpose: What task group does this event apply to? Sym / host / shared?
+   */
+  task_group_t task_group;
+
+  /**
+   * Purpose: Event value to be applied to task value
+   */
+  double value;
+
+  /**
+   * Purpose: Internal function that applies the correct action to the given task
+   *          information struct.
+   *
+   * Input: Reference to the task information struct to be modified.
+   *
+   * Output: None.
+   */
   void ApplyAction(tasks::LogicTaskEnvironment::TaskReqInfo& task_req) {
     switch (action) {
       case action_t::ADD:
@@ -120,11 +189,23 @@ protected:
   }
 
 public:
+
+  /**
+   * Purpose: TaskValueEvent constructor. Sets the base class's event type
+   *          based on event specs.
+   */
   TaskValueEvent() {
     // Set event type in base class.
     event_type = event_specs.event_type;
   }
 
+  /**
+   * Purpose: Process this TaskValueEvent.
+   *
+   * Input: Reference to the world.
+   *
+   * Output: None.
+   */
   template<typename WORLD_T>
   void Process(WORLD_T& world) {
     // For each task_id, apply action
@@ -152,7 +233,7 @@ public:
 const EventTypeDefinitionSpecs TaskValueEvent::event_specs = EventTypeDefinitionSpecs{
   "task_value",
   "Modify the value on a current task",
-   {"action", "task_name", "value", "timing"}
+  {"action", "task_name", "value", "timing"}
 };
 
 const std::unordered_map<std::string, TaskValueEvent::ACTION_TYPE> TaskValueEvent::valid_action_types = {
