@@ -73,6 +73,9 @@ void SGPWorld::Setup() {
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
+  // Load events
+  SetupEvents();
+
   // CureHost signal
   // TODO: move to default? Figure out how to remove duplication
   if (sgp_config.CURE()) {

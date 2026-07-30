@@ -200,50 +200,6 @@ protected:
     ReorderRecurringEvents();
   }
 
-  /**
-   * Purpose: Internal helper function to resort the one-time events.
-   *          One-time events should be reverse-sorted by their next update
-   *          (i.e., soonest next update at end). One-time events must be sorted
-   *          for processing to be correct. i.e., when adding a new event, must resort!
-   *
-   * Input: None.
-   *
-   * Output: None.
-   */
-  void ReorderOneTimeEvents() {
-    std::sort(
-      one_time_events.begin(),
-      one_time_events.end(),
-      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
-        return a->GetNextUpdate() > b->GetNextUpdate();
-      }
-    );
-  }
-
-  /**
-   * Purpose: Internal helper function to reorder recurring events.
-   *          Should be reverse sorted by each event's next update (i.e., soonest
-   *          next update at end of vector). Recurring events must be sorted for
-   *          processing to be correct. I.e., when adding a new event, must sort!
-   *          And, when re-queueing a recurring event, we must make sure it ends
-   *          up in the appropriate spot by next update.
-   *
-   * Input: None.
-   *
-   * Output. None.
-   *
-   *
-   */
-  void ReorderRecurringEvents() {
-    std::sort(
-      recurring_events.begin(),
-      recurring_events.end(),
-      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
-        return a->GetNextUpdate() > b->GetNextUpdate();
-      }
-    );
-  }
-
 public:
   /**
    * Purpose: EventManager destructor. Responsible for cleaning up any event objects.
@@ -281,6 +237,26 @@ public:
   }
 
   /**
+   * Purpose: Accessor for recurring events.
+   *          CAUTION: the event manager makes assumptions about the order of recurring
+   *          events based on their timing. This accessor is used primarily for testing.
+   *          If recurring events are modified via this function, you must resort them (ReorderRecurringEvents)
+   */
+  emp::vector<emp::Ptr<event_t>>& GetRecurringEvents() {
+    return recurring_events;
+  }
+
+  /**
+   * Purpose: Accessor for one-time events.
+   *          CAUTION: the event manager makes assumptions about the order of one-time
+   *          events based on their timing. This accessor is used primarily for testing.
+   *          If one-time events are modified via this function, you must resort them (ReorderOneTimeEvents)
+   */
+  emp::vector<emp::Ptr<event_t>>& GetOneTimeEvents() {
+    return one_time_events;
+  }
+
+  /**
    * Purpose: load in and process events configuratoin json file (includes
    *          creating events and checking if they are valid)
    *
@@ -289,7 +265,6 @@ public:
    * Output: None.
    */
   void LoadEventsFromJSON(const std::string& event_filepath, world_t& world) {
-    std::cout << "Loading events from event file." << std::endl;
     ClearEvents();
     // === Parse events file ===
     // Check if given events file exists. Exit if not.
@@ -410,6 +385,50 @@ public:
     if (resort_one_time) {
       ReorderOneTimeEvents();
     }
+  }
+
+    /**
+   * Purpose: Hlper function to resort the one-time events.
+   *          One-time events should be reverse-sorted by their next update
+   *          (i.e., soonest next update at end). One-time events must be sorted
+   *          for processing to be correct. i.e., when adding a new event, must resort!
+   *
+   * Input: None.
+   *
+   * Output: None.
+   */
+  void ReorderOneTimeEvents() {
+    std::sort(
+      one_time_events.begin(),
+      one_time_events.end(),
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
+  }
+
+  /**
+   * Purpose: Helper function to reorder recurring events.
+   *          Should be reverse sorted by each event's next update (i.e., soonest
+   *          next update at end of vector). Recurring events must be sorted for
+   *          processing to be correct. I.e., when adding a new event, must sort!
+   *          And, when re-queueing a recurring event, we must make sure it ends
+   *          up in the appropriate spot by next update.
+   *
+   * Input: None.
+   *
+   * Output. None.
+   *
+   *
+   */
+  void ReorderRecurringEvents() {
+    std::sort(
+      recurring_events.begin(),
+      recurring_events.end(),
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
   }
 
 };

@@ -178,6 +178,15 @@ public:
   size_t GetEndUpdate() const { return timing.GetEndUpdate(); }
 
   /**
+   * Purpose: Get this event's update frequency
+   *
+   * Input: None.
+   *
+   * Output: Unsigned integer indicating this event's update frequency.
+   */
+  size_t GetFrequency() const { return timing.GetFrequency(); }
+
+  /**
    * Purpose: Get the update that this event will next occur.
    *
    * Input: None.
