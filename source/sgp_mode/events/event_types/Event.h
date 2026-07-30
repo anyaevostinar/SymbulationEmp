@@ -244,16 +244,16 @@ void SetEventTimingFromJSON(
   // EventTiming timing;
   // Given as a single (integer) number?
   if (emp::is_digits(timing_str)) {
-    const size_t start_u = emp::from_string<size_t>(timing_str);
-    event_ptr->ResetTiming(start_u);
+    const size_t start_update = emp::from_string<size_t>(timing_str);
+    event_ptr->ResetTiming(start_update);
   } else {
     // Timing given as Start:Stop:Step
     emp::vector<std::string> recurring_str = emp::slice(timing_str, ':');
     emp_assert(recurring_str.size() == 3);
-    const size_t start_u = emp::from_string<size_t>(recurring_str[0]);
-    const size_t stop_u = emp::from_string<size_t>(recurring_str[1]);
-    const size_t freq = emp::from_string<size_t>(recurring_str[2]);
-    event_ptr->ResetTiming(start_u, stop_u, freq);
+    const size_t start_update = emp::from_string<size_t>(recurring_str[0]);
+    const size_t stop_update = emp::from_string<size_t>(recurring_str[1]);
+    const size_t frequency = emp::from_string<size_t>(recurring_str[2]);
+    event_ptr->ResetTiming(start_update, stop_update, frequency);
   }
 }
 
