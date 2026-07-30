@@ -2,6 +2,7 @@
 #define SGP_W_INT_MECH_C
 
 #include "SGPWorld.h"
+#include <optional>
 
 
 namespace sgpmode {
@@ -484,7 +485,7 @@ namespace sgpmode {
 
           emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.escape_location);
 
-          if (pos) {
+          if (pos == std::nullopt) {
             escapee_info.sym_offspring.Delete();
           }
         }
