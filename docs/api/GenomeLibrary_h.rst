@@ -1,5 +1,5 @@
-GenomeLibrary Class Documentation
+GenomeLibrary Documentation
 ========================
 
-.. doxygenclass:: sgpmode::GenomeLibrary
+.. doxygenfile:: sgpmode::GenomeLibrary
    :members:
