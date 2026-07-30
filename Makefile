@@ -3,12 +3,13 @@ TEST_DIR := source/catch
 EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
 CEREAL_DIR := signalgp-lite/third-party/cereal/include
+CONDUIT_DIR := signalgp-lite/third-party/conduit/include
 TAG_NUM_BITS = 32
 
 # Flags to use regardless of compiler
 VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
 COMPILE_TIME_ARGS := -DTAG_NUM_BITS=$(TAG_NUM_BITS)
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ -I$(CEREAL_DIR)/ ${VENDORIZE_EMP_FLAGS}
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ -I$(CEREAL_DIR)/ -I$(CONDUIT_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++
@@ -18,7 +19,8 @@ CFLAGS_nat_coverage := --coverage -pthread $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
-OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 #--embed-file configs
+# USE_ZLIB backs uitsl::autoinstall's gzip support
+OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 -s USE_ZLIB=1 #--embed-file configs
 OFLAGS_web := -Oz -DNDEBUG
 OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
 

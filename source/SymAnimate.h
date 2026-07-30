@@ -3,12 +3,16 @@
 #define SYM_ANIMATE_H
 
 #include <iostream>
+#include <optional>
+#include <string>
+#include "uitsl/fetch/autoinstall.hpp"
 #include "default_mode/SymWorld.h"
 #include "default_mode/DataNodes.h"
 #include "ConfigSetup.h"
 //#include "SymJS.h"
 #include "default_mode/Symbiont.h"
 #include "default_mode/Host.h"
+#include "emp/base/errors.hpp"
 #include "emp/web/Document.hpp"
 #include "emp/web/Canvas.hpp"
 #include "emp/web/web.hpp"
@@ -21,6 +25,24 @@
 namespace UI = emp::web;
 SymConfigBase config; // load the default configuration
 
+/// Configure accepted URL query params: config keys and autoinstall...
+/// e.g., symbulation.html?autoinstall=foo.com/file.json&VERTICAL_TRANSMISSION=0.9
+emp::ArgManager::spec_map_t arg_specs = [](){
+  auto specs = emp::ArgManager::make_builtin_specs(&config);
+  specs["autoinstall"] = emp::ArgSpec(
+    1, // one value expected
+    "URL of a file to download into the virtual filesystem at startup",
+    {}, // no aliases
+    [](const emp::optional<emp::vector<std::string>>& urls) {
+      if (!urls) return;
+      for (const std::string& url : *urls) {
+        std::cout << "autoinstalled " << url << " as "
+                  << uitsl::autoinstall(url) << std::endl;
+      }
+    }
+  );
+  return specs;
+}();
 
 
 class SymAnimate : public UI::Animate {
@@ -35,8 +57,9 @@ private:
 
   const int RECT_WIDTH = 10;
 
-  emp::Random random{config.SEED()};
-  SymWorld world{random, &config};
+  emp::Random random;
+  // optional allows emplacement once config is parsed
+  std::optional<SymWorld> world;
 
 
   emp::vector<emp::Ptr<Organism>> p;
@@ -96,17 +119,21 @@ public:
     buttons.SetCSS("max-width", "600px");
 
 
-    initializeWorld();
     emp::prefab::Card config_panel_ex("INIT_CLOSED");
     settings << config_panel_ex;
     config_panel_ex.AddHeaderContent("<h3>Settings</h3>");
 
     // apply configuration query params and config files to config
-    auto specs = emp::ArgManager::make_builtin_specs(&config);
-    emp::ArgManager am(emp::web::GetUrlParams(), specs);
+    emp::ArgManager am(emp::web::GetUrlParams(), arg_specs);
     // cfg.Read("config.cfg");
     am.UseCallbacks();
-    if (am.HasUnused()) std::exit(EXIT_FAILURE);
+    if (am.HasUnused()) {
+      emp::NotifyWarning("Unrecognized URL query parameters, ignored.");
+    }
+
+    random = emp::Random{config.SEED()};
+    world.emplace(random, &config);
+    initializeWorld();
 
     // setup configuration panel
     //config_panel.Setup();
@@ -132,14 +159,14 @@ public:
     buttons.Button("toggle").OnMouseOut([this](){ auto but = buttons.Button("toggle"); but.SetCSS("background-color", "#D3D3D3"); });
 
     // ----------------------- Add a reset button to reset the animation/world -----------------------
-    /* Note: Must first run world.Reset(), because Inject checks for valid position.
+    /* Note: Must first run world->Reset(), because Inject checks for valid position.
       If a position is occupied, new org is deleted and your world isn't reset.
       Also, canvas must be redrawn to let users see that it is reset */
     buttons.AddButton([this](){
-      world.Reset();
+      world->Reset();
       buttons.Text("update").Redraw();
       initializeWorld();
-      p = world.GetPop();
+      p = world->GetPop();
 
       if (GetActive()) { // If animation is running, stop animation and adjust button label
         ToggleActive();
@@ -160,7 +187,7 @@ public:
 
     // ----------------------- Keep track of number of updates -----------------------
     buttons << "<br>";
-    buttons << UI::Text("update") << "Update = " << UI::Live( [this](){ return world.GetUpdate(); } ) << "  ";
+    buttons << UI::Text("update") << "Update = " << UI::Live( [this](){ return world->GetUpdate(); } ) << "  ";
     buttons << UI::Text("mut") << "Mutualistic = " << UI::Live( [this](){ return num_mutualistic; } ) << "  ";
     buttons << UI::Text("par") << " Parasitic = " << UI::Live( [this](){ return num_parasitic; } );
     buttons << "<br>";
@@ -186,11 +213,11 @@ public:
   void initializeWorld(){
      // Reset the seed and the random machine of world to ensure consistent result (??)
     random.ResetSeed(config.SEED());
-    world.SetRandom(random);
+    world->SetRandom(random);
 
-    world.Setup();
+    world->Setup();
 
-    p = world.GetPop();
+    p = world->GetPop();
 
   }
 
@@ -295,15 +322,15 @@ public:
    */
   void DoFrame() {
 
-    if (world.GetUpdate() == config.UPDATES() && GetActive()) {
+    if (world->GetUpdate() == config.UPDATES() && GetActive()) {
         ToggleActive();
     } else {
       mycanvas = animation.Canvas("can"); // get canvas by id
       mycanvas.Clear();
 
       // Update world and draw the new petri dish
-      world.Update();
-      p = world.GetPop();
+      world->Update();
+      p = world->GetPop();
       drawPetriDish(mycanvas);
       buttons.Text("update").Redraw();
       buttons.Text("mut").Redraw();
