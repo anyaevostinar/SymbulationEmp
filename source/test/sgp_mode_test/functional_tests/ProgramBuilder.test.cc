@@ -45,6 +45,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("ProgramBuilder_test_output");
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);

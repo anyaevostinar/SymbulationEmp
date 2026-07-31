@@ -1,3 +1,6 @@
+Data/
+_test/
+
 .DS_Store
 StatsConfig.cfg
 SymSettings.cfg

@@ -1,8 +1,5 @@
 #pragma once
-// @AML review: added header guards
-// @AML review: switch indentation to 2 spaces for consistency
 
-// @AML review: Moved local includes to top for consistency
 #include "event_types/Event.h"
 #include "EventTypeDefinition.h"
 #include "EventTypeLibrary.h"
@@ -24,11 +21,11 @@
 #include <string>
 #include <unordered_map>
 
-// @AML review: Don't need to namespace the event handler
-//          (unless there's a bunch of internal components that should be isolated
-//           from the rest of the repo)
 namespace sgpmode {
 
+/**
+ * Purpose: Manages set of events that can be loaded in from a configuration file.
+ */
 template<typename WORLD_T>
 class EventManager {
 public:
@@ -40,14 +37,32 @@ public:
 
 protected:
 
-  EventTypeLibrary<world_t> event_type_library;    // Manages known event type definitions. Must be updated before loading event cfg file.
-  emp::vector<emp::Ptr<event_t>> one_time_events;  // Manages all one-off events in reverse sorted order by update to apply.
-  emp::vector<emp::Ptr<event_t>> recurring_events; // Manages all recurring events in reverse sorted order by update to apply.
+  /**
+   * Purpose: Manages known event type definitions.
+   *          Must be updated before loading event cfg file.
+   */
+  EventTypeLibrary<world_t> event_type_library;
 
-  // Load a single event from JSON
-  //   Each event type should define it's own loading function (see ExampleEvent),
-  //   so this function grabs the appropriate event type definition and then calls
-  //   that event type's load event function.
+  /**
+   * Purpose: Manages all one-off events in reverse sorted order by update to apply.
+   */
+  emp::vector<emp::Ptr<event_t>> one_time_events;
+
+  /**
+   * Purpose: Manages all recurring events in reverse sorted order by update to apply.
+   */
+  emp::vector<emp::Ptr<event_t>> recurring_events;
+
+  /**
+   * Purpose: Load a single event from JSON
+   *          Each event type should define its own loading function (see ExampleEvent),
+   *          so this function grabs the appropriate event type definition and then
+   *          calls that event type's load event function.
+   *
+   * Input: json oject to load an event from, reference to the world
+   *
+   * Output: Pointer to a new event object
+   */
   emp::Ptr<event_t> LoadEventFromJSON(json_t& event_json, world_t& world) {
     // Check that event_json has event type
     emp_assert(event_json.contains("event_type"));
@@ -64,10 +79,16 @@ protected:
     return event_type_def.LoadEventFromJSON(event_json, world);
   }
 
-  // Process all one-type events that should be applied this update.
-  //  After processing, delete event.
-  //  Note: this function assumes that one_time_events is in reverse sorted
-  //        order by next update.
+  /**
+   * Purpose: Process all one-type events that should be applied this update.
+   *          After processing an event, delete it.
+   *          Note: this function assumes that one_time_events is in reverse sorted
+   *          order by next update.
+   *
+   * Input: Reference to the world
+   *
+   * Output: None.
+   */
   void ProcessOneTimeEvents(world_t& world) {
     if (one_time_events.empty()) { return; }
     // One-time events are reverse sorted according to next update.
@@ -104,11 +125,20 @@ protected:
     one_time_events.resize(num_events - events_processed);
   }
 
-  // Process any recurring events that should be applied this update.
-  //   After processing, either delete event (if next update is past end update
-  //   or if event was marked as done by the event's process function).
-  //   Note: this function assumes that recurring_events is in reverse sorted order
-  //         by each event's next update.
+  /**
+   * Purpose: Process any recurring events that should be applied this update.
+   *          After processing an event, delete the event if its next update is
+   *          past its end update or if the event was marked as done by the event's
+   *          process function. Otherwise, advance the event's timing and keep
+   *          for future processing.
+   *          Note: this function assumes that recurring_events is in reverse sorted order
+   *          by each event's next update. This function will resort recurring
+   *          events after processing.
+   *
+   * Input: Reference to the world.
+   *
+   * Output: None.
+   */
   void ProcessRecurringEvents(world_t& world) {
     if (recurring_events.empty()) { return; }
     // Recurring events are reverse sorted by the next update they should trigger
@@ -170,45 +200,31 @@ protected:
     ReorderRecurringEvents();
   }
 
-  // Resort the one-time events.
-  // One-time events should be reverse-sorted by their next update (i.e., soonest
-  // next update at end). One-time events must be sorted for processing to be correct.
-  // i.e., when adding a new event, must resort!
-  void ReorderOneTimeEvents() {
-    std::sort(
-      one_time_events.begin(),
-      one_time_events.end(),
-      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
-        return a->GetNextUpdate() > b->GetNextUpdate();
-      }
-    );
-  }
-
-  // Reorder recurring events. Should be reverse sorted by each event's next update
-  // (i.e., soonest next update at end of vector). Recurring events must be sorted
-  // for processing to be correct.
-  // I.e., when adding a new event, must sort! And, when re-queueing a recurring
-  //  event, we must make sure it ends up in the appropriate spot by next update.
-  void ReorderRecurringEvents() {
-    std::sort(
-      recurring_events.begin(),
-      recurring_events.end(),
-      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
-        return a->GetNextUpdate() > b->GetNextUpdate();
-      }
-    );
-  }
-
-// @AML review: missing public designation here
 public:
-
+  /**
+   * Purpose: EventManager destructor. Responsible for cleaning up any event objects.
+   */
   ~EventManager() {
     ClearEvents();
   }
 
+  /**
+   * Purpose:
+   *
+   * Input:
+   *
+   * Output:
+   */
   const EventTypeLibrary<world_t>& GetEventTypeLibrary() const { return event_type_library; }
 
-  // Delete all current events info
+
+  /**
+   * Purpose: Delete all current events info (one-time and recurring)
+   *
+   * Input: None.
+   *
+   * Output: None.
+   */
   void ClearEvents() {
     for (emp::Ptr<event_t> event : one_time_events) {
       event.Delete();
@@ -220,15 +236,42 @@ public:
     recurring_events.clear();
   }
 
-  // load in and process events.json file (includes creating events and checking if they are valid)
+  /**
+   * Purpose: Accessor for recurring events.
+   *          CAUTION: the event manager makes assumptions about the order of recurring
+   *          events based on their timing. This accessor is used primarily for testing.
+   *          If recurring events are modified via this function, you must resort them (ReorderRecurringEvents)
+   */
+  emp::vector<emp::Ptr<event_t>>& GetRecurringEvents() {
+    return recurring_events;
+  }
+
+  /**
+   * Purpose: Accessor for one-time events.
+   *          CAUTION: the event manager makes assumptions about the order of one-time
+   *          events based on their timing. This accessor is used primarily for testing.
+   *          If one-time events are modified via this function, you must resort them (ReorderOneTimeEvents)
+   */
+  emp::vector<emp::Ptr<event_t>>& GetOneTimeEvents() {
+    return one_time_events;
+  }
+
+  /**
+   * Purpose: load in and process events configuratoin json file (includes
+   *          creating events and checking if they are valid)
+   *
+   * Input: String path to event configuration file, reference to the world object
+   *
+   * Output: None.
+   */
   void LoadEventsFromJSON(const std::string& event_filepath, world_t& world) {
-    std::cout << "Loading events from event file." << std::endl;
     ClearEvents();
     // === Parse events file ===
     // Check if given events file exists. Exit if not.
     const bool event_file_exists = std::filesystem::exists(event_filepath);
     if (!event_file_exists) {
       std::cout << "Event file does not exist: " << event_filepath << std::endl;
+      emp_assert(false, "Event file does not exist.");
       std::exit(EXIT_FAILURE);
     }
     // read event.json file
@@ -251,6 +294,14 @@ public:
     ReorderRecurringEvents();
   }
 
+  /**
+   * Purpose: Process any events that need to be processed on the current world
+   *          update.
+   *
+   * Input: Reference to the world.
+   *
+   * Output: None.
+   */
   void ProcessEvents(world_t& world) {
     // Get current update in the world. Process all events that should occur on this update.
     // Options:
@@ -274,8 +325,14 @@ public:
     ProcessRecurringEvents(world);
   }
 
-  // Manual add event function. Used when an event that didn't originate from a config
-  // file needs to be added to the event system.
+  /**
+   * Purpose: Manual add event function. Used when an event that didn't originate
+   *          from a config file needs to be added to the event system.
+   *
+   * Input: Pointer to the event to add to the event manager.
+   *
+   * Output: None.
+   */
   void AddEvent(emp::Ptr<event_t> event) {
     // Check that this event is who they say it is
     const auto& event_type_name = event->GetEventType();
@@ -293,8 +350,16 @@ public:
     }
   }
 
-  // Add multiple events. Faster to bulk add than add one at a time to save on
-  // resorting.
+  /**
+   * Purpose: Manually add multiple events to the event manager. Used for events
+   *          that don't originate from the events configuration file. Faster to
+   *          to bulk add multiple events than adding one at a time to avoid
+   *          repeated resorting.
+   *
+   * Input: List of event pointers to be added.
+   *
+   * Output: None.
+   */
   void AddEvents(emp::vector<emp::Ptr<event_t>> events) {
     bool resort_recurring = false;
     bool resort_one_time = false;
@@ -321,6 +386,50 @@ public:
     if (resort_one_time) {
       ReorderOneTimeEvents();
     }
+  }
+
+    /**
+   * Purpose: Hlper function to resort the one-time events.
+   *          One-time events should be reverse-sorted by their next update
+   *          (i.e., soonest next update at end). One-time events must be sorted
+   *          for processing to be correct. i.e., when adding a new event, must resort!
+   *
+   * Input: None.
+   *
+   * Output: None.
+   */
+  void ReorderOneTimeEvents() {
+    std::sort(
+      one_time_events.begin(),
+      one_time_events.end(),
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
+  }
+
+  /**
+   * Purpose: Helper function to reorder recurring events.
+   *          Should be reverse sorted by each event's next update (i.e., soonest
+   *          next update at end of vector). Recurring events must be sorted for
+   *          processing to be correct. I.e., when adding a new event, must sort!
+   *          And, when re-queueing a recurring event, we must make sure it ends
+   *          up in the appropriate spot by next update.
+   *
+   * Input: None.
+   *
+   * Output. None.
+   *
+   *
+   */
+  void ReorderRecurringEvents() {
+    std::sort(
+      recurring_events.begin(),
+      recurring_events.end(),
+      [](emp::Ptr<event_t> a, emp::Ptr<event_t> b) {
+        return a->GetNextUpdate() > b->GetNextUpdate();
+      }
+    );
   }
 
 };

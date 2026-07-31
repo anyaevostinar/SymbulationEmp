@@ -88,7 +88,7 @@ emp::vector<emp::vector<size_t>> AdjListFromMatrix(
   const emp::vector< emp::vector<bool> >& matrix
 ) {
   const size_t num_nodes = matrix.size();
-  emp::vector<emp::vector<size_t>> adj_list(num_nodes, {});
+  emp::vector<emp::vector<size_t>> adj_list(num_nodes, emp::vector<size_t>());
   for (size_t from = 0; from < num_nodes; ++from) {
     emp_assert(matrix[from].size() == num_nodes);
     for (size_t to = 0; to < num_nodes; ++to) {

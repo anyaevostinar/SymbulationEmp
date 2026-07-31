@@ -663,12 +663,22 @@ public:
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
   /* Accessor for host task profiles */
-  const emp::BitVector& GetHostTaskProfile(const sgp_host_t& host){return fun_get_host_task_profile(host);}
+  const emp::BitVector& GetHostTaskProfile(const sgp_host_t& host) { return fun_get_host_task_profile(host); }
 
   /* Accessor for symbiont task profiles */
-  const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
+  const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont) { return fun_get_sym_task_profile(symbiont); }
 
- /**
+  /**
+   * Purpose: Accessor for event manager (const)
+   */
+  const event_manager_t& GetEventManager() const { return event_manager; }
+
+  /**
+   * Purpose: Accessor for event manager
+   */
+  event_manager_t& GetEventManager() { return event_manager; }
+
+  /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
    * Output: The change in the points the host will gain from the task after the nutrient interaction.
    * Purpose: To calculate the configured nutrient interaction for the given symbiont and task

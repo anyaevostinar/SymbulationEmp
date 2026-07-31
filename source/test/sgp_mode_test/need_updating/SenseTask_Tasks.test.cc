@@ -26,6 +26,7 @@ TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
@@ -58,8 +59,8 @@ TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
     host_hw.SetProgram(host_program);
     world.AssignNewEnvIO(host_hw.GetCPUState());
 
-    // NOT is currently rewarded.
-    REQUIRE(world.GetTaskEnv().GetHostTaskReq(not_task_id).task_value > 0);
+    // NOT is currently not rewarded.
+    REQUIRE(world.GetTaskEnv().GetHostTaskReq(not_task_id).task_value < 0);
 
     // Initial register values
     host_hw.SetRegisters({3, 2, 5});
@@ -67,8 +68,8 @@ TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
     // Run host program
     host_hw.RunCPUStep(4);
 
-    THEN("SenseTask puts a 1 into register 1"){
-      REQUIRE(host_hw.GetRegister(1) == 1);
+    THEN("SenseTask puts a 0 into register 1"){
+      REQUIRE(host_hw.GetRegister(1) == 0);
     }
   }
 }
@@ -78,6 +79,7 @@ TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
@@ -110,8 +112,10 @@ TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
     host_hw.SetProgram(host_program);
     world.AssignNewEnvIO(host_hw.GetCPUState());
 
-    // NAND is currently punished.
-    REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value < 0);
+    // NAND is not currently punished.
+    REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value > 0);
+
+
 
     // Initial register values
     host_hw.SetRegisters({7, 12, 9});
@@ -119,17 +123,18 @@ TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
     // Run host program
     host_hw.RunCPUStep(5);
 
-    THEN("SenseTask puts a 0 into register 1"){
-      REQUIRE(host_hw.GetRegister(1) == 0);
+    THEN("SenseTask puts a 1 into register 1"){
+      REQUIRE(host_hw.GetRegister(1) == 1);
     }
   }
 }
 
-TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
+TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(1);
   config.TASK_IO_UNIQUE_OUTPUT(true);
@@ -149,7 +154,7 @@ TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
   // setup correct reward/punishment values for update 0
   world.Update();
 
-  WHEN("A symbiont runs a task which is rewarded and then the SenseTask instruction"){
+  WHEN("A symbiont runs a task which is punished and then the SenseTask instruction"){
     program_t sym_program;
     prog_builder.AddStartAnchor(sym_program);
     prog_builder.AddInst(sym_program, "IO", 0);
@@ -159,8 +164,8 @@ TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
     sym_hw.SetProgram(sym_program);
     world.AssignNewEnvIO(sym_hw.GetCPUState());
 
-    // NOT is currently rewarded.
-    REQUIRE(world.GetTaskEnv().GetHostTaskReq(not_task_id).task_value > 0);
+    // NOT is currently punished.
+    REQUIRE(world.GetTaskEnv().GetHostTaskReq(not_task_id).task_value < 0);
 
     // Initial register values
     sym_hw.SetRegisters({3, 2, 5});
@@ -168,17 +173,18 @@ TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
     // Run symbiont program
     sym_hw.RunCPUStep(4);
 
-    THEN("SenseTask puts a 1 into register 1"){
-      REQUIRE(sym_hw.GetRegister(1) == 1);
+    THEN("SenseTask puts a 0 into register 1"){
+      REQUIRE(sym_hw.GetRegister(1) == 0);
     }
   }
 }
 
-TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
+TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(1);
   config.TASK_IO_UNIQUE_OUTPUT(true);
@@ -198,7 +204,7 @@ TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
   // setup correct reward/punishment values for update 0
   world.Update();
 
-  WHEN("A symbiont runs a task which is punished and then the SenseTask instruction") {
+  WHEN("A symbiont runs a task which is rewarded and then the SenseTask instruction") {
     program_t sym_program;
     prog_builder.AddStartAnchor(sym_program);
     prog_builder.AddInst(sym_program, "IO", 0);
@@ -209,8 +215,8 @@ TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
     sym_hw.SetProgram(sym_program);
     world.AssignNewEnvIO(sym_hw.GetCPUState());
 
-    // NAND is currently punished.
-    REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value < 0);
+    // NAND is currently rewarded.
+    REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value > 0);
 
     // Initial register values
     sym_hw.SetRegisters({7, 12, 9});
@@ -218,8 +224,8 @@ TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
     // run symbiont program
     sym_hw.RunCPUStep(5);
 
-    THEN("SenseTask puts a 0 into register 1"){
-      REQUIRE(sym_hw.GetRegister(1) == 0);
+    THEN("SenseTask puts a 1 into register 1"){
+      REQUIRE(sym_hw.GetRegister(1) == 1);
     }
   }
 }
