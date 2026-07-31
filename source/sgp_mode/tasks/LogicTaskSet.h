@@ -14,7 +14,7 @@ namespace sgpmode::tasks {
 
 // TODO - write tests
 
-/*
+/**
   Adapted from AvidaGPTaskSet from
     https://github.com/amlalejini/directed-digital-evolution
 

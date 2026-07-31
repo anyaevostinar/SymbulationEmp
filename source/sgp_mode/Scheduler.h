@@ -19,6 +19,9 @@
 namespace sgpmode {
 
 // TODO - tests!
+/**
+*Used to determine the order that organisms in the world are processed.
+*/
 class Scheduler {
 public:
   using fun_process_org_t = std::function<void(emp::WorldPosition, Organism&)>;

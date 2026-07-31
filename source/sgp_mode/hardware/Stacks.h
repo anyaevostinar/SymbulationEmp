@@ -10,6 +10,10 @@ namespace sgpmode {
 
 // TODO - tests
 template<typename T>
+
+/**
+ * The Stacks are used as a first in, last out data structure.
+ */
 class Stacks {
 public:
   using stack_t = emp::vector<T>;
@@ -19,6 +23,7 @@ protected:
   size_t stack_size_limit = std::numeric_limits<size_t>::max();
 
 public:
+
   Stacks(size_t num_stacks) :
     stacks(num_stacks, stack_t()),
     active_stack(0)

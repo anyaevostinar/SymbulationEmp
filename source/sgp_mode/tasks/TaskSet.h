@@ -14,7 +14,8 @@ namespace sgpmode::tasks {
 
 // TODO - write tests
 
-/*
+template<typename INPUT_T, typename OUTPUT_T>
+/**
   TaskSet is adapted from class of the same name from
     https://github.com/amlalejini/directed-digital-evolution
 
@@ -27,7 +28,6 @@ namespace sgpmode::tasks {
   task.
 
 */
-template<typename INPUT_T, typename OUTPUT_T>
 class TaskSet {
 public:
 

@@ -1,5 +1,6 @@
 GenomeLibrary Documentation
 ========================
 
-.. doxygenfile:: sgpmode::GenomeLibrary
-   :members:
+.. doxygenfile:: GenomeLibrary.h
+   :project: Symbulation
+   

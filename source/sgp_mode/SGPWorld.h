@@ -34,6 +34,9 @@ const size_t PROGRAM_LENGTH = 100;
 //        GetPop is expensive operation, avoid use
 
 // TODO - add tests for stack limits on organisms
+/**
+* The world in which all organisms reside, the Singal GP version of the base SymWorld
+*/
 class SGPWorld : public SymWorld {
 public:
   using sgp_cpu_peripheral_t = CPUState<SGPWorld>;

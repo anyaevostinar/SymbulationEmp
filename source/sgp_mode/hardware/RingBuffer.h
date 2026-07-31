@@ -7,9 +7,11 @@
 namespace sgpmode {
 
 // TODO - write tests for IORingBuffer
-/// A helper class for a ring buffer that keeps the latest `len` inputs and
-/// discards the rest.
 template <typename T>
+/**
+*A helper class for a ring buffer that keeps the latest `len` inputs and
+*discards the rest.
+*/
 class RingBuffer {
 public:
   using buffer_t = emp::vector<T>;

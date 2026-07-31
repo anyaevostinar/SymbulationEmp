@@ -23,8 +23,8 @@ struct ReproEvent {
   ) : org(in_org), pos(in_pos), valid(in_valid) { }
 };
 
-/*
-  Tracks organisms queued for reproduction.
+/**
+*  Tracks organisms queued for reproduction.
 */
 class ReproductionQueue {
 public:

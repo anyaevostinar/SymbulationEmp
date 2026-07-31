@@ -1,5 +1,5 @@
 Stacks Documentation
 ========================
 
-.. doxygenfile:: sgpmode::Stacks
+.. doxygenclass:: sgpmode::Stacks
    :members:
