@@ -489,6 +489,7 @@ TEST_CASE("Test host-symbiont interactive instructions", "[sgp]") {
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.HOST_REPRO_RES(1);
+  config.DONATION_STEAL_INST(true);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.FILE_PATH("Instructions_test_output");
