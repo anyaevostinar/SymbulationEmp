@@ -31,7 +31,7 @@ public:
   using task_def_t = typename base_t::TaskDefinition;
   using calc_fun_t = typename base_t::calc_output_fun_t;
 
-  /*
+  /**
     Helper struct includes everything needed to define a logic task minus the
     task ID (needed for TaskSet::TaskDefinition).
   */
