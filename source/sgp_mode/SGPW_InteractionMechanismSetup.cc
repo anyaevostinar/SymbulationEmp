@@ -220,19 +220,18 @@ namespace sgpmode {
   /************************** Stress ********************************* */
   struct StressEscapee {
     emp::Ptr<SGPWorld::sgp_sym_t> sym_offspring;
-    emp::BitVector parent_task_profile;
-    //^^^ why are we keeping track of this and not using sym profile?
-    size_t escape_location;
+    emp::Ptr<SGPWorld::sgp_sym_t> sym_parent;
+    emp::WorldPosition escape_location;
 
     StressEscapee() = default;
     StressEscapee(
-      emp::Ptr<SGPWorld::sgp_sym_t> sym,
-      const emp::BitVector& tasks,
-      size_t loc
+      emp::Ptr<SGPWorld::sgp_sym_t> _sym_offspring,
+      emp::Ptr<SGPWorld::sgp_sym_t> _sym_parent,
+      emp::WorldPosition _location
     ) :
-      sym_offspring(sym),
-      parent_task_profile(tasks),
-      escape_location(loc)
+      sym_offspring(_sym_offspring),
+      sym_parent(_sym_parent),
+      escape_location(_location)
     { }
   };
 
@@ -295,7 +294,6 @@ namespace sgpmode {
             for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
               // Check if symbiont matches task profile
               emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-              const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
               const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
               if (can_escape) {
                 death_chance = sgp_config.PARASITE_DEATH_CHANCE();
@@ -306,8 +304,8 @@ namespace sgpmode {
                   emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
                   symbiont_stress_escapees.emplace_back(
                     static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-                    endosym_task_profile,
-                    endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+                    endosym_ptr,
+                    endosym_ptr->GetHardware().GetCPUState().GetLocation()
                   );
                 }
                 // Once we leave this signal, the host (and this symbiont) will
@@ -356,8 +354,8 @@ namespace sgpmode {
                   emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
                   symbiont_stress_escapees.emplace_back(
                     static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-                    endosym_task_profile,
-                    endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+                    endosym_ptr,
+                    endosym_ptr->GetHardware().GetCPUState().GetLocation()
                   );
                 }
               }
@@ -440,8 +438,8 @@ namespace sgpmode {
                 emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
                 symbiont_stress_escapees.emplace_back(
                   static_cast<sgp_sym_t*>(sym_offspring.Raw()),
-                  endosym_task_profile,
-                  endosym_ptr->GetHardware().GetCPUState().GetLocation().GetPopID()
+                  endosym_ptr,
+                  endosym_ptr->GetHardware().GetCPUState().GetLocation()
                 );
               }
             }
@@ -482,12 +480,7 @@ namespace sgpmode {
 
         for (size_t esc_i : escapee_ids) {
           auto& escapee_info = symbiont_stress_escapees[esc_i];
-
-          emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.escape_location);
-
-          if (pos == std::nullopt) {
-            escapee_info.sym_offspring.Delete();
-          }
+          emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.sym_parent, escapee_info.escape_location);
         }
         symbiont_stress_escapees.clear();
         // TODO - add data collection for successful escapes

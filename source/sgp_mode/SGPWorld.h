@@ -51,7 +51,8 @@ public:
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
-    emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
+    emp::Ptr<sgp_sym_t>,          /* symbiont offspring ptr */
+    emp::Ptr<sgp_sym_t>,          /* symbiont parent ptr*/
     const emp::WorldPosition&     /* parent_position */
   )>;
 
@@ -64,9 +65,9 @@ public:
   // Are host and endosymbiont compatible for horizontal transmission?
   // At the moment, task match based on parent vs current
   // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
-  using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
+  using fun_horizontal_trans_compatibility_check_t = std::function<bool(
     sgp_host_t&,
-    const emp::BitVector&
+    sgp_sym_t&
   )>;
 
   // Determines whether two task profiles are "compatible" with one another.
@@ -342,8 +343,9 @@ public:
   // Returns a target position for symbiont to horizontally transmit into.
   // Returns std::nullopt if failed to find suitable target position.
   std::function<std::optional<emp::WorldPosition>(
-    size_t,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
+    const emp::WorldPosition& parent_pos
   )> fun_find_host_for_horizontal_trans;
 
   // External facing helpers for orgnanisms to call
@@ -430,7 +432,7 @@ protected:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-  fun_horizontal_transmission_compatibility_check_t fun_horizontal_trans_compatibility_check;
+  fun_horizontal_trans_compatibility_check_t fun_horizontal_trans_compatibility_check;
 
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
@@ -494,7 +496,8 @@ protected:
   );
 
   emp::WorldPosition SymAttemptHorizontalInfection(
-    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
     const emp::WorldPosition& parent_pos
   );
 
@@ -880,9 +883,11 @@ public:
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
   emp::WorldPosition SymDoBirth(
-    emp::Ptr<Organism> sym_baby,
+    //Do we want to change the types throughout this chain of functions to sgp_sym_t ?
+    emp::Ptr<Organism> sym_offspring,
+    emp::Ptr<Organism> sym_parent,
     emp::WorldPosition parent_pos
-  ) override;
+  ); //GABE TODO:? //override;
 
   void HostDoMutation(sgp_host_t& host);
   void SymDoMutation(sgp_sym_t& sym);
@@ -891,11 +896,11 @@ public:
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
   void FreeLivingSymDoInfect(Organism& sym);
 
-  // Returns neighboring host from given symbiont
-  // NOTE - Opinions on name change? (originally GetNeighborHost)
+  // What accually do we want for this section. 
   std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
+    const emp::WorldPosition& parent_pos
   );
 
   /**

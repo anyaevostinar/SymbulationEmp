@@ -254,7 +254,7 @@ void SGPWorld::SetupReproduction() {
       // NOTE - could move reset repro state in Reproduce functions
       // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     } else {
-      const emp::WorldPosition sym_baby_pos = SymDoBirth(child, repro_info.pos);
+      const emp::WorldPosition sym_baby_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
       // Trigger any post-birth actions
       after_sym_do_birth_sig.Trigger(sym_baby_pos, sym_parent);
@@ -293,26 +293,29 @@ void SGPWorld::SetupSymReproduction() {
   if (sgp_config.FREE_LIVING_SYMS()) {
     // Configure sym birth in free-living symbiont mode
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
+      return FreeLivingSymDoBirth(sym_offspring_ptr, parent_pos);
     };
   } else if (sgp_config.HORIZ_TRANS()){
     // Configure sym birth in non-free-living symbiont mode.
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      return SymAttemptHorizontalInfection(sym_baby_ptr, parent_pos);
+      return SymAttemptHorizontalInfection(sym_offspring_ptr, sym_parent_ptr, parent_pos);
     };
   } else {
     // Neither horizontal transmission nor free-living symbionts, so fun_sym_do_birth should just return invalid position and clean up the offspring
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      sym_baby_ptr.Delete();
+      sym_offspring_ptr.Delete();
       return emp::WorldPosition();
     };
   }

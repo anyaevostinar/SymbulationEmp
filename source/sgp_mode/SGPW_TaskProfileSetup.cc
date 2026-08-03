@@ -87,28 +87,31 @@ void SGPWorld::SetupHorizontalTransmissionCompatibilityMode() {
   if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "always") {
     fun_horizontal_trans_compatibility_check = [](
       sgp_host_t& host,
-      const emp::BitVector& sym_profile
+      sgp_sym_t& sym
     ) -> bool { return true; };
   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-compatible") {
     fun_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
-      const emp::BitVector& sym_profile
+      sgp_sym_t& sym
     ) -> bool {
       const auto& host_profile = fun_get_host_task_profile(host);
+      const auto& sym_profile = fun_get_sym_task_profile(sym);
       return fun_task_profile_compatibility_check(host_profile, sym_profile);
     };
   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-strictly-stronger-match") {
     fun_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
-      const emp::BitVector& sym_profile
+      sgp_sym_t& sym
     ) -> bool {
+      const auto& sym_profile = fun_get_sym_task_profile(sym);
       return NoBetterOrEquallyMatchingSymbionts(host, sym_profile);
     };
   } else if (sgp_config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE() == "task-profile-stronger-or-equal-match") {
     fun_horizontal_trans_compatibility_check = [this](
       sgp_host_t& host,
-      const emp::BitVector& sym_profile
+      sgp_sym_t& sym
     ) -> bool {
+      const auto& sym_profile = fun_get_sym_task_profile(sym);
       return NoBetterMatchingSymbionts(host, sym_profile);
     };
   } else {
@@ -122,22 +125,23 @@ void SGPWorld::SetupFindHostForHorizontalTransmission() {
   // Setup function that gets host neighbor (used for symbiont)
   // TODO - add different configuration options for this?
   fun_find_host_for_horizontal_trans = [this](
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
+    const emp::WorldPosition& parent_pos
   ) -> std::optional<emp::WorldPosition> {
     for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
+      const size_t host_world_id = parent_pos.GetPopID();
       emp::WorldPosition candidate_pos(GetRandomNeighborPos(host_world_id));
       if (candidate_pos.IsValid() && IsOccupied(candidate_pos) && candidate_pos.GetIndex() != host_world_id) {
         emp::Ptr<Organism> prospective_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
         emp_assert(prospective_org_ptr->IsHost());
-        // Cast neighbor as sgp_host_t ptr.
         emp::Ptr<sgp_host_t> prospective_host_ptr = static_cast<sgp_host_t*>(prospective_org_ptr.Raw());
-        const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*sym_parent_ptr);
-        //TODO: Should this check be done during AddSymbiont instead of here?
+
         const bool compatible = fun_horizontal_trans_compatibility_check(
           *prospective_host_ptr,
-          endosym_task_profile
+          *sym_offspring_ptr
         );
+
         if (compatible) {
           return std::optional<emp::WorldPosition>{candidate_pos};
         }
