@@ -208,157 +208,10 @@ public:
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
-  // -- Signals to allow custom behavior to be triggered by other classes -- /
-  // AEV question: getter methods for these?
-
-  // begin_update_sig - Triggers at the beginning of an Update call.
-  //  Triggers before schedule update, before processing any organisms.
-  //  E.g., used for resetting any per-update data tracking.
-  emp::Signal<void(void)> begin_update_sig;
-
-  // ---- Symbiont birth signals / functors ----
-  // before_sym_do_birth_sig - Triggers during SymDoBirth function.
-  //  Triggers after sym offspring is created but before fun_sym_do_birth() is called.
-  emp::Signal<void(
-    emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
-    const emp::WorldPosition&     /* parent_pos */
-  )> before_sym_do_birth_sig;
-
-  // after_sym_do_birth_sig - Triggers during SymDoBirth function.
-  //  Triggers after fun_sym_do_birth() is called.
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_baby_pos */
-    emp::Ptr<sgp_sym_t>  /* parent_sym */
-  )> after_sym_do_birth_sig;
-
-  // fun_sym_do_birth - Configurable functor that handles calling appropriate
-  //  "DoBirth" function depending on whether free-living symbionts are turned on.
-  fun_sym_do_birth_t fun_sym_do_birth;
-
-  // ---- Host birth signals / functors ----
-  // before_host_do_birth_sig - Triggers during HostDoBirth().
-  //  When this triggers, host offspring has been created (when reproduction queue)
-  //  is processed. Triggers before endosymbionts attempt vertical transmission and
-  //  before DoBirth is called.
-  emp::Signal<void(
-    sgp_host_t&,               /* host_offspring_ptr */
-    sgp_host_t&,               /* host_parent_ptr */
-    const emp::WorldPosition&  /* parent_pos */
-  )> before_host_do_birth_sig;
-
-  // after_host_do_birth_sig - Triggers during HostDoBirth().
-  //  Triggers after endosymbionts attempt vertical transmission and after DoBirth
-  //  is called on the host offspring.
-  // NOTE - add more parameters to this? We know the parent / offsspring where this is called.
-  emp::Signal<void(
-    const emp::WorldPosition& /* host_offspring_pos */
-  )> after_host_do_birth_sig;
-
-  // ---- Host process signals / functors ----
-  // before_host_cpu_exec_sig - Triggers in ProcessHostAt()
-  //  Triggers before running the host's CPU / after updating host location.
-  //  Host is not guaranteed to still be alive if prior actions attached to this signal
-  //  kill the host.
-  emp::Signal<void(
-    sgp_host_t&
-  )> before_host_cpu_exec_sig;
-
-  // after_host_process_sig - Triggers in ProcessHostAt()
-  //  Triggers at end of ProcessHostAt. There is one final check for death after
-  //  after this triggers in case an attached action kills the host.
-  emp::Signal<void(
-    sgp_host_t&
-  )> after_host_process_sig;
-
-  // after_host_cpu_step_sig - Triggers in ProcessHostAt()
-  //  Triggers after each CPU cycle (potentially multiple times per update) and after
-  //  handling a repro attempt by the host for that CPU cycle.
-  emp::Signal<void(
-    sgp_host_t&
-  )> after_host_cpu_step_sig;
-
-  // after_host_cpu_exec_sig - Triggers in ProcessHostAt()
-  //  Triggers after executing all CPU cycles allotted to host being processed and
-  //  before processing the host's endosymbionts.
-  emp::Signal<void(
-    sgp_host_t&
-  )> after_host_cpu_exec_sig;
-  // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
-
-  // ---- Free-living symbiont signals / functors ----
-  // before_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
-  //  Triggers if sym is alive before executing sym's CPU.
-  emp::Signal<void(
-    sgp_sym_t&  /* sym */
-  )> before_freeliving_sym_process_sig;
-
-  // after_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
-  //  Triggers at end of ProcessFreeLivingSymAt, but before a final check/potential
-  //  DoSymDeath call
-  emp::Signal<void(
-    sgp_sym_t&  /* sym */
-  )> after_freeliving_sym_process_sig;
-
-  // after_freeliving_sym_cpu_step_sig - Triggers in ProcessFreeLivingSymAt()
-  //  Triggers after each CPU cycle after handling an instruction-triggered repro attempt.
-  emp::Signal<void(
-    sgp_sym_t&  /* sym */
-  )> after_freeliving_sym_cpu_step_sig;
-
-  // after_freeliving_sym_cpu_exec_sig - Triggers in ProcessFreeLivingSymAt()
-  //  Triggers after executing all CPU cycles allotted to sym being processed and
-  //  before SGPSymbiont::Process is called.
-  emp::Signal<void(
-    sgp_sym_t&  /* sym */
-  )> after_freeliving_sym_cpu_exec_sig;
-
-  // ---- Endosymbiont process signals / functors ----
-  // Happens before this endosymbiont's host is processed
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_pos */
-    sgp_sym_t&,                /* sym */
-    sgp_host_t&                /* host */
-  )> before_endosym_host_process_sig;
-
-  // before_endosym_process_sig - Triggers during ProcessEndoSymbiont()
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_pos */
-    sgp_sym_t&,                /* sym */
-    sgp_host_t&                /* host */
-  )> before_endosym_process_sig;
-
-  // after_endosym_process_sig - Triggers during ProcessEndoSymbiont()
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_pos */
-    sgp_sym_t&,                /* sym */
-    sgp_host_t&                /* host */
-  )> after_endosym_process_sig;
-
-  // after_endosym_cpu_step_sig - Triggers during ProcessEndoSymbiont()
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_pos */
-    sgp_sym_t&,                /* sym */
-    sgp_host_t&                /* host */
-  )> after_endosym_cpu_step_sig;
-
-  // after_endosym_cpu_exec_sig - Triggers during ProcessEndoSymbiont()
-  emp::Signal<void(
-    const emp::WorldPosition&, /* sym_pos */
-    sgp_sym_t&,                /* sym */
-    sgp_host_t&                /* host */
-  )> after_endosym_cpu_exec_sig;
 
 
   // ---- Environment signals/functors ----
   // fun_do_resource_inflow_t fun_do_resource_inflow;
-
-  // Called in FindHostForHorizontalTrans(), configured in SetupPopStructure().
-  // Returns a target position for symbiont to horizontally transmit into.
-  // Returns std::nullopt if failed to find suitable target position.
-  std::function<std::optional<emp::WorldPosition>(
-    size_t,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
-  )> fun_find_host_for_horizontal_trans;
 
   // External facing helpers for orgnanisms to call
 
@@ -489,6 +342,15 @@ protected:
     bool                         /* vertical transmission success */
   )> after_sym_vert_transmission_sig;
 
+  // Called in FindHostForHorizontalTrans(), configured in SetupPopStructure().
+  // Returns a target position for symbiont to horizontally transmit into.
+  // Returns std::nullopt if failed to find suitable target position.
+  std::function<std::optional<emp::WorldPosition>(
+    size_t,                 /* Parent's host location id in world (pops[0][id])*/
+    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
+  )> fun_find_host_for_horizontal_trans;
+
+  
   // fun_vert_trans_compatible - Called during HostDoBirth to determine if
   //  a given symbiont can vertically transmit into host offspring.
   fun_vert_trans_compatible_t fun_vert_trans_compatible;
@@ -583,6 +445,150 @@ protected:
       (static_cast<sgp_host_t*>(org_ptr.Raw()))->GetHardware().GetCPUState() :
       (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
   }
+
+  // -- Signals to allow custom behavior to be triggered by other classes -- /
+  // AEV question: getter methods for these?
+
+  // begin_update_sig - Triggers at the beginning of an Update call.
+  //  Triggers before schedule update, before processing any organisms.
+  //  E.g., used for resetting any per-update data tracking.
+  emp::Signal<void(void)> begin_update_sig;
+
+  // ---- Symbiont birth signals / functors ----
+  // before_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after sym offspring is created but before fun_sym_do_birth() is called.
+  emp::Signal<void(
+    emp::Ptr<sgp_sym_t>,          /* sym_baby_ptr */
+    const emp::WorldPosition&     /* parent_pos */
+  )> before_sym_do_birth_sig;
+
+
+  // after_sym_do_birth_sig - Triggers during SymDoBirth function.
+  //  Triggers after fun_sym_do_birth() is called.
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_baby_pos */
+    emp::Ptr<sgp_sym_t>  /* parent_sym */
+  )> after_sym_do_birth_sig;
+
+
+  // fun_sym_do_birth - Configurable functor that handles calling appropriate
+  //  "DoBirth" function depending on whether free-living symbionts are turned on.
+  fun_sym_do_birth_t fun_sym_do_birth;
+
+  // ---- Host birth signals / functors ----
+  // before_host_do_birth_sig - Triggers during HostDoBirth().
+  //  When this triggers, host offspring has been created (when reproduction queue)
+  //  is processed. Triggers before endosymbionts attempt vertical transmission and
+  //  before DoBirth is called.
+  emp::Signal<void(
+    sgp_host_t&,               /* host_offspring_ptr */
+    sgp_host_t&,               /* host_parent_ptr */
+    const emp::WorldPosition&  /* parent_pos */
+  )> before_host_do_birth_sig;
+
+
+  // after_host_do_birth_sig - Triggers during HostDoBirth().
+  //  Triggers after endosymbionts attempt vertical transmission and after DoBirth
+  //  is called on the host offspring.
+  // NOTE - add more parameters to this? We know the parent / offsspring where this is called.
+  emp::Signal<void(
+    const emp::WorldPosition& /* host_offspring_pos */
+  )> after_host_do_birth_sig;
+
+
+  // ---- Host process signals / functors ----
+  // before_host_cpu_exec_sig - Triggers in ProcessHostAt()
+  //  Triggers before running the host's CPU / after updating host location.
+  //  Host is not guaranteed to still be alive if prior actions attached to this signal
+  //  kill the host.
+  emp::Signal<void(
+    sgp_host_t&
+  )> before_host_cpu_exec_sig;
+
+  // after_host_process_sig - Triggers in ProcessHostAt()
+  //  Triggers at end of ProcessHostAt. There is one final check for death after
+  //  after this triggers in case an attached action kills the host.
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_process_sig;
+
+  // after_host_cpu_step_sig - Triggers in ProcessHostAt()
+  //  Triggers after each CPU cycle (potentially multiple times per update) and after
+  //  handling a repro attempt by the host for that CPU cycle.
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_cpu_step_sig;
+
+  // after_host_cpu_exec_sig - Triggers in ProcessHostAt()
+  //  Triggers after executing all CPU cycles allotted to host being processed and
+  //  before processing the host's endosymbionts.
+  emp::Signal<void(
+    sgp_host_t&
+  )> after_host_cpu_exec_sig;
+  // fun_process_endosym_t fun_process_endosym; // NOTE - not used at the moment
+
+  // ---- Free-living symbiont signals / functors ----
+  // before_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers if sym is alive before executing sym's CPU.
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> before_freeliving_sym_process_sig;
+
+  // after_freeliving_sym_process_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers at end of ProcessFreeLivingSymAt, but before a final check/potential
+  //  DoSymDeath call
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_process_sig;
+
+  // after_freeliving_sym_cpu_step_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers after each CPU cycle after handling an instruction-triggered repro attempt.
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_cpu_step_sig;
+
+  // after_freeliving_sym_cpu_exec_sig - Triggers in ProcessFreeLivingSymAt()
+  //  Triggers after executing all CPU cycles allotted to sym being processed and
+  //  before SGPSymbiont::Process is called.
+  emp::Signal<void(
+    sgp_sym_t&  /* sym */
+  )> after_freeliving_sym_cpu_exec_sig;
+
+  // ---- Endosymbiont process signals / functors ----
+  // Happens before this endosymbiont's host is processed
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_host_process_sig;
+
+  // before_endosym_process_sig - Triggers during ProcessEndoSymbiont()
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> before_endosym_process_sig;
+
+  // after_endosym_process_sig - Triggers during ProcessEndoSymbiont()
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_process_sig;
+
+  // after_endosym_cpu_step_sig - Triggers during ProcessEndoSymbiont()
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_step_sig;
+
+  // after_endosym_cpu_exec_sig - Triggers during ProcessEndoSymbiont()
+  emp::Signal<void(
+    const emp::WorldPosition&, /* sym_pos */
+    sgp_sym_t&,                /* sym */
+    sgp_host_t&                /* host */
+  )> after_endosym_cpu_exec_sig;
 
 public:
   SGPWorld(
@@ -811,6 +817,52 @@ public:
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
     after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
+
+  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, const emp::WorldPosition& parent_pos){
+    before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
+  }
+
+  void TriggerAfterSymDoBirth(const emp::WorldPosition& sym_baby_pos, 
+    emp::Ptr<sgp_sym_t> parent_sym){
+    after_sym_do_birth_sig.Trigger(sym_baby_pos, parent_sym);
+  }
+
+  void TriggerBeforeHostDoBirth(sgp_host_t& host_offspring_ptr,
+    sgp_host_t& host_parent_ptr,
+    const emp::WorldPosition& parent_pos){
+    before_host_do_birth_sig.Trigger(host_offspring_ptr, host_parent_ptr, parent_pos);
+  }
+
+  void TriggerAfterHostDoBirth(const emp::WorldPosition& host_offspring_pos){
+    after_host_do_birth_sig.Trigger(host_offspring_pos);
+  }
+
+  void TriggerBeforeHostCPUExec(
+    sgp_host_t& host
+  ) {
+    before_host_cpu_exec_sig.Trigger(host);
+  }
+
+  void TriggerAfterHostCPUStep(
+    sgp_host_t& host
+  ) {
+    after_host_cpu_step_sig.Trigger(host);
+  }
+
+  void TriggerAfterHostCPUExec(
+    sgp_host_t& host
+  ) {
+    after_host_cpu_exec_sig.Trigger(host);
+  }
+  
+  void TriggerAfterHostProcess(
+    sgp_host_t& host
+  ) {
+    after_host_process_sig.Trigger(host);
+  }
+
+
+
 
   const std::unordered_set<uint8_t>& GetJumpInstOpcodes() const { return sgp_jump_opcodes; }
 

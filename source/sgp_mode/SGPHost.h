@@ -298,7 +298,7 @@ public:
         this
       );
     }
-    my_world->before_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerBeforeHostCPUExec(*this);
 
     // Host may have died as a result of this signal.
     if (GetDead()) {
@@ -326,10 +326,10 @@ public:
         AttemptReproduction(pos);
       }
 
-      my_world->after_host_cpu_step_sig.Trigger(*this);
+      my_world->TriggerAfterHostCPUStep(*this);
       // NOTE - Check death here?
     }
-    my_world->after_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerAfterHostCPUExec(*this);
     // Handle any endosymbionts (configurable at setup-time)
     // NOTE - is there any reason that this might need to be a functor?
     ProcessEndosymbionts();
@@ -338,7 +338,7 @@ public:
       return;
     }
     GrowOlder();
-    my_world->after_host_process_sig.Trigger(*this);
+    my_world->TriggerAfterHostProcess(*this);
   }
 
   void ProcessEndosymbionts() {
