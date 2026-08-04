@@ -13,6 +13,8 @@
 #include <functional>
 
 
+
+
 namespace sgpmode {
 
 template <typename HW_SPEC_T>
@@ -135,6 +137,10 @@ public:
     //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
     //     emp::WorldPosition::invalid_id;
     // }
+  }
+
+  void HostDoMutation(this_t& host) {
+  my_world->getMutator().MutateProgram(host.GetProgram());
   }
 
   bool operator<(const Organism& other) const {
@@ -593,7 +599,7 @@ public:
     //        to deviate from what happens in the base class mutate functions
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
-    my_world->HostDoMutation(*this);
+    HostDoMutation(*this);
     // TODO - Switch from HostDoMutation() to:
     //   -> my_world->GetHostMutator().DoMutation(*this);
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
