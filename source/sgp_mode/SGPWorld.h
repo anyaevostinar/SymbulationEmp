@@ -818,7 +818,8 @@ public:
     after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
-  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, const emp::WorldPosition& parent_pos){
+  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, 
+    const emp::WorldPosition& parent_pos){
     before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   }
 
@@ -837,15 +838,11 @@ public:
     after_host_do_birth_sig.Trigger(host_offspring_pos);
   }
 
-  void TriggerBeforeHostCPUExec(
-    sgp_host_t& host
-  ) {
+  void TriggerBeforeHostCPUExec(sgp_host_t& host) {
     before_host_cpu_exec_sig.Trigger(host);
   }
 
-  void TriggerAfterHostCPUStep(
-    sgp_host_t& host
-  ) {
+  void TriggerAfterHostCPUStep(sgp_host_t& host) {
     after_host_cpu_step_sig.Trigger(host);
   }
 
