@@ -153,6 +153,7 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_offspring_ptr, sym_parent_ptr, parent_pos));
 
   //Birth is fatal:
+  //GABE TODO: location of this may cause seg fault when fun_sym_do_birth is configured for Free living syms and fails 
   if (!sym_baby_pos.IsValid()) {
     SendToGraveyard(sym_offspring_ptr);
   }
