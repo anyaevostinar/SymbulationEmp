@@ -827,12 +827,6 @@ public:
             this->AddPoints(-1 * my_config->SYM_HORIZ_TRANS_RES());
           }
         }
-
-        if(points != 0) {
-          std::cout << "under: " << points << std::endl;
-        }
-        // removing the above for tag matching--sym parent points are
-        // now set to 0 in symdobirth
         return true;
       }
     }
