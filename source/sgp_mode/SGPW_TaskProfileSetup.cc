@@ -139,7 +139,7 @@ void SGPWorld::SetupFindHostForHorizontalTransmission() {
 
         const bool compatible = fun_horizontal_trans_compatibility_check(
           *prospective_host_ptr,
-          *sym_offspring_ptr
+          *sym_parent_ptr
         );
 
         if (compatible) {

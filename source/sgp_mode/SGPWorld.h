@@ -887,7 +887,7 @@ public:
     emp::Ptr<Organism> sym_offspring,
     emp::Ptr<Organism> sym_parent,
     emp::WorldPosition parent_pos
-  ); //GABE TODO:? //override;
+  ) override;
 
   void HostDoMutation(sgp_host_t& host);
   void SymDoMutation(sgp_sym_t& sym);
@@ -896,7 +896,6 @@ public:
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
   void FreeLivingSymDoInfect(Organism& sym);
 
-  // What accually do we want for this section. 
   std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
     emp::Ptr<sgp_sym_t> sym_offspring_ptr,
     emp::Ptr<sgp_sym_t> sym_parent_ptr,

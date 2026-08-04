@@ -148,15 +148,9 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<sgp_sym_t> sym_offspring_ptr = static_cast<sgp_sym_t*>(sym_offspring.Raw());
   emp::Ptr<sgp_sym_t> sym_parent_ptr = static_cast<sgp_sym_t*>(sym_parent.Raw());
   
-  //Gabe TODO fix this path with new types
-  //before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
+  //before_sym_do_birth_sig.Trigger(sym__ptr, parent_pos);
   emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_offspring_ptr, sym_parent_ptr, parent_pos));
 
-  //Birth is fatal:
-  //GABE TODO: location of this may cause seg fault when fun_sym_do_birth is configured for Free living syms and fails 
-  if (!sym_baby_pos.IsValid()) {
-    SendToGraveyard(sym_offspring_ptr);
-  }
   return sym_baby_pos;
 }
 
@@ -204,6 +198,7 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
   const emp::WorldPosition& parent_pos
 ) {
   // TODO - add any signals?
+  //Sym deletion done in SymWorld::MoveIntoNewFreeWorldPos
   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
 }
 
@@ -221,12 +216,10 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
     if (new_index > 0) {
       //sym successfully infected
       return emp::WorldPosition(new_index, host_id);
-    } else {
-      //sym got killed trying to infect
-      return emp::WorldPosition();
     }
   } else {
-    //could not find a host
+    //sym birth failed
+    SendToGraveyard(sym_offspring_ptr);
     return emp::WorldPosition();
   }
 }

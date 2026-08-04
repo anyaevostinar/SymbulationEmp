@@ -1088,11 +1088,12 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_offspring, emp::Ptr<Organism> sym_parent, emp::WorldPosition parent_pos) {
     const size_t i = parent_pos.GetPopID();
     if (my_config->FREE_LIVING_SYMS() == 0) {
       const int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
+        /* GABE TODO: remove vvv
         emp::Ptr<Organism> sym_parent;
         if (parent_pos.GetIndex() == 0) { // free living parent
           sym_parent = GetSymAt(i);
@@ -1100,13 +1101,14 @@ public:
           emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
           sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
         }
+          */
 
         // infections can fail from size limits or tag mismatch
         // (or, theoretically, no neighbouring hosts)
         const bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
         bool tag_failed = false;
         if (my_config->TAG_MATCHING()) {
-          const double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * TAG_LENGTH;
+          const double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_offspring->GetTag()) * TAG_LENGTH;
           const double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? pop[new_host_pos]->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
           const double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
           tag_failed = tag_distance > cutoff;
@@ -1118,19 +1120,19 @@ public:
           else if (!tag_failed && size_failed) {
             GetHorizontalTransmissionSizeFailCount().AddDatum(sym_parent->GetIntVal());
           }
-          sym_baby.Delete();
+          sym_offspring.Delete();
           return emp::WorldPosition();
         }
 
-        const int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+        const int new_index = pop[new_host_pos]->AddSymbiont(sym_offspring);
 
         if (new_index > 0) { // sym successfully infected
           if (my_config->PHYLOGENY()) {
             if (phylo_taxon_type == PHYLO_TAXON_TYPE::INDIVIDUAL) {
-              sym_baby->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
+              sym_offspring->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
             }
             if (my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
-              pop[new_host_pos]->GetTaxon().Cast<taxon_t::host_taxon_t>()->GetData().AddInteraction(sym_baby->GetTaxon());
+              pop[new_host_pos]->GetTaxon().Cast<taxon_t::host_taxon_t>()->GetData().AddInteraction(sym_offspring->GetTaxon());
             }
           }
           if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()) {
@@ -1142,11 +1144,11 @@ public:
           return emp::WorldPosition();
         }
       } else { // no living neighbors
-        sym_baby.Delete();
+        sym_offspring.Delete();
         return emp::WorldPosition();
       }
     } else {
-      return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
+      return MoveIntoNewFreeWorldPos(sym_offspring, parent_pos);
     }
   }
 

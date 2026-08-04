@@ -258,8 +258,6 @@ void SGPWorld::SetupReproduction() {
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
       // Trigger any post-birth actions
       after_sym_do_birth_sig.Trigger(sym_baby_pos, sym_parent);
-      // Mark parent as no longer reproducing
-      // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
     }
   });
 
@@ -315,7 +313,7 @@ void SGPWorld::SetupSymReproduction() {
       emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      sym_offspring_ptr.Delete();
+      SendToGraveyard(sym_offspring_ptr);
       return emp::WorldPosition();
     };
   }

@@ -480,7 +480,7 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
           emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
           host->AddSymbiont(parent_symbiont);
           emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          new_pos = world.SymDoBirth(new_symbiont, parent_sym_pos);
+          new_pos = world.SymDoBirth(new_symbiont, parent_symbiont, parent_sym_pos);
 
           emp::vector<emp::Ptr<Organism>> syms = uninfected_host->GetSymbionts();
           emp::Ptr<Organism> host_sym = syms[0];
@@ -566,7 +566,9 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
 
       WHEN( "there is no valid neighbouring host" ) {
 
-        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), 2);
+        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val),
+          emp::NewPtr<Symbiont>(&random, &world, &config, int_val),
+          2);
 
         THEN( "the sym is killed" ) {
           //the world should be empty
@@ -585,7 +587,9 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
       THEN("it might be inserted into an empty cell") {
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
 
-        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), parent_pos);
+        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val),
+        emp::NewPtr<Symbiont>(&random, &world, &config, int_val),
+        parent_pos);
 
         REQUIRE(world.GetNumOrgs() == 1);
         REQUIRE(new_pos.IsValid() == true);
@@ -600,8 +604,9 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
         REQUIRE(world.GetNumOrgs() == world_size);
 
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+        emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
+        new_pos = world.SymDoBirth(new_symbiont, sym_parent, parent_pos);
 
         bool new_sym_born = false;
         for (size_t i = 0; i < world_size; i++) {
@@ -621,8 +626,9 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
         world_size = 0;
         world.Resize(0);
         emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+        emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
+        new_pos = world.SymDoBirth(new_symbiont, sym_parent, parent_pos);
 
         REQUIRE(new_pos.IsValid() == false);
         REQUIRE(world.GetNumOrgs() == 0);
@@ -718,8 +724,9 @@ TEST_CASE( "Update with free living symbionts", "[default]" ) {
       world_size = 9;
       world.Resize(world_size);
       THEN("if only syms in the world they can get resources and reproduce") {
+        emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
         emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        world.SymDoBirth(sym, 0);
+        world.SymDoBirth(sym, sym_parent, 0);
         REQUIRE(world.GetNumOrgs() == 1);
 
         for (int i = 0; i < num_updates; i++) {
