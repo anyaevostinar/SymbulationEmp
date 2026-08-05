@@ -132,3 +132,30 @@ TEST_CASE("Symbiont Process", "[sgp][sgp-unit]") {
 //     }
 //   }
 // }
+
+TEST_CASE("CPUState and SGPSymbiont always have the same location","[sgp][elias]"){
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+
+  emp::Random random(31);
+  sgpmode::SymConfigSGP config;
+  world_t world(random, &config);
+  auto& prog_builder = world.GetProgramBuilder();
+  emp::Ptr<sgp_sym_t> sym = emp::NewPtr<sgp_sym_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+  
+  WHEN("Initialized"){
+    REQUIRE(sym->GetHardware().GetCPUState().GetLocation().GetIndex() == sym->GetLocation().GetIndex());
+  }
+
+  WHEN("Symbiont has location set"){
+    sym->SetLocation(emp::WorldPosition(1, 2));
+    REQUIRE(sym->GetHardware().GetCPUState().GetLocation().GetIndex() == sym->GetLocation().GetIndex());
+  }
+  WHEN("CPUState has location set"){
+    sym->GetHardware().GetCPUState().SetLocation(emp::WorldPosition(3, 4));
+    REQUIRE(sym->GetHardware().GetCPUState().GetLocation().GetIndex() == sym->GetLocation().GetIndex());
+  }
+}

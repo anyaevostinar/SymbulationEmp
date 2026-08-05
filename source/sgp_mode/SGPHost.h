@@ -171,10 +171,10 @@ public:
    */
   void SetReproCount(size_t _in) { reproductions = _in; }
 
-  void SetLocation(emp::WorldPosition pos) {
-    hardware.GetCPUState().SetLocation(pos);
-    Host::SetLocation(pos);
-  }
+  //void SetLocation(emp::WorldPosition pos) {
+    //hardware.GetCPUState().SetLocation(pos);
+    //Host::SetLocation(pos);
+  //}
 
   void DecPoints(double amt) {
     points -= amt;
