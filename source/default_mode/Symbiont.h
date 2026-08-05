@@ -224,7 +224,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
+  void LineageLength(size_t _in) { reproductions = _in; }
 
 
   /**
@@ -696,7 +696,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
-    sym_baby->SetReproCount(reproductions + 1);
+    sym_baby->LineageLength(reproductions + 1);
     if(my_config->PHYLOGENY() == 1) {
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic

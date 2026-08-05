@@ -2,12 +2,10 @@
 
 ## Further refactoring list:
 * Add SGP mode to API reference doc
-* Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
-* Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
 * Look at fun_host_sym_stress_trans_compatibility_check to try to reduce code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
 * Move world properties back into protected and make necessary accesssors
 * Try to fold ProcessStressEscapees into existing code/reduce duplication
-* Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
+* Rename "SetReproCount" to lineage length since it's confusing (or did I already?) //I did this
 * Look into what is going on with SGPHost local sgp_config not working
 * Streamline Host ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions

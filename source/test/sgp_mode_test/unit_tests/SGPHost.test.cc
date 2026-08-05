@@ -217,7 +217,7 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]") {
   }
 }
 
-TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
+TEST_CASE("LineageLength & GetReproCount","[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -240,7 +240,7 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
         REQUIRE(host->GetReproCount() == 0);
       }
       WHEN("The host's repro count is increased by 1") {
-        host->SetReproCount(1);
+        host->LineageLength(1);
         THEN("Repro count of the host is 1") {
           REQUIRE(host->GetReproCount() == 1);
         }

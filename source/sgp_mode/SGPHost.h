@@ -175,7 +175,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
+  void LineageLength(size_t _in) { reproductions = _in; }
 
   void SetLocation(emp::WorldPosition pos) {
     hardware.GetCPUState().SetLocation(pos);
@@ -500,7 +500,7 @@ public:
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();
 
-    host_offspring->SetReproCount(reproductions + 1);
+    host_offspring->LineageLength(reproductions + 1);
     cpu_state.SetCPUCyclesSinceRepro(0);
     offspring_cpu_state.SetCPUCyclesSinceRepro(0);
     // Offspring needs to be given parent's (this) task profile
@@ -533,7 +533,7 @@ public:
         cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
       );
       offspring_cpu_state.SetLineageTaskLossCount(
-        task_id,
+        task_id, 
         cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
       );
 
