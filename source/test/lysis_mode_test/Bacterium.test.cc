@@ -240,6 +240,11 @@ TEST_CASE("Bacterium reproduce", "[lysis]") {
   double host_inc_val = 0.3;
   emp::Ptr<Organism> bacterium = emp::NewPtr<Bacterium>(random, &world, &config, host_int_val);
   bacterium->SetIncVal(host_inc_val);
+
+  config.HOST_REPRO_RES(10);
+  bacterium->AddPoints(10);
+
+
   emp::Ptr<Organism> bacterium_baby = bacterium->Reproduce();
 
   THEN("The host baby has a mutated genome and has age and points of 0") {
