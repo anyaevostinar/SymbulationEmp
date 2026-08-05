@@ -148,10 +148,9 @@ emp::WorldPosition SGPWorld::SymDoBirth(
   emp::Ptr<sgp_sym_t> sym_offspring_ptr = static_cast<sgp_sym_t*>(sym_offspring.Raw());
   emp::Ptr<sgp_sym_t> sym_parent_ptr = static_cast<sgp_sym_t*>(sym_parent.Raw());
   
-  //before_sym_do_birth_sig.Trigger(sym__ptr, parent_pos);
-  emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_offspring_ptr, sym_parent_ptr, parent_pos));
-
-  return sym_baby_pos;
+  before_sym_do_birth_sig.Trigger(sym_offspring_ptr, parent_pos);
+  emp::WorldPosition sym_offspring_pos(fun_sym_do_birth(sym_offspring_ptr, sym_parent_ptr, parent_pos));
+  return sym_offspring_pos;
 }
 
 emp::WorldPosition SGPWorld::HostDoBirth(
@@ -217,11 +216,11 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
       //sym successfully infected
       return emp::WorldPosition(new_index, host_id);
     }
-  } else {
-    //sym birth failed
-    SendToGraveyard(sym_offspring_ptr);
+    //AddSymbiont deletes symbiont
     return emp::WorldPosition();
   }
+  SendToGraveyard(sym_offspring_ptr);
+  return emp::WorldPosition();
 }
 
 void SGPWorld::ProcessGraveyard() {

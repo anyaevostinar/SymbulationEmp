@@ -252,10 +252,10 @@ void SGPWorld::SetupReproduction() {
       HostDoBirth(child, org, repro_info.pos);
     
     } else {
-      const emp::WorldPosition sym_baby_pos = SymDoBirth(child, org, repro_info.pos);
+      const emp::WorldPosition sym_offspring_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
       // Trigger any post-birth actions
-      after_sym_do_birth_sig.Trigger(sym_baby_pos, sym_parent);
+      after_sym_do_birth_sig.Trigger(sym_offspring_pos, sym_parent);
     }
   });
 
