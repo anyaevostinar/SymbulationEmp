@@ -50,7 +50,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  // emp::Ptr<SymConfigSGP> sgp_config;
+  emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -81,8 +81,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+      sgp_config(_config)
   { }
 
   /**
@@ -100,8 +100,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+      sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -263,7 +263,6 @@ public:
     if (GetDead()) {
       return;
     }
-
     // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
     //        Currently endosyms go first and then hosts. This is to model endosyms
     //        having opportunity to steal / donate cpu cycles and then host responding
@@ -290,7 +289,7 @@ public:
       }
       // Endosymbiont gains baseline number of CPU cycles
       cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
-        my_world->GetConfig().CYCLES_PER_UPDATE()
+        sgp_config->CYCLES_PER_UPDATE()
       );
       my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
@@ -388,7 +387,7 @@ public:
    * TODO: Perhaps Default mode should have something similar
    */
   void AttemptReproduction(const emp::WorldPosition& pos) {
-    const double repro_cost = my_world->GetConfig().HOST_REPRO_RES();
+    const double repro_cost = sgp_config->HOST_REPRO_RES();
     if (GetPoints() >= repro_cost) {
       // Host pays cost
       DecPoints(repro_cost);
@@ -434,7 +433,7 @@ public:
           // Is this a host task?
           if (!task_env.IsHostTask(task_id)) continue;
           // Not first task
-          const bool not_first_task = my_world->GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
+          const bool not_first_task = sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
           if (not_first_task) {
             continue;
           }
