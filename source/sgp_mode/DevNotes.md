@@ -31,7 +31,7 @@
 [x] Try to fold ProcessStressEscapees into existing code/reduce duplication
     - Initially we attempted to turn ReproductionQueue into a birth queue, however this hurts performance. ReproductionQueue will skip organisms who have died and therefore should not reproduce before Reproduce() is called. With a birth queue, the children would already be constructed. This uses more memory and wastes resources on construction. Instead ProcessStressEscapees was moved into a signal. 
 [x] Look at fun_host_sym_stress_trans_compatibility_check to try to reduce  code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
-    - Completed with above refactor. Now does not rely on parents as they may be dead at the time of reproduction (stress escapees). This change allowed processing escapees to be streamlined
+    - Completed with above refactor.
 
 # Journal
 4/15/26

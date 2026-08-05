@@ -883,7 +883,6 @@ public:
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
   emp::WorldPosition SymDoBirth(
-    //Do we want to change the types throughout this chain of functions to sgp_sym_t ?
     emp::Ptr<Organism> sym_offspring,
     emp::Ptr<Organism> sym_parent,
     emp::WorldPosition parent_pos

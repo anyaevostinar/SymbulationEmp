@@ -481,6 +481,8 @@ namespace sgpmode {
         for (size_t esc_i : escapee_ids) {
           auto& escapee_info = symbiont_stress_escapees[esc_i];
           emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.sym_parent, escapee_info.escape_location);
+          //do we want to track success
+        
         }
         symbiont_stress_escapees.clear();
         // TODO - add data collection for successful escapes

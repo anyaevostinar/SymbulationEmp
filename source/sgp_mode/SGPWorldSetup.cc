@@ -250,9 +250,7 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
-      // Mark parent as no longer reproducing (world handles setting state, so should handle resetting)
-      // NOTE - could move reset repro state in Reproduce functions
-      // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+    
     } else {
       const emp::WorldPosition sym_baby_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
