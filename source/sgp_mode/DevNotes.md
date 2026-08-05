@@ -1,6 +1,7 @@
 (delete once Anya is done with joint refactoring)
 
 ## Further refactoring list:
+* Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
 * Add SGP mode to API reference doc
 * Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 * Move SymDoMutation into SGPSymbiont to parallel host
