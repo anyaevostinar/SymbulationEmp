@@ -32,6 +32,12 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP_MUTATION, "SGP mutation group"),
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
 
+  GROUP(CUSTOM_PROGRAM, "Custom Program Settings"),
+  VALUE(PROGRAM_PATH, std::string, "example-settings-cfg/NandProgram100.json", "Json file that provides a custom starting program"),
+  VALUE(HOST_PROGRAM_PATH, std::string, "-1", "Json file that provides hosts a custom starting program, if -1 uses PROGRAM_PATH"),
+  VALUE(SYM_PROGRAM_PATH, std::string, "-1", "Json file that provides symbionts a custom starting program, if -1 uses PROGRAM_PATH"),
+
+
   GROUP(STRESS, "Stress Settings"),
   VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),
   VALUE(STRESS_TYPE, std::string, "mutualist", "What kind of stress symbionts should be incorporated in stressful environments? (Options: 'mutualist', 'parasite', 'neutral')"),

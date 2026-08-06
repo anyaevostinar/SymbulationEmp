@@ -386,8 +386,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
-      prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+      prog_builder.LoadProgramFile(sgp_config.PROGRAM_PATH())
+      //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
     );
+    for (auto& inst : init_prog){
+      std::cout << inst.GetOpName() << std::endl;
+    }
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
         new_host = emp::NewPtr<sgp_host_t>(
@@ -410,7 +414,8 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
       sgp_prog_t sym_prog(
-        prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+        prog_builder.LoadProgramFile(sgp_config.PROGRAM_PATH())
+        //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
       );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,

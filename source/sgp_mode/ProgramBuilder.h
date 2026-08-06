@@ -641,8 +641,14 @@ public:
    * Note: Warns if the program contains disabled instructions.
    */
   program_t LoadProgramFile(const std::filesystem::path& path) {
+    //std::cout << std::filesystem::exists(path) << std::endl;
+    
     program_t program(path);
+    //for (auto& inst : program){
+    //  std::cout << inst << std::endl;
+    //}
     RectifyWithWarning(program);
+    
     return program;
   }
 
