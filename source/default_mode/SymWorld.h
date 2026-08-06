@@ -1093,16 +1093,7 @@ public:
     if (my_config->FREE_LIVING_SYMS() == 0) {
       const int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
-        /* GABE TODO: remove vvv
-        emp::Ptr<Organism> sym_parent;
-        if (parent_pos.GetIndex() == 0) { // free living parent
-          sym_parent = GetSymAt(i);
-        } else { // hosted parent
-          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
-          sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
-        }
-          */
-
+        
         // infections can fail from size limits or tag mismatch
         // (or, theoretically, no neighbouring hosts)
         const bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
