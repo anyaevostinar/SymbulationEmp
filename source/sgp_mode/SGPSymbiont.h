@@ -190,12 +190,20 @@ public:
 
   }
 
-  void AddPoints(double _in) {
-    points += _in;
-  }
-
   void DecPoints(double amt) {
     points -= amt;
+
+    if (points < 0){
+      points = 0;
+    }
+  }
+
+  void AddPoints(double amt) {
+    points += amt;
+    
+    if (points < 0){
+      points = 0;
+    }
   }
 
   /**

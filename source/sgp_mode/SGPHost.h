@@ -178,9 +178,20 @@ public:
 
   void DecPoints(double amt) {
     points -= amt;
+
+    if (points < 0){
+      points = 0;
+    }
   }
+  
   void AddPoints(double amt) {
     points += amt;
+
+    if (points < 0){
+      points = 0;
+    }
+
+   
   }
 
   size_t GetCountofMatchingSymsToInteractWith(){
