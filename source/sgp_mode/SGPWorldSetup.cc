@@ -131,7 +131,7 @@ void SGPWorld::DisableConfigurableInstructions() {
 
   // if temporally changing environment are off, or if organisms aren't allowed to sense their environment,
   // disable the SenseTask instruction
-  if (!sgp_config.SENSE_TASK_INSTRUCTION()) {
+  if (!sgp_config.INCLUDE_INSTRUCTION_SenseTask()) {
     del_inst(
       opcode_rectifier.mapper.begin(),
       opcode_rectifier.mapper.end(),
