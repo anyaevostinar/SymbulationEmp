@@ -823,6 +823,8 @@ public:
     } else {
       new_org.Delete();
     } // Otherwise delete the organism.
+    emp::DataMonitor<int>& data_node_host_repro_rate = GetHostReproRateDataNode();
+    data_node_host_repro_rate.AddDatum(1);
     return pos;
   }
 

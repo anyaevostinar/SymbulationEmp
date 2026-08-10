@@ -430,7 +430,6 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       if (task_env.IsSymTask(nand_task_id)) {
         new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id, true);
         new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(nand_task_id, true);
-        //new_sym->GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
       }
       // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);

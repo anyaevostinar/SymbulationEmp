@@ -716,8 +716,6 @@ public:
       sym_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
       sym_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
     }
-
-    //ADD 1 to Repro data node
     return sym_baby;
   }
 
@@ -784,7 +782,6 @@ public:
 
         emp::DataMonitor<int>& data_node_sym_repro_rate = my_world->GetSymReproRateDataNode();
         data_node_sym_repro_rate.AddDatum(1);
-        //Increase Data Repro Count by 1
       }
     }
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;

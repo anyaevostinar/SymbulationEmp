@@ -155,8 +155,8 @@ emp::DataFile & SymWorld::SetupReproRateFile(const std::string & filename) {
   auto & node2 = GetSymReproRateDataNode();
 
   file.AddVar(update, "update", "Update");
-  file.AddTotal(node1, "success_host_repro_count", "Total number of successful host reproductions",true);
-  file.AddTotal(node2, "success_sym_repro_count", "Total number of successful sym reproductions",true);
+  file.AddTotal(node1, "successful_host_repro_count", "Total number of successful host reproductions",true);
+  file.AddTotal(node2, "successful_sym_repro_count", "Total number of successful sym reproductions",true);
 
   file.PrintHeaderKeys();
 
