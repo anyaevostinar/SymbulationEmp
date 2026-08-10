@@ -149,6 +149,35 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
   }
 
+  WHEN("creating a NAND program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("source/test/sgp_mode_test/NandProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 52 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "NAND" },
+      { "NOT", "OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU" }
+    );
+  }
+
+
   WHEN("creating a repro program") {
     hw.Reset();
     // Set program of organism to something else
