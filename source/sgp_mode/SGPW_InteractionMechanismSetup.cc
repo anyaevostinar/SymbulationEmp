@@ -263,28 +263,6 @@ namespace sgpmode {
           if (random_ptr->P(death_chance)) {
             host.SetDead();
           }
-          else if(interact){
-
-            const double repro_cost = GetConfig().HOST_REPRO_RES()/4;
-            if (host.GetPoints() >= repro_cost) {
-
-
-              // Host pays cost
-              host.DecPoints(repro_cost);
-              // Add host to repro queue
-              // TODO - protect with mutex?
-              
-                const size_t queue_id = GetReproQueue().Enqueue(
-                  host.GetHardware().GetCPUState().GetOrgPtr(),
-                  host.GetLocation()
-                );
-                host.GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-              
-              // Mark host hardware as repro in progress, no longer in repro "attempt" state.
-              
-            }
-          }
-
         }
       );
     } else if (GetStressSymType() == stress_sym_mode_t::PARASITE) {

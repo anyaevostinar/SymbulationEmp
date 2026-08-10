@@ -542,9 +542,9 @@ public:
    /**
    * Input: None.
    *
-   * Output: Size_it, number of CPU cycles since the last reproduction event
+   * Output: Size_t, number of CPU cycles since the last reproduction event
    *
-   * Purpose: Used to track how long it has been since last reproduction to enforce a minnimum period
+   * Purpose: Used to track how long it has been since last reproduction to enforce a minimum period between reproductions
    */
   size_t GetCPUCyclesSinceRepro() const { return cpu_cycles_since_repro; }
   

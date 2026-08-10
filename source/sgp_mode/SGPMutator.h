@@ -8,10 +8,11 @@ namespace sgpmode {
 // NOTE - We can set this up to be configurable (e.g., support different modes,
 //        ability to "layer on" different mutaiton types).
 //        For now, it just replicates functionality of previous mutator
-template<typename PROGRAM_T, typename INST_LIBRARY_T>
 /**
-* Used to mutate the program of organisms
+* @tparam PROGRAM_T: a program, INST_LIBRARY_T: A library containing all possible instructions to be mutated to
+* Purpose: Used to mutate the program of organisms
 */
+template<typename PROGRAM_T, typename INST_LIBRARY_T>
 class SGPMutator {
 public:
   using program_t = PROGRAM_T;

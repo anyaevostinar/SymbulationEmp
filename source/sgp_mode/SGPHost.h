@@ -14,11 +14,10 @@
 
 
 namespace sgpmode {
-
-template <typename HW_SPEC_T>
 /**
-* The SignalGP version of the base host, one of two organism types in SGPmode
+* The SignalGP version of the base host
 */
+template <typename HW_SPEC_T>
 class SGPHost : public Host {
 public:
   using this_t = SGPHost<HW_SPEC_T>;

@@ -22,11 +22,10 @@
 
 namespace sgpmode {
 
-template<typename HW_SPEC_T>
-
 /**
- * The ProgramBuilder is used to generate starter genomes and read genomes from a json.
- */
+* The ProgramBuilder is used to generate starter genomes and read genomes from a json.
+*/
+template<typename HW_SPEC_T>
 class ProgramBuilder {
 public:
   using hw_spec_t = HW_SPEC_T;

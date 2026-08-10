@@ -8,12 +8,10 @@
 
 namespace sgpmode {
 
-// TODO - tests
-template<typename T>
-
 /**
  * The Stacks are used as a first in, last out data structure.
  */
+template<typename T>
 class Stacks {
 public:
   using stack_t = emp::vector<T>;

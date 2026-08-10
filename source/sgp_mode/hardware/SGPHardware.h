@@ -19,12 +19,11 @@
 namespace sgpmode {
 
 
-
-template<typename HW_SPEC_T>
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
  */
+template<typename HW_SPEC_T>
 class SGPHardware {
 public:
   using this_t = SGPHardware<HW_SPEC_T>;

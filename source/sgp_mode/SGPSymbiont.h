@@ -10,10 +10,10 @@
 
 namespace sgpmode {
 
-template<typename HW_SPEC_T>
 /**
-* The SignalGP version of the base symbiont, one of two organism types in SGPmode
+* The SignalGP version of the base symbiont
 */
+template<typename HW_SPEC_T>
 class SGPSymbiont : public Symbiont {
 public:
   using this_t = SGPSymbiont<HW_SPEC_T>;

@@ -14,12 +14,13 @@ namespace sgpmode::tasks {
 
 // TODO - write tests
 
-template<typename INPUT_T, typename OUTPUT_T>
 /**
   TaskSet is adapted from class of the same name from
     https://github.com/amlalejini/directed-digital-evolution
 
-  TaskSet defines a set of tasks where each task can be identified by a numeric ID
+  @tparam INPUT_T: A vector of inputs, OUTPUT_T: output of a task given INPUT_T
+
+  Purpose: TaskSet defines a set of tasks where each task can be identified by a numeric ID
   and a given string name.
 
   A Task defines a mapping from a given set (vector) of inputs (INPUT_T) to a
@@ -28,6 +29,7 @@ template<typename INPUT_T, typename OUTPUT_T>
   task.
 
 */
+template<typename INPUT_T, typename OUTPUT_T>
 class TaskSet {
 public:
 

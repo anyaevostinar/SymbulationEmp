@@ -35,7 +35,7 @@ const size_t PROGRAM_LENGTH = 100;
 
 // TODO - add tests for stack limits on organisms
 /**
-* The world in which all organisms reside, the Singal GP version of the base SymWorld
+* The world in which all organisms reside, the Signal GP version of the base SymWorld
 */
 class SGPWorld : public SymWorld {
 public:

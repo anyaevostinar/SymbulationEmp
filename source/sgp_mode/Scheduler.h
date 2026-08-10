@@ -162,7 +162,7 @@ public:
    *
    * Output: None.
    *
-   * Purpose: UProcess all orgs in world population in current schedule order (single-threaded).
+   * Purpose: Process all orgs in world population in current schedule order (single-threaded).
    */
   template<typename WORLD_T>
   void Run(WORLD_T& world) {
