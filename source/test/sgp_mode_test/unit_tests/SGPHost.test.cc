@@ -311,7 +311,7 @@ TEST_CASE("Check that hosts and syms can't have negative points", "[sgp][sgp-uni
   }
 }
 
-TEST_CASE("CPUState and SGPHost always have the same location","[sgp][elias]"){
+TEST_CASE("CPUState and SGPHost always have the same location","[sgp]"){
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -325,11 +325,15 @@ TEST_CASE("CPUState and SGPHost always have the same location","[sgp][elias]"){
   emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
   
   WHEN("Initialized"){
-   REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    THEN("Host and CPUState return the same location"){
+      REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    }
   }
   WHEN("Host has location set"){
     host->SetLocation(emp::WorldPosition(1, 2));
-    REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    THEN("Symbiont and CPUState return the same location"){
+      REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    }
   }
   WHEN("CPUState has location set"){
     host->GetHardware().GetCPUState().SetLocation(emp::WorldPosition(3, 4));

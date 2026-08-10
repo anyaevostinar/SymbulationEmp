@@ -82,7 +82,7 @@ public:
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
     my_world(_world),
-      sgp_config(_config)
+    sgp_config(_config)
   { }
 
   /**
@@ -101,7 +101,7 @@ public:
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
     my_world(_world),
-      sgp_config(_config)
+    sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -170,11 +170,6 @@ public:
    * Purpose: To set the count of reproductions in this lineage.
    */
   void SetReproCount(size_t _in) { reproductions = _in; }
-
-  //void SetLocation(emp::WorldPosition pos) {
-    //hardware.GetCPUState().SetLocation(pos);
-    //Host::SetLocation(pos);
-  //}
 
   void DecPoints(double amt) {
     points -= amt;

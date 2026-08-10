@@ -446,9 +446,6 @@ protected:
       (static_cast<sgp_sym_t*>(org_ptr.Raw()))->GetHardware().GetCPUState();
   }
 
-  // -- Signals to allow custom behavior to be triggered by other classes -- /
-  // AEV question: getter methods for these?
-
   // begin_update_sig - Triggers at the beginning of an Update call.
   //  Triggers before schedule update, before processing any organisms.
   //  E.g., used for resetting any per-update data tracking.

@@ -86,7 +86,6 @@ protected:
   emp::Ptr<Organism> organism; // Unowned pointer to organism using this CPU.
   emp::Ptr<world_t> world_ptr; // Unowned pointer to the world using this CPU.
 
-  //emp::WorldPosition location;
 
 public:
   CPUState(
@@ -148,7 +147,6 @@ public:
 
     jump_table.clear();
 
-    //location = emp::WorldPosition();
   }
 
   // Reset cpu state, but keep num_tasks the same.
@@ -219,8 +217,6 @@ public:
       }
     }
   }
-
-  // const emp::WorldPosition& GetLocation() const { return loc; }
 
   void SetOrganism(emp::Ptr<Organism> org_ptr) {
     organism = org_ptr;
