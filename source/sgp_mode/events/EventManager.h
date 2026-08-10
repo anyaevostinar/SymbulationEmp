@@ -266,13 +266,9 @@ public:
   void LoadEventsFromJSON(const std::string& event_filepath, world_t& world) {
     ClearEvents();
     // === Parse events file ===
-    // Check if given events file exists. Exit if not.
+    // Assert event file existence.
     const bool event_file_exists = std::filesystem::exists(event_filepath);
-    if (!event_file_exists) {
-      std::cout << "Event file does not exist: " << event_filepath << std::endl;
-      emp_assert(false, "Event file does not exist.");
-      std::exit(EXIT_FAILURE);
-    }
+    emp_assert(event_file_exists, "Event file does not exist.");
     // read event.json file
     std::ifstream event_ifstream(event_filepath);
     nlohmann::json events_json;
@@ -416,5 +412,13 @@ public:
   }
 
 };
+
+void GenerateEmptyEventsJSON(const std::string& event_filepath) {
+  nlohmann::json empty_events;
+  empty_events["events"] = nlohmann::json::array();
+  std::ofstream empty_events_file(event_filepath);
+  empty_events_file << empty_events << std::endl;
+  empty_events_file.close();
+}
 
 }

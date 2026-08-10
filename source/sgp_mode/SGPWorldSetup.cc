@@ -458,6 +458,23 @@ void SGPWorld::SetupTaskEnvironment() {
 }
 
 void SGPWorld::SetupEvents() {
+  // If event file doesn't exist, check if user is using default event setting.
+  // If so, create an empty events file that can be used, and let the user know.
+  const bool event_file_exists = std::filesystem::exists(sgp_config.EVENTS_CFG_PATH());
+  if (!event_file_exists) {
+    std::cout << "Event file does not exist: " << sgp_config.EVENTS_CFG_PATH() << std::endl;
+    std::string default_events_file_name(sgp_config["EVENTS_CFG_PATH"]->GetDefault());
+    // Strip off "" around default file name
+    emp::remove_chars(default_events_file_name, "\"");
+    if (sgp_config.EVENTS_CFG_PATH() == default_events_file_name) {
+      // User has default file path configured.
+      // Create an empty events file for them, and let them know.
+      GenerateEmptyEventsJSON(default_events_file_name);
+      std::cout << "Generating default events file: " << default_events_file_name << std::endl;
+    }
+    emp_assert(false, "Event file does not exist.");
+    std::exit(EXIT_FAILURE);
+  }
   event_manager.LoadEventsFromJSON(sgp_config.EVENTS_CFG_PATH(), *this);
 }
 

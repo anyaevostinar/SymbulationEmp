@@ -837,9 +837,6 @@ public:
    */
   void Update() override {
     emp_assert(setup);
-    // NOTE - When do we want events to occur? Typically, I think we want them
-    //      as the *very* first thing that happens on an update. E.g., changing
-    //      a task value, etc.
     event_manager.ProcessEvents(*this);
     begin_update_sig.Trigger();
     // Handle resource inflow
