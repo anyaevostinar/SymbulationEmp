@@ -32,7 +32,7 @@ public:
     json_t& event_json,
     WORLD_T& world
   ) {
-    // This should be a task_value event
+    // This should be the correct event type
     emp_assert(event_json["event_type"] == event_specs.event_type);
     // NOTE: Caller is responsible for event deletion.
     emp::Ptr<ExampleEvent> event = emp::NewPtr<ExampleEvent>();
