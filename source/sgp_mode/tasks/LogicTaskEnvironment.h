@@ -63,10 +63,6 @@ protected:
   emp::vector<TaskReqInfo> host_task_reqs;
   emp::vector<TaskReqInfo> sym_task_reqs;
 
-  // TODO - track task performance?
-
-  // TODO - move this into util file in json directory
-
   void SetTaskReqInfo(TaskReqInfo& info, json_t& task_cfg_json) {
     info.task_value = sym_json::GetVal<double>(task_cfg_json, "value", 1);
     info.max_repeats = sym_json::GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
@@ -74,10 +70,6 @@ protected:
     emp_assert(emp::Has(this_t::predefined_reward_functions, reward_mode));
     info.fun_calc_task_val = this_t::predefined_reward_functions.at(reward_mode);
   }
-
-  // BuildTaskRewardFun_Add() {
-
-  // }
 
   size_t GetHostTaskReqID(size_t task_id) const {
     emp_assert(IsHostTask(task_id));
