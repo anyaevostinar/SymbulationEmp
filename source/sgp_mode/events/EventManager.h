@@ -67,7 +67,6 @@ protected:
     // Check that event_json has event type
     emp_assert(event_json.contains("event_type"));
     const std::string event_type(event_json["event_type"]);
-    // emp::Ptr<Event> loaded_event;
     // Check if event type is valid (i.e., exists in the event type library)
     emp_assert(event_type_library.IsValidEventType(event_type));
     const size_t event_type_id = event_type_library.GetEventTypeID(event_type);
@@ -209,11 +208,11 @@ public:
   }
 
   /**
-   * Purpose:
+   * Purpose: Accessor for event type library.
    *
-   * Input:
+   * Input: None.
    *
-   * Output:
+   * Output: Const reference to this event manager's event type library.
    */
   const EventTypeLibrary<world_t>& GetEventTypeLibrary() const { return event_type_library; }
 
@@ -257,7 +256,7 @@ public:
   }
 
   /**
-   * Purpose: load in and process events configuratoin json file (includes
+   * Purpose: load in and process events configuration json file (includes
    *          creating events and checking if they are valid)
    *
    * Input: String path to event configuration file, reference to the world object
@@ -303,22 +302,6 @@ public:
    * Output: None.
    */
   void ProcessEvents(world_t& world) {
-    // Get current update in the world. Process all events that should occur on this update.
-    // Options:
-    //  1. Maintain unordered list of events. Loop over entire list each update,
-    //      triggering any events where event->NextUpdate() == current update.
-    //    - Pro: no need to maintain sorted order, simple insertion/deletion
-    //    - Con: need to loop over all events no matter what. Could be costly if
-    //        there are many events that occur throughout the run.
-    //  2. Keep events sorted by their next update to trigger on. Trigger any events
-    //      where event->NextUpdate() == current update.
-    //    - Pro: Very efficient to check if any events need to be triggered. Will
-    //        end up looping over just events that need to be triggered each update.
-    //    - Con: Recurring events need to be resorted if they need to be triggered
-    //        again in the future.
-    // AML thoughts: Leaning toward option 2. In option 1, we pay the expensive part
-    //    every update. In option 2, we only pay the resorting cost when a recurring
-    //    event triggers (most recurring events will not happen every update).
     // Process all one-time events that need to be triggered this update.
     ProcessOneTimeEvents(world);
     // Next, process all recurring events that need to be triggered this update.
@@ -389,7 +372,7 @@ public:
   }
 
     /**
-   * Purpose: Hlper function to resort the one-time events.
+   * Purpose: Helper function to resort the one-time events.
    *          One-time events should be reverse-sorted by their next update
    *          (i.e., soonest next update at end). One-time events must be sorted
    *          for processing to be correct. i.e., when adding a new event, must resort!
