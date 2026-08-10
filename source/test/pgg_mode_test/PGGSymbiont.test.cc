@@ -100,8 +100,11 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
     SymConfigPGG config;
+    //test_utils::SetEmptyWellMixed(config);
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
+    //world->SetPopStruct_Mixed();
+    //world->Setup();
 
     //add new test for free living sym not moving when it shouldnt
     WHEN("Horizontal transmission is true and points is greater than sym_h_res") {

@@ -206,8 +206,8 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
   emp::Ptr<sgp_sym_t> sym_parent_ptr,
   const emp::WorldPosition& parent_pos
 ) {
-  emp_assert(!parent->IsHost());
-  const auto new_host_pos = FindHostForHorizontalTrans(sym_offspring_ptr, sym_parent_ptr, parent_pos);
+  emp_assert(!sym_parent_ptr->IsHost());
+  const auto new_host_pos = FindHostForHorizontalTrans(sym_parent_ptr, parent_pos);
 
   if (new_host_pos) {
     const size_t host_id = new_host_pos.value().GetIndex();
@@ -250,12 +250,11 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
 }
 
 std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
-  emp::Ptr<sgp_sym_t> sym_offspring_ptr,
   emp::Ptr<sgp_sym_t> sym_parent_ptr,
   const emp::WorldPosition& parent_pos
 ) {
   // Outsource to configurable functor
-  return fun_find_host_for_horizontal_trans(sym_offspring_ptr, sym_parent_ptr, parent_pos);
+  return fun_find_host_for_horizontal_trans(sym_parent_ptr, parent_pos);
 }
 
 void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {

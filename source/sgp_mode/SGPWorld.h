@@ -65,7 +65,7 @@ public:
   // Are host and endosymbiont compatible for horizontal transmission?
   // At the moment, task match based on parent vs current
   // NOTE: arguments can't be const because necessary Host.h/Organism.h functions aren't const
-  using fun_horizontal_trans_compatibility_check_t = std::function<bool(
+  using fun_horizontal_transmission_compatibility_check_t = std::function<bool(
     sgp_host_t&,
     sgp_sym_t&
   )>;
@@ -343,9 +343,8 @@ public:
   // Returns a target position for symbiont to horizontally transmit into.
   // Returns std::nullopt if failed to find suitable target position.
   std::function<std::optional<emp::WorldPosition>(
-    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
-    emp::Ptr<sgp_sym_t> sym_parent_ptr,
-    const emp::WorldPosition& parent_pos
+    emp::Ptr<sgp_sym_t>, //sym parent
+    const emp::WorldPosition& //sym parent pos
   )> fun_find_host_for_horizontal_trans;
 
   // External facing helpers for orgnanisms to call
@@ -432,7 +431,7 @@ protected:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-  fun_horizontal_trans_compatibility_check_t fun_horizontal_trans_compatibility_check;
+  fun_horizontal_transmission_compatibility_check_t fun_horizontal_transmission_compatibility_check;
 
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
@@ -896,7 +895,6 @@ public:
   void FreeLivingSymDoInfect(Organism& sym);
 
   std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
-    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
     emp::Ptr<sgp_sym_t> sym_parent_ptr,
     const emp::WorldPosition& parent_pos
   );

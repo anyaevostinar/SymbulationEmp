@@ -318,10 +318,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
     host->AddSymbiont(symbiont);
 
     world.AddOrgAt(host, 0);
-    emp::Ptr<Organism> offspring_org = symbiont->Reproduce();
-    emp::Ptr<sgp_sym_t> offspring = static_cast<sgp_sym_t*>(offspring_org.Raw());
 
-    WHEN("There exists three nearby hosts all with matching tasks with the incoming symbiont") {
+    WHEN("There exists three nearby hosts all with matching tasks with the parent of the incoming symbiont") {
       for (size_t i = 1; i < 4; i++) {
         emp::WorldPosition neighbor_position = emp::WorldPosition(i,0);
         emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
@@ -331,7 +329,7 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
       }
       symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
       WHEN("Task matching is not required for horizontal transmission") {
-        auto pos_found = world.FindHostForHorizontalTrans(offspring, symbiont, symbiont->GetLocation());
+        auto pos_found = world.FindHostForHorizontalTrans(symbiont, symbiont->GetLocation());
         THEN("The position of the nearby matching host is not 0 (which is the current host), and PopID is same as current host") {
           REQUIRE(pos_found);
           REQUIRE(world.IsOccupied(*pos_found));
@@ -361,23 +359,21 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
     emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
-    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
     host->AddSymbiont(symbiont);
 
     world.AddOrgAt(host, 0);
-    emp::Ptr<Organism> offspring_org = symbiont->Reproduce();
-    emp::Ptr<sgp_sym_t> offspring = static_cast<sgp_sym_t*>(offspring_org.Raw());
 
     WHEN("There exists a nearby host") {
       emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
       emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
       world.AddOrgAt(neighbor_host, neighbor_position);
 
-      WHEN("The nearby host has matching tasks with the incoming symbiont") {
+      WHEN("The nearby host has matching tasks with the parent of the incoming symbiont") {
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(8);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
 
         WHEN("Task matching is required for horizontal transmission") {
-          auto pos_found = world.FindHostForHorizontalTrans(offspring, symbiont, symbiont->GetLocation());
+          auto pos_found = world.FindHostForHorizontalTrans(symbiont, symbiont->GetLocation());
           THEN("The position of the nearby, matching host is returned") {
             REQUIRE(pos_found.has_value() == true);
             REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
@@ -407,24 +403,22 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
     emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
-    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
     host->AddSymbiont(symbiont);
 
     world.AddOrgAt(host, 0);
-    emp::Ptr<Organism> offspring_org = symbiont->Reproduce();
-    emp::Ptr<sgp_sym_t> offspring = static_cast<sgp_sym_t*>(offspring_org.Raw());
 
     WHEN("There exists a nearby host") {
       emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
       emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
       world.AddOrgAt(neighbor_host, neighbor_position);
 
-      WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
+      WHEN("The nearby host does not have matching tasks with the parent of the incoming symbiont") {
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(6);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
         
 
         WHEN("Task matching is not required for horizontal transmission") {
-          auto pos_found = world.FindHostForHorizontalTrans(offspring, symbiont, symbiont->GetLocation());
+          auto pos_found = world.FindHostForHorizontalTrans(symbiont, symbiont->GetLocation());
           THEN("The position of the nearby, non-matching host is returned") {
             REQUIRE(pos_found.has_value() == true);
             REQUIRE(pos_found->GetIndex() == neighbor_position.GetIndex());
@@ -454,25 +448,21 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is required for horizon
 
     emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
     emp::Ptr<sgp_sym_t> symbiont = emp::NewPtr<sgp_sym_t>(&random, &world, &config);
-    symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
     host->AddSymbiont(symbiont);
 
     world.AddOrgAt(host, 0);
-    emp::Ptr<Organism> offspring_org = symbiont->Reproduce();
-    emp::Ptr<sgp_sym_t> offspring = static_cast<sgp_sym_t*>(offspring_org.Raw());
 
     WHEN("There exists a nearby host") {
       emp::WorldPosition neighbor_position = emp::WorldPosition(1,0);
       emp::Ptr<sgp_host_t> neighbor_host = emp::NewPtr<sgp_host_t>(&random, &world, &config);
       world.AddOrgAt(neighbor_host, neighbor_position);
 
-      WHEN("The nearby host does not have matching tasks with the incoming symbiont") {
+      WHEN("The nearby host does not have matching tasks with the parent of the incoming symbiont") {
         neighbor_host->GetHardware().GetCPUState().MarkTaskPerformed(6);
+        symbiont->GetHardware().GetCPUState().MarkTaskPerformed(8);
         
-
-
         WHEN("Task matching is required for horizontal transmission") {
-          auto pos_found = world.FindHostForHorizontalTrans(offspring, symbiont, symbiont->GetLocation());
+          auto pos_found = world.FindHostForHorizontalTrans(symbiont, symbiont->GetLocation());
           THEN("Nothing is returned (no acceptable neighboring host)") {
             REQUIRE(pos_found.has_value() == false);
           }
@@ -504,11 +494,8 @@ TEST_CASE("FindHostForHorizontalTrans when task matching is not required for hor
 
     world.AddOrgAt(host, 0);
 
-    emp::Ptr<Organism> offspring_org = symbiont->Reproduce();
-    emp::Ptr<sgp_sym_t> offspring = static_cast<sgp_sym_t*>(offspring_org.Raw());
-
     WHEN("There does not exist a nearby host") {
-      auto pos_found = world.FindHostForHorizontalTrans(offspring, symbiont, symbiont->GetLocation());
+      auto pos_found = world.FindHostForHorizontalTrans(symbiont, symbiont->GetLocation());
       THEN("Nothing is returned (no acceptable neighboring host)") {
         REQUIRE(pos_found.has_value() == false);
       }
