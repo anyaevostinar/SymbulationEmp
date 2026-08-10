@@ -100,7 +100,7 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
     emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
     SymConfigPGG config;
-    //test_utils::SetEmptyWellMixed(config);
+    //test_utils::SetEmptyWellMixed(config); // we will talk about these comments tuesday!
     PGGWorld w(*random, &config);
     PGGWorld * world = &w;
     //world->SetPopStruct_Mixed();
