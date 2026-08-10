@@ -185,6 +185,8 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   const bool env_file_exists = std::filesystem::exists(env_filepath);
   if (!env_file_exists) {
     std::cout << "Environment file does not exist: " << env_filepath << std::endl;
+
+    //Check if config is default, then create file of default task(differntial)
     std::exit(EXIT_FAILURE);
   }
   // If environment file exists, read it.

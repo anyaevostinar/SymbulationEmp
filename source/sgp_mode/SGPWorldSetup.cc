@@ -383,11 +383,18 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
   const size_t init_pop_size = *POP_SIZE;
   emp_assert(init_pop_size <= scheduler.GetScheduleSize());
+  const bool host_prog_file_exists = std::filesystem::exists(sgp_config.HOST_PROGRAM_PATH());
+  if (!host_prog_file_exists) {
+    std::cout << "Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+
+    //Check if config is default, then create file of default task(differntial)
+    std::exit(EXIT_FAILURE);
+  }
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
-      //prog_builder.LoadProgramFile(sgp_config.PROGRAM_PATH())
-      prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+      prog_builder.LoadProgramFile(sgp_config.HOST_PROGRAM_PATH())
+      //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
     );
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
@@ -410,8 +417,15 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
+      const bool sym_prog_file_exists = std::filesystem::exists(sgp_config.SYM_PROGRAM_PATH());
+      if (!sym_prog_file_exists) {
+        std::cout << "Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+
+        //Check if config is default, then create file of default task(differntial)
+        std::exit(EXIT_FAILURE);
+      }
       sgp_prog_t sym_prog(
-        prog_builder.LoadProgramFile(sgp_config.PROGRAM_PATH())
+        prog_builder.LoadProgramFile(sgp_config.SYM_PROGRAM_PATH())
         //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
       );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
