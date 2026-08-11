@@ -21,6 +21,7 @@
 
 #include <functional>
 #include <filesystem>
+#include <fstream>
 
 // TODO - Document how each base configuration works for SGPWorld
 // TODO - Comments for every member variable / function / type alias
@@ -415,6 +416,8 @@ protected:
   void SetupStressInteractions();
   void SetupHealthInteractions();
   void SetupNutrientInteractions();
+  
+  void GenerateDefaultProgram();
 
   // Clear all world signals
   void ClearWorldSignals() {

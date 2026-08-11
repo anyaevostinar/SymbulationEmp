@@ -572,6 +572,18 @@ void SGPWorld::SetupMutator() {
   //        same with endosymbionts / etc
 }
 
+
+void SGPWorld::GenerateDefaultProgram(bool is_host){
+  std::string path;
+  if(is_host){
+    path = sgp_config.HOST_PROGRAM_PATH();
+  }
+  else{
+    path = sgp_config.SYM_PROGRAM_PATH();
+  }
+  SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
+}
+
 }
 
 #endif
