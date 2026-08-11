@@ -4,34 +4,34 @@
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/Bits.hpp"
 
-#include "../../sgp_mode/SGPWorld.h"
-#include "../../ConfigSetup.h"
-#include "../../default_mode/DataNodes.h"
-#include "../../default_mode/Host.h"
-#include "../../default_mode/Symbiont.h"
+#include "../source/sgp_mode/SGPWorld.h"
+#include "../source/ConfigSetup.h"
+#include "../source/default_mode/DataNodes.h"
+#include "../source/default_mode/Host.h"
+#include "../source/default_mode/Symbiont.h"
 
-#include "../../sgp_mode/hardware/SGPHardwareSpec.h"
-#include "../../sgp_mode/SGPConfigSetup.h"
-#include "../../sgp_mode/SGPWorld.h"
+#include "../source/sgp_mode/hardware/SGPHardwareSpec.h"
+#include "../source/sgp_mode/SGPConfigSetup.h"
+#include "../source/sgp_mode/SGPWorld.h"
 
 // Empirical doesn't support more than one translation unit, so any CC files are
 // included last. It still fixes include issues, but doesn't improve build time.
-#include "../../default_mode/WorldSetup.cc"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../source/default_mode/WorldSetup.cc"
+#include "../source/sgp_mode/SGPWorldSetup.cc"
+#include "../../Empirical/include/emp/config/ArgManager.hpp"
 
 #include <fstream>
 #include <memory>
 #include <string>
 
-#include "../../default_mode/WorldSetup.cc"
-#include "../../sgp_mode/SGPWorld.cc"
-#include "../../sgp_mode/SGPWorldSetup.cc"
-#include "../../sgp_mode/SGPWorldData.cc"
-#include "../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
-#include "../../sgp_mode/SGPW_TaskProfileSetup.cc"
+#include "../source/default_mode/WorldSetup.cc"
+#include "../source/sgp_mode/SGPWorld.cc"
+#include "../source/sgp_mode/SGPWorldSetup.cc"
+#include "../source/sgp_mode/SGPWorldData.cc"
+#include "../source/sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../source/sgp_mode/SGPW_TaskProfileSetup.cc"
 
-#include "../../../Empirical/include/emp/config/ArgManager.hpp"
+#include "../Empirical/include/emp/config/ArgManager.hpp"
 
 
 #include "emp/web/Document.hpp"

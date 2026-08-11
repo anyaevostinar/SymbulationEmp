@@ -59,11 +59,11 @@ pgg-mode:	source/native/symbulation_pgg.cc
 sgp-mode:	source/native/symbulation_sgp.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp
 
-symbulation.js: source/web/symbulation-web.cc
-	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
+symbulation.js: web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_web) web/symbulation-web.cc -o web/symbulation.js
 
-sgp-symbulation.js: source/web/symbulation-web.cc
-	$(CXX_web) $(CFLAGS_sgp_web) source/web/SGPsymbulation-web.cc -o web/symbulation.js
+sgp-symbulation.js: web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_sgp_web) web/SGPsymbulation-web.cc -o web/symbulation.js
 
 # Debugging
 debug:
