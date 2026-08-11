@@ -417,7 +417,7 @@ protected:
   void SetupHealthInteractions();
   void SetupNutrientInteractions();
   
-  void GenerateDefaultProgram();
+  void GenerateDefaultProgram(bool is_host);
 
   // Clear all world signals
   void ClearWorldSignals() {

@@ -385,9 +385,17 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   emp_assert(init_pop_size <= scheduler.GetScheduleSize());
   const bool host_prog_file_exists = std::filesystem::exists(sgp_config.HOST_PROGRAM_PATH());
   if (!host_prog_file_exists) {
+    if(sgp_config["HOST_PROGRAM_PATH"]->GetDefault() == sgp_config["HOST_PROGRAM_PATH"]->GetLiteralValue()){
+      std::cout << "Default Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+      std::cout << "Generating now... "  << std::endl;
+      GenerateDefaultProgram(true);
+      std::cout << "Run ./symbulation_sgp again to use new Host program" << std::endl;
+      std::cout << "Exiting.." << std::endl;
+    }
+    else{
     std::cout << "Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+    }
 
-    //Check if config is default, then create file of default task(differntial)
     std::exit(EXIT_FAILURE);
   }
   for (size_t i = 0; i < init_pop_size; ++i) {
@@ -419,9 +427,16 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     if (sgp_config.START_MOI() == 1) {
       const bool sym_prog_file_exists = std::filesystem::exists(sgp_config.SYM_PROGRAM_PATH());
       if (!sym_prog_file_exists) {
+        if(sgp_config["SYM_PROGRAM_PATH"]->GetDefault() == sgp_config["SYM_PROGRAM_PATH"]->GetLiteralValue()){
+          std::cout << "Default Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+          std::cout << "Generating now... "  << std::endl;
+          GenerateDefaultProgram(false);
+          std::cout << "Run ./symbulation_sgp again to use new Symbiont program" << std::endl;
+          std::cout << "Exiting.." << std::endl;
+        }
+        else{
         std::cout << "Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
-
-        //Check if config is default, then create file of default task(differntial)
+        }
         std::exit(EXIT_FAILURE);
       }
       sgp_prog_t sym_prog(
@@ -581,7 +596,7 @@ void SGPWorld::GenerateDefaultProgram(bool is_host){
   else{
     path = sgp_config.SYM_PROGRAM_PATH();
   }
-  SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
+  prog_builder.SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
 }
 
 }
