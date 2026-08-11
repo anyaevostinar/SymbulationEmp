@@ -11,6 +11,7 @@
 * Look into what is going on with SGPHost local sgp_config not working
 * Streamline Host ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
+* Fix all tests for debug mode. Currently github runs test-all and test-debug-default. Look at failing tests for test-debug-all
 
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
