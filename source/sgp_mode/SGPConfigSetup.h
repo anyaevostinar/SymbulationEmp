@@ -33,8 +33,8 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
 
   GROUP(CUSTOM_PROGRAM, "Custom Program Settings"),
-  VALUE(HOST_PROGRAM_PATH, std::string, "NewDefault.json", "Json file that provides hosts a custom starting program"),
-  VALUE(SYM_PROGRAM_PATH, std::string, "SymNewDefault.json", "Json file that provides symbionts a custom starting program"),
+  VALUE(HOST_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides hosts a custom starting program"),
+  VALUE(SYM_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides symbionts a custom starting program"),
 
 
   GROUP(STRESS, "Stress Settings"),
