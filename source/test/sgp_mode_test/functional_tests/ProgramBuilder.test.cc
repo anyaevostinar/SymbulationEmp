@@ -157,7 +157,7 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
     world.AssignNewEnvIO(hw.GetCPUState());
 
-    // Run organism's hardware for 52 steps
+    // Run organism's hardware for 102 steps
     hw.RunCPUStep(102);
     auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
     CheckTaskProfile(

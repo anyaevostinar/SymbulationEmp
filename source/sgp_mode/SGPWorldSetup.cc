@@ -503,6 +503,21 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
 void SGPWorld::SetupTaskEnvironment() {
   // TODO - configure any world <--> environment interactions that need to be
   //        setup prior to run
+  const bool env_file_exists = std::filesystem::exists(sgp_config.TASK_ENV_CFG_PATH());
+  if (!env_file_exists) {
+    if(sgp_config["TASK_ENV_CFG_PATH"]->GetDefault() == sgp_config["TASK_ENV_CFG_PATH"]->GetLiteralValue()){
+      std::cout << "Default Task Environment file does not exist: " << sgp_config.TASK_ENV_CFG_PATH() << std::endl;
+      std::cout << "Generating now... "  << std::endl;
+      GenerateDefaultTaskEnvironment();
+      std::cout << "Run ./symbulation_sgp again to use new Task Environment" << std::endl;
+      std::cout << "Exiting.." << std::endl;
+    }
+    else{
+      std::cout << "Environment file does not exist: " << sgp_config.TASK_ENV_CFG_PATH() << std::endl;
+    }
+
+    std::exit(EXIT_FAILURE);
+  }
   task_env.Setup(
     sgp_config.TASK_ENV_CFG_PATH(),
     sgp_config.TASK_IO_BANK_SIZE(),
@@ -597,6 +612,36 @@ void SGPWorld::GenerateDefaultProgram(bool is_host){
     path = sgp_config.SYM_PROGRAM_PATH();
   }
   prog_builder.SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
+}
+
+void SGPWorld::GenerateDefaultTaskEnvironment(){
+  std::string path = sgp_config.TASK_ENV_CFG_PATH();
+
+  std::ofstream envFile(path);
+
+  if (!envFile) {
+      std::cout << "Error: Could not create new environment file" << std::endl;
+      std::exit(EXIT_FAILURE);
+  }
+  
+  envFile << R"({
+  "shared": {
+    "tasks": [
+      {"name": "NAND", "value": 1, "reward_mode": "add"},
+      {"name": "NOT", "value": 1, "reward_mode": "add"},
+      {"name": "OR_NOT", "value": 2, "reward_mode": "add"},
+      {"name": "AND", "value": 2, "reward_mode": "add"},
+      {"name": "OR", "value": 4, "reward_mode": "add"},
+      {"name": "AND_NOT", "value": 4, "reward_mode": "add"},
+      {"name": "NOR", "value": 8, "reward_mode": "add"},
+      {"name": "XOR", "value": 8, "reward_mode": "add"},
+      {"name": "EQU", "value": 16, "reward_mode": "add"}
+    ]
+  }
+})";
+    
+  envFile.close();
+  
 }
 
 }

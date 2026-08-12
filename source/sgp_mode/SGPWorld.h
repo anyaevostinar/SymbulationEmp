@@ -418,6 +418,7 @@ protected:
   void SetupNutrientInteractions();
   
   void GenerateDefaultProgram(bool is_host);
+  void GenerateDefaultTaskEnvironment();
 
   // Clear all world signals
   void ClearWorldSignals() {

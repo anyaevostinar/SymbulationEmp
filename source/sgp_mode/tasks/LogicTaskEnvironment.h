@@ -181,15 +181,8 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   //     Then, tasks can be associated with a particular resource pool.
 
   // === Parse environment file ===
-  // Check if given environment file exists. Exit if not.
-  const bool env_file_exists = std::filesystem::exists(env_filepath);
-  if (!env_file_exists) {
-    std::cout << "Environment file does not exist: " << env_filepath << std::endl;
+  emp_assert(std::filesystem::exists(env_filepath));
 
-    //Check if config is default, then create file of default task(differntial)
-    std::exit(EXIT_FAILURE);
-  }
-  // If environment file exists, read it.
   std::ifstream env_ifstream(env_filepath);
   nlohmann::json env_json;
   env_ifstream >> env_json;
