@@ -602,7 +602,13 @@ void SGPWorld::SetupMutator() {
   //        same with endosymbionts / etc
 }
 
-
+/**
+   * Input: Bool, Whether the missing default program is the host or sym program.
+   *
+   * Output: None.
+   *
+   * Purpose: Creates the default genome and then ends the simulation
+   */
 void SGPWorld::GenerateDefaultProgram(bool is_host){
   std::string path;
   if(is_host){
@@ -614,6 +620,13 @@ void SGPWorld::GenerateDefaultProgram(bool is_host){
   prog_builder.SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
 }
 
+/**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Creates the default task environment and then ends the simulation
+   */
 void SGPWorld::GenerateDefaultTaskEnvironment(){
   std::string path = sgp_config.TASK_ENV_CFG_PATH();
 
