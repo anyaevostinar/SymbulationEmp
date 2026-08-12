@@ -11,8 +11,8 @@
 namespace sgpmode {
 
 /**
-* @tparam HW_SPEC_T: A specifier that bundles many required types for SGP scripts together
 * The SignalGP version of the base symbiont
+* @tparam HW_SPEC_T: A specifier that bundles many required types for SGP scripts together
 */
 template<typename HW_SPEC_T>
 class SGPSymbiont : public Symbiont {
