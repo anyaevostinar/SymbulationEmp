@@ -23,6 +23,7 @@
 namespace sgpmode {
 
 /**
+* @tparam HW_SPEC_T: A specifier that bundles many required types for SGP scripts together
 * The ProgramBuilder is used to generate starter genomes and read genomes from a json.
 */
 template<typename HW_SPEC_T>

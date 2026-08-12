@@ -18,7 +18,7 @@ namespace sgpmode::tasks {
   TaskSet is adapted from class of the same name from
     https://github.com/amlalejini/directed-digital-evolution
 
-  @tparam INPUT_T: A vector of inputs, OUTPUT_T: output of a task given INPUT_T
+  @tparam INPUT_T: A type containing vector of inputs, OUTPUT_T: A type representing output of a task given INPUT_T
 
   Purpose: TaskSet defines a set of tasks where each task can be identified by a numeric ID
   and a given string name.

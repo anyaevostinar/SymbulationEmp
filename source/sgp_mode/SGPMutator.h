@@ -9,7 +9,8 @@ namespace sgpmode {
 //        ability to "layer on" different mutaiton types).
 //        For now, it just replicates functionality of previous mutator
 /**
-* @tparam PROGRAM_T: a program, INST_LIBRARY_T: A library containing all possible instructions to be mutated to
+* @tparam PROGRAM_T: The type representing the program that is going to be mutated
+* @tparam INST_LIBRARY_T: Contains all instructions that can be mutated.
 * Purpose: Used to mutate the program of organisms
 */
 template<typename PROGRAM_T, typename INST_LIBRARY_T>

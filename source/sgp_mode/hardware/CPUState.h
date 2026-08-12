@@ -24,6 +24,7 @@ namespace sgpmode {
 enum class ReproState { NONE=0, ATTEMPTING, IN_PROGRESS };
 
 /**
+ * @tparam WORLD_T: The type representing to the world the simulation is in
  * The CPUState holds all state that can be accessed by instructions in the
  * organism's genomes. Each organism has its own CPUState.
  */

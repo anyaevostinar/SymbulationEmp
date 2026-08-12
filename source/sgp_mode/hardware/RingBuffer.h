@@ -8,6 +8,7 @@ namespace sgpmode {
 
 // TODO - write tests for IORingBuffer
 /**
+* @tparam T, the type of what is being stored in the RingBuffer
 *A helper class for a ring buffer that keeps the latest `len` inputs and
 *discards the rest.
 */

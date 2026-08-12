@@ -20,6 +20,7 @@ namespace sgpmode {
 
 
 /**
+ * @tparam HW_SPEC_T: A specifier that bundles many required types for SGP scripts together
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
  */

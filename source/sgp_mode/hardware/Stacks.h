@@ -9,6 +9,7 @@
 namespace sgpmode {
 
 /**
+ * @tparam T, the type of what is being stored in the stack
  * The Stacks are used as a first in, last out data structure.
  */
 template<typename T>
