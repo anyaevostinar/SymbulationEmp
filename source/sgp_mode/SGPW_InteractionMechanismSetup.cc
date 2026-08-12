@@ -315,6 +315,11 @@ namespace sgpmode {
             }
             // Kill host with chosen probability
             if (random_ptr->P(death_chance)) {
+              for (emp::Ptr<Organism> i : endosymbionts) {
+                //This symbiont will die but we want to keep it in the graveyard
+                SendToGraveyard(i);
+              }
+              host.ClearSyms();
               host.SetDead();
             }
           }
@@ -358,7 +363,12 @@ namespace sgpmode {
                     endosym_ptr->GetHardware().GetCPUState().GetLocation()
                   );
                 }
+                //This symbiont will die but we want to keep it in the graveyard
+                SendToGraveyard(endosym_ptr);
               }
+              // We have a reference to this host's symbionts in the graveyard,
+              // now clear the syms so the host doesnot destroy them on host.Delete()
+              host.ClearSyms();
               // ------
               // Mark host as dead
               host.SetDead();
@@ -442,7 +452,10 @@ namespace sgpmode {
                   endosym_ptr->GetHardware().GetCPUState().GetLocation()
                 );
               }
+              //This symbiont will die but we want to keep it in the graveyard
+              SendToGraveyard(endosym_ptr);
             }
+            host.ClearSyms();
             host.SetDead();
           }
         }
