@@ -593,7 +593,7 @@ public:
     //        to deviate from what happens in the base class mutate functions
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
-    my_world->HostDoMutation(*this);
+    HostDoMutation(*this);
     // TODO - Switch from HostDoMutation() to:
     //   -> my_world->GetHostMutator().DoMutation(*this);
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
@@ -601,7 +601,9 @@ public:
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
                       // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
-
+  void HostDoMutation(this_t& host) {
+    my_world->getMutator().MutateProgram(host.GetProgram());
+  }
 
   /*
    *Input: None

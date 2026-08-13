@@ -382,12 +382,8 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
   output_buffer.clear();
 }
 
-void SGPWorld::HostDoMutation(sgp_host_t& host) {
-  mutator.MutateProgram(host.GetProgram());
-}
-
-void SGPWorld::SymDoMutation(sgp_sym_t& sym) {
-  mutator.MutateProgram(sym.GetProgram());
+SGPWorld::mutator_t SGPWorld::getMutator(){
+  return mutator;
 }
 
 void SGPWorld::SymDonateToHost(Organism& from_sym, Organism& to_host) {

@@ -908,8 +908,7 @@ public:
     emp::WorldPosition parent_pos
   ) override;
 
-  void HostDoMutation(sgp_host_t& host);
-  void SymDoMutation(sgp_sym_t& sym);
+  mutator_t getMutator();
 
   void SymDonateToHost(Organism& from_sym, Organism& to_host);
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
