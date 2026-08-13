@@ -24,7 +24,7 @@ namespace sgpmode {
 
 /**
 * Used to generate starter genomes and read genomes from a json.
-* @tparam HW_SPEC_T: A specifier that bundles many required types for SGP scripts together
+* @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
 */
 template<typename HW_SPEC_T>
 class ProgramBuilder {
