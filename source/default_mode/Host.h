@@ -280,7 +280,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
+  void LineageLength(size_t _in) { reproductions = _in; }
 
 
   /**
@@ -767,7 +767,7 @@ public:
     emp::Ptr<Organism> host_baby = MakeNew();
 
     host_baby->Mutate();
-    host_baby->SetReproCount(reproductions + 1);
+    host_baby->LineageLength(reproductions + 1);
     SetPoints(0);
 
     if (my_config->TAG_MATCHING() && HasSym()) {

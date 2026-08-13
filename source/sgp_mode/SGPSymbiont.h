@@ -151,7 +151,7 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
+  void LineageLength(size_t _in) { reproductions = _in; }
 
   /**
    * Input: None.
@@ -345,7 +345,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     // NOTE - should be able to static cast here
     emp::Ptr<SGPSymbiont> sym_offspring = static_cast<SGPSymbiont*>(Symbiont::Reproduce().Raw());
-    sym_offspring->SetReproCount(reproductions + 1); //repro count is lineage length, so increment by 1 from parent
+    sym_offspring->LineageLength(reproductions + 1); //repro count is lineage length, so increment by 1 from parent
     auto& offspring_hw = sym_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();
