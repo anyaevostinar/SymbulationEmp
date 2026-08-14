@@ -74,6 +74,10 @@ class Organism {
     std::cout << "GetDead called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void ApplyOutputPoints() { //TODO: make in SGPHost as well
+    std::cout << "ApplyOutputPoints called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void Process(emp::WorldPosition location) {
     std::cout << "Process called from Organism" << std::endl;
     throw "Organism method called!";
@@ -379,6 +383,16 @@ class Organism {
   //SGPMode Symbiont Functions
   virtual float DoTaskInteraction(float score, size_t task_id) {
     std::cout << "DoTaskInteraction called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+
+  //TODO: Figure out how to remove?
+  virtual bool MeetsIndependentReproRequirements() {
+    std::cout << "MeetsIndependentReproRequirements called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
+  virtual void PayIndependentReproCost() {
+    std::cout << "PayIndependentReproCost called from Organism" << std::endl;
     throw "Organism method called!";
   }
 

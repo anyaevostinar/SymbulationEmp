@@ -4,11 +4,13 @@
 #include "../default_mode/Symbiont.h"
 #include "hardware/SGPHardware.h"
 #include "SGPHost.h"
+#include "org_type_info.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/Evolve/World_structure.hpp"
 
 namespace sgpmode {
+  using nutrient_sym_mode_t = typename org_info::NutrientSymbiontType;
 
 template<typename HW_SPEC_T>
 class SGPSymbiont : public Symbiont {
@@ -243,6 +245,29 @@ public:
     // Age the organism
     GrowOlder();
     if(my_host) my_world->TriggerAfterEndosymProcessSig(pos, *this, my_host);
+  }
+
+  void ApplyOutputPoints(double points) {
+    // Calc base task value based on task environment, task requirements, and
+    // symbiont's current point value.
+    // NOTE - A little funky because task value might be a multiplier on
+    //        current sym points.
+    //        So, to get the value *added* by the task, we subtract original point value.
+
+    double task_points = points - GetPoints();
+
+    //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
+    if(my_world->GetConfig().ENABLE_NUTRIENT() && my_world->GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
+      task_points *= my_world->GetConfig().PARASITE_BASE_TASK_VALUE_PROP();
+    }
+
+    // Add earned task points to symbiont's point total
+    AddPoints(task_points);
+    // // Enforce limits on points
+    // const double max_points = sgp_config.SYM_HORIZ_TRANS_RES();
+    // if (sym.GetPoints() > (1.5 * sgp_config.SYM_HORIZ_TRANS_RES())) {
+    //   sym.SetPoints(1.5 * sgp_config.SYM_HORIZ_TRANS_RES());
+    // }
   }
 
   /**

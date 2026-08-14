@@ -351,30 +351,13 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
         // Track success
         ++sym_task_successes[task_id];
 
-        // Calc base task value based on task environment, task requirements, and
-        // symbiont's current point value.
-        // NOTE - A little funky because task value might be a multiplier on
-        //        current sym points.
-        //        So, to get the value *added* by the task, we subtract original point value.
         double new_points = task_req_info.fun_calc_task_val(
           task_env,
           task_req_info,
           sym.GetPoints()
         );
-        double task_points = new_points - sym.GetPoints();
-
-        //Parasitic Nutrient symbionts receieve less rewards from completing tasks to incentivize matching tasks with hosts
-        if(sgp_config.ENABLE_NUTRIENT() && GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
-          task_points *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
-        }
-
-        // Add earned task points to symbiont's point total
-        sym.AddPoints(task_points);
-        // // Enforce limits on points
-        // const double max_points = sgp_config.SYM_HORIZ_TRANS_RES();
-        // if (sym.GetPoints() > (1.5 * sgp_config.SYM_HORIZ_TRANS_RES())) {
-        //   sym.SetPoints(1.5 * sgp_config.SYM_HORIZ_TRANS_RES());
-        // }
+      
+        ApplySymOutputPoints(sym, new_points);
       }
     }
   }

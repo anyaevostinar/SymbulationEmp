@@ -36,6 +36,12 @@ public:
   using pop_t = typename emp::World<Organism>::pop_t;
   using host_systematics_t = emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>;
   using sym_systematics_t = emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>;
+  using fun_check_sym_independent_repro_reqs_t = std::function<bool(
+    Organism&  /* symbiont */
+  )>;
+  using fun_pay_sym_independent_repro_cost_t = std::function<void(
+    Organism&  /* symbiont */
+  )>;
 
   enum class SPATIAL_STRUCT_MODE { WELL_MIXED, GRID, LOAD };
   static const std::unordered_map<std::string, SPATIAL_STRUCT_MODE> spatial_struct_mode_cfg_mapping;
@@ -86,6 +92,19 @@ protected:
   */
   fun_calc_info_t calc_sym_info_fun;
 
+  /**
+    *
+    * Purpose: Represents a standard function object which determines if a symbiont can reproduce independently.
+    *
+  */
+  fun_check_sym_independent_repro_reqs_t fun_check_sym_independent_repro_reqs;
+
+  /**
+    *
+    * Purpose: Represents a standard function object which pays the cost of independent reproduction for a symbiont.
+    *
+  */
+  fun_pay_sym_independent_repro_cost_t fun_pay_sym_independent_repro_cost;
 
   /**
     *
@@ -269,6 +288,18 @@ public:
     if (my_config->TAG_MATCHING()) {
       SetupTagMatching();
     }
+
+    fun_check_sym_independent_repro_reqs = [](
+      Organism& sym
+    ) {
+      return sym.MeetsIndependentReproRequirements();
+    };
+
+    fun_pay_sym_independent_repro_cost = [](
+      Organism& sym
+    ) {
+      sym.PayIndependentReproCost();
+    };
   }
 
 
@@ -328,6 +359,23 @@ public:
     if (my_config->TAG_MATCHING()) {
       tag_metric.Delete();
     }
+  }
+
+  /* Allow setting functor from native file*/
+  void SetCheckSymIndependentReproReqsFunctor(fun_check_sym_independent_repro_reqs_t fun) {
+    fun_check_sym_independent_repro_reqs = fun;
+  }
+
+  bool CheckSymIndependentReproReqs(Organism& sym) {
+    return fun_check_sym_independent_repro_reqs(sym);
+  }
+
+  void SetPaySymIndependentReproCostFunctor(fun_pay_sym_independent_repro_cost_t fun) {
+    fun_pay_sym_independent_repro_cost = fun;
+  }
+
+  void PaySymIndependentReproCost(Organism& sym) {
+    fun_pay_sym_independent_repro_cost(sym);
   }
 
   /**

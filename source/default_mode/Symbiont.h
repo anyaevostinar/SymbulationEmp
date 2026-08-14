@@ -803,6 +803,22 @@ public:
   }
 
   /*
+  * Input: None
+  *
+  * Output: None
+  *
+  * Purpose: To pay the cost of independent reproduction, by subtracting the required resources from the symbiont's points.
+  */
+  void PayIndependentReproCost() {
+    // symbiont reproduces independently (horizontal transmission) if it has enough resources
+    //TODO: try just subtracting points to be consistent with vertical transmission
+    //points = points - my_config->SYM_HORIZ_TRANS_RES();
+    if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
+    // removing the above for tag matching--sym parent points are
+    // now set to 0 in symdobirth
+  }
+
+  /*
   * Input: sym_pos, world position
   *
   * Output: None
@@ -811,18 +827,15 @@ public:
   */
   bool AttemptIndependentReproduction(emp::WorldPosition sym_pos) {
     if (my_config->HORIZ_TRANS()) { //non-lytic horizontal transmission enabled
-      if (MeetsIndependentReproRequirements()) {
+      if (my_world->CheckSymIndependentReproReqs(*this)) {
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();
         data_node_attempts_horiztrans.AddDatum(GetIntVal());
 
-        // symbiont reproduces independently (horizontal transmission) if it has enough resources
-        //TODO: try just subtracting points to be consistent with vertical transmission
-        //points = points - my_config->SYM_HORIZ_TRANS_RES();
 
 
-        if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
-        // removing the above for tag matching--sym parent points are
-        // now set to 0 in symdobirth
+        my_world->PaySymIndependentReproCost(*this);
+
+
         return true;
       }
     }

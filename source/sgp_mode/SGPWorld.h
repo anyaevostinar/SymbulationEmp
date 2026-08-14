@@ -102,6 +102,11 @@ public:
     size_t     /* task id */
   )>;
 
+  using fun_apply_sym_output_points_t = std::function<void(
+    sgp_sym_t&,
+    double     /* total points of sym after task, in case of multiplier */
+  )>;
+
   // using fun_process_endosym_t = std::function<void(
   //   sgp_sym_t&,                /* endosymbiont */
   //   const emp::WorldPosition&, /* sym pos */
@@ -428,6 +433,7 @@ protected:
   fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
   fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
   func_apply_host_points_t fun_apply_host_points;
+  fun_apply_sym_output_points_t fun_apply_sym_output_points;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -615,6 +621,13 @@ public:
       ) {
         return 0.0;
       };
+
+      fun_apply_sym_output_points = [](
+        sgp_sym_t& sym,
+        double total_points
+      ) {
+        sym.ApplyOutputPoints(total_points);
+      };
   }
 
   ~SGPWorld() {
@@ -706,6 +719,17 @@ public:
     size_t task_id
   ) {
     fun_apply_host_points(host,task_value_before, task_id);
+  }
+
+  void SetApplySymOutputPointsFunctor(fun_apply_sym_output_points_t func) {
+    fun_apply_sym_output_points = func;
+  }
+
+  void ApplySymOutputPoints(
+    sgp_sym_t& sym,
+    double total_points
+  ) {
+    fun_apply_sym_output_points(sym, total_points);
   }
 
   const emp::BitVector& GetSymTaskProfile(
