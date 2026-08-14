@@ -49,20 +49,13 @@ int symbulation_main(int argc, char *argv[]) {
   using sgp_sym_t = sgpmode::SGPWorld::sgp_sym_t;
   emp::Ptr<sgpmode::SGPWorld> human_micro = human.GetMicrobiome();
 
-      fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
-      const emp::WorldPosition& parent_pos
-    ) -> emp::WorldPosition {
-      return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
-    }
   human_micro->SetCheckSymIndependentReproReqsFunctor([human_micro](
-    emp::Ptr<sgp_host_t> host, 
-    emp::Ptr<sgp_sym_t> symbiont) {
+    Organism& symbiont) {
     //Hosts pay the cost instead of symbionts
-    return host->GetPoints() >= 1; // TODO: change to using config that is captured
+    return symbiont.GetHost()->GetPoints() >= human_micro->GetConfig().SYM_HORIZ_TRANS_RES(); // TODO: change to using config that is captured
   });
 
-  human_micro->SetPaySymIndependentReproCostFunctor([](sgp_sym_t& symbiont) {
+  human_micro->SetPaySymIndependentReproCostFunctor([](Organism& symbiont) {
     //Hosts pay the cost instead of symbionts
     symbiont.GetHost()->AddPoints(-1);
   });
