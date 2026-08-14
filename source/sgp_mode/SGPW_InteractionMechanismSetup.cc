@@ -312,9 +312,14 @@ namespace sgpmode {
                 // potentially be deleted.
                 // So, we need to handle the reproduction here (versus putting it into the queue).
               }
+              //TODO POSSIBLE BUG. What happens if a host does not die here, but then is
+              //killed when a host reproduces on top of it. We loose the Symbiont!!!
             }
             // Kill host with chosen probability
             if (random_ptr->P(death_chance)) {
+              //We are clearing syms to make sure the host doent delete them in its destructor.
+              //we cant use vector.clear() because that calls ~Symbiont
+              //TODO Ideally we should be able to call SendToGraveyard(host);
               for (emp::Ptr<Organism> i : endosymbionts) {
                 //This symbiont will die but we want to keep it in the graveyard
                 SendToGraveyard(i);
@@ -366,11 +371,10 @@ namespace sgpmode {
                 //This symbiont will die but we want to keep it in the graveyard
                 SendToGraveyard(endosym_ptr);
               }
-              // We have a reference to this host's symbionts in the graveyard,
-              // now clear the syms so the host doesnot destroy them on host.Delete()
+              //We are clearing syms to make sure the host doent delete them in its destructor.
+              //we cant use vector.clear() because that calls ~Symbiont
+              //TODO Ideally we should be able to call SendToGraveyard(host);
               host.ClearSyms();
-              // ------
-              // Mark host as dead
               host.SetDead();
             }
           }
@@ -455,6 +459,9 @@ namespace sgpmode {
               //This symbiont will die but we want to keep it in the graveyard
               SendToGraveyard(endosym_ptr);
             }
+            //We are clearing syms to make sure the host doent delete them in its destructor.
+            //we cant use vector.clear() because that calls ~Symbiont
+            //TODO Ideally we should be able to call SendToGraveyard(host);
             host.ClearSyms();
             host.SetDead();
           }

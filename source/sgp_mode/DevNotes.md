@@ -12,6 +12,7 @@
 * Streamline Host ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
 * Fix all tests for debug mode. Currently github runs test-all and test-debug-default. Look at failing tests for test-debug-all
+* Review death of organisms and solidify protocol for when to use SendToGraveyard(org). Remove extrenuous .Delete() emp::DoDeath() and Organism::SetDead() calls. Consider Stress mode where we want the symbiont to exits in graveyard, but we dont want the host to be alive and in the world. 
 
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
