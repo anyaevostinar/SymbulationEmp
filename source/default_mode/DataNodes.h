@@ -242,8 +242,7 @@ emp::DataFile & SymWorld::SetupAntibioticResistanceFile(const std::string & file
 
     double numerator = 0;
     double denominator = 0;
-    // This is going to bias R0 to be high, since we're not counting horizontal transmissions that
-    // quickly died out
+ 
     for (auto sym_taxon : sym_sys->GetActive()) {
       denominator += sym_taxon->GetNumOffEver();
       numerator += 1;
