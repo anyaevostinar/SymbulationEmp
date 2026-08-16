@@ -29,6 +29,8 @@ class Organism {
     return !(*this == other);
   }
 
+  uint64_t taxon_id;
+
   virtual std::string const GetName() const {
     std::cout << "GetName called from Organism" << std::endl;
     throw "Organism method called!";

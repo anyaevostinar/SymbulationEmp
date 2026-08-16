@@ -46,7 +46,7 @@ public:
   enum class SPATIAL_STRUCT_MODE { WELL_MIXED, GRID, LOAD };
   static const std::unordered_map<std::string, SPATIAL_STRUCT_MODE> spatial_struct_mode_cfg_mapping;
 
-  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL };
+  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL, HORIZONTAL_CLADE };
   static const std::unordered_map<std::string, PHYLO_TAXON_TYPE> phylo_taxon_type_cfg_mapping;
 
   enum class TAG_METRIC_TYPE { HAMMING, STREAK, HASH };
@@ -190,6 +190,7 @@ protected:
   emp::Ptr<emp::DataMonitor<int>> data_node_freesymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_hostedsymcount;
   emp::Ptr<emp::DataMonitor<int>> data_node_uninf_hosts;
+  emp::Ptr<emp::DataMonitor<double>> data_node_R0;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_horiztrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tagfail_horiztrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_sizefail_horiztrans;
@@ -343,6 +344,7 @@ public:
     if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
+    if (data_node_R0) data_node_R0.Delete();
 
     for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
       if (sym_pop[i]) {
@@ -1040,6 +1042,7 @@ public:
   emp::DataFile& SetupTransmissionFile(const std::string& filename);
   emp::DataFile& SetupTagDistFile(const std::string& filename);
   emp::DataFile& SetupSymDiversityFile(const std::string& filename);
+  emp::DataFile& SetupAntibioticResistanceFile(const std::string& filename);
   virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile& file);
   emp::DataMonitor<int>& GetHostCountDataNode();
@@ -1064,6 +1067,7 @@ public:
   emp::DataMonitor<double>& GetHostTagShannonDiversity();
   emp::DataMonitor<int>& GetSymbiontTagRichness();
   emp::DataMonitor<double>& GetSymbiontTagShannonDiversity();
+  emp::DataMonitor<double>& GetR0();
   emp::DataMonitor<double, emp::data::Histogram>& GetTagDistanceDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetHostIntValDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetSymIntValDataNode();
@@ -1503,7 +1507,8 @@ const std::unordered_map<
     {"interaction-value-binned", PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED},
     {"interaction-value-exact", PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT},
     {"tag", PHYLO_TAXON_TYPE::TAG},
-    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL}
+    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL},
+    {"horizontal-clade", PHYLO_TAXON_TYPE::HORIZONTAL_CLADE}
 };
 
 const std::unordered_map<

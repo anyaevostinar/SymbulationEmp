@@ -59,7 +59,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(WRITE_CURRENT_INTERACTION_COUNTS, bool, 0, "Should the world write the count of only-currently-present interactions? (0 for no, 1 for yes)"),
     VALUE(PHYLOGENY_SNAPSHOT_INTERVAL, int, 10001, "How often to output phylogeny snapshots"),
     VALUE(NUM_PHYLO_BINS, size_t, 5, "How many bins should organisms be separated into if phylogeny is on?"),
-    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-value-binned", "What are phylogeny taxa based on? Options: interaction-value-binned, interaction-value-exact, tag, individual"),
+    VALUE(PHYLOGENY_TAXON_TYPE, std::string, "interaction-value-binned", "What are phylogeny taxa based on? Options: interaction-value-binned, interaction-value-exact, tag, individual, horizontal-clade"),
     VALUE(STORE_EXTINCT, bool, 0, "Should extinct taxa be stored? (0 for no, 1 for yes)"),
 
     GROUP(MUTATION, "Mutation"),
@@ -95,6 +95,9 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
     VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
-    VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")
+    VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)"),
+
+    GROUP(ANTIBIOTIC_RESISTANCE, "Settings for antibiotic resistance"),
+    VALUE(R0_WINDOW, double, 100, "How many updates should be used to calculate R0?")
 )
 #endif

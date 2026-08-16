@@ -21,6 +21,7 @@ void SymWorld::CreateDataFiles() {
   SetupTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupAntibioticResistanceFile(my_config->FILE_PATH() + "AntibioticResistance" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);  
   if (my_config->FREE_LIVING_SYMS() == 1) {
     SetupFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
@@ -223,6 +224,50 @@ emp::DataFile& SymWorld::SetupReproHistFile(const std::string& filename) {
     file.AddMean(sym_towards_partner_rate, "sym_towards_partner_rate", "Average symbiont lineage flips towards partner count divided by that lineage's repro count");
     file.AddMean(sym_from_partner_rate, "sym_from_partner_rate", "Average symbiont lineage flips from partner count divided by that lineage's repro count");
   }
+  file.PrintHeaderKeys();
+
+  return file;
+}
+
+emp::DataFile & SymWorld::SetupAntibioticResistanceFile(const std::string & filename) {
+  auto & file = SetupFile(filename);
+  // auto & node = GetR0();
+
+  file.AddVar(update, "update", "Update");
+
+  // node.Reset();
+  file.AddFun((std::function<double()>) [this](){
+    sym_sys->RemoveAncestorsBefore(GetUpdate() - GetConfig()->R0_WINDOW());
+    sym_sys->RemoveOutsideBefore(GetUpdate() - GetConfig()->R0_WINDOW());
+
+    double numerator = 0;
+    double denominator = 0;
+    // This is going to bias R0 to be high, since we're not counting horizontal transmissions that
+    // quickly died out
+    for (auto sym_taxon : sym_sys->GetActive()) {
+      denominator += sym_taxon->GetNumOffEver();
+      numerator += 1;
+    }
+    // std::cout << numerator << " " << denominator << std::endl;
+    for (auto sym_taxon : sym_sys->GetAncestors()) {
+      denominator += sym_taxon->GetNumOffEver();
+      numerator += 1;
+    }
+    // std::cout << numerator << " " << denominator << std::endl;
+    for (auto sym_taxon : sym_sys->GetOutside()) {
+      denominator += sym_taxon->GetNumOffEver();
+      numerator += 1;
+    }
+    // std::cout << numerator << " " << denominator << std::endl <<std::endl;
+    return numerator / denominator;
+  }, "R0", "R0");
+  // node.AddDatum(numerator / denominator);
+
+  // file.AddMean(node, "R0", "R0");
+  // file.AddMax(node, "max_intval", "Maximum symbiont interaction value");
+  // file.AddMin(node, "min_intval", "Minimum symbiont interaction value");
+  // file.AddTotal(node1, "count", "Total number of symbionts");
+
   file.PrintHeaderKeys();
 
   return file;
@@ -1411,6 +1456,22 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
       data_node_symbiont_tag_shannon.New();
     }
     return *data_node_symbiont_tag_shannon;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<double>& that has the information representing
+   * the symbiont R0 this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * R0.
+   */
+  emp::DataMonitor<double>& SymWorld::GetR0() {
+    if (!data_node_R0) {
+      data_node_R0.New();
+    }      
+    return *data_node_R0;
   }
 
 #endif

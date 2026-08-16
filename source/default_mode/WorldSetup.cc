@@ -214,6 +214,15 @@ void SymWorld::SetupPhylogenyTracking() {
         return (long unsigned) sym_sys->GetNextID();
       };
       break;
+    case PHYLO_TAXON_TYPE::HORIZONTAL_CLADE:
+      calc_host_info_fun = [&](Organism& org) {
+        return 0;
+      };
+
+      calc_sym_info_fun = [&](Organism& org) {
+        return org.taxon_id;
+      };
+      break;
     default:
       emp_error("Unimplemented phylogeny taxon type.");
       break;

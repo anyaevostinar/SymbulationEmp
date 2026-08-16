@@ -123,6 +123,13 @@ protected:
    */
   emp::WorldPosition location;
 
+  /**
+   *
+   * Purpose: Janky approach to tracking R0
+   */
+  bool next_reproduction_is_horizontal = false;
+  uint64_t taxon_id;
+
 public:
   /**
    * The constructor for symbiont
@@ -698,6 +705,12 @@ public:
     sym_baby->Mutate();
     sym_baby->SetReproCount(reproductions + 1);
     if(my_config->PHYLOGENY() == 1) {
+      if (next_reproduction_is_horizontal) {
+        sym_baby->taxon_id = my_world->GetSymSys()->GetNextID();
+      } else {
+        sym_baby->taxon_id = my_taxon->GetID();
+      }
+
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic
     }
@@ -860,7 +873,9 @@ public:
    */
   void IndependentReproduction(emp::WorldPosition location) {
     if (AttemptIndependentReproduction(location)) {
+      next_reproduction_is_horizontal = true;
       emp::Ptr<Organism> sym_baby = Reproduce();
+      next_reproduction_is_horizontal = false;
       if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
       emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
 
