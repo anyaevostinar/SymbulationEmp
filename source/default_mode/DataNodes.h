@@ -21,7 +21,13 @@ void SymWorld::CreateDataFiles() {
   SetupTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   SetupReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetupAntibioticResistanceFile(my_config->FILE_PATH() + "AntibioticResistance" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);  
+  if (my_config->TRACK_R0() == 1) {
+    emp_assert(my_config->PHYLOGENY() == 1, "Cannot track R0 without tracking phylogeny.");
+    emp_assert(my_config->PHYLOGENY_TAXON_TYPE() == "horizontal-clade", "Need horizontal clade tracking to track R0.");
+    emp_assert(my_config->STORE_EXTINCT() == 1, "R0 will be biased if we don't store extinct");    
+    SetupAntibioticResistanceFile(my_config->FILE_PATH() + "AntibioticResistance" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);  
+  }
+
   if (my_config->FREE_LIVING_SYMS() == 1) {
     SetupFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
