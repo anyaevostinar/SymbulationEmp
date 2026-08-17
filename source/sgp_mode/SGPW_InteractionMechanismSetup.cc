@@ -7,6 +7,7 @@
 namespace sgpmode {
 
   void SGPWorld::SetupHostSymInteractions() {
+    std::cout << "Host sym interactions" << std::endl;
 
     // These are defined in SGPW_TaskProfileSetup
     SetupTaskProfileMode();
@@ -17,7 +18,10 @@ namespace sgpmode {
 
     // Configure stress
     if (sgp_config.ENABLE_STRESS()) {
+      std::cout << "stress setup?" << std::endl;
       SetupStressInteractions();
+    } else {
+      std::cout << "no stress?" << std::endl;
     }
     // Configure health interactions
     if (sgp_config.ENABLE_HEALTH()) {
@@ -434,19 +438,8 @@ namespace sgpmode {
         }
       );
     } else if (GetStressSymType() == stress_sym_mode_t::NEUTRAL) {
-      // Symbionts have no effect on hosts with respect to stress event.
-      before_host_cpu_exec_sig.AddAction(
-        [this](sgp_host_t& host) {
-          if (!stress_extinction_update) return;
-          // If host has a symbiont, death_chance = mutualist death chance
-          // Otherwise, base death chance.
-          const double death_chance = sgp_config.BASE_DEATH_CHANCE();
-          // Kill host with chosen probability
-          if (random_ptr->P(death_chance)) {
-            host.SetDead();
-          }
-        }
-      );
+      //Nothing setup, assuming set in native
+      // TODO: change to "custom?"
     } else {
       std::cout << "Unimplemented stress symbiont type (" << sgp_config.STRESS_TYPE() << "). Exiting." << std::endl;
       exit(-1);

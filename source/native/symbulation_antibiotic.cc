@@ -35,10 +35,6 @@ int symbulation_main(int argc, char *argv[]) {
 
   antibioticmode::AntibioticConfig config;
   CheckConfigFile(config, argc, argv);
-  config.LIMITED_RES_TOTAL(10);
-  config.LIMITED_RES_INFLOW(10); //TODO: go change these defaults in the custom config?
-  config.WORLD_WIDTH(10);
-  config.WORLD_HEIGHT(10);
 
 
   emp::Random random(config.SEED());
@@ -52,7 +48,7 @@ int symbulation_main(int argc, char *argv[]) {
   human_micro->SetCheckSymIndependentReproReqsFunctor([human_micro](
     Organism& symbiont) {
     //Hosts pay the cost instead of symbionts
-    return symbiont.GetHost()->GetPoints() >= human_micro->GetConfig().SYM_HORIZ_TRANS_RES(); // TODO: change to using config that is captured
+    return symbiont.GetHost()->GetPoints() >= 1; // TODO: change to using config that is captured
   });
 
   human_micro->SetPaySymIndependentReproCostFunctor([](Organism& symbiont) {
@@ -61,14 +57,37 @@ int symbulation_main(int argc, char *argv[]) {
   });
 
   human_micro->SetApplySymOutputPointsFunctor([](sgp_sym_t& symbiont, double total_points) {
-    symbiont.GetHost()->AddPoints(-total_points); //Hosts pays the cost of the task
+    symbiont.GetHost()->AddPoints(-0.1); //Hosts pays the cost of the task
   });
 
+  human_micro->AddBeforeHostCPUExecSig([human_micro](sgp_host_t& host) {
+      if (!human_micro->IsStressExtinctionUpdate()) {
+        return;
+      }
+      // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
+      // Otherwise, base death chance.
+      auto& endosymbionts = host.GetSymbionts();
+      bool resistant = false;
+      for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
+        // Check if symbiont matches task profile
+        emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
+        resistant = endosym_ptr->GetHardware().GetCPUState().GetTaskPerformed(human_micro->GetTaskEnv().GetTaskSet().GetID("NAND")); //NAND only for now
+        if (resistant) {
+          std::cout << "resistant organism!" << std::endl;
+          break;
+        }
+      }
+      const double death_chance = (resistant) ?
+      human_micro->GetConfig().MUTUALIST_DEATH_CHANCE() :
+      human_micro->GetConfig().BASE_DEATH_CHANCE();
+      // Kill host with chosen probability
+      if (human_micro->GetRandom().P(death_chance)) {
+        host.SetDead();
+      }
+    });
 
-
-
-
-  return 0;
+    human_micro->Run(true);
+    return 0;
 }
 
 /*

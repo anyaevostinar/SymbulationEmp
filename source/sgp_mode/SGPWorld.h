@@ -672,11 +672,15 @@ public:
 
   size_t GetTaskCount() const { return task_env.GetTaskCount(); }
 
+  bool GetSetup() const {return setup;}
+
   /* Accessor for host task profiles */
   const emp::BitVector& GetHostTaskProfile(const sgp_host_t& host){return fun_get_host_task_profile(host);}
 
   /* Accessor for symbiont task profiles */
   const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
+
+  bool IsStressExtinctionUpdate() const { return stress_extinction_update; }
 
  /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
@@ -761,6 +765,12 @@ public:
     emp_assert(host.DynamicCast<sgp_host_t>(), "SGPSymbiont must have an SGPHost host");
     emp_assert(host_offspring.DynamicCast<sgp_host_t>(), "SGPHost host must have SGPHost offspring");
     return fun_vert_trans_compatible(sym, static_cast<sgp_host_t&>(*host_offspring), static_cast<sgp_host_t&>(*host));
+  }
+
+  void AddBeforeHostCPUExecSig(
+    const std::function<void(sgp_host_t&)>& func
+  ) {
+    before_host_cpu_exec_sig.AddAction(func);
   }
 
   void TriggerBeforeSymVertTransmissionSig(

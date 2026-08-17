@@ -9,7 +9,7 @@ TAG_NUM_BITS = 32
 # Flags to use regardless of compiler
 VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
 COMPILE_TIME_ARGS := -DTAG_NUM_BITS=$(TAG_NUM_BITS)
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ -I$(CEREAL_DIR)/ -I$(CONDUIT_DIR)/ ${VENDORIZE_EMP_FLAGS}
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ -I$(CEREAL_DIR)/ -I$(CONDUIT_DIR)/ ${VENDORIZE_EMP_FLAGS} -DROBIN_HOOD_DISABLE_INTRINSICS
 
 # Native compiler information
 CXX_nat := g++

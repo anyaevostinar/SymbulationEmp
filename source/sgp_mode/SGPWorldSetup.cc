@@ -410,7 +410,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
       sgp_prog_t sym_prog(
-        prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+        prog_builder.CreateReproProgram(PROGRAM_LENGTH)
       );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
