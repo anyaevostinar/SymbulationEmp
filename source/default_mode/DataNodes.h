@@ -248,23 +248,34 @@ emp::DataFile & SymWorld::SetupAntibioticResistanceFile(const std::string & file
 
     double numerator = 0;
     double denominator = 0;
+
+    //only consider symbionts that have been alive for at least half of the R0_WINDOW
+    size_t interesting_window = my_config->R0_FILTER();
  
     for (auto sym_taxon : sym_sys->GetActive()) {
-      denominator += sym_taxon->GetNumOffEver();
-      numerator += 1;
+      if(sym_taxon->GetOriginationTime() + interesting_window < GetUpdate()) {
+        denominator += sym_taxon->GetNumOffEver();
+        numerator += 1;
+      }
+
     }
     // std::cout << numerator << " " << denominator << std::endl;
     for (auto sym_taxon : sym_sys->GetAncestors()) {
-      denominator += sym_taxon->GetNumOffEver();
-      numerator += 1;
+      if(sym_taxon->GetOriginationTime() + interesting_window < GetUpdate()) {
+        denominator += sym_taxon->GetNumOffEver();
+        numerator += 1;
+      }
     }
     // std::cout << numerator << " " << denominator << std::endl;
     for (auto sym_taxon : sym_sys->GetOutside()) {
-      denominator += sym_taxon->GetNumOffEver();
-      numerator += 1;
+      if(sym_taxon->GetOriginationTime() + interesting_window < GetUpdate()) {
+        denominator += sym_taxon->GetNumOffEver();
+        numerator += 1;
+      }
+      
     }
     // std::cout << numerator << " " << denominator << std::endl <<std::endl;
-    return numerator / denominator;
+    return  denominator / numerator; //TODO: fix the names of the variables for real lol
   }, "R0", "R0");
   // node.AddDatum(numerator / denominator);
 
@@ -274,7 +285,6 @@ emp::DataFile & SymWorld::SetupAntibioticResistanceFile(const std::string & file
   // file.AddTotal(node1, "count", "Total number of symbionts");
 
   file.PrintHeaderKeys();
-
   return file;
 }
 
@@ -288,8 +298,8 @@ emp::DataFile & SymWorld::SetupAntibioticResistanceFile(const std::string & file
  * the host systematic information
  */
 void SymWorld::WritePhylogenyFile(const std::string & filename) {
-  sym_sys->Snapshot("SymSnapshot_"+filename);
-  host_sys->Snapshot("HostSnapshot_"+filename);
+  sym_sys->Snapshot(my_config->FILE_PATH() + "/SymSnapshot_"+filename);
+  host_sys->Snapshot(my_config->FILE_PATH() + "/HostSnapshot_"+filename);
 
   if (my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
     emp::File interaction_file;
@@ -338,7 +348,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
       }
     }
 
-    interaction_file.Write("InteractionSnapshot_" + filename);
+    interaction_file.Write(my_config->FILE_PATH() + "/InteractionSnapshot_" + filename);
   }
   if (my_config->WRITE_CURRENT_INTERACTION_COUNTS()) {
     emp::File cur_interaction_file;
@@ -370,7 +380,7 @@ void SymWorld::WritePhylogenyFile(const std::string & filename) {
       }
     }
 
-    cur_interaction_file.Write("CurrentInteractionsSnapshot_" + filename);
+    cur_interaction_file.Write(my_config->FILE_PATH() + "/CurrentInteractionsSnapshot_" + filename);
   }
 
 }

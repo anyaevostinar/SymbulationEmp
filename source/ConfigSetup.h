@@ -98,7 +98,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)"),
 
     GROUP(ANTIBIOTIC_RESISTANCE, "Settings for antibiotic resistance"),
-    VALUE(R0_WINDOW, double, 100, "How many updates should be used to calculate R0?"),
-    VALUE(TRACK_R0, bool, 0, "Should the world track R0? (0 for no, 1 for yes)")
+    VALUE(R0_WINDOW, double, 10, "How many updates should be used to calculate R0?"),
+    VALUE(TRACK_R0, bool, 0, "Should the world track R0? (0 for no, 1 for yes)"),
+    VALUE(R0_FILTER, double, 20, "How many updates should be used to filter out symbionts that have not been alive long enough to be considered for R0?")
 )
 #endif

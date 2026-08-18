@@ -21,6 +21,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <filesystem>
 
 #include "../default_mode/WorldSetup.cc"
 #include "../sgp_mode/SGPWorld.cc"
@@ -89,7 +90,21 @@ int symbulation_main(int argc, char *argv[]) {
 
   setup_functors(config, human_micro);
 
+  if (config.TRACK_R0() == 1) {
+    emp_assert(config.PHYLOGENY() == 1, "Cannot track R0 without tracking phylogeny.");
+    emp_assert(config.PHYLOGENY_TAXON_TYPE() == "horizontal-clade", "Need horizontal clade tracking to track R0.");
+    emp_assert(config.STORE_EXTINCT() == 1, "R0 will be biased if we don't store extinct");
+    std::filesystem::path output_dir = config.FILE_PATH();
+    std::filesystem::path antibiotic_resistance_fpath = output_dir / ("AntibioticResistance"+config.FILE_NAME()+".csv");    
+    human_micro->SetupAntibioticResistanceFile(antibiotic_resistance_fpath.string()).SetTimingRepeat(config.DATA_INT());  
+  }
+
   human_micro->Run(true);
+
+  // std::string file_ending = "_SEED" + std::to_string(config.SEED()) + ".data";
+  // if(config.PHYLOGENY() == 1){
+  //   human_micro->WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+file_ending);
+  // }
   return 0;
 }
 

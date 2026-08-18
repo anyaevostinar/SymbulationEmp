@@ -1453,7 +1453,6 @@ public:
 
     if (my_config->PHYLOGENY()) {
       sym_sys->Update(); //sym_sys is not part of the systematics vector, handle it independently
-
       if (update % my_config->PHYLOGENY_SNAPSHOT_INTERVAL() == 0) {
         // MapPhylogenyInteractions();
         const std::string file_ending = "_UPDATE" + std::to_string(update) + "_SEED" + std::to_string(my_config->SEED()) + ".data";
