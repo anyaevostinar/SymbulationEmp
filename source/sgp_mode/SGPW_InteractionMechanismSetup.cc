@@ -7,7 +7,6 @@
 namespace sgpmode {
 
   void SGPWorld::SetupHostSymInteractions() {
-    std::cout << "Host sym interactions" << std::endl;
 
     // These are defined in SGPW_TaskProfileSetup
     SetupTaskProfileMode();
@@ -18,11 +17,8 @@ namespace sgpmode {
 
     // Configure stress
     if (sgp_config.ENABLE_STRESS()) {
-      std::cout << "stress setup?" << std::endl;
       SetupStressInteractions();
-    } else {
-      std::cout << "no stress?" << std::endl;
-    }
+    } 
     // Configure health interactions
     if (sgp_config.ENABLE_HEALTH()) {
       SetupHealthInteractions();

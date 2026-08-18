@@ -91,3 +91,4 @@
 #include "../test/integration_test/multi_infection/pgg.test.cc"
 //#include "../test/integration_test/mutualists_constrain/SymsEffectEvo.test.cc" // Needs to be updated
 
+#include "../test/antibiotic_test/functors.test.cc"

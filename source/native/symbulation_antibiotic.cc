@@ -30,21 +30,10 @@
 #include "../sgp_mode/SGPW_TaskProfileSetup.cc"
 
 // This is the main function for the NATIVE version of this project.
+using sgp_host_t = sgpmode::SGPWorld::sgp_host_t;
+using sgp_sym_t = sgpmode::SGPWorld::sgp_sym_t;
 
-int symbulation_main(int argc, char *argv[]) {
-
-  antibioticmode::AntibioticConfig config;
-  CheckConfigFile(config, argc, argv);
-
-
-  emp::Random random(config.SEED());
-
-  antibioticmode::Human human(random, &config);
-
-  using sgp_host_t = sgpmode::SGPWorld::sgp_host_t;
-  using sgp_sym_t = sgpmode::SGPWorld::sgp_sym_t;
-  emp::Ptr<sgpmode::SGPWorld> human_micro = human.GetMicrobiome();
-
+void setup_functors(antibioticmode::AntibioticConfig& config, emp::Ptr<sgpmode::SGPWorld> human_micro) {
   human_micro->SetCheckSymIndependentReproReqsFunctor([human_micro](
     Organism& symbiont) {
     //Hosts pay the cost instead of symbionts
@@ -53,7 +42,7 @@ int symbulation_main(int argc, char *argv[]) {
 
   human_micro->SetPaySymIndependentReproCostFunctor([](Organism& symbiont) {
     //Hosts pay the cost instead of symbionts
-    symbiont.GetHost()->AddPoints(-1);
+    symbiont.GetHost()->AddPoints(-0.5);
   });
 
   human_micro->SetApplySymOutputPointsFunctor([](sgp_sym_t& symbiont, double total_points) {
@@ -73,7 +62,6 @@ int symbulation_main(int argc, char *argv[]) {
         emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
         resistant = endosym_ptr->GetHardware().GetCPUState().GetTaskPerformed(human_micro->GetTaskEnv().GetTaskSet().GetID("NAND")); //NAND only for now
         if (resistant) {
-          std::cout << "resistant organism!" << std::endl;
           break;
         }
       }
@@ -83,11 +71,26 @@ int symbulation_main(int argc, char *argv[]) {
       // Kill host with chosen probability
       if (human_micro->GetRandom().P(death_chance)) {
         host.SetDead();
-      }
+      } 
     });
+}
 
-    human_micro->Run(true);
-    return 0;
+int symbulation_main(int argc, char *argv[]) {
+
+  antibioticmode::AntibioticConfig config;
+  CheckConfigFile(config, argc, argv);
+
+
+  emp::Random random(config.SEED());
+
+  antibioticmode::Human human(random, &config);
+
+  emp::Ptr<sgpmode::SGPWorld> human_micro = human.GetMicrobiome();
+
+  setup_functors(config, human_micro);
+
+  human_micro->Run(true);
+  return 0;
 }
 
 /*

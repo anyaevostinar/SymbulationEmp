@@ -319,6 +319,7 @@ void SGPWorld::ProcessSymOutputBuffer(sgp_sym_t& sym) {
   // Process output buffer
   auto& output_buffer = cpu_state.GetOutputBuffer();
   for (uint32_t val : output_buffer) {
+
     // Is this the correct output for any tasks?
     if (task_io.IsValidOutput(val)) {
       // Yes, this output is correct.

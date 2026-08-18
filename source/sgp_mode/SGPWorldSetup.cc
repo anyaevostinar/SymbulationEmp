@@ -409,9 +409,15 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
-      sgp_prog_t sym_prog(
-        prog_builder.CreateReproProgram(PROGRAM_LENGTH)
-      );
+      sgp_prog_t sym_prog;
+      // Only 5% of starting symbionts have NAND, rest repro
+      if (GetRandom().P(0.05)) {
+        sym_prog = prog_builder.CreateNandProgram(PROGRAM_LENGTH);
+      } else {
+        sgp_prog_t sym_prog(
+          prog_builder.CreateReproProgram(PROGRAM_LENGTH)
+        );
+      }
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
         this,
@@ -423,20 +429,11 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       // NOTE - Move env io assignment to different signal that is triggered on inject?
       // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
       // Set sym's parent task
-      if (task_env.IsSymTask(nand_task_id)) {
-        new_sym->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id, true);
-        new_sym->GetHardware().GetCPUState().SetParentFirstTaskPerformed(nand_task_id, true);
-        new_sym->GetHardware().GetCPUState().MarkTaskPerformed(nand_task_id);
-      }
       // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);
     }
     // TODO - Add SGPWorld function to wrap inject host function
     // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
-    if (task_env.IsHostTask(nand_task_id)) {
-      new_host->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id, true);
-      new_host->GetHardware().GetCPUState().SetParentFirstTaskPerformed(nand_task_id, true);
-    }
     // Needs to be add org at instead of inject because we've already resized the
     //   world. (inject in well-mixed mode will inject at end of population).
     // Using the scheduler to fill world randomly (without position replacement)
