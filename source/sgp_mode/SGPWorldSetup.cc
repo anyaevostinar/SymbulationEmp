@@ -430,7 +430,32 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
       // Set sym's parent task
       // NOTE - Do we need to set location in cpu state here?
+      if (my_config->PHYLOGENY()) { //InjectSym calls this, but we aren't using it, can we reduce this duplication?
+        AddSymToSystematic(new_sym);
+      }
       new_host->AddSymbiont(new_sym);
+
+    } else if (sgp_config.START_MOI() == 0.01 && i==0) { //AEV Hack - just starting single sym to measure R0
+      sgp_prog_t sym_prog;
+      sym_prog = prog_builder.CreateNandProgram(PROGRAM_LENGTH);
+
+      emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
+        random_ptr,
+        this,
+        &sgp_config,
+        sym_prog,
+        sgp_config.SYM_INT()
+      );
+      // TODO - add InjectSymIntoHost to wrap
+      // NOTE - Move env io assignment to different signal that is triggered on inject?
+      // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
+      // Set sym's parent task
+      // NOTE - Do we need to set location in cpu state here?
+      if (my_config->PHYLOGENY()) { //InjectSym calls this, but we aren't using it, can we reduce this duplication?
+        AddSymToSystematic(new_sym);
+      }
+      new_host->AddSymbiont(new_sym);
+
     }
     // TODO - Add SGPWorld function to wrap inject host function
     // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
