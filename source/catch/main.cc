@@ -68,6 +68,7 @@
 #include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
+#include "../test/sgp_mode_test/functional_tests/TagMatching.test.cc"
 #include "../test/sgp_mode_test/functional_tests/TempChangingEnvironments.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPWorld.test.cc"
 #include "../test/sgp_mode_test/functional_tests/PopulationStructure.test.cc"

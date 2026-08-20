@@ -43,6 +43,12 @@ void SGPWorld::CreateDataFiles() {
   // Setup file for symbiont interaction values
   std::filesystem::path sym_int_vals_fpath = output_dir / ("SymbiontInteractionValues"+sgp_config.FILE_NAME()+".csv");
   SetupSymbiontInteractionValuesFile(sym_int_vals_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+
+  // Setup file for tag distances if TAG_MATCHING is on
+  if (sgp_config.TAG_MATCHING()) {
+    std::filesystem::path tag_dists_fpath = output_dir / ("TagDist"+sgp_config.FILE_NAME()+".csv");
+    SetupTagDistFile(tag_dists_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+  }
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {

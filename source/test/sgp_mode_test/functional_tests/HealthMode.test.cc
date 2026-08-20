@@ -48,7 +48,7 @@ void ConfigureHealthTestConfig(sgpmode::SymConfigSGP& config) {
 
   // general sgp settings
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.INTERACTION_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
   config.CYCLES_PER_UPDATE(4);
   config.TASK_IO_BANK_SIZE(10);
@@ -647,7 +647,7 @@ TEST_CASE("Health hosts evolve", "[sgp][sgp-functional][health-mode-evolution]")
   config.WORLD_HEIGHT(100);
   config.HOST_REPRO_RES(20);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
+  config.INTERACTION_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.TASK_PROFILE_MODE("self-all");
   config.CYCLES_PER_UPDATE(4);
   config.ENABLE_HEALTH(1);

@@ -615,9 +615,7 @@ public:
 
       emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
 
-      const emp::BitVector& endosym_task_profile = my_world->GetSymTaskProfile(*cur_symbiont);
-      const emp::BitVector& host_task_profile = my_world->GetHostTaskProfile(*this);
-      bool is_matching = my_world->TaskProfileCompatibilityCheck(host_task_profile,endosym_task_profile);
+      bool is_matching = my_world->GetInteractionCompatibility(*this,*cur_symbiont);
       matching_syms_to_interact_with += is_matching;
 
       }

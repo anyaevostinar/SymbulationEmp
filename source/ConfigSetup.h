@@ -93,6 +93,7 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(HOST_TAG_PERMISSIVENESS_MUTATION_SIZE, double, 0.005, "Standard deviation of the distribution to mutate by for host tag permissiveness values"),
     VALUE(HOST_TAG_PERMISSIVENESS_MUTATION_RATE, double, -1, "Value 0 to 1 of probability of mutation for host tag permissiveness, if - 1 HOST_MUTATION_RATE is used (if HOST_MUTATION_RATE is -1, MUTATION_RATE is used)"),
     VALUE(TAG_MUTATION_SIZE, double, 0.01, "What is the probability that any given position in the bitstring tag flips during mutation?"),
+    VALUE(VT_TAG_MATCH, bool, 1, "Should tag matching be required for vertical transmission (0 for no, 1 for yes)?"),
     VALUE(WRITE_TAG_MATRIX, bool, 0, "At the end of the experiment, should a similarity matrix of all persisting tags be generated?"),
     VALUE(TAG_MATRIX_SAMPLE_PROPORTION, double, 0.1, "What proportion of positions in the world should be sampled to produce the tag matrix from?"),
     VALUE(HOST_STARTING_TAGS_ONE_PROB, double, 0, "What probability should initializing bits in tags have of being 1s? Hosted symbionts will be assigned their host's tag. (0 for basic, all-0 only tags)")

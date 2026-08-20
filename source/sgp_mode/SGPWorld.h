@@ -75,6 +75,12 @@ public:
     const emp::BitVector&
   )>;
 
+  // Determines whether a host and symbiont are "compatible" with one another.
+  using fun_interaction_compatibility_t = std::function<bool(
+    const sgp_host_t&,
+    const sgp_sym_t&
+  )>;
+
   using fun_get_host_task_profile_t = std::function<const emp::BitVector&(const sgp_host_t&)>;
   using fun_get_sym_task_profile_t = std::function<const emp::BitVector&(const sgp_sym_t&)>;
 
@@ -455,6 +461,12 @@ protected:
   //   we no longer have access to the symbiont parent for a stress transmission event.
   std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
 
+  // Configurable function that accesses what matching format should be 
+  // used to determing host-symbiont interaction compatibility.
+  fun_interaction_compatibility_t fun_interaction_compatibility_check;
+
+  // Configurable function that accesses what matching format should be 
+  // used to determing host-symbiont task compatibility.
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
   // Configurable function that accesses task profile to be used for hosts.
@@ -545,6 +557,7 @@ protected:
   void SetupHostTaskRewards();
   void SetupTaskProfileMode();
   void SetupTaskProfileCompatibilityMode();
+  void SetupInteractionCompatibilityMode();
   void SetupHorizontalTransmissionCompatibilityMode();
   void SetupFindHostForHorizontalTransmission();
   void SetupHostSymInteractions();
@@ -664,6 +677,9 @@ public:
 
   /* Accessor for symbiont task profiles */
   const emp::BitVector& GetSymbiontTaskProfile(const sgp_sym_t& symbiont){return fun_get_sym_task_profile(symbiont);}
+
+  /* Accessor for organism interaction compatibility */
+  const bool GetInteractionCompatibility(const sgp_host_t& host, const sgp_sym_t& symbiont){return fun_interaction_compatibility_check(host, symbiont);}
 
  /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.

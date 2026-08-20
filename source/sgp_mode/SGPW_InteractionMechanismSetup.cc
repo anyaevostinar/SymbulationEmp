@@ -11,6 +11,7 @@ namespace sgpmode {
     // These are defined in SGPW_TaskProfileSetup
     SetupTaskProfileMode();
     SetupTaskProfileCompatibilityMode();
+    SetupInteractionCompatibilityMode();
     SetupHorizontalTransmissionCompatibilityMode();
 
     SetupFindHostForHorizontalTransmission();
@@ -79,10 +80,7 @@ namespace sgpmode {
           if (sym.GetDead()) { return; }
           // Will sym donate?
           bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
-
-          const auto& host_task_profile = fun_get_host_task_profile(host);
-          const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-          interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+          interact = interact && fun_interaction_compatibility_check(host, sym);
 
           const double donate_prop = sgp_config.MUTUALIST_CYCLE_GAIN_PROP();
           emp_assert(donate_prop <= 1.0 && donate_prop >= 0.0);
@@ -122,9 +120,7 @@ namespace sgpmode {
           auto& host_state = host.GetHardware().GetCPUState();
           // Will sym steal?
           bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
-          const auto& host_task_profile = fun_get_host_task_profile(host);
-          const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-          interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+          interact = interact && fun_interaction_compatibility_check(host, sym);
 
           const double steal_prop = sgp_config.PARASITE_CYCLE_LOSS_PROP();
           emp_assert(steal_prop <= 1.0 && steal_prop >= 0.0);
@@ -162,9 +158,7 @@ namespace sgpmode {
           auto& host_state = host.GetHardware().GetCPUState();
           // Will host and symbiont interact?
           bool interact = random_ptr->P(sgp_config.HEALTH_INTERACTION_CHANCE());
-          const auto& host_task_profile = fun_get_host_task_profile(host);
-          const auto& sym_task_profile = fun_get_sym_task_profile(sym);
-          interact = interact && fun_task_profile_compatibility_check(host_task_profile, sym_task_profile);
+          interact = interact && fun_interaction_compatibility_check(host, sym);
           const double sym_interaction_value = sym.GetIntVal();
           emp_assert(sym_interaction_value >= -1.0);
           emp_assert(sym_interaction_value <= 1.0 );
@@ -240,7 +234,6 @@ namespace sgpmode {
           if (!stress_extinction_update) return;
           // If host has a mutualist symbiont with a matching task profile, death_chance = mutualist death chance
           // Otherwise, base death chance.
-          const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
           bool interact = false;
           auto& endosymbionts = host.GetSymbionts();
           for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
@@ -250,7 +243,7 @@ namespace sgpmode {
             //   host_task_profile,
             //   fun_get_sym_task_profile(*endosym_ptr)
             // );
-            interact = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+            interact = fun_interaction_compatibility_check(host, *endosym_ptr);
             if (interact) {
               break;
             }
@@ -275,12 +268,11 @@ namespace sgpmode {
             // Otherwise, base death chance.
             double death_chance = sgp_config.BASE_DEATH_CHANCE();
             auto& endosymbionts = host.GetSymbionts();
-            const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
             for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
               // Check if symbiont matches task profile
               emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
               const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
-              const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+              const bool can_escape = fun_interaction_compatibility_check(host, *endosym_ptr);
               if (can_escape) {
                 death_chance = sgp_config.PARASITE_DEATH_CHANCE();
                 // Endosymbiont gets opportunity to horizontally transmit
@@ -320,7 +312,7 @@ namespace sgpmode {
             for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
               // Check if symbiont matches task profile
               emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-              const bool can_escape = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
+              const bool can_escape = fun_interaction_compatibility_check(host, *endosym_ptr);
               if (can_escape) {
                 death_chance = sgp_config.PARASITE_DEATH_CHANCE();
                 escapee_ids.emplace_back(sym_i);
@@ -364,7 +356,6 @@ namespace sgpmode {
       before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
-          const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
           emp::vector<size_t> escapee_ids; // Any parasite escapees?
           bool interact = false;
           double endosym_interaction_value = 0.0;
@@ -372,9 +363,9 @@ namespace sgpmode {
           for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
             // Check if symbiont matches task profile
             emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            interact = fun_task_profile_compatibility_check(
-              host_task_profile,
-              fun_get_sym_task_profile(*endosym_ptr)
+            interact = fun_interaction_compatibility_check(
+              host,
+              *endosym_ptr
             );
             if (interact) {
               endosym_interaction_value = endosym_ptr->GetIntVal();

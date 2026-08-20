@@ -48,10 +48,50 @@ void SGPWorld::SetupTaskProfileMode() {
   }
 }
 
+void SGPWorld::SetupInteractionCompatibilityMode() {
+  // Setup function that determines interaction compatibility
+  // Task compatibility is set up by SetupTaskProfileCompatibilityMode
+
+  if (sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "always"){
+    fun_interaction_compatibility_check = [this](
+      const sgp_host_t& host,
+      const sgp_sym_t& sym
+    ) -> bool {
+      return true;
+    };
+  } else if(sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "task-any-match" ||
+            sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
+    fun_interaction_compatibility_check = [this](
+      const sgp_host_t& host,
+      const sgp_sym_t& sym
+    ) -> bool {
+      return fun_task_profile_compatibility_check(
+        fun_get_host_task_profile(host),
+        fun_get_sym_task_profile(sym)
+      );
+    };
+  } else if(sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "tag-probabilistic-match"){
+    if(sgp_config.TAG_MATCHING() == false){
+      std::cout << "ERROR: TAG_MATCHING must be on in order to use tag-probabilistic-match for INTERACTION_PROFILE_COMPATIBILITY_MODE" << std::endl;
+      std::cout << "Exiting." << std::endl;
+      exit(-1);
+    }
+    fun_interaction_compatibility_check = [this](
+      const sgp_host_t& host,
+      const sgp_sym_t& sym
+    ) -> bool {
+      double tag_distance = (*tag_metric)(host.GetTag(), sym.GetTag()) * TAG_LENGTH;
+      double permissiveness_mean = (sgp_config.HOST_TAG_PERMISSIVENESS_EVOLVES()) ? host.GetTagPermissiveness() : sgp_config.TAG_PERMISSIVENESS();
+      double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
+      return(tag_distance <= cutoff);
+    };
+  }
+}
+
 void SGPWorld::SetupTaskProfileCompatibilityMode() {
   // Setup function that determines task profile compatibility
   // Task profile is determined by TASK_PROFILE_MODE
-  if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "always") {
+  if (sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "always") {
     // Task profiles are always compatible no matter their makeup.
     fun_task_profile_compatibility_check = [this](
       const emp::BitVector& a,
@@ -59,7 +99,7 @@ void SGPWorld::SetupTaskProfileCompatibilityMode() {
     ) -> bool {
       return true;
     };
-  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-any-match") {
+  } else if (sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "task-any-match") {
     // Task profiles are compatible if they have at least one shared task between them.
     fun_task_profile_compatibility_check = [this](
       const emp::BitVector& a,
@@ -67,15 +107,22 @@ void SGPWorld::SetupTaskProfileCompatibilityMode() {
     ) -> bool {
       return utils::AnyMatchingOnes(a, b);
     };
-  } else if (sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
+  } else if (sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "task-perfect-match") {
     fun_task_profile_compatibility_check = [this](
       const emp::BitVector& a,
       const emp::BitVector& b
     ) -> bool {
       return a == b;
     };
+  } else if(sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() == "tag-probabilistic-match"){
+    fun_task_profile_compatibility_check = [this](
+      const emp::BitVector& a,
+      const emp::BitVector& b
+    ) -> bool {
+      return true;
+    };
   } else {
-    std::cout << "Unrecognized TASK_PROFILE_COMPATIBILITY_MODE: " << sgp_config.TASK_PROFILE_COMPATIBILITY_MODE() << std::endl;
+    std::cout << "Unrecognized INTERACTION_PROFILE_COMPATIBILITY_MODE: " << sgp_config.INTERACTION_PROFILE_COMPATIBILITY_MODE() << std::endl;
     std::cout << "Exiting." << std::endl;
     exit(-1);
   }
