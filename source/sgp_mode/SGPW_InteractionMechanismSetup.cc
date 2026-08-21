@@ -30,8 +30,6 @@ namespace sgpmode {
     // Configure nutrient interactions
     if (sgp_config.ENABLE_NUTRIENT()) {
       SetupNutrientInteractions();
-      OverrideHostRewardsNutrient();
-      OverrideSymRewardsNutrient();
     }
   }
 
@@ -465,6 +463,8 @@ namespace sgpmode {
   /************************** Nutrient ********************************* */
   void SGPWorld::SetupNutrientInteractions() {
     emp_assert(sgp_config.ENABLE_NUTRIENT());
+    OverrideHostRewardsNutrient();
+    OverrideSymRewardsNutrient();
     // std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
 
     // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks

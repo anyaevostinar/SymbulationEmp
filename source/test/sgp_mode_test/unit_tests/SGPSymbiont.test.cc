@@ -112,6 +112,26 @@ TEST_CASE("Symbiont Process", "[sgp][sgp-unit]") {
   }
 }
 
+// TEST_CASE("SGPSymbiont destructor cleans up shared pointers and in-progress reproduction", "[sgp][sgp-unit]") {
+//   GIVEN("A symbiont") {
+//     emp::Random random(31);
+//     SymConfigSGP config;
+//     SGPWorld world(random, &config, LogicTasks);
+//     emp::Ptr<SGPSymbiont> sym = emp::NewPtr<SGPSymbiont>(&random, &world, &config, CreateNotProgram(100));
+//     sym->SetLocation(emp::WorldPosition(1, 2));
+//     sym->GetCPU().state.in_progress_repro = 3;
+//     world.to_reproduce.resize(5);
+
+//     WHEN("The symbiont is destroyed") {
+//       sym.Delete();
+
+//       THEN("Reproduction queue is invalidated after the symbiont is destroyed") {
+//         REQUIRE(world.to_reproduce[3] == nullptr);
+//       }
+//     }
+//   }
+// }
+
 TEST_CASE("ProcessOutputBuffer Symbiont", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;

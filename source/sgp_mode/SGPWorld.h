@@ -102,7 +102,7 @@ public:
     size_t     /* task id */
   )>;
 
-  using func_apply_sym_points_t = std::function<void(
+  using fun_apply_sym_points_t = std::function<void(
     sgp_sym_t&,
     double,     /* task value before nutrient interaction */
     size_t     /* task id */
@@ -434,7 +434,7 @@ protected:
   fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
   fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
   func_apply_host_points_t fun_apply_host_points;
-  func_apply_sym_points_t fun_apply_sym_points;
+  fun_apply_sym_points_t fun_apply_sym_points;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
