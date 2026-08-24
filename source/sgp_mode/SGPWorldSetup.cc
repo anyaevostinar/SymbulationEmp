@@ -534,7 +534,7 @@ void SGPWorld::SetupTaskEnvironment() {
   // E.g., fine for freeliving and endo syms to have same output processing?
   after_freeliving_sym_cpu_exec_sig.AddAction(
     [this](sgp_sym_t& sym) {
-      ProcessSymOutputBuffer(sym);
+      sym.ProcessOutputBuffer();
     }
   );
 
@@ -544,7 +544,7 @@ void SGPWorld::SetupTaskEnvironment() {
       sgp_sym_t& sym,
       sgp_host_t& host
     ) {
-      ProcessSymOutputBuffer(sym);
+      sym.ProcessOutputBuffer();
     }
   );
 }

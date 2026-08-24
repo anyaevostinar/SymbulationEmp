@@ -15,6 +15,9 @@ namespace sgpmode {
 
     SetupFindHostForHorizontalTransmission();
 
+    SetupHostTaskRewards();
+    SetupSymTaskRewards();
+
     // Configure stress
     if (sgp_config.ENABLE_STRESS()) {
       SetupStressInteractions();
@@ -27,10 +30,7 @@ namespace sgpmode {
     // Configure nutrient interactions
     if (sgp_config.ENABLE_NUTRIENT()) {
       SetupNutrientInteractions();
-    } // default is no nutrient interactions, which is set in SGPWorld constructor
-
-    SetupHostTaskRewards();
-
+    }
   }
 
   void SGPWorld::SetupOrgTypeVariables() {
@@ -463,6 +463,8 @@ namespace sgpmode {
   /************************** Nutrient ********************************* */
   void SGPWorld::SetupNutrientInteractions() {
     emp_assert(sgp_config.ENABLE_NUTRIENT());
+    OverrideHostRewardsNutrient();
+    OverrideSymRewardsNutrient();
     // std::cout << "Setting up nutrient host-endosymbiont interactions." << std::endl;
 
     // NOTE - should nutrient interaction be based on host's tasks or host's parent tasks
@@ -685,23 +687,59 @@ namespace sgpmode {
   * Purpose: Sets up functor to decide what happens when a host tries to receive point reward for completing a task
   */
   void SGPWorld::SetupHostTaskRewards() {
+    fun_apply_host_points = [this](
+      sgp_host_t& host,
+      double task_value_before,
+      size_t task_id
+    ) {
+      host.AddPoints(task_value_before);
+    };
+  }
 
-    if (sgp_config.ENABLE_NUTRIENT() == false) {
-      fun_apply_host_points = [this](
-        sgp_host_t& host,
+  /*
+  * Input: None
+  * Outpt: None
+  * Purpose: Sets up functor to decide what happens when a sym tries to receive point reward for completing a task
+  */
+  void SGPWorld::SetupSymTaskRewards() {
+      fun_apply_sym_points = [this](
+        sgp_sym_t& sym,
         double task_value_before,
         size_t task_id
       ) {
-        host.AddPoints(task_value_before);
+        sym.AddPoints(task_value_before);
       };
-    } else {
-      fun_apply_host_points = [this](
-        sgp_host_t& host,
-        double task_value_before,
-        size_t task_id
-      ) {
-        int task_matching_sym_count = 0;
-        emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+  }
+
+  /*
+  * Input: None
+  * Outpt: None
+  * Purpose: Override fun_apply_host_points functor for nutrient mode
+  */
+  void SGPWorld::OverrideHostRewardsNutrient() {
+    fun_apply_host_points = [this](
+      sgp_host_t& host,
+      double task_value_before,
+      size_t task_id
+    ) {
+      int task_matching_sym_count = 0;
+      emp::vector<emp::Ptr<Organism>>& syms = host.GetSymbionts();
+      for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+
+        emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+        bool dead = cur_symbiont->GetDead();
+        // Skip if dead
+        if (dead) {
+          continue;
+        }
+
+        const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
+        bool sym_performed = endosym_task_profile.Get(task_id);
+        task_matching_sym_count += sym_performed;
+      }
+
+      double point_difference_from_syms = 0;
+      if (task_matching_sym_count > 0) {
         for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
 
           emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
@@ -713,39 +751,36 @@ namespace sgpmode {
 
           const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
           bool sym_performed = endosym_task_profile.Get(task_id);
-          task_matching_sym_count += sym_performed;
-        }
+          if (sym_performed) {
+            double sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
+            point_difference_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
+            cur_symbiont->AddPoints(sym_task_point);
 
-        double point_difference_from_syms = 0;
-        if (task_matching_sym_count > 0) {
-          for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-
-            emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
-            bool dead = cur_symbiont->GetDead();
-            // Skip if dead
-            if (dead) {
-              continue;
-            }
-
-            const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*cur_symbiont);
-            bool sym_performed = endosym_task_profile.Get(task_id);
-            if (sym_performed) {
-              double sym_task_point = CalcSymNutrientInteraction(host,*cur_symbiont, task_value_before, task_id,task_matching_sym_count);
-              point_difference_from_syms += CalcHostNutrientInteraction(host, *cur_symbiont, task_value_before, task_id,task_matching_sym_count);
-              cur_symbiont->AddPoints(sym_task_point);
-
-            }
           }
         }
-        host.AddPoints(task_value_before+point_difference_from_syms);
-      };
-    }
+      }
+      host.AddPoints(task_value_before+point_difference_from_syms);
+    };
   }
 
-
-
-
-
+  /*
+  * Input: None
+  * Outpt: None
+  * Purpose: Override fun_apply_sym_points functor for nutrient mode
+  */
+  void SGPWorld::OverrideSymRewardsNutrient(){
+    fun_apply_sym_points = [this](
+      sgp_sym_t& sym,
+      double task_value_before,
+      size_t task_id
+    ) {
+      double task_value = task_value_before;
+      if(GetNutrientSymType() == nutrient_sym_mode_t::PARASITE){
+        task_value *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
+      }
+      sym.AddPoints(task_value);
+    };  
+  }
 }
 
 #endif
