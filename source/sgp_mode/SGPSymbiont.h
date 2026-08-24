@@ -45,7 +45,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  // emp::Ptr<SymConfigSGP> sgp_config = NULL;
+   emp::Ptr<SymConfigSGP> sgp_config = NULL;
 public:
   /**
    * Constructs a new SGPSymbiont as an ancestor organism, with either a random
@@ -61,9 +61,10 @@ public:
   ) :
     Symbiont(_random, _world, _config, _intval, _points),
     hardware(_world, this),
-    my_world(_world)
+    my_world(_world),
+    sgp_config(_config)
   {
-    // sgp_config = _config;
+    
   }
 
   /**
@@ -79,10 +80,9 @@ public:
   ) :
     Symbiont(_random, _world, _config, _intval, _points),
     hardware(_world, this, genome),
-    my_world(_world)
-  {
-    // sgp_config = _config;
-  }
+    my_world(_world),
+    sgp_config(_config)
+  {}
 
   SGPSymbiont(const SGPSymbiont& symbiont) :
     Symbiont(symbiont),
@@ -221,7 +221,7 @@ public:
     if (GetDead()) {
       return;
     }
-
+    
     GetHardware().GetCPUState().SetLocation(pos);
     if(my_host) my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host); //Note: this is different than before_endosym_host_process_sig
     // Cash in cycles for this update

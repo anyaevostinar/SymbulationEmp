@@ -19,9 +19,29 @@
                 },
                 {
                     "key": "tag moniker",
-                    "value": "flawed mayfly"
+                    "value": "sad ibex"
                 }
             ]
+        },
+        {
+            "operation": "IO",
+            "args": {
+                "value0": 0,
+                "value1": 0,
+                "value2": 0
+            },
+            "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
+            "descriptors": []
+        },
+        {
+            "operation": "IO",
+            "args": {
+                "value0": 1,
+                "value1": 0,
+                "value2": 0
+            },
+            "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
+            "descriptors": []
         },
         {
             "operation": "IO",
@@ -37,41 +57,11 @@
             "operation": "Nand",
             "args": {
                 "value0": 0,
-                "value1": 0,
+                "value1": 1,
                 "value2": 0
             },
             "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
             "descriptors": []
-        },
-        {
-            "operation": "Nop-0",
-            "args": {
-                "value0": 0,
-                "value1": 0,
-                "value2": 0
-            },
-            "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
-            "descriptors": [
-                {
-                    "key": "summary",
-                    "value": "perform no operation"
-                }
-            ]
-        },
-        {
-            "operation": "Nop-0",
-            "args": {
-                "value0": 0,
-                "value1": 0,
-                "value2": 0
-            },
-            "bitstring": "0000000000000000000000000000000000000000000000000000000000000000",
-            "descriptors": [
-                {
-                    "key": "summary",
-                    "value": "perform no operation"
-                }
-            ]
         },
         {
             "operation": "Nop-0",

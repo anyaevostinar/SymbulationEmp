@@ -50,7 +50,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  // emp::Ptr<SymConfigSGP> sgp_config;
+  emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -81,8 +81,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   /**
@@ -100,8 +100,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -170,11 +170,6 @@ public:
    * Purpose: To set the count of reproductions in this lineage.
    */
   void SetReproCount(size_t _in) { reproductions = _in; }
-
-  void SetLocation(emp::WorldPosition pos) {
-    hardware.GetCPUState().SetLocation(pos);
-    Host::SetLocation(pos);
-  }
 
   void DecPoints(double amt) {
     points -= amt;
@@ -263,7 +258,6 @@ public:
     if (GetDead()) {
       return;
     }
-
     // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
     //        Currently endosyms go first and then hosts. This is to model endosyms
     //        having opportunity to steal / donate cpu cycles and then host responding
@@ -290,7 +284,7 @@ public:
       }
       // Endosymbiont gains baseline number of CPU cycles
       cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
-        my_world->GetConfig().CYCLES_PER_UPDATE()
+        sgp_config->CYCLES_PER_UPDATE()
       );
       my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
@@ -298,7 +292,7 @@ public:
         this
       );
     }
-    my_world->before_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerBeforeHostCPUExec(*this);
 
     // Host may have died as a result of this signal.
     if (GetDead()) {
@@ -326,10 +320,10 @@ public:
         AttemptReproduction(pos);
       }
 
-      my_world->after_host_cpu_step_sig.Trigger(*this);
+      my_world->TriggerAfterHostCPUStep(*this);
       // NOTE - Check death here?
     }
-    my_world->after_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerAfterHostCPUExec(*this);
     // Handle any endosymbionts (configurable at setup-time)
     // NOTE - is there any reason that this might need to be a functor?
     ProcessEndosymbionts();
@@ -338,7 +332,7 @@ public:
       return;
     }
     GrowOlder();
-    my_world->after_host_process_sig.Trigger(*this);
+    my_world->TriggerAfterHostProcess(*this);
   }
 
   void ProcessEndosymbionts() {
@@ -388,7 +382,7 @@ public:
    * TODO: Perhaps Default mode should have something similar
    */
   void AttemptReproduction(const emp::WorldPosition& pos) {
-    const double repro_cost = my_world->GetConfig().HOST_REPRO_RES();
+    const double repro_cost = sgp_config->HOST_REPRO_RES();
     if (GetPoints() >= repro_cost) {
       // Host pays cost
       DecPoints(repro_cost);
@@ -433,7 +427,7 @@ public:
 
           //check first task credit
           const bool not_first_task = 
-            my_world->GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && 
+            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() && 
             cpu_state.GetFirstTaskPerformed().Any() && 
             !cpu_state.GetFirstTaskPerformed().Get(task_id);
           if (not_first_task) continue;

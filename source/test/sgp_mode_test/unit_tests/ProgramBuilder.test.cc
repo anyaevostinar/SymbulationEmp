@@ -638,12 +638,17 @@ std::string ReadFileContents(const std::filesystem::path& path) {
   return oss.str();
 }
 
-TEST_CASE("Example program files regenerate identically", "[sgp][sgp-unit]"){
+TEST_CASE("Example program files regenerate identically", "[sgp][sgp-unit][elias]"){
+  using tag_t = typename hw_spec_t::tag_t;
   GIVEN("A program builder"){
     const size_t program_len = 100;
+    
     sgpl::OpCodeRectifier<sgpmode::Library> rectifier;
     sgpmode::ProgramBuilder<hw_spec_t> builder(rectifier);
 
+    tag_t START_TAG;
+    START_TAG.SetUInt64(0, std::numeric_limits<uint64_t>::max());
+    builder.SetStartTag(START_TAG);
     WHEN("NotProgram100.json is regenerated"){
       const std::string json_str = builder.MakeJsonString(
         builder.CreateNotProgram(program_len)
