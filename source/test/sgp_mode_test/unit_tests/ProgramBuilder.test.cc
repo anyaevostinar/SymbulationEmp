@@ -638,7 +638,7 @@ std::string ReadFileContents(const std::filesystem::path& path) {
   return oss.str();
 }
 
-TEST_CASE("Example program files regenerate identically", "[sgp][sgp-unit][elias]"){
+TEST_CASE("Example program files regenerate identically", "[sgp][sgp-unit]"){
   using tag_t = typename hw_spec_t::tag_t;
   GIVEN("A program builder"){
     const size_t program_len = 100;

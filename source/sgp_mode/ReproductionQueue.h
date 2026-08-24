@@ -87,10 +87,6 @@ public:
         continue;
       }
       fun_reproduce_org(repro_info);
-      // emp::Ptr<Organism> child = org->Reproduce();
-      // (child->IsHost()) ?
-      //   world.HostDoBirth(child, org_ptr, repro_info.pos) :
-      //   world.SymDoBirth(child, repro_info.pos);
     }
     Clear();
   }

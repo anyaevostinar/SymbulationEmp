@@ -360,7 +360,7 @@ TEST_CASE("World uses custom spatial structure", "[default][spatial-structure]")
         size_t neighbor_sym_count = 0;
         for (size_t sym_count = 0; sym_count < sym_limit; sym_count++) {
           emp::Ptr<Organism> sym_offspring = sym_parent->Reproduce();
-          world.SymDoBirth(sym_offspring, sym_parent->GetLocation());
+          world.SymDoBirth(sym_offspring, sym_parent ,sym_parent->GetLocation());
           ++neighbor_sym_count;
           REQUIRE(neighboring_host->GetSymbionts().size() == neighbor_sym_count);
           REQUIRE(!distant_host->HasSym());
