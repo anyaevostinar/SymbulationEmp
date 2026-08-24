@@ -551,8 +551,8 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
             symbiont_parent->SetPoints(starting_resources);
             symbiont_parent->IndependentReproduction(parent_sym_pos);
 
-            THEN("the sym child is inserted nowhere and the parent's points get set to 0") {
-              REQUIRE(symbiont_parent->GetPoints() == 0);
+            THEN("the sym child is inserted nowhere and the parent loses the points") {
+              REQUIRE(symbiont_parent->GetPoints() == starting_resources - horiz_trans_res_required);
               REQUIRE(host->GetSymbionts().size() == 1);
               REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
             }

@@ -288,7 +288,7 @@ protected:
 
   // Function to check compatibility between host and symbiont
   // - Used to check eligibility for vertical / horizontal transmission, etc.
-  fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
+  fun_horizontal_transmission_compatibility_check_t fun_horizontal_transmission_compatibility_check;
 
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
@@ -817,7 +817,7 @@ public:
     after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
-  void TriggerBeforeSymDoBirth(, 
+  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, 
     const emp::WorldPosition& parent_pos){
     before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   }
