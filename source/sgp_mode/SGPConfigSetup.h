@@ -10,8 +10,7 @@
 
 namespace sgpmode {
 
-// TODO - rename TASK_TYPE to be more specific
-
+// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host nameing conventtions
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 4, "Number of CPU cycles that organisms run every update"),
@@ -22,7 +21,6 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(HOST_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
   VALUE(SYM_MIN_CYCLES_BEFORE_REPRO, size_t, 0, "Number of CPU cycles organisms must wait between reproductions"),
 
-  // NOTE - Might be able to eliminate ORGANISM_TYPE if interaction modes are allowed to be "layered on"
   VALUE(INTERACTION_MECHANISM, std::string, "default", "What sgp organisms should population the world? (Options: 'default')"),
   VALUE(VT_TASK_MATCH, bool, false, "Should task matching be required for vertical transmission? (0 for no, 1 for yes)"),
   VALUE(TASK_PROFILE_MODE, std::string, "self-all", "What should we use for task profiles for host-symbiont compatibility, preferential ousting, etc.? Options are parent-all, self-all, self-first, parent-first. 'all' means all tasks, 'first' means only first task performed."),
@@ -42,7 +40,6 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION, size_t, 1, "Number of offspring stress parasite can produce when host dies during stress event"),
   VALUE(PARASITE_ESCAPEE_TIMING, std::string, "on-match-host-death", "When should parasites have the opportunity to produce escapees during a stress event? Options: on-match-host-death, on-match"),
 
-  // NOTE - HEALTH_X is less descriptive than STRESS_X; shift language to HEALTH_INTERACTION_X?
   GROUP(HEALTH, "Health interaction settings"),
   VALUE(ENABLE_HEALTH, bool, false, "Health interactions enabled?"),
   VALUE(HEALTH_TYPE, std::string, "mutualist", "What kind of health symbionts are used?"),
