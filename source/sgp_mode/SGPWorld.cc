@@ -140,17 +140,17 @@ void SGPWorld::DoReproduction() {
 // Called for symbionts in the reproduction queue
 // fun_sym_do_birth is set to either free living or horizontal infection based on config
 emp::WorldPosition SGPWorld::SymDoBirth(
-  emp::Ptr<Organism> sym_baby,
+  emp::Ptr<Organism> sym_offspring,
+  emp::Ptr<Organism> sym_parent,
   emp::WorldPosition parent_pos
 ) {
-  emp_assert(!sym_baby->IsHost());
-  emp::Ptr<sgp_sym_t> sym_baby_ptr = static_cast<sgp_sym_t*>(sym_baby.Raw());
-  // Trigger any before birth actions
-  before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
-  emp::WorldPosition sym_baby_pos(fun_sym_do_birth(sym_baby_ptr, parent_pos));
-
-
-  return sym_baby_pos;
+  emp_assert(!sym_offspring->IsHost());
+  emp::Ptr<sgp_sym_t> sym_offspring_ptr = static_cast<sgp_sym_t*>(sym_offspring.Raw());
+  emp::Ptr<sgp_sym_t> sym_parent_ptr = static_cast<sgp_sym_t*>(sym_parent.Raw());
+  
+  before_sym_do_birth_sig.Trigger(sym_offspring_ptr, parent_pos);
+  emp::WorldPosition sym_offspring_pos(fun_sym_do_birth(sym_offspring_ptr, sym_parent_ptr, parent_pos));
+  return sym_offspring_pos;
 }
 
 emp::WorldPosition SGPWorld::HostDoBirth(
@@ -197,85 +197,30 @@ emp::WorldPosition SGPWorld::FreeLivingSymDoBirth(
   const emp::WorldPosition& parent_pos
 ) {
   // TODO - add any signals?
+  //Sym deletion done in SymWorld::MoveIntoNewFreeWorldPos
   return MoveIntoNewFreeWorldPos(sym_baby_ptr, parent_pos);
 }
 
 emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
-  emp::Ptr<sgp_sym_t> sym_baby_ptr,
+  emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+  emp::Ptr<sgp_sym_t> sym_parent_ptr,
   const emp::WorldPosition& parent_pos
 ) {
-  // TODO - add any signals?
-  const size_t parent_pop_idx = parent_pos.GetPopID();
-  emp::Ptr<Organism> parent = this->GetOrgPtr(parent_pop_idx)->GetSymbionts()[parent_pos.GetIndex() - 1];
-  emp_assert(!parent->IsHost());
-  emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(parent.Raw());
-  // hew_host_pos is an optional<emp::WorldPosition>
-  const auto new_host_pos = FindHostForHorizontalTrans(parent_pop_idx, sym_parent);
+  emp_assert(!sym_parent_ptr->IsHost());
+  const auto new_host_pos = FindHostForHorizontalTrans(sym_parent_ptr, parent_pos);
+
   if (new_host_pos) {
     const size_t host_id = new_host_pos.value().GetIndex();
-    int new_index = pop[host_id]->AddSymbiont(sym_baby_ptr);
+    int new_index = pop[host_id]->AddSymbiont(sym_offspring_ptr);
     if (new_index > 0) {
       //sym successfully infected
       return emp::WorldPosition(new_index, host_id);
-    } else {
-      //sym got killed trying to infect
-      return emp::WorldPosition();
     }
-  } else {
-    sym_baby_ptr.Delete();
+    //AddSymbiont deletes symbiont
     return emp::WorldPosition();
   }
-}
-
-// Process any symbiont offspring that "escaped" the stress event
-void SGPWorld::ProcessStressEscapees() {
-  emp_assert(repro_queue.GetSize() == 0);
-
-  // Process escapees in random order (to avoid strongly favoring all offspring from "late" escapee)
-  escapee_ids.resize(symbiont_stress_escapees.size(), 0);
-  std::iota(
-    escapee_ids.begin(),
-    escapee_ids.end(),
-    0
-  );
-  emp::Shuffle(*random_ptr, escapee_ids);
-  // for (size_t esc_i = 0; esc_i < symbiont_stress_escapees.size(); ++esc_i) {
-  for (size_t esc_i : escapee_ids) {
-    // (1) Find place to AddSymbiont
-    auto& escapee_info = symbiont_stress_escapees[esc_i];
-
-    bool success = false;
-    for (size_t attempt_i = 0; attempt_i < sgp_config.FIND_NEIGHBOR_HOST_ATTEMPTS(); ++attempt_i) {
-      emp::WorldPosition candidate_pos(GetRandomNeighborPos(escapee_info.escape_location));
-      if (candidate_pos.IsValid() && IsOccupied(candidate_pos)) {
-        emp::Ptr<Organism> neighbor_org_ptr = GetOrgPtr(candidate_pos.GetIndex());
-        emp_assert(neighbor_org_ptr->IsHost());
-        // Cast neighbor as sgp_host_t ptr.
-        emp::Ptr<sgp_host_t> neighbor_host_ptr = static_cast<sgp_host_t*>(neighbor_org_ptr.Raw());
-        // Check whether escapee can infect?
-        const bool can_infect = fun_host_sym_stress_trans_compatibility_check(
-          *neighbor_host_ptr,
-          escapee_info.parent_task_profile
-        );
-        // TODO - add stress infect success tracking
-        if (!can_infect) continue;
-        // escapee_info.sym_offspring->GetHardware().GetCPUState().ResetReproState();
-        //AssignNewEnvIO(escapee_info.sym_offspring->GetHardware().GetCPUState()); // AEV No longer needed, added to AddSymbiont
-        // int new_index =
-        neighbor_host_ptr->AddSymbiont(escapee_info.sym_offspring);
-        // AddSymbiont might fail (but when it does, it deletes the offspring)
-        // so not possible to keep attempting until actual success
-        success = true;
-        break;
-      }
-    }
-    // If sym didn't successfully infect, delete it.
-    if (!success) {
-      escapee_info.sym_offspring.Delete();
-    }
-  }
-  symbiont_stress_escapees.clear();
-  // TODO - add data collection for successful escapes
+  SendToGraveyard(sym_offspring_ptr);
+  return emp::WorldPosition();
 }
 
 void SGPWorld::ProcessGraveyard() {
@@ -305,11 +250,11 @@ void SGPWorld::SendToGraveyard(emp::Ptr<Organism> org) {
 }
 
 std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
-  size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-  emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+  emp::Ptr<sgp_sym_t> sym_parent_ptr,
+  const emp::WorldPosition& parent_pos
 ) {
   // Outsource to configurable functor
-  return fun_find_host_for_horizontal_trans(host_world_id, sym_parent_ptr);
+  return fun_find_host_for_horizontal_trans(sym_parent_ptr, parent_pos);
 }
 
 void SGPWorld::HostDoMutation(sgp_host_t& host) {

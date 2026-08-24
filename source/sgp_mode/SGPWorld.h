@@ -52,7 +52,8 @@ public:
   using sgp_prog_rectifier_t = sgpl::OpCodeRectifier<Library>;
 
   using fun_sym_do_birth_t = std::function<emp::WorldPosition(
-    emp::Ptr<sgp_sym_t>,          /* symbiont baby ptr */
+    emp::Ptr<sgp_sym_t>,          /* symbiont offspring ptr */
+    emp::Ptr<sgp_sym_t>,          /* symbiont parent ptr*/
     const emp::WorldPosition&     /* parent_position */
   )>;
 
@@ -194,24 +195,6 @@ public:
 
   } current_update_data;
 
-  struct StressEscapee {
-    emp::Ptr<sgp_sym_t> sym_offspring;
-    // emp::WorldPosition escape_location;
-    emp::BitVector parent_task_profile;
-    size_t escape_location;
-
-    StressEscapee() = default;
-    StressEscapee(
-      emp::Ptr<sgp_sym_t> sym,
-      const emp::BitVector& tasks,
-      size_t loc
-    ) :
-      sym_offspring(sym),
-      parent_task_profile(tasks),
-      escape_location(loc)
-    { }
-  };
-
   // Tag used to trigger start module in signalgp programs during run
   tag_t START_TAG;
 
@@ -246,9 +229,6 @@ protected:
   sgp_prog_rectifier_t opcode_rectifier; // Used to "disable" instructions at runtime based on run configuration
   ProgramBuilder<hw_spec_t> prog_builder = ProgramBuilder<hw_spec_t>(opcode_rectifier); // Utility for building signalgp programs
   mutator_t mutator = mutator_t(opcode_rectifier);  // Handles mutating sgp programs
-
-  emp::vector<StressEscapee> symbiont_stress_escapees;
-  emp::vector<size_t> escapee_ids; // Used to randomize order of processing escapees (to avoid biasing)
 
   // Flag for whether setup has been run.
   bool setup = false;
@@ -310,12 +290,6 @@ protected:
   // - Used to check eligibility for vertical / horizontal transmission, etc.
   fun_horizontal_transmission_compatibility_check_t fun_host_sym_horizontal_trans_compatibility_check;
 
-  // Function used to check compatibility between host and symbiont that reproduced
-  // via a stress event.
-  // - Can't use same function as when checking horizontal transmission compatibility because
-  //   we no longer have access to the symbiont parent for a stress transmission event.
-  std::function<bool(sgp_host_t&, const emp::BitVector&)> fun_host_sym_stress_trans_compatibility_check;
-
   fun_task_profile_compatibility_t fun_task_profile_compatibility_check;
 
   // Configurable function that accesses task profile to be used for hosts.
@@ -354,8 +328,8 @@ protected:
   // Returns a target position for symbiont to horizontally transmit into.
   // Returns std::nullopt if failed to find suitable target position.
   std::function<std::optional<emp::WorldPosition>(
-    size_t,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t>     /* Pointer to symbiont parent (producing the sym offspring) */
+    emp::Ptr<sgp_sym_t>, //sym parent
+    const emp::WorldPosition& //sym parent pos
   )> fun_find_host_for_horizontal_trans;
 
   
@@ -387,7 +361,8 @@ protected:
   );
 
   emp::WorldPosition SymAttemptHorizontalInfection(
-    emp::Ptr<sgp_sym_t> sym_baby_ptr,
+    emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
     const emp::WorldPosition& parent_pos
   );
 
@@ -433,6 +408,7 @@ protected:
   // Clear all world signals
   void ClearWorldSignals() {
     begin_update_sig.Clear();
+    after_reproduction_sig.Clear();
     before_sym_do_birth_sig.Clear();
     after_sym_do_birth_sig.Clear();
     before_sym_vert_transmission_sig.Clear();
@@ -464,6 +440,10 @@ protected:
   //  Triggers before schedule update, before processing any organisms.
   //  E.g., used for resetting any per-update data tracking.
   emp::Signal<void(void)> begin_update_sig;
+
+  // after_reproduction_sig - Triggers after the ReproductionQueue has been processed
+  // E.g., used for processing additional mode specific reproduction queues
+  emp::Signal<void(void)> after_reproduction_sig;
 
   // ---- Symbiont birth signals / functors ----
   // before_sym_do_birth_sig - Triggers during SymDoBirth function.
@@ -837,7 +817,7 @@ public:
     after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
-  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, 
+  void TriggerBeforeSymDoBirth(, 
     const emp::WorldPosition& parent_pos){
     before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   }
@@ -902,7 +882,7 @@ public:
     scheduler.Run(*this);
     // Process reproduction queue
     repro_queue.Process();
-    ProcessStressEscapees();
+    after_reproduction_sig.Trigger();
     // Process graveyard, deletes all dead organisms.
     ProcessGraveyard();
     // NOTE - these were previously called at the beginning of the update
@@ -969,7 +949,8 @@ public:
   // Prototypes for reproduction handling methods
   // SymDoBirth is for horizontal transmission and birthing free-living symbionts.
   emp::WorldPosition SymDoBirth(
-    emp::Ptr<Organism> sym_baby,
+    emp::Ptr<Organism> sym_offspring,
+    emp::Ptr<Organism> sym_parent,
     emp::WorldPosition parent_pos
   ) override;
 
@@ -980,11 +961,9 @@ public:
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
   void FreeLivingSymDoInfect(Organism& sym);
 
-  // Returns neighboring host from given symbiont
-  // NOTE - Opinions on name change? (originally GetNeighborHost)
   std::optional<emp::WorldPosition> FindHostForHorizontalTrans(
-    size_t host_world_id,                 /* Parent's host location id in world (pops[0][id])*/
-    emp::Ptr<sgp_sym_t> sym_parent_ptr    /* Pointer to symbiont parent (producing the sym offspring) */
+    emp::Ptr<sgp_sym_t> sym_parent_ptr,
+    const emp::WorldPosition& parent_pos
   );
 
   /**

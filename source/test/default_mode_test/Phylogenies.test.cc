@@ -586,7 +586,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
     world.Update(); // update 1
 
     emp::Ptr<Organism> symbiont_2 = symbiont_1->Reproduce(); // symbionts are added to systematic on Reproduce()
-    emp::WorldPosition symbiont_2_pos = world.SymDoBirth(symbiont_2, symbiont_1_pos);
+    emp::WorldPosition symbiont_2_pos = world.SymDoBirth(symbiont_2, symbiont_1, symbiont_1_pos);
 
     REQUIRE(world.GetNumOrgs() == 2);
     REQUIRE(symbiont_2_pos.GetPopID() != symbiont_1_pos.GetPopID());
