@@ -768,7 +768,7 @@ public:
 
     host_baby->Mutate();
     host_baby->SetReproCount(reproductions + 1);
-    SetPoints(0);
+    AddPoints(-1 * my_config->HOST_REPRO_RES());
 
     if (my_config->TAG_MATCHING() && HasSym()) {
       // do not xor to get 1 where bits are matching
