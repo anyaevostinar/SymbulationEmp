@@ -249,7 +249,7 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
   }
 }
 
-TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]") {
+TEST_CASE("ProcessOutputBuffer Host", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;

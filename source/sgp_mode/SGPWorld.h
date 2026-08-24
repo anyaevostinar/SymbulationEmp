@@ -102,6 +102,12 @@ public:
     size_t     /* task id */
   )>;
 
+  using fun_apply_sym_points_t = std::function<void(
+    sgp_sym_t&,
+    double,     /* task value before nutrient interaction */
+    size_t     /* task id */
+  )>;
+
   // using fun_process_endosym_t = std::function<void(
   //   sgp_sym_t&,                /* endosymbiont */
   //   const emp::WorldPosition&, /* sym pos */
@@ -428,6 +434,7 @@ protected:
   fun_calc_host_nutrient_interaction_t fun_calc_host_nutrient_interaction;
   fun_calc_sym_nutrient_interaction_t fun_calc_sym_nutrient_interaction;
   func_apply_host_points_t fun_apply_host_points;
+  fun_apply_sym_points_t fun_apply_sym_points;
 
   // NOTE - Don't love this being owned by the world.
   //        Not sure of better alterative. Need to know this in InitializeState
@@ -543,6 +550,9 @@ protected:
   void SetupSymReproduction();
   void SetupHostReproduction();
   void SetupHostTaskRewards();
+  void SetupSymTaskRewards();
+  void OverrideHostRewardsNutrient();
+  void OverrideSymRewardsNutrient();
   void SetupTaskProfileMode();
   void SetupTaskProfileCompatibilityMode();
   void SetupHorizontalTransmissionCompatibilityMode();
@@ -706,6 +716,14 @@ public:
     size_t task_id
   ) {
     fun_apply_host_points(host,task_value_before, task_id);
+  }
+
+  void ApplySymPoints(
+     sgp_sym_t& sym,
+    double task_value_before,
+    size_t task_id
+  ) {
+    fun_apply_sym_points(sym,task_value_before, task_id);
   }
 
   const emp::BitVector& GetSymTaskProfile(
@@ -873,9 +891,6 @@ public:
 
   // Process symbiont at given position in the world
   void ProcessFreeLivingSymAt(const emp::WorldPosition& pos, sgp_sym_t& sym);
-
-  //void ProcessHostOutputBuffer(sgp_host_t& host);
-  void ProcessSymOutputBuffer(sgp_sym_t& sym);
 
   // NOTE - moved to be public for testing
   void AssignNewEnvIO(sgp_cpu_peripheral_t& cpu_state) {
