@@ -458,7 +458,7 @@ TEST_CASE("reproduce", "[default]") {
   random.Delete();
 }
 
-TEST_CASE("Process", "[default][Test]") {
+TEST_CASE("Process", "[default]") {
   using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(10);
   SymConfigBase config;

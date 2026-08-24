@@ -625,11 +625,11 @@ public:
 
       if(int_val >= 0) {
 	      double spent = resources * int_val;
-        this->AddPoints(resources - spent);
+        AddPoints(resources - spent);
       }
       else {
         double attack = -1.0 * int_val * resources;
-        this->AddPoints(resources - attack);
+        AddPoints(resources - attack);
       }
     }
   }
