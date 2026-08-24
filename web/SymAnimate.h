@@ -6,12 +6,12 @@
 #include <optional>
 #include <string>
 #include "uitsl/fetch/autoinstall.hpp"
-#include "default_mode/SymWorld.h"
-#include "default_mode/DataNodes.h"
-#include "ConfigSetup.h"
+#include "../source/default_mode/SymWorld.h"
+#include "../source/default_mode/DataNodes.h"
+#include "../source/ConfigSetup.h"
 //#include "SymJS.h"
-#include "default_mode/Symbiont.h"
-#include "default_mode/Host.h"
+#include "../source/default_mode/Symbiont.h"
+#include "../source/default_mode/Host.h"
 #include "emp/base/errors.hpp"
 #include "emp/web/Document.hpp"
 #include "emp/web/Canvas.hpp"
@@ -19,8 +19,7 @@
 #include "emp/config/ArgManager.hpp"
 #include "emp/prefab/ConfigPanel.hpp"
 #include "emp/web/UrlParams.hpp"
-#include "default_mode/WorldSetup.cc"
-
+#include "../source/default_mode/WorldSetup.cc"
 
 namespace UI = emp::web;
 SymConfigBase config; // load the default configuration
@@ -43,7 +42,6 @@ emp::ArgManager::spec_map_t arg_specs = [](){
   );
   return specs;
 }();
-
 
 class SymAnimate : public UI::Animate {
 private:
@@ -80,7 +78,8 @@ public:
     config.WORLD_WIDTH(50);
     config.WORLD_HEIGHT(50);
     config.UPDATES(30000);
-    emp::prefab::ConfigPanel config_panel(config);
+
+    emp::prefab::ConfigPanel config_panel(config, true);
     //Exclude all the settings that control
     //things that don't show up in the GUI correctly
     config_panel.ExcludeSetting("SYM_LIMIT");
@@ -98,7 +97,9 @@ public:
     config_panel.ExcludeGroup("LYSIS");
     config_panel.ExcludeGroup("DTH");
     config_panel.ExcludeGroup("PGG");
-    config_panel.ExcludeGroup("ECTOSYMBIOSIS");
+    config_panel.ExcludeGroup("ECTOSYMBIOSIS_GROUP");
+    config_panel.ExcludeGroup("TAG_MATCHING_GROUP");
+    config_panel.ExcludeGroup("PHYLOGENY_GROUP");
 
     config_panel.SetRange("HOST_INT", "-2", "1");
     config_panel.SetRange("SYM_INT", "-2", "1");

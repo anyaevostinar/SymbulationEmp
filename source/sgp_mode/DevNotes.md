@@ -3,7 +3,6 @@
 ## Further refactoring list:
 * Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
 * Add SGP mode to API reference doc
-* Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 * Move SymDoMutation into SGPSymbiont to parallel host
 * Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
 * Look at fun_host_sym_stress_trans_compatibility_check to try to reduce code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
@@ -11,12 +10,13 @@
 * Try to fold ProcessStressEscapees into existing code/reduce duplication
 * Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
 * Look into what is going on with SGPHost local sgp_config not working
-* Streamline Host ProcessOutputBuffer and check if easier access to some variables
+* Streamline Host and Symbiont ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
 
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 # Previous actions completed
+[x] Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 [x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [x] Get Host task credit and Task Match Check tests not seg faulting
 [x] Make mini guide on main changes for tests so others could help with test porting

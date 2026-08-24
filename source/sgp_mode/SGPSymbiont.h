@@ -23,6 +23,7 @@ public:
   using hw_t = SGPHardware<hw_spec_t>;
   using program_t = typename hw_t::program_t;
   using host_t = SGPHost<HW_SPEC_T>;
+  using nutrient_sym_mode_t = typename org_info::NutrientSymbiontType;
 
 protected:
   // SignalGP hardware
@@ -338,6 +339,70 @@ public:
     }
   }
 
+/**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
+   */
+void ProcessOutputBuffer() {
+  auto& cpu_state = GetHardware().GetCPUState();
+  const size_t env_task_id = cpu_state.GetTaskEnvID();
+  auto& task_env = my_world->GetTaskEnv();
+  const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
+  auto& output_buffer = cpu_state.GetOutputBuffer();
+  for (uint32_t val : output_buffer) {
+    // Check for valid output
+    if (task_io.IsValidOutput(val)) {
+
+      // Get all task ids associated with this output value
+      const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
+
+      // Give credit for completed tasks
+      for (size_t task_id : task_ids) {
+        // Is this a valid sym task?
+        if (!task_env.IsSymTask(task_id)) continue;
+        
+        //check first task credit
+        const bool not_first_task = 
+          my_world->GetConfig().SYM_ONLY_FIRST_TASK_CREDIT() && 
+          cpu_state.GetFirstTaskPerformed().Any() && 
+          !cpu_state.GetFirstTaskPerformed().Get(task_id);
+        if (not_first_task) continue;
+
+        // Has this organism already gotten credit with this output on this task?
+        if (cpu_state.OutputCredited(task_id, val)) continue;
+
+        // Check task requirements
+        auto& task_req_info = task_env.GetSymTaskReq(task_id);
+        if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
+          continue;
+        }
+
+        // Manage CPU state after completing a task:
+        cpu_state.MarkTaskPerformed(task_id);
+        cpu_state.CreditOutputValue(task_id, val);
+        if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
+          cpu_state.ResetCreditedOutputs(task_id);
+        }
+
+        // Calc Value
+        double new_points = task_req_info.fun_calc_task_val(
+          task_env,
+          task_req_info,
+          GetPoints()
+        );
+        double task_points = new_points - GetPoints();
+
+        //World handles point movement between hosts and symbionts
+        my_world->ApplySymPoints(*this, task_points, task_id);
+        my_world->GetSymTaskSuccesses()[task_id] += 1;
+      }
+    }
+  }
+  output_buffer.clear();
+}
 
   /**
    * Input: None
