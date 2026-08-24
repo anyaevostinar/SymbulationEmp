@@ -216,7 +216,7 @@ public:
    *
    * Purpose: Access the location of the host.
    */
-  const emp::WorldPosition& GetLocation() const { return GetOrg().GetLocation(); }
+  const emp::WorldPosition GetLocation() const { return GetOrg().GetLocation(); }
 
   /**
    * Input: Number of cycles.
