@@ -645,8 +645,10 @@ public:
    * Note: Warns if the program contains disabled instructions.
    */
   program_t LoadProgramFile(const std::filesystem::path& path) {
+    
     program_t program(path);
     RectifyWithWarning(program);
+    
     return program;
   }
 

@@ -30,6 +30,11 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP_MUTATION, "SGP mutation group"),
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.01, "Per-bit mutation rate for sgp programs"),
 
+  GROUP(CUSTOM_PROGRAM, "Custom Program Settings"),
+  VALUE(HOST_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides hosts a custom starting program"),
+  VALUE(SYM_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides symbionts a custom starting program"),
+
+
   GROUP(STRESS, "Stress Settings"),
   VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),
   VALUE(STRESS_TYPE, std::string, "mutualist", "What kind of stress symbionts should be incorporated in stressful environments? (Options: 'mutualist', 'parasite', 'neutral')"),
@@ -59,7 +64,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_BASE_TASK_VALUE_PROP, double, 0.25, "Proportion of task value (defined by environment) that parasites receive when they fail to interact with their host."),
 
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
-  VALUE(TASK_ENV_CFG_PATH, std::string, "environment.json", "Json file that provides environment configuration"),
+  VALUE(TASK_ENV_CFG_PATH, std::string, "Default-Config-jsons/diff-reward-env.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
   VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),

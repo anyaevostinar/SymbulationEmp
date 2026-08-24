@@ -250,16 +250,12 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
-      // Mark parent as no longer reproducing (world handles setting state, so should handle resetting)
-      // NOTE - could move reset repro state in Reproduce functions
-      // static_cast<sgp_host_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+    
     } else {
-      const emp::WorldPosition sym_baby_pos = SymDoBirth(child, repro_info.pos);
+      const emp::WorldPosition sym_offspring_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
       // Trigger any post-birth actions
-      after_sym_do_birth_sig.Trigger(sym_baby_pos, sym_parent);
-      // Mark parent as no longer reproducing
-      // static_cast<sgp_sym_t*>(org.Raw())->GetHardware().GetCPUState().ResetReproState();
+      after_sym_do_birth_sig.Trigger(sym_offspring_pos, sym_parent);
     }
   });
 
@@ -293,26 +289,29 @@ void SGPWorld::SetupSymReproduction() {
   if (sgp_config.FREE_LIVING_SYMS()) {
     // Configure sym birth in free-living symbiont mode
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      return FreeLivingSymDoBirth(sym_baby_ptr, parent_pos);
+      return FreeLivingSymDoBirth(sym_offspring_ptr, parent_pos);
     };
   } else if (sgp_config.HORIZ_TRANS()){
     // Configure sym birth in non-free-living symbiont mode.
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      return SymAttemptHorizontalInfection(sym_baby_ptr, parent_pos);
+      return SymAttemptHorizontalInfection(sym_offspring_ptr, sym_parent_ptr, parent_pos);
     };
   } else {
     // Neither horizontal transmission nor free-living symbionts, so fun_sym_do_birth should just return invalid position and clean up the offspring
     fun_sym_do_birth = [this](
-      emp::Ptr<sgp_sym_t> sym_baby_ptr,
+      emp::Ptr<sgp_sym_t> sym_offspring_ptr,
+      emp::Ptr<sgp_sym_t> sym_parent_ptr,
       const emp::WorldPosition& parent_pos
     ) -> emp::WorldPosition {
-      sym_baby_ptr.Delete();
+      SendToGraveyard(sym_offspring_ptr);
       return emp::WorldPosition();
     };
   }
@@ -383,10 +382,26 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
 
   const size_t init_pop_size = *POP_SIZE;
   emp_assert(init_pop_size <= scheduler.GetScheduleSize());
+  const bool host_prog_file_exists = std::filesystem::exists(sgp_config.HOST_PROGRAM_PATH());
+  if (!host_prog_file_exists) {
+    if(sgp_config["HOST_PROGRAM_PATH"]->GetDefault() == sgp_config["HOST_PROGRAM_PATH"]->GetLiteralValue()){
+      std::cout << "Default Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+      std::cout << "Generating now... "  << std::endl;
+      GenerateDefaultProgram(true);
+      std::cout << "Run ./symbulation_sgp again to use new Host program" << std::endl;
+      std::cout << "Exiting.." << std::endl;
+    }
+    else{
+    std::cout << "Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+    }
+
+    std::exit(EXIT_FAILURE);
+  }
   for (size_t i = 0; i < init_pop_size; ++i) {
     emp::Ptr<sgp_host_t> new_host;
     sgp_prog_t init_prog(
-      prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+      prog_builder.LoadProgramFile(sgp_config.HOST_PROGRAM_PATH())
+      //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
     );
     switch (sgp_org_type) {
       case org_mode_t::DEFAULT:
@@ -409,8 +424,23 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
     if (sgp_config.START_MOI() == 1) {
+      const bool sym_prog_file_exists = std::filesystem::exists(sgp_config.SYM_PROGRAM_PATH());
+      if (!sym_prog_file_exists) {
+        if(sgp_config["SYM_PROGRAM_PATH"]->GetDefault() == sgp_config["SYM_PROGRAM_PATH"]->GetLiteralValue()){
+          std::cout << "Default Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+          std::cout << "Generating now... "  << std::endl;
+          GenerateDefaultProgram(false);
+          std::cout << "Run ./symbulation_sgp again to use new Symbiont program" << std::endl;
+          std::cout << "Exiting.." << std::endl;
+        }
+        else{
+        std::cout << "Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+        }
+        std::exit(EXIT_FAILURE);
+      }
       sgp_prog_t sym_prog(
-        prog_builder.CreateNandProgram(PROGRAM_LENGTH)
+        prog_builder.LoadProgramFile(sgp_config.SYM_PROGRAM_PATH())
+        //prog_builder.CreateNandProgram(PROGRAM_LENGTH)
       );
       emp::Ptr<sgp_sym_t> new_sym = emp::NewPtr<sgp_sym_t>(
         random_ptr,
@@ -472,6 +502,21 @@ void SGPWorld::SetupSymbionts(long unsigned int* total_syms) {
 void SGPWorld::SetupTaskEnvironment() {
   // TODO - configure any world <--> environment interactions that need to be
   //        setup prior to run
+  const bool env_file_exists = std::filesystem::exists(sgp_config.TASK_ENV_CFG_PATH());
+  if (!env_file_exists) {
+    if(sgp_config["TASK_ENV_CFG_PATH"]->GetDefault() == sgp_config["TASK_ENV_CFG_PATH"]->GetLiteralValue()){
+      std::cout << "Default Task Environment file does not exist: " << sgp_config.TASK_ENV_CFG_PATH() << std::endl;
+      std::cout << "Generating now... "  << std::endl;
+      GenerateDefaultTaskEnvironment();
+      std::cout << "Run ./symbulation_sgp again to use new Task Environment" << std::endl;
+      std::cout << "Exiting.." << std::endl;
+    }
+    else{
+      std::cout << "Environment file does not exist: " << sgp_config.TASK_ENV_CFG_PATH() << std::endl;
+    }
+
+    std::exit(EXIT_FAILURE);
+  }
   task_env.Setup(
     sgp_config.TASK_ENV_CFG_PATH(),
     sgp_config.TASK_IO_BANK_SIZE(),
@@ -554,6 +599,61 @@ void SGPWorld::SetupMutator() {
   mutator.SetPerBitMutationRate(sgp_config.SGP_MUT_PER_BIT_RATE());
   // NOTE - could make host mutator a functor that could be configured here
   //        same with endosymbionts / etc
+}
+
+/**
+   * Input: Bool, Whether the missing default program is the host or sym program.
+   *
+   * Output: None.
+   *
+   * Purpose: Creates the default genome and then ends the simulation
+   */
+void SGPWorld::GenerateDefaultProgram(bool is_host){
+  std::string path;
+  if(is_host){
+    path = sgp_config.HOST_PROGRAM_PATH();
+  }
+  else{
+    path = sgp_config.SYM_PROGRAM_PATH();
+  }
+  prog_builder.SaveProgramFile(prog_builder.CreateNandProgram(PROGRAM_LENGTH), path);
+}
+
+/**
+   * Input: None
+   *
+   * Output: None
+   *
+   * Purpose: Creates the default task environment and then ends the simulation
+   */
+void SGPWorld::GenerateDefaultTaskEnvironment(){
+  std::string path = sgp_config.TASK_ENV_CFG_PATH();
+
+  std::ofstream envFile(path);
+
+  if (!envFile) {
+      std::cout << "Error: Could not create new environment file" << std::endl;
+      std::exit(EXIT_FAILURE);
+  }
+  
+  envFile << R"({
+  "shared": {
+    "tasks": [
+      {"name": "NAND", "value": 1, "reward_mode": "add"},
+      {"name": "NOT", "value": 1, "reward_mode": "add"},
+      {"name": "OR_NOT", "value": 2, "reward_mode": "add"},
+      {"name": "AND", "value": 2, "reward_mode": "add"},
+      {"name": "OR", "value": 4, "reward_mode": "add"},
+      {"name": "AND_NOT", "value": 4, "reward_mode": "add"},
+      {"name": "NOR", "value": 8, "reward_mode": "add"},
+      {"name": "XOR", "value": 8, "reward_mode": "add"},
+      {"name": "EQU", "value": 16, "reward_mode": "add"}
+    ]
+  }
+})";
+    
+  envFile.close();
+  
 }
 
 }

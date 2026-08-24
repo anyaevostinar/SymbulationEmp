@@ -853,7 +853,7 @@ public:
     if (AttemptIndependentReproduction(location)) {
       emp::Ptr<Organism> sym_baby = Reproduce();
       if (my_config->TAG_MATCHING() || my_config->FREE_HT_FAILURE()) sym_baby->SetPoints(0);
-      emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
+      emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, this, location);
 
       AfterIndependentReproduction(new_pos);
 

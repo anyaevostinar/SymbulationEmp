@@ -464,114 +464,112 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
     WHEN( "free living symbionts are not allowed" ) {
       config.FREE_LIVING_SYMS(0);
 
-      WHEN( "there is a valid neighbouring host" ) {
+      WHEN( "there is a host with a symbiont in the world" ) {
         size_t host_pos = 1;
         emp::Ptr<Host> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
         world.AddOrgAt(host, host_pos);
 
-        emp::Ptr<Host> uninfected_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        world.AddOrgAt(uninfected_host, host_pos + 1);
+        emp::WorldPosition parent_sym_pos = emp::WorldPosition(1, host_pos);
+        emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        host->AddSymbiont(symbiont_parent);
 
-        WHEN("there is room in the neighboring host and free failure due to size constraints is off") {
-          config.FREE_HT_FAILURE(0);
-          config.SYM_LIMIT(2);
+        WHEN( "there is a valid neighbouring host" ) {
 
-          emp::WorldPosition parent_sym_pos = emp::WorldPosition(1, host_pos);
-          emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          host->AddSymbiont(parent_symbiont);
-          emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          new_pos = world.SymDoBirth(new_symbiont, parent_sym_pos);
+          emp::Ptr<Host> uninfected_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
+          world.AddOrgAt(uninfected_host, host_pos + 1);
 
-          emp::vector<emp::Ptr<Organism>> syms = uninfected_host->GetSymbionts();
-          emp::Ptr<Organism> host_sym = syms[0];
+          WHEN("there is room in the neighboring host and free failure due to size constraints is off") {
+            config.FREE_HT_FAILURE(0);
+            config.SYM_LIMIT(2);
 
-          THEN( "the sym is inserted into the valid neighbouring host" ) {
-            REQUIRE(host_sym == new_symbiont);
-            REQUIRE(world.GetNumOrgs() == 2);
-            REQUIRE(new_pos.IsValid() == true);
-            REQUIRE(parent_symbiont->GetPoints() == 0);
+            emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+            new_pos = world.SymDoBirth(new_symbiont, symbiont_parent, parent_sym_pos);
 
-            REQUIRE(new_pos.GetIndex() == 1);
-            REQUIRE(new_pos.GetPopID() == host_pos + 1);
-            REQUIRE(new_symbiont->GetPoints() == 0);
+            emp::vector<emp::Ptr<Organism>> syms = uninfected_host->GetSymbionts();
+            emp::Ptr<Organism> host_sym = syms[0];
+
+            THEN( "the sym is inserted into the valid neighbouring host" ) {
+              REQUIRE(host_sym == new_symbiont);
+              REQUIRE(world.GetNumOrgs() == 2);
+              REQUIRE(new_pos.IsValid() == true);
+              REQUIRE(symbiont_parent->GetPoints() == 0);
+
+              REQUIRE(new_pos.GetIndex() == 1);
+              REQUIRE(new_pos.GetPopID() == host_pos + 1);
+              REQUIRE(new_symbiont->GetPoints() == 0);
+            }
+          }
+          WHEN("there is room in the host and free failure due to size constraints is on") {
+            config.FREE_HT_FAILURE(1);
+            config.SYM_LIMIT(2);
+
+            // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+            size_t starting_resources = 20;
+            size_t horiz_trans_res_required = 10;
+            config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+            symbiont_parent->SetPoints(starting_resources);
+            symbiont_parent->IndependentReproduction(parent_sym_pos);
+
+            THEN("the sym child is inserted in the neighboring host and the parent spends points") {
+              REQUIRE(symbiont_parent->GetPoints() == 0);
+              REQUIRE(host->GetSymbionts().size() == 1);
+              REQUIRE(uninfected_host->GetSymbionts().size() == 1);
+              REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+              REQUIRE(uninfected_host->GetSymbionts().at(0)->GetPoints() == 0);
+            }
+          }
+          WHEN("there is no room in the neighbor host and free failure due to size constraints is on") {
+            uninfected_host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &world, &config, int_val));
+            config.FREE_HT_FAILURE(1);
+            config.SYM_LIMIT(1);
+
+
+            // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+            size_t starting_resources = 20;
+            size_t horiz_trans_res_required = 10;
+            config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+            symbiont_parent->SetPoints(starting_resources);
+            symbiont_parent->IndependentReproduction(parent_sym_pos);
+
+            THEN("the sym child is inserted nowhere and the parent spends no points") {
+              REQUIRE(symbiont_parent->GetPoints() == starting_resources);
+              REQUIRE(host->GetSymbionts().size() == 1);
+              REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+            }
+          }
+          WHEN("there is no room in the host and free failure due to size constraints is off") {
+            config.FREE_HT_FAILURE(0);
+            config.SYM_LIMIT(1);
+
+            // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
+            size_t starting_resources = 20;
+            size_t horiz_trans_res_required = 10;
+            config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+
+            symbiont_parent->SetPoints(starting_resources);
+            symbiont_parent->IndependentReproduction(parent_sym_pos);
+
+            THEN("the sym child is inserted nowhere and the parent loses the points") {
+              REQUIRE(symbiont_parent->GetPoints() == starting_resources - horiz_trans_res_required);
+              REQUIRE(host->GetSymbionts().size() == 1);
+              REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
+            }
           }
         }
-        WHEN("there is room in the host and free failure due to size constraints is on") {
-          config.FREE_HT_FAILURE(1);
-          config.SYM_LIMIT(2);
 
-          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          host->AddSymbiont(symbiont_parent);
+        WHEN( "there is no valid neighbouring host" ) {
+          emp::Ptr<Organism> symbiont_offspring = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          new_pos = world.SymDoBirth(symbiont_offspring, symbiont_parent, parent_sym_pos);
 
-          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
-          size_t starting_resources = 20;
-          size_t horiz_trans_res_required = 10;
-          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
+          
 
-          symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
-
-          THEN("the sym child is inserted in the neighboring host and the parent spends points") {
-            REQUIRE(symbiont_parent->GetPoints() == 0);
-            REQUIRE(host->GetSymbionts().size() == 1);
-            REQUIRE(uninfected_host->GetSymbionts().size() == 1);
-            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
-            REQUIRE(uninfected_host->GetSymbionts().at(0)->GetPoints() == 0);
+          THEN( "the sym is killed" ) {
+            //the world should be empty
+            REQUIRE(world.GetNumOrgs() == 1);
+            REQUIRE(new_pos.IsValid() == false);
           }
-        }
-        WHEN("there is no room in the neighbor host and free failure due to size constraints is on") {
-          uninfected_host->AddSymbiont(emp::NewPtr<Symbiont>(&random, &world, &config, int_val));
-          config.FREE_HT_FAILURE(1);
-          config.SYM_LIMIT(1);
-
-          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          host->AddSymbiont(symbiont_parent);
-
-          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
-          size_t starting_resources = 20;
-          size_t horiz_trans_res_required = 10;
-          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
-
-          symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
-
-          THEN("the sym child is inserted nowhere and the parent spends no points") {
-            REQUIRE(symbiont_parent->GetPoints() == starting_resources);
-            REQUIRE(host->GetSymbionts().size() == 1);
-            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
-          }
-        }
-        WHEN("there is no room in the host and free failure due to size constraints is off") {
-          config.FREE_HT_FAILURE(0);
-          config.SYM_LIMIT(1);
-
-          emp::Ptr<Organism> symbiont_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-          host->AddSymbiont(symbiont_parent);
-
-          // there MUST be a symbiont parent in the free failure condition (seg fault otherwise)
-          size_t starting_resources = 20;
-          size_t horiz_trans_res_required = 10;
-          config.SYM_HORIZ_TRANS_RES(horiz_trans_res_required);
-
-          symbiont_parent->SetPoints(starting_resources);
-          symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_pos));
-
-          THEN("the sym child is inserted nowhere and the parent's points get subtracted") {
-            REQUIRE(symbiont_parent->GetPoints() == 10);
-            REQUIRE(host->GetSymbionts().size() == 1);
-            REQUIRE(host->GetSymbionts().at(0) == symbiont_parent);
-          }
-        }
-      }
-
-      WHEN( "there is no valid neighbouring host" ) {
-
-        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), 2);
-
-        THEN( "the sym is killed" ) {
-          //the world should be empty
-          REQUIRE(world.GetNumOrgs() == 0);
-          REQUIRE(new_pos.IsValid() == false);
         }
       }
     }
@@ -582,50 +580,56 @@ TEST_CASE( "SymDoBirth", "[default]" ) {
       world_size = 2;
       world.Resize(world_size);
 
-      THEN("it might be inserted into an empty cell") {
-        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+      WHEN( "there is a parent symbiont in the world and an offspring" ) {
+        emp::WorldPosition parent_pos = emp::WorldPosition(0, 0);
+        emp::Ptr<Symbiont> parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        world.AddOrgAt(parent, parent_pos);
 
-        new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), parent_pos);
+        THEN("it might be inserted into an empty cell") {
+          new_pos = world.SymDoBirth(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), parent, parent_pos);
 
-        REQUIRE(world.GetNumOrgs() == 1);
-        REQUIRE(new_pos.IsValid() == true);
-        REQUIRE(new_pos.GetIndex() == 0);
-        REQUIRE(new_pos.GetPopID() == 0);
-      }
-
-      THEN("it may be inserted into an occupied cell, overwriting the previous occupant") {
-        for (size_t i = 0; i < world_size; i++) {
-          world.AddOrgAt(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0, i));
+          REQUIRE(world.GetNumOrgs() == 2);
+          REQUIRE(new_pos.IsValid() == true);
+          REQUIRE(new_pos.GetIndex() == 0);
+          REQUIRE(new_pos.GetPopID() == 1);
         }
-        REQUIRE(world.GetNumOrgs() == world_size);
 
-        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
-
-        bool new_sym_born = false;
-        for (size_t i = 0; i < world_size; i++) {
-          if (world.GetSymAt(i) == new_symbiont) {
-            new_sym_born = true;
+        THEN("it may be inserted into an occupied cell, overwriting the previous occupant") {
+          for (size_t i = 0; i < world_size; i++) {
+            if (i == parent_pos.GetPopID()) {
+              continue;
+            } else {
+              world.AddOrgAt(emp::NewPtr<Symbiont>(&random, &world, &config, int_val), emp::WorldPosition(0,i));
+            }
           }
+          REQUIRE(world.GetNumOrgs() == world_size);
+
+          emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          new_pos = world.SymDoBirth(new_symbiont, parent, parent_pos);
+
+          bool new_sym_born = false;
+          for (size_t i = 0; i < world_size; i++) {
+            if (world.GetSymAt(i) == new_symbiont) {
+              new_sym_born = true;
+            }
+          }
+          world.CleanupGraveyard();
+          REQUIRE(world.GetNumOrgs() == world_size);
+          REQUIRE(new_sym_born == true);
+          REQUIRE(new_pos.IsValid() == true);
+          REQUIRE(world.IsInboundsPos(new_pos) == true);
+          world.CleanupGraveyard();
         }
-        world.CleanupGraveyard();
-        REQUIRE(world.GetNumOrgs() == world_size);
-        REQUIRE(new_sym_born == true);
-        REQUIRE(new_pos.IsValid() == true);
-        REQUIRE(world.IsInboundsPos(new_pos) == true);
-        world.CleanupGraveyard();
-      }
 
-      THEN("it might not find a valid cell and get deleted") {
-        world_size = 0;
-        world.Resize(0);
-        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
-        emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        new_pos = world.SymDoBirth(new_symbiont, parent_pos);
+        THEN("it might not find a valid cell and get deleted") {
+          world_size = 1;
+          world.Resize(world_size);
+          emp::Ptr<Organism> new_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+          new_pos = world.SymDoBirth(new_symbiont, parent, parent_pos);
 
-        REQUIRE(new_pos.IsValid() == false);
-        REQUIRE(world.GetNumOrgs() == 0);
+          REQUIRE(new_pos.IsValid() == false);
+          REQUIRE(world.GetNumOrgs() == 1);
+        }
       }
     }
   }
@@ -718,9 +722,12 @@ TEST_CASE( "Update with free living symbionts", "[default]" ) {
       world_size = 9;
       world.Resize(world_size);
       THEN("if only syms in the world they can get resources and reproduce") {
+        emp::WorldPosition parent_pos = emp::WorldPosition(0, 1);
+        emp::Ptr<Organism> sym_parent = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
+        world.AddOrgAt(sym_parent, parent_pos);
         emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
-        world.SymDoBirth(sym, 0);
-        REQUIRE(world.GetNumOrgs() == 1);
+        world.SymDoBirth(sym, sym_parent, parent_pos);
+        REQUIRE(world.GetNumOrgs() == 2);
 
         for (int i = 0; i < num_updates; i++) {
           world.Update();

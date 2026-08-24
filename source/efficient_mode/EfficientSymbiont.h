@@ -278,7 +278,7 @@ public:
         // new symbiont in this host with mutated value
         SetPoints(0); //TODO: test just subtracting points instead of setting to 0
         emp::Ptr<Organism> sym_baby = Reproduce("horizontal");
-        emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, location);
+        emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, this, location);
 
         //horizontal transmission data nodes
         emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = my_world->GetHorizontalTransmissionAttemptCount();

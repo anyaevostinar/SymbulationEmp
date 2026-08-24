@@ -87,7 +87,6 @@ protected:
   emp::Ptr<Organism> organism; // Unowned pointer to organism using this CPU.
   emp::Ptr<world_t> world_ptr; // Unowned pointer to the world using this CPU.
 
-  emp::WorldPosition location;
 
 public:
   CPUState(
@@ -155,7 +154,6 @@ public:
 
     jump_table.clear();
 
-    location = emp::WorldPosition();
   }
 
   /**
@@ -208,7 +206,7 @@ public:
    * Purpose: Sets a new location of the host.
    */
   void SetLocation(const emp::WorldPosition& loc) {
-    location = loc;
+    GetOrgPtr()->SetLocation(loc);
   }
 
   /**
@@ -218,7 +216,7 @@ public:
    *
    * Purpose: Access the location of the host.
    */
-  const emp::WorldPosition& GetLocation() const { return location; }
+  const emp::WorldPosition& GetLocation() const { return GetOrg().GetLocation(); }
 
   /**
    * Input: Number of cycles.
@@ -347,8 +345,6 @@ public:
       }
     }
   }
-
-  // const emp::WorldPosition& GetLocation() const { return loc; }
 
   /**
    * Input: An Organism pointer.
