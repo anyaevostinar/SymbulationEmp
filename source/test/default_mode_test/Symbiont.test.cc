@@ -482,8 +482,8 @@ TEST_CASE("Process", "[default]") {
     sym->Process(location);
 
 
-    THEN("Points changes and is set to 0") {
-      int points_post_reproduction = 0;
+    THEN("Points are subtracted") {
+      int points_post_reproduction = 60;
       REQUIRE(sym->GetPoints() == points_post_reproduction);
     }
 
@@ -590,9 +590,9 @@ TEST_CASE("Process", "[default]") {
         sym->AddPoints(orig_points);
         sym->Process(location);
 
-        THEN("The free living symbiont reproduces and sets its points to 0") {
+        THEN("The free living symbiont reproduces and subtracts the correct amount of points") {
           REQUIRE(world->GetNumOrgs() == (orig_num_orgs + 1));
-          REQUIRE(sym->GetPoints() == 0);
+          REQUIRE(sym->GetPoints() == 10);
         }
       }
     }
@@ -622,9 +622,9 @@ TEST_CASE("Process", "[default]") {
         sym->AddPoints(orig_points);
         sym->Process(location);
 
-        THEN("The free living symbiont reproduces and sets its points to 0") {
+        THEN("The free living symbiont reproduces and subtracts the correct amount of points") {
           REQUIRE(world->GetNumOrgs() == (orig_num_orgs + 1));
-          REQUIRE(sym->GetPoints() == 0);
+          REQUIRE(sym->GetPoints() == 10);
         }
       }
     }

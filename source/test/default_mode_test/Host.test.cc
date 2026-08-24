@@ -491,12 +491,14 @@ TEST_CASE("Host Reproduce", "[default]") {
 
   double host_int_val = 0.2;
   emp::Ptr<Organism> host1 = emp::NewPtr<Host>(random, &world, &config, host_int_val);
+  host1->SetPoints(20);
+  config.HOST_REPRO_RES(10);
   emp::Ptr<Organism> host2 = host1->Reproduce();
   THEN("The host baby has mutated interaction value") {
     REQUIRE(host1->GetIntVal() != host2->GetIntVal());
   }
-  THEN("The host parent's points are set to 0") {
-    REQUIRE(host1->GetPoints() == 0);
+  THEN("The host parent's points are subtracted") {
+    REQUIRE(host1->GetPoints() == 10);
   }
 
   host1.Delete();

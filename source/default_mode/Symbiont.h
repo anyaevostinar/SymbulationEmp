@@ -625,11 +625,11 @@ public:
 
       if(int_val >= 0) {
 	      double spent = resources * int_val;
-        this->AddPoints(resources - spent);
+        AddPoints(resources - spent);
       }
       else {
         double attack = -1.0 * int_val * resources;
-        this->AddPoints(resources - attack);
+        AddPoints(resources - attack);
       }
     }
   }
@@ -820,9 +820,13 @@ public:
         //points = points - my_config->SYM_HORIZ_TRANS_RES();
 
 
-        if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) SetPoints(0);
-        // removing the above for tag matching--sym parent points are
-        // now set to 0 in symdobirth
+        if(!my_config->TAG_MATCHING() && !my_config->FREE_HT_FAILURE()) {
+          if (my_config->FREE_LIVING_SYMS() && my_host == nullptr && my_config->FREE_SYM_REPRO_RES() > -1) {
+            this->AddPoints(-1 * my_config->FREE_SYM_REPRO_RES());
+          } else {
+            this->AddPoints(-1 * my_config->SYM_HORIZ_TRANS_RES());
+          }
+        }
         return true;
       }
     }
