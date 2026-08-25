@@ -14,7 +14,10 @@
 
 
 namespace sgpmode {
-
+/**
+* The SignalGP version of the base host
+* @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
+*/
 template <typename HW_SPEC_T>
 class SGPHost : public Host {
 public:

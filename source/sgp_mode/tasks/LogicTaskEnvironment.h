@@ -18,15 +18,13 @@
 #include <unordered_map>
 #include <map>
 
-/*
-  Implements logic task environment.
-    - Responsible for configuring LogicTaskSet, etc.
-    - Responsible for managing any task dependencies, etc.
-*/
-
 namespace sgpmode::tasks {
-
 // TODO - add functions to attach to config snapshot
+/**
+  *Implements logic task environment.
+  *   - Responsible for configuring LogicTaskSet, etc.
+  *   - Responsible for managing any task dependencies, etc.
+  */
 class LogicTaskEnvironment {
 public:
   struct TaskReqInfo;
@@ -65,6 +63,7 @@ protected:
   // TODO - track task performance?
 
   // TODO - move this into util file in json directory
+  
   template<typename RET_TYPE>
   RET_TYPE GetVal(
     json_t& json,
@@ -121,7 +120,6 @@ protected:
   void LoadTasks(const std::string& env_filepath);
 
 public:
-
   LogicTaskEnvironment(
     emp::Random& random
   ) :
