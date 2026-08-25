@@ -178,8 +178,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
 
-  emp::Ptr<emp::DataMonitor<int>> data_node_host_repro_rate;
-  emp::Ptr<emp::DataMonitor<int>> data_node_sym_repro_rate;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
 
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
@@ -316,8 +316,8 @@ public:
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
 
-    if (data_node_host_repro_rate) data_node_host_repro_rate.Delete();
-    if (data_node_sym_repro_rate) data_node_sym_repro_rate.Delete();
+    if (data_node_host_repro_count) data_node_host_repro_count.Delete();
+    if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
 
     for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
       if (sym_pop[i]) {
@@ -823,8 +823,8 @@ public:
     } else {
       new_org.Delete();
     } // Otherwise delete the organism.
-    emp::DataMonitor<int>& data_node_host_repro_rate = GetHostReproRateDataNode();
-    data_node_host_repro_rate.AddDatum(1);
+    emp::DataMonitor<size_t>& data_node_host_repro_count = GetHostReproCountDataNode();
+    data_node_host_repro_count.AddDatum(1);
     return pos;
   }
 
@@ -1000,7 +1000,7 @@ public:
   emp::DataFile& SetupTransmissionFile(const std::string& filename);
   emp::DataFile& SetupTagDistFile(const std::string& filename);
   emp::DataFile& SetupSymDiversityFile(const std::string& filename);
-  emp::DataFile& SetupReproRateFile(const std::string& filename);
+  emp::DataFile& SetupReproCountFile(const std::string& filename);
   virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile& file);
   emp::DataMonitor<size_t>& GetSymReproCountDataNode();
@@ -1037,8 +1037,6 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetHostedSymInfectChanceDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetWithinHostMeanDataNode();
   emp::DataMonitor<double, emp::data::Histogram>& GetWithinHostVarianceDataNode();
-  emp::DataMonitor<int>& GetHostReproRateDataNode();
-  emp::DataMonitor<int>& GetSymReproRateDataNode();
 
 
   // Definitions of setup function, expanded in WorldSetup.cc

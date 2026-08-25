@@ -27,7 +27,7 @@ void SymWorld::CreateDataFiles() {
   if (my_config->TAG_MATCHING()) {
     SetupTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
-  SetupReproRateFile(my_config->FILE_PATH() + "ReproRate" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupReproCountFile(my_config->FILE_PATH() + "ReproCount" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
 }
 
 /**
@@ -149,10 +149,10 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
  * Purpose: To set up the file that will be used to track the number 
  * of reproductions of both Hosts and Symbionts
  */
-emp::DataFile & SymWorld::SetupReproRateFile(const std::string & filename) {
+emp::DataFile & SymWorld::SetupReproCountFile(const std::string & filename) {
   auto & file = SetupFile(filename);
-  auto & node1 = GetHostReproRateDataNode();
-  auto & node2 = GetSymReproRateDataNode();
+  auto & node1 = GetHostReproCountDataNode();
+  auto & node2 = GetSymReproCountDataNode();
 
   file.AddVar(update, "update", "Update");
   file.AddTotal(node1, "successful_host_repro_count", "Total number of successful host reproductions",true);
@@ -1447,11 +1447,11 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
    * Purpose: To retrieve the data node that is tracking the
    * number of symbiont reproductions this update.
    */
-  emp::DataMonitor<int>& SymWorld::GetSymReproRateDataNode() {
-    if (!data_node_sym_repro_rate) {
-      data_node_sym_repro_rate.New();
+  emp::DataMonitor<size_t>& SymWorld::GetSymReproCountDataNode() {
+    if (!data_node_sym_repro_count) {
+      data_node_sym_repro_count.New();
     }
-    return *data_node_sym_repro_rate;
+    return *data_node_sym_repro_count;
   }
 
   /**
@@ -1463,12 +1463,12 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
    * Purpose: To retrieve the data node that is tracking the
    * number of host reproductions this update.
    */
-  emp::DataMonitor<int>& SymWorld::GetHostReproRateDataNode() {
-    if (!data_node_host_repro_rate) {
+  emp::DataMonitor<size_t>& SymWorld::GetHostReproCountDataNode() {
+    if (!data_node_host_repro_count) {
       
-      data_node_host_repro_rate.New();
+      data_node_host_repro_count.New();
     }
-    return *data_node_host_repro_rate;
+    return *data_node_host_repro_count;
   }
 
 #endif
