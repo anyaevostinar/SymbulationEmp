@@ -155,8 +155,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity
-  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
-  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_lineage_length;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_lineage_length;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_towards_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_from_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_sym_towards_partner_rate;
@@ -289,8 +289,8 @@ public:
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_within_host_mean) data_node_within_host_mean.Delete();
     if (data_node_within_host_variance) data_node_within_host_variance.Delete();
-    if (data_node_host_repro_count) data_node_host_repro_count.Delete();
-    if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
+    if (data_node_host_lineage_length) data_node_host_lineage_length.Delete();
+    if (data_node_sym_lineage_length) data_node_sym_lineage_length.Delete();
     if (data_node_host_towards_partner_rate) data_node_host_towards_partner_rate.Delete();
     if (data_node_host_from_partner_rate) data_node_host_from_partner_rate.Delete();
     if (data_node_sym_towards_partner_rate) data_node_sym_towards_partner_rate.Delete();
@@ -1005,8 +1005,8 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
-  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
-  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<size_t>& GetHostLineageLengthDataNode();
+  emp::DataMonitor<size_t>& GetSymLineageLengthDataNode();
   emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();
   emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
   emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
