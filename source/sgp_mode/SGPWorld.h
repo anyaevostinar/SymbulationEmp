@@ -957,8 +957,14 @@ public:
     emp::WorldPosition parent_pos
   ) override;
 
-  void HostDoMutation(sgp_host_t& host);
-  void SymDoMutation(sgp_sym_t& sym);
+  /** 
+  * Input: None
+  * 
+  * Output: The world's mutator object
+  * 
+  * Purpose: To provide the mutator so that hosts and symbionts can mutate themselves.
+  */
+  mutator_t GetMutator();
 
   void SymDonateToHost(Organism& from_sym, Organism& to_host);
   void SymStealFromHost(Organism& to_sym, Organism& from_host);
