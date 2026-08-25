@@ -62,13 +62,19 @@ python3 munge_data.py
 And then open our provided R script `SampleAnalysis.R` in R, set your working directory to the `Analysis` directory and then run all lines to observe the effect of vertical transmission rate on the interaction value evolved.
 
 ## Notes
-SGP-mode is a prototype and untested.
+SGP-mode is a prototype and minimally tested.
 
 ## Citations
+Symbulation is built with:
+
 * Vostinar et al. (2024). Empirical: A scientific software library for research, education, and public engagement. Journal of Open Source Software,
 9(98), 6617. [https://doi.org/10.21105/joss.06617](https://doi.org/10.21105/joss.06617).
 
+    <a href="https://github.com/devosoft/Empirical"><img src="EmpiricalBanner.png" width="300"></a>
+
 * Moreno, Matthew Andres, et al. "SignalGP-Lite: Event Driven Genetic Programming Library for Large-Scale Artificial Life Applications." arXiv preprint arXiv:2108.00382 (2021). [https://arxiv.org/pdf/2108.00382](https://arxiv.org/pdf/2108.00382)
+
+    <a href="https://github.com/mmore500/signalgp-lite"><img src="SGPLite-Logo.jpg" width="300"></a>
 
 * Dolson, Emily, Santiago Rodriguez-Papa, and Matthew Andres Moreno. "Phylotrack: C++ and python libraries for in silico phylogenetic tracking." arXiv preprint arXiv:2405.09389 (2024) [https://arxiv.org/pdf/2405.09389](https://arxiv.org/pdf/2405.09389)
 
