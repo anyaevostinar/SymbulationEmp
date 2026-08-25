@@ -58,6 +58,14 @@ public:
     bool output_is_zero=false;
 
     // Clear task io
+    
+    /**
+      * Input: None.
+      *
+      * Output: None.
+      *
+      * Purpose: Clears the organisms task enviroment
+      */
     void Clear() {
       input_buffer.clear();
       valid_outputs.clear();
@@ -75,21 +83,48 @@ public:
       );
     }
 
+    /**
+      * Input: Float of organisms output.
+      *
+      * Output: Bool of whether the task is valid.
+      *
+      * Purpose: Checks if the output given is allowed and corresponds to a task.
+      */
     bool IsValidOutput(float output) const {
       // Reinterpet floating point output value as output_t (uint usually)
       return IsValidOutput(*(reinterpret_cast<output_t*>(&output)));
     }
 
+    /**
+      * Input: output_t of organisms output.
+      *
+      * Output: Bool of whether the task is valid.
+      *
+      * Purpose: Checks if the output given is allowed and corresponds to a task.
+      */
     bool IsValidOutput(output_t output) const {
       return emp::Has(valid_outputs, output);
     }
 
+    /**
+      * Input: output_t of organisms output.
+      *
+      * Output: A vector of integers containing the ids of all tasks that output completes.
+      *
+      * Purpose: Used to check what tasks an output completes.
+      */
     const emp::vector<size_t>& GetTaskIDs(output_t output) const {
       emp_assert(IsValidOutput(output));
       return task_lookup.at(output);
     }
 
-    // Get number of distinct possible outputs stored for this task
+     /**
+      * Input: A task id.
+      *
+      * Output: A size_t value for the number of outputs for the given task
+      *
+      * Purpose: Get number of distinct possible outputs stored for this task
+      */
     size_t GetNumTaskOutputs(size_t task_id) const {
       emp_assert(task_id < correct_outputs.size());
       return correct_outputs[task_id].size();

@@ -314,7 +314,7 @@ public:
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
 
     for (size_t r=0; r<repro_syms.size(); r++) {
-      emp::WorldPosition new_pos = my_world->SymDoBirth(repro_syms[r], location);
+      emp::WorldPosition new_pos = my_world->SymDoBirth(repro_syms[r], this, location);
 
       //horizontal transmission data nodes
       data_node_attempts_horiztrans.AddDatum(GetIntVal());

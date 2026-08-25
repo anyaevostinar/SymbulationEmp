@@ -274,23 +274,23 @@ public:
 
 
   /**
-   * Input: Set the reproduction counter
+   * Input: Set the lineage length
    *
    * Output: None
    *
-   * Purpose: To set the count of reproductions in this lineage.
+   * Purpose: To set the number of reproductions along the length of this lineage.
    */
-  void LineageLength(size_t _in) { reproductions = _in; }
+  void SetLineageLength(size_t _in) { reproductions = _in; }
 
 
   /**
    * Input: None.
    *
-   * Output: The reproduction count
+   * Output: The lineage length
    *
-   * Purpose: To get the count of reproductions in this lineage.
+   * Purpose: To get the number of reproductions along the length of this lineage.
    */
-  size_t GetReproCount() const { return reproductions; }
+  size_t GetLineageLength() const { return reproductions; }
 
 
   /**
@@ -767,8 +767,8 @@ public:
     emp::Ptr<Organism> host_baby = MakeNew();
 
     host_baby->Mutate();
-    host_baby->LineageLength(reproductions + 1);
-    SetPoints(0);
+    AddPoints(-1 * my_config->HOST_REPRO_RES());
+    host_baby->SetLineageLength(reproductions + 1);
 
     if (my_config->TAG_MATCHING() && HasSym()) {
       // do not xor to get 1 where bits are matching
@@ -784,6 +784,7 @@ public:
       host_baby->SetTowardsPartnerCount(child_towards.CountOnes() + towards_partner_count);
       host_baby->SetFromPartnerCount(child_from.CountOnes() + from_partner_count);
     }
+
 
     return host_baby;
   }
