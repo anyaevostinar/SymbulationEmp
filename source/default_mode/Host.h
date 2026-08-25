@@ -768,7 +768,7 @@ public:
 
     host_baby->Mutate();
     AddPoints(-1 * my_config->HOST_REPRO_RES());
-    host_baby->LineageLength(reproductions + 1);
+    host_baby->SetLineageLength(reproductions + 1);
 
     if (my_config->TAG_MATCHING() && HasSym()) {
       // do not xor to get 1 where bits are matching

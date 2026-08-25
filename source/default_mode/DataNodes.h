@@ -203,12 +203,12 @@ emp::DataFile & SymWorld::SetupFreeLivingSymFile(const std::string & filename) {
  */
 emp::DataFile& SymWorld::SetupReproHistFile(const std::string& filename) {
   auto& file = SetupFile(filename);
-  auto& host_repro_count_node = GetHostReproCountDataNode();
-  auto& sym_repro_count_node = GetSymReproCountDataNode();
+  auto& host_lineage_length_node = GetHostLineageLengthDataNode();
+  auto& sym_lineage_length_node = GetSymLineageLengthDataNode();
 
   file.AddVar(update, "update", "Update");
-  file.AddMean(host_repro_count_node, "host_mean_repro_count", "Average host lineage reproduction count");
-  file.AddMean(sym_repro_count_node, "sym_mean_repro_count", "Average symbiont lineage reproduction count");
+  file.AddMean(host_lineage_length_node, "host_mean_lineage_length", "Average host lineage reproduction count");
+  file.AddMean(sym_lineage_length_node, "sym_mean_lineage_length", "Average symbiont lineage reproduction count");
 
   if (my_config->TAG_MATCHING()) {
 
@@ -508,8 +508,8 @@ emp::DataFile& SymWorld::SetupTagDistFile(const std::string& filename) {
  */
 void SymWorld::WriteOrgDumpFile(const std::string& filename) {
   std::ofstream out_file(filename);
-  out_file << "host_int,sym_int,host_repro_count,host_towards_partner_count,host_from_partner_count," <<
-    "sym_repro_count,sym_towards_partner_count,sym_from_partner_count";
+  out_file << "host_int,sym_int,host_lineage_length,host_towards_partner_count,host_from_partner_count," <<
+    "sym_lineage_length,sym_towards_partner_count,sym_from_partner_count";
   if (my_config->TAG_MATCHING()) {
     out_file << ",host_tag,sym_tag,tag_distance";
     if (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) out_file << ",host_tag_permissiveness";
@@ -521,9 +521,9 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
       if (pop[i]->HasSym()) {
         emp::vector<emp::Ptr<Organism>> symbionts = pop[i]->GetSymbionts();
         for (size_t j = 0; j < symbionts.size(); j++) {
-          out_file << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal() << "," << pop[i]->GetReproCount() <<
+          out_file << pop[i]->GetIntVal() << "," << symbionts[j]->GetIntVal() << "," << pop[i]->GetLineageLength() <<
             "," << pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() <<
-            "," << symbionts[j]->GetReproCount() << "," << symbionts[j]->GetTowardsPartnerCount() <<
+            "," << symbionts[j]->GetLineageLength() << "," << symbionts[j]->GetTowardsPartnerCount() <<
             "," << symbionts[j]->GetFromPartnerCount();
           if (my_config->TAG_MATCHING()) {
             out_file << "," << pop[i]->GetTag().ToBinaryString() << "," << symbionts[j]->GetTag().ToBinaryString() <<
@@ -533,7 +533,7 @@ void SymWorld::WriteOrgDumpFile(const std::string& filename) {
         }
       }
       else {
-        out_file << pop[i]->GetIntVal() << ",," << pop[i]->GetReproCount() << "," <<
+        out_file << pop[i]->GetIntVal() << ",," << pop[i]->GetLineageLength() << "," <<
           pop[i]->GetTowardsPartnerCount() << "," << pop[i]->GetFromPartnerCount() << ",,,";
         if (my_config->TAG_MATCHING()) {
           out_file << "," << pop[i]->GetTag().ToBinaryString() << ",,";
@@ -1208,23 +1208,23 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of reproductions each host lineage has accumulated.
    */
-  emp::DataMonitor<size_t>& SymWorld::GetHostReproCountDataNode() {
-    if (!data_node_host_repro_count) {
-      data_node_host_repro_count.New();
+  emp::DataMonitor<size_t>& SymWorld::GetHostLineageLengthDataNode() {
+    if (!data_node_host_lineage_length) {
+      data_node_host_lineage_length.New();
       OnUpdate([this](size_t) {
-        data_node_host_repro_count->Reset();
-        data_node_sym_repro_count->Reset();
+        data_node_host_lineage_length->Reset();
+        data_node_sym_lineage_length->Reset();
         for (size_t i = 0; i < pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost()) {
-            data_node_host_repro_count->AddDatum(pop[i]->GetReproCount());
+            data_node_host_lineage_length->AddDatum(pop[i]->GetLineageLength());
             for (emp::Ptr<Organism> sym : pop[i]->GetSymbionts()) {
-              data_node_sym_repro_count->AddDatum(sym->GetReproCount());
+              data_node_sym_lineage_length->AddDatum(sym->GetLineageLength());
             }
           }
         }
       });
     }
-    return *data_node_host_repro_count;
+    return *data_node_host_lineage_length;
   }
 
 
@@ -1237,11 +1237,11 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
    * Purpose: To retrieve the data nodes that is tracking the
    * average number of reproductions each symbiont lineage has accumulated.
    */
-  emp::DataMonitor<size_t>& SymWorld::GetSymReproCountDataNode() {
-    if (!data_node_sym_repro_count) {
-      data_node_sym_repro_count.New();
+  emp::DataMonitor<size_t>& SymWorld::GetSymLineageLengthDataNode() {
+    if (!data_node_sym_lineage_length) {
+      data_node_sym_lineage_length.New();
     }
-    return *data_node_sym_repro_count;
+    return *data_node_sym_lineage_length;
   }
 
 
@@ -1265,11 +1265,11 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
 
         for (size_t i = 0; i < pop.size(); i++) {
           if (IsOccupied(i) && pop[i]->IsHost()) {
-            data_node_host_towards_partner_rate->AddDatum((double)pop[i]->GetTowardsPartnerCount() / (double)pop[i]->GetReproCount());
-            data_node_host_from_partner_rate->AddDatum((double)pop[i]->GetFromPartnerCount() / (double)pop[i]->GetReproCount());
+            data_node_host_towards_partner_rate->AddDatum((double)pop[i]->GetTowardsPartnerCount() / (double)pop[i]->GetLineageLength());
+            data_node_host_from_partner_rate->AddDatum((double)pop[i]->GetFromPartnerCount() / (double)pop[i]->GetLineageLength());
             for (emp::Ptr<Organism> sym : pop[i]->GetSymbionts()) {
-              data_node_sym_towards_partner_rate->AddDatum((double)sym->GetTowardsPartnerCount() / (double)sym->GetReproCount());
-              data_node_sym_from_partner_rate->AddDatum((double)sym->GetFromPartnerCount() / (double)sym->GetReproCount());
+              data_node_sym_towards_partner_rate->AddDatum((double)sym->GetTowardsPartnerCount() / (double)sym->GetLineageLength());
+              data_node_sym_from_partner_rate->AddDatum((double)sym->GetFromPartnerCount() / (double)sym->GetLineageLength());
             }
           }
         }
