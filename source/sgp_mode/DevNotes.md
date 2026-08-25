@@ -1,21 +1,21 @@
 (delete once Anya is done with joint refactoring)
 
 ## Further refactoring list:
-* Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
-* Add SGP mode to API reference doc
-* Move SymDoMutation into SGPSymbiont to parallel host
-* Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
-* Move world properties back into protected and make necessary accesssors
-* Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
-* Look into what is going on with SGPHost local sgp_config not working
+* 
+* Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym (but also just totally rework those)
 * Streamline Host and Symbiont ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
 * Fix all tests for debug mode. Currently github runs test-all and test-debug-default. Look at failing tests for test-debug-all
 * Review death of organisms and solidify protocol for when to use SendToGraveyard(org). Remove extrenuous .Delete() emp::DoDeath() and Organism::SetDead() calls. Consider Stress mode where we want the symbiont to exits in graveyard, but we dont want the host to be alive and in the world. 
-
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 # Previous actions completed
+[x] Move world properties back into protected and make necessary accesssors
+[x] Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
+[x] Look into what is going on with SGPHost local sgp_config not working
+[x] Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
+[x] Add SGP mode to API reference doc
+[x] Move SymDoMutation into SGPSymbiont to parallel host
 [x] Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 [x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [x] Get Host task credit and Task Match Check tests not seg faulting
