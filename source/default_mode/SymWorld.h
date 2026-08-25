@@ -778,6 +778,7 @@ public:
 
       // place symbiont
       if (!sym_pop[pos_id]) {
+        std::cout << "incremented org count" << std::endl;
         ++num_orgs;
       } else {
         SendToGraveyard(sym_pop[pos_id]); // don't delete it yet, that can cause a seg fault
@@ -922,7 +923,7 @@ public:
         return neighbor_ids;
       }
       default:
-        emp_error("Unknown spatial structure mode");
+        emp::notify::Error("Unknown spatial structure mode");
         return neighbor_ids;
     }
   }
@@ -1054,6 +1055,7 @@ public:
   emp::WorldPosition MoveIntoNewFreeWorldPos(emp::Ptr<Organism> sym, emp::WorldPosition parent_pos) {
     size_t i = parent_pos.GetPopID();
     emp::WorldPosition indexed_id = GetRandomNeighborPos(i);
+    std::cout << "new position: " << indexed_id.GetIndex() << std::endl;
     emp::WorldPosition new_pos = emp::WorldPosition(0, indexed_id.GetIndex()); //GetRandomNeighborPos returns a WorldPosition with the chosen location in the index spot, but we use the pop id to track the location of the symbiont in the world, so we need to switch those around. The 0 means that this position is not in a host.
 
     if (IsInboundsPos(new_pos)) {
@@ -1187,7 +1189,7 @@ public:
     if (location >= 0 && location < sym_pop.size()) {
       return sym_pop[location];
     } else {
-      emp_error("Attempted to get out of bounds sym.");
+      emp::notify::Error("Attempted to get out of bounds sym.");
       return nullptr;
     }
   }

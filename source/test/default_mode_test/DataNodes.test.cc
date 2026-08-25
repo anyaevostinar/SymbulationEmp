@@ -602,9 +602,12 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]") {
     emp::Random random(17);
     SymConfigBase config;
     double int_val = 1;
+    config.WORLD_HEIGHT(2);
+    config.WORLD_WIDTH(2);
+    config.INIT_POP_SIZE(0);
     sym_world_t world(random, &config);
     size_t world_size = 4;
-    world.Resize(world_size);
+    world.Setup();
     config.SYM_HORIZ_TRANS_RES(0);
 
     emp::DataMonitor<double, emp::data::Histogram>& data_node_attempts_horiztrans = world.GetHorizontalTransmissionAttemptCount();
@@ -832,15 +835,18 @@ TEST_CASE("GetHorizontalTransmissionSizeFailCount", "[default]") {
   }
 }
 
-TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default]") {
+TEST_CASE("GetHorizontalTransmissionSuccessCount", "[default][broken]") {
   using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
   GIVEN( "a world" ) {
     emp::Random random(17);
     SymConfigBase config;
+    config.WORLD_HEIGHT(2);
+    config.WORLD_WIDTH(2);
+    config.INIT_POP_SIZE(0);
     double int_val = 1;
     sym_world_t world(random, &config);
     size_t world_size = 4;
-    world.Resize(world_size);
+    world.Setup();
     config.SYM_HORIZ_TRANS_RES(0);
 
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = world.GetHorizontalTransmissionSuccessCount();

@@ -144,7 +144,7 @@ emp::array<size_t, 2> GetGridNeighbor(
         y
       };
     default:
-      emp_error("Unimplemented direction");
+      emp::notify::Error("Unimplemented direction");
       return {(size_t)-1, (size_t)-1};
   }
 }
