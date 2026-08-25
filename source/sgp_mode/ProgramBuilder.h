@@ -577,9 +577,9 @@ public:
       start_tag
     );
     // Add not instruction
-    AddInst(program, io_op); 
+    AddInst(program, io_op);
     AddTask_Not(program);  // Add not task
-    AddInst(program, io_op); 
+    AddInst(program, io_op);
     AddInst(program, io_op, 1);
     AddTask_Nand(program); // Add nand task, IO will happen at start of next time through genome
     // Nop filler is length minus current size + repro instructions

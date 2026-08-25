@@ -12,8 +12,8 @@
 #include <array>
 #include <string>
 
-TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
-    using world_t = sgpmode::SGPWorld;
+TEST_CASE("Test Printing Simple Instructions", "[sgp]") {
+  using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using hardware_t = sgpmode::SGPHardware<hw_spec_t>;
@@ -26,8 +26,9 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("hardware_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
 
@@ -42,7 +43,7 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
 
   std::ostringstream output;
 
-  WHEN("Program contains Nop Instruction"){
+  WHEN("Program contains Nop Instruction") {
     program_t program;
     prog_builder.AddStartAnchor(program);
     prog_builder.AddInst(program, "Nop-0", 0);
@@ -51,11 +52,11 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Nop Instruction should be printed"){
+    THEN("Global Anchor and Nop Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    nop-0       \n");
     }
   }
-  WHEN("Program contains Increment Instruction"){
+  WHEN("Program contains Increment Instruction") {
     program_t program;
     prog_builder.AddStartAnchor(program);
     prog_builder.AddInst(program, "Increment", 0);
@@ -64,11 +65,11 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Increment Instruction should be printed"){
+    THEN("Global Anchor and Increment Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    increment   r0\n");
     }
   }
-  WHEN("Program contains Decrement Instruction"){
+  WHEN("Program contains Decrement Instruction") {
     program_t program;
     prog_builder.AddStartAnchor(program);
     prog_builder.AddInst(program, "Decrement", 0);
@@ -77,12 +78,12 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Increment Instruction should be printed"){
+    THEN("Global Anchor and Increment Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    decrement   r0\n");
     }
   }
 
-  WHEN("Program contains Nand Instruction"){
+  WHEN("Program contains Nand Instruction") {
     program_t program;
     prog_builder.AddStartAnchor(program);
     prog_builder.AddInst(program, "Nand", 0, 1, 0);
@@ -91,13 +92,13 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Nand Instruction should be printed"){
+    THEN("Global Anchor and Nand Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    nand        r0, r1, r0\n");
     }
   }
 }
 
-TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
+TEST_CASE("Test Printing Complex Instructions", "[sgp]") {
     using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -111,8 +112,9 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("hardware_test_output");
-  config.POP_SIZE(1);
+  config.INIT_POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
 
@@ -127,7 +129,7 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
 
   std::ostringstream output;
 
-  WHEN("Program contains JumpIfNEq Instruction"){
+  WHEN("Program contains JumpIfNEq Instruction") {
     program_t program;
     tag_t start_tag(prog_builder.GetStartTag());
     tag_t tag1("0000000000000000000000000000000000000000000000000000000000000001");
@@ -145,12 +147,12 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Nop Instruction should be printed"){
+    THEN("Global Anchor and Nop Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    nop-0       \n    nop-0       \n    nop-0       \nAB:\n    nop-0       \n    nop-0       \n    jumpifneq   r0, r1, AB\n");
     }
   }
 
-  WHEN("Program contains JumpIfEq Instruction"){
+  WHEN("Program contains JumpIfEq Instruction") {
     program_t program;
     tag_t start_tag(prog_builder.GetStartTag());
     tag_t tag1("0000000000000000000000000000000000000000000000000000000000000001");
@@ -168,12 +170,12 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Nop Instruction should be printed"){
+    THEN("Global Anchor and Nop Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    nop-0       \n    nop-0       \n    nop-0       \nAB:\n    nop-0       \n    nop-0       \n    jumpifeq    r0, r1, AB\n");
     }
   }
 
-  WHEN("Program contains JumpIfLess Instruction"){
+  WHEN("Program contains JumpIfLess Instruction") {
     program_t program;
     tag_t start_tag(prog_builder.GetStartTag());
     tag_t tag1("0000000000000000000000000000000000000000000000000000000000000010");
@@ -191,9 +193,9 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]"){
 
     hw.PrintCode(output);
 
-    THEN("Global Anchor and Nop Instruction should be printed"){
+    THEN("Global Anchor and Nop Instruction should be printed") {
         REQUIRE(output.str() == "AA:\n    nop-0       \n    nop-0       \n    nop-0       \nAB:\n    nop-0       \n    nop-0       \n    jumpifless  r0, r1, AB\n");
     }
   }
-  
+
 }

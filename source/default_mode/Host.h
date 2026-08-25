@@ -475,7 +475,7 @@ public:
    *
    * Purpose: To set the organism's world position
    */
-  virtual void SetLocation(emp::WorldPosition _in) { location = _in; }
+  virtual void SetLocation(emp::WorldPosition _in) {location = _in;}
 
 
   /**
@@ -652,7 +652,7 @@ public:
    */
   emp::Ptr<Organism> RemoveSymbiont(int index) {
     int num_syms = syms.size();
-    if (index < 1 || index > num_syms) {
+    if(index < 1 || index > num_syms) {
       return nullptr;
     } else {
       emp::Ptr<Organism> to_remove = syms[index-1];
@@ -803,7 +803,7 @@ public:
     double mutation_rate = my_config->HOST_MUTATION_RATE();
     if (mutation_rate == -1) mutation_rate = my_config->MUTATION_RATE();
 
-    if (random->GetDouble(0.0, 1.0) <= mutation_rate) {
+    if(random->GetDouble(0.0, 1.0) <= mutation_rate){
       interaction_val += random->GetNormal(0.0, mutation_size);
       if (interaction_val < -1) interaction_val = -1;
       else if (interaction_val > 1) interaction_val = 1;
