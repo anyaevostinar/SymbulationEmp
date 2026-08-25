@@ -112,6 +112,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
   config.VERTICAL_TRANSMISSION(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.TASK_IO_BANK_SIZE(10);
+  config.CYCLES_PER_UPDATE(4);
   test_utils::SetWellMixed(config, 100, 0);
   GIVEN("A host infected with a symbiont in the world when self-all task mode and task match required for vt"){
     config.TASK_PROFILE_MODE("self-all");
@@ -297,6 +298,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.OUSTING(true); // This way, if the offspring happens to try to infect parent's host, the tests still pass because successful horizontal transmission.
+  config.CYCLES_PER_UPDATE(4);
 
   GIVEN("Two hosts one of which is infected with a symbiont, horiz task match on and self-all task profile mode"){
     config.HORIZ_TRANS(1);

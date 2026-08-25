@@ -27,6 +27,7 @@ void SymWorld::CreateDataFiles() {
   if (my_config->TAG_MATCHING()) {
     SetupTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
   }
+  SetupReproCountFile(my_config->FILE_PATH() + "ReproCount" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
 }
 
 /**
@@ -137,6 +138,30 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
   file.AddHistBin(node, 17, "Hist_0.7", "Count for histogram bin 0.7 to <0.8");
   file.AddHistBin(node, 18, "Hist_0.8", "Count for histogram bin 0.8 to <0.9");
   file.AddHistBin(node, 19, "Hist_0.9", "Count for histogram bin 0.9 to 1.0");
+}
+
+/**
+ * Input: The address of the string representing the file to be
+ * created's name
+ *
+ * Output: The address of the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to track the number 
+ * of reproductions of both Hosts and Symbionts
+ */
+emp::DataFile & SymWorld::SetupReproCountFile(const std::string & filename) {
+  auto & file = SetupFile(filename);
+  auto & node1 = GetHostReproCountDataNode();
+  auto & node2 = GetSymReproCountDataNode();
+
+  file.AddVar(update, "update", "Update");
+  file.AddTotal(node1, "successful_host_repro_count", "Total number of successful host reproductions",true);
+  file.AddTotal(node2, "successful_sym_repro_count", "Total number of successful sym reproductions",true);
+
+  file.PrintHeaderKeys();
+
+  return file;
+
 }
 
 
@@ -1411,6 +1436,39 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
       data_node_symbiont_tag_shannon.New();
     }
     return *data_node_symbiont_tag_shannon;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of symbiont reproductions this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * number of symbiont reproductions this update.
+   */
+  emp::DataMonitor<size_t>& SymWorld::GetSymReproCountDataNode() {
+    if (!data_node_sym_repro_count) {
+      data_node_sym_repro_count.New();
+    }
+    return *data_node_sym_repro_count;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The DataMonitor<int>& that has the information representing
+   * the number of host reproductions this update.
+   *
+   * Purpose: To retrieve the data node that is tracking the
+   * number of host reproductions this update.
+   */
+  emp::DataMonitor<size_t>& SymWorld::GetHostReproCountDataNode() {
+    if (!data_node_host_repro_count) {
+      
+      data_node_host_repro_count.New();
+    }
+    return *data_node_host_repro_count;
   }
 
 #endif
