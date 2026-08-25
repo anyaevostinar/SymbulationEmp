@@ -218,23 +218,23 @@ public:
     }
 
   /**
-   * Input: Set the reproduction counter
+   * Input: Set the lineage length
    *
    * Output: None
    *
-   * Purpose: To set the count of reproductions in this lineage.
+   * Purpose: To set the number of reproductions along the length of this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
+  void SetLineageLength(size_t _in) { reproductions = _in; }
 
 
   /**
    * Input: None.
    *
-   * Output: The reproduction count
+   * Output: The lineage length
    *
-   * Purpose: To get the count of reproductions in this lineage.
+   * Purpose: To get the number of reproductions along the length of this lineage.
    */
-  size_t GetReproCount() const { return reproductions; }
+  size_t GetLineageLength() const { return reproductions; }
 
   /**
    * Input: Set the flips towards a partner counter
@@ -696,7 +696,7 @@ public:
   emp::Ptr<Organism> Reproduce() {
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
-    sym_baby->SetReproCount(reproductions + 1);
+    sym_baby->LineageLength(reproductions + 1);
     if(my_config->PHYLOGENY() == 1) {
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic

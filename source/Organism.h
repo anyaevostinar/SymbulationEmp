@@ -110,12 +110,12 @@ class Organism {
     std::cout << "SetTag called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual size_t GetReproCount() const {
-    std::cout << "GetReproCount called from Organism" << std::endl;
+  virtual size_t GetLineageLength() const {
+    std::cout << "GetLineageLength called from Organism" << std::endl;
     throw "Organism method called!";
   }
-  virtual void SetReproCount(size_t _in) {
-    std::cout << "SetReproCount called from Organism" << std::endl;
+  virtual void SetLineageLength(size_t _in) {
+    std::cout << "SetLineageLength called from Organism" << std::endl;
     throw "Organism method called!";
   }
   virtual void SetTowardsPartnerCount(size_t _in) {
