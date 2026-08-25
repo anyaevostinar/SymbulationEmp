@@ -269,6 +269,7 @@ namespace sgpmode {
             if (interact) {
               break;
             }
+            
           }
           const double death_chance = (interact) ?
           sgp_config.MUTUALIST_DEATH_CHANCE() :

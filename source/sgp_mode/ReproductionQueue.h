@@ -23,8 +23,8 @@ struct ReproEvent {
   ) : org(in_org), pos(in_pos), valid(in_valid) { }
 };
 
-/*
-  Tracks organisms queued for reproduction.
+/**
+*  Tracks organisms queued for reproduction.
 */
 class ReproductionQueue {
 public:
@@ -40,28 +40,71 @@ protected:
 
 public:
 
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Clears the Reproduction Queue. 
+   */
   void Clear() {
     queue.clear();
   }
 
+
+  /**
+   * Input: None.
+   *
+   * Output: The current size of the Reproduction Queue. 
+   *
+   * Purpose: Allows access to the number of organisms in the Reproduction Queue.
+   */
   size_t GetSize() const {
     return queue.size();
   }
 
+  /**
+   * Input: None.
+   *
+   * Output: A Vector containing all repro events currently in the Reproduction Queue.
+   *
+   * Purpose: Allows access to all repro events in the Reproduction Queue.
+   */
   const emp::vector<ReproEvent>& GetQueue() const {
     return queue;
   }
 
+  /**
+   * Input: functor that handles organism reproduction.
+   *
+   * Output: Nones.
+   *
+   * Purpose: Assigns the functor that handles all reproduction events that occur in the queue.
+   */
   void SetReproduceOrgFun(fun_repro_org_t fun) {
     fun_reproduce_org = fun;
   }
 
+
+  /**
+   * Input: Position in the queue
+   *
+   * Output: Nones.
+   *
+   * Purpose: Sets the reproduction event at that position in the queue to no longer be a valid event.
+   */
   void Invalidate(size_t queue_pos) {
     emp_assert(queue_pos < queue.size());
     queue[queue_pos].valid = false;
   }
 
-  // Add organism to queue, return organism's queue id (valid until queue is processed)
+  /**
+   * Input: Organism that is reproducing, Organism's position in the world.
+   *
+   * Output: Organisms location in the queue.
+   *
+   * Purpose: Adds organism to the Reproduction queue
+   */
   size_t Enqueue(
     emp::Ptr<Organism> org_ptr,
     const emp::WorldPosition& org_pos
@@ -78,6 +121,13 @@ public:
   // template<typename WORLD_T>
   // void Process(WORLD_T& world) {
 
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Processes all reproduction events in the queue. 
+   */
   void Process() {
     for (ReproEvent& repro_info : queue) {
       emp::Ptr<Organism> org_ptr = repro_info.org;
