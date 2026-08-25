@@ -509,14 +509,10 @@ void ProcessOutputBuffer() {
     //        to deviate from what happens in the base class mutate functions
     Symbiont::Mutate();
     // Apply SGP-specific mutations (managed by world)
-    SymDoMutation(*this);
+    my_world->GetMutator().MutateProgram(GetProgram());
     // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
                       // which didn't reset the cpu. I think we want to reset the CPU here also?
-  }
-
-  void SymDoMutation(this_t& sym) {
-    my_world->getMutator().MutateProgram(sym.GetProgram());
   }
 
 };

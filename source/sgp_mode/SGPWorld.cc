@@ -257,7 +257,7 @@ std::optional<emp::WorldPosition> SGPWorld::FindHostForHorizontalTrans(
   return fun_find_host_for_horizontal_trans(sym_parent_ptr, parent_pos);
 }
 
-SGPWorld::mutator_t SGPWorld::getMutator(){
+SGPWorld::mutator_t SGPWorld::GetMutator(){
   return mutator;
 }
 
