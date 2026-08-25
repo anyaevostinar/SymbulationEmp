@@ -3,20 +3,20 @@
 ## Further refactoring list:
 * Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
 * Add SGP mode to API reference doc
-* Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 * Move SymDoMutation into SGPSymbiont to parallel host
 * Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
-* Look at fun_host_sym_stress_trans_compatibility_check to try to reduce code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
 * Move world properties back into protected and make necessary accesssors
-* Try to fold ProcessStressEscapees into existing code/reduce duplication
 * Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
 * Look into what is going on with SGPHost local sgp_config not working
-* Streamline Host ProcessOutputBuffer and check if easier access to some variables
+* Streamline Host and Symbiont ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
+* Fix all tests for debug mode. Currently github runs test-all and test-debug-default. Look at failing tests for test-debug-all
+* Review death of organisms and solidify protocol for when to use SendToGraveyard(org). Remove extrenuous .Delete() emp::DoDeath() and Organism::SetDead() calls. Consider Stress mode where we want the symbiont to exits in graveyard, but we dont want the host to be alive and in the world. 
 
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 # Previous actions completed
+[x] Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 [x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [x] Get Host task credit and Task Match Check tests not seg faulting
 [x] Make mini guide on main changes for tests so others could help with test porting
@@ -31,6 +31,10 @@
 [x] Make a list from this commit for further shifting todos and update this doc with those todos https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
 [x] Horizontal transmission to make parallel to default mode and integrated to support tags with tasks
     - Decisions made: reproduce is shared between horizontal transmission and free-living sym reproduction. If free-living sym repro is on, then reproduce places offspring into sym pop (like in default), and then offspring can infect with Infect instruction (not yet implemented). If FLS is off, reproduce does horizontal transmission. Also decided that if HT is off, an "attempt" is not counted.
+[x] Try to fold ProcessStressEscapees into existing code/reduce duplication
+    - Initially we attempted to turn ReproductionQueue into a birth queue, however this hurts performance. ReproductionQueue will skip organisms who have died and therefore should not reproduce before Reproduce() is called. With a birth queue, the children would already be constructed. This uses more memory and wastes resources on construction. Instead ProcessStressEscapees was moved into a signal. 
+[x] Look at fun_host_sym_stress_trans_compatibility_check to try to reduce  code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
+    - Completed with above refactor.
 
 # Journal
 4/15/26

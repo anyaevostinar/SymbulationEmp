@@ -22,6 +22,10 @@
 
 namespace sgpmode {
 
+/**
+* Used to generate starter genomes and read genomes from a json.
+* @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
+*/
 template<typename HW_SPEC_T>
 class ProgramBuilder {
 public:
@@ -641,8 +645,10 @@ public:
    * Note: Warns if the program contains disabled instructions.
    */
   program_t LoadProgramFile(const std::filesystem::path& path) {
+    
     program_t program(path);
     RectifyWithWarning(program);
+    
     return program;
   }
 

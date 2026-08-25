@@ -19,6 +19,9 @@
 namespace sgpmode {
 
 // TODO - tests!
+/**
+*Used to determine the order that organisms in the world are processed.
+*/
 class Scheduler {
 public:
   using fun_process_org_t = std::function<void(emp::WorldPosition, Organism&)>;
@@ -102,7 +105,14 @@ public:
 
   ~Scheduler() { }
 
-  // Allow re-configuration of scheduler post-construction.
+  
+  /**
+   * Input: Size of the world.
+   *
+   * Output: None.
+   *
+   * Purpose: Sets up the scheduler, allowing for re-configuration of scheduler post-construction. 
+   */
   void SetupScheduler(size_t world_size) {
     emp_assert(world_size > 0, "World size must be > 0");
 
@@ -117,15 +127,43 @@ public:
 
   }
 
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Gets the size of the scheduler, allowing access to the number of organisms attempting to process. 
+   */
   size_t GetScheduleSize() const { return schedule_order.size(); }
+
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: To access the order of all organisms in the scheduler.
+   */
   const emp::vector<size_t>& GetCurSchedule() const { return schedule_order; }
 
-  // Update schedule order (uniform random)
+
+  /**
+   * Input: None.
+   *
+   * Output: None.
+   *
+   * Purpose: Updates the schedule order (uniform random)
+   */
   void UpdateSchedule() {
     emp::Shuffle(random, schedule_order);
   }
 
-  // Process all orgs in world population in current schedule order (single-threaded).
+  /**
+   * Input: A World.
+   *
+   * Output: None.
+   *
+   * Purpose: Process all orgs in world population in current schedule order (single-threaded).
+   */
   template<typename WORLD_T>
   void Run(WORLD_T& world) {
     for (size_t world_id : schedule_order) {
