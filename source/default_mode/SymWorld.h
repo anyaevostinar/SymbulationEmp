@@ -155,8 +155,8 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_tag_dist;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_variance; // for alpha diversity
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_within_host_mean; // for beta diversity
-  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
-  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_lineage_length;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_lineage_length;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_towards_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_host_from_partner_rate;
   emp::Ptr<emp::DataMonitor<double>> data_node_sym_towards_partner_rate;
@@ -177,6 +177,9 @@ protected:
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_horiztrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_attempts_verttrans;
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_successes_verttrans;
+
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_host_repro_count;
+  emp::Ptr<emp::DataMonitor<size_t>> data_node_sym_repro_count;
 
   // the taxon IDs of the first mutualistic pair (where BOTH sym and host are mutualistic)
   uint64_t first_mut_sym = 0;
@@ -289,8 +292,8 @@ public:
     if (data_node_hostedsyminfectchance) data_node_hostedsyminfectchance.Delete();
     if (data_node_within_host_mean) data_node_within_host_mean.Delete();
     if (data_node_within_host_variance) data_node_within_host_variance.Delete();
-    if (data_node_host_repro_count) data_node_host_repro_count.Delete();
-    if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
+    if (data_node_host_lineage_length) data_node_host_lineage_length.Delete();
+    if (data_node_sym_lineage_length) data_node_sym_lineage_length.Delete();
     if (data_node_host_towards_partner_rate) data_node_host_towards_partner_rate.Delete();
     if (data_node_host_from_partner_rate) data_node_host_from_partner_rate.Delete();
     if (data_node_sym_towards_partner_rate) data_node_sym_towards_partner_rate.Delete();
@@ -312,6 +315,9 @@ public:
     if (data_node_successes_horiztrans) data_node_successes_horiztrans.Delete();
     if (data_node_attempts_verttrans) data_node_attempts_verttrans.Delete();
     if (data_node_successes_verttrans) data_node_successes_verttrans.Delete();
+
+    if (data_node_host_repro_count) data_node_host_repro_count.Delete();
+    if (data_node_sym_repro_count) data_node_sym_repro_count.Delete();
 
     for (size_t i = 0; i < sym_pop.size(); i++) { //host population deletion is handled by empirical world destructor
       if (sym_pop[i]) {
@@ -817,6 +823,8 @@ public:
     } else {
       new_org.Delete();
     } // Otherwise delete the organism.
+    emp::DataMonitor<size_t>& data_node_host_repro_count = GetHostReproCountDataNode();
+    data_node_host_repro_count.AddDatum(1);
     return pos;
   }
 
@@ -992,8 +1000,11 @@ public:
   emp::DataFile& SetupTransmissionFile(const std::string& filename);
   emp::DataFile& SetupTagDistFile(const std::string& filename);
   emp::DataFile& SetupSymDiversityFile(const std::string& filename);
+  emp::DataFile& SetupReproCountFile(const std::string& filename);
   virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile& file);
+  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
   emp::DataMonitor<int>& GetHostCountDataNode();
   emp::DataMonitor<int>& GetSymCountDataNode();
   emp::DataMonitor<int>& GetCountHostedSymsDataNode();
@@ -1005,8 +1016,8 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetHorizontalTransmissionSuccessCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionAttemptCount();
   emp::DataMonitor<double, emp::data::Histogram>& GetVerticalTransmissionSuccessCount();
-  emp::DataMonitor<size_t>& GetHostReproCountDataNode();
-  emp::DataMonitor<size_t>& GetSymReproCountDataNode();
+  emp::DataMonitor<size_t>& GetHostLineageLengthDataNode();
+  emp::DataMonitor<size_t>& GetSymLineageLengthDataNode();
   emp::DataMonitor<double>& GetSymTowardsPartnerRateDataNode();
   emp::DataMonitor<double>& GetSymFromPartnerRateDataNode();
   emp::DataMonitor<double>& GetHostTowardsPartnerRateDataNode();
@@ -1088,25 +1099,18 @@ public:
    * in a host near its parent's location, or deleted if the parent's location has
    * no eligible near-by hosts.
    */
-   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_baby, emp::WorldPosition parent_pos) {
+   virtual emp::WorldPosition SymDoBirth(emp::Ptr<Organism> sym_offspring, emp::Ptr<Organism> sym_parent, emp::WorldPosition parent_pos) {
     const size_t i = parent_pos.GetPopID();
     if (my_config->FREE_LIVING_SYMS() == 0) {
       const int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
-        emp::Ptr<Organism> sym_parent;
-        if (parent_pos.GetIndex() == 0) { // free living parent
-          sym_parent = GetSymAt(i);
-        } else { // hosted parent
-          emp_assert(pop[i]->HasSym() && pop[i]->GetSymbionts().size() >= (parent_pos.GetIndex() - 1));
-          sym_parent = pop[i]->GetSymbionts().at(parent_pos.GetIndex() - 1);
-        }
-
+        
         // infections can fail from size limits or tag mismatch
         // (or, theoretically, no neighbouring hosts)
         const bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
         bool tag_failed = false;
         if (my_config->TAG_MATCHING()) {
-          const double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_baby->GetTag()) * TAG_LENGTH;
+          const double tag_distance = (*tag_metric)(pop[new_host_pos]->GetTag(), sym_offspring->GetTag()) * TAG_LENGTH;
           const double permissiveness_mean = (my_config->HOST_TAG_PERMISSIVENESS_EVOLVES()) ? pop[new_host_pos]->GetTagPermissiveness() : my_config->TAG_PERMISSIVENESS();
           const double cutoff = GetRandom().GetPoisson(permissiveness_mean * TAG_LENGTH);
           tag_failed = tag_distance > cutoff;
@@ -1118,19 +1122,19 @@ public:
           else if (!tag_failed && size_failed) {
             GetHorizontalTransmissionSizeFailCount().AddDatum(sym_parent->GetIntVal());
           }
-          sym_baby.Delete();
+          sym_offspring.Delete();
           return emp::WorldPosition();
         }
 
-        const int new_index = pop[new_host_pos]->AddSymbiont(sym_baby);
+        const int new_index = pop[new_host_pos]->AddSymbiont(sym_offspring);
 
         if (new_index > 0) { // sym successfully infected
           if (my_config->PHYLOGENY()) {
             if (phylo_taxon_type == PHYLO_TAXON_TYPE::INDIVIDUAL) {
-              sym_baby->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
+              sym_offspring->GetTaxon().Cast<taxon_t::sym_taxon_t>()->GetData().DetermineHostSwitch(pop[new_host_pos]->GetTaxon(), sym_parent->GetHost()->GetTaxon());
             }
             if (my_config->TRACK_PHYLOGENY_INTERACTIONS()) {
-              pop[new_host_pos]->GetTaxon().Cast<taxon_t::host_taxon_t>()->GetData().AddInteraction(sym_baby->GetTaxon());
+              pop[new_host_pos]->GetTaxon().Cast<taxon_t::host_taxon_t>()->GetData().AddInteraction(sym_offspring->GetTaxon());
             }
           }
           if (my_config->FREE_HT_FAILURE() || my_config->TAG_MATCHING()) {
@@ -1142,11 +1146,11 @@ public:
           return emp::WorldPosition();
         }
       } else { // no living neighbors
-        sym_baby.Delete();
+        sym_offspring.Delete();
         return emp::WorldPosition();
       }
     } else {
-      return MoveIntoNewFreeWorldPos(sym_baby, parent_pos);
+      return MoveIntoNewFreeWorldPos(sym_offspring, parent_pos);
     }
   }
 

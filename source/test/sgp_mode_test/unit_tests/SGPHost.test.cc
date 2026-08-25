@@ -217,7 +217,7 @@ TEST_CASE("MakeNew returns identical host", "[sgp][sgp-unit]") {
   }
 }
 
-TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
+TEST_CASE("LineageLength & GetReproCount","[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -240,7 +240,7 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
         REQUIRE(host->GetReproCount() == 0);
       }
       WHEN("The host's repro count is increased by 1") {
-        host->SetReproCount(1);
+        host->LineageLength(1);
         THEN("Repro count of the host is 1") {
           REQUIRE(host->GetReproCount() == 1);
         }
@@ -249,7 +249,7 @@ TEST_CASE("SetReproCount & GetReproCount","[sgp][sgp-unit]") {
   }
 }
 
-TEST_CASE("ProcessOutputBuffer", "[sgp][sgp-unit]") {
+TEST_CASE("ProcessOutputBuffer Host", "[sgp][sgp-unit]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
@@ -308,5 +308,35 @@ TEST_CASE("Check that hosts and syms can't have negative points", "[sgp][sgp-uni
               REQUIRE(sym->GetPoints() == 0);
       }
     }
+  }
+}
+
+TEST_CASE("CPUState and SGPHost always have the same location","[sgp]"){
+  using world_t = sgpmode::SGPWorld;
+  using cpu_state_t = sgpmode::CPUState<world_t>;
+  using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+  using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+
+  emp::Random random(31);
+  sgpmode::SymConfigSGP config;
+  world_t world(random, &config);
+  auto& prog_builder = world.GetProgramBuilder();
+  emp::Ptr<sgp_host_t> host = emp::NewPtr<sgp_host_t>(&random, &world, &config, prog_builder.CreateReproProgram(100));
+  
+  WHEN("Initialized"){
+    THEN("Host and CPUState return the same location"){
+      REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    }
+  }
+  WHEN("Host has location set"){
+    host->SetLocation(emp::WorldPosition(1, 2));
+    THEN("Symbiont and CPUState return the same location"){
+      REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
+    }
+  }
+  WHEN("CPUState has location set"){
+    host->GetHardware().GetCPUState().SetLocation(emp::WorldPosition(3, 4));
+    REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
   }
 }

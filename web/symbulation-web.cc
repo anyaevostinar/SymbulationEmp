@@ -2,9 +2,9 @@
 #define UIT_SUPPRESS_MACRO_INSEEP_WARNINGS
 
 #include <iostream>
-#include "../default_mode/SymWorld.h"
-#include "../../Empirical/include/emp/config/ArgManager.hpp"
-#include "../SymAnimate.h"
+#include "../source/default_mode/SymWorld.h"
+#include "../Empirical/include/emp/config/ArgManager.hpp"
+#include "SymAnimate.h"
 //#include "../SymConfig.h"
 
 using namespace std;

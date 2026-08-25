@@ -22,6 +22,7 @@ namespace sgpmode {
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
+ * @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
  */
 template<typename HW_SPEC_T>
 class SGPHardware {
