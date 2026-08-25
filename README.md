@@ -80,7 +80,7 @@ Symbulation is built with:
 
 ## How to Cite
 ```
-Anya Vostinar, Piper Welch, K-Johnson-Horrigan, Alison Cameron, Lilith Orion Hafner, Emily Dolson, dorchens, Caroline Gormely, renztim, Charles Ofria, Yi Qin, & mkmmnn. (2022). anyaevostinar/SymbulationEmp: Modes (v0.2). Zenodo. https://doi.org/10.5281/zenodo.6380543
+Vostinar, A., Johnson-Horrigan, K., Lalejini, A., Dolson, E., Hillman-Emelianoff, E., Shea, J., Kelley, D., Khalili, A. T., Welch, P., Cameron, A., Orion Hafner, L., Dorchen, S., Gormely, C., renztim, Ofria, C., Qin, Y., & mkmmnn. (2026). anyaevostinar/SymbulationEmp: ComplexFeatures (Version v1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.20732915
 ```
 
 Created part of my free logo at LogoMakr.com.
