@@ -779,6 +779,9 @@ public:
 
         emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_verttrans = my_world->GetVerticalTransmissionSuccessCount();
         data_node_successes_verttrans.AddDatum(GetIntVal());
+
+        emp::DataMonitor<int>& data_node_sym_repro_rate = my_world->GetSymReproRateDataNode();
+        data_node_sym_repro_rate.AddDatum(1);
       }
     }
     return success ? std::optional<emp::Ptr<Organism>>{sym_baby} : std::nullopt;
@@ -838,6 +841,9 @@ public:
     emp::DataMonitor<double, emp::data::Histogram>& data_node_successes_horiztrans = my_world->GetHorizontalTransmissionSuccessCount();
     if(sym_baby_pos.IsValid()) {
       data_node_successes_horiztrans.AddDatum(GetIntVal());
+      //Increase Data Repro Count by 1
+      emp::DataMonitor<int>& data_node_sym_repro_rate = my_world->GetSymReproRateDataNode();
+      data_node_sym_repro_rate.AddDatum(1);
     }
 
   }
@@ -856,7 +862,7 @@ public:
       emp::WorldPosition new_pos = my_world->SymDoBirth(sym_baby, this, location);
 
       AfterIndependentReproduction(new_pos);
-
+      
     }
   }
 };
