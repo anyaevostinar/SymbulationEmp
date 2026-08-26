@@ -31,14 +31,11 @@
 [x] Make a list from this commit for further shifting todos and update this doc with those todos https://github.com/anyaevostinar/SymbulationEmp/commit/9ea1d53c8bf70c612d1454fac0510ddaf0c70e9d for AEV TODO and Refactor note for what else I already had decided would be good to do
 [x] Horizontal transmission to make parallel to default mode and integrated to support tags with tasks
     - Decisions made: reproduce is shared between horizontal transmission and free-living sym reproduction. If free-living sym repro is on, then reproduce places offspring into sym pop (like in default), and then offspring can infect with Infect instruction (not yet implemented). If FLS is off, reproduce does horizontal transmission. Also decided that if HT is off, an "attempt" is not counted.
-<<<<<<< HEAD
 [x] Try to fold ProcessStressEscapees into existing code/reduce duplication
     - Initially we attempted to turn ReproductionQueue into a birth queue, however this hurts performance. ReproductionQueue will skip organisms who have died and therefore should not reproduce before Reproduce() is called. With a birth queue, the children would already be constructed. This uses more memory and wastes resources on construction. Instead ProcessStressEscapees was moved into a signal. 
 [x] Look at fun_host_sym_stress_trans_compatibility_check to try to reduce  code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
     - Completed with above refactor.
-=======
 [x] Move SymDoMutation into SGPSymbiont to parallel host
->>>>>>> af4a77fdc52d3daa744821293ab2dd059573f7e4
 
 # Journal
 4/15/26
