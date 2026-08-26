@@ -21,18 +21,17 @@ using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
 using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 using tag_t = typename hw_spec_t::tag_t;
 
-TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
+TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
   config.TASK_IO_BANK_SIZE(10);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(true);
-  config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE("plastic-both");
+  config.INCLUDE_INSTRUCTION_SenseTask(true);
   test_utils::SetWellMixed(config, 1, 1);
 
   emp::Random random(config.SEED());
@@ -59,7 +58,7 @@ TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
     host_hw.SetProgram(host_program);
     world.AssignNewEnvIO(host_hw.GetCPUState());
 
-    // NOT is currently not rewarded.
+    // NOT is currently punished.
     REQUIRE(world.GetTaskEnv().GetHostTaskReq(not_task_id).task_value < 0);
 
     // Initial register values
@@ -74,17 +73,16 @@ TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
   }
 }
 
-TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
+TEST_CASE("Test host SenseTask instruction after a rewarded task", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(true);
-  config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE("plastic-both");
+  config.INCLUDE_INSTRUCTION_SenseTask(true);
   config.TASK_IO_BANK_SIZE(10);
   test_utils::SetWellMixed(config, 1, 1);
 
@@ -101,7 +99,7 @@ TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
   // setup correct reward/punishment values for update 0
   world.Update();
 
-  WHEN("A host runs a task which is punished and then the SenseTask instruction") {
+  WHEN("A host runs a task which is rewarded and then the SenseTask instruction") {
     program_t host_program;
     prog_builder.AddStartAnchor(host_program);
     prog_builder.AddInst(host_program, "IO", 0);
@@ -112,7 +110,7 @@ TEST_CASE("Test host SenseTask instruction after a punished task", "[sgp]"){
     host_hw.SetProgram(host_program);
     world.AssignNewEnvIO(host_hw.GetCPUState());
 
-    // NAND is not currently punished.
+    // NAND is currently rewarded.
     REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value > 0);
 
 
@@ -133,13 +131,12 @@ TEST_CASE("Test symbiont SenseTask instruction after a punished task", "[sgp]"){
   sgpmode::SymConfigSGP config;
   config.CYCLES_PER_UPDATE(0);
   config.SEED(61);
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
+  config.INCLUDE_INSTRUCTION_SenseTask(true);
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(1);
   config.TASK_IO_UNIQUE_OUTPUT(true);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(true);
-  config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE("plastic-both");
   config.TASK_IO_BANK_SIZE(10);
   test_utils::SetWellMixed(config, 1, 1);
 
@@ -185,11 +182,10 @@ TEST_CASE("Test symbiont SenseTask instruction after a rewarded task", "[sgp]"){
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
   config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+  config.INCLUDE_INSTRUCTION_SenseTask(true);
   config.FILE_PATH("Instructions_test_output");
   config.START_MOI(1);
   config.TASK_IO_UNIQUE_OUTPUT(true);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(true);
-  config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE("plastic-both");
   config.TASK_IO_BANK_SIZE(10);
   test_utils::SetWellMixed(config, 1, 1);
 

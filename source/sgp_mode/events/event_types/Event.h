@@ -244,9 +244,11 @@ public:
  *
  * Output: None.
  */
+template <typename WORLD_T>
 void SetEventTimingFromJSON(
   nlohmann::json& event_json,
-  emp::Ptr<Event> event_ptr
+  emp::Ptr<Event> event_ptr,
+  WORLD_T& world
 ) {
   emp_assert(event_json.contains("timing"));
   const std::string timing_str(event_json["timing"]);
@@ -260,7 +262,10 @@ void SetEventTimingFromJSON(
     emp::vector<std::string> recurring_str = emp::slice(timing_str, ':');
     emp_assert(recurring_str.size() == 3);
     const size_t start_update = emp::from_string<size_t>(recurring_str[0]);
-    const size_t stop_update = emp::from_string<size_t>(recurring_str[1]);
+    int stop_update = emp::from_string<int>(recurring_str[1]);
+    if(stop_update < 0) {
+      stop_update = world.GetConfig().UPDATES(); 
+    }
     const size_t frequency = emp::from_string<size_t>(recurring_str[2]);
     event_ptr->ResetTiming(start_update, stop_update, frequency);
   }

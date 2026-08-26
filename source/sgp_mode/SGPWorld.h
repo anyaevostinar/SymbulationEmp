@@ -693,6 +693,8 @@ public:
     return fun_calc_host_nutrient_interaction(host,sym, task_value_before, task_id,task_matching_sym_count);
   }
 
+  mutator_t getMutator();
+
    /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
    * Output: The amount of points that the symbiont will gain/lose after the nutrient interaction.
