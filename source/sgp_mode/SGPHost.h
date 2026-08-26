@@ -13,6 +13,8 @@
 #include <functional>
 
 
+
+
 namespace sgpmode {
 /**
 * The SignalGP version of the base host
@@ -138,6 +140,10 @@ public:
     //   my_world->to_reproduce[cpu.state.in_progress_repro].second =
     //     emp::WorldPosition::invalid_id;
     // }
+  }
+
+  void HostDoMutation(this_t& host) {
+  my_world->getMutator().MutateProgram(host.GetProgram());
   }
 
   bool operator<(const Organism& other) const {
@@ -517,7 +523,7 @@ public:
         cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
       );
       offspring_cpu_state.SetLineageTaskLossCount(
-        task_id,
+        task_id, 
         cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
       );
 

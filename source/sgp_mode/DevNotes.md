@@ -1,13 +1,8 @@
 (delete once Anya is done with joint refactoring)
 
 ## Further refactoring list:
-* Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
-* Add SGP mode to API reference doc
-* Move SymDoMutation into SGPSymbiont to parallel host
+
 * Look at whether can move SymDonateToHost and SymStealFromHost into SGPSym
-* Move world properties back into protected and make necessary accesssors
-* Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
-* Look into what is going on with SGPHost local sgp_config not working
 * Streamline Host and Symbiont ProcessOutputBuffer and check if easier access to some variables
 * Break Host Reproduce into helper functions
 * Fix all tests for debug mode. Currently github runs test-all and test-debug-default. Look at failing tests for test-debug-all
@@ -16,6 +11,12 @@
 * Compare ecto relevant code (i.e. default mode) between main and this refactor to see if something changed, when was the last time the ecto integration test didn't seg fault on Mac? Prior to aux bump?
 
 # Previous actions completed
+* Move world properties back into protected and make necessary accesssors
+* Rename "SetReproCount" to lineage length since it's confusing (or did I already?)
+* Look into what is going on with SGPHost local sgp_config not working
+* Remove location from CPUState and have it rely on Organism location instead of maintaining separately and generally trace through to make sure it is tracked cleanly
+* Add SGP mode to API reference doc
+* Move SymDoMutation into SGPSymbiont to parallel host
 [x] Move ProcessSymOutputBuffer into SGPSymbiont to parallel host
 [x] Change renamed config settings (ORGANISM_TYPE) (also cleaned up some other unused config settings)
 [x] Get Host task credit and Task Match Check tests not seg faulting
@@ -35,6 +36,7 @@
     - Initially we attempted to turn ReproductionQueue into a birth queue, however this hurts performance. ReproductionQueue will skip organisms who have died and therefore should not reproduce before Reproduce() is called. With a birth queue, the children would already be constructed. This uses more memory and wastes resources on construction. Instead ProcessStressEscapees was moved into a signal. 
 [x] Look at fun_host_sym_stress_trans_compatibility_check to try to reduce  code duplication of task-profile setups, possibly with decorator pattern, but also definitely just in own file
     - Completed with above refactor.
+[x] Move SymDoMutation into SGPSymbiont to parallel host
 
 # Journal
 4/15/26

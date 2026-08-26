@@ -29,14 +29,14 @@ using program_t = typename world_t::sgp_prog_t;
 TEST_CASE("Hosts start with a poisoned task in a temporally changing environment","[sgp]"){
   // set up configs
   sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
+
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(4);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
-  config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
 
   // initialize world
   emp::Random random(config.SEED());
@@ -44,7 +44,7 @@ TEST_CASE("Hosts start with a poisoned task in a temporally changing environment
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
-  // Group 1: NOT, AND, OR (start rewarded)
+  // Group 1: NOT, AND, OR, NOR (start punished)
   size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
 
   WHEN("A host can do only NOT at the start of the experiment"){
@@ -64,7 +64,7 @@ TEST_CASE("Hosts start with a poisoned task in a temporally changing environment
     world.Update();
     size_t host_not_count = world.GetHostTaskSuccesses().at(not_task_id);
 
-    THEN("The host initially gains loses for completing its task") {
+    THEN("The host initially neither gains nor loses for completing its task, since it can't go below 0") {
       REQUIRE(host_not_count == 1);
       REQUIRE(host_not_only->GetPoints() == 0);
     }
@@ -83,14 +83,13 @@ TEST_CASE("Hosts start with a poisoned task in a temporally changing environment
 TEST_CASE("Symbionts start with a poisoned task in a temporally changing environment", "[sgp]"){
   // set up configs
   sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(4);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
-  config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
 
   // initialize world
   emp::Random random(config.SEED());
@@ -98,8 +97,9 @@ TEST_CASE("Symbionts start with a poisoned task in a temporally changing environ
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
-  // Group 1: NOT, AND, OR (start rewarded)
+  // Group 1: NOT, AND, OR, NOR (start punished)
   size_t not_task_id = world.GetTaskEnv().GetTaskSet().GetID("NOT");
+  
 
   WHEN("A symbiont can do only NOT at the start of the experiment"){
     // NOT-only symbiont
@@ -120,7 +120,7 @@ TEST_CASE("Symbionts start with a poisoned task in a temporally changing environ
     world.Update();
     size_t sym_not_count = world.GetSymTaskSuccesses().at(not_task_id);
 
-    THEN("The symbiont initially loses points for completing its task") {
+    THEN("The symbiont initially doesn't gain points for completing its task because it can't go below 0") {
       REQUIRE(sym_not_count == 1);
       REQUIRE(symbiont_not_only->GetPoints() == 0);
     }
@@ -139,14 +139,13 @@ TEST_CASE("Symbionts start with a poisoned task in a temporally changing environ
 TEST_CASE("Hosts start with a rewarded task in a temporally changing environment", "[sgp]") {
   // set up configs
   sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
-  config.CYCLES_PER_UPDATE(8);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
-  config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
+  config.CYCLES_PER_UPDATE(6);
 
   // initialize world
   emp::Random random(config.SEED());
@@ -154,7 +153,7 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
-  // Group 2: NAND, AND-NOT, OR-NOT (start punished)
+  // Group 2: NAND, AND-NOT, OR-NOT, XOR (start rewarded)
   size_t or_not_task_id = world.GetTaskEnv().GetTaskSet().GetID("OR_NOT");
 
   WHEN("A host can do only OR_NOT at the start of the experiment"){
@@ -184,7 +183,7 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
     host_orn_count += world.GetHostTaskSuccesses().at(or_not_task_id);
 
     THEN("After the environment changes, the host loses points for completing its task") {
-      REQUIRE(host_orn_count == 3);
+      REQUIRE(host_orn_count == 2);
       REQUIRE(host_orn_only->GetPoints() == 0);
     }
   }
@@ -194,14 +193,13 @@ TEST_CASE("Hosts start with a rewarded task in a temporally changing environment
 TEST_CASE("Symbionts start with a rewarded task in a temporally changing environment", "[sgp]") {
   // set up configs
   sgpmode::SymConfigSGP config;
-  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
   config.FILE_PATH("TempChangingEnv_test_output");
   config.SEED(89);
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
-  config.CYCLES_PER_UPDATE(8);
-  config.ENABLE_TEMP_CHANGING_ENVIRONMENT(1);
-  config.TEMP_CHANGING_ENVIRONMENT_INTERVAL(1);
+  config.CYCLES_PER_UPDATE(6);
 
   // initialize world
   emp::Random random(config.SEED());
@@ -209,8 +207,10 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
   world.Setup();
   auto& builder = world.GetProgramBuilder();
 
-  // Group 2: NAND, AND-NOT, OR-NOT (start punished)
+
+  // Group 2: NAND, AND-NOT, OR-NOT, XOR (start rewarded)
   size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+  
 
   WHEN("A symbiont can do only NAND at the start of the experiment"){
     // NAND-only symbiont
@@ -241,8 +241,140 @@ TEST_CASE("Symbionts start with a rewarded task in a temporally changing environ
     sym_nand_count += world.GetSymTaskSuccesses().at(nand_task_id);
 
     THEN("After the environment changes, the symbiont loses points for completing its tasks") {
-      REQUIRE(sym_nand_count == 3);
+      REQUIRE(sym_nand_count == 2);
       REQUIRE(symbiont_nand_only->GetPoints() == 0);
     }
   }
 }
+
+
+TEST_CASE("Check if tasks values are switching correctly with a enviornment change", "[sgp]") {
+  // set up configs
+  sgpmode::SymConfigSGP config;
+  config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/temporal-changing-tasks.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/temporal-changing-environment-events.json");
+
+  config.FILE_PATH("TempChangingEnv_test_output");
+  config.SEED(89);
+  test_utils::SetWellMixed(config, 4, 0);
+  config.TASK_IO_BANK_SIZE(10);
+  config.CYCLES_PER_UPDATE(4);
+
+  // initialize world
+  emp::Random random(config.SEED());
+  world_t world(random, &config);
+  world.Setup();
+  auto& builder = world.GetProgramBuilder();
+
+  sgpmode::SGPWorld::task_env_t& task_env = world.GetTaskEnv();
+  //get the ids for all of the tasks
+  size_t nand_task_id = task_env.GetTaskSet().GetID("NAND");
+  size_t andn_task_id = task_env.GetTaskSet().GetID("AND_NOT");
+  size_t orn_task_id = task_env.GetTaskSet().GetID("OR_NOT");
+  size_t not_task_id = task_env.GetTaskSet().GetID("NOT");
+  size_t and_task_id = task_env.GetTaskSet().GetID("AND");
+  size_t or_task_id = task_env.GetTaskSet().GetID("OR");
+  size_t nor_task_id = task_env.GetTaskSet().GetID("NOR");
+  size_t xor_task_id = task_env.GetTaskSet().GetID("XOR");
+
+  WHEN("the world is initialized"){
+    world.Update();
+    
+    THEN("NAND, ANDN, ORN, and XOR should be rewarded and NOT, AND, OR, NOR punished"){
+      REQUIRE(task_env.GetHostTaskReq(nand_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(andn_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(orn_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(xor_task_id).task_value == 5);
+
+      REQUIRE(task_env.GetHostTaskReq(not_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(and_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(or_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(nor_task_id).task_value == -5);
+
+      REQUIRE(task_env.GetSymTaskReq(nand_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(andn_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(orn_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(xor_task_id).task_value == 5); 
+
+      REQUIRE(task_env.GetSymTaskReq(not_task_id).task_value == -5); 
+      REQUIRE(task_env.GetSymTaskReq(and_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(or_task_id).task_value == -5); 
+      REQUIRE(task_env.GetSymTaskReq(nor_task_id).task_value == -5); 
+      }
+
+    //update world once to swap enviornment
+    world.Update();
+
+    THEN("The rewarded tasks should be punished now, and the punished tasks should be rewarded"){
+      REQUIRE(task_env.GetHostTaskReq(nand_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(andn_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(orn_task_id).task_value == -5);
+      REQUIRE(task_env.GetHostTaskReq(xor_task_id).task_value == -5);
+
+      REQUIRE(task_env.GetHostTaskReq(not_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(and_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(or_task_id).task_value == 5);
+      REQUIRE(task_env.GetHostTaskReq(nor_task_id).task_value == 5);
+
+      REQUIRE(task_env.GetSymTaskReq(nand_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(andn_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(orn_task_id).task_value == -5);
+      REQUIRE(task_env.GetSymTaskReq(xor_task_id).task_value == -5); 
+
+      REQUIRE(task_env.GetSymTaskReq(not_task_id).task_value == 5); 
+      REQUIRE(task_env.GetSymTaskReq(and_task_id).task_value == 5);
+      REQUIRE(task_env.GetSymTaskReq(or_task_id).task_value == 5); 
+      REQUIRE(task_env.GetSymTaskReq(nor_task_id).task_value == 5); 
+      }
+
+    }
+
+  }
+
+// Note: random change is not currently supported by TaskValueEvent, but save this test for when we get it back in
+// TEST_CASE("Check if random enviornment change works", "[sgp]") {
+//   // set up configs
+//   sgpmode::SymConfigSGP config;
+//   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+//   config.FILE_PATH("TempChangingEnv_test_output");
+//   config.SEED(89);
+//   test_utils::SetWellMixed(config, 4, 0);
+//   config.TASK_IO_BANK_SIZE(10);
+//   config.CYCLES_PER_UPDATE(8);
+//   config.ENABLE_TEMP_CHANGING_ENVIRONMENT(2);
+//   config.RANDOM_CHANGING_ENVIRONMENT_AVERAGE(2);
+
+//   // initialize world
+//   emp::Random random(config.SEED());
+//   world_t world(random, &config);
+//   world.Setup();
+//   auto& builder = world.GetProgramBuilder();
+
+//   bool Env_change = false;
+
+//   WHEN("the world is initialized"){
+//     world.Update();
+//     sgpmode::SGPWorld::task_env_t& task_env = world.GetTaskEnv();
+    
+//   //get the ids for all of the tasks
+//   size_t nand_task_id = task_env.GetTaskSet().GetSize();
+//   if (task_env.GetTaskSet().HasTask("NAND")) {
+//     nand_task_id = task_env.GetTaskSet().GetID("NAND");
+//   }
+
+//   //update the world 4 times (should have changed at least once by now)
+//   for (int i = 1; i <= 4; i++) {
+//         world.Update();
+//         if(task_env.GetHostTaskReq(nand_task_id).task_value == -5){
+//           Env_change = true;
+//         }
+//   }
+  
+//     THEN("Task reward values should have swapped at least once"){
+//        REQUIRE(Env_change);
+//     }
+
+//   }
+
+// }
+

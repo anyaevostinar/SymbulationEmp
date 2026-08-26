@@ -29,6 +29,7 @@ TEST_CASE("Host Task Credit", "[sgp]") {
   test_utils::SetWellMixed(config, 1, 1);
   config.SYM_LIMIT(2);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
   world_t world(random, &config);
   world.Setup();

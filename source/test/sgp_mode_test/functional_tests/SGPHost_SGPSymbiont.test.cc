@@ -30,6 +30,7 @@ TEST_CASE("Host Process allows symbionts to process", "[sgp][sgp-functional]") {
     sgpmode::SymConfigSGP config;
     config.CYCLES_PER_UPDATE(8);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_IO_BANK_SIZE(10);
     test_utils::SetWellMixed(config, 1, 1);
     world_t world(random, &config);
