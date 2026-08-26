@@ -74,7 +74,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(EVENTS_CFG_PATH, std::string, "events.json", "JSON file that provides event configuration"),
 
   GROUP(INSTRUCTIONS, "Instruction settings"),
-  VALUE(SENSE_TASK_INSTRUCTION, bool, false, "Should sense task instruction be included in the instruction set?"),
+  VALUE(INCLUDE_INSTRUCTION_SenseTask, bool, false, "Should sense task instruction be included in the instruction set?"),
 
   GROUP(DATA, "Data settings"),
   VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")

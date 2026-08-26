@@ -84,10 +84,6 @@ protected:
     info.fun_calc_task_val = this_t::predefined_reward_functions.at(reward_mode);
   }
 
-  // BuildTaskRewardFun_Add() {
-
-  // }
-
   size_t GetHostTaskReqID(size_t task_id) const {
     emp_assert(IsHostTask(task_id));
     return host_tasks.at(task_id);
