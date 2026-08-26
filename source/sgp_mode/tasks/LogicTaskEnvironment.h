@@ -19,15 +19,13 @@
 #include <unordered_map>
 #include <map>
 
-/*
-  Implements logic task environment.
-    - Responsible for configuring LogicTaskSet, etc.
-    - Responsible for managing any task dependencies, etc.
-*/
-
 namespace sgpmode::tasks {
-
 // TODO - add functions to attach to config snapshot
+/**
+  *Implements logic task environment.
+  *   - Responsible for configuring LogicTaskSet, etc.
+  *   - Responsible for managing any task dependencies, etc.
+  */
 class LogicTaskEnvironment {
 public:
   struct TaskReqInfo;
@@ -62,6 +60,21 @@ protected:
 
   emp::vector<TaskReqInfo> host_task_reqs;
   emp::vector<TaskReqInfo> sym_task_reqs;
+
+  // TODO - track task performance?
+
+  // TODO - move this into util file in json directory
+  
+  template<typename RET_TYPE>
+  RET_TYPE GetVal(
+    json_t& json,
+    const std::string& field,
+    RET_TYPE default_val
+  ) {
+    return (json.contains(field)) ?
+      static_cast<RET_TYPE>(json[field]) :
+      default_val;
+  }
 
   void SetTaskReqInfo(TaskReqInfo& info, json_t& task_cfg_json) {
     info.task_value = sym_json::GetVal<double>(task_cfg_json, "value", 1);
@@ -104,7 +117,6 @@ protected:
   void LoadTasks(const std::string& env_filepath);
 
 public:
-
   LogicTaskEnvironment(
     emp::Random& random
   ) :
@@ -164,13 +176,8 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   //     Then, tasks can be associated with a particular resource pool.
 
   // === Parse environment file ===
-  // Check if given environment file exists. Exit if not.
-  const bool env_file_exists = std::filesystem::exists(env_filepath);
-  if (!env_file_exists) {
-    std::cout << "Environment file does not exist: " << env_filepath << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-  // If environment file exists, read it.
+  emp_assert(std::filesystem::exists(env_filepath));
+
   std::ifstream env_ifstream(env_filepath);
   nlohmann::json env_json;
   env_ifstream >> env_json;

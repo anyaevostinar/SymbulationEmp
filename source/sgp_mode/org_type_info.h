@@ -45,37 +45,93 @@ std::unordered_map<std::string, NutrientSymbiontType> sgp_nutrient_sym_type_map 
   {"interaction-value", NutrientSymbiontType::INTERACTION_VALUE_BASED}
 };
 
+/**
+   * Input: A String.
+   *
+   * Output: A Boolean of whether the string provided is a type of organism.
+   *
+   * Purpose: Checking if the string is a correct organism type before attempting to access it
+   */
 bool IsValidOrganismType(const std::string& type_str) {
   return emp::Has(sgp_org_type_map, type_str);
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: The SGPOrganismType associated with that string
+   *
+   * Purpose: Access the organism type object from its name
+   */
 SGPOrganismType GetOrganismType(const std::string& type_str) {
   emp_assert(IsValidOrganismType(type_str));
   return sgp_org_type_map[type_str];
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: A Boolean of whether the string provided is a type of stress symbiont.
+   *
+   * Purpose: Checking if the string is a correct stress symbiont type before attempting to access it
+   */
 bool IsValidStressSymType(const std::string& type_str) {
   return emp::Has(sgp_stress_sym_type_map, type_str);
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: The StressSymbiontType associated with that string
+   *
+   * Purpose: Access the stress symbiont type object from its name
+   */
 StressSymbiontType GetStressSymType(const std::string& type_str) {
   emp_assert(IsValidStressSymType(type_str));
   return sgp_stress_sym_type_map[type_str];
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: A Boolean of whether the string provided is a type of health symbiont.
+   *
+   * Purpose: Checking if the string is a correct health symbiont type before attempting to access it
+   */
 bool IsValidHealthSymType(const std::string& type_str) {
   return emp::Has(sgp_health_sym_type_map, type_str);
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: The HealthSymbiontType associated with that string
+   *
+   * Purpose: Access the health symbiont type object from its name
+   */
 HealthSymbiontType GetHealthSymType(const std::string& type_str) {
   emp_assert(IsValidHealthSymType(type_str));
   return sgp_health_sym_type_map[type_str];
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: A Boolean of whether the string provided is a type of nutrient symbiont.
+   *
+   * Purpose: Checking if the string is a correct nutrient symbiont type before attempting to access it
+   */
 bool IsValidNutrientSymType(const std::string& type_str) {
   return emp::Has(sgp_nutrient_sym_type_map, type_str);
 }
 
+/**
+   * Input: A String.
+   *
+   * Output: The NutrientSymbiontType associated with that string
+   *
+   * Purpose: Access the nutrient symbiont type object from its name
+   */
 NutrientSymbiontType GetNutrientSymType(const std::string& type_str) {
   emp_assert(IsValidNutrientSymType(type_str));
   return sgp_nutrient_sym_type_map[type_str];

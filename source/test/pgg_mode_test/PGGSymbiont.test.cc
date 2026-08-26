@@ -120,9 +120,9 @@ TEST_CASE("PGGProcess", "[pgg]") {
     symbiont->Process(location);
 
 
-    THEN("Points changes and is set to 0") {
-      int points_post_reproduction = 0;
-      REQUIRE(symbiont->GetPoints() == points_post_reproduction);
+    THEN("Points change and are subtracted") {
+        int points_post_reproduction = 60;
+        REQUIRE(symbiont->GetPoints() == points_post_reproduction);
     }
     symbiont.Delete();
   }

@@ -14,6 +14,10 @@
 #include <set>
 
 namespace sgpmode {
+/**
+ * @file GenomeLibrary.h
+ * The GenomeLibrary is used to store all possible instructions
+ */
 
 // NOTE - Discuss what instructions that we'd like to include
 using Library = sgpl::OpLibrary<
