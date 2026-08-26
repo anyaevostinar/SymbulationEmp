@@ -507,7 +507,8 @@ void SGPWorld::SetupTaskEnvironment() {
 
 void SGPWorld::SetupEvents() {
   // If event file doesn't exist, check if user is using default event setting.
-  // If so, create an empty events file that can be used, and let the user know.
+  // If so, create an empty events file that can be used, and let the user know, then proceed to use an empty 
+  // events manager without needing the file.
   const bool event_file_exists = std::filesystem::exists(sgp_config.EVENTS_CFG_PATH());
   if (!event_file_exists) {
     std::cout << "Event file does not exist: " << sgp_config.EVENTS_CFG_PATH() << std::endl;
@@ -519,11 +520,14 @@ void SGPWorld::SetupEvents() {
       // Create an empty events file for them, and let them know.
       GenerateEmptyEventsJSON(default_events_file_name);
       std::cout << "Generating default events file: " << default_events_file_name << std::endl;
+      std::cout << "Proceeding with no events" << std::endl;
+    } else {
+      emp_assert(false, "Non-default event file does not exist.");
+      std::exit(EXIT_FAILURE);
     }
-    emp_assert(false, "Event file does not exist.");
-    std::exit(EXIT_FAILURE);
+  } else {
+    event_manager.LoadEventsFromJSON(sgp_config.EVENTS_CFG_PATH(), *this);
   }
-  event_manager.LoadEventsFromJSON(sgp_config.EVENTS_CFG_PATH(), *this);
 }
 
 void SGPWorld::SetupMutator() {
