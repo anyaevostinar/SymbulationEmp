@@ -171,6 +171,66 @@ TEST_CASE("TaskValueEvent Multiple Reoccuring Events", "[sgp][events]") {
   }
 }
 
+TEST_CASE("TaskValueEvent Infinite Events", "[sgp][events][broken]") {
+  GIVEN("reoccur-events.json") {
+    emp::Random random(11);
+    sgpmode::SymConfigSGP config;
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/task-value-events-cfg/infinite-events.json");
+    config.UPDATES(100);
+    test_utils::SetWellMixed(config, 10, 0);
+    config.TASK_IO_BANK_SIZE(10);
+
+    WHEN("Infinite add and mul task-value events are loaded") {
+      world_t world(random, &config);
+      world.Setup();
+
+      auto& event_manager = world.GetEventManager();
+      REQUIRE(event_manager.GetOneTimeEvents().size() == 0);
+      REQUIRE(event_manager.GetRecurringEvents().size() == 2);
+      THEN("End update is changed from -1 to 100") {
+        auto& recurring_events = event_manager.GetRecurringEvents();
+        REQUIRE(recurring_events[0]->GetEndUpdate() == 100);
+        REQUIRE(recurring_events[1]->GetEndUpdate() == 100);
+      }
+
+
+      THEN("Events are processed") {
+        // get NAND Task id
+        const size_t nand_task_id = world.GetTaskEnv().GetTaskSet().GetID("NAND");
+
+        auto& recurring_events = event_manager.GetRecurringEvents();
+        REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value == 5);
+        REQUIRE(event_manager.GetOneTimeEvents().size() == 0);
+        REQUIRE(event_manager.GetRecurringEvents().size() == 2);
+
+        // +5 event triggers on updates 1, 3, 5
+        // x2 event triggers on updates 2, 4
+
+        world.Update(); // Trigger any update-0 events (none)
+
+        world.Update(); // Trigger any update-1 events (+5)
+
+        world.Update(); // Trigger any update-2 events (x2)
+
+        world.Update(); // Trigger any update-3 events (+5)
+
+        world.Update(); // Trigger any update-4 events (x2)
+        REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value == 50);
+        REQUIRE(recurring_events.size() == 2);
+
+        world.Update(); // Trigger any update-5 events (+5)
+        REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value == 55);
+        REQUIRE(recurring_events.size() == 2);
+
+        world.Update(); // Trigger any update-6 events (x2)
+        REQUIRE(world.GetTaskEnv().GetHostTaskReq(nand_task_id).task_value == 110);
+        REQUIRE(recurring_events.size() == 2);
+      }
+    }
+  }
+}
+
 
 TEST_CASE("TaskValueEvent Reoccuring Multiply Event", "[sgp][events]") {
   GIVEN("multiply-reoccur-events.json") {

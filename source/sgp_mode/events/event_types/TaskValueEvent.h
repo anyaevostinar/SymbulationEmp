@@ -127,7 +127,7 @@ public:
     event->value = sym_json::GetVal<double>(event_json, "value");
 
     // --- Set the timing ---
-    SetEventTimingFromJSON(event_json, event);
+    SetEventTimingFromJSON(event_json, event, world);
 
     // --- Task group ---
     // Is there a group specification? If not, assume shared.

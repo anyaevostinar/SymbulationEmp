@@ -33,4 +33,4 @@ The `TaskValueEvent` type has many customization options. Here is an annotated v
 }
 ```
 
-It is currently not possible to have a "never stopping" recurring event, but it's a near-term addition. For now, you need to make sure to set the stop as the end of the experiment if that is your wish.
+You can create an infinitely recurring events by using -1 (or anything else less than 0) as the stop value, which the system will replace with the value specified in the configuration file for UPDATES.
