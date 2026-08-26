@@ -35,7 +35,6 @@ TEST_CASE("CreateDataFiles creates data files", "[sgp][sgp-functional]") {
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPData_test_output");
   config.FILE_PATH("_test");
   emp::Random random(config.SEED());

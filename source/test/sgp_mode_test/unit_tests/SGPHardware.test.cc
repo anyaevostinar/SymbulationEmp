@@ -26,7 +26,6 @@ TEST_CASE("Test Printing Simple Instructions", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("hardware_test_output");
   config.INIT_POP_SIZE(1);
   config.START_MOI(0);
@@ -112,7 +111,6 @@ TEST_CASE("Test Printing Complex Instructions", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("hardware_test_output");
   config.INIT_POP_SIZE(1);
   config.START_MOI(0);

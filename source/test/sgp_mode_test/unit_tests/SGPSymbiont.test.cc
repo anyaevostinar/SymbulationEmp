@@ -26,7 +26,6 @@ TEST_CASE("Symbiont == operator", "[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     test_utils::SetWellMixed(config, 4, 0);
     config.TASK_IO_BANK_SIZE(10);
     world_t world(random, &config);
@@ -63,7 +62,6 @@ TEST_CASE("Symbiont > & < operator","[sgp][sgp-unit]") {
     emp::Random random(31);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     test_utils::SetWellMixed(config, 4, 0);
     config.TASK_IO_BANK_SIZE(10);
     world_t world(random, &config);
@@ -89,7 +87,6 @@ TEST_CASE("Symbiont Process", "[sgp][sgp-unit]") {
     emp::Random random(34);
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
-    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.CYCLES_PER_UPDATE(3);
     test_utils::SetWellMixed(config, 4, 0);
     config.TASK_IO_BANK_SIZE(10);
