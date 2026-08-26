@@ -47,12 +47,12 @@
 
 #include "../test/sgp_mode_test/functional_tests/TaskValueEvent.test.cc"
 #include "../test/sgp_mode_test/functional_tests/HealthMode.test.cc"
-#include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc" //includes modified version of a Tasks.test.cc test
+#include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPWorldData_SGPWorld.test.cc"
 #include "../test/sgp_mode_test/functional_tests/ProgramBuilder.test.cc"
 #include "../test/sgp_mode_test/functional_tests/StressMode.test.cc"
 
-// #include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
+#include "../test/sgp_mode_test/functional_tests/SenseTask_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/NutrientMode.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_SGPSymbiont.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPSymbiont_Reproduce.test.cc"
