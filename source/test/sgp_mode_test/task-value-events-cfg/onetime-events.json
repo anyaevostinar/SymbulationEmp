@@ -1,0 +1,28 @@
+{
+  "events": [
+    {
+      "event_type": "task_value",
+      "task_name": "NAND",
+      "action": "add",
+      "value": 10,
+      "timing": "1",
+      "group": "shared"
+    },
+    {
+      "event_type": "task_value",
+      "task_name": "NAND",
+      "action": "mult",
+      "value": 2,
+      "timing": "2",
+      "group": "shared"
+    },
+    {
+      "event_type": "task_value",
+      "task_name": "NAND",
+      "action": "change",
+      "value": 100,
+      "timing": "3",
+      "group": "shared"
+    }
+  ]
+}

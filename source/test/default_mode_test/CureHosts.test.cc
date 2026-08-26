@@ -30,7 +30,7 @@ TEST_CASE("Cure Hosts tests", "[default]") {
       sym_vect.emplace_back(sym);
     }
 
-    WHEN("Hosts are not cured") {
+    WHEN("Hosts are not cured"){
       // Hosts and Sym world pop == pop_size
       REQUIRE(world.GetPop().size() == (size_t)pop_size);
       REQUIRE(world.GetSymPop().size() == (size_t)pop_size);
@@ -97,12 +97,12 @@ TEST_CASE("Cure Hosts tests", "[default]") {
       config.CURE_UPDATES(num_updates);
       config.UPDATES(total_updates);
 
-      for (int j = 0; j < total_updates; j++) {
+      for(int j = 0; j < total_updates; j++) {
         if (config.CURE() && j == num_updates) {
           world.CureHosts();
         }
         if (j > num_updates) { // syms dead, hosts don't have pointers to syms
-          for (int i = 0; i < pop_size; i++) {
+          for (int i = 0; i < pop_size; i++){
             REQUIRE(host_vect[i]->HasSym() == false);
           }
         }

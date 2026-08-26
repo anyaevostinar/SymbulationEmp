@@ -55,7 +55,7 @@ namespace lib_info {
     {"Swap", 2},      {"Add", 3},       {"Subtract", 3},   {"Nand", 3},
     {"Reproduce", 0}, {"PrivateIO", 1}, {"SharedIO", 1},   {"Donate", 0},
     {"Reuptake", 1},  {"Steal", 0},     {"Infect", 0}, {"DynamicInst", 3},
-    {"SenseTask", 2}, 
+    {"SenseTask", 2},
     {"IO", 1}
   };
 }
