@@ -176,6 +176,8 @@ protected:
     do {
       // Reset task io
       task_io.Clear();
+      // Reset collision tracker 
+      collision_or_zero_bail = 0;
       // Prepare correct outputs to hold IO combinations for each task.
       task_io.correct_outputs.resize(task_set.GetSize(), {});
       // Build input buffer with random values.
@@ -206,7 +208,7 @@ protected:
       }
       ++build_tries;
     } while (collision_or_zero_bail && (build_tries < this_t::MAX_ENV_BUILD_TRIES));
-    emp_assert_warning(build_tries <= this_t::MAX_ENV_BUILD_TRIES, "Failed to build environment with unique, non-zero outputs for each task.");
+    emp_assert_warning(build_tries < this_t::MAX_ENV_BUILD_TRIES, "Failed to build environment with unique, non-zero outputs for each task.");
     return task_io;
   }
 
