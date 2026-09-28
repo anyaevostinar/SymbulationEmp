@@ -33,7 +33,7 @@ TEST_CASE("Stress event", "[sgp]") {
   test_utils::SetNoMutation(config);
   // Stress settings
   config.ENABLE_STRESS(true);
-  config.STRESS_FREQUENCY(10);
+  config.STRESS_INTERVAL(10);
   config.PARASITE_DEATH_CHANCE(0.75);
   config.MUTUALIST_DEATH_CHANCE(0.25);
   config.BASE_DEATH_CHANCE(0.5);
@@ -46,8 +46,8 @@ TEST_CASE("Stress event", "[sgp]") {
     config.START_MOI(1);
     world_t world(random, &config);
     world.Setup();
-    // Run world up until extinction frequency
-    for (size_t i = 0; i < config.STRESS_FREQUENCY(); ++i) {
+    // Run world up until stress event
+    for (size_t i = 0; i < config.STRESS_INTERVAL(); ++i) {
       world.Update();
     }
     // Everyone should be alive, world should be same size as when started
@@ -65,8 +65,8 @@ TEST_CASE("Stress event", "[sgp]") {
     config.START_MOI(1);
     world_t world(random, &config);
     world.Setup();
-    // Run world up until extinction frequency
-    for (size_t i = 0; i < config.STRESS_FREQUENCY(); ++i) {
+    // Run world up until stress event
+    for (size_t i = 0; i < config.STRESS_INTERVAL(); ++i) {
       world.Update();
     }
     // Everyone should be alive, world should be same size as when started
@@ -84,8 +84,8 @@ TEST_CASE("Stress event", "[sgp]") {
     config.START_MOI(1);
     world_t world(random, &config);
     world.Setup();
-    // Run world up until extinction frequency
-    for (size_t i = 0; i < config.STRESS_FREQUENCY(); ++i) {
+    // Run world up until stress event
+    for (size_t i = 0; i < config.STRESS_INTERVAL(); ++i) {
       world.Update();
     }
     // Everyone should be alive, world should be same size as when started
@@ -103,8 +103,8 @@ TEST_CASE("Stress event", "[sgp]") {
     config.START_MOI(0);  // No symbionts on initialization
     world_t world(random, &config);
     world.Setup();
-    // Run world up until extinction frequency
-    for (size_t i = 0; i < config.STRESS_FREQUENCY(); ++i) {
+    // Run world up until stress event
+    for (size_t i = 0; i < config.STRESS_INTERVAL(); ++i) {
       world.Update();
     }
     // Everyone should be alive, world should be same size as when started

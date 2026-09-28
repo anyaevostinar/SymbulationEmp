@@ -246,7 +246,7 @@ namespace sgpmode {
         const size_t u = GetUpdate();
         // Note: not applying stress on the final update; when we record data for the final update, don't want stress
         //       skewing the numbers.
-        stress_extinction_update = (u > 0) && ((u % sgp_config.STRESS_FREQUENCY()) == 0) && !(u >= (sgp_config.UPDATES() - 1));
+        stress_extinction_update = (u > 0) && ((u % sgp_config.STRESS_INTERVAL()) == 0) && !(u >= (sgp_config.UPDATES() - 1));
       }
     );
 
