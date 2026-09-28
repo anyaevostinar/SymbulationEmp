@@ -711,9 +711,12 @@ void SGPWorld::OutputDominantDataFile() {
       std::ofstream genome_file;
       std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+
         std::to_string(idx) + sgp_config.FILE_NAME()+".data"); // Any ending that actually does make sense for these files?
+      std::filesystem::path json_genome_path = output_dir / dominant_dir / ("Genome_Host"+
+        std::to_string(idx) + sgp_config.FILE_NAME()+".json");
 
       genome_file.open(genome_path);
       sample->GetHardware().PrintCode(genome_file);
+      GetProgramBuilder().SaveProgramFile(sample->GetHardware().GetProgram(), json_genome_path);
 
       size_t sym_idx = 0;
       for (auto &sym : sample->GetSymbionts()) {
@@ -721,8 +724,12 @@ void SGPWorld::OutputDominantDataFile() {
         std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+
           std::to_string(sym_idx) + "_From_Host"+
           std::to_string(idx) + sgp_config.FILE_NAME()+".data");
+        std::filesystem::path json_genome_path = output_dir / dominant_dir / ("Genome_Sym"+
+          std::to_string(sym_idx) + "_From_Host"+
+          std::to_string(idx) + sgp_config.FILE_NAME()+".json");
         genome_file.open(genome_path);
         sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);
+        GetProgramBuilder().SaveProgramFile(sym.DynamicCast<sgp_sym_t>()->GetHardware().GetProgram(), json_genome_path);
         sym_idx++;
       }
 
