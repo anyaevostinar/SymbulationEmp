@@ -2,6 +2,7 @@
 #define SYM_WORLD_H
 
 #include "SpatialStructure.h"
+#include "SpatialDataManager.h"
 
 #include "../../Empirical/include/emp/Evolve/World.hpp"
 #include "../../Empirical/include/emp/data/DataFile.hpp"
@@ -144,6 +145,13 @@ protected:
    * Purpose: Stores which spatial structure mode the world is configured as.
    */
   SPATIAL_STRUCT_MODE spatial_struct_mode;
+
+  /**
+   * Purpose: Manages spatial data file, which outputs by-location data;
+   *          that is, each row in the file provides info about one location
+   *          for a given update.
+   */
+  SpatialDataManager<SymWorld> spatial_data_manager;
 
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_hostintval; // New() reallocates this pointer
   emp::Ptr<emp::DataMonitor<double, emp::data::Histogram>> data_node_symintval;
@@ -1001,6 +1009,7 @@ public:
   emp::DataFile& SetupTagDistFile(const std::string& filename);
   emp::DataFile& SetupSymDiversityFile(const std::string& filename);
   emp::DataFile& SetupReproCountFile(const std::string& filename);
+  void SetupSpatialDataFile(const std::string& filename);
   virtual void SetupTransmissionFileColumns(emp::DataFile& file);
   virtual void SetupHostFileColumns(emp::DataFile& file);
   emp::DataMonitor<size_t>& GetSymReproCountDataNode();
@@ -1104,7 +1113,7 @@ public:
     if (my_config->FREE_LIVING_SYMS() == 0) {
       const int new_host_pos = GetNeighborHost(i);
       if (new_host_pos > -1) { //-1 means no living neighbors
-        
+
         // infections can fail from size limits or tag mismatch
         // (or, theoretically, no neighbouring hosts)
         const bool size_failed = pop[new_host_pos]->GetSymbionts().size() >= (long unsigned)my_config->SYM_LIMIT();
