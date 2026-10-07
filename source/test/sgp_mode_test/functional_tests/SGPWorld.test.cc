@@ -99,7 +99,7 @@ TEST_CASE("SGP GetDominantInfo", "[sgp][sgp-functional]"){
     sgpmode::SymConfigSGP config;
     config.FREE_LIVING_SYMS(0);
     config.INIT_POP_SIZE(0);
-    test_utils::SetWellMixed(config, 4, 0);
+    test_utils::SetWellMixed(config, 6, 0);
     config.TASK_IO_BANK_SIZE(10);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
     config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
@@ -109,16 +109,16 @@ TEST_CASE("SGP GetDominantInfo", "[sgp][sgp-functional]"){
 
     auto& prog_builder = world.GetProgramBuilder();
 
-    int nand_host_count = 3;
-    int not_host_count = 2;
-    int not_nand_host_count = 1;
-    for(int i = 0; i < not_host_count; i ++){
+    size_t nand_host_count = 3;
+    size_t not_host_count = 2;
+    size_t not_nand_host_count = 1;
+    for(size_t i = 0; i < not_host_count; i ++){
       world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotProgram(100)), i);
     }
-    for(int i = not_host_count; i < not_host_count + nand_host_count; i ++){
+    for(size_t i = not_host_count; i < not_host_count + nand_host_count; i ++){
       world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNandProgram(100)), i);
     }
-    for(int i = not_host_count + nand_host_count; i < not_host_count + nand_host_count + not_nand_host_count; i ++){
+    for(size_t i = not_host_count + nand_host_count; i < not_host_count + nand_host_count + not_nand_host_count; i ++){
       world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotNandProgram(100)), i);
     }
 

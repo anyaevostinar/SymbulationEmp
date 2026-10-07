@@ -264,7 +264,6 @@ TEST_CASE("Check if tasks values are switching correctly with a enviornment chan
   emp::Random random(config.SEED());
   world_t world(random, &config);
   world.Setup();
-  auto& builder = world.GetProgramBuilder();
 
   sgpmode::SGPWorld::task_env_t& task_env = world.GetTaskEnv();
   //get the ids for all of the tasks
