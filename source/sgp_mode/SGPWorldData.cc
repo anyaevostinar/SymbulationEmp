@@ -887,21 +887,28 @@ void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
     // -- Free-living sym task profile --
     spatial_data_manager.AddFun<std::string>(
       [this](size_t loc_id) -> std::string {
-        return "test";
+        if (IsSymPopOccupied(loc_id)) {
+          auto org_ptr = GetSymAt(loc_id);
+          sgp_sym_t& sym = static_cast<sgp_sym_t&>(*org_ptr);
+          return emp::to_string(GetSymTaskProfile(sym));
+        }
+        return "NONE";
       },
       "freeliving_sym_task_profiles"
     );
     // -- Free-living sym generation --
-    spatial_data_manager.AddFun<size_t>(
-      [this](size_t loc_id) -> size_t {
-        return 0;
+    spatial_data_manager.AddFun<int>(
+      [this](size_t loc_id) -> int {
+        if (IsSymPopOccupied(loc_id)) {
+          auto org_ptr = GetSymAt(loc_id);
+          sgp_sym_t& sym = static_cast<sgp_sym_t&>(*org_ptr);
+          return (int)sym.GetLineageLength();
+        }
+        return -1;
       },
       "freeliving_sym_generation"
     );
   }
-
-  // TODO - attach function to before update signal?
-  //        probably to aggregate data ahead of time?
 
   // Connect manager's update function to world's update signal
   // NOTE: Timing of this file update will differ slightly from world-managed
