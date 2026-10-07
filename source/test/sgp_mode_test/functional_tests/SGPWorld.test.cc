@@ -89,6 +89,64 @@ TEST_CASE("A world containing a single uninfected host is updated correctly", "[
   }
 }
 
+TEST_CASE("SGP GetDominantInfo", "[sgp][sgp-functional]"){
+  GIVEN("An SGPWorld with 6 hosts and 3 different genomes"){
+    using world_t = sgpmode::SGPWorld;
+    using cpu_state_t = sgpmode::CPUState<world_t>;
+    using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+
+    emp::Random random(61);
+    sgpmode::SymConfigSGP config;
+    config.FREE_LIVING_SYMS(0);
+    config.INIT_POP_SIZE(0);
+    test_utils::SetWellMixed(config, 4, 0);
+    config.TASK_IO_BANK_SIZE(10);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+
+    sgpmode::SGPWorld world(random, &config);
+    world.Setup();
+
+    auto& prog_builder = world.GetProgramBuilder();
+
+    int nand_host_count = 3;
+    int not_host_count = 2;
+    int not_nand_host_count = 1;
+    for(int i = 0; i < not_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotProgram(100)), i);
+    }
+    for(int i = not_host_count; i < not_host_count + nand_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNandProgram(100)), i);
+    }
+    for(int i = not_host_count + nand_host_count; i < not_host_count + nand_host_count + not_nand_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotNandProgram(100)), i);
+    }
+
+    WHEN("GetDominantInfo() is called and DOMINANT_COUNT is 2"){
+      config.DOMINANT_COUNT(2);
+
+      emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms = world.GetDominantInfo();  
+
+      program_t& not_program = world.GetOrgPtr(0).DynamicCast<sgp_host_t>()->GetHardware().GetProgram();
+      program_t& nand_program = world.GetOrgPtr(not_host_count).DynamicCast<sgp_host_t>()->GetHardware().GetProgram();
+      //program_t nand_program = builder.LoadProgramFile(path);
+
+      THEN("Hosts with the two most common genomes are written"){
+        // only the config-specified number of dominant organisms should be selected
+        REQUIRE(dominant_organisms.size() == 2);
+
+        // the most dominant program should be NAND
+        REQUIRE(dominant_organisms[0].second == nand_host_count);
+        REQUIRE(dominant_organisms[0].first.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() == nand_program);
+
+        // the second most dominant program should be NOT
+        REQUIRE(dominant_organisms[1].second == not_host_count);
+        REQUIRE(dominant_organisms[1].first.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() == not_program);
+      }
+    }
+  }
+}
+
 /* TODO need update CollectCurrentUpdateData to support free living symbionts before uncommenting this test
 
 TEST_CASE("A world containing a single free living symbiont is updated correctly", "[sgp][sgp-functional]") {
