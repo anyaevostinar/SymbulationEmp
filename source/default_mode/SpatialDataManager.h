@@ -9,26 +9,13 @@
 #include <functional>
 #include <string>
 
-// TODO:
-// - [ ] Handle ecto syms (detect if running with ectosymbionts, add additional column if so)
-
-// Columns:
-// - Location
-// - Host present
-// - Endosymbionts present
-// - Ectosymbionts present
-// - host int val
-// - endo int val(s)
-// - ecto int val(s)
-
 /**
  * Purpose: Manage data to be output to the spatial data file.
- * TODO: Move to separate file?
  *
- * NOTE: managed outside of Empirical's list of data files because
- *       we need output multiple lines per output update.
- *       we need to manage additional internal context for which location ID
- *        we're writing output for
+ * Note: We manage this data file outside of Empirical's list of data files because
+ *       we need to output multiple lines per update, one line per location.
+ *       We also need to manage additional internal context for which location ID
+ *       we're writing output for each data file update call.
  */
 template<typename WORLD_T>
 class SpatialDataManager {
@@ -36,30 +23,52 @@ public:
   using world_t = WORLD_T;
 
 protected:
+  /**
+   * Purpose: track whether SpatialDataManager has been setup.
+   */
   bool setup = false;
 
-  emp::Ptr<world_t> world_ptr = nullptr; // needed to access spatial structure
+  /**
+   * Purpose: Pointer to world that owns this object.
+   */
+  emp::Ptr<world_t> world_ptr = nullptr;
 
+  /**
+   * Purpose: Tracks the current location id for a given update call on the
+   *          data file.
+   */
   size_t cur_location_id = 0;
 
-  // struct {
-
-  // } cur_location_data
-
+  /**
+   * Purpose: Pointer to data file used to output spatial data.
+   */
   emp::Ptr<emp::DataFile> spatial_data_file;
 
-  // std::filesystem::path fpath = output_dir / filename;
-  // emp::DataFile snapshot_file(fpath.string());
-
+  /**
+   * Purpose: Signal triggered when the manager's update function is called before
+   *          any lines are written to the data file for that update.
+   */
   emp::Signal<void()> before_spatial_data_output_sig;
 
-  void SetupSpatialDataFile();
+  /**
+   * Purpose: Internal Setup helper function. Sets up default columns.
+   *
+   * Input: Boolean indicating whether or not to include interaction value columns
+   *        in output file.
+   *
+   * Output: None
+   */
+  void SetupSpatialDataFile(bool include_int_val_columns=true);
 
 public:
   SpatialDataManager() : setup(false) { }
 
-  SpatialDataManager(emp::Ptr<world_t> world, const std::string& filepath) {
-    Setup(world, filepath);
+  SpatialDataManager(
+    emp::Ptr<world_t> world,
+    const std::string& filepath,
+    bool include_int_val_columns=true
+  ) {
+    Setup(world, filepath, include_int_val_columns);
   }
 
   ~SpatialDataManager() {
@@ -68,7 +77,11 @@ public:
     }
   }
 
-  void Setup(emp::Ptr<world_t> world, const std::string& filepath) {
+  void Setup(
+    emp::Ptr<world_t> world,
+    const std::string& filepath,
+    bool include_int_val_columns=true
+  ) {
     if (setup) {
       spatial_data_file.Delete();
     }
@@ -78,11 +91,9 @@ public:
     setup = true;
   }
 
-  // TODO: can't use pre-function because this will trigger before *every* location
-  //       update!
-  void OnBeforeSpatialDataOutput(const std::function<void()>& fun) {
+  emp::SignalKey OnBeforeSpatialDataOutput(const std::function<void()>& fun) {
     emp_assert(setup);
-    spatial_data_file->AddPreFun(fun);
+    return before_spatial_data_output_sig.AddAction(fun);
   }
 
   // AddFunction
@@ -91,6 +102,7 @@ public:
 
   void Update(size_t update) {
     emp_assert(setup);
+    before_spatial_data_output_sig.Trigger();
     // Update file for each location
     for (cur_location_id = 0; cur_location_id < world_ptr->GetSize(); ++cur_location_id) {
       spatial_data_file->Update(update);
@@ -106,7 +118,9 @@ public:
 }; // -- End SpatialDataManager class definition --
 
 template<typename WORLD_T>
-void SpatialDataManager<WORLD_T>::SetupSpatialDataFile() {
+void SpatialDataManager<WORLD_T>::SetupSpatialDataFile(
+  bool include_int_val_columns
+) {
   const auto& world_config = *(world_ptr->GetConfig());
   // -- Update --
   spatial_data_file->AddFun<size_t>(
@@ -148,37 +162,39 @@ void SpatialDataManager<WORLD_T>::SetupSpatialDataFile() {
     "endosymbionts_present"
   );
 
-  // -- Host interaction value at current location --
-  spatial_data_file->AddFun<std::string>(
-    [this]() -> std::string {
-      const bool occupied = world_ptr->IsOccupied(cur_location_id);
-      if (occupied) {
-        const auto& org = world_ptr->GetOrg(cur_location_id);
-        return emp::to_string(org.GetIntVal());
-      } else {
-        return "NONE";
-      }
-    },
-    "host_interaction_value"
-  );
-
-  // -- Endosymbiont interaction value(s) at current location --
-  spatial_data_file->AddFun<std::string>(
-    [this]() -> std::string {
-      const bool occupied = world_ptr->IsOccupied(cur_location_id);
-      emp::vector<float> int_values;
-      if (occupied) {
-        auto& org = world_ptr->GetOrg(cur_location_id);
-        emp::vector<emp::Ptr<Organism>>& syms = org.GetSymbionts();
-        int_values.resize(syms.size(), 0.0);
-        for (size_t i = 0; i < syms.size(); ++i) {
-          int_values[i] = syms[i]->GetIntVal();
+  if (include_int_val_columns) {
+    // -- Host interaction value at current location --
+    spatial_data_file->AddFun<std::string>(
+      [this]() -> std::string {
+        const bool occupied = world_ptr->IsOccupied(cur_location_id);
+        if (occupied) {
+          const auto& org = world_ptr->GetOrg(cur_location_id);
+          return emp::to_string(org.GetIntVal());
+        } else {
+          return "NONE";
         }
-      }
-      return emp::to_string(int_values);
-    },
-    "endosym_interaction_values"
-  );
+      },
+      "host_interaction_value"
+    );
+
+    // -- Endosymbiont interaction value(s) at current location --
+    spatial_data_file->AddFun<std::string>(
+      [this]() -> std::string {
+        const bool occupied = world_ptr->IsOccupied(cur_location_id);
+        emp::vector<float> int_values;
+        if (occupied) {
+          auto& org = world_ptr->GetOrg(cur_location_id);
+          emp::vector<emp::Ptr<Organism>>& syms = org.GetSymbionts();
+          int_values.resize(syms.size(), 0.0);
+          for (size_t i = 0; i < syms.size(); ++i) {
+            int_values[i] = syms[i]->GetIntVal();
+          }
+        }
+        return emp::to_string(int_values);
+      },
+      "endosym_interaction_values"
+    );
+  }
 
   // If free-living syms are enabled, add relevant columns.
   if (world_config.FREE_LIVING_SYMS()) {
@@ -189,19 +205,21 @@ void SpatialDataManager<WORLD_T>::SetupSpatialDataFile() {
       },
       "freeliving_syms_present"
     );
-    // -- Free-living symbiont interaction value at current location --
-    spatial_data_file->AddFun<std::string>(
-      [this]() -> std::string {
-        const bool occupied = world_ptr->IsSymPopOccupied(cur_location_id);
-        if (occupied) {
-          auto sym_ptr = world_ptr->GetSymAt(cur_location_id);
-          return emp::to_string(sym_ptr->GetIntVal());
-        } else {
-          return "NONE";
-        }
-      },
-      "freeliving_sym_interaction_values"
-    );
+    if (include_int_val_columns) {
+      // -- Free-living symbiont interaction value at current location --
+      spatial_data_file->AddFun<std::string>(
+        [this]() -> std::string {
+          const bool occupied = world_ptr->IsSymPopOccupied(cur_location_id);
+          if (occupied) {
+            auto sym_ptr = world_ptr->GetSymAt(cur_location_id);
+            return emp::to_string(sym_ptr->GetIntVal());
+          } else {
+            return "NONE";
+          }
+        },
+        "freeliving_sym_interaction_values"
+      );
+    }
   }
 
 }
