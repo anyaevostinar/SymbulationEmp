@@ -751,41 +751,135 @@ void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
   // -- Host task profile --
   spatial_data_manager.AddFun<std::string>(
     [this](size_t loc_id) -> std::string {
-      return "test";
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return emp::to_string(GetHostTaskProfile(host));
+      }
+      return "NONE";
     },
     "host_task_profile"
+  );
+
+  // -- Host parent tasks --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return emp::to_string(
+          host.GetHardware().GetCPUState().GetParentTasksPerformed()
+        );
+      }
+      return "NONE";
+    },
+    "host_parent_tasks"
   );
 
   // -- Endosymbiont task profile(s) --
   spatial_data_manager.AddFun<std::string>(
     [this](size_t loc_id) -> std::string {
-      return "test";
+      emp::vector<std::string> profiles;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          profiles.emplace_back(
+            emp::to_string(GetSymbiontTaskProfile(endosym))
+          );
+        }
+      }
+      return emp::to_string(profiles);
     },
     "endosym_task_profiles"
   );
 
-  // -- Host-endosymbiont task profile compatibility --
-  spatial_data_manager.AddFun<bool>(
-    [this](size_t loc_id) -> bool {
-      return false;
+  // -- Endosymbiont parent tasks --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<std::string> tasks;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          tasks.emplace_back(
+            emp::to_string(
+              endosym.GetHardware().GetCPUState().GetParentTasksPerformed()
+            )
+          );
+        }
+      }
+      return emp::to_string(tasks);
     },
-    "endosym_task_profile_compatibility"
+    "endosym_parent_tasks"
+  );
+
+  // -- Host-endosymbiont task profile compatibility --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<std::string> sym_compatibility;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        const auto& host_profile = GetHostTaskProfile(host);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          const auto& sym_profile = GetSymTaskProfile(endosym);
+          sym_compatibility.emplace_back(
+            emp::to_string(TaskProfileCompatibilityCheck(host_profile, sym_profile))
+          );
+        }
+      }
+      return emp::to_string(sym_compatibility);
+    },
+    "host_sym_task_profile_compatibility"
   );
 
   // -- Host generation --
-  spatial_data_manager.AddFun<size_t>(
-    [this](size_t loc_id) -> size_t {
-      return 0;
+  spatial_data_manager.AddFun<int>(
+    [this](size_t loc_id) -> int {
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        const sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return (int)host.GetLineageLength();
+      }
+      return -1;
     },
-    "host_generation"
+    "host_lineage_length"
   );
 
   // -- Endosymbiont generation(s) --
     spatial_data_manager.AddFun<std::string>(
     [this](size_t loc_id) -> std::string {
-      return "test";
+      emp::vector<size_t> lineage_lengths;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          lineage_lengths.emplace_back(endosym.GetLineageLength());
+        }
+      }
+      return emp::to_string(lineage_lengths);
     },
-    "endosym_generation"
+    "endosym_lineage_length"
   );
 
   // Columns enabled only when free-living syms are enabled
