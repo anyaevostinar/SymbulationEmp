@@ -687,48 +687,88 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
 }
 
 void SGPWorld::OutputDominantDataFile() {
-
+  using path_t = std::filesystem::path;
   output_dir = sgp_config.FILE_PATH();
-  std::string dominant_dir = "DominantGenomes";
+  path_t dominant_path = output_dir / "DominantGenomes";
   // If setup has not been run, create output directory.
   if (!setup) {
     std::filesystem::create_directory(output_dir);
   }
-  std::filesystem::create_directory(output_dir / dominant_dir);
+  std::filesystem::create_directory(dominant_path);
 
   // TODO: update to actually work, need to get back a version of "PrintCode"
   // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
   //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
   emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
       GetDominantInfo();
-
-
   {
     size_t idx = 0;
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<sgp_host_t>();
 
       std::ofstream genome_file;
-      std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+
-        std::to_string(idx) + sgp_config.FILE_NAME()+".data"); // Any ending that actually does make sense for these files?
+      const std::string genome_fname(
+        ("Genome_Host" + std::to_string(idx) + sgp_config.FILE_NAME() + ".data")
+      ); // Any ending that actually does make sense for these files?
+      path_t genome_path = dominant_path / genome_fname;
 
       genome_file.open(genome_path);
       sample->GetHardware().PrintCode(genome_file);
 
       size_t sym_idx = 0;
-      for (auto &sym : sample->GetSymbionts()) {
+      for (auto& sym : sample->GetSymbionts()) {
         std::ofstream genome_file;
-        std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+
-          std::to_string(sym_idx) + "_From_Host"+
-          std::to_string(idx) + sgp_config.FILE_NAME()+".data");
+        const std::string sym_genome_fname(
+          "Genome_Sym" + std::to_string(sym_idx) + "_From_Host" +
+          std::to_string(idx) + sgp_config.FILE_NAME() + ".data"
+        );
+        path_t genome_path = dominant_path / sym_genome_fname;
         genome_file.open(genome_path);
         sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);
         sym_idx++;
       }
-
       idx++;
     }
   }
+}
+
+void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
+
+  // Should we include interaction value columns?j
+  //  -> Big files, so it's worth minimizing columns that won't be used.
+  const bool stress_int_vals = GetStressSymType() == stress_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool health_int_vals = GetHealthSymType() == health_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool nutrient_int_vals = GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool include_int_val_columns = stress_int_vals || health_int_vals || nutrient_int_vals;
+  // Setup spatial data manager.
+  spatial_data_manager.Setup(this, filename, include_int_val_columns);
+
+  // TODO - add additional sgpmode-specific columns
+  // - Task profile
+  // - Host-sym matching
+  // - ??
+
+  // TODO - attach function to before update signal?
+  //        probably to aggregate data ahead of time?
+
+  // Connect manager's update function to world's update signal
+  // NOTE: Timing of this file update will differ slightly from world-managed
+  //       data files. on_update_sig triggers at beginning of World::Update.
+  //       World::Update will update other data files at end (but before update
+  //       number increases).
+  OnUpdate(
+    [this](size_t update) {
+      // Should we output spatial data this update?
+      if (update % sgp_config.SPATIAL_DATA_INTERVAL() == 0) {
+        // Update spatial data manager file
+        spatial_data_manager.Update(update);
+      }
+    }
+  );
+
+  // Print header outside of manager's setup in case we need to add more
+  //  columns after setup.
+  spatial_data_manager.PrintHeaderKeys();
 }
 
 }
