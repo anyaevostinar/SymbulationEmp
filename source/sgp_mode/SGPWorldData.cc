@@ -46,6 +46,11 @@ void SGPWorld::CreateDataFiles() {
 
   std::filesystem::path repro_rate_fpath = output_dir / ("ReproCount" + my_config->FILE_NAME() + ".csv");
   SetupReproCountFile(repro_rate_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+
+  if (sgp_config.SPATIAL_DATA_OUTPUT()) {
+    std::filesystem::path spatial_output_path = output_dir / ("Spatial" + my_config->FILE_NAME() + ".csv");
+    SetupSpatialDataFile(spatial_output_path.string());
+  }
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -743,10 +748,63 @@ void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
   // Setup spatial data manager.
   spatial_data_manager.Setup(this, filename, include_int_val_columns);
 
-  // TODO - add additional sgpmode-specific columns
-  // - Task profile
-  // - Host-sym matching
-  // - ??
+  // -- Host task profile --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      return "test";
+    },
+    "host_task_profile"
+  );
+
+  // -- Endosymbiont task profile(s) --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      return "test";
+    },
+    "endosym_task_profiles"
+  );
+
+  // -- Host-endosymbiont task profile compatibility --
+  spatial_data_manager.AddFun<bool>(
+    [this](size_t loc_id) -> bool {
+      return false;
+    },
+    "endosym_task_profile_compatibility"
+  );
+
+  // -- Host generation --
+  spatial_data_manager.AddFun<size_t>(
+    [this](size_t loc_id) -> size_t {
+      return 0;
+    },
+    "host_generation"
+  );
+
+  // -- Endosymbiont generation(s) --
+    spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      return "test";
+    },
+    "endosym_generation"
+  );
+
+  // Columns enabled only when free-living syms are enabled
+  if (sgp_config.FREE_LIVING_SYMS()) {
+    // -- Free-living sym task profile --
+    spatial_data_manager.AddFun<std::string>(
+      [this](size_t loc_id) -> std::string {
+        return "test";
+      },
+      "freeliving_sym_task_profiles"
+    );
+    // -- Free-living sym generation --
+    spatial_data_manager.AddFun<size_t>(
+      [this](size_t loc_id) -> size_t {
+        return 0;
+      },
+      "freeliving_sym_generation"
+    );
+  }
 
   // TODO - attach function to before update signal?
   //        probably to aggregate data ahead of time?

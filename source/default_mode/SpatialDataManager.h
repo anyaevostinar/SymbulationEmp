@@ -99,6 +99,20 @@ public:
   // AddFunction
   //  - Will take location id, world as input,
   //  - will wrap with lambda that captures those from this context, passes as input
+  template<typename RETURN_TYPE>
+  size_t AddFun(
+    const std::function<RETURN_TYPE(size_t)>& in_fun,
+    const std::string& key="",
+    const std::string& desc=""
+  ) {
+    emp_assert(setup);
+    // Wrap given function, passing current location id.
+    return spatial_data_file->AddFun<RETURN_TYPE>(
+      [this, in_fun]() -> RETURN_TYPE { return in_fun(cur_location_id); },
+      key,
+      desc
+    );
+  }
 
   void Update(size_t update) {
     emp_assert(setup);
