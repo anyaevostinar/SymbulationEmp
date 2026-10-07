@@ -236,7 +236,7 @@ void SGPWorld::SetupSymReproduction() {
 
   // Configure vertical transmission
   // TODO - Probably will need to change VT_TASK_MATCH to a categorical variable
-  //        to accomodate different mechanisms for determining whether vt is possible.
+  //        to accommodate different mechanisms for determining whether vt is possible.
   if (sgp_config.VT_TASK_MATCH()) {
     // If task matching required, check.
     fun_vert_trans_compatible = [this](
