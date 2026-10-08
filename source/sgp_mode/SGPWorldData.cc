@@ -930,6 +930,6 @@ void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
   spatial_data_manager.PrintHeaderKeys();
 }
 
-}
+} // -- End of sgpmode namespace --
 
 #endif
