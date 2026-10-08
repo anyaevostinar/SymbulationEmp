@@ -695,31 +695,54 @@ void SGPWorld::OutputDominantDataFile() {
   using path_t = std::filesystem::path;
   output_dir = sgp_config.FILE_PATH();
   path_t dominant_path = output_dir / "DominantGenomes";
-  // If setup has not been run, create output directory.
-  if (!setup) {
+  // If output directory does not exist, create it.
+  if (!std::filesystem::exists(output_dir)) {
     std::filesystem::create_directory(output_dir);
   }
   std::filesystem::create_directory(dominant_path);
 
+  // Setup a metadata file for dominant genotype information
+  std::filesystem::path dominant_metadata_path = dominant_path / "dom_metadata.csv";
+  emp::DataFile metadata_file(dominant_metadata_path.string());
+  // Anonymous struct to consolidate metadata to be captured by file lambdas
+  struct {
+    emp::Ptr<sgp_host_t> focal_host;
+    std::string host_dom_name;
+    size_t host_abundance;
+  } dom_metadata;
+  metadata_file.AddFun<std::string>(
+    [&dom_metadata]() -> std::string {
+      return dom_metadata.host_dom_name;
+    },
+    "genome_id"
+  );
+  metadata_file.AddFun<size_t>(
+    [&dom_metadata]() -> size_t {
+      return dom_metadata.host_abundance;
+    },
+    "abundance"
+  );
+  metadata_file.PrintHeaderKeys();
+
   // TODO: update to actually work, need to get back a version of "PrintCode"
   // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
   //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
-  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
-      GetDominantInfo();
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms = GetDominantInfo();
   {
     size_t idx = 0;
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<sgp_host_t>();
-
       std::ofstream genome_file;
+      std::string host_dom_name = "Host" + std::to_string(idx);
       const std::string genome_fname(
-        ("Genome_Host" + std::to_string(idx) + sgp_config.FILE_NAME() + ".data")
+        ("Genome_" + host_dom_name + sgp_config.FILE_NAME() + ".data")
       ); // Any ending that actually does make sense for these files?
       path_t genome_path = dominant_path / genome_fname;
-
       genome_file.open(genome_path);
+      if (!sample->GetHardware().GetCPU().HasActiveCore()) {
+        sample->GetHardware().LaunchCPU(START_TAG);
+      }
       sample->GetHardware().PrintCode(genome_file);
-
       size_t sym_idx = 0;
       for (auto& sym : sample->GetSymbionts()) {
         std::ofstream genome_file;
@@ -729,9 +752,18 @@ void SGPWorld::OutputDominantDataFile() {
         );
         path_t genome_path = dominant_path / sym_genome_fname;
         genome_file.open(genome_path);
-        sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);
+        auto& sym_hw = sym.DynamicCast<sgp_sym_t>()->GetHardware();
+        if (!sym_hw.GetCPU().HasActiveCore()) {
+          sym_hw.LaunchCPU(START_TAG);
+        }
+        sym_hw.PrintCode(genome_file);
         sym_idx++;
       }
+      // Update metadata info for metadata file, then update metadata file
+      dom_metadata.focal_host = sample;
+      dom_metadata.host_dom_name = host_dom_name;
+      dom_metadata.host_abundance = pair.second;
+      metadata_file.Update();
       idx++;
     }
   }
