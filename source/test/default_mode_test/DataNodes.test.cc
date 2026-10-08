@@ -626,7 +626,7 @@ TEST_CASE("GetHorizontalTransmissionAttemptCount", "[default]") {
           REQUIRE(data_node_attempts_horiztrans.GetHistCounts()[9] == 1);
         }
       }
-        WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit") {
+      WHEN("There are no valid cells to transmit into and the symbiont dies trying to transmit") {
         world.Resize(0);
         symbiont->IndependentReproduction(parent_pos);
         REQUIRE(world.GetNumOrgs() == 1);

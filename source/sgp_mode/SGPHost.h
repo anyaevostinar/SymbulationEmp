@@ -143,7 +143,7 @@ public:
   }
 
   void HostDoMutation(this_t& host) {
-  my_world->getMutator().MutateProgram(host.GetProgram());
+    my_world->getMutator().MutateProgram(host.GetProgram());
   }
 
   bool operator<(const Organism& other) const {
@@ -187,15 +187,13 @@ public:
       points = 0;
     }
   }
-  
+
   void AddPoints(double amt) {
     points += amt;
 
     if (points < 0){
       points = 0;
     }
-
-   
   }
 
   size_t GetCountofMatchingSymsToInteractWith(){
@@ -435,9 +433,9 @@ public:
           if (!task_env.IsHostTask(task_id)) continue;
 
           //check first task credit
-          const bool not_first_task = 
-            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() && 
-            cpu_state.GetFirstTaskPerformed().Any() && 
+          const bool not_first_task =
+            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() &&
+            cpu_state.GetFirstTaskPerformed().Any() &&
             !cpu_state.GetFirstTaskPerformed().Get(task_id);
           if (not_first_task) continue;
 
@@ -523,7 +521,7 @@ public:
         cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
       );
       offspring_cpu_state.SetLineageTaskLossCount(
-        task_id, 
+        task_id,
         cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
       );
 

@@ -338,7 +338,7 @@ protected:
     const emp::WorldPosition& //sym parent pos
   )> fun_find_host_for_horizontal_trans;
 
-  
+
   // fun_vert_trans_compatible - Called during HostDoBirth to determine if
   //  a given symbiont can vertically transmit into host offspring.
   fun_vert_trans_compatible_t fun_vert_trans_compatible;
@@ -408,7 +408,7 @@ protected:
   void SetupStressInteractions();
   void SetupHealthInteractions();
   void SetupNutrientInteractions();
-  
+
   void GenerateDefaultProgram(bool is_host);
   void GenerateDefaultTaskEnvironment();
 
@@ -835,12 +835,12 @@ public:
     after_endosym_process_sig.Trigger(sym_pos, sym, static_cast<sgp_host_t&>(*host));
   }
 
-  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr, 
+  void TriggerBeforeSymDoBirth(emp::Ptr<sgp_sym_t> sym_baby_ptr,
     const emp::WorldPosition& parent_pos){
     before_sym_do_birth_sig.Trigger(sym_baby_ptr, parent_pos);
   }
 
-  void TriggerAfterSymDoBirth(const emp::WorldPosition& sym_baby_pos, 
+  void TriggerAfterSymDoBirth(const emp::WorldPosition& sym_baby_pos,
     emp::Ptr<sgp_sym_t> parent_sym){
     after_sym_do_birth_sig.Trigger(sym_baby_pos, parent_sym);
   }
@@ -868,7 +868,7 @@ public:
   ) {
     after_host_cpu_exec_sig.Trigger(host);
   }
-  
+
   void TriggerAfterHostProcess(
     sgp_host_t& host
   ) {
@@ -973,11 +973,11 @@ public:
     emp::WorldPosition parent_pos
   ) override;
 
-  /** 
+  /**
   * Input: None
-  * 
+  *
   * Output: The world's mutator object
-  * 
+  *
   * Purpose: To provide the mutator so that hosts and symbionts can mutate themselves.
   */
   mutator_t GetMutator();
@@ -1034,6 +1034,17 @@ public:
   void CollectCurrentUpdateData();
   emp::DataFile& SetupSymbiontInteractionValuesFile(const std::string& filepath);
   void OutputDominantDataFile();
+
+  /**
+   * Purpose: Configure spatial data output file.
+   *          Overrides SymWorld's setup spatial data file function in order to
+   *          add columns specific to sgp mode before printing the header keys.
+   *
+   * Input: Filename for output file.
+   *
+   * Output: None.
+   */
+  void SetupSpatialDataFile(const std::string& filename);
 
   void CreateDataFiles() override;
 

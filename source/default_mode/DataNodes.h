@@ -1,6 +1,8 @@
 #ifndef DATA_H
 #define DATA_H
 
+#include <filesystem>
+
 #include "../../Empirical/include/emp/io/File.hpp"
 
 #include "SymWorld.h"
@@ -13,21 +15,45 @@
 * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
 */
 void SymWorld::CreateDataFiles() {
-  int TIMING_REPEAT = my_config->DATA_INT();
-  std::string file_ending = "_SEED" + std::to_string(my_config->SEED()) + ".data";
-
-  SetupHostIntValFile(my_config->FILE_PATH()+"HostVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetupSymIntValFile(my_config->FILE_PATH()+"SymVals"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetupTransmissionFile(my_config->FILE_PATH()+"TransmissionRates"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetupSymDiversityFile(my_config->FILE_PATH()+"SymDiversity"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
-  SetupReproHistFile(my_config->FILE_PATH() + "ReproHist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
-  if (my_config->FREE_LIVING_SYMS() == 1) {
-    SetupFreeLivingSymFile(my_config->FILE_PATH()+"FreeLivingSyms_"+my_config->FILE_NAME()+file_ending).SetTimingRepeat(TIMING_REPEAT);
+  std::filesystem::path output_dir = my_config->FILE_PATH();
+  // Create output directory if it doesn't already exist
+  if (!std::filesystem::exists(output_dir)) {
+    std::filesystem::create_directory(output_dir);
+  }
+  const int TIMING_REPEAT = my_config->DATA_INT();
+  const std::string file_ending = "_SEED" + std::to_string(my_config->SEED()) + ".data";
+  SetupHostIntValFile(
+    (output_dir / ("HostVals" + my_config->FILE_NAME() + file_ending)).string()
+  ).SetTimingRepeat(TIMING_REPEAT);
+  SetupSymIntValFile(
+    (output_dir / ("SymVals" + my_config->FILE_NAME() + file_ending)).string()
+  ).SetTimingRepeat(TIMING_REPEAT);
+  SetupTransmissionFile(
+    (output_dir / ("TransmissionRates" + my_config->FILE_NAME() + file_ending)).string()
+  ).SetTimingRepeat(TIMING_REPEAT);
+  SetupSymDiversityFile(
+    (output_dir / ("SymDiversity" + my_config->FILE_NAME() + file_ending)).string()
+  ).SetTimingRepeat(TIMING_REPEAT);
+  SetupReproHistFile(
+    (output_dir /  ("ReproHist" + my_config->FILE_NAME() + file_ending)).string()
+  ).SetTimingRepeat(TIMING_REPEAT);
+  if (my_config->FREE_LIVING_SYMS()) {
+    SetupFreeLivingSymFile(
+      (output_dir / ("FreeLivingSyms_" + my_config->FILE_NAME() + file_ending)).string()
+    ).SetTimingRepeat(TIMING_REPEAT);
   }
   if (my_config->TAG_MATCHING()) {
-    SetupTagDistFile(my_config->FILE_PATH() + "TagDist" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+    SetupTagDistFile(
+      (output_dir / ("TagDist" + my_config->FILE_NAME() + file_ending)).string()
+    ).SetTimingRepeat(TIMING_REPEAT);
   }
-  SetupReproCountFile(my_config->FILE_PATH() + "ReproCount" + my_config->FILE_NAME() + file_ending).SetTimingRepeat(TIMING_REPEAT);
+  SetupReproCountFile(
+    (output_dir / ("ReproCount" + my_config->FILE_NAME() + file_ending))
+  ).SetTimingRepeat(TIMING_REPEAT);
+  if (my_config->SPATIAL_DATA_OUTPUT()) {
+    std::filesystem::path spatial_output_path = output_dir / ("Spatial" + my_config->FILE_NAME() + ".csv");
+    SetupSpatialDataFile(spatial_output_path.string());
+  }
 }
 
 /**
@@ -146,7 +172,7 @@ void SymWorld::SetupHostFileColumns(emp::DataFile & file) {
  *
  * Output: The address of the DataFile that has been created.
  *
- * Purpose: To set up the file that will be used to track the number 
+ * Purpose: To set up the file that will be used to track the number
  * of reproductions of both Hosts and Symbionts
  */
 emp::DataFile & SymWorld::SetupReproCountFile(const std::string & filename) {
@@ -253,6 +279,36 @@ emp::DataFile& SymWorld::SetupReproHistFile(const std::string& filename) {
   return file;
 }
 
+/**
+ * Input: String giving the file path for writing the spatial data file.
+ *
+ * Output: Reference to the DataFile that has been created.
+ *
+ * Purpose: To set up the file that will be used to output spatial data by
+ *          location. E.g., host/symbiont interaction values by location, etc.
+ */
+void SymWorld::SetupSpatialDataFile(const std::string& filename) {
+  spatial_data_manager.Setup(this, filename);
+
+  // Connect manager's update function to world's update signal
+  // NOTE: Timing of this file update will differ slightly from world-managed
+  //       data files. on_update_sig triggers at beginning of World::Update.
+  //       World::Update will update other data files at end (but before update
+  //       number increases).
+  OnUpdate(
+    [this](size_t update) {
+      // Should we output spatial data this update?
+      if (update % my_config->SPATIAL_DATA_INTERVAL() == 0) {
+        // Update spatial data manager file
+        spatial_data_manager.Update(update);
+      }
+    }
+  );
+
+  // Print header outside of manager's setup in case we need to add more
+  //  columns after setup.
+  spatial_data_manager.PrintHeaderKeys();
+}
 
 /**
  * Input: The address of the string representing the suffixes for the files to be created.
@@ -1465,7 +1521,7 @@ emp::DataMonitor<double>& SymWorld::GetHostTagPermissiveness() {
    */
   emp::DataMonitor<size_t>& SymWorld::GetHostReproCountDataNode() {
     if (!data_node_host_repro_count) {
-      
+
       data_node_host_repro_count.New();
     }
     return *data_node_host_repro_count;

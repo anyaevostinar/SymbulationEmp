@@ -46,6 +46,11 @@ void SGPWorld::CreateDataFiles() {
 
   std::filesystem::path repro_rate_fpath = output_dir / ("ReproCount" + my_config->FILE_NAME() + ".csv");
   SetupReproCountFile(repro_rate_fpath).SetTimingRepeat(sgp_config.DATA_INT());
+
+  if (sgp_config.SPATIAL_DATA_OUTPUT()) {
+    std::filesystem::path spatial_output_path = output_dir / ("Spatial" + my_config->FILE_NAME() + ".csv");
+    SetupSpatialDataFile(spatial_output_path.string());
+  }
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -687,50 +692,276 @@ void SGPWorld::SnapshotConfig(const std::string& filename) {
 }
 
 void SGPWorld::OutputDominantDataFile() {
-
+  using path_t = std::filesystem::path;
   output_dir = sgp_config.FILE_PATH();
-  std::string dominant_dir = "DominantGenomes";
-  // If setup has not been run, create output directory.
-  if (!setup) {
+  path_t dominant_path = output_dir / "DominantGenomes";
+  // If output directory does not exist, create it.
+  if (!std::filesystem::exists(output_dir)) {
     std::filesystem::create_directory(output_dir);
   }
-  std::filesystem::create_directory(output_dir / dominant_dir);
+  std::filesystem::create_directory(dominant_path);
+
+  // Setup a metadata file for dominant genotype information
+  std::filesystem::path dominant_metadata_path = dominant_path / "dom_metadata.csv";
+  emp::DataFile metadata_file(dominant_metadata_path.string());
+  // Anonymous struct to consolidate metadata to be captured by file lambdas
+  struct {
+    emp::Ptr<sgp_host_t> focal_host;
+    std::string host_dom_name;
+    size_t host_abundance;
+  } dom_metadata;
+  metadata_file.AddFun<std::string>(
+    [&dom_metadata]() -> std::string {
+      return dom_metadata.host_dom_name;
+    },
+    "genome_id"
+  );
+  metadata_file.AddFun<size_t>(
+    [&dom_metadata]() -> size_t {
+      return dom_metadata.host_abundance;
+    },
+    "abundance"
+  );
+  metadata_file.PrintHeaderKeys();
 
   // TODO: update to actually work, need to get back a version of "PrintCode"
   // such as what is found https://github.com/anyaevostinar/SymbulationEmp/blob/complex-syms-clean/source/sgp_mode/CPU.h
   //   std::string file_ending = "_SEED" + std::to_string(sgp_config.SEED()) + ".data";
-  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms =
-      GetDominantInfo();
-
-
+  emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms = GetDominantInfo();
   {
     size_t idx = 0;
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<sgp_host_t>();
-
       std::ofstream genome_file;
-      std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Host"+
-        std::to_string(idx) + sgp_config.FILE_NAME()+".data"); // Any ending that actually does make sense for these files?
-
+      std::string host_dom_name = "Host" + std::to_string(idx);
+      const std::string genome_fname(
+        ("Genome_" + host_dom_name + sgp_config.FILE_NAME() + ".data")
+      ); // Any ending that actually does make sense for these files?
+      path_t genome_path = dominant_path / genome_fname;
       genome_file.open(genome_path);
+      if (!sample->GetHardware().GetCPU().HasActiveCore()) {
+        sample->GetHardware().LaunchCPU(START_TAG);
+      }
       sample->GetHardware().PrintCode(genome_file);
-
       size_t sym_idx = 0;
-      for (auto &sym : sample->GetSymbionts()) {
+      for (auto& sym : sample->GetSymbionts()) {
         std::ofstream genome_file;
-        std::filesystem::path genome_path = output_dir / dominant_dir / ("Genome_Sym"+
-          std::to_string(sym_idx) + "_From_Host"+
-          std::to_string(idx) + sgp_config.FILE_NAME()+".data");
+        const std::string sym_genome_fname(
+          "Genome_Sym" + std::to_string(sym_idx) + "_From_Host" +
+          std::to_string(idx) + sgp_config.FILE_NAME() + ".data"
+        );
+        path_t genome_path = dominant_path / sym_genome_fname;
         genome_file.open(genome_path);
-        sym.DynamicCast<sgp_sym_t>()->GetHardware().PrintCode(genome_file);
+        auto& sym_hw = sym.DynamicCast<sgp_sym_t>()->GetHardware();
+        if (!sym_hw.GetCPU().HasActiveCore()) {
+          sym_hw.LaunchCPU(START_TAG);
+        }
+        sym_hw.PrintCode(genome_file);
         sym_idx++;
       }
-
+      // Update metadata info for metadata file, then update metadata file
+      dom_metadata.focal_host = sample;
+      dom_metadata.host_dom_name = host_dom_name;
+      dom_metadata.host_abundance = pair.second;
+      metadata_file.Update();
       idx++;
     }
   }
 }
 
+void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
+
+  // Should we include interaction value columns?j
+  //  -> Big files, so it's worth minimizing columns that won't be used.
+  const bool stress_int_vals = GetStressSymType() == stress_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool health_int_vals = GetHealthSymType() == health_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool nutrient_int_vals = GetNutrientSymType() == nutrient_sym_mode_t::INTERACTION_VALUE_BASED;
+  const bool include_int_val_columns = stress_int_vals || health_int_vals || nutrient_int_vals;
+  // Setup spatial data manager.
+  spatial_data_manager.Setup(this, filename, include_int_val_columns);
+
+  // -- Host task profile --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return emp::to_string(GetHostTaskProfile(host));
+      }
+      return "NONE";
+    },
+    "host_task_profile"
+  );
+
+  // -- Host parent tasks --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return emp::to_string(
+          host.GetHardware().GetCPUState().GetParentTasksPerformed()
+        );
+      }
+      return "NONE";
+    },
+    "host_parent_tasks"
+  );
+
+  // -- Endosymbiont task profile(s) --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<std::string> profiles;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          profiles.emplace_back(
+            emp::to_string(GetSymbiontTaskProfile(endosym))
+          );
+        }
+      }
+      return emp::to_string(profiles);
+    },
+    "endosym_task_profiles"
+  );
+
+  // -- Endosymbiont parent tasks --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<std::string> tasks;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          tasks.emplace_back(
+            emp::to_string(
+              endosym.GetHardware().GetCPUState().GetParentTasksPerformed()
+            )
+          );
+        }
+      }
+      return emp::to_string(tasks);
+    },
+    "endosym_parent_tasks"
+  );
+
+  // -- Host-endosymbiont task profile compatibility --
+  spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<std::string> sym_compatibility;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        const auto& host_profile = GetHostTaskProfile(host);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          const auto& sym_profile = GetSymTaskProfile(endosym);
+          sym_compatibility.emplace_back(
+            emp::to_string(TaskProfileCompatibilityCheck(host_profile, sym_profile))
+          );
+        }
+      }
+      return emp::to_string(sym_compatibility);
+    },
+    "host_sym_task_profile_compatibility"
+  );
+
+  // -- Host generation --
+  spatial_data_manager.AddFun<int>(
+    [this](size_t loc_id) -> int {
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        const sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        return (int)host.GetLineageLength();
+      }
+      return -1;
+    },
+    "host_lineage_length"
+  );
+
+  // -- Endosymbiont generation(s) --
+    spatial_data_manager.AddFun<std::string>(
+    [this](size_t loc_id) -> std::string {
+      emp::vector<size_t> lineage_lengths;
+      if (IsOccupied(loc_id)) {
+        auto& org = GetOrg(loc_id);
+        emp_assert(org.IsHost());
+        sgp_host_t& host = static_cast<sgp_host_t&>(org);
+        auto& syms = host.GetSymbionts();
+        for (auto sym : syms) {
+          emp_assert(!sym->IsHost());
+          const sgp_sym_t& endosym = static_cast<sgp_sym_t&>(*sym);
+          lineage_lengths.emplace_back(endosym.GetLineageLength());
+        }
+      }
+      return emp::to_string(lineage_lengths);
+    },
+    "endosym_lineage_length"
+  );
+
+  // Columns enabled only when free-living syms are enabled
+  if (sgp_config.FREE_LIVING_SYMS()) {
+    // -- Free-living sym task profile --
+    spatial_data_manager.AddFun<std::string>(
+      [this](size_t loc_id) -> std::string {
+        if (IsSymPopOccupied(loc_id)) {
+          auto org_ptr = GetSymAt(loc_id);
+          sgp_sym_t& sym = static_cast<sgp_sym_t&>(*org_ptr);
+          return emp::to_string(GetSymTaskProfile(sym));
+        }
+        return "NONE";
+      },
+      "freeliving_sym_task_profiles"
+    );
+    // -- Free-living sym generation --
+    spatial_data_manager.AddFun<int>(
+      [this](size_t loc_id) -> int {
+        if (IsSymPopOccupied(loc_id)) {
+          auto org_ptr = GetSymAt(loc_id);
+          sgp_sym_t& sym = static_cast<sgp_sym_t&>(*org_ptr);
+          return (int)sym.GetLineageLength();
+        }
+        return -1;
+      },
+      "freeliving_sym_generation"
+    );
+  }
+
+  // Connect manager's update function to world's update signal
+  // NOTE: Timing of this file update will differ slightly from world-managed
+  //       data files. on_update_sig triggers at beginning of World::Update.
+  //       World::Update will update other data files at end (but before update
+  //       number increases).
+  OnUpdate(
+    [this](size_t update) {
+      // Should we output spatial data this update?
+      if (update % sgp_config.SPATIAL_DATA_INTERVAL() == 0) {
+        // Update spatial data manager file
+        spatial_data_manager.Update(update);
+      }
+    }
+  );
+
+  // Print header outside of manager's setup in case we need to add more
+  //  columns after setup.
+  spatial_data_manager.PrintHeaderKeys();
 }
+
+} // -- End of sgpmode namespace --
 
 #endif
