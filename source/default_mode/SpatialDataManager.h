@@ -1,3 +1,7 @@
+#pragma once
+#ifndef SPATIAL_DATA_MANAGER_H
+#define SPATIAL_DATA_MANAGER_H
+
 #include "SpatialStructure.h"
 #include "../Organism.h"
 
@@ -299,5 +303,6 @@ void SpatialDataManager<WORLD_T>::SetupSpatialDataFile(
       );
     }
   }
-
 }
+
+#endif

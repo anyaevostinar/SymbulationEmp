@@ -15,39 +15,43 @@
 * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
 */
 void SymWorld::CreateDataFiles() {
-  std::filesystem::path file_path = my_config->FILE_PATH();
+  std::filesystem::path output_dir = my_config->FILE_PATH();
+  // Create output directory if it doesn't already exist
+  if (!std::filesystem::exists(output_dir)) {
+    std::filesystem::create_directory(output_dir);
+  }
   const int TIMING_REPEAT = my_config->DATA_INT();
   const std::string file_ending = "_SEED" + std::to_string(my_config->SEED()) + ".data";
   SetupHostIntValFile(
-    (file_path / ("HostVals" + my_config->FILE_NAME() + file_ending)).string()
+    (output_dir / ("HostVals" + my_config->FILE_NAME() + file_ending)).string()
   ).SetTimingRepeat(TIMING_REPEAT);
   SetupSymIntValFile(
-    (file_path / ("SymVals" + my_config->FILE_NAME() + file_ending)).string()
+    (output_dir / ("SymVals" + my_config->FILE_NAME() + file_ending)).string()
   ).SetTimingRepeat(TIMING_REPEAT);
   SetupTransmissionFile(
-    (file_path / ("TransmissionRates" + my_config->FILE_NAME() + file_ending)).string()
+    (output_dir / ("TransmissionRates" + my_config->FILE_NAME() + file_ending)).string()
   ).SetTimingRepeat(TIMING_REPEAT);
   SetupSymDiversityFile(
-    (file_path / ("SymDiversity" + my_config->FILE_NAME() + file_ending)).string()
+    (output_dir / ("SymDiversity" + my_config->FILE_NAME() + file_ending)).string()
   ).SetTimingRepeat(TIMING_REPEAT);
   SetupReproHistFile(
-    (file_path /  ("ReproHist" + my_config->FILE_NAME() + file_ending)).string()
+    (output_dir /  ("ReproHist" + my_config->FILE_NAME() + file_ending)).string()
   ).SetTimingRepeat(TIMING_REPEAT);
   if (my_config->FREE_LIVING_SYMS()) {
     SetupFreeLivingSymFile(
-      (file_path / ("FreeLivingSyms_" + my_config->FILE_NAME() + file_ending)).string()
+      (output_dir / ("FreeLivingSyms_" + my_config->FILE_NAME() + file_ending)).string()
     ).SetTimingRepeat(TIMING_REPEAT);
   }
   if (my_config->TAG_MATCHING()) {
     SetupTagDistFile(
-      (file_path / ("TagDist" + my_config->FILE_NAME() + file_ending)).string()
+      (output_dir / ("TagDist" + my_config->FILE_NAME() + file_ending)).string()
     ).SetTimingRepeat(TIMING_REPEAT);
   }
   SetupReproCountFile(
-    (file_path / ("ReproCount" + my_config->FILE_NAME() + file_ending))
+    (output_dir / ("ReproCount" + my_config->FILE_NAME() + file_ending))
   ).SetTimingRepeat(TIMING_REPEAT);
   if (my_config->SPATIAL_DATA_OUTPUT()) {
-    std::filesystem::path spatial_output_path = file_path / ("Spatial" + my_config->FILE_NAME() + ".csv");
+    std::filesystem::path spatial_output_path = output_dir / ("Spatial" + my_config->FILE_NAME() + ".csv");
     SetupSpatialDataFile(spatial_output_path.string());
   }
 }
