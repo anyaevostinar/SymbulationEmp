@@ -61,8 +61,19 @@ protected:
   void SetupSpatialDataFile(bool include_int_val_columns=true);
 
 public:
+
+  /**
+   * Purpose: Default constructor for SpatialDataManager. Requires separate
+   *          call to SpatialDataManager::Setup if using the default constructor.
+   */
   SpatialDataManager() : setup(false) { }
 
+  /**
+   * Purpose: Constructor for SpatialDataManager.
+   *
+   * Input: pointer to a SymWorld, file path for data file, optional flag indicating
+   *        whether to include interaction value columns in data file.
+   */
   SpatialDataManager(
     emp::Ptr<world_t> world,
     const std::string& filepath,
@@ -71,12 +82,24 @@ public:
     Setup(world, filepath, include_int_val_columns);
   }
 
+  /**
+   * Purpose: SpatialDataManager destructor.
+   */
   ~SpatialDataManager() {
     if (setup) {
       spatial_data_file.Delete();
     }
   }
 
+  /**
+   * Purpose: Create new data file for spatial data, configure associated world,
+   *          add default columns to data file.
+   *
+   * Input: Pointer to a SymWorld, file path for data file, optional flag indicating
+   *        whether to include interaction value columns in data file.
+   *
+   * Output: None
+   */
   void Setup(
     emp::Ptr<world_t> world,
     const std::string& filepath,
@@ -91,14 +114,30 @@ public:
     setup = true;
   }
 
+  /**
+   * Purpose: Add new function to call before outputting spatial data (i.e., at
+   *          the beginning of the SpatialDataManager::Update call).
+   *
+   * Input: Function to be called.
+   *
+   * Output: SignalKey for the newly added function.
+   */
   emp::SignalKey OnBeforeSpatialDataOutput(const std::function<void()>& fun) {
     emp_assert(setup);
     return before_spatial_data_output_sig.AddAction(fun);
   }
 
-  // AddFunction
-  //  - Will take location id, world as input,
-  //  - will wrap with lambda that captures those from this context, passes as input
+  /**
+   * Purpose: Mirrors AddFun for emp::DataFile. Function specifies new column
+   *          to be added to data file. Called per-location per-update.
+   *
+   * Input:
+   *  - in_fun: Function called to get output for the column for the given location.
+   *  - key: column name
+   *  - desc: column description
+   *
+   * Output: Column position in data file.
+   */
   template<typename RETURN_TYPE>
   size_t AddFun(
     const std::function<RETURN_TYPE(size_t)>& in_fun,
@@ -114,6 +153,15 @@ public:
     );
   }
 
+  /**
+   * Purpose: Call to update the data file. Will add a new line for every location
+   *          in the world. Each line has information about that location for the
+   *          given update.
+   *
+   * Input: Current world update.
+   *
+   * Output: None.
+   */
   void Update(size_t update) {
     emp_assert(setup);
     before_spatial_data_output_sig.Trigger();
@@ -123,8 +171,24 @@ public:
     }
   }
 
+  /**
+   * Purpose: Give direct access to DataFile used for spatial data.
+   *
+   * Input: None.
+   *
+   * Output: Pointer to spatial data file.
+   */
   emp::Ptr<emp::DataFile> GetDataFile() { return spatial_data_file; }
 
+  /**
+   * Purpose: Call to print header in spatial data file. Header is not printed
+   *          automatically on setup to accomodate additional columns that
+   *          might be added outside of the default columns added on setup.
+   *
+   * Input: None.
+   *
+   * Output: None.
+   */
   void PrintHeaderKeys() {
     spatial_data_file->PrintHeaderKeys();
   }
