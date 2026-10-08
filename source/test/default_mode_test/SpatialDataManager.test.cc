@@ -40,6 +40,7 @@ TEST_CASE("SpatialDataManager", "[default]") {
   }
   GIVEN("a world with SPATIAL_DATA_OUTPUT enabled") {
     config.SPATIAL_DATA_OUTPUT(true);
+    config.FREE_LIVING_SYMS(true); // Make sure additional free-living syms columns are added
     sym_world_t world(random, &config);
     WHEN("CreateDataFiles is called") {
       world.Setup();
@@ -54,8 +55,8 @@ TEST_CASE("SpatialDataManager", "[default]") {
           spatial_file.RemoveEmpty(); // Removing any empty trailing lines.
           REQUIRE(spatial_file.GetNumLines() == world.GetSize() + 1);
         }
-
       }
+      world.CleanupGraveyard();
     }
   }
 }
