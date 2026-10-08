@@ -319,7 +319,6 @@ TEST_CASE("CPUState and SGPHost always have the same location","[sgp]"){
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
   using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
-  using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
 
   emp::Random random(31);
   sgpmode::SymConfigSGP config;
@@ -342,4 +341,5 @@ TEST_CASE("CPUState and SGPHost always have the same location","[sgp]"){
     host->GetHardware().GetCPUState().SetLocation(emp::WorldPosition(3, 4));
     REQUIRE(host->GetHardware().GetCPUState().GetLocation().GetIndex() == host->GetLocation().GetIndex());
   }
+  host.Delete();
 }

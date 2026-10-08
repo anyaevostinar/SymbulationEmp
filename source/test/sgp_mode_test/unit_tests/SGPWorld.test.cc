@@ -563,6 +563,7 @@ TEST_CASE("SGP Horizontal SymDoBirth", "[sgp][sgp-unit]") {
         THEN("The incoming symbiont does not oust") {
           REQUIRE(target_host->GetSymbionts().at(0).DynamicCast<sgp_sym_t>() == target_symbiont);
         }
+        world.CleanupGraveyard();
       }
     }
   }
