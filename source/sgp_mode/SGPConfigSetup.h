@@ -10,7 +10,7 @@
 
 namespace sgpmode {
 
-// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host nameing conventtions
+// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host naming conventions
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 16, "Number of CPU cycles that organisms run every update"),
