@@ -9,13 +9,38 @@
 
 namespace sgpmode {
 
+/**
+ * Purpose: Consolidate information about individual task discoveries.
+ */
 struct DiscoveryInfo {
+  /**
+   * Purpose: Whether or not the task has been discovered.
+   */
   bool discovered;
+
+  /**
+   * Purpose: Update of task discovery.
+   */
   size_t update;
+
+  /**
+   * Purpose: Location in population/world of task discovery.
+   */
   size_t location;
 
+  /**
+   * Purpose: Default constructor.
+   */
   DiscoveryInfo() = default;
 
+  /**
+   * Purpose: Construct DiscoveryInfo object with discovery information.
+   *
+   * Input:
+   *  - in_discovered: Boolean indicating whether task is discovered
+   *  - in_update: update of task discovery
+   *  - in_location: location of task discovery
+   */
   DiscoveryInfo(
     bool in_discovered,
     size_t in_update,
@@ -26,6 +51,14 @@ struct DiscoveryInfo {
     location(in_location)
   { }
 
+  /**
+   * Purpose: Mark this task as discovered.
+   *
+   * Input:
+   *  - disc_update: update of task discovery
+   *  - disc_location: location of task discovery
+   * Output: None.
+   */
   void MarkDiscovered(size_t disc_update, size_t disc_location) {
     discovered = true;
     update = disc_update;
