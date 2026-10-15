@@ -255,6 +255,20 @@ protected:
   emp::vector<size_t> sym_task_successes;
 
   /**
+   * Purpose: Tracks tasks "discovered" by hosts. To discover a task, a host must
+   *          (1) get credit for performing that task, and (2) be able to reliably
+   *          perform that task when tested in isolation.
+   */
+  emp::BitVector host_tasks_discovered;
+
+  /**
+   * Purpose: Tracks tasks "discovered" by symbionts. To discover a task, a symbiont
+   *          must (1) get credit for performing that task, and (2) be able to reliably
+   *          perform that task when tested in isolation.
+   */
+  emp::BitVector sym_tasks_discovered;
+
+  /**
     *
     * Purpose: Holds all configuration settings and references the same configuration
     * object as my_config from superclass, but with the correct subtype.
@@ -307,7 +321,7 @@ protected:
   //    E.g., if we want hosts to use their full profile vs syms using first task only
   fun_get_sym_task_profile_t fun_get_sym_task_profile;
 
-    // ---- Symbiont vertical transmission signals / functors ----
+  // ---- Symbiont vertical transmission signals / functors ----
   // before_sym_vert_transmission_sig - Triggers in SGPSymbiont::Vertical Transmission function.
   //  Triggers before VerticalTransmission is called on endosymbiont attempting
   //  vertical transmission. I.e., before attempt is made.
@@ -338,17 +352,13 @@ protected:
     const emp::WorldPosition& //sym parent pos
   )> fun_find_host_for_horizontal_trans;
 
-
   // fun_vert_trans_compatible - Called during HostDoBirth to determine if
   //  a given symbiont can vertically transmit into host offspring.
   fun_vert_trans_compatible_t fun_vert_trans_compatible;
 
-
-
   // ----- Internal helper functions -----
   // Called by Update()
   void DoReproduction();
-
 
   // Internal helper function to handle host births.
   //   Handles both host do birth and triggering vertical transmission on any
