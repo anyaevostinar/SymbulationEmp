@@ -67,8 +67,13 @@ struct DiscoveryInfo {
 
 };
 
+/**
+ * Purpose: Class for tracking task discovery information. Tracks four different
+ *          types of task discoveries: host, host parent-offspring, symbiont, and
+ *          symbiont parent-offspring. Also manages a data file for outputting
+ *          task discovery information.
+ */
 class TaskDiscoveryTracker {
-public:
 protected:
   /**
    * Purpose: Tracks tasks "discovered" by individual hosts.
@@ -98,12 +103,41 @@ protected:
    */
   emp::vector<DiscoveryInfo> sym_parent_offspring_task_discoveries;
 
+  /**
+   * Purpose: Output file for task discovery information.
+   */
   emp::Ptr<emp::DataFile> task_discovery_data_file = nullptr;
+
+  /**
+   * Purpose: Boolean indicating whether the data file has been setup. Initialized
+   *          to false, set to true on SetupOutputFile call.
+   */
   bool data_file_setup = false;
+
+  /**
+   * Purpose: Used to track the current output update when writing to the data file.
+   */
   size_t out_update = 0;
+
+  /**
+   * Purpose: Used to track the current task id when writing to the data file.
+   */
   size_t out_task_id = 0;
+
+  /**
+   * Purpose: Used to track the current task name when writing to the data file.
+   */
   std::string out_task_name = "";
 
+  /**
+   * Purpose: Helper function for marking a task as discovered.
+   *
+   * Input:
+   *  - discoveries: focal list of DiscoveryInfo to update
+   *  - task_id: task id to mark as discovered
+   *  - update: update that task was discovered
+   *  - location: location that task was discovered
+   */
   void MarkDiscovered(
     emp::vector<DiscoveryInfo>& discoveries,
     size_t task_id,
@@ -115,14 +149,29 @@ protected:
   }
 
 public:
+
+  /**
+   * Purpose: Default constructor for TaskDiscoveryTracker.
+   */
   TaskDiscoveryTracker() = default;
 
+  /**
+   * Purpose: TaskDiscoveryTracker destructor. Cleans up the task_discovery_data_file
+   *          memory.
+   */
   ~TaskDiscoveryTracker() {
     if (data_file_setup) {
       task_discovery_data_file.Delete();
     }
   }
 
+  /**
+   * Purpose: Reset task discovery information.
+   *
+   * Input: number of tasks to track discovery information for.
+   *
+   * Output: None.
+   */
   void Reset(size_t num_tasks) {
     host_task_discoveries.clear();
     host_parent_offspring_task_discoveries.clear();
@@ -135,9 +184,24 @@ public:
     sym_parent_offspring_task_discoveries.resize(num_tasks, {false, 0, 0});
   }
 
-  // todo move below class def to improve readability
+  /**
+   * Purpose: Configure task discovery output file.
+   *
+   * Input: File path specifying where to write output file.
+   *
+   * Output: None.
+   */
   void SetupOutputFile(const std::string& filepath);
 
+  /**
+   * Purpose: Write to the task discovery output file. Writes one row per task
+   *          for the current world update.
+   *
+   * Input: SGPWorld, which gives this function access to the task environment
+   *        and current update.
+   *
+   * Output: None.
+   */
   template<typename WORLD_T>
   void UpdateOutputFile(WORLD_T& world) {
     emp_assert(data_file_setup);
@@ -153,26 +217,66 @@ public:
     }
   }
 
+  /**
+   * Purpose: Check if hosts have discovered given task.
+   *
+   * Input: task id (should correspond to task id in world's task set)
+   *
+   * Output: Boolean indicating task discovery
+   */
   bool IsHostTaskDiscovered(size_t task_id) const {
     emp_assert(task_id < host_task_discoveries.size());
     return host_task_discoveries[task_id].discovered;
   }
 
+  /**
+   * Purpose: Check if a host parent-offspring pair have discovered the given task.
+   *
+   * Input: task id (should correspond to task id in world's task set)
+   *
+   * Output: Boolean indicating task discovery
+   */
   bool IsHostParentOffspringTaskDiscovered(size_t task_id) const {
     emp_assert(task_id < host_parent_offspring_task_discoveries.size());
     return host_parent_offspring_task_discoveries[task_id].discovered;
   }
 
+  /**
+   * Purpose: Check if symbionts have discovered the given task.
+   *
+   * Input: task id (should correspond to task id in world's task set)
+   *
+   * Output: Boolean indicating task discovery
+   */
   bool IsSymTaskDiscovered(size_t task_id) const {
     emp_assert(task_id < sym_task_discoveries.size());
     return sym_task_discoveries[task_id].discovered;
   }
 
+  /**
+   * Purpose: Check if a symbiont parent-offspring pair have discovered the
+   *          given task.
+   *
+   * Input: task id (should correspond to task id in world's task set)
+   *
+   * Output: Boolean indicating task discovery
+   */
   bool IsSymParentOffspringTaskDiscovered(size_t task_id) const {
     emp_assert(task_id < sym_parent_offspring_task_discoveries.size());
     return sym_parent_offspring_task_discoveries[task_id].discovered;
   }
 
+  /**
+   * Purpose: Mark task as being discovered by a host
+   *
+   * Input:
+   *  - task_id: task id to mark as discovered
+   *  - discovery_update: update that task was discovered
+   *  - discovery_location: location that task was discovered
+   *
+   * Output: None.
+   *
+   */
   void MarkHostTaskDiscovery(
     size_t task_id,
     size_t discovery_update,
@@ -186,6 +290,16 @@ public:
     );
   }
 
+  /**
+   * Purpose: Mark task as being discovered by a host parent-offspring pair.
+   *
+   * Input:
+   *  - task_id: task id to mark as discovered
+   *  - discovery_update: update that task was discovered
+   *  - discovery_location: location that task was discovered
+   *
+   * Output: None.
+   */
   void MarkHostParentOffspringTaskDiscovery(
     size_t task_id,
     size_t discovery_update,
@@ -199,6 +313,17 @@ public:
     );
   }
 
+  /**
+   * Purpose: Mark task as being discovered by a symbiont
+   *
+   * Input:
+   *  - task_id: task id to mark as discovered
+   *  - discovery_update: update that task was discovered
+   *  - discovery_location: location that task was discovered
+   *
+   * Output: None.
+   *
+   */
   void MarkSymTaskDiscovery(
     size_t task_id,
     size_t discovery_update,
@@ -212,6 +337,17 @@ public:
     );
   }
 
+  /**
+   * Purpose: Mark task as being discovered by a symbiont parent-offspring pair.
+   *
+   * Input:
+   *  - task_id: task id to mark as discovered
+   *  - discovery_update: update that task was discovered
+   *  - discovery_location: location that task was discovered
+   *
+   * Output: None.
+   *
+   */
   void MarkSymParentOffspringTaskDiscovery(
     size_t task_id,
     size_t discovery_update,
