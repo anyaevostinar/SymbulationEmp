@@ -743,6 +743,13 @@ void SGPWorld::OutputDominantDataFile() {
         sample->GetHardware().LaunchCPU(START_TAG);
       }
       sample->GetHardware().PrintCode(genome_file);
+      
+      const std::string json_genome_fname(
+        ("Genome_" + host_id + sgp_config.FILE_NAME() + ".json")
+      ); 
+      path_t json_genome_path = dominant_path / json_genome_fname;
+      GetProgramBuilder().SaveProgramFile(sample->GetHardware().GetProgram(), json_genome_path);
+
       size_t sym_idx = 0;
       for (auto& sym : sample->GetSymbionts()) {
         std::ofstream genome_file;
@@ -757,6 +764,14 @@ void SGPWorld::OutputDominantDataFile() {
           sym_hw.LaunchCPU(START_TAG);
         }
         sym_hw.PrintCode(genome_file);
+        
+        const std::string json_sym_genome_fname(
+          "Genome_Sym" + std::to_string(sym_idx) + "_From_Host" +
+          std::to_string(idx) + sgp_config.FILE_NAME() + ".json"
+        );
+        path_t json_genome_path = dominant_path / json_sym_genome_fname;
+        
+        GetProgramBuilder().SaveProgramFile(sym_hw.GetProgram(), json_genome_path);
         sym_idx++;
       }
       // Update metadata info for metadata file, then update metadata file

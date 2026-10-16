@@ -915,19 +915,13 @@ public:
     }
   }
 
-  // TODO: AEV: Why is this separate from RunExperiment in SymWorld? Needs to be combined to support all the other functionality from RunExperiment
-  void Run(bool verbose = false) {
+  // runs updates; overrides default world's RunExperiment in order to add a setup check
+  void RunExperiment(bool verbose=true) {
     emp_assert(setup);
     emp_assert(sgp_config.UPDATES() >= 0);
-    emp_assert(setup_spatial_structure);
-    const size_t updates = sgp_config.UPDATES();
-    for (size_t u = 0; u <= updates; ++u) {
-      Update();
-      if (verbose && (u % sgp_config.PRINT_INTERVAL()) == 0) {
-        std::cout << "Update: " << u << std::endl;
-      }
-    }
+    SymWorld::RunExperiment(verbose);
   }
+
 
   // Process hosts at given position in world pop vector and free-living symbionts in world syms vector.
   void ProcessOrgsAt(size_t pop_id);
