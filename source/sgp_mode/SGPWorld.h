@@ -915,6 +915,14 @@ public:
     }
   }
 
+  // runs updates; overrides default world's RunExperiment in order to add a setup check
+  void RunExperiment(bool verbose=true) {
+    emp_assert(setup);
+    emp_assert(sgp_config.UPDATES() >= 0);
+    SymWorld::RunExperiment(verbose);
+  }
+
+
   // Process hosts at given position in world pop vector and free-living symbionts in world syms vector.
   void ProcessOrgsAt(size_t pop_id);
 
