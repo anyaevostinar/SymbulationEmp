@@ -62,6 +62,10 @@ TEST_CASE("CreateDataFiles creates data files", "[sgp][sgp-functional]") {
     std::filesystem::path expected_sym_int_vals_fpath = config.FILE_PATH() + "/" + "SymbiontInteractionValues" + config.FILE_NAME() + ".csv";
     INFO("SymbiontInteractionValues file is created");
     REQUIRE(std::filesystem::exists(expected_sym_int_vals_fpath));
+
+    std::filesystem::path expected_task_discovery_fpath = config.FILE_PATH() + "/" + "TaskDiscovery" + config.FILE_NAME() + ".csv";
+    INFO("TaskDiscovery file is created");
+    REQUIRE(std::filesystem::exists(expected_task_discovery_fpath));
   }
 }
 
