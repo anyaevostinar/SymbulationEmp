@@ -695,6 +695,11 @@ public:
   event_manager_t& GetEventManager() { return event_manager; }
 
   /**
+   * Purpose: Accessor for task discovery tracker (mainly for testing)
+   */
+  const TaskDiscoveryTracker& GetTaskDiscoveryTracker() const { return task_discovery_tracker; }
+
+  /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
    * Output: The change in the points the host will gain from the task after the nutrient interaction.
    * Purpose: To calculate the configured nutrient interaction for the given symbiont and task

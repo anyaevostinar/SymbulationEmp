@@ -45,6 +45,7 @@
 #include "../test/sgp_mode_test/unit_tests/Stacks.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPCureHosts.test.cc"
 #include "../test/sgp_mode_test/unit_tests/SGPWorldData.test.cc"
+#include "../test/sgp_mode_test/unit_tests/TaskDiscoveryTracker.test.cc"
 
 #include "../test/sgp_mode_test/functional_tests/TaskValueEvent.test.cc"
 #include "../test/sgp_mode_test/functional_tests/HealthMode.test.cc"
@@ -64,9 +65,6 @@
 #include "../test/sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHardware_Tasks.test.cc"
 
-
-
-
 //Integration tests
 #include "../test/integration_test/spatial_structure/vt.test.cc"
 #include "../test/integration_test/lysogeny/plr.test.cc"
@@ -74,4 +72,3 @@
 #include "../test/integration_test/dirty_transmission/hz_mut_rate.test.cc"
 #include "../test/integration_test/multi_infection/pgg.test.cc"
 //#include "../test/integration_test/mutualists_constrain/SymsEffectEvo.test.cc" // Needs to be updated
-
