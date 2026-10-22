@@ -156,6 +156,15 @@ public:
   TaskDiscoveryTracker() = default;
 
   /**
+   * Purpose: Construct TaskDiscoveryTracker with known number of tasks.
+   *
+   * Input:
+   */
+  TaskDiscoveryTracker(size_t num_tasks) {
+    Reset(num_tasks);
+  }
+
+  /**
    * Purpose: TaskDiscoveryTracker destructor. Cleans up the task_discovery_data_file
    *          memory.
    */
@@ -360,6 +369,42 @@ public:
       discovery_location
     );
   }
+
+  /**
+   * Purpose: Access host_task_discoveries (but disallow modification).
+   *
+   * Input: None.
+   *
+   * Output: const reference to host_task_discoveries
+   */
+  const emp::vector<DiscoveryInfo>& GetHostTaskDiscoveries() const { return host_task_discoveries; }
+
+  /**
+   * Purpose: Access host_parent_offspring_task_discoveries (but disallow modification).
+   *
+   * Input: None.
+   *
+   * Output: const reference to host_parent_offspring_task_discoveries
+   */
+  const emp::vector<DiscoveryInfo>& GetHostParentOffspringTaskDiscoveries() const { return host_parent_offspring_task_discoveries; }
+
+  /**
+   * Purpose: Access sym_task_discoveries (but disallow modification).
+   *
+   * Input: None.
+   *
+   * Output: const reference to sym_task_discoveries
+   */
+  const emp::vector<DiscoveryInfo>& GetSymTaskDiscoveries() const { return sym_task_discoveries; }
+
+  /**
+   * Purpose: Access sym_parent_offspring_task_discoveries (but disallow modification).
+   *
+   * Input: None.
+   *
+   * Output: const reference to sym_parent_offspring_task_discoveries
+   */
+  const emp::vector<DiscoveryInfo>& GetSymParentOffspringTaskDiscoveries() const { return sym_parent_offspring_task_discoveries; }
 
 };
 
