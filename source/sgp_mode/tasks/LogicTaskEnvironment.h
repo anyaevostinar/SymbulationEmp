@@ -4,6 +4,7 @@
 #include "LogicTaskIOBank.h"
 
 #include "../../json/json.hpp"
+#include "../../json/json_utils.h"
 
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
@@ -18,15 +19,13 @@
 #include <unordered_map>
 #include <map>
 
-/*
-  Implements logic task environment.
-    - Responsible for configuring LogicTaskSet, etc.
-    - Responsible for managing any task dependencies, etc.
-*/
-
 namespace sgpmode::tasks {
-
 // TODO - add functions to attach to config snapshot
+/**
+  *Implements logic task environment.
+  *   - Responsible for configuring LogicTaskSet, etc.
+  *   - Responsible for managing any task dependencies, etc.
+  */
 class LogicTaskEnvironment {
 public:
   struct TaskReqInfo;
@@ -65,6 +64,7 @@ protected:
   // TODO - track task performance?
 
   // TODO - move this into util file in json directory
+  
   template<typename RET_TYPE>
   RET_TYPE GetVal(
     json_t& json,
@@ -77,16 +77,12 @@ protected:
   }
 
   void SetTaskReqInfo(TaskReqInfo& info, json_t& task_cfg_json) {
-    info.task_value = GetVal<double>(task_cfg_json, "value", 1);
-    info.max_repeats = GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
-    const std::string reward_mode = GetVal<std::string>(task_cfg_json, "reward_mode", "add");
+    info.task_value = sym_json::GetVal<double>(task_cfg_json, "value", 1);
+    info.max_repeats = sym_json::GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
+    const std::string reward_mode = sym_json::GetVal<std::string>(task_cfg_json, "reward_mode", "add");
     emp_assert(emp::Has(this_t::predefined_reward_functions, reward_mode));
     info.fun_calc_task_val = this_t::predefined_reward_functions.at(reward_mode);
   }
-
-  // BuildTaskRewardFun_Add() {
-
-  // }
 
   size_t GetHostTaskReqID(size_t task_id) const {
     emp_assert(IsHostTask(task_id));
@@ -121,7 +117,6 @@ protected:
   void LoadTasks(const std::string& env_filepath);
 
 public:
-
   LogicTaskEnvironment(
     emp::Random& random
   ) :
@@ -181,13 +176,8 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
   //     Then, tasks can be associated with a particular resource pool.
 
   // === Parse environment file ===
-  // Check if given environment file exists. Exit if not.
-  const bool env_file_exists = std::filesystem::exists(env_filepath);
-  if (!env_file_exists) {
-    std::cout << "Environment file does not exist: " << env_filepath << std::endl;
-    std::exit(EXIT_FAILURE);
-  }
-  // If environment file exists, read it.
+  emp_assert(std::filesystem::exists(env_filepath));
+
   std::ifstream env_ifstream(env_filepath);
   nlohmann::json env_json;
   env_ifstream >> env_json;

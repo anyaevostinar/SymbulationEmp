@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "task_value",
+      "task_name": "NAND",
+      "action": "mult",
+      "value": -1,
+      "timing": "1:3:2",
+      "group": "shared"
+    }
+  ]
+}

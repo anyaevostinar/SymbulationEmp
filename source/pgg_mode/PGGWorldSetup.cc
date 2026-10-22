@@ -4,6 +4,9 @@
 #include "PGGWorld.h"
 #include "PGGHost.h"
 #include "PGGSymbiont.h"
+
+#include "../utils.h"
+
 /**
  * Input: The number of PGG hosts.
  *
@@ -12,10 +15,15 @@
  * Purpose: To populate the world with PGG hosts with appropriate phenotypes.
  */
 void PGGWorld::SetupHosts(long unsigned int* POP_SIZE){
-  for (size_t i = 0; i < *POP_SIZE; i++) {
+	emp::vector<size_t> world_positions(
+    utils::GenerateRandomOrdering(GetRandom(), GetSize())
+  );
+  emp_assert(*POP_SIZE <= GetSize());
+	for (size_t i = 0; i < *POP_SIZE; i++) {
     emp::Ptr<PGGHost> new_org;
     new_org.New(&GetRandom(), this, pgg_config, pgg_config->HOST_INT());
-    InjectHost(new_org);
+        const size_t pos = world_positions[i];
+    AddOrgAt(new_org, emp::WorldPosition(pos));
   }
 }
 

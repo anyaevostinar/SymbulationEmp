@@ -11,7 +11,9 @@
 #include "sgpl/utility/ThreadLocalRandom.hpp"
 
 #include <functional>
+#include <map>
 #include <mutex>
+#include <set>
 
 namespace sgpmode::inst {
 
@@ -28,6 +30,7 @@ namespace sgpmode::inst {
  */
 #define INST(InstName, InstCode)                                               \
   struct InstName {                                                            \
+    /* Runtime call path, run when this instruction executes in a program. */  \
     template <typename HW_SPEC_T>                                                   \
     static void run(                                                           \
       sgpl::Core<HW_SPEC_T>& core,                                                  \
@@ -42,8 +45,20 @@ namespace sgpmode::inst {
       a = a, b = b, c = c;                                                     \
       InstCode                                                                 \
     }                                                                          \
+    /* Make all instruction types eqiprobable to mutate in. */                 \
     static size_t prevalence() { return 1; }                                   \
+    /* Instruction class name e.g., "Nop" */                                   \
     static std::string name() { return #InstName; }                            \
+    /* Metadata for instruction instance, left empty (needed by JSON write). */\
+    template<typename Spec>                                                    \
+    static auto descriptors(const sgpl::Instruction<Spec>&) {                  \
+      return std::map<std::string, std::string>{};                             \
+    }                                                                          \
+    /* Metadata for instruction instance, left empty (needed by JSON write). */\
+    template<typename Spec>                                                    \
+    static auto categories(const sgpl::Instruction<Spec>&) {                   \
+      return std::set<std::string>{};                                          \
+    }                                                                          \
   };
 
 INST(Increment, {
@@ -101,19 +116,20 @@ INST(Swap, { std::swap(a, b); });
 INST(Reproduce, {
   const emp::WorldPosition& org_loc = state.GetLocation();
   // Check whether this attempt at reproduction is allowed.
+  auto& world_config = state.GetWorld().GetConfig();
+
+
   const bool too_soon = (state.IsHost()) ?
-    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().HOST_MIN_CYCLES_BEFORE_REPRO() :
-    state.GetCPUCyclesSinceRepro() < state.GetWorld().GetConfig().SYM_MIN_CYCLES_BEFORE_REPRO();
+    state.GetCPUCyclesSinceRepro() < world_config.HOST_MIN_CYCLES_BEFORE_REPRO() :
+    state.GetCPUCyclesSinceRepro() < world_config.SYM_MIN_CYCLES_BEFORE_REPRO();
   const bool invalid_attempt = state.ReproInProgress() || !org_loc.IsValid()
                                || state.ReproAttempt() || too_soon;
   if (invalid_attempt) {
     return;
   }
-  // std::cout << "  Mark repro attempt!" << std::endl;
   state.MarkReproAttempt();
 });
 
-// NOTE - what is the intended difference between SharedIO and PrivateIO?
 INST(IO, {
   // (1) Add output to output buffer
   state.GetOutputBuffer().emplace_back(a);
@@ -210,7 +226,7 @@ INST(SenseTask, {
       if (!state.GetWorld().CanPerformTask(state, task_req_info)) {
         continue;
       }
-      
+
       // check task reward or punishment
       b = task_req_info.task_value > 0;
       return;

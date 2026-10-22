@@ -22,6 +22,7 @@ namespace sgpmode {
 /**
  * Represents the virtual CPU and the program genome for an organism in the SGP
  * mode.
+ * @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
  */
 template<typename HW_SPEC_T>
 class SGPHardware {
@@ -303,16 +304,18 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
     } else {
       tag_name = "<nowhere>";
     }
-
-    if (name == "JumpIfNEq" || name == "JumpIfLess") {
+    
+    if (name == "JumpIfNEq" || name == "JumpIfLess" || name == "JumpIfEq") {
+      
       out << "    " << emp::to_lower(name);
       for (size_t i = 0; i < 12 - name.length(); i++) {
         out << ' ';
       }
       out << 'r' << (int)ins.args[0] << ", r" << (int)ins.args[1] << ", "
           << tag_name;
+
     } else if (name == "Global Anchor") {
-      out << tag_name << " " << ins.tag << ':';
+      out << tag_name << ':';
     } else {
       out << "<unknown " << name << ">";
     }
@@ -320,43 +323,6 @@ void SGPHardware<HW_SPEC_T>::PrintOp(
   out << '\n';
 }
 
-/* ------- The following functions weren't being used. --------
-TODO - either delete, re-incoporate into hardware, or relocate implementations
-*/
-/**
- * Input: None
- *
- * Output: A length 64 emp bitset which describes the phenotype of organism
- * such that the ith bit in the bitset marks the completion of task i.
- *
- * Purpose: Get the phenotype of an organism
- */
-// emp::BitSet<spec::NUM_TASKS> TasksPerformable() const {
-//   // Make a temporary copy of this CPU so that its state isn't clobbered
-//   CPU org_cpu = *this;
-//   org_cpu.Reset();
-//   org_cpu.state.available_dependencies = {1, 1, 1, 1, 1, 1, 1, 1, 1};
-//   // Turn off limited resources for this method
-//   int old_lim_res = org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL();
-//   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(-1);
-
-//   org_cpu.RunCPUStep(emp::WorldPosition::invalid_id, 400);
-
-//   // and then reset it to the previous value
-//   org_cpu.state.world->GetConfig()->LIMITED_RES_TOTAL(old_lim_res);
-//   return *org_cpu.state.used_resources;
-// }
-
-/*
-  * Input: The identifier for a specific task
-  *
-  * Output: a boolean representing a program's ability to do a specific task
-  *
-  * Purpose: To return whether or not the organism can perform the given task
-  */
-// bool CanPerformTask(size_t task_id) const {
-//   return TasksPerformable().Get(task_id);
-// }
 
 
 

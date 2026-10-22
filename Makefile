@@ -2,10 +2,14 @@
 TEST_DIR := source/catch
 EMP_DIR := Empirical/include
 SGP_DIR := signalgp-lite/include
+CEREAL_DIR := signalgp-lite/third-party/cereal/include
+CONDUIT_DIR := signalgp-lite/third-party/conduit/include
+TAG_NUM_BITS = 32
 
 # Flags to use regardless of compiler
 VENDORIZE_EMP_FLAGS := -DUIT_VENDORIZE_EMP -DUIT_SUPPRESS_MACRO_INSEEP_WARNINGS
-CFLAGS_all := -Wall -Wno-unused-function -std=c++20 -I$(EMP_DIR)/ -I$(SGP_DIR)/ ${VENDORIZE_EMP_FLAGS}
+COMPILE_TIME_ARGS := -DTAG_NUM_BITS=$(TAG_NUM_BITS)
+CFLAGS_all := -Wall -Wno-unused-function -std=c++20 $(COMPILE_TIME_ARGS) -I$(EMP_DIR)/ -I$(SGP_DIR)/ -I$(CEREAL_DIR)/ -I$(CONDUIT_DIR)/ ${VENDORIZE_EMP_FLAGS}
 
 # Native compiler information
 CXX_nat := g++
@@ -15,13 +19,17 @@ CFLAGS_nat_coverage := --coverage -pthread $(CFLAGS_all)
 
 # Emscripten compiler information
 CXX_web := emcc
-OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 #--embed-file configs
-OFLAGS_web := -Oz -DNDEBUG
+# Embed destinations are absolute because the config defaults they satisfy --
+# TASK_ENV_CFG_PATH in source/sgp_mode/SGPConfigSetup.h and SPATIAL_STRUCT_CFG_PATH
+# in source/ConfigSetup.h -- are resolved from the filesystem root at startup.
+# Also USE_ZLIB backs uitsl::autoinstall's gzip support
+OFLAGS_web_all := -s "EXPORTED_RUNTIME_METHODS=['ccall', 'cwrap', 'stringToUTF8', 'UTF8ToString']" -s TOTAL_MEMORY=268435456 --js-library $(EMP_DIR)/emp/web/library_emp.js -s EXPORTED_FUNCTIONS="['_main', '_empCppCallback', '_empDoCppCallback']" -s DISABLE_EXCEPTION_CATCHING=1 -s NO_EXIT_RUNTIME=1 -s ASSERTIONS=1 -s USE_ZLIB=1 --embed-file example-settings-cfg/environment.json@/environment.json --embed-file web/sfx/short_beep.wav@/short_beep.wav --embed-file example-settings-cfg/spatial-struct.mat@/spatial-struct.mat --embed-file example-settings-cfg/spatial-struct-edges.csv@/spatial-struct-edges.csv
+OFLAGS_web := -Oz -DNDEBUG -fpermissive -s DEFAULT_LIBRARY_FUNCS_TO_INCLUDE='$$allocate,$$ALLOC_STACK,$$stringToUTF8OnStack'
 OFLAGS_web_debug := -g4 -Oz -pedantic -Wno-dollar-in-identifier-extension
-
+OFLAGS_sgp_web := -s INITIAL_MEMORY=536870912 
 CFLAGS_web := $(CFLAGS_all) $(OFLAGS_web) $(OFLAGS_web_all)
 CFLAGS_web_debug := $(CFLAGS_all) $(OFLAGS_web_debug) $(OFLAGS_web_all)
-
+CFLAGS_sgp_web := $(CFLAGS_all) $(OFLAGS_web) $(OFLAGS_web_all) $(OFLAGS_sgp_web)
 # Compiling different modes
 default: default-mode
 	@echo Built default version using 'make default-mode'. To use other modes, use the following:
@@ -33,6 +41,7 @@ default: default-mode
 
 native: default-mode
 web: symbulation.js
+sgp-web: sgp-symbulation.js
 all: default-mode efficient-mode lysis-mode pgg-mode sgp-mode symbulation.js
 
 default-mode:	source/native/symbulation_default.cc
@@ -50,8 +59,11 @@ pgg-mode:	source/native/symbulation_pgg.cc
 sgp-mode:	source/native/symbulation_sgp.cc
 	$(CXX_nat) $(CFLAGS_nat) source/native/symbulation_sgp.cc -o symbulation_sgp
 
-symbulation.js: source/web/symbulation-web.cc
-	$(CXX_web) $(CFLAGS_web) source/web/symbulation-web.cc -o web/symbulation.js
+symbulation.js: web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_web) web/symbulation-web.cc -o web/symbulation.js
+
+sgp-symbulation.js: web/symbulation-web.cc
+	$(CXX_web) $(CFLAGS_sgp_web) web/SGPsymbulation-web.cc -o web/symbulation.js
 
 # Debugging
 debug:
@@ -157,6 +169,10 @@ test-sgp-all:
 test-debug-sgp:
 	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
 	./symbulation.test [sgp] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
+
+test-debug-events:
+	$(CXX_nat) $(CFLAGS_nat_debug) $(TEST_DIR)/main.cc -o symbulation.test
+	./symbulation.test [events] || { gdb ./$@.out --ex="catch throw" --ex="set confirm off" --ex="run" --ex="backtrace" --ex="quit"; exit 1; }
 
 test-executable:
 	$(CXX_nat) $(CFLAGS_nat) $(TEST_DIR)/main.cc -o symbulation.test

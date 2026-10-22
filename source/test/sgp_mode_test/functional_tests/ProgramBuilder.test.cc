@@ -1,13 +1,20 @@
-#include "emp/math/Random.hpp"
 
-#include "../../../sgp_mode/hardware/SGPHardware.h"
+#include "../../test_utils.h"
+
+#include "../../../default_mode/SymWorld.h"
+#include "../../../default_mode/WorldSetup.cc"
+#include "../../../default_mode/DataNodes.h"
 #include "../../../sgp_mode/SGPWorld.h"
 #include "../../../sgp_mode/SGPWorld.cc"
 #include "../../../sgp_mode/SGPWorldSetup.cc"
 #include "../../../sgp_mode/SGPWorldData.cc"
+#include "../../../sgp_mode/SGPW_InteractionMechanismSetup.cc"
+#include "../../../sgp_mode/SGPW_TaskProfileSetup.cc"
 #include "../../../sgp_mode/ProgramBuilder.h"
 
 #include "../../../catch/catch.hpp"
+
+#include "emp/math/Random.hpp"
 
 void CheckTaskProfile(
   sgpmode::SGPWorld& world,
@@ -38,10 +45,12 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("ProgramBuilder_test_output");
-  config.POP_SIZE(1);
   config.START_MOI(0);
   config.TASK_IO_UNIQUE_OUTPUT(true);
+  config.TASK_IO_BANK_SIZE(10);
+  test_utils::SetWellMixed(config, 1, 1);
 
   emp::Random random(config.SEED());
   world_t world(random, &config);
@@ -140,6 +149,35 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
       { "NOT", "OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU" }
     );
   }
+
+  WHEN("creating a NAND program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("source/test/sgp_mode_test/NandProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "NAND" },
+      { "NOT", "OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU" }
+    );
+  }
+
 
   WHEN("creating a repro program") {
     hw.Reset();

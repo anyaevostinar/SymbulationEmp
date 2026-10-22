@@ -8,6 +8,11 @@ namespace sgpmode {
 // NOTE - We can set this up to be configurable (e.g., support different modes,
 //        ability to "layer on" different mutaiton types).
 //        For now, it just replicates functionality of previous mutator
+/**
+* Used to mutate the program of organisms
+* @tparam PROGRAM_T: The type representing the program that is going to be mutated
+* @tparam INST_LIBRARY_T: Contains all instructions that can be mutated.
+*/
 template<typename PROGRAM_T, typename INST_LIBRARY_T>
 class SGPMutator {
 public:
@@ -23,10 +28,24 @@ public:
     rectifier_t& opcode_rectifier
   ) : prog_rectifier(opcode_rectifier) { }
 
+  /**
+   * Input: New rate of amount of bits to be mutated.
+   *
+   * Output: None.
+   *
+   * Purpose: Sets number of bits to be mutated on mutation. 
+   */
   void SetPerBitMutationRate(double rate) {
     per_bit_mut_rate = rate;
   }
 
+  /**
+   * Input: A program.
+   *
+   * Output: None.
+   *
+   * Purpose: Randomly flips bits in program data to allow for program mutation. 
+   */
   void MutateProgram(program_t& program) {
     /*
       ApplyMutations for sgplite:

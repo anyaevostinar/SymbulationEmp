@@ -4,7 +4,7 @@ Symbulation is an artificial life software tool for agent-based modeling of the 
 
 [![CI](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml/badge.svg)](https://github.com/anyaevostinar/SymbulationEmp/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/anyaevostinar/SymbulationEmp/branch/main/graph/badge.svg?token=BVQUX9SK5S)](https://codecov.io/gh/anyaevostinar/SymbulationEmp)
-[![DOI](https://zenodo.org/badge/92536524.svg)](https://zenodo.org/badge/latestdoi/92536524)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20732915.svg)](https://doi.org/10.5281/zenodo.20732915)
 [![Documentation Status](https://readthedocs.org/projects/symbulation/badge/?version=latest)](https://symbulation.readthedocs.io/en/latest/?badge=latest)
 [<img src="https://img.shields.io/badge/template-cookiecutter-blueviolet.svg?logo=LOGO">](https://github.com/anyaevostinar/SymbulationProjectTemplate)
 [![GitHub contributors](https://img.shields.io/github/contributors/anyaevostinar/SymbulationEmp.svg?style=flat-square)](https://github.com/anyaevostinar/SymbulationEmp/graphs/contributors)
@@ -16,6 +16,7 @@ Interested in starting a new project with Symbulation? We have a cookiecutter te
 Symbulation is built with the [Empirical platform](https://github.com/devosoft/Empirical) and the cookiecutter includes our recommended directory layout and example analysis files. 
 
 ## Usage
+(Note, you'll need a Python virtual environment to use cookiecutter)
 Install the latest Cookiecutter:
 
 ```
@@ -61,19 +62,25 @@ python3 munge_data.py
 And then open our provided R script `SampleAnalysis.R` in R, set your working directory to the `Analysis` directory and then run all lines to observe the effect of vertical transmission rate on the interaction value evolved.
 
 ## Notes
-SGP-mode is a prototype and untested.
+SGP-mode is a prototype and minimally tested.
 
 ## Citations
+Symbulation is built with:
+
 * Vostinar et al. (2024). Empirical: A scientific software library for research, education, and public engagement. Journal of Open Source Software,
 9(98), 6617. [https://doi.org/10.21105/joss.06617](https://doi.org/10.21105/joss.06617).
 
+    <a href="https://github.com/devosoft/Empirical"><img src="EmpiricalBanner.png" width="300"></a>
+
 * Moreno, Matthew Andres, et al. "SignalGP-Lite: Event Driven Genetic Programming Library for Large-Scale Artificial Life Applications." arXiv preprint arXiv:2108.00382 (2021). [https://arxiv.org/pdf/2108.00382](https://arxiv.org/pdf/2108.00382)
+
+    <a href="https://github.com/mmore500/signalgp-lite"><img src="SGPLite-Logo.jpg" width="300"></a>
 
 * Dolson, Emily, Santiago Rodriguez-Papa, and Matthew Andres Moreno. "Phylotrack: C++ and python libraries for in silico phylogenetic tracking." arXiv preprint arXiv:2405.09389 (2024) [https://arxiv.org/pdf/2405.09389](https://arxiv.org/pdf/2405.09389)
 
 ## How to Cite
 ```
-Anya Vostinar, Piper Welch, K-Johnson-Horrigan, Alison Cameron, Lilith Orion Hafner, Emily Dolson, dorchens, Caroline Gormely, renztim, Charles Ofria, Yi Qin, & mkmmnn. (2022). anyaevostinar/SymbulationEmp: Modes (v0.2). Zenodo. https://doi.org/10.5281/zenodo.6380543
+Vostinar, A., Johnson-Horrigan, K., Lalejini, A., Dolson, E., Hillman-Emelianoff, E., Shea, J., Kelley, D., Khalili, A. T., Welch, P., Cameron, A., Orion Hafner, L., Dorchen, S., Gormely, C., renztim, Ofria, C., Qin, Y., & mkmmnn. (2026). anyaevostinar/SymbulationEmp: ComplexFeatures (Version v1.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.20732915
 ```
 
 Created part of my free logo at LogoMakr.com.

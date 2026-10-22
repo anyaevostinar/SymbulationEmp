@@ -31,7 +31,7 @@ protected:
 
 public:
   PGGSymbiont(emp::Ptr<emp::Random> _random, emp::Ptr<PGGWorld> _world, emp::Ptr<SymConfigPGG> _config, double _intval = 0.0, double _donation = 0.0, double _points = 0.0) : Symbiont(_random, _world, _config, _intval, _points), PGG_donate(_donation) {
-    pgg_config = _config; 
+    pgg_config = _config;
     my_world = _world;
   }
 
@@ -92,8 +92,8 @@ public:
   *
   * Purpose: To know which subclass the object is
   */
-  std::string const GetName() {
-    return  "PGGSymbiont";
+  std::string const GetName() const {
+    return "PGGSymbiont";
   }
 
   /**
@@ -103,7 +103,7 @@ public:
    *
    * Purpose: To get a symbiont's donation value.
    */
-  double GetDonation() {return PGG_donate;}
+  double GetDonation() const { return PGG_donate; }
 
 
   /**

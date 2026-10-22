@@ -3,7 +3,7 @@
 
 #include "../default_mode/Host.h"
 #include "hardware/SGPHardware.h"
-// #include "SGPWorld.h"
+#include "SGPConfigSetup.h"
 
 #include "emp/base/Ptr.hpp"
 #include "emp/bits/Bits.hpp"
@@ -13,8 +13,13 @@
 #include <functional>
 
 
-namespace sgpmode {
 
+
+namespace sgpmode {
+/**
+* The SignalGP version of the base host
+* @tparam HW_SPEC_T: Contains the internal hardware of the organism, used as a specifier to allow easy swapping of hardware
+*/
 template <typename HW_SPEC_T>
 class SGPHost : public Host {
 public:
@@ -25,6 +30,7 @@ public:
   using hw_t = SGPHardware<hw_spec_t>;
   using program_t = typename hw_t::program_t;
 
+  size_t matching_syms_to_interact_with = 0;
 protected:
   // CPU cpu;
   hw_t hardware;
@@ -49,7 +55,7 @@ protected:
    * object as my_config from superclass, but with the correct subtype.
    *
    */
-  // emp::Ptr<SymConfigSGP> sgp_config;
+  emp::Ptr<SymConfigSGP> sgp_config;
 
   // // Function to configure functionality.
   // void ConfigureDefaults() {
@@ -63,6 +69,7 @@ protected:
   // }
 
 public:
+
   /**
    * Constructs a new SGPHost as an ancestor organism, with either a random
    * genome or a blank genome that knows how to do a simple task depending on
@@ -79,8 +86,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   /**
@@ -98,8 +105,8 @@ public:
   ) :
     Host(_random, _world, _config, _intval, _syms, _repro_syms, _points),
     hardware(_world, this, genome),
-    my_world(_world)
-    // sgp_config(_config)
+    my_world(_world),
+    sgp_config(_config)
   { }
 
   SGPHost(const SGPHost& host) :
@@ -167,21 +174,32 @@ public:
    *
    * Purpose: To set the count of reproductions in this lineage.
    */
-  void SetReproCount(size_t _in) { reproductions = _in; }
-
-  void SetLocation(const emp::WorldPosition& pos) {
-    hardware.GetCPUState().SetLocation(pos);
-  }
-  const emp::WorldPosition& GetLocation() const {
-    return hardware.GetCPUState().GetLocation();
-  }
+  void LineageLength(size_t _in) { reproductions = _in; }
 
   void DecPoints(double amt) {
     points -= amt;
+
+    if (points < 0){
+      points = 0;
+    }
   }
+
   void AddPoints(double amt) {
     points += amt;
+
+    if (points < 0){
+      points = 0;
+    }
   }
+
+  size_t GetCountofMatchingSymsToInteractWith(){
+    return matching_syms_to_interact_with;
+  }
+
+  void SetCountofMatchingSymsToInteractWith(size_t new_matching_count){
+    matching_syms_to_interact_with = new_matching_count;
+  }
+
 
   /**
    * Input: None.
@@ -223,7 +241,8 @@ public:
    */
   int AddSymbiont(emp::Ptr<Organism> sym) {
     my_world->AssignNewEnvIO(static_cast<sgp_sym_t&>(*sym).GetHardware().GetCPUState());
-    return Host::AddSymbiont(sym);
+    auto result = Host::AddSymbiont(sym);
+    return result;
   }
 
   /**
@@ -238,12 +257,10 @@ public:
   // TODO - why pass a copy of the position?
   //        - Need to override parent implementation
   void Process(emp::WorldPosition pos) {
-    // std::cout << "Host Process" << std::endl;
     // If host is dead, don't process.
     if (GetDead()) {
       return;
     }
-
     // NOTE - Discuss timing of endosym pre-process signal and host preprocess signal
     //        Currently endosyms go first and then hosts. This is to model endosyms
     //        having opportunity to steal / donate cpu cycles and then host responding
@@ -252,10 +269,17 @@ public:
     // Trigger signal to all endosymbionts that host is about to process
     //   Gives endosymbionts chance to interact with host before it processes.
     //   E.g., symbiont could steal / donate cpu cycles, resources, etc.
+
+    UpdateSymMatchCount();
+
     emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
     for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
-      emp_assert(!(syms[endosym_i]->IsHost()));
-      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+
+      //This ensures that which symbiont is the starting symbiont rotates each update
+      size_t sym_index = (endosym_i + my_world->GetUpdate()) % syms.size();
+
+      emp_assert(!(syms[sym_index]->IsHost()));
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_index].Raw());
       const bool dead = cur_symbiont->GetDead();
       // Skip if dead
       if (dead) {
@@ -263,15 +287,15 @@ public:
       }
       // Endosymbiont gains baseline number of CPU cycles
       cur_symbiont->GetHardware().GetCPUState().GainCPUCycles(
-        my_world->GetConfig().CYCLES_PER_UPDATE()
+        sgp_config->CYCLES_PER_UPDATE()
       );
-      my_world->before_endosym_host_process_sig.Trigger(
+      my_world->TriggerBeforeEndoSymHostProcessSig(
         {endosym_i + 1, GetLocation().GetIndex()},
         *cur_symbiont,
-        *this
+        this
       );
     }
-    my_world->before_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerBeforeHostCPUExec(*this);
 
     // Host may have died as a result of this signal.
     if (GetDead()) {
@@ -286,33 +310,70 @@ public:
     //        As-is, still run hardware forward full amount regardless
     for (size_t i = 0; i < cycles_to_exec; ++i) {
       if (GetDead()) {
+        return;
       }
       // TODO - do we need to update org location every update? (this was being done in RunCPUStep every cpu step)
       // Execute 1 CPU cycle
       GetHardware().RunCPUStep(1);
-
       // Did host attempt to reproduce?
       // NOTE - could move into a signal response
       // NOTE - want to handle this after every clock cycle?
       if (GetHardware().GetCPUState().ReproAttempt()) {
-
         // upside to handling this here: we have direct access to organism
         AttemptReproduction(pos);
       }
 
-      my_world->after_host_cpu_step_sig.Trigger(*this);
+      my_world->TriggerAfterHostCPUStep(*this);
       // NOTE - Check death here?
     }
-    my_world->after_host_cpu_exec_sig.Trigger(*this);
+    my_world->TriggerAfterHostCPUExec(*this);
     // Handle any endosymbionts (configurable at setup-time)
     // NOTE - is there any reason that this might need to be a functor?
-    my_world->ProcessEndosymbionts(*this);
+    ProcessEndosymbionts();
     // Endosymbionts might kill host.
     if (GetDead()) {
       return;
     }
     GrowOlder();
-    my_world->after_host_process_sig.Trigger(*this);
+    my_world->TriggerAfterHostProcess(*this);
+  }
+
+  void ProcessEndosymbionts() {
+    // If host doesn't have a symbiont, return.
+    if (!HasSym()) {
+      return;
+    }
+    emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+    size_t sym_count = syms.size();
+    for (size_t sym_i = 0; sym_i < sym_count; /*sym_i handled internally*/) {
+      emp_assert(!(syms[sym_i]->IsHost()));
+      // If host is dead (e.g., because of previous symbiont), stop processing.
+      if (GetDead()) {
+        return;
+      }
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[sym_i].Raw());
+      const bool dead = cur_symbiont->GetDead();
+      if (!dead) {
+        // Symbiont not dead, process it
+        // TODO - change to functor?
+        cur_symbiont->Process({sym_i + 1, GetLocation().GetIndex()});
+        ++sym_i;
+      } else {
+        // TODO: this should probably be it's own function to abstract this logic and share it other places
+        emp_assert(sym_count > 0);
+        // TODO - Check that it is okay to re-order symbionts to avoid erase calls
+        // Symbiont is dead, need to delete it.
+        cur_symbiont.Delete();
+        // Swap this symbiont with last in list, decrementing sym_count
+        std::swap(syms[sym_i], syms[--sym_count]);
+        // We will need to process what we just swapped into place, so
+        // re-process sym_i (don't increment it)
+      }
+    }
+    // Resize syms to remove deleted dead symbionts swapped to end
+    emp_assert(sym_count <= syms.size());
+    syms.resize(sym_count);
+    // TODO - signal?
   }
 
   /**
@@ -324,7 +385,7 @@ public:
    * TODO: Perhaps Default mode should have something similar
    */
   void AttemptReproduction(const emp::WorldPosition& pos) {
-    const double repro_cost = my_world->GetConfig().HOST_REPRO_RES();
+    const double repro_cost = sgp_config->HOST_REPRO_RES();
     if (GetPoints() >= repro_cost) {
       // Host pays cost
       DecPoints(repro_cost);
@@ -336,7 +397,6 @@ public:
       );
       // Mark host hardware as repro in progress, no longer in repro "attempt" state.
       GetHardware().GetCPUState().MarkReproInProgress(queue_id);
-
     } else {
       // Attempt failed, so reset repro state.
       GetHardware().GetCPUState().ResetReproState();
@@ -351,32 +411,33 @@ public:
    * Purpose: Reward for any solved tasks in the output buffer and update data tracking appropriately.
    */
   void ProcessOutputBuffer() {
-    // Refactor note: Ported from SGPWorld.cc ProcessHostOutputBuffer
-    //AEV TODO: Check which of these we have access to more easily than currently done
     auto& cpu_state = GetHardware().GetCPUState();
     const size_t env_task_id = cpu_state.GetTaskEnvID();
     auto& task_env = my_world->GetTaskEnv();
     const auto& task_io = task_env.GetIOBank().GetIO(env_task_id);
-    // Process output buffer
     auto& output_buffer = cpu_state.GetOutputBuffer();
     for (uint32_t val : output_buffer) {
-      // Is this the correct output for any tasks?
+      // Check for valid output
       if (task_io.IsValidOutput(val)) {
-        // Yes, this output is correct.
+
         // Get all task ids associated with this output value
         const emp::vector<size_t>& task_ids = task_io.GetTaskIDs(val);
 
         // Give credit for completed tasks
         for (size_t task_id : task_ids) {
-          // Is this a host task?
+          // Is this a valid host task?
           if (!task_env.IsHostTask(task_id)) continue;
-          // Not first task
-          const bool not_first_task = my_world->GetConfig().HOST_ONLY_FIRST_TASK_CREDIT() && cpu_state.GetFirstTaskPerformed().Any() && !cpu_state.GetFirstTaskPerformed().Get(task_id);
-          if (not_first_task) {
-            continue;
-          }
+
+          //check first task credit
+          const bool not_first_task =
+            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() &&
+            cpu_state.GetFirstTaskPerformed().Any() &&
+            !cpu_state.GetFirstTaskPerformed().Get(task_id);
+          if (not_first_task) continue;
+
           // Has this organism already gotten credit with this output on this task?
           if (cpu_state.OutputCredited(task_id, val)) continue;
+
           // Check task requirements
           auto& task_req_info = task_env.GetHostTaskReq(task_id);
           if (!my_world->CanPerformTask(cpu_state, task_req_info)) {
@@ -384,31 +445,27 @@ public:
           }
 
           // Manage CPU state after completing a task:
-          //   (1) Mark task as being performed
           cpu_state.MarkTaskPerformed(task_id);
-          //   (2) Credit output
           cpu_state.CreditOutputValue(task_id, val);
-          //   (3) Clear output credits if outputs credited >= number of pre-computed outputs
-          //       for this task in the task io bank.
           if (cpu_state.GetOutputsCredited(task_id).size() >= task_io.GetNumTaskOutputs(task_id)) {
             cpu_state.ResetCreditedOutputs(task_id);
           }
-          // Calc value, add to organism points
-          SetPoints(
-            task_req_info.fun_calc_task_val(
-              task_env,
-              task_req_info,
-              GetPoints()
-            )
-          );
 
+          // Calc value, add to organism points
+          double new_points = task_req_info.fun_calc_task_val(
+            task_env,
+            task_req_info,
+            GetPoints()
+          );
+          double task_points = new_points - GetPoints();
+
+          //World handles giving host points and adjusting that amount based on if any points are removed or by symbionts
+          my_world->ApplyHostPoints(*this, task_points, task_id);
           my_world->GetHostTaskSuccesses()[task_id] += 1;
 
         }
       }
     }
-
-    // Clear output buffer
     output_buffer.clear();
   }
 
@@ -427,7 +484,7 @@ public:
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();
 
-    host_offspring->SetReproCount(reproductions + 1);
+    host_offspring->LineageLength(reproductions + 1);
     cpu_state.SetCPUCyclesSinceRepro(0);
     offspring_cpu_state.SetCPUCyclesSinceRepro(0);
     // Offspring needs to be given parent's (this) task profile
@@ -526,14 +583,33 @@ public:
     //        to deviate from what happens in the base class mutate functions
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
-    my_world->HostDoMutation(*this);
-    // TODO - Switch from HostDoMutation() to:
-    //   -> my_world->GetHostMutator().DoMutation(*this);
+    my_world->GetMutator().MutateProgram(GetProgram());
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
                       // which didn't reset the cpu. I think we want to reset the CPU here also?
   }
+
+  /*
+   *Input: None
+   *Output: None
+   *Purpose: To update the host's counter for the number of their symbionts that they task match with
+   */
+  void UpdateSymMatchCount(){
+    matching_syms_to_interact_with = 0;
+    emp::vector<emp::Ptr<Organism>>& syms = GetSymbionts();
+    for (size_t endosym_i = 0; endosym_i < syms.size(); ++endosym_i) {
+
+      emp::Ptr<sgp_sym_t> cur_symbiont = static_cast<sgp_sym_t*>(syms[endosym_i].Raw());
+
+      const emp::BitVector& endosym_task_profile = my_world->GetSymTaskProfile(*cur_symbiont);
+      const emp::BitVector& host_task_profile = my_world->GetHostTaskProfile(*this);
+      bool is_matching = my_world->TaskProfileCompatibilityCheck(host_task_profile,endosym_task_profile);
+      matching_syms_to_interact_with += is_matching;
+
+      }
+  }
+
 };
 
 }

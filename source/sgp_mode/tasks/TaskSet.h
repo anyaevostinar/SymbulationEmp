@@ -14,7 +14,7 @@ namespace sgpmode::tasks {
 
 // TODO - write tests
 
-/*
+/**
   TaskSet is adapted from class of the same name from
     https://github.com/amlalejini/directed-digital-evolution
 
@@ -25,6 +25,8 @@ namespace sgpmode::tasks {
   given output (OUTPUT_T). This mapping is specified by the task's calc_output_fun,
   which takes a vector of inputs and maps it to the correct output for the given
   task.
+
+  @tparam INPUT_T: A type containing vector of inputs, OUTPUT_T: A type representing output of a task given INPUT_T
 
 */
 template<typename INPUT_T, typename OUTPUT_T>

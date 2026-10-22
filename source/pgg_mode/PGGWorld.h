@@ -6,10 +6,10 @@
 #include "PGGConfigSetup.h"
 
 class PGGWorld : public SymWorld {
-private:
+protected:
   /**
     *
-    * Purpose: Holds all configuration settings and points to same configuration 
+    * Purpose: Holds all configuration settings and points to same configuration
     * object as my_config from superclass, but with the correct subtype.
     *
   */
@@ -21,10 +21,17 @@ private:
     *
   */
   emp::Ptr<emp::DataMonitor<double,emp::data::Histogram>> data_node_PGG;
+
+  /**
+  * Definitions of setup functions, expanded in PGGWorldSetup.cc
+  */
+  void SetupHosts(long unsigned int* POP_SIZE);
+  void SetupSymbionts(long unsigned int* total_syms);
+
 public:
   /**
    * Input: a reference to a random number generator and a pointer to the configuration object for this experiment.
-   * 
+   *
    * Output: None
    *
    * Purpose: To construct an instance of PGGWorld
@@ -37,8 +44,8 @@ public:
           "PGG taxon calculation assumes you're using <= phylo bins");
         // Set calc info function for symbiont taxa to include donation
         // rate (as specified by 100's and 1000's places) and interaction
-        // value (as specified by 1's and 10's places)  
-        calc_sym_info_fun = [&](Organism & org){
+        // value (as specified by 1's and 10's places)
+        calc_sym_info_fun = [&](Organism & org) {
             size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
             //classify orgs into bins base on interaction values,
             //inclusive of lower bound, exclusive of upper
@@ -69,16 +76,9 @@ public:
    *
    * Purpose: To destruct the data nodes belonging to PGGWorld to conserve memory.
    */
-  ~PGGWorld(){
-      if (data_node_PGG) data_node_PGG.Delete();
+  ~PGGWorld() {
+    if (data_node_PGG) data_node_PGG.Delete();
   }
-
-
-  /**
-  * Definitions of setup functions, expanded in PGGWorldSetup.cc
-  */
-  void SetupHosts(long unsigned int* POP_SIZE);
-  void SetupSymbionts(long unsigned int* total_syms);
 
 
   /**
@@ -88,7 +88,7 @@ public:
   *
   * Purpose: To create and set up the data files (excluding for phylogeny) that contain data for the experiment.
   */
-  void CreateDataFiles(){
+  void CreateDataFiles() {
     std::string file_ending = "_SEED"+std::to_string(pgg_config->SEED())+".data";
     SymWorld::CreateDataFiles();
     SetupPGGSymIntValFile(pgg_config->FILE_PATH()+"PGGSymVals"+pgg_config->FILE_NAME()+file_ending).SetTimingRepeat(pgg_config->DATA_INT());
@@ -151,17 +151,17 @@ public:
   emp::DataMonitor<double, emp::data::Histogram>& GetPGGDataNode() {
     if (!data_node_PGG) {
       data_node_PGG.New();
-      OnUpdate([this](size_t){
+      OnUpdate([this](size_t) {
         data_node_PGG->Reset();
         for (size_t i = 0; i< pop.size(); i++) {
           if (IsOccupied(i)) { //track hosted syms
             emp::vector<emp::Ptr<Organism>>& syms = pop[i]->GetSymbionts();
             size_t sym_size = syms.size();
-            for(size_t j=0; j< sym_size; j++){
+            for (size_t j=0; j< sym_size; j++) {
               data_node_PGG->AddDatum(syms[j]->GetDonation());
             }//close for
           }//close if
-          if(sym_pop[i]){ //track free-living syms
+          if (sym_pop[i]) { //track free-living syms
             data_node_PGG->AddDatum(sym_pop[i]->GetDonation());
           }//close if
         }//close for

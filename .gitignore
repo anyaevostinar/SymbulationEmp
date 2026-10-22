@@ -1,3 +1,6 @@
+Data/
+_test/
+
 .DS_Store
 StatsConfig.cfg
 SymSettings.cfg
@@ -16,7 +19,12 @@ symbulation.test
 *.gcno
 *.gcda
 *.vscode
-
-*_output/
-output/
 local/
+output/
+log.txt
+*.json
+*_test_output/
+*_output/
+Data/*
+
+
