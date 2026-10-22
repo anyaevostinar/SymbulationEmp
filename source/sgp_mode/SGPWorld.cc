@@ -225,11 +225,11 @@ emp::WorldPosition SGPWorld::SymAttemptHorizontalInfection(
 
 void SGPWorld::ProcessGraveyard() {
   // clean up the graveyard
-  for (size_t i = 0; i < graveyard.size(); ++i) {
+  for (emp::Ptr<Organism> org_p : graveyard) {
     // NOTE - Does this need to call DoDeath?
     //        the original implementation (in old Update function) does not
-    GetCPUState(graveyard[i]).ResetReproState();
-    graveyard[i].Delete();
+    GetCPUState(org_p).ResetReproState();
+    org_p.Delete();
   }
   graveyard.clear();
 }

@@ -71,7 +71,7 @@ protected:
     * of every update.
     *
   */
-  emp::vector<emp::Ptr<Organism>> graveyard = {};
+  std::set<emp::Ptr<Organism>> graveyard = {};
 
   /**
     *
@@ -596,7 +596,7 @@ public:
    *
    * Purpose: To get the world's graveyard.
    */
-  emp::vector<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
+  std::set<emp::Ptr<Organism>>& GetGraveyard() { return graveyard; }
 
   /**
    * Input: None
@@ -743,7 +743,7 @@ public:
       "Tried to send a null organism to the graveyard."
     );
     org->SetDead();
-    graveyard.push_back(org);
+    graveyard.insert(org);
   }
 
 
@@ -1390,8 +1390,8 @@ public:
    * Purpose: To loop over and delete elements in the graveyard.
    */
   void CleanupGraveyard() {
-    for (size_t i = 0; i < graveyard.size(); i++) {
-      graveyard[i].Delete();
+    for (emp::Ptr<Organism> org_p : graveyard) {
+      org_p.Delete();
     }
     graveyard.clear();
   }
