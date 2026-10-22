@@ -142,10 +142,6 @@ public:
     // }
   }
 
-  void HostDoMutation(this_t& host) {
-    my_world->getMutator().MutateProgram(host.GetProgram());
-  }
-
   bool operator<(const Organism& other) const {
     if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
       return GetProgram() < sgp->GetProgram();
@@ -589,8 +585,6 @@ public:
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
     my_world->GetMutator().MutateProgram(GetProgram());
-    // TODO - Switch from HostDoMutation() to:
-    //   -> my_world->GetHostMutator().DoMutation(*this);
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,

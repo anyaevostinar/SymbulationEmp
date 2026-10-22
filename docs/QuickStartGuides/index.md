@@ -10,6 +10,7 @@ Contents:
 2-CollectingData
 3-CreatingConfigSetting
 4-CreatingAMode
+5-Events
 ```
 
 - {ref}`genindex`

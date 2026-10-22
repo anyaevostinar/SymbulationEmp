@@ -706,23 +706,23 @@ void SGPWorld::OutputDominantDataFile() {
   std::filesystem::create_directory(dominant_path);
 
   // Setup a metadata file for dominant genotype information
-  std::filesystem::path dominant_metadata_path = dominant_path / "dom_metadata.csv";
+  std::filesystem::path dominant_metadata_path = dominant_path / "dominant_metadata.csv";
   emp::DataFile metadata_file(dominant_metadata_path.string());
   // Anonymous struct to consolidate metadata to be captured by file lambdas
   struct {
     emp::Ptr<sgp_host_t> focal_host;
-    std::string host_dom_name;
+    std::string host_id;
     size_t host_abundance;
-  } dom_metadata;
+  } dominant_metadata;
   metadata_file.AddFun<std::string>(
-    [&dom_metadata]() -> std::string {
-      return dom_metadata.host_dom_name;
+    [&dominant_metadata]() -> std::string {
+      return dominant_metadata.host_id;
     },
     "genome_id"
   );
   metadata_file.AddFun<size_t>(
-    [&dom_metadata]() -> size_t {
-      return dom_metadata.host_abundance;
+    [&dominant_metadata]() -> size_t {
+      return dominant_metadata.host_abundance;
     },
     "abundance"
   );
@@ -737,9 +737,9 @@ void SGPWorld::OutputDominantDataFile() {
     for (auto pair : dominant_organisms) {
       auto sample = pair.first.DynamicCast<sgp_host_t>();
       std::ofstream genome_file;
-      std::string host_dom_name = "Host" + std::to_string(idx);
+      std::string host_id = "Host" + std::to_string(idx);
       const std::string genome_fname(
-        ("Genome_" + host_dom_name + sgp_config.FILE_NAME() + ".data")
+        ("Genome_" + host_id + sgp_config.FILE_NAME() + ".data")
       ); // Any ending that actually does make sense for these files?
       path_t genome_path = dominant_path / genome_fname;
       genome_file.open(genome_path);
@@ -764,9 +764,9 @@ void SGPWorld::OutputDominantDataFile() {
         sym_idx++;
       }
       // Update metadata info for metadata file, then update metadata file
-      dom_metadata.focal_host = sample;
-      dom_metadata.host_dom_name = host_dom_name;
-      dom_metadata.host_abundance = pair.second;
+      dominant_metadata.focal_host = sample;
+      dominant_metadata.host_id = host_id;
+      dominant_metadata.host_abundance = pair.second;
       metadata_file.Update();
       idx++;
     }
