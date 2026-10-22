@@ -76,6 +76,9 @@ void SGPWorld::Setup() {
   // Load events
   SetupEvents();
 
+  // Setup task discovery tracking
+  SetupTaskDiscoveryTracker();
+
   // CureHost signal
   // TODO: move to default? Figure out how to remove duplication
   if (sgp_config.CURE()) {
@@ -158,7 +161,7 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
-    
+
     } else {
       const emp::WorldPosition sym_offspring_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
@@ -329,7 +332,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
         break;
     }
 
-    
+
 
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
@@ -507,7 +510,7 @@ void SGPWorld::SetupTaskEnvironment() {
 
 void SGPWorld::SetupEvents() {
   // If event file doesn't exist, check if user is using default event setting.
-  // If so, create an empty events file that can be used, and let the user know, then proceed to use an empty 
+  // If so, create an empty events file that can be used, and let the user know, then proceed to use an empty
   // events manager without needing the file.
   const bool event_file_exists = std::filesystem::exists(sgp_config.EVENTS_CFG_PATH());
   if (!event_file_exists) {
@@ -535,6 +538,82 @@ void SGPWorld::SetupMutator() {
   mutator.SetPerBitMutationRate(sgp_config.SGP_MUT_PER_BIT_RATE());
   // NOTE - could make host mutator a functor that could be configured here
   //        same with endosymbionts / etc
+}
+
+void SGPWorld::SetupTaskDiscoveryTracker() {
+  // Reset task discovery tracker with correct number of tasks
+  task_discovery_tracker.Reset(task_env.GetTaskCount());
+  // Configure on_host_task_credit signal
+  // NOTE: Is there a way to "unplug" this action once we're done marking discoveries?
+  on_host_task_credit.AddAction(
+    [this](sgp_host_t& host, size_t task_id) {
+      const bool task_discovered = task_discovery_tracker.IsHostTaskDiscovered(task_id);
+      const bool parent_offspring_discovered = task_discovery_tracker.IsHostParentOffspringTaskDiscovered(task_id);
+      emp_assert(
+        !(!task_discovered && parent_offspring_discovered),
+        "It should never be the case that a parent-offspring pair discovered a task but the task hasn't been marked as discovered by a single host."
+      );
+      // Do nothing if this task has already been fully discovered
+      if (task_discovered && parent_offspring_discovered) return;
+      // If task hasn't been discovered yet, mark it as discovered.
+      if (!task_discovered) {
+        task_discovery_tracker.MarkHostTaskDiscovery(
+          task_id,
+          GetUpdate(),
+          host.GetLocation().GetIndex()
+        );
+      }
+      // If task hasn't been discovered by a parent-offspring pair, check whether
+      //   this host's parent also performed the task. If so, mark it.
+      // Note: this conditional needs to be separate from the previous in case
+      //       we need to mark both situations at once (e.g., on initialization)
+      if (!parent_offspring_discovered) {
+        const bool parent_perf = host.GetHardware().GetCPUState().GetParentTaskPerformed(task_id);
+        if (parent_perf) {
+          task_discovery_tracker.MarkHostParentOffspringTaskDiscovery(
+            task_id,
+            GetUpdate(),
+            host.GetLocation().GetIndex()
+          );
+        }
+      }
+    }
+  );
+
+  // Configure on_sym_task_credit signal
+  on_sym_task_credit.AddAction(
+    [this](sgp_sym_t& sym, size_t task_id) {
+      const bool task_discovered = task_discovery_tracker.IsSymTaskDiscovered(task_id);
+      const bool parent_offspring_discovered = task_discovery_tracker.IsSymParentOffspringTaskDiscovered(task_id);
+      emp_assert(
+        !(!task_discovered && parent_offspring_discovered),
+        "It should never be the case that a parent-offspring pair discovered a task but the task hasn't been marked as discovered by a single symbiont."
+      );
+      // Do nothing if this task has already been fully discovered
+      if (task_discovered && parent_offspring_discovered) return;
+      // Get symbiont location in world
+      const size_t location = sym.GetLocation().GetPopID(); // <- PopID Should contain sym's position in world (or sym pop if free-living)
+      if (!task_discovered) {
+        task_discovery_tracker.MarkSymTaskDiscovery(
+          task_id,
+          GetUpdate(),
+          location
+        );
+      }
+      // If task hasn't been discovered by a parent-offspring pair, check whether
+      //   this symbiont's parent also performed the task. If so, mark it.
+      if (!parent_offspring_discovered) {
+        const bool parent_perf = sym.GetHardware().GetCPUState().GetParentTaskPerformed(task_id);
+        if (parent_perf) {
+          task_discovery_tracker.MarkSymParentOffspringTaskDiscovery(
+            task_id,
+            GetUpdate(),
+            location
+          );
+        }
+      }
+    }
+  );
 }
 
 /**
@@ -571,7 +650,7 @@ void SGPWorld::GenerateDefaultTaskEnvironment(){
       std::cout << "Error: Could not create new environment file" << std::endl;
       std::exit(EXIT_FAILURE);
   }
-  
+
   envFile << R"({
   "shared": {
     "tasks": [
@@ -587,9 +666,9 @@ void SGPWorld::GenerateDefaultTaskEnvironment(){
     ]
   }
 })";
-    
+
   envFile.close();
-  
+
 }
 
 }
