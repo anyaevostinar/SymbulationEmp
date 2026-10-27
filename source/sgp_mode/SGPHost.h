@@ -142,10 +142,6 @@ public:
     // }
   }
 
-  void HostDoMutation(this_t& host) {
-  my_world->getMutator().MutateProgram(host.GetProgram());
-  }
-
   bool operator<(const Organism& other) const {
     if (const SGPHost* sgp = dynamic_cast<const SGPHost*>(&other)) {
       return GetProgram() < sgp->GetProgram();
@@ -187,15 +183,13 @@ public:
       points = 0;
     }
   }
-  
+
   void AddPoints(double amt) {
     points += amt;
 
     if (points < 0){
       points = 0;
     }
-
-   
   }
 
   size_t GetCountofMatchingSymsToInteractWith(){
@@ -435,9 +429,9 @@ public:
           if (!task_env.IsHostTask(task_id)) continue;
 
           //check first task credit
-          const bool not_first_task = 
-            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() && 
-            cpu_state.GetFirstTaskPerformed().Any() && 
+          const bool not_first_task =
+            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() &&
+            cpu_state.GetFirstTaskPerformed().Any() &&
             !cpu_state.GetFirstTaskPerformed().Get(task_id);
           if (not_first_task) continue;
 
@@ -523,7 +517,7 @@ public:
         cpu_state.GetLineageTaskGainCount(task_id) + (size_t)task_gain
       );
       offspring_cpu_state.SetLineageTaskLossCount(
-        task_id, 
+        task_id,
         cpu_state.GetLineageTaskLossCount(task_id) + (size_t)task_loss
       );
 
@@ -590,8 +584,6 @@ public:
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
     my_world->GetMutator().MutateProgram(GetProgram());
-    // TODO - Switch from HostDoMutation() to:
-    //   -> my_world->GetHostMutator().DoMutation(*this);
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
