@@ -583,7 +583,7 @@ void SGPWorld::CollectCurrentUpdateData() {
           all_match = all_match && !task_mismatch;
         }
         // Update perfect / any matches totals
-        current_update_data.host_sym_perfect_matches_total += (size_t)all_match;
+        current_update_data.host_sym_perfect_matches_total += (size_t)(all_match && any_match);
         current_update_data.host_sym_any_matches_total += (size_t)any_match;
         // Update endosymbiont parent/current task performance counts
         utils::AddToCountingMap(
