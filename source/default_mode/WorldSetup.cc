@@ -83,6 +83,10 @@ void SymWorld::Setup() {
   SetupHosts(&POP_SIZE);
   long unsigned int total_syms = POP_SIZE * start_moi;
   SetupSymbionts(&total_syms);
+
+  if (my_config->PHYLOGENY()) {
+    SetupPhylogenyTracking();
+  }
 }
 
 void SymWorld::SetupSpatialStructure() {

@@ -41,7 +41,7 @@ public:
   enum class SPATIAL_STRUCT_MODE { WELL_MIXED, GRID, LOAD };
   static const std::unordered_map<std::string, SPATIAL_STRUCT_MODE> spatial_struct_mode_cfg_mapping;
 
-  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL };
+  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL, TASK_CYCLE_BINNED};
   static const std::unordered_map<std::string, PHYLO_TAXON_TYPE> phylo_taxon_type_cfg_mapping;
 
   enum class TAG_METRIC_TYPE { HAMMING, STREAK, HASH };
@@ -281,9 +281,6 @@ public:
 
     emp_assert(!(my_config->TAG_MATCHING() && my_config->FREE_LIVING_SYMS()));
 
-    if (my_config->PHYLOGENY()) {
-      SetupPhylogenyTracking();
-    }
     if (my_config->TAG_MATCHING()) {
       SetupTagMatching();
     }
@@ -678,7 +675,6 @@ public:
           // bin = num_phylo_bins - (size_t)(bin >= num_phylo_bins);
           return bin;
         };
-        calc_sym_info_fun = calc_host_info_fun;
         break;
       case PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT:
         calc_host_info_fun = [&](Organism& org) {
@@ -1519,7 +1515,8 @@ const std::unordered_map<
     {"interaction-value-binned", PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED},
     {"interaction-value-exact", PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT},
     {"tag", PHYLO_TAXON_TYPE::TAG},
-    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL}
+    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL},
+    {"task-cycle-binned", PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED}
 };
 
 const std::unordered_map<
