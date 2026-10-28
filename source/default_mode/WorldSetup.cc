@@ -169,55 +169,6 @@ void SymWorld::SetupPhylogenyTracking() {
     cfg_taxon_type
   );
   phylo_taxon_type = phylo_taxon_type_cfg_mapping.at(cfg_taxon_type);
-  // NOTE: For now, hosts / symbionts share taxon type mode.
-  switch (phylo_taxon_type) {
-    case PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED:
-      // NOTE: Moved this definition here to centralize where all of these modes are defined.
-      calc_host_info_fun = [&](Organism& org) {
-        const size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
-        // classify orgs into bins base on interaction values,
-        // inclusive of lower bound, exclusive of upper
-        const float size_of_bin = 2.0 / num_phylo_bins;
-        const double int_val = org.GetIntVal();
-        float prog = (int_val + 1);
-        prog = (prog/size_of_bin) + (0.0000000000001);
-        size_t bin = (size_t) prog;
-        if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
-        // bin = num_phylo_bins - (size_t)(bin >= num_phylo_bins);
-        return bin;
-      };
-      calc_sym_info_fun = calc_host_info_fun;
-      break;
-    case PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT:
-      calc_host_info_fun = [&](Organism& org) {
-        return org.GetIntVal();
-      };
-      calc_sym_info_fun = [&](Organism& org) {
-        return org.GetIntVal();
-      };
-      break;
-    case PHYLO_TAXON_TYPE::TAG:
-      calc_host_info_fun = [&](Organism& org) {
-        return org.GetTag().GetValue();
-      };
-
-      calc_sym_info_fun = [&](Organism& org) {
-        return org.GetTag().GetValue();
-      };
-      break;
-    case PHYLO_TAXON_TYPE::INDIVIDUAL:
-      calc_host_info_fun = [&](Organism& org) {
-        return (long unsigned) host_sys->GetNextID();
-      };
-
-      calc_sym_info_fun = [&](Organism& org) {
-        return (long unsigned) sym_sys->GetNextID();
-      };
-      break;
-    default:
-      emp_error("Unimplemented phylogeny taxon type.");
-      break;
-  }
 
   host_sys = emp::NewPtr<host_systematics_t>(GetCalcHostInfoFun());
   sym_sys = emp::NewPtr<sym_systematics_t>(GetCalcSymInfoFun());
