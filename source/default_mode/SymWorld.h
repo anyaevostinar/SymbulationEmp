@@ -41,7 +41,7 @@ public:
   enum class SPATIAL_STRUCT_MODE { WELL_MIXED, GRID, LOAD };
   static const std::unordered_map<std::string, SPATIAL_STRUCT_MODE> spatial_struct_mode_cfg_mapping;
 
-  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL };
+  enum class PHYLO_TAXON_TYPE { INTERACTION_VALUE_BINNED, INTERACTION_VALUE_EXACT, TAG, INDIVIDUAL, TASK_CYCLE_BINNED};
   static const std::unordered_map<std::string, PHYLO_TAXON_TYPE> phylo_taxon_type_cfg_mapping;
 
   enum class TAG_METRIC_TYPE { HAMMING, STREAK, HASH };
@@ -251,7 +251,14 @@ protected:
    */
   void SetupSpatialStructure_Load();
 
+  /**
+   * Purpose: Set up phylogeny taxon binning and data collection.
+   */
   void SetupPhylogenyTracking();
+
+   /**
+   * Purpose: Set up tag distance metrics.
+   */
   void SetupTagMatching();
 
 public:
@@ -274,9 +281,6 @@ public:
 
     emp_assert(!(my_config->TAG_MATCHING() && my_config->FREE_LIVING_SYMS()));
 
-    if (my_config->PHYLOGENY()) {
-      SetupPhylogenyTracking();
-    }
     if (my_config->TAG_MATCHING()) {
       SetupTagMatching();
     }
@@ -651,13 +655,46 @@ public:
    * Input: None
    *
    * Output: The standard function object that determines which bin hosts
-   * should belong to depending on their interaction value
+   * should belong to.
    *
-   * Purpose: To classify hosts based on their interaction value.
+   * Purpose: To classify hosts.
    */
-  fun_calc_info_t GetCalcHostInfoFun() {
-    // NOTE: Probably don't want one of the taxon type modes defined separately from
-    // others?
+  virtual fun_calc_info_t GetCalcHostInfoFun() {
+    switch (phylo_taxon_type) {
+      case PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED:
+        calc_host_info_fun = [&](Organism& org) {
+          const size_t num_phylo_bins = my_config->NUM_PHYLO_BINS();
+          // classify orgs into bins base on interaction values,
+          // inclusive of lower bound, exclusive of upper
+          const float size_of_bin = 2.0 / num_phylo_bins;
+          const double int_val = org.GetIntVal();
+          float prog = (int_val + 1);
+          prog = (prog/size_of_bin) + (0.0000000000001);
+          size_t bin = (size_t) prog;
+          if (bin >= num_phylo_bins) bin = num_phylo_bins - 1;
+          // bin = num_phylo_bins - (size_t)(bin >= num_phylo_bins);
+          return bin;
+        };
+        break;
+      case PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT:
+        calc_host_info_fun = [&](Organism& org) {
+          return org.GetIntVal();
+        };
+        break;
+      case PHYLO_TAXON_TYPE::TAG:
+        calc_host_info_fun = [&](Organism& org) {
+          return org.GetTag().GetValue();
+        };
+        break;
+      case PHYLO_TAXON_TYPE::INDIVIDUAL:
+        calc_host_info_fun = [&](Organism& org) {
+          return (long unsigned) host_sys->GetNextID();
+        };
+        break;
+      default:
+        emp_error("Unimplemented phylogeny taxon type.");
+        break;
+    }
     emp_assert(calc_host_info_fun);
     return calc_host_info_fun;
   }
@@ -666,18 +703,28 @@ public:
    * Input: None
    *
    * Output: The standard function object that determines which bin symbionts
-   * should belong to depending on their interaction value
+   * should belong to.
    *
-   * Purpose: To classify symbionts based on their interaction value.
+   * Purpose: To classify symbionts.
    */
-  fun_calc_info_t GetCalcSymInfoFun() {
-    emp_assert(calc_sym_info_fun);
-    // By default the sym info function is the same as the host one,
-    // but separating them allows us to change the sym info function
-    // to something else if we need to.
-    if (!calc_sym_info_fun) {
-      calc_sym_info_fun = GetCalcHostInfoFun();
+  virtual fun_calc_info_t GetCalcSymInfoFun() {
+    switch (phylo_taxon_type) {
+      // binning function is the same for hosts and symbionts for interaction value and tag phylogenies
+      case PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED:
+      case PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT:
+      case PHYLO_TAXON_TYPE::TAG:
+        calc_sym_info_fun = GetCalcHostInfoFun();
+        break;
+      case PHYLO_TAXON_TYPE::INDIVIDUAL:
+        calc_sym_info_fun = [&](Organism& org) {
+          return (long unsigned) sym_sys->GetNextID();
+        };
+        break;
+      default:
+        emp_error("Unimplemented phylogeny taxon type.");
+        break;
     }
+    emp_assert(calc_sym_info_fun);
     return calc_sym_info_fun;
   }
 
@@ -1468,7 +1515,8 @@ const std::unordered_map<
     {"interaction-value-binned", PHYLO_TAXON_TYPE::INTERACTION_VALUE_BINNED},
     {"interaction-value-exact", PHYLO_TAXON_TYPE::INTERACTION_VALUE_EXACT},
     {"tag", PHYLO_TAXON_TYPE::TAG},
-    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL}
+    {"individual", PHYLO_TAXON_TYPE::INDIVIDUAL},
+    {"task-cycle-binned", PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED}
 };
 
 const std::unordered_map<

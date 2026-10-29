@@ -88,6 +88,11 @@ void SGPWorld::Setup() {
     );
   }
 
+  // Setup phylogeny tracking
+  if (my_config->PHYLOGENY()) {
+    SetupPhylogenyTracking();
+  }
+
   SetupHosts(&POP_SIZE);
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;

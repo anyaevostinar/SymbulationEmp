@@ -64,6 +64,10 @@ public:
     wrapped_world_t::SetupSpatialStructure();
   }
 
+  void SetupPhylogenyTracking() {
+    wrapped_world_t::SetupPhylogenyTracking();
+  }
+
   void SetupHosts(long unsigned int* POP_SIZE) {
     wrapped_world_t::SetupHosts(POP_SIZE);
   }

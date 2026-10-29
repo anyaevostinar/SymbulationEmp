@@ -14,11 +14,12 @@ TEST_CASE( "Host Phylogeny", "[default]" ) {
   config.PHYLOGENY(1);
   config.NUM_PHYLO_BINS(20);
   config.PHYLOGENY_TAXON_TYPE("interaction-value-binned");
-  int int_val = 0;
+  int int_val = 0; 
   sym_world_t world(random, &config);
   world.Setup();
   int world_size = 4;
   world.Resize(world_size);
+
 
   emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
@@ -152,6 +153,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
   sym_world_t world(random, &config);
   int world_size = 20;
   world.Resize(world_size);
+  world.SetupPhylogenyTracking();
 
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
 
@@ -276,6 +278,7 @@ TEST_CASE("Interaction Tracking Phylogeny", "[default]") {
   config.WORLD_WIDTH(grid_side);
   config.WORLD_HEIGHT(grid_side);
   world.SetupSpatialStructure();
+  world.SetupPhylogenyTracking();
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::HostTaxonData>> host_sys = world.GetHostSys();
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
 
@@ -374,6 +377,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
 
   sym_world_t world(random, &config);
   world.SetupSpatialStructure();
+  world.SetupPhylogenyTracking();
 
   emp::HammingMetric<TAG_LENGTH> tag_metric = emp::HammingMetric<TAG_LENGTH>();
 
@@ -575,6 +579,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   int int_val = 0;
   int world_size = 10;
   world.Resize(world_size);
+  world.SetupPhylogenyTracking();
 
   WHEN("Free living symbionts reproduce and die") {
     config.FREE_LIVING_SYMS(1);
@@ -853,6 +858,7 @@ TEST_CASE("Host switch counter", "[default]") {
   int int_val = 0;
   int world_size = 4;
   world.Resize(world_size);
+  world.SetupPhylogenyTracking();
 
   WHEN("A symbiont vertically transmits") {
     config.VERTICAL_TRANSMISSION(1);
@@ -992,6 +998,7 @@ TEST_CASE("Unpruned phylogenies", "[default]") {
   int int_val = 0;
   int world_size = 5;
   world.Resize(world_size);
+  world.SetupPhylogenyTracking();
 
   // set up the lineages
   emp::Ptr<Organism> host_grandparent = emp::NewPtr<Host>(&random, &world, &config, int_val);
