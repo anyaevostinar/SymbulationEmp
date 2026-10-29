@@ -63,7 +63,7 @@
 #include "../test/sgp_mode_test/functional_tests/SGPHost_Tasks.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHost_Reproduce.test.cc"
 #include "../test/sgp_mode_test/functional_tests/SGPHardware_Tasks.test.cc"
-
+#include "../test/sgp_mode_test/functional_tests/SGPPhylogenies.test.cc"
 
 
 

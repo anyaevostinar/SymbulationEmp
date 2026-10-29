@@ -678,6 +678,60 @@ public:
    */
   event_manager_t& GetEventManager() { return event_manager; }
 
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin hosts
+   * should belong to.
+   *
+   * Purpose: To classify hosts.
+   */
+  fun_calc_info_t GetCalcHostInfoFun() override {
+    switch (phylo_taxon_type) {
+      case PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED:
+        calc_host_info_fun = [&](Organism& org) {
+          return std::stoi(
+            static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + 
+            std::to_string(static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetCPUCyclesSinceRepro())
+          );
+        };
+        break;
+      default:
+        calc_host_info_fun = SymWorld::GetCalcHostInfoFun();
+        break;
+    }
+    emp_assert(calc_host_info_fun);
+    return calc_host_info_fun;
+  }
+
+  /**
+   * Input: None
+   *
+   * Output: The standard function object that determines which bin symbionts
+   * should belong to.
+   *
+   * Purpose: To classify symbionts.
+   */
+  fun_calc_info_t GetCalcSymInfoFun() override {
+    switch (phylo_taxon_type) {
+      case PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED:
+        calc_host_info_fun = [&](Organism& org) {
+          return std::stoi(
+            static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + 
+            std::to_string(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetCPUCyclesSinceRepro())
+          );
+        };
+        break;
+      default:
+        calc_sym_info_fun = SymWorld::GetCalcSymInfoFun();
+        break;
+    }
+    emp_assert(calc_sym_info_fun);
+    return calc_sym_info_fun;
+  }
+
+
   /**
    * Input: A host, a symbiont, the value of a task before applying nutrient interaction, and the task id.
    * Output: The change in the points the host will gain from the task after the nutrient interaction.
