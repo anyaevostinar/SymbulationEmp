@@ -716,7 +716,7 @@ public:
   fun_calc_info_t GetCalcSymInfoFun() override {
     switch (phylo_taxon_type) {
       case PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED:
-        calc_host_info_fun = [&](Organism& org) {
+        calc_sym_info_fun = [&](Organism& org) {
           return std::stoi(
             static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + 
             std::to_string(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetCPUCyclesSinceRepro())
