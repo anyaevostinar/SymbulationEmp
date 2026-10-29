@@ -1255,7 +1255,7 @@ public:
    *
    * Purpose: To set all settings in the MUTATION group to 0 for the no-mutation updates.
   */
-  void SetMutationZero() {
+  virtual void SetMutationZero() {
     for (auto& group : my_config->GetGroupSet()) {
       if (group->GetName() == "MUTATION") {
         for (size_t i = 0; i < group->GetSize(); ++i) {

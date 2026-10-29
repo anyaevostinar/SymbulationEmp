@@ -72,7 +72,7 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]") {
   }
   // Run causes segmentation fault core dumped, on update num_updates
   WHEN("World is run") {
-  world.Run();
+    world.RunExperiment();
     REQUIRE(host1.HasSym() == false);
     REQUIRE(host2.HasSym() == false);
   }
@@ -89,5 +89,4 @@ TEST_CASE("SGP Cure Hosts tests", "[sgp]") {
       }
     }
   }
-
 } //TEST_CASE
