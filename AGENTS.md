@@ -1,0 +1,1 @@
+AI agents are not allowed to contribute to this repository. Humans should see the [AI Guidelines](AI) for more information on AI-assistance.
