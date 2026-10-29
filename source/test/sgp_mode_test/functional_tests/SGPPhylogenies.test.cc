@@ -47,45 +47,45 @@ TEST_CASE("Host task-cycle phylogenies are tracked correctly", "[sgp][sgp-functi
             REQUIRE(host_sys->GetNumActive() == 1);
         }
     }
-
+    
     WHEN("A host has a child with the same parent task set but a different cycle count"){
-        sgp_host_t& host_child = static_cast<sgp_host_t&>(*host_parent->Reproduce());
+        emp::Ptr<sgp_host_t> host_child = static_cast<sgp_host_t*>(host_parent->Reproduce().Raw());
 
-        host_child.GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-        host_child.GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
-        host_child.GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro + 1);
+        host_child->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
+        host_child->GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
+        host_child->GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro + 1);
 
-        world.AddOrgAt(&host_child, 1, 0);
+        world.AddOrgAt(host_child, 1, 0);
         THEN("The parent and children are in different taxa"){
-            REQUIRE(host_child.GetTaxon()->GetInfo() == 1000000111);
-            REQUIRE(host_parent->GetTaxon() != host_child.GetTaxon());
+            REQUIRE(host_child->GetTaxon()->GetInfo() == 1000000111);
+            REQUIRE(host_parent->GetTaxon() != host_child->GetTaxon());
         }
     }
     
     WHEN("A host has a child with the a different parent task set but the same cycle count"){
-        sgp_host_t& host_child = static_cast<sgp_host_t&>(*host_parent->Reproduce());
+        emp::Ptr<sgp_host_t> host_child = static_cast<sgp_host_t*>(host_parent->Reproduce().Raw());
 
-        host_child.GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
-        host_child.GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro);
+        host_child->GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
+        host_child->GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro);
 
-        world.AddOrgAt(&host_child, 1, 0);
+        world.AddOrgAt(host_child, 1, 0);
         THEN("The parent and children are in different taxa"){
-            REQUIRE(host_child.GetTaxon()->GetInfo() == 110);
-            REQUIRE(host_parent->GetTaxon() != host_child.GetTaxon());
+            REQUIRE(host_child->GetTaxon()->GetInfo() == 110);
+            REQUIRE(host_parent->GetTaxon() != host_child->GetTaxon());
         }
     }
 
     WHEN("A host has a child with the same parent task set and the same cycle count"){
-        sgp_host_t& host_child = static_cast<sgp_host_t&>(*host_parent->Reproduce());
+        emp::Ptr<sgp_host_t> host_child = static_cast<sgp_host_t*>(host_parent->Reproduce().Raw());
 
-        host_child.GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
-        host_child.GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
-        host_child.GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro);
+        host_child->GetHardware().GetCPUState().SetParentTaskPerformed(not_task_id, true);
+        host_child->GetHardware().GetCPUState().SetParentTaskPerformed(equ_task_id, true);
+        host_child->GetHardware().GetCPUState().SetCPUCyclesSinceRepro(parent_cycles_since_repro);
 
-        world.AddOrgAt(&host_child, 1, 0);
+        world.AddOrgAt(host_child, 1, 0);
         THEN("The parent and children are in the same taxon"){
-            REQUIRE(host_child.GetTaxon()->GetInfo() == host_parent->GetTaxon()->GetInfo());
-            REQUIRE(host_parent->GetTaxon() == host_child.GetTaxon());
+            REQUIRE(host_child->GetTaxon()->GetInfo() == host_parent->GetTaxon()->GetInfo());
+            REQUIRE(host_parent->GetTaxon() == host_child->GetTaxon());
         }
     }
 }
