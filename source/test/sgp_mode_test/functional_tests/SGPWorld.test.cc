@@ -209,6 +209,7 @@ TEST_CASE( "SGP no mutation updates", "[sgp][sgp-functional]") {
       non_mutated_symbiont_offspring.Delete();
       non_mutated_host_offspring.Delete();
     }
+    host.Delete();
   }
 }
 
