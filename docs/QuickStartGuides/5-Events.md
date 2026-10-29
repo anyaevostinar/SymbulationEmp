@@ -5,7 +5,7 @@ You specify what events you want to occur during an experiment via the `EVENTS_C
 
 There is a built in event type `TaskValueEvent` (found in `source/sgp_mode/events/event_types`) that changes the value of a task. You can implement additional event types in the `event_types` folder to change any other aspects of the system as well.
 
-# TaskValueEvents
+## TaskValueEvents
 The `TaskValueEvent` type has many customization options. Here is an annotated version of an events file (note that `//` indicate annotations but are not valid JSON comments, so you can't use this example directly):
 
 ```
@@ -35,7 +35,7 @@ The `TaskValueEvent` type has many customization options. Here is an annotated v
 
 You can create an infinitely recurring events by using -1 (or anything else less than 0) as the stop value, which the system will replace with the value specified in the configuration file for UPDATES.
 
-# New Event Type
+## New Event Type
 To create a new event type, you need to do the following.
 
 1. In `source/sgp_mode/events/event_types` copy the `ExampleEvent.h` and name it appropriately for your new event. Make sure to update the class name as well inside the file.
