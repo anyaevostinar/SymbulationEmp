@@ -418,6 +418,7 @@ void ProcessOutputBuffer() {
     auto& offspring_hw = sym_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();
+    offspring_cpu_state.SetParentCPUCyclesSinceRepro(cpu_state.GetCPUCyclesSinceRepro());
     // Offspring needs to be given parent's (this) task profile
     offspring_cpu_state.SetParentTasksPerformed(
       hardware.GetCPUState().GetTasksPerformed()

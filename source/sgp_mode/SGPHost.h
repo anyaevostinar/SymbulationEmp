@@ -485,6 +485,7 @@ public:
     auto& cpu_state = hardware.GetCPUState();
 
     host_offspring->LineageLength(reproductions + 1);
+    offspring_cpu_state.SetParentCPUCyclesSinceRepro(cpu_state.GetCPUCyclesSinceRepro());
     cpu_state.SetCPUCyclesSinceRepro(0);
     offspring_cpu_state.SetCPUCyclesSinceRepro(0);
     // Offspring needs to be given parent's (this) task profile

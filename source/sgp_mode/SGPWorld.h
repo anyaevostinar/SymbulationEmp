@@ -691,9 +691,9 @@ public:
     switch (phylo_taxon_type) {
       case PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED:
         calc_host_info_fun = [&](Organism& org) {
-          return std::stoi(
-            static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + 
-            std::to_string(static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetCPUCyclesSinceRepro())
+          return std::stod(
+            static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + "." +
+            std::to_string(static_cast<sgp_host_t&>(org).GetHardware().GetCPUState().GetParentCPUCyclesSinceRepro())
           );
         };
         break;
@@ -717,9 +717,9 @@ public:
     switch (phylo_taxon_type) {
       case PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED:
         calc_sym_info_fun = [&](Organism& org) {
-          return std::stoi(
-            static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + 
-            std::to_string(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetCPUCyclesSinceRepro())
+          return std::stod(
+            static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetParentTasksPerformed().ToString() + "." +
+            std::to_string(static_cast<sgp_sym_t&>(org).GetHardware().GetCPUState().GetParentCPUCyclesSinceRepro())
           );
         };
         break;
