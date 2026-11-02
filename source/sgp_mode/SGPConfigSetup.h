@@ -10,7 +10,7 @@
 
 namespace sgpmode {
 
-// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host nameing conventtions
+// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host naming conventions
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 16, "Number of CPU cycles that organisms run every update"),
@@ -64,7 +64,7 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_BASE_TASK_VALUE_PROP, double, 0.5, "Proportion of task value (defined by environment) that parasites receive when they fail to interact with their host."),
 
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
-  VALUE(TASK_ENV_CFG_PATH, std::string, "Default-Config-jsons/diff-reward-env.json", "Json file that provides environment configuration"),
+  VALUE(TASK_ENV_CFG_PATH, std::string, "default-config-jsons/diff-reward-env.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
   VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),

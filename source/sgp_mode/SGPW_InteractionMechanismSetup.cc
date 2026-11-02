@@ -257,19 +257,19 @@ namespace sgpmode {
       before_host_cpu_exec_sig.AddAction(
         [this](sgp_host_t& host) {
           if (!stress_extinction_update) return;
-          
+
           const emp::BitVector& host_task_profile = fun_get_host_task_profile(host);
           bool interact = false;
           auto& endosymbionts = host.GetSymbionts();
           for (size_t sym_i = 0; sym_i < endosymbionts.size(); ++sym_i) {
             // Check if symbiont matches task profile
             emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[sym_i].Raw());
-            
+
             interact = fun_task_profile_compatibility_check(host_task_profile, fun_get_sym_task_profile(*endosym_ptr));
             if (interact) {
               break;
             }
-            
+
           }
           const double death_chance = (interact) ?
           sgp_config.MUTUALIST_DEATH_CHANCE() :
@@ -287,7 +287,7 @@ namespace sgpmode {
         before_host_cpu_exec_sig.AddAction(
           [this](sgp_host_t& host) {
             if (!stress_extinction_update) return;
-            
+
             // base death chance if no symbionts
             double death_chance = sgp_config.BASE_DEATH_CHANCE();
             auto& endosymbionts = host.GetSymbionts();
@@ -323,7 +323,7 @@ namespace sgpmode {
               //We are clearing syms to make sure the host doesn't delete them in its destructor.
               //We can't use vector.clear() because that calls ~Symbiont
               //TODO Ideally we should be able to call SendToGraveyard(host);
-              host.ClearSyms();               
+              host.ClearSyms();
               host.SetDead();
             }
           }
@@ -358,7 +358,6 @@ namespace sgpmode {
               // So, we need to handle the reproduction here (versus putting it into the queue) .
               for (size_t escapee_id : escapee_ids) {
                 emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
-                const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
                 for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
                   emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
                   symbiont_stress_escapees.emplace_back(
@@ -446,7 +445,6 @@ namespace sgpmode {
             // So, we need to handle the reproduction here (versus putting it into the queue) .
             for (size_t escapee_id : escapee_ids) {
               emp::Ptr<sgp_sym_t> endosym_ptr = static_cast<sgp_sym_t*>(endosymbionts[escapee_id].Raw());
-              const emp::BitVector& endosym_task_profile = fun_get_sym_task_profile(*endosym_ptr);
               for (size_t i = 0; i < sgp_config.PARASITE_NUM_OFFSPRING_ON_STRESS_INTERACTION(); ++i) {
                 emp::Ptr<Organism> sym_offspring = endosym_ptr->Reproduce();
                 symbiont_stress_escapees.emplace_back(
@@ -499,9 +497,9 @@ namespace sgpmode {
 
         for (size_t esc_i : escapee_ids) {
           auto& escapee_info = symbiont_stress_escapees[esc_i];
-          emp::WorldPosition pos = SymDoBirth(escapee_info.sym_offspring, escapee_info.sym_parent, escapee_info.escape_location);
+          SymDoBirth(escapee_info.sym_offspring, escapee_info.sym_parent, escapee_info.escape_location);
           //do we want to track success
-        
+
         }
         symbiont_stress_escapees.clear();
         // TODO - add data collection for successful escapes
@@ -830,7 +828,7 @@ namespace sgpmode {
         task_value *= sgp_config.PARASITE_BASE_TASK_VALUE_PROP();
       }
       sym.AddPoints(task_value);
-    };  
+    };
   }
 }
 

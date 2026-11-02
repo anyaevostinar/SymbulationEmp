@@ -52,6 +52,8 @@ EMP_BUILD_CONFIG(SymConfigBase,
     VALUE(SPATIAL_STRUCT_LOAD_MODE, std::string, "matrix", "Expected file format for loaded spatial structure. Options: matrix, edges"),
     VALUE(WORLD_WIDTH, size_t, 100, "Used for grid and well-mixed modes. Width of the world, just multiplied by the height to get total size"),
     VALUE(WORLD_HEIGHT, size_t, 100, "Used for grid and well-mixed modes. Height of world, just multiplied by width to get total size"),
+    VALUE(SPATIAL_DATA_OUTPUT, bool, false, "Should world output by-location spatial data? Warning: turned off by default because these will likely be large files that aren't relevant to many experiments."),
+    VALUE(SPATIAL_DATA_INTERVAL, size_t, 10000, "Timing interval to output spatial data if enabled."),
 
     GROUP(PHYLOGENY_GROUP, "PHYLOGENY"),
     VALUE(PHYLOGENY, bool, 0, "Should the world keep track of host and symbiont phylogenies? (0 for no, 1 for yes)"),
