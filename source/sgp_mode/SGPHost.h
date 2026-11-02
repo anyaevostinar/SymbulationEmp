@@ -463,6 +463,7 @@ public:
           my_world->ApplyHostPoints(*this, task_points, task_id);
           my_world->GetHostTaskSuccesses()[task_id] += 1;
 
+          my_world->TriggerOnHostTaskCredit(*this, task_id);
         }
       }
     }
