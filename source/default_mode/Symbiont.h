@@ -697,7 +697,7 @@ public:
     emp::Ptr<Organism> sym_baby = MakeNew();
     sym_baby->Mutate();
     sym_baby->SetLineageLength(reproductions + 1);
-    if(my_config->PHYLOGENY() == 1) {
+    if(my_config->PHYLOGENY() == 1 && my_world->GetPhylogenyTaxonType() != SymWorld::PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED) {
       my_world->AddSymToSystematic(sym_baby, my_taxon);
       //baby's taxon will be set in AddSymToSystematic
     }

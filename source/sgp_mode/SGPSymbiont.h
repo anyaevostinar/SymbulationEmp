@@ -419,6 +419,7 @@ void ProcessOutputBuffer() {
     auto& offspring_hw = sym_offspring->GetHardware();
     auto& offspring_cpu_state = offspring_hw.GetCPUState();
     auto& cpu_state = hardware.GetCPUState();
+    offspring_cpu_state.SetParentCPUCyclesSinceRepro(cpu_state.GetCPUCyclesSinceRepro());
     // Offspring needs to be given parent's (this) task profile
     offspring_cpu_state.SetParentTasksPerformed(
       hardware.GetCPUState().GetTasksPerformed()
@@ -426,6 +427,9 @@ void ProcessOutputBuffer() {
     offspring_cpu_state.SetParentFirstTaskPerformed(
       hardware.GetCPUState().GetFirstTaskPerformed()
     );
+    if(my_config->PHYLOGENY() == 1 && my_world->GetPhylogenyTaxonType() == SymWorld::PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED) {
+      my_world->AddSymToSystematic(sym_offspring, my_taxon);
+    }
     // Update "lineage" information
     // NOTE - This functionality is shared across symbiont/hosts.
     //        Could move into its own struct that manages/centralizes this logic.

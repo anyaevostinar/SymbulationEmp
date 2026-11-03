@@ -81,6 +81,7 @@ protected:
   // the queue. When the organism dies, its queue slot will be invalidated.
   ReproInfo repro_info;
   size_t cpu_cycles_since_repro = 0;
+  size_t parent_cpu_cycles_since_repro = 0;
 
   emp::vector<size_t> jump_table;
 
@@ -566,6 +567,26 @@ public:
    */
   void SetCPUCyclesSinceRepro(size_t value) {
     cpu_cycles_since_repro = value;
+  }
+
+  /**
+   * Input: None.
+   *
+   * Output: Size_t, number that the parent cycles since repro will be set to
+   *
+   * Purpose: Used to track parent cycles before reproduction
+   */
+  size_t GetParentCPUCyclesSinceRepro() const { return parent_cpu_cycles_since_repro; }
+
+  /**
+   * Input: Size_t, the number that the parent cycles since repro will be set to
+   *
+   * Output: None.
+   *
+   * Purpose: Sets the number of parent cycles that occured before this organism was born 
+   */
+  void SetParentCPUCyclesSinceRepro(size_t value) {
+    parent_cpu_cycles_since_repro = value;
   }
 
   /**
