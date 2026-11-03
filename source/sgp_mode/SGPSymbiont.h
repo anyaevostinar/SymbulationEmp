@@ -68,7 +68,7 @@ public:
     my_world(_world),
     sgp_config(_config)
   {
-    
+
   }
 
   /**
@@ -205,7 +205,7 @@ public:
 
   void AddPoints(double amt) {
     points += amt;
-    
+
     if (points < 0){
       points = 0;
     }
@@ -225,7 +225,7 @@ public:
     if (GetDead()) {
       return;
     }
-    
+
     GetHardware().GetCPUState().SetLocation(pos);
     if(my_host) my_world->TriggerBeforeEndoSymProcessSig(pos, *this, my_host); //Note: this is different than before_endosym_host_process_sig
     // Cash in cycles for this update
@@ -363,11 +363,11 @@ void ProcessOutputBuffer() {
       for (size_t task_id : task_ids) {
         // Is this a valid sym task?
         if (!task_env.IsSymTask(task_id)) continue;
-        
+
         //check first task credit
-        const bool not_first_task = 
-          my_world->GetConfig().SYM_ONLY_FIRST_TASK_CREDIT() && 
-          cpu_state.GetFirstTaskPerformed().Any() && 
+        const bool not_first_task =
+          my_world->GetConfig().SYM_ONLY_FIRST_TASK_CREDIT() &&
+          cpu_state.GetFirstTaskPerformed().Any() &&
           !cpu_state.GetFirstTaskPerformed().Get(task_id);
         if (not_first_task) continue;
 
@@ -398,6 +398,7 @@ void ProcessOutputBuffer() {
         //World handles point movement between hosts and symbionts
         my_world->ApplySymPoints(*this, task_points, task_id);
         my_world->GetSymTaskSuccesses()[task_id] += 1;
+        my_world->TriggerOnSymTaskCredit(*this, task_id);
       }
     }
   }
