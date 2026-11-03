@@ -136,11 +136,11 @@ TEST_CASE("Symbiont task-cycle phylogeny is tracked correctly", "[sgp][sgp-funct
             REQUIRE(sym_sys->GetNumActive() == 1);
         }
     }    
-    
+  
      WHEN("A symbiont has a child with the same parent task set but a different cycle count"){
         parent_cpustate.SetCPUCyclesSinceRepro(parent_cycles_since_repro + 1);
-        parent_cpustate.SetTaskPerformed(not_task_id, true);
-        parent_cpustate.SetTaskPerformed(nor_task_id, true);
+        parent_cpustate.MarkTaskPerformed(not_task_id);
+        parent_cpustate.MarkTaskPerformed(nor_task_id);
 
         emp::Ptr<sgp_sym_t> symbiont_child = static_cast<sgp_sym_t*>(symbiont_parent->Reproduce().Raw());
 
@@ -150,10 +150,10 @@ TEST_CASE("Symbiont task-cycle phylogeny is tracked correctly", "[sgp][sgp-funct
         }
         symbiont_child.Delete();
     }
-    
+ 
     WHEN("A symbiont has a child with the a different parent task set but the same cycle count"){
         parent_cpustate.SetCPUCyclesSinceRepro(parent_cycles_since_repro);
-        parent_cpustate.SetTaskPerformed(nor_task_id, true);
+        parent_cpustate.MarkTaskPerformed(nor_task_id);
 
         emp::Ptr<sgp_sym_t> symbiont_child = static_cast<sgp_sym_t*>(symbiont_parent->Reproduce().Raw());
         
@@ -163,11 +163,11 @@ TEST_CASE("Symbiont task-cycle phylogeny is tracked correctly", "[sgp][sgp-funct
         }
         symbiont_child.Delete();
     }
-
+  
     WHEN("A symbiont has a child with the same parent task set and the same cycle count"){
         parent_cpustate.SetCPUCyclesSinceRepro(parent_cycles_since_repro);
-        parent_cpustate.SetTaskPerformed(not_task_id, true);
-        parent_cpustate.SetTaskPerformed(nor_task_id, true);
+        parent_cpustate.MarkTaskPerformed(not_task_id);
+        parent_cpustate.MarkTaskPerformed(nor_task_id);
 
         emp::Ptr<sgp_sym_t> symbiont_child = static_cast<sgp_sym_t*>(symbiont_parent->Reproduce().Raw());
     
@@ -177,5 +177,6 @@ TEST_CASE("Symbiont task-cycle phylogeny is tracked correctly", "[sgp][sgp-funct
         }
         symbiont_child.Delete();
     }
+
 }
 

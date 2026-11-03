@@ -426,6 +426,9 @@ void ProcessOutputBuffer() {
     offspring_cpu_state.SetParentFirstTaskPerformed(
       hardware.GetCPUState().GetFirstTaskPerformed()
     );
+    if(my_config->PHYLOGENY() == 1 && my_world->GetPhylogenyTaxonType() == SymWorld::PHYLO_TAXON_TYPE::TASK_CYCLE_BINNED) {
+      my_world->AddSymToSystematic(sym_offspring, my_taxon);
+    }
     // Update "lineage" information
     // NOTE - This functionality is shared across symbiont/hosts.
     //        Could move into its own struct that manages/centralizes this logic.
