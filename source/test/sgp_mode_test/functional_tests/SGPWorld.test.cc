@@ -28,6 +28,7 @@ TEST_CASE("A world containing a single infected host and its symbiont is updated
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();
@@ -64,6 +65,7 @@ TEST_CASE("A world containing a single uninfected host is updated correctly", "[
   test_utils::SetWellMixed(config, 4, 0);
   config.TASK_IO_BANK_SIZE(10);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
 
   sgpmode::SGPWorld world(random, &config);
   world.Setup();

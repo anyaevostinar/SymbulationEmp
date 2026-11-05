@@ -29,6 +29,7 @@ TEST_CASE("SGPSymbiont Reproduce", "[sgp][sgp-functional]") {
     size_t not_id = 1;
     sgpmode::SymConfigSGP config;
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_PROFILE_MODE("parent-all");
     config.TASK_IO_BANK_SIZE(10);
     test_utils::SetWellMixed(config, 1, 1);
@@ -111,6 +112,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission", "[sgp][sgp-functional]"){
   config.DATA_INT(26);
   config.VERTICAL_TRANSMISSION(1);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.TASK_IO_BANK_SIZE(10);
   config.CYCLES_PER_UPDATE(4);
   test_utils::SetWellMixed(config, 100, 0);
@@ -251,6 +253,7 @@ TEST_CASE("SGPSymbiont Vertical Transmission off", "[sgp][sgp-functional]"){
   emp::Random random(51);
   sgpmode::SymConfigSGP config;
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.DATA_INT(26);
   config.HOST_REPRO_RES(0);
   config.SYM_VERT_TRANS_RES(0);
@@ -297,6 +300,7 @@ TEST_CASE("SGPSymbiont Horizontal Transmission", "[sgp][sgp-functional]"){
   config.TASK_PROFILE_COMPATIBILITY_MODE("task-any-match");
   config.HORIZONTAL_TRANSMISSION_COMPATIBILITY_MODE("task-profile-compatible");
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.OUSTING(true); // This way, if the offspring happens to try to infect parent's host, the tests still pass because successful horizontal transmission.
   config.CYCLES_PER_UPDATE(4);
 
@@ -534,6 +538,7 @@ TEST_CASE("SGPSymbiont Reproduce tracks lineage task information", "[sgp][sgp-fu
   config.HOST_REPRO_RES(1);
   config.SEED(61);
   config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+  config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
   config.FILE_PATH("SGPSymbiont_test_output");
   config.START_MOI(1); // Initialize host with a symbiont
   config.TASK_IO_UNIQUE_OUTPUT(true);

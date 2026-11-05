@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "task_value",
+      "task_name": "NAND",
+      "action": "change",
+      "value": 25,
+      "timing": "1:2:1",
+      "group": "shared"
+    }
+  ]
+}

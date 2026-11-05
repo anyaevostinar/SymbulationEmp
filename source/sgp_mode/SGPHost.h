@@ -13,6 +13,8 @@
 #include <functional>
 
 
+
+
 namespace sgpmode {
 /**
 * The SignalGP version of the base host
@@ -181,15 +183,13 @@ public:
       points = 0;
     }
   }
-  
+
   void AddPoints(double amt) {
     points += amt;
 
     if (points < 0){
       points = 0;
     }
-
-   
   }
 
   size_t GetCountofMatchingSymsToInteractWith(){
@@ -429,9 +429,9 @@ public:
           if (!task_env.IsHostTask(task_id)) continue;
 
           //check first task credit
-          const bool not_first_task = 
-            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() && 
-            cpu_state.GetFirstTaskPerformed().Any() && 
+          const bool not_first_task =
+            sgp_config->HOST_ONLY_FIRST_TASK_CREDIT() &&
+            cpu_state.GetFirstTaskPerformed().Any() &&
             !cpu_state.GetFirstTaskPerformed().Get(task_id);
           if (not_first_task) continue;
 
@@ -463,6 +463,7 @@ public:
           my_world->ApplyHostPoints(*this, task_points, task_id);
           my_world->GetHostTaskSuccesses()[task_id] += 1;
 
+          my_world->TriggerOnHostTaskCredit(*this, task_id);
         }
       }
     }
@@ -584,8 +585,6 @@ public:
     Host::Mutate();
     // Apply SGP-specific mutations (managed by world)
     my_world->GetMutator().MutateProgram(GetProgram());
-    // TODO - Switch from HostDoMutation() to:
-    //   -> my_world->GetHostMutator().DoMutation(*this);
     // TODO - move Hardware Reset to makenew, keep initializeState (need to reset jumptable)
     // Reset host's hardware
     hardware.Reset(); // NOTE - this function was previously just Initializing state,
