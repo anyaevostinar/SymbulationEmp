@@ -922,6 +922,16 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
     unsigned int towards_gen_1 = 4;
     unsigned int from_gen_1 = 6;
     emp::Ptr<Organism> sym_baby = symbiont->Reproduce();
+    THEN("Offspring tag is different") {
+      REQUIRE(sym_baby->GetFromPartnerCount() > 0);
+      REQUIRE(sym_baby->GetTowardsPartnerCount() > 0);
+    }
+    // Manually setting offspring tag to avoid random fragileness
+    sym_baby->SetTowardsPartnerCount(0);
+    sym_baby->SetFromPartnerCount(0);
+    emp::BitSet<TAG_LENGTH> sym_offspring_tag = emp::BitSet<TAG_LENGTH>("10010000011101110000101000010111");
+    sym_baby->SetTag(sym_offspring_tag);
+    sym_baby->UpdateTagMatching(host, symbiont);
 
     // 00000000000000001111111111111111  // host
     // 00000000111111110000000011111111  // sym parent
@@ -943,6 +953,13 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
     unsigned int from_gen_2 = 6;
     host_2->AddSymbiont(sym_baby);
     emp::Ptr<Organism> sym_grandbaby = sym_baby->Reproduce();
+    // Manually setting offspring tag to avoid random fragileness
+    sym_grandbaby->SetTowardsPartnerCount(towards_gen_1);
+    sym_grandbaby->SetFromPartnerCount(from_gen_1);
+    emp::BitSet<TAG_LENGTH> sym_grandoffspring_tag = emp::BitSet<TAG_LENGTH>("10010000111011111000101011110011");
+    sym_grandbaby->SetTag(sym_grandoffspring_tag);
+    sym_grandbaby->UpdateTagMatching(host_2, sym_baby);
+
 
     // 00000000000000000000000000000000  // host_2 (sym_baby's host)
     // 10010000011101110000101000010111  // sym baby
@@ -963,7 +980,7 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
 
   WHEN("A host reproduces") {
     WHEN("The host parent has a symbiont partner") {
-      random.ResetSeed(11);
+      random.ResetSeed(12);
       host->AddSymbiont(symbiont);
       REQUIRE(host->GetFromPartnerCount() == 0);
       REQUIRE(host->GetTowardsPartnerCount() == 0);
@@ -971,6 +988,17 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
       unsigned int towards_gen_1 = 8;
       unsigned int from_gen_1 = 7;
       emp::Ptr<Organism> host_baby = host->Reproduce();
+      THEN("Offspring tag is different") {
+        REQUIRE(host_baby->GetFromPartnerCount() > 0);
+        REQUIRE(host_baby->GetTowardsPartnerCount() > 0);
+      }
+      // Manually setting offspring tag to avoid random fragileness
+      host_baby->SetTowardsPartnerCount(0);
+      host_baby->SetFromPartnerCount(0);
+      emp::BitSet<TAG_LENGTH> host_offspring_tag = emp::BitSet<TAG_LENGTH>("11100001100100111000111010001111");
+      host_baby->SetTag(host_offspring_tag);
+      host_baby->UpdateTagMatching(symbiont, host);
+
 
       // 00000000111111110000000011111111  // symbiont
       // 00000000000000001111111111111111  // host
@@ -992,6 +1020,13 @@ TEST_CASE("Partner to-from tag evolution tracking", "[default]") {
       unsigned int towards_gen_2 = 7;
       unsigned int from_gen_2 = 9;
       emp::Ptr<Organism> host_grandbaby = host_baby->Reproduce();
+      // Manually setting offspring tag to avoid random fragileness
+      host_grandbaby->SetTowardsPartnerCount(towards_gen_1);
+      host_grandbaby->SetFromPartnerCount(from_gen_1);
+      emp::BitSet<TAG_LENGTH> host_grandoffspring_tag = emp::BitSet<TAG_LENGTH>("00111101010111110001100111001110");
+      host_grandbaby->SetTag(host_grandoffspring_tag);
+      host_grandbaby->UpdateTagMatching(symbiont_2, host_baby);
+
 
       // 00000000000000000000000000000000  // symbiont_2 (host_baby's symbiont)
       // 11100001100100111000111010001111  // host baby

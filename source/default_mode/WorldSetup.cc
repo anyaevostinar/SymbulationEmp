@@ -111,7 +111,7 @@ void SymWorld::SetupSpatialStructure() {
       SetupSpatialStructure_Load();
       break;
     default:
-      emp_error("Given spatial structure mode undefined.");
+      emp::notify::Error("Given spatial structure mode undefined.");
       break;
   }
   setup_spatial_structure = true;
@@ -215,7 +215,7 @@ void SymWorld::SetupPhylogenyTracking() {
       };
       break;
     default:
-      emp_error("Unimplemented phylogeny taxon type.");
+      emp::notify::Error("Unimplemented phylogeny taxon type.");
       break;
   }
 
@@ -316,7 +316,7 @@ void SymWorld::SetupTagMatching() {
         tag_metric = emp::NewPtr<emp::UnifMod<emp::HashMetric<TAG_LENGTH>>>();
         break;
       default:
-        emp_error("Unimplemented tag metric type.");
+        emp::notify::Error("Unimplemented tag metric type.");
         break;
     }
   } else {
@@ -331,7 +331,7 @@ void SymWorld::SetupTagMatching() {
         tag_metric = emp::NewPtr<emp::HashMetric<TAG_LENGTH>>();
         break;
       default:
-        emp_error("Unimplemented tag metric type.");
+        emp::notify::Error("Unimplemented tag metric type.");
         break;
     }
   }

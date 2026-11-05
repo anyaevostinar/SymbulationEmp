@@ -149,9 +149,12 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
   config.PHYLOGENY(1);
   config.NUM_PHYLO_BINS(20);
   int int_val = 0;
+  config.WORLD_HEIGHT(10);
+  config.WORLD_WIDTH(2);
+  config.INIT_POP_SIZE(0);
   sym_world_t world(random, &config);
   int world_size = 20;
-  world.Resize(world_size);
+  world.Setup();
 
   emp::Ptr<emp::Systematics<Organism, taxon_t::info_t, datastruct::SymbiontTaxonData>> sym_sys = world.GetSymSys();
 
@@ -361,6 +364,9 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   config.MUTATION_RATE(1);
   config.PHYLOGENY(1);
   config.TAG_MATCHING(1);
+  config.WORLD_HEIGHT(2);
+  config.WORLD_WIDTH(5);
+  config.INIT_POP_SIZE(0);
   config.PHYLOGENY_TAXON_TYPE("tag");
   config.VERTICAL_TRANSMISSION(0);
   config.HOST_STARTING_TAGS_ONE_PROB(0);

@@ -12,7 +12,7 @@
 #include "cereal/archives/json.hpp"
 
 #include "emp/base/assert_warning.hpp"
-#include "emp/base/error.hpp"
+#include "emp/base/notify.hpp"
 #include "emp/base/vector.hpp"
 
 #include "sgpl/program/Instruction.hpp"
@@ -687,7 +687,7 @@ public:
       std::ofstream os(path);
       cereal::BinaryOutputArchive archive(os);
       archive( program );
-    } else emp_error(
+    } else emp::notify::Error(
       "unknown sgpl::Program file format ", path.extension(), " ", path
     );
   }
