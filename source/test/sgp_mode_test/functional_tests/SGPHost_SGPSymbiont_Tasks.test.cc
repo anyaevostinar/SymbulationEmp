@@ -37,6 +37,7 @@ TEST_CASE("Only first task credit for hosts vs. symbionts","[sgp]"){
     config.TASK_PROFILE_MODE("self-all");
     config.VT_TASK_MATCH(1);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.CYCLES_PER_UPDATE(52);
     config.TASK_IO_BANK_SIZE(10);
     test_utils::SetWellMixed(config, 1, 1);

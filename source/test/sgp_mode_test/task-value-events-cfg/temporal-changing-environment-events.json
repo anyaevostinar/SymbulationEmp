@@ -1,0 +1,12 @@
+{
+  "events": [
+    {
+      "event_type": "task_value",
+      "task_name": ["NAND","NOT", "OR_NOT","AND","OR","AND_NOT","NOR","XOR"],
+      "action": "mult",
+      "value": -1,
+      "timing": "1:50:1",
+      "group": "shared"
+    }
+  ]
+}

@@ -26,6 +26,7 @@ TEST_CASE("SGPSymbiont Normal Nutrient without multiplier", "[sgp][sgp-functiona
     config.NUTRIENT_DONATE_PROP(0.5);
     config.NUTRIENT_STEAL_PROP(0.5);
     config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
     config.TASK_IO_BANK_SIZE(10);
     config.NUTRIENT_INTERACTION_MULTIPLIER(1.0); // for testing, set multiplier to 1 so we can directly compare expected transfer to actual transfer
     test_utils::SetWellMixed(config, 1, 0);

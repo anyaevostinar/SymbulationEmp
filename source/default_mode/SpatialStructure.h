@@ -502,9 +502,9 @@ void ConfigureToroidalGrid(SpatialStructure& structure, size_t width, size_t hei
 
 
 /**
- * Input:
+ * Input: Spatial structure to configure, structure size.
  *
- * Output:
+ * Output: None.
  *
  * Purpose: Build well-mixed structure of given size. Note: It can be expensive
  *          to explicitly represent a fully connected graph. Generally much better

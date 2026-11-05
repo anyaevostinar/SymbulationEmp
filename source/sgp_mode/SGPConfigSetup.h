@@ -10,7 +10,7 @@
 
 namespace sgpmode {
 
-// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host nameing conventtions
+// TODO rename SymConfigSGP to avoid confusion and add clarity with sym/host naming conventions
 EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   GROUP(SGP, "Complex Genomes Settings"),
   VALUE(CYCLES_PER_UPDATE, size_t, 16, "Number of CPU cycles that organisms run every update"),
@@ -31,14 +31,14 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(SGP_MUT_PER_BIT_RATE, double, 0.005, "Per-bit mutation rate for sgp programs"),
 
   GROUP(CUSTOM_PROGRAM, "Custom Program Settings"),
-  VALUE(HOST_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides hosts a custom starting program"),
-  VALUE(SYM_PROGRAM_PATH, std::string, "Default-Config-jsons/NandProgram100.json", "Json file that provides symbionts a custom starting program"),
+  VALUE(HOST_PROGRAM_PATH, std::string, "default-config-jsons/NandProgram100.json", "Json file that provides hosts a custom starting program"),
+  VALUE(SYM_PROGRAM_PATH, std::string, "default-config-jsons/NandProgram100.json", "Json file that provides symbionts a custom starting program"),
 
 
   GROUP(STRESS, "Stress Settings"),
   VALUE(ENABLE_STRESS, bool, false, "Stress interactions enabled?"),
   VALUE(STRESS_TYPE, std::string, "mutualist", "What kind of stress symbionts should be incorporated in stressful environments? (Options: 'mutualist', 'parasite', 'neutral')"),
-  VALUE(STRESS_FREQUENCY, size_t, 300, "How often should stress events occur (in updates)?"),
+  VALUE(STRESS_INTERVAL, size_t, 300, "How many updates between stress events?"),
   VALUE(PARASITE_DEATH_CHANCE, double, 0.75, "What death chance does a parasite confer?"),
   VALUE(MUTUALIST_DEATH_CHANCE, double, 0.0, "What death chance does a mutualist confer?"),
   VALUE(BASE_DEATH_CHANCE, double, 0.75, "What death chance does a host have in the absence of symbionts?"),
@@ -64,16 +64,17 @@ EMP_EXTEND_CONFIG(SymConfigSGP, SymConfigBase,
   VALUE(PARASITE_BASE_TASK_VALUE_PROP, double, 0.5, "Proportion of task value (defined by environment) that parasites receive when they fail to interact with their host."),
 
   GROUP(TASK_ENVIRONMENT, "Task environment settings"),
-  VALUE(TASK_ENV_CFG_PATH, std::string, "Default-Config-jsons/diff-reward-env.json", "Json file that provides environment configuration"),
+  VALUE(TASK_ENV_CFG_PATH, std::string, "default-config-jsons/diff-reward-env.json", "Json file that provides environment configuration"),
   VALUE(TASK_IO_BANK_SIZE, size_t, 100000, "How many possible task input/output combinations to pre-generate?"),
   VALUE(TASK_IO_UNIQUE_OUTPUT, bool, true, "Should each output in the pregenerated io combinations be unique?"),
   VALUE(HOST_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give host credit for one task (whatever they do first)?"),
   VALUE(SYM_ONLY_FIRST_TASK_CREDIT, bool, false, "Only give sym credit for one task (whatever they do first)?"),
 
-  GROUP(TEMP_CHANGING_ENVIRONMENT, "Temporally changing environment settings (task rewards change over time)"),
-  VALUE(ENABLE_TEMP_CHANGING_ENVIRONMENT, bool, false, "Do task reward values change over time?"),
-  VALUE(TEMP_CHANGING_ENVIRONMENT_INTERVAL, size_t, 100, "How many updates elapse between task reward value shuffling?"),
-  VALUE(TEMP_CHANGING_ENVIRONMENT_ORG_TYPE, std::string, "static", "Can organisms sense task reward values? (plastic-both: both symbionts and hosts can sense whether tasks are rewarded; static: neither hosts nor symbiont can sense whether tasks are rewarded)"),
+  GROUP(EVENTS, "Events settings"),
+  VALUE(EVENTS_CFG_PATH, std::string, "events.json", "JSON file that provides event configuration"),
+
+  GROUP(INSTRUCTIONS, "Instruction settings"),
+  VALUE(INCLUDE_INSTRUCTION_SenseTask, bool, false, "Should sense task instruction be included in the instruction set?"),
 
   GROUP(DATA, "Data settings"),
   VALUE(PRINT_INTERVAL, size_t, 1, "How often to print run status")

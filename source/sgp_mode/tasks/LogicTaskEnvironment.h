@@ -4,6 +4,7 @@
 #include "LogicTaskIOBank.h"
 
 #include "../../json/json.hpp"
+#include "../../json/json_utils.h"
 
 #include "emp/base/vector.hpp"
 #include "emp/bits/Bits.hpp"
@@ -63,7 +64,7 @@ protected:
   // TODO - track task performance?
 
   // TODO - move this into util file in json directory
-  
+
   template<typename RET_TYPE>
   RET_TYPE GetVal(
     json_t& json,
@@ -76,16 +77,12 @@ protected:
   }
 
   void SetTaskReqInfo(TaskReqInfo& info, json_t& task_cfg_json) {
-    info.task_value = GetVal<double>(task_cfg_json, "value", 1);
-    info.max_repeats = GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
-    const std::string reward_mode = GetVal<std::string>(task_cfg_json, "reward_mode", "add");
+    info.task_value = sym_json::GetVal<double>(task_cfg_json, "value", 1);
+    info.max_repeats = sym_json::GetVal<size_t>(task_cfg_json, "max_repeats", std::numeric_limits<size_t>::max());
+    const std::string reward_mode = sym_json::GetVal<std::string>(task_cfg_json, "reward_mode", "add");
     emp_assert(emp::Has(this_t::predefined_reward_functions, reward_mode));
     info.fun_calc_task_val = this_t::predefined_reward_functions.at(reward_mode);
   }
-
-  // BuildTaskRewardFun_Add() {
-
-  // }
 
   size_t GetHostTaskReqID(size_t task_id) const {
     emp_assert(IsHostTask(task_id));
@@ -190,23 +187,19 @@ void LogicTaskEnvironment::LoadTasks(const std::string& env_filepath) {
     if (!env_json.contains(cat)) {
       continue;
     }
-    // std::cout << "  Identified " << cat << " tasks:" << std::endl;
     emp_assert(env_json[cat].contains("tasks"));
     auto& cat_tasks = env_json[cat]["tasks"];
     for (auto& task : cat_tasks) {
       emp_assert(task.contains("name"));
-      // std::cout << "    - " << task["name"];
       // If we've already added this task to the task_set, skip.
       if (task_set.HasTask(task["name"])) {
-        // std::cout << std::endl;
         continue;
       }
       // Next, check that this is a valid pre-defined task name.
       if (!LogicTaskSet::IsPredefined(task["name"])) {
-        std::cout << " (invalid). Exiting." << std::endl;
+        std::cout << "Unknown task name " << task["name"] << ". Exiting." << std::endl;
         std::exit(EXIT_FAILURE);
       }
-      // std::cout << std::endl;
       // Task name is valid, add to task_set.
       task_set.AddLogicTask(task["name"]);
     }

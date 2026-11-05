@@ -451,7 +451,7 @@ public:
    *
    * Purpose: To set the organism's world position
    */
-  void SetLocation(emp::WorldPosition _in) { location = _in; }
+  void SetLocation(emp::WorldPosition _in) {location = _in;}
 
   /**
    * Input: None

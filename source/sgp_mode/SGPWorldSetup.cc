@@ -7,11 +7,9 @@
 #include "../utils.h"
 
 #include "sgpl/utility/ThreadLocalRandom.hpp"
-
 #include "emp/datastructs/map_utils.hpp"
 #include "emp/tools/string_utils.hpp"
 #include "emp/math/math.hpp"
-
 
 
 // TODO - assert that sym / host has program
@@ -75,6 +73,12 @@ void SGPWorld::Setup() {
   // Setup any host-symbiont interactions
   SetupHostSymInteractions();
 
+  // Load events
+  SetupEvents();
+
+  // Setup task discovery tracking
+  SetupTaskDiscoveryTracker();
+
   // CureHost signal
   // TODO: move to default? Figure out how to remove duplication
   if (sgp_config.CURE()) {
@@ -87,10 +91,6 @@ void SGPWorld::Setup() {
     );
   }
 
-  if (sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT()) {
-    SetupChangingEnvironment();
-  }
-
   SetupHosts(&POP_SIZE);
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
@@ -99,95 +99,6 @@ void SGPWorld::Setup() {
   CreateDataFiles();
   SnapshotConfig();
   setup = true;
-}
-
-void SGPWorld::SetupChangingEnvironment() {
-  // on setup, set NAND, AND-NOT, OR-NOT to be negative (at update zero)
-  // then during each interval apply *-1 to the changing tasks
-
-  size_t nand_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("NAND")) {
-    nand_task_id = task_env.GetTaskSet().GetID("NAND");
-  }
-  else if (task_env.GetTaskSet().HasTask("nand")) {
-    nand_task_id = task_env.GetTaskSet().GetID("nand");
-  }
-
-  size_t andn_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("AND_NOT")) {
-    andn_task_id = task_env.GetTaskSet().GetID("AND_NOT");
-  }
-  else if (task_env.GetTaskSet().HasTask("and_not")) {
-    andn_task_id = task_env.GetTaskSet().GetID("and_not");
-  }
-  
-  size_t orn_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("OR_NOT")) {
-    orn_task_id = task_env.GetTaskSet().GetID("OR_NOT");
-  }
-  else if (task_env.GetTaskSet().HasTask("or_not")) {
-    orn_task_id = task_env.GetTaskSet().GetID("or_not");
-  }
-  
-  // grab task ids for NOT, AND, OR
-  size_t not_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("NOT")) {
-    not_task_id = task_env.GetTaskSet().GetID("NOT");
-  }
-  else if (task_env.GetTaskSet().HasTask("not")) {
-    not_task_id = task_env.GetTaskSet().GetID("not");
-  }
-
-  size_t and_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("AND")) {
-    and_task_id = task_env.GetTaskSet().GetID("AND");
-  }
-  else if (task_env.GetTaskSet().HasTask("and")) {
-    and_task_id = task_env.GetTaskSet().GetID("and");
-  }
-
-  size_t or_task_id = task_env.GetTaskSet().GetSize();
-  if (task_env.GetTaskSet().HasTask("OR")) {
-    or_task_id = task_env.GetTaskSet().GetID("OR");
-  }
-  else if (task_env.GetTaskSet().HasTask("or")) {
-    or_task_id = task_env.GetTaskSet().GetID("or");
-  }
-  
-  // update 0 will flip nand-andn-orn to rewarded and not-and-or to punished
-  GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
-  GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
-  
-  GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
-  GetTaskEnv().GetSymTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(andn_task_id).task_value;
-  
-  GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
-  GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
-
-  begin_update_sig.AddAction(
-    [this, nand_task_id, andn_task_id, orn_task_id, not_task_id, and_task_id, or_task_id]() {
-      if (GetUpdate() % sgp_config.TEMP_CHANGING_ENVIRONMENT_INTERVAL() == 0) {
-
-        GetTaskEnv().GetHostTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(nand_task_id).task_value;
-        GetTaskEnv().GetHostTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(andn_task_id).task_value;
-        GetTaskEnv().GetHostTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(orn_task_id).task_value;
-
-        GetTaskEnv().GetHostTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(not_task_id).task_value;
-        GetTaskEnv().GetHostTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(and_task_id).task_value;
-        GetTaskEnv().GetHostTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetHostTaskReq(or_task_id).task_value;
-
-        GetTaskEnv().GetSymTaskReq(nand_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(nand_task_id).task_value;
-        GetTaskEnv().GetSymTaskReq(andn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(andn_task_id).task_value;
-        GetTaskEnv().GetSymTaskReq(orn_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(orn_task_id).task_value;
-
-        GetTaskEnv().GetSymTaskReq(not_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(not_task_id).task_value;
-        GetTaskEnv().GetSymTaskReq(and_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(and_task_id).task_value;
-        GetTaskEnv().GetSymTaskReq(or_task_id).task_value = -1 * GetTaskEnv().GetSymTaskReq(or_task_id).task_value;
-
-        
-      }
-    }
-  );
 }
 
 void SGPWorld::DisableConfigurableInstructions() {
@@ -223,7 +134,7 @@ void SGPWorld::DisableConfigurableInstructions() {
 
   // if temporally changing environment are off, or if organisms aren't allowed to sense their environment,
   // disable the SenseTask instruction
-  if (!sgp_config.ENABLE_TEMP_CHANGING_ENVIRONMENT() || sgp_config.TEMP_CHANGING_ENVIRONMENT_ORG_TYPE() == "static") {
+  if (!sgp_config.INCLUDE_INSTRUCTION_SenseTask()) {
     del_inst(
       opcode_rectifier.mapper.begin(),
       opcode_rectifier.mapper.end(),
@@ -250,7 +161,7 @@ void SGPWorld::SetupReproduction() {
     emp::Ptr<Organism> child = org->Reproduce();
     if (child->IsHost()) {
       HostDoBirth(child, org, repro_info.pos);
-    
+
     } else {
       const emp::WorldPosition sym_offspring_pos = SymDoBirth(child, org, repro_info.pos);
       emp::Ptr<sgp_sym_t> sym_parent = static_cast<sgp_sym_t*>(org.Raw());
@@ -421,7 +332,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
         break;
     }
 
-    
+
 
     // NOTE - what about other Start MOI values?
     // - these endosymbionts have empty programs?
@@ -597,11 +508,112 @@ void SGPWorld::SetupTaskEnvironment() {
   );
 }
 
+void SGPWorld::SetupEvents() {
+  // If event file doesn't exist, check if user is using default event setting.
+  // If so, create an empty events file that can be used, and let the user know, then proceed to use an empty
+  // events manager without needing the file.
+  const bool event_file_exists = std::filesystem::exists(sgp_config.EVENTS_CFG_PATH());
+  if (!event_file_exists) {
+    std::cout << "Event file does not exist: " << sgp_config.EVENTS_CFG_PATH() << std::endl;
+    std::string default_events_file_name(sgp_config["EVENTS_CFG_PATH"]->GetDefault());
+    // Strip off "" around default file name
+    emp::remove_chars(default_events_file_name, "\"");
+    if (sgp_config.EVENTS_CFG_PATH() == default_events_file_name) {
+      // User has default file path configured.
+      // Create an empty events file for them, and let them know.
+      GenerateEmptyEventsJSON(default_events_file_name);
+      std::cout << "Generating default events file: " << default_events_file_name << std::endl;
+      std::cout << "Proceeding with no events" << std::endl;
+    } else {
+      emp_assert(false, "Non-default event file does not exist.");
+      std::exit(EXIT_FAILURE);
+    }
+  } else {
+    event_manager.LoadEventsFromJSON(sgp_config.EVENTS_CFG_PATH(), *this);
+  }
+}
+
 void SGPWorld::SetupMutator() {
   // NOTE - can add more flexibility to mutator
   mutator.SetPerBitMutationRate(sgp_config.SGP_MUT_PER_BIT_RATE());
   // NOTE - could make host mutator a functor that could be configured here
   //        same with endosymbionts / etc
+}
+
+void SGPWorld::SetupTaskDiscoveryTracker() {
+  // Reset task discovery tracker with correct number of tasks
+  task_discovery_tracker.Reset(task_env.GetTaskCount());
+  // Configure on_host_task_credit signal
+  // NOTE: Is there a way to "unplug" this action once we're done marking discoveries?
+  on_host_task_credit.AddAction(
+    [this](sgp_host_t& host, size_t task_id) {
+      const bool task_discovered = task_discovery_tracker.IsHostTaskDiscovered(task_id);
+      const bool parent_offspring_discovered = task_discovery_tracker.IsHostParentOffspringTaskDiscovered(task_id);
+      emp_assert(
+        !(!task_discovered && parent_offspring_discovered),
+        "It should never be the case that a parent-offspring pair discovered a task but the task hasn't been marked as discovered by a single host."
+      );
+      // Do nothing if this task has already been fully discovered
+      if (task_discovered && parent_offspring_discovered) return;
+      // If task hasn't been discovered yet, mark it as discovered.
+      if (!task_discovered) {
+        task_discovery_tracker.MarkHostTaskDiscovery(
+          task_id,
+          GetUpdate(),
+          host.GetLocation().GetIndex()
+        );
+      }
+      // If task hasn't been discovered by a parent-offspring pair, check whether
+      //   this host's parent also performed the task. If so, mark it.
+      // Note: this conditional needs to be separate from the previous in case
+      //       we need to mark both situations at once (e.g., on initialization)
+      if (!parent_offspring_discovered) {
+        const bool parent_perf = host.GetHardware().GetCPUState().GetParentTaskPerformed(task_id);
+        if (parent_perf) {
+          task_discovery_tracker.MarkHostParentOffspringTaskDiscovery(
+            task_id,
+            GetUpdate(),
+            host.GetLocation().GetIndex()
+          );
+        }
+      }
+    }
+  );
+
+  // Configure on_sym_task_credit signal
+  on_sym_task_credit.AddAction(
+    [this](sgp_sym_t& sym, size_t task_id) {
+      const bool task_discovered = task_discovery_tracker.IsSymTaskDiscovered(task_id);
+      const bool parent_offspring_discovered = task_discovery_tracker.IsSymParentOffspringTaskDiscovered(task_id);
+      emp_assert(
+        !(!task_discovered && parent_offspring_discovered),
+        "It should never be the case that a parent-offspring pair discovered a task but the task hasn't been marked as discovered by a single symbiont."
+      );
+      // Do nothing if this task has already been fully discovered
+      if (task_discovered && parent_offspring_discovered) return;
+      // Get symbiont location in world
+      const size_t location = sym.GetLocation().GetPopID(); // <- PopID Should contain sym's position in world (or sym pop if free-living)
+      if (!task_discovered) {
+        task_discovery_tracker.MarkSymTaskDiscovery(
+          task_id,
+          GetUpdate(),
+          location
+        );
+      }
+      // If task hasn't been discovered by a parent-offspring pair, check whether
+      //   this symbiont's parent also performed the task. If so, mark it.
+      if (!parent_offspring_discovered) {
+        const bool parent_perf = sym.GetHardware().GetCPUState().GetParentTaskPerformed(task_id);
+        if (parent_perf) {
+          task_discovery_tracker.MarkSymParentOffspringTaskDiscovery(
+            task_id,
+            GetUpdate(),
+            location
+          );
+        }
+      }
+    }
+  );
 }
 
 /**
@@ -638,7 +650,7 @@ void SGPWorld::GenerateDefaultTaskEnvironment(){
       std::cout << "Error: Could not create new environment file" << std::endl;
       std::exit(EXIT_FAILURE);
   }
-  
+
   envFile << R"({
   "shared": {
     "tasks": [
@@ -654,9 +666,9 @@ void SGPWorld::GenerateDefaultTaskEnvironment(){
     ]
   }
 })";
-    
+
   envFile.close();
-  
+
 }
 
 }
