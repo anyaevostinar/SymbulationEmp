@@ -89,6 +89,131 @@ TEST_CASE("A world containing a single uninfected host is updated correctly", "[
   }
 }
 
+TEST_CASE("SGP GetDominantInfo", "[sgp][sgp-functional]"){
+  GIVEN("An SGPWorld with 6 hosts and 3 different genomes"){
+    using world_t = sgpmode::SGPWorld;
+    using cpu_state_t = sgpmode::CPUState<world_t>;
+    using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+    using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+
+    emp::Random random(61);
+    sgpmode::SymConfigSGP config;
+    config.FREE_LIVING_SYMS(0);
+    config.INIT_POP_SIZE(0);
+    test_utils::SetWellMixed(config, 6, 0);
+    config.TASK_IO_BANK_SIZE(10);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+
+    sgpmode::SGPWorld world(random, &config);
+    world.Setup();
+
+    auto& prog_builder = world.GetProgramBuilder();
+
+    size_t nand_host_count = 3;
+    size_t not_host_count = 2;
+    size_t not_nand_host_count = 1;
+    for(size_t i = 0; i < not_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotProgram(100)), i);
+    }
+    for(size_t i = not_host_count; i < not_host_count + nand_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNandProgram(100)), i);
+    }
+    for(size_t i = not_host_count + nand_host_count; i < not_host_count + nand_host_count + not_nand_host_count; i ++){
+      world.AddOrgAt(emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, prog_builder.CreateNotNandProgram(100)), i);
+    }
+
+    WHEN("GetDominantInfo() is called and DOMINANT_COUNT is 2"){
+      config.DOMINANT_COUNT(2);
+
+      emp::vector<std::pair<emp::Ptr<Organism>, size_t>> dominant_organisms = world.GetDominantInfo();  
+
+      program_t& not_program = world.GetOrgPtr(0).DynamicCast<sgp_host_t>()->GetHardware().GetProgram();
+      program_t& nand_program = world.GetOrgPtr(not_host_count).DynamicCast<sgp_host_t>()->GetHardware().GetProgram();
+      //program_t nand_program = builder.LoadProgramFile(path);
+
+      THEN("Hosts with the two most common genomes are written"){
+        // only the config-specified number of dominant organisms should be selected
+        REQUIRE(dominant_organisms.size() == 2);
+
+        // the most dominant program should be NAND
+        REQUIRE(dominant_organisms[0].second == nand_host_count);
+        REQUIRE(dominant_organisms[0].first.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() == nand_program);
+
+        // the second most dominant program should be NOT
+        REQUIRE(dominant_organisms[1].second == not_host_count);
+        REQUIRE(dominant_organisms[1].first.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() == not_program);
+      }
+    }
+  }
+}
+
+TEST_CASE( "SGP no mutation updates", "[sgp][sgp-functional]") {
+  using sym_world_t = test_utils::TestingWorldWrapper<SymWorld>;
+  GIVEN("a world with 1 mutation update and 1 non-mutation update") {
+    using world_t = sgpmode::SGPWorld;
+    using cpu_state_t = sgpmode::CPUState<world_t>;
+    using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
+    using sgp_host_t = sgpmode::SGPHost<hw_spec_t>;
+    using sgp_sym_t = sgpmode::SGPSymbiont<hw_spec_t>;
+    using program_t = typename world_t::sgp_prog_t;
+
+    emp::Random random(61);
+    sgpmode::SymConfigSGP config;
+    config.FREE_LIVING_SYMS(0);
+    config.INIT_POP_SIZE(0);
+    test_utils::SetWellMixed(config, 6, 0);
+    config.TASK_IO_BANK_SIZE(10);
+    config.TASK_ENV_CFG_PATH("source/test/sgp_mode_test/hardware-test-env.json");
+    config.EVENTS_CFG_PATH("source/test/sgp_mode_test/no-events.json");
+    config.WORLD_WIDTH(2);
+    config.WORLD_HEIGHT(2);
+    config.UPDATES(1);
+    config.NO_MUT_UPDATES(1);
+    config.SGP_MUT_PER_BIT_RATE(1);
+
+    sgpmode::SGPWorld world(random, &config);
+    world.Setup();
+
+    auto& prog_builder = world.GetProgramBuilder();
+
+    program_t not_program = prog_builder.CreateNotProgram(100);
+    emp::Ptr<sgpmode::SGPHost<hw_spec_t>> host = emp::NewPtr<sgpmode::SGPHost<hw_spec_t>>(&random, &world, &config, not_program);
+    emp::Ptr<sgpmode::SGPSymbiont<hw_spec_t>> symbiont = emp::NewPtr<sgpmode::SGPSymbiont<hw_spec_t>>(&random, &world, &config, not_program);
+    //world.AddOrgAt(host, 0);
+    host->AddSymbiont(symbiont);
+
+    WHEN("Mutation is still on (prior to no-mutation updates) and hosts & symbionts reproduce"){
+      emp::Ptr<Organism> mutated_symbiont_offspring = symbiont->Reproduce();
+      emp::Ptr<Organism> mutated_host_offspring = host->Reproduce();
+      
+      THEN("The childrens' programs differ from their parents'"){
+        REQUIRE(mutated_host_offspring.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() != host->GetHardware().GetProgram());
+        REQUIRE(mutated_symbiont_offspring.DynamicCast<sgp_sym_t>()->GetHardware().GetProgram() != symbiont->GetHardware().GetProgram());
+      }
+      
+      mutated_symbiont_offspring.Delete();
+      mutated_host_offspring.Delete();
+    }
+
+    WHEN("Mutation is still of (during/after no-mutation updates) and hosts & symbionts reproduce"){
+      world.RunExperiment(false);
+      emp::Ptr<Organism> non_mutated_symbiont_offspring = symbiont->Reproduce();
+      emp::Ptr<Organism> non_mutated_host_offspring = host->Reproduce();
+      
+      THEN("The childrens' programs are identical to their parents'"){
+        REQUIRE(non_mutated_host_offspring.DynamicCast<sgp_host_t>()->GetHardware().GetProgram() == host->GetHardware().GetProgram());
+        REQUIRE(non_mutated_symbiont_offspring.DynamicCast<sgp_sym_t>()->GetHardware().GetProgram() == symbiont->GetHardware().GetProgram());
+      }
+
+      non_mutated_symbiont_offspring.Delete();
+      non_mutated_host_offspring.Delete();
+    }
+    host.Delete();
+  }
+}
+
+
 /* TODO need update CollectCurrentUpdateData to support free living symbionts before uncommenting this test
 
 TEST_CASE("A world containing a single free living symbiont is updated correctly", "[sgp][sgp-functional]") {
