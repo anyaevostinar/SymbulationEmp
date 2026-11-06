@@ -51,6 +51,10 @@ void SGPWorld::CreateDataFiles() {
     std::filesystem::path spatial_output_path = output_dir / ("Spatial" + my_config->FILE_NAME() + ".csv");
     SetupSpatialDataFile(spatial_output_path.string());
   }
+
+  // Setup task discovery file
+  std::filesystem::path task_discovery_output_path = output_dir / ("TaskDiscovery" + my_config->FILE_NAME() + ".csv");
+  SetupTaskDiscoveryDataFile(task_discovery_output_path.string());
 }
 
 emp::DataFile& SGPWorld::SetupOrgCountFile(const std::string& filepath) {
@@ -960,6 +964,16 @@ void SGPWorld::SetupSpatialDataFile(const std::string& filename) {
   // Print header outside of manager's setup in case we need to add more
   //  columns after setup.
   spatial_data_manager.PrintHeaderKeys();
+}
+
+void SGPWorld::SetupTaskDiscoveryDataFile(const std::string& filename) {
+  task_discovery_tracker.SetupOutputFile(filename);
+  // Task discovery file should be output at end of run
+  end_run_sig.AddAction(
+    [this]() {
+      task_discovery_tracker.UpdateOutputFile(*this);
+    }
+  );
 }
 
 } // -- End of sgpmode namespace --
