@@ -41,6 +41,9 @@ int symbulation_main(int argc, char *argv[]) {
   world.Setup();
   world.Run(true);
 
+  if(config.PHYLOGENY() == 1){
+    world.WritePhylogenyFile(config.FILE_PATH()+"Phylogeny_"+config.FILE_NAME()+"_SEED" + std::to_string(config.SEED()) + ".data");
+  }
   world.OutputDominantDataFile();
 
   return 0;

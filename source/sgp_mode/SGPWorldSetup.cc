@@ -91,6 +91,11 @@ void SGPWorld::Setup() {
     );
   }
 
+  // Setup phylogeny tracking
+  if (my_config->PHYLOGENY()) {
+    SetupPhylogenyTracking();
+  }
+
   SetupHosts(&POP_SIZE);
   // NOTE - any way to clean this up a little? Or, add some explanatory comments.
   long unsigned int total_syms = POP_SIZE * start_moi;
@@ -362,6 +367,7 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
         sym_prog,
         sgp_config.SYM_INT()
       );
+
       // TODO - add InjectSymIntoHost to wrap
       // NOTE - Move env io assignment to different signal that is triggered on inject?
       // AssignNewEnvIO(new_sym->GetHardware().GetCPUState()); // Add to AddSymbiont
@@ -374,6 +380,12 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       }
       // NOTE - Do we need to set location in cpu state here?
       new_host->AddSymbiont(new_sym);
+
+      // since we're not using InjectSymbiont, add seeded symbionts here
+      // this assumes AddSymbiont is successful
+      if(my_config->PHYLOGENY() == 1) {
+        AddSymToSystematic(new_sym);
+      }
     }
     // TODO - Add SGPWorld function to wrap inject host function
     // AssignNewEnvIO(new_host->GetHardware().GetCPUState()); // This is in OnPlacement now, so should be fine
