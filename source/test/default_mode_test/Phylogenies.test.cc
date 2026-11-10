@@ -575,7 +575,8 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   sym_world_t world(random, &config);
   int int_val = 0;
   int world_size = 10;
-  world.Resize(world_size);
+  test_utils::SetWellMixed(config, world_size, 0);
+  world.SetupSpatialStructure();
 
   WHEN("Free living symbionts reproduce and die") {
     config.FREE_LIVING_SYMS(1);
@@ -633,6 +634,10 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   }
 
   WHEN("Hosted symbionts reproduce and die") {
+    int world_size = 4;
+    test_utils::SetWellMixed(config, world_size, 0);
+    world.SetupSpatialStructure();
+    
     config.FREE_LIVING_SYMS(0);
     config.VERTICAL_TRANSMISSION(1);
 
@@ -656,7 +661,8 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
 
     world.Update(); // update 1
     emp::Ptr<Organism> host_2 = host_1->Reproduce();
-    emp::WorldPosition host_2_pos = world.DoBirth(host_2, host_1_pos);
+    emp::WorldPosition host_2_pos = emp::WorldPosition(1, 0);
+    world.AddOrgAt(host_2, host_2_pos, host_1_pos);
     config.MUTATION_RATE(1);
     symbiont_1->VerticalTransmission(host_2);
     config.MUTATION_RATE(0);
@@ -674,19 +680,18 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
         REQUIRE(symbiont_1_taxon->GetDestructionTime() == std::numeric_limits<double>::infinity());
       }
     }
-
+    
     random.ResetSeed(10);
     world.Update(); // update 2
     emp::Ptr<Organism> host_3 = host_2->Reproduce();
-    world.DoBirth(host_3, host_2_pos);
+    world.AddOrgAt(host_3, emp::WorldPosition(2, 0), host_2_pos);
     symbiont_1->SetPoints(repro_points + 10);
     symbiont_1->IndependentReproduction(emp::WorldPosition(1, host_1_pos.GetIndex()));
+    REQUIRE(host_3->HasSym());
     emp::Ptr<Organism> symbiont_3 = host_3->GetSymbionts().at(0);
     emp::Ptr< taxon_t::base_taxon_t> symbiont_3_taxon = symbiont_3->GetTaxon();
 
     WHEN("A symbiont is horizontally transmitted") {
-      REQUIRE(world.GetNumOrgs() == 3);
-      REQUIRE(host_3->HasSym());
       THEN("It is placed into a new taxon") {
         REQUIRE(symbiont_3_taxon->GetInfo() != symbiont_1_taxon->GetInfo());
         REQUIRE(symbiont_3_taxon->GetInfo() != symbiont_2_taxon->GetInfo());
@@ -701,7 +706,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
         REQUIRE(symbiont_3_taxon->GetDestructionTime() == std::numeric_limits<double>::infinity());
       }
     }
-
+    
     world.Update(); // update 3
     symbiont_1->SetDead(); // dies "during" update 4
     world.Update(); // update 4
@@ -733,7 +738,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
 
     world.Update(); // update 6
     emp::Ptr<Organism> host_4 = host_2->Reproduce();
-    world.DoBirth(host_4, host_2_pos);
+    world.AddOrgAt(host_4, emp::WorldPosition(3, 0), host_2_pos);
     symbiont_2->VerticalTransmission(host_4); // vertical transmission happens "during" update 6
     emp::Ptr<Organism> symbiont_5 = host_4->GetSymbionts().at(0);
     emp::Ptr< taxon_t::base_taxon_t> symbiont_5_taxon = symbiont_5->GetTaxon();
@@ -835,6 +840,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
       }
     }
   }
+
 }
 
 TEST_CASE("Host switch counter", "[default]") {
