@@ -1011,9 +1011,11 @@ TEST_CASE("Unpruned phylogenies", "[default]") {
   emp::Ptr<Organism> host = host_parent->Reproduce();
 
   emp::WorldPosition grandparent_pos = emp::WorldPosition(0, 0);
+  emp::WorldPosition parent_pos = emp::WorldPosition(1, 0);
+  emp::WorldPosition pos = emp::WorldPosition(2, 0);
   world.AddOrgAt(host_grandparent, grandparent_pos);
-  emp::WorldPosition parent_pos = world.DoBirth(host_parent, grandparent_pos);
-  emp::WorldPosition pos = world.DoBirth(host, parent_pos);
+  world.AddOrgAt(host_parent, parent_pos, grandparent_pos);
+  world.AddOrgAt(host, pos, parent_pos);
 
   REQUIRE(world.GetNumOrgs() == 3);
 
