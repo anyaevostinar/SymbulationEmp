@@ -866,7 +866,7 @@ public:
    *
    * Output: None
    *
-   * Purpose: To check and allow for independent reproduction to occur (eiter horizontal transmission or free-living reproduction)
+   * Purpose: To check and allow for independent reproduction to occur (either horizontal transmission or free-living reproduction)
    */
   void IndependentReproduction(emp::WorldPosition location) {
     if (AttemptIndependentReproduction(location)) {
