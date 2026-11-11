@@ -908,9 +908,7 @@ TEST_CASE("Host switch counter", "[default]") {
     world.AddOrgAt(host_of_offspring, 1, host_of_parent_pos);
     REQUIRE(host_of_parent->GetTaxon()->GetID() == host_of_offspring->GetTaxon()->GetParent()->GetID());
 
-    //host_of_offspring->AddSymbiont(symbiont_parent->Reproduce());
     world.SymDoBirth(symbiont_parent->Reproduce(), symbiont_parent, emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
-    //symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
     REQUIRE(host_of_offspring->HasSym());
 
     emp::Ptr<Organism> symbiont_offspring = host_of_offspring->GetSymbionts().at(0);
