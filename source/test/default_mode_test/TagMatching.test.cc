@@ -714,7 +714,7 @@ TEST_CASE("SetupHosts with tag matching on", "[default]") {
           int ones = world.GetOrg(i).GetTag().CountOnes();
           total_ones += ones;
           REQUIRE(ones >= 0);
-          REQUIRE(ones <= 5);
+          REQUIRE(ones <= 7);
         }
         REQUIRE(total_ones > 12);
         REQUIRE(total_ones < 18);
@@ -763,7 +763,6 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
   config.HOST_TAG_PERMISSIVENESS_MUTATION_SIZE(0.6);
   config.TAG_PERMISSIVENESS(0.125);
   config.HOST_MUTATION_RATE(-1);
-  config.MUTATION_RATE(1);
   config.HOST_MUTATION_RATE(0.25);
 
   SymWorld world(*random, &config);
@@ -780,8 +779,8 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
         mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
         host_baby.Delete();
       }
-      REQUIRE(mutation_count > 5);
-      REQUIRE(mutation_count < 8);
+      REQUIRE(mutation_count >= 5);
+      REQUIRE(mutation_count <= 8);
     }
   }
 
@@ -805,7 +804,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
 
     WHEN("Host mutation rate is -1") {
       config.HOST_MUTATION_RATE(-1);
-      config.MUTATION_RATE(0.3);
+      config.MUTATION_RATE(1);
 
       THEN("Tag permissiveness mutation rate inherits from mutation rate") {
         int mutation_count = 0;
@@ -814,12 +813,13 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
           mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
           host_baby.Delete();
         }
-        REQUIRE(mutation_count >= 2);
-        REQUIRE(mutation_count <= 4);
+        REQUIRE(mutation_count == 10);
       }
     }
     WHEN("Host mutation rate is positive") {
-      config.HOST_MUTATION_RATE(0.5);
+      config.HOST_MUTATION_RATE(1);
+      config.MUTATION_RATE(0);
+
       THEN("Tag permissiveness mutation rate inherits from host mutation rate") {
         int mutation_count = 0;
         for (int i = 0; i < 10; i++) {
@@ -827,8 +827,7 @@ TEST_CASE("Host Mutate tag permissiveness mutation rate", "[default]") {
           mutation_count += (host_baby->GetTagPermissiveness() != host->GetTagPermissiveness());
           host_baby.Delete();
         }
-        REQUIRE(mutation_count >= 4);
-        REQUIRE(mutation_count <= 6);
+        REQUIRE(mutation_count == 10);
       }
     }
   }

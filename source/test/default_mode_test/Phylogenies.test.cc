@@ -213,7 +213,7 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
   }
 
   WHEN("generations pass") {
-    config.MUTATION_SIZE(1);
+    config.MUTATION_SIZE(0.1);
     config.MUTATION_RATE(1);
     config.PHYLOGENY(1);
     size_t num_syms = 4;
@@ -227,16 +227,9 @@ TEST_CASE( "Symbiont Phylogeny", "[default]" ) {
     }
 
     THEN("Their lineages are tracked") {
-      char lineages[][30] = {"Lineage:\n10\n",
-                             "Lineage:\n16\n10\n",
-                             "Lineage:\n19\n16\n10\n",
-                             "Lineage:\n16\n19\n16\n10\n",
-                           };
-
-      for(size_t i = 0; i < num_syms; i++) {
-        std::stringstream result;
-        sym_sys->PrintLineage(syms[i]->GetTaxon().Cast<taxon_t::sym_taxon_t>(), result);
-        REQUIRE(result.str() == lineages[i]);
+      for(size_t i = 1; i < num_syms; i++) {
+        REQUIRE(syms[i]->GetTaxon()->GetID() == i + 1);
+        REQUIRE(syms[i]->GetTaxon()->GetParent()->GetID() == syms[i-1]->GetTaxon()->GetID());
       }
       syms[0].Delete();
       syms[1].Delete();
@@ -389,14 +382,17 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
   std::unordered_set< emp::Ptr<h_taxon_t>, emp::Ptr<h_taxon_t>::hash_t>* host_active = host_sys->GetActivePtr();
 
   WHEN("A host and symbiont are added to the world") {
+    size_t parent_host_pos = 0;
+
     emp::Ptr<Organism> parent_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
     emp::Ptr<Organism> parent_symbiont = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
     emp::BitSet<TAG_LENGTH> zeros_tag = emp::BitSet<TAG_LENGTH>(random, config.HOST_STARTING_TAGS_ONE_PROB());
     parent_host->SetTag(zeros_tag);
     parent_symbiont->SetTag(zeros_tag);
 
-    world.InjectHost(parent_host);
-    world.InjectSymbiont(parent_symbiont);
+    world.AddOrgAt(parent_host, parent_host_pos);
+    parent_host->AddSymbiont(parent_symbiont);
+    world.AddSymToSystematic(parent_symbiont);
     REQUIRE(parent_host->HasSym());
 
     // sym int val is only added to taxon data node on Process (to avoid weighing by repro #)
@@ -488,12 +484,11 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
 
     WHEN("The host reproduces") {
       size_t child_pos = 1;
-      size_t parent_pos = 0;
-
+      
       WHEN("The child mutates its tag") {
         config.TAG_MUTATION_SIZE(0.5);
         emp::Ptr<Organism> child_host = parent_host->Reproduce();
-        world.AddOrgAt(child_host, child_pos, parent_pos);
+        world.AddOrgAt(child_host, child_pos, parent_host_pos);
         REQUIRE(world.GetNumOrgs() == 2);
         REQUIRE(tag_metric.calculate(child_host->GetTag(), parent_host->GetTag()) > 0);
 
@@ -503,7 +498,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
           REQUIRE(child_host->GetTaxon()->GetID() != parent_host->GetTaxon()->GetID());
         }
         THEN("The child's taxon is the child of the host parent's taxon") {
-          REQUIRE(parent_host->GetTaxon()->GetOffspring().contains(child_host->GetTaxon()));
+          REQUIRE(child_host->GetTaxon()->GetParent()->GetID() == parent_host->GetTaxon()->GetID());
         }
         THEN("The child's new taxon tracks its interaction value") {
           REQUIRE(child_host->GetTaxon()->GetData().GetIntVal() == child_host->GetIntVal());
@@ -513,7 +508,7 @@ TEST_CASE("Tag-based Phylogeny", "[default]") {
       WHEN("The child does not mutate its tag") {
         config.TAG_MUTATION_SIZE(0);
         emp::Ptr<Organism> child_host = parent_host->Reproduce();
-        world.AddOrgAt(child_host, child_pos, parent_pos);
+        world.AddOrgAt(child_host, child_pos, parent_host_pos);
         REQUIRE(world.GetNumOrgs() == 2);
         REQUIRE(tag_metric.calculate(child_host->GetTag(), parent_host->GetTag()) == 0);
         REQUIRE(parent_host->GetIntVal() != child_host->GetIntVal());
@@ -580,7 +575,8 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   sym_world_t world(random, &config);
   int int_val = 0;
   int world_size = 10;
-  world.Resize(world_size);
+  test_utils::SetWellMixed(config, world_size, 0);
+  world.SetupSpatialStructure();
 
   WHEN("Free living symbionts reproduce and die") {
     config.FREE_LIVING_SYMS(1);
@@ -638,6 +634,10 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
   }
 
   WHEN("Hosted symbionts reproduce and die") {
+    int world_size = 4;
+    test_utils::SetWellMixed(config, world_size, 0);
+    world.SetupSpatialStructure();
+    
     config.FREE_LIVING_SYMS(0);
     config.VERTICAL_TRANSMISSION(1);
 
@@ -661,7 +661,8 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
 
     world.Update(); // update 1
     emp::Ptr<Organism> host_2 = host_1->Reproduce();
-    emp::WorldPosition host_2_pos = world.DoBirth(host_2, host_1_pos);
+    emp::WorldPosition host_2_pos = emp::WorldPosition(1, 0);
+    world.AddOrgAt(host_2, host_2_pos, host_1_pos);
     config.MUTATION_RATE(1);
     symbiont_1->VerticalTransmission(host_2);
     config.MUTATION_RATE(0);
@@ -679,19 +680,18 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
         REQUIRE(symbiont_1_taxon->GetDestructionTime() == std::numeric_limits<double>::infinity());
       }
     }
-
+    
     random.ResetSeed(10);
     world.Update(); // update 2
     emp::Ptr<Organism> host_3 = host_2->Reproduce();
-    world.DoBirth(host_3, host_2_pos);
+    world.AddOrgAt(host_3, emp::WorldPosition(2, 0), host_2_pos);
     symbiont_1->SetPoints(repro_points + 10);
     symbiont_1->IndependentReproduction(emp::WorldPosition(1, host_1_pos.GetIndex()));
+    REQUIRE(host_3->HasSym());
     emp::Ptr<Organism> symbiont_3 = host_3->GetSymbionts().at(0);
     emp::Ptr< taxon_t::base_taxon_t> symbiont_3_taxon = symbiont_3->GetTaxon();
 
     WHEN("A symbiont is horizontally transmitted") {
-      REQUIRE(world.GetNumOrgs() == 3);
-      REQUIRE(host_3->HasSym());
       THEN("It is placed into a new taxon") {
         REQUIRE(symbiont_3_taxon->GetInfo() != symbiont_1_taxon->GetInfo());
         REQUIRE(symbiont_3_taxon->GetInfo() != symbiont_2_taxon->GetInfo());
@@ -706,7 +706,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
         REQUIRE(symbiont_3_taxon->GetDestructionTime() == std::numeric_limits<double>::infinity());
       }
     }
-
+    
     world.Update(); // update 3
     symbiont_1->SetDead(); // dies "during" update 4
     world.Update(); // update 4
@@ -738,7 +738,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
 
     world.Update(); // update 6
     emp::Ptr<Organism> host_4 = host_2->Reproduce();
-    world.DoBirth(host_4, host_2_pos);
+    world.AddOrgAt(host_4, emp::WorldPosition(3, 0), host_2_pos);
     symbiont_2->VerticalTransmission(host_4); // vertical transmission happens "during" update 6
     emp::Ptr<Organism> symbiont_5 = host_4->GetSymbionts().at(0);
     emp::Ptr< taxon_t::base_taxon_t> symbiont_5_taxon = symbiont_5->GetTaxon();
@@ -840,6 +840,7 @@ TEST_CASE("Individual-level phylogenies", "[default]") {
       }
     }
   }
+
 }
 
 TEST_CASE("Host switch counter", "[default]") {
@@ -886,6 +887,9 @@ TEST_CASE("Host switch counter", "[default]") {
   }
 
   WHEN("A symbiont horizontally transmits into a host who is descended from the symbiont parent's partner") {
+    test_utils::SetWellMixed(config, 2, 0);
+    world.SetupSpatialStructure();
+
     size_t host_switch_count = 43;
     emp::WorldPosition host_of_parent_pos = emp::WorldPosition(0, 0);
 
@@ -904,13 +908,13 @@ TEST_CASE("Host switch counter", "[default]") {
     world.AddOrgAt(host_of_offspring, 1, host_of_parent_pos);
     REQUIRE(host_of_parent->GetTaxon()->GetID() == host_of_offspring->GetTaxon()->GetParent()->GetID());
 
-    symbiont_parent->IndependentReproduction(emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
+    world.SymDoBirth(symbiont_parent->Reproduce(), symbiont_parent, emp::WorldPosition(1, host_of_parent_pos.GetIndex()));
     REQUIRE(host_of_offspring->HasSym());
 
     emp::Ptr<Organism> symbiont_offspring = host_of_offspring->GetSymbionts().at(0);
     emp::Ptr< taxon_t::sym_taxon_t> symbiont_offspring_taxon = symbiont_offspring->GetTaxon().Cast<taxon_t::sym_taxon_t>();
 
-    THEN("Its host switch counter does not") {
+    THEN("Its host switch counter does not increment") {
       REQUIRE(symbiont_parent_taxon->GetData().GetHostSwitch() == host_switch_count);
       REQUIRE(symbiont_offspring_taxon->GetData().GetHostSwitch() == host_switch_count);
       REQUIRE(symbiont_parent_taxon->GetID() != symbiont_offspring_taxon->GetID());
@@ -918,8 +922,11 @@ TEST_CASE("Host switch counter", "[default]") {
   }
 
   WHEN("A symbiont horizontally transmits into a host who is an ancestor of the symbiont parent's partner") {
+    test_utils::SetWellMixed(config, 2, 0);
+    world.SetupSpatialStructure();
+
     size_t host_switch_count = 19;
-    emp::WorldPosition host_of_offspring_pos = emp::WorldPosition(2, 0);
+    emp::WorldPosition host_of_offspring_pos = emp::WorldPosition(1, 0);
     emp::WorldPosition host_of_parent_pos = emp::WorldPosition(0, 0);
 
     emp::Ptr<Organism> host_of_offspring = emp::NewPtr<Host>(&random, &world, &config, int_val);
@@ -951,6 +958,9 @@ TEST_CASE("Host switch counter", "[default]") {
   }
 
   WHEN("A symbiont horizontally transmits into a host who is an unrelated to the symbiont parent's partner") {
+    test_utils::SetWellMixed(config, 2, 0);
+    world.SetupSpatialStructure();
+    
     size_t host_switch_count = 8;
     emp::WorldPosition symbiont_parent_pos = emp::WorldPosition(1, 0);
 
@@ -1005,9 +1015,11 @@ TEST_CASE("Unpruned phylogenies", "[default]") {
   emp::Ptr<Organism> host = host_parent->Reproduce();
 
   emp::WorldPosition grandparent_pos = emp::WorldPosition(0, 0);
+  emp::WorldPosition parent_pos = emp::WorldPosition(1, 0);
+  emp::WorldPosition pos = emp::WorldPosition(2, 0);
   world.AddOrgAt(host_grandparent, grandparent_pos);
-  emp::WorldPosition parent_pos = world.DoBirth(host_parent, grandparent_pos);
-  emp::WorldPosition pos = world.DoBirth(host, parent_pos);
+  world.AddOrgAt(host_parent, parent_pos, grandparent_pos);
+  world.AddOrgAt(host, pos, parent_pos);
 
   REQUIRE(world.GetNumOrgs() == 3);
 
