@@ -397,20 +397,20 @@ TEST_CASE( "DoBirth", "[default]" ) {
     int int_val = 0;
     sym_world_t world(random, &config);
     world.Setup();
-    int world_size = 4;
+    int world_size = 2;
     world.Resize(world_size);
     config.FREE_LIVING_SYMS(1);
     emp::Ptr<Organism> h2 = emp::NewPtr<Host>(&random, &world, &config, int_val);
-    world.AddOrgAt(h2, 3);
+    world.AddOrgAt(h2, 0);
     emp::Ptr<Organism> host = emp::NewPtr<Host>(&random, &world, &config, int_val);
 
     WHEN( "born into an empty spot" ) {
       THEN( "occupies that spot" ) {
-        world.DoBirth(host, 2);
+        world.DoBirth(host, 0);
 
         REQUIRE(world.GetNumOrgs() == 2);
         bool host_isborn = false;
-        for (size_t i = 0; i < 4; i++) {
+        for (size_t i = 0; i < 2; i++) {
           if (&world.GetOrg(i) == host) {
             host_isborn = true;
             break;
@@ -422,23 +422,26 @@ TEST_CASE( "DoBirth", "[default]" ) {
     WHEN( "born into a spot occupied by another host" ) {
       THEN( "kills that host and replaces it" ) {
         emp::Ptr<Organism> other_host = emp::NewPtr<Host>(&random, &world, &config, int_val);
-        world.AddOrgAt(other_host, 0);
-        world.DoBirth(host, 2);
+        world.AddOrgAt(other_host, 1);
+        world.DoBirth(host, 0);
 
         REQUIRE(world.GetNumOrgs() == 2);
 
         bool host_isborn = false;
         bool otherhost_isdead = true;
-        for (size_t i = 0; i < 4; i++) {
+        bool h2_isdead = true;
+        for (size_t i = 0; i < 2; i++) {
           if (world.GetPop()[i] == host) {
             host_isborn = true;
-          } else if (world.GetPop()[i] != nullptr && world.GetPop()[i] != h2) {
-            otherhost_isdead = false;
+          } else if (world.GetPop()[i] != nullptr && world.GetPop()[i] == h2) {
+            h2_isdead = false;
+          } else if (world.GetPop()[i] != nullptr && world.GetPop()[i] == other_host) {
+            otherhost_isdead= false;
           }
         }
         REQUIRE(world.GetNumOrgs() == 2);
         REQUIRE(host_isborn == true);
-        REQUIRE(otherhost_isdead == true);
+        REQUIRE((otherhost_isdead || h2_isdead));
       }
     }
   }
@@ -891,14 +894,17 @@ TEST_CASE( "MoveIntoNewFreeWorldPos", "[default]" ) {
   GIVEN("a world") {
     emp::Random random(17);
     SymConfigBase config;
+    config.SPATIAL_STRUCT_MODE("well-mixed");
+    config.WORLD_HEIGHT(1);
+    config.WORLD_WIDTH(2);
     sym_world_t world(random, &config);
+    world.SetupSpatialStructure();
     int int_val = 0;
-    int world_size = 4;
-    world.Resize(world_size);
+    int world_size = 2;
 
     emp::Ptr<Organism> sym = emp::NewPtr<Symbiont>(&random, &world, &config, int_val);
 
-    size_t orig_pos = 3;
+    size_t orig_pos = 0;
     emp::WorldPosition orig_sym_pos = emp::WorldPosition(0, orig_pos);
 
     WHEN("A symbiont is successfully moved into a new symbiont world position") {

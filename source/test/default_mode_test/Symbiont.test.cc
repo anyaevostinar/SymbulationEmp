@@ -297,7 +297,8 @@ TEST_CASE("mutate", "[default]") {
 
   WHEN("Mutation rate is not zero") {
     double int_val = 0;
-    double orig_infection_chance = 1;
+    double orig_infection_chance = 0.5;
+    config.MUTATION_RATE(1);
     config.MUTATION_SIZE(0.002);
 
     WHEN("free living symbionts are allowed") {
@@ -305,7 +306,7 @@ TEST_CASE("mutate", "[default]") {
       config.SYM_INFECTION_CHANCE(orig_infection_chance);
       emp::Ptr<Symbiont> sym = emp::NewPtr<Symbiont>(random, world, &config, int_val);
       sym->Mutate();
-
+    
       THEN("Mutation occurs and both interaction value and infection chance change") {
         REQUIRE(sym->GetIntVal() != int_val);
         REQUIRE(sym->GetIntVal() <= 1);
