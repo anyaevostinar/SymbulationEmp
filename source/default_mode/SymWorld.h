@@ -1255,7 +1255,7 @@ public:
    *
    * Purpose: To set all settings in the MUTATION group to 0 for the no-mutation updates.
   */
-  void SetMutationZero() {
+  virtual void SetMutationZero() {
     for (auto& group : my_config->GetGroupSet()) {
       if (group->GetName() == "MUTATION") {
         for (size_t i = 0; i < group->GetSize(); ++i) {
@@ -1311,7 +1311,7 @@ public:
     emp_assert(setup_spatial_structure);
     //Loop through updates
     const int num_updates = my_config->UPDATES();
-    for (int i = 0; i < num_updates; i++) {
+    for (int i = 0; i <= num_updates; i++) {
       if (verbose && (i % my_config->DATA_INT()) == 0) {
         std::cout << "Update: "<< i << std::endl;
         std::cout.flush();
