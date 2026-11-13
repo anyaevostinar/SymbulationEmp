@@ -118,6 +118,10 @@ class Organism {
     std::cout << "SetLineageLength called from Organism" << std::endl;
     throw "Organism method called!";
   }
+  virtual void UpdateTagMatching(emp::Ptr<Organism> relevant_host, emp::Ptr<Organism> parent) {
+    std::cout << "UpdateTagMatching called from Organism" << std::endl;
+    throw "Organism method called!";
+  }
   virtual void SetTowardsPartnerCount(size_t _in) {
     std::cout << "SetTowardsPartnerCount called from Organism" << std::endl;
     throw "Organism method called!";

@@ -149,7 +149,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
     parasite->GetHardware().GetCPUState().MarkTaskPerformed(0);
 
     WHEN("A matching parasite sometimes steals all of its host's cycles") {
-      int repeats = 50;
+      int repeats = 1000;
       int total_times_skipped_cycle = 0;
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
@@ -406,7 +406,7 @@ TEST_CASE("Matching mutualists donate cycles to health hosts", "[sgp][sgp-functi
     mutualist->GetHardware().GetCPUState().MarkTaskPerformed(0);
 
     WHEN("A matching mutualist sometimes donates all of its cycles") {
-      int repeats = 50;
+      int repeats = 1000;
       int total_times_gained_cycles = 0;
       for (int i = 0; i < repeats; i++) {
         size_t initial_stack_location = host->GetHardware().GetCPU().GetCore(0).GetProgramCounter();
