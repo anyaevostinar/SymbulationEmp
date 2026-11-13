@@ -930,7 +930,7 @@ public:
         return neighbor_ids;
       }
       default:
-        emp_error("Unknown spatial structure mode");
+        emp::notify::Error("Unknown spatial structure mode");
         return neighbor_ids;
     }
   }
@@ -1196,7 +1196,7 @@ public:
     if (location >= 0 && location < sym_pop.size()) {
       return sym_pop[location];
     } else {
-      emp_error("Attempted to get out of bounds sym.");
+      emp::notify::Error("Attempted to get out of bounds sym.");
       return nullptr;
     }
   }

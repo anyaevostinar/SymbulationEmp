@@ -38,7 +38,7 @@ protected:
   /**
    * Purpose: Matrix specifying whether two positions are connected ([from][to]).
    */
-  emp::vector< emp::vector<bool> > connection_matrix;
+  emp::vector< emp::BitVector > connection_matrix;
 
   /**
    * Input: None
@@ -100,7 +100,7 @@ public:
     connection_matrix.clear();
     connection_matrix.resize(
       num_positions,
-      emp::vector<bool>(num_positions, false)
+      emp::BitVector(num_positions, false)
     );
     for (size_t from = 0; from < num_positions; ++from) {
       const auto& neighbors = ordered_connections[from];
@@ -121,7 +121,7 @@ public:
    * Purpose: Configure spatial structure from a connection matrix
    *          (maps [from][to])
    */
-  void SetStructure(const emp::vector<emp::vector<bool>>& in_struct) {
+  void SetStructure(const emp::vector<emp::BitVector>& in_struct) {
     // Configure connection matrix (copy from parameter)
     const size_t num_positions = in_struct.size();
     connection_matrix = in_struct;
@@ -257,7 +257,7 @@ public:
    *
    * Purpose: Get the spatial structure in adjacency matrix form.
    */
-  const emp::vector<emp::vector<bool>>& GetConnectionMatrix() const {
+  const emp::vector<emp::BitVector>& GetConnectionMatrix() const {
     return connection_matrix;
   }
 
@@ -373,7 +373,7 @@ public:
   void LoadStructureFromMatrix(const std::string& filepath) {
     emp::File file(filepath);
     file.RemoveEmpty();
-    emp::vector< emp::vector<bool> > matrix;
+    emp::vector< emp::BitVector > matrix;
     emp::vector< std::string > line_components;
     for (size_t i = 0; i < file.GetNumLines(); ++i) {
       std::string line_str = file[i];
@@ -388,7 +388,7 @@ public:
       // If here, this line should represent a row
       emp::slice(line_str, line_components, ',');
       matrix.emplace_back(
-        emp::vector<bool>(
+        emp::BitVector(
           line_components.size(),
           false
         )
@@ -515,9 +515,9 @@ void ConfigureFullyConnected(SpatialStructure& structure, size_t size) {
   emp_assert(size > 0, "Size must be greater than 0");
 
   // Create matrix with all possible edges
-  emp::vector< emp::vector<bool> > matrix(
+  emp::vector< emp::BitVector > matrix(
     size,
-    emp::vector<bool>(size, true)
+    emp::BitVector(size, true)
   );
 
   // Remove self-connections

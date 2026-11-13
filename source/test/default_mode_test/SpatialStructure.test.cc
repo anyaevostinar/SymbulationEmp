@@ -37,7 +37,7 @@ TEST_CASE("Can define spatial structure from a connection mapping", "[spatial-st
 TEST_CASE("Can define spatial structure from a connection matrix", "[spatial-structure],[default]") {
   SpatialStructure ring_structure;
 
-  emp::vector< emp::vector<bool> > ring_matrix = {
+  emp::vector< emp::BitVector > ring_matrix = {
     { 0, 1, 0 },
     { 0, 0, 1 },
     { 1, 0, 0 }
@@ -61,7 +61,7 @@ TEST_CASE("Can define spatial structure from a connection matrix", "[spatial-str
 
 TEST_CASE("Can make new connections and remove existing connections", "[spatial-structure],[default]") {
   SpatialStructure ring_structure;
-  emp::vector< emp::vector<bool> > ring_matrix = {
+  emp::vector< emp::BitVector> ring_matrix = {
     { 0, 1, 0 },
     { 0, 0, 1 },
     { 1, 0, 0 }
@@ -102,7 +102,7 @@ TEST_CASE("Can make new connections and remove existing connections", "[spatial-
 
 TEST_CASE("Can make new bi-directional connections and remove existing connections bi-directionally", "[spatial-structure],[default]") {
   SpatialStructure structure;
-  emp::vector< emp::vector<bool> > matrix = {
+  emp::vector< emp::BitVector > matrix = {
     { 0, 0, 0 },
     { 0, 0, 0 },
     { 0, 0, 0 }
