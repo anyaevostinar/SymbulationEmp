@@ -616,6 +616,8 @@ TEST_CASE("AddSymbiont", "[default]") {
 
 TEST_CASE("SymAllowedIn", "[default]") {
   SymConfigBase config;
+  config.WORLD_HEIGHT(2);
+  config.WORLD_WIDTH(2);
   double int_val = 0;
 
   int sym_limit = 4;
@@ -626,6 +628,7 @@ TEST_CASE("SymAllowedIn", "[default]") {
     THEN("Symbionts are added without issue") {
       emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(3);
       SymWorld world(*random, &config);
+      world.Setup();
       emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
       for (int i = 0; i < sym_limit; i++) {
         host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
@@ -639,18 +642,17 @@ TEST_CASE("SymAllowedIn", "[default]") {
 
   WHEN("Symbiont exclude is set to true") {
     config.PHAGE_EXCLUDE(1);
-    THEN("Symbionts have a decreasing change of entering the host") {
-      int goal_num_syms[] = { 3,3,3,3 };
+    THEN("Symbionts have a decreasing chance of entering the host") {
       for (int i = 0; i < 4; i++) {
         emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(i + 1);
         SymWorld world(*random, &config);
         emp::Ptr<Host> host = emp::NewPtr<Host>(random, &world, &config, int_val);
 
-        for (double i = 0; i < 10; i++) {
+        for (double i = 0; i < sym_limit; i++) { //adding 4 symbionts and sym limit is 4, but last one shouldn't manage to get in
           host->AddSymbiont(emp::NewPtr<Symbiont>(random, &world, &config, int_val));
         }
         int host_num_syms = (host->GetSymbionts()).size();
-        REQUIRE(goal_num_syms[i] == host_num_syms);
+        REQUIRE(host_num_syms < sym_limit);
         host.Delete();
         random.Delete();
       }

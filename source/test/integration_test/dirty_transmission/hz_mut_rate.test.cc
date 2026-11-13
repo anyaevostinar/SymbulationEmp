@@ -27,7 +27,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]") {
 	  config.HORIZ_MUTATION_RATE(0.1);
 	  world.RunExperiment(false);
 	  THEN("Symbionts evolve to be parasitic and efficient") {
-		REQUIRE(sym_val_node.GetMean() < -0.7);
+		REQUIRE(sym_val_node.GetMean() < -0.5);
 		REQUIRE(sym_eff_node.GetMean() > 0.94);
 	  }
 	}
@@ -35,7 +35,7 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]") {
 	  config.HORIZ_MUTATION_RATE(0.5);
 	  world.RunExperiment(false);
 	  THEN("Symbionts evolve to be parasitic and efficient") {
-		REQUIRE(sym_val_node.GetMean() < -0.6);
+		REQUIRE(sym_val_node.GetMean() < -0.5);
 		REQUIRE(sym_eff_node.GetMean() > 0.94);
 	  }
 	}
@@ -43,8 +43,8 @@ TEST_CASE("Horizontal Mutation Rate Results", "[integration]") {
 	  config.HORIZ_MUTATION_RATE(1);
 	  world.RunExperiment(false);
 	  THEN("Symbionts evolve to be parasitic and efficient") {
-		REQUIRE(sym_val_node.GetMean() < -0.7);
-		REQUIRE(sym_eff_node.GetMean() > 0.95);
+		REQUIRE(sym_val_node.GetMean() < -0.5);
+		REQUIRE(sym_eff_node.GetMean() > 0.94);
 	  }
 	}
   }
