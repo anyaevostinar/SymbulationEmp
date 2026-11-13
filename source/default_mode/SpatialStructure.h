@@ -305,6 +305,10 @@ public:
    */
   void LoadStructureFromEdgeCSV(const std::string& filepath) {
     emp::File file(filepath);
+    if(file.GetNumLines() == 0) {
+      std::cout << "Spatial structure file " << filepath << " was empty or doesn't exist" << std::endl;
+      exit(-1);
+    }
     // Read header
     std::string header_str = file.front();
     emp::vector<std::string> line;
@@ -373,6 +377,10 @@ public:
   void LoadStructureFromMatrix(const std::string& filepath) {
     emp::File file(filepath);
     file.RemoveEmpty();
+    if(file.GetNumLines() == 0) {
+      std::cout << "Spatial structure file " << filepath << " was empty or doesn't exist" << std::endl;
+      exit(-1);
+    }
     emp::vector< emp::vector<bool> > matrix;
     emp::vector< std::string > line_components;
     for (size_t i = 0; i < file.GetNumLines(); ++i) {
