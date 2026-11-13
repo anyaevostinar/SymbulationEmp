@@ -196,7 +196,7 @@ TEST_CASE( "SGP no mutation updates", "[sgp][sgp-functional]") {
       mutated_host_offspring.Delete();
     }
 
-    WHEN("Mutation is still of (during/after no-mutation updates) and hosts & symbionts reproduce"){
+    WHEN("Mutation is still off (during/after no-mutation updates) and hosts & symbionts reproduce"){
       world.RunExperiment(false);
       emp::Ptr<Organism> non_mutated_symbiont_offspring = symbiont->Reproduce();
       emp::Ptr<Organism> non_mutated_host_offspring = host->Reproduce();
