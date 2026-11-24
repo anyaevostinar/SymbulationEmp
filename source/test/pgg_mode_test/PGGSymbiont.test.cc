@@ -100,9 +100,9 @@ TEST_CASE("PGGProcess", "[pgg]") {
 
   emp::Ptr<emp::Random> random = emp::NewPtr<emp::Random>(9);
   SymConfigPGG config;
-  config.SPATIAL_STRUCT_MODE("well-mixed");
-  PGGWorld w(*random, &config);
-  PGGWorld * world = &w;
+  test_utils::SetEmptyWellMixed(config);
+  emp::Ptr<PGGWorld> world = emp::NewPtr<PGGWorld>(*random, &config);
+  world->Setup();
 
   //add new test for free living sym not moving when it shouldnt
   WHEN("Horizontal transmission is true and points is greater than sym_h_res") {
@@ -189,6 +189,8 @@ TEST_CASE("PGGProcess", "[pgg]") {
     symbiont.Delete();
   }
   random.Delete();
+  world.Delete();
+
 }
 
 TEST_CASE("PGGSymbiont ProcessResources", "[pgg]"){
