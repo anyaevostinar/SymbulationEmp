@@ -121,7 +121,7 @@ TEST_CASE("Health hosts do not have modified cycles when uninfected", "[sgp][sgp
   }
 }
 
-TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-functional][prob]") {
+TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-functional]") {
   using world_t = sgpmode::SGPWorld;
   using cpu_state_t = sgpmode::CPUState<world_t>;
   using hw_spec_t = sgpmode::SGPHardwareSpec<sgpmode::Library, cpu_state_t, world_t>;
