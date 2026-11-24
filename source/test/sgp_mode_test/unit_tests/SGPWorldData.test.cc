@@ -185,7 +185,7 @@ TEST_CASE("SGP mode task discovery data", "[sgp][sgp-functional]") {
       hosted_symbiont->GetHardware().GetCPUState().SetParentTaskPerformed(nand_task_id);
       host->AddSymbiont(hosted_symbiont);
       world.AddOrgAt(host, 0);
-      world.Run();
+      world.RunExperiment();
       THEN("Nand should be discovered and all other tasks should be undiscovered") {
         // Check that nand was marked as discovered, but no others
         for (size_t task_i = 0; task_i < num_tasks; ++task_i) {

@@ -178,6 +178,229 @@ TEST_CASE("ProgramBuilder generates a programs as advertised", "[sgp]") {
     );
   }
 
+  WHEN("creating a NOT program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/NotProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "NOT" },
+      { "NAND", "OR_NOT","AND","OR","AND_NOT","XOR","NOR","EQU" }
+    );
+  }
+
+  WHEN("creating a ORN program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/OrNotProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "OR_NOT" },
+      { "NOT", "NAND","AND","OR","AND_NOT","XOR","NOR","EQU" }
+    );
+  }
+
+  WHEN("creating a AND program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/AndProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "AND" },
+      { "NOT","NAND","OR_NOT","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+  }
+
+  WHEN("creating a OR program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/OrProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "OR" },
+      { "NOT","NAND","OR_NOT","AND","AND_NOT","NOR","XOR","EQU" }
+    );
+  }
+
+  WHEN("creating a AND_NOT program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/AndNotProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "AND_NOT" },
+      { "NOT","NAND","OR_NOT","AND","OR","NOR","XOR","EQU" }
+    );
+  }
+
+  WHEN("creating a NOR program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/NorProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "NOR" },
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","XOR","EQU" }
+    );
+  }
+
+  WHEN("creating a XOR program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/XorProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "XOR" },
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","EQU" }
+    );
+  }
+
+  WHEN("creating a EQU program from path") {
+    hw.Reset();
+    // Set program of organism to something else
+    hw.SetProgram(
+      world.GetProgramBuilder().LoadProgramFile("default-config-jsons/EquProgram100.json")
+    );
+    world.AssignNewEnvIO(hw.GetCPUState());
+
+    // Run organism's hardware for 102 steps
+    hw.RunCPUStep(102);
+    auto& output_buffer = hw.GetCPUState().GetOutputBuffer();
+    CheckTaskProfile(
+      world,
+      hw,
+      {},
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR","EQU" }
+    );
+    REQUIRE(output_buffer.size() > 0);
+    sgp_host.ProcessOutputBuffer();
+    REQUIRE(output_buffer.size() == 0);
+    CheckTaskProfile(
+      world,
+      hw,
+      { "EQU" },
+      { "NOT","NAND","OR_NOT","AND","OR","AND_NOT","NOR","XOR" }
+    );
+  }
 
   WHEN("creating a repro program") {
     hw.Reset();
