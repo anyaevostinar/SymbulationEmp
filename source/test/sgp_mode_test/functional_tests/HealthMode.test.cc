@@ -130,6 +130,7 @@ TEST_CASE("Health host cycles are stolen by matching parasites", "[sgp][sgp-func
     sgpmode::SymConfigSGP config;
     ConfigureHealthTestConfig(config);
     config.HEALTH_TYPE("parasite");
+    config.HORIZ_TRANS(0); //prevent symbionts from ending up in repro queue
     config.HEALTH_INTERACTION_CHANCE(0.5);
     config.PARASITE_CYCLE_LOSS_PROP(1);
     size_t cycles_per_update = 4;
