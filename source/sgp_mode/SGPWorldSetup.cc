@@ -296,11 +296,21 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
   const bool host_prog_file_exists = std::filesystem::exists(sgp_config.HOST_PROGRAM_PATH());
   if (!host_prog_file_exists) {
     if(sgp_config["HOST_PROGRAM_PATH"]->GetDefault() == sgp_config["HOST_PROGRAM_PATH"]->GetLiteralValue()){
-      std::cout << "Default Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
-      std::cout << "Generating now... "  << std::endl;
-      GenerateDefaultProgram(true);
-      std::cout << "Run ./symbulation_sgp again to use new Host program" << std::endl;
-      std::cout << "Exiting.." << std::endl;
+
+      std::filesystem::path prog_path(sgp_config.HOST_PROGRAM_PATH());
+      if(std::filesystem::is_directory(prog_path.parent_path())){
+        std::cout << "Default Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
+        std::cout << "Generating now... "  << std::endl;
+        GenerateDefaultProgram(true);
+        std::cout << "Run ./symbulation_sgp again to use new Host program" << std::endl;
+        std::cout << "Exiting.." << std::endl;
+      }
+      else{
+        std::cout << "Default Host program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+        std::cout << "Directory of Default Host program does not exist..." << std::endl;
+        std::cout << "Please add directory and program or change path for Host program"  << std::endl;
+        std::cout << "Exiting.."  << std::endl;
+      }
     }
     else{
     std::cout << "Host program file does not exist: " << sgp_config.HOST_PROGRAM_PATH() << std::endl;
@@ -340,11 +350,22 @@ void SGPWorld::SetupHosts(long unsigned int* POP_SIZE) {
       const bool sym_prog_file_exists = std::filesystem::exists(sgp_config.SYM_PROGRAM_PATH());
       if (!sym_prog_file_exists) {
         if(sgp_config["SYM_PROGRAM_PATH"]->GetDefault() == sgp_config["SYM_PROGRAM_PATH"]->GetLiteralValue()){
-          std::cout << "Default Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
-          std::cout << "Generating now... "  << std::endl;
-          GenerateDefaultProgram(false);
-          std::cout << "Run ./symbulation_sgp again to use new Symbiont program" << std::endl;
-          std::cout << "Exiting.." << std::endl;
+          
+           std::filesystem::path prog_path(sgp_config.SYM_PROGRAM_PATH());
+          if(std::filesystem::is_directory(prog_path.parent_path())){
+            std::cout << "Default Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+            std::cout << "Generating now... "  << std::endl;
+            GenerateDefaultProgram(false);
+            std::cout << "Run ./symbulation_sgp again to use new Symbiont program" << std::endl;
+            std::cout << "Exiting.." << std::endl;
+          }
+          else{
+            std::cout << "Default Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
+            std::cout << "Directory of Default Symbiont program does not exist..." << std::endl;
+            std::cout << "Please add directory and program or change path for Symbiont program"  << std::endl;
+            std::cout << "Exiting.."  << std::endl;
+          }
+    
         }
         else{
         std::cout << "Symbiont program file does not exist: " << sgp_config.SYM_PROGRAM_PATH() << std::endl;
